@@ -15,7 +15,7 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += ( 'trees', )
+INSTALLED_APPS += ( 'trees', 'lingcod.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857
