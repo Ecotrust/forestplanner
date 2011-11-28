@@ -1,0 +1,9 @@
+*.pyc
+settings_local.py
+*.log
+*.orig
+mediaroot/*
+wsgi.py
+data/*
+env/*
+OpenLayers*
