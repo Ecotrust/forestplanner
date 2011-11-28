@@ -65,6 +65,18 @@ def stands(request):
             fcids.append(cat.category)
             fcid_counts.append(cat.count)
 
+        # Find the tree_live record of all FCIDs
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+        cursor.execute("SELECT FCID, SCIENTIFIC_NAME, HT_M, BA_M2 FROM TREE_LIVE WHERE FCID IN (%s) ORDER BY FCID, BA_M2 DESC" % ','.join([str(f) for f in fcids]) )
+        rows = cursor.fetchall()
+        tree_live =  "<table>"
+        tree_live += "<tr><th>FCID</th><th>Species</th><th>Height (m)</th><th>Basal Area (m<sup>2</sup>)</th></tr>" 
+        for r in rows:
+            tree_live += "<tr><td>%s</td><td>%s</td><td>%s</td><td>%s</td></tr>" % r
+        tree_live += "</table>"
+
+
         logger.debug(geom.extent)
         dem = RasterDataset.objects.get(name="dem")
         stats = zonal_stats(geom, dem)
@@ -81,7 +93,7 @@ def stands(request):
         aspect = RasterDataset.objects.get(name="aspect")
         stats = zonal_stats(geom, aspect)
         stats.save()
-        aspect = stats.avg
+        aspect = stats.median
         if aspect is None: aspect = 0
 
         return """
@@ -94,10 +106,16 @@ def stands(request):
                     "slope": %s,
                     "aspect": %s,
                     "fcids": [%s],
-                    "fcid_counts": [%s]
+                    "fcid_counts": [%s],
+                    "tree_live_html": "%s"
                    }
                 }
-        """ % (geom.geojson, new_geom.area, elev, slope, aspect, ','.join([str(f) for f in fcids]), ','.join([str(f) for f in fcid_counts]))
+        """ % (geom.geojson, new_geom.area, 
+                elev, slope, aspect, 
+                ','.join([str(f) for f in fcids]), 
+                ','.join([str(f) for f in fcid_counts]),
+                tree_live
+               )
 
     collection = """{
               "type": "FeatureCollection", 
