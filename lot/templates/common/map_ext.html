@@ -15,8 +15,8 @@
 
 {% block head %}
     <style type="text/css">
-        #loading {
-            display: none;
+        #loading{
+            display: inline;
         }
         .todo {
             padding:15px 10px 15px 60px;
@@ -95,6 +95,7 @@
     <script type="text/javascript">
         var map, controls;
         var stands;
+        var processed_stands;
         var currentStep = 1;
         var steps = [undefined]; // start with a blank to make it 1-indexed
 
@@ -144,7 +145,19 @@
                 renderers: renderer
             });
 
-            map.addLayers([stands]);
+            var styleMap = new OpenLayers.StyleMap(OpenLayers.Util.applyDefaults(
+                                {fillColor: "green", fillOpacity: 1, strokeColor: "black"},
+                                        OpenLayers.Feature.Vector.style["default"]));
+
+            processed_stands = new OpenLayers.Layer.Vector("Processed Stands", 
+                    {
+                        renderers: renderer, 
+                        style: { 'fillColor': '#00ff00', 'fillOpacity': 0.4, 
+                                 'strokeColor': 'white', 'strokeOpacity': 0.7 }
+                    }
+            );
+
+            map.addLayers([stands, processed_stands]);
 
             controls = {
                 poly: new OpenLayers.Control.DrawFeature(stands,
@@ -164,8 +177,7 @@
 
             gotoStep(currentStep, 0);
 
-            $('#submit_stands').click( function() {
-            });
+            $('#loading').hide();
 
         }; //end init
 
@@ -186,9 +198,10 @@
                 var geojson_format = new OpenLayers.Format.GeoJSON();
                 var len=stands.features.length;
                 if (len == 0) {
-                    alert("Please draw at least one stand");
+                    alert("Please draw a stand");
                     return false;
                 }
+                $('#loading').css("display", "inline");  //show();
                 var f;
                 var stands_json = [];
                 for ( var i=0; i<len; ++i ){
@@ -197,15 +210,23 @@
                 }
 
                 console.log("Submit Polygons to server"); 
-                $('#loading').show();
                 $.ajax({
                     url: "/trees/stands/", 
                     type: 'POST',
                     data: { 'stands': stands_json }, 
                     success: function(data) {
                         controls['poly'].deactivate();
+                        processed_stands.removeAllFeatures();
                         stands.removeAllFeatures();
-                        stands.addFeatures(geojson_format.read(data));
+                        processed_stands.addFeatures(geojson_format.read(data));
+                        $('#stand_attributes').html( 
+                            'area :: ' + data['features'][0]['properties']['area'] + '<br/>' +
+                            'elevation :: ' + data['features'][0]['properties']['elevation'] + '<br/>' +
+                            'slope :: ' + data['features'][0]['properties']['slope'] + '<br/>' +
+                            'aspect :: ' + data['features'][0]['properties']['aspect'] + '<br/>' +
+                            'fcids :: ' + data['features'][0]['properties']['fcids'] + '<br/>' +
+                            'fcid_counts :: ' + data['features'][0]['properties']['fcid_counts']
+                        );
                     },
                     dataType: 'json',
                     async: false
@@ -218,6 +239,8 @@
                 $('#loading').hide();
             } else if (to == 2) {
                 console.log("Start digitizing");
+                stands.removeAllFeatures();
+                processed_stands.removeAllFeatures();
                 controls['poly'].activate();
             } else if (to == 1 && from == 2) {
                 console.log("Stop digitizing");
@@ -255,9 +278,6 @@
             li.addClass('nav_visited');
             li.removeClass('nav');
             $(step).show();
-
-
-
         };
         
         $(init);
@@ -305,43 +325,28 @@
                 </div>
 
                 <div class="step" id="step2" title="Step 2: Delineate Stand">
-                <p> 
-                Next, delineate the parcel into individual stands of trees. 
-                Draw a line on the map that defines the edge or boundary of a stand and continue clicking in a clockwise direction 
-                until you've mapped the stand.  When you're done, double click on the final point. 
-                </p>
-                <p> Repeat for as many stands as necessary </p>
-                
-                <p class="todo"> Add, Edit, Delete, Management controls for multiple stands. </p>
-                <p class="todo"> Topology; dealing with gaps and slivers of adjacent stands </p>
-                <p class="todo"> Extract unharvestable area such as stream buffer BMPs</p>
-
-                <div style="padding: 10px;"><a href="#" class="button"><span id="submit_stands">Submit Stands</span></a></div>
-
-                <!--
-                2)	Delineate Stands
-                a.	Parcel displayed as geojson in client
-                b.	User digitizes lines to split up OR user uploads
-
-                c.	Processing:
-                i.	Build polygons
-                ii.	Union with Stream Buffers
-                iii.	Assign each stand to the TreeAnalysis 
-                iv.	Run raster stats on each stand to derive slope, aspect, elev
-                -->
+                    <p> 
+                    Next, delineate the parcel into individual stands of trees. 
+                    Draw a line on the map that defines the edge or boundary of a stand and continue clicking in a clockwise direction 
+                    until you've mapped the stand.  When you're done, double click on the final point. 
+                    </p>
+                    <p> Repeat for as many stands as necessary </p>
+                    <p class="todo"> Add, Edit, Delete, Management controls for multiple stands. </p>
+                    <p class="todo"> Topology; dealing with gaps and slivers of adjacent stands </p>
+                    <p class="todo"> Extract unharvestable area such as stream buffer BMPs</p>
                 </div>
 
                 <div class="step" id="step3" title="Step 3: Attribute Stands">
-                3)	Attribute Stands manually
-                a.	"We built X stands, Y riperain buffers. Now information about each one"
-                b.	species, age class, density, dbh, height
+                    <h4> Stand Attributes </h4>
+                    <div id="stand_attributes"></div>
+                    <p class="todo"> Allow user to override attributes </p>
                 </div>
 
                 <div class="step" id="step4" title="Step 4: FIA Plot data">
-                4)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
+                    4)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
                 </div>
                 <div class="step" id="step5" title="Step 5: blah data">
-                4)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
+                    5)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
                 </div>
             </div>
 

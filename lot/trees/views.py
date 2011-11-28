@@ -4,7 +4,13 @@ from django.contrib.gis.geos import GEOSGeometry
 from trees.models import *
 from itertools import izip
 from django.db import connection
+from lingcod.raster_stats.models import zonal_stats, RasterDataset
+from lingcod.common.utils import get_logger
+from django.conf import settings
 import json
+from django.conf import settings
+
+logger = get_logger()
 
 def properties_list(request):
     parcels = Parcel.objects.all()
@@ -43,13 +49,55 @@ def stands(request):
         stand_geoms.append(stand_geom)
 
     def get_json(geom):
+        gnn = RasterDataset.objects.get(name="gnn")
+        # Assume srid is same as client, need to transform to gnn srs
+        geom.srid = settings.GEOMETRY_CLIENT_SRID
+        raster_proj4 = '+proj=aea +lat_1=43 +lat_2=48 +lat_0=34 +lon_0=-120 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
+        new_geom = geom.transform(raster_proj4, clone=True)
+        stats = zonal_stats(new_geom, gnn)
+        stats.save()
+        total_pixels = stats.pixels
+        if total_pixels is None:
+            raise Exception("No pixels found, check projection and make sure input geom overlaps the raster extent")
+        fcids = []
+        fcid_counts = []
+        for cat in stats.categories.all():
+            fcids.append(cat.category)
+            fcid_counts.append(cat.count)
+
+        logger.debug(geom.extent)
+        dem = RasterDataset.objects.get(name="dem")
+        stats = zonal_stats(geom, dem)
+        stats.save()
+        elev = stats.avg
+        if elev is None: elev = 0
+
+        slope = RasterDataset.objects.get(name="slope")
+        stats = zonal_stats(geom, slope)
+        stats.save()
+        slope = stats.avg
+        if slope is None: slope = 0
+
+        aspect = RasterDataset.objects.get(name="aspect")
+        stats = zonal_stats(geom, aspect)
+        stats.save()
+        aspect = stats.avg
+        if aspect is None: aspect = 0
+
         return """
                 {
                   "geometry": %s, 
                   "type": "Feature", 
-                  "properties": {"test": "works!"}
+                  "properties": {
+                    "area": %s,
+                    "elevation": %s,
+                    "slope": %s,
+                    "aspect": %s,
+                    "fcids": [%s],
+                    "fcid_counts": [%s]
+                   }
                 }
-        """ % geom.geojson
+        """ % (geom.geojson, new_geom.area, elev, slope, aspect, ','.join([str(f) for f in fcids]), ','.join([str(f) for f in fcid_counts]))
 
     collection = """{
               "type": "FeatureCollection", 
