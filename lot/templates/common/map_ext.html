@@ -15,6 +15,30 @@
 
 {% block head %}
     <style type="text/css">
+        #tree_live_results {
+            height:250px;
+            overflow:scroll;
+        }
+        table
+        {
+            background: #fff;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 9px;
+            margin: 10px; 
+        }
+        th
+        {
+            font-size: 10px;
+            font-weight: normal;
+            padding: 10px 8px;
+            border-bottom: 2px solid #6678b1;
+        }
+        td
+        {
+            border-bottom: 1px solid #ccc;
+            padding: 6px 8px;
+        }
         #loading{
             display: inline;
         }
@@ -227,6 +251,7 @@
                             'fcids :: ' + data['features'][0]['properties']['fcids'] + '<br/>' +
                             'fcid_counts :: ' + data['features'][0]['properties']['fcid_counts']
                         );
+                        $('#tree_live_results').html(data['features'][0]['properties']['tree_live_html']);
                     },
                     dataType: 'json',
                     async: false
@@ -343,10 +368,14 @@
                 </div>
 
                 <div class="step" id="step4" title="Step 4: FIA Plot data">
-                    4)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
+                    <h4>Plot/Inventory data from FIA</h4>
+                    <div id="tree_live_results"></div>
+                    <p class="todo"> Allow user to enter own tree inventory</p>
+
                 </div>
-                <div class="step" id="step5" title="Step 5: blah data">
-                    5)	Enter Plot/Inventory data OR grab from FIA (simulate plot data)
+                <div class="step" id="step5" title="Step 5: Run G&Y Model">
+                    <p class="todo"> Fire off growth and yield model and present the results</p>
+                    <img src="/media/common/images/svs.png" width="360"/>
                 </div>
             </div>
 
