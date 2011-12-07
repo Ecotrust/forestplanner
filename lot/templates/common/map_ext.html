@@ -39,8 +39,15 @@
             border-bottom: 1px solid #ccc;
             padding: 6px 8px;
         }
-        #loading{
-            display: inline;
+        .loading{
+            top: -244px; 
+            left: 384px; 
+            position: relative;
+            display: block;
+            background-image: url('/media/common/images/ajax-loader-dark.gif'); 
+            background-repeat: no-repeat;
+            width: 32px;
+            height: 32px;
         }
         .todo {
             padding:15px 10px 15px 60px;
@@ -201,110 +208,119 @@
 
             gotoStep(currentStep, 0);
 
-            $('#loading').hide();
+            $('.loading')
+                .hide()
+                .ajaxStart(function() {
+                    controls['poly'].deactivate();
+                    var loading_html = '<img src="/media/common/images/ajax-loader.gif" />';
+                    $('#stand_attributes').html(loading_html);
+                    $('#tree_live_results').html(loading_html);
+                    $(this).show();
+                })
+                .ajaxStop(function() {
+                    $(this).hide();
+                })
+            ;
+            
+            $('#nav_next').live('click', function(e) {
+                e.preventDefault();
+                gotoStep(currentStep + 1, currentStep);
+            });
+
+            $('#nav_prev').live('click', function(e) {
+                e.preventDefault();
+                gotoStep(currentStep - 1, currentStep);
+            });
+
+            function gotoStep(to, from) {
+                var continue_steps = true;
+                // Validate and perform actions
+                if (to == 3 && from == 2) {
+                    var geojson_format = new OpenLayers.Format.GeoJSON();
+                    var len=stands.features.length;
+                    if (len == 0) {
+                        alert("Please draw a stand");
+                        return false;
+                    }
+                    var f;
+                    var stands_json = [];
+                    for ( var i=0; i<len; ++i ){
+                        f = stands.features[i]; 
+                        stands_json.push(geojson_format.write(f));
+                    }
+
+                    console.log("Submit Polygons to server"); 
+                    $.ajax({
+                        url: "/trees/stands/", 
+                        type: 'POST',
+                        data: { 'stands': stands_json }, 
+                        success: function(data) {
+                            processed_stands.removeAllFeatures();
+                            stands.removeAllFeatures();
+                            processed_stands.addFeatures(geojson_format.read(data));
+                            $('#stand_attributes').html( 
+                                'area :: ' + data['features'][0]['properties']['area'] + '<br/>' +
+                                'elevation :: ' + data['features'][0]['properties']['elevation'] + '<br/>' +
+                                'slope :: ' + data['features'][0]['properties']['slope'] + '<br/>' +
+                                'aspect :: ' + data['features'][0]['properties']['aspect'] + '<br/>' +
+                                'fcids :: ' + data['features'][0]['properties']['fcids'] + '<br/>' +
+                                'fcid_counts :: ' + data['features'][0]['properties']['fcid_counts']
+                            );
+                            $('#tree_live_results').html(data['features'][0]['properties']['tree_live_html']);
+                        },
+                        dataType: 'json',
+                        async: true
+                    })
+                    .error( function(e) { 
+                        console.log(e);
+                        alert("An error occured trying to record stand data... Please try again."); 
+                        continue_steps = false;
+                    });
+                } else if (to == 2) {
+                    console.log("Start digitizing");
+                    stands.removeAllFeatures();
+                    processed_stands.removeAllFeatures();
+                    controls['poly'].activate();
+                } else if (to == 1 && from == 2) {
+                    console.log("Stop digitizing");
+                    controls['poly'].deactivate();
+                }
+
+                if (!continue_steps) {
+                    return false;
+                }
+
+                // Switch steps
+                console.log('switch steps');
+                step = steps[to];
+                if (step === undefined) {
+                    return false;
+                } 
+                currentStep = to;
+                if (currentStep <= 1) {
+                    $('#nav_prev').addClass('nav_disabled');
+                    $('#nav_next').removeClass('nav_disabled');
+                } else if (currentStep == steps.length-1) {
+                    $('#nav_prev').removeClass('nav_disabled');
+                    $('#nav_next').addClass('nav_disabled');
+                } else {
+                    $('#nav_prev').removeClass('nav_disabled');
+                    $('#nav_next').removeClass('nav_disabled');
+                }
+
+                $('.step').each( function () {
+                    $(this).hide();
+                    $("li#nav_" + $(this).attr('id')).removeClass('nav_selected');
+                });
+                var li = $("li#nav_" + $(step).attr('id'));
+                li.addClass('nav_selected');
+                li.addClass('nav_visited');
+                li.removeClass('nav');
+                $(step).show();
+            };
 
         }; //end init
 
-        $('#nav_next').live('click', function(e) {
-            e.preventDefault();
-            gotoStep(currentStep + 1, currentStep);
-        });
-
-        $('#nav_prev').live('click', function(e) {
-            e.preventDefault();
-            gotoStep(currentStep - 1, currentStep);
-        });
-
-        function gotoStep(to, from) {
-            var continue_steps = true;
-            // Validate and perform actions
-            if (to == 3 && from == 2) {
-                var geojson_format = new OpenLayers.Format.GeoJSON();
-                var len=stands.features.length;
-                if (len == 0) {
-                    alert("Please draw a stand");
-                    return false;
-                }
-                $('#loading').css("display", "inline");  //show();
-                var f;
-                var stands_json = [];
-                for ( var i=0; i<len; ++i ){
-                    f = stands.features[i]; 
-                    stands_json.push(geojson_format.write(f));
-                }
-
-                console.log("Submit Polygons to server"); 
-                $.ajax({
-                    url: "/trees/stands/", 
-                    type: 'POST',
-                    data: { 'stands': stands_json }, 
-                    success: function(data) {
-                        controls['poly'].deactivate();
-                        processed_stands.removeAllFeatures();
-                        stands.removeAllFeatures();
-                        processed_stands.addFeatures(geojson_format.read(data));
-                        $('#stand_attributes').html( 
-                            'area :: ' + data['features'][0]['properties']['area'] + '<br/>' +
-                            'elevation :: ' + data['features'][0]['properties']['elevation'] + '<br/>' +
-                            'slope :: ' + data['features'][0]['properties']['slope'] + '<br/>' +
-                            'aspect :: ' + data['features'][0]['properties']['aspect'] + '<br/>' +
-                            'fcids :: ' + data['features'][0]['properties']['fcids'] + '<br/>' +
-                            'fcid_counts :: ' + data['features'][0]['properties']['fcid_counts']
-                        );
-                        $('#tree_live_results').html(data['features'][0]['properties']['tree_live_html']);
-                    },
-                    dataType: 'json',
-                    async: false
-                })
-                .error( function(e) { 
-                    console.log(e);
-                    alert("An error occured trying to record stand data... Please try again."); 
-                    continue_steps = false;
-                });
-                $('#loading').hide();
-            } else if (to == 2) {
-                console.log("Start digitizing");
-                stands.removeAllFeatures();
-                processed_stands.removeAllFeatures();
-                controls['poly'].activate();
-            } else if (to == 1 && from == 2) {
-                console.log("Stop digitizing");
-                controls['poly'].deactivate();
-            }
-
-            if (!continue_steps) {
-                return false;
-            }
-
-            // Switch steps
-            console.log('switch steps');
-            step = steps[to];
-            if (step === undefined) {
-                return false;
-            } 
-            currentStep = to;
-            if (currentStep <= 1) {
-                $('#nav_prev').addClass('nav_disabled');
-                $('#nav_next').removeClass('nav_disabled');
-            } else if (currentStep == steps.length-1) {
-                $('#nav_prev').removeClass('nav_disabled');
-                $('#nav_next').addClass('nav_disabled');
-            } else {
-                $('#nav_prev').removeClass('nav_disabled');
-                $('#nav_next').removeClass('nav_disabled');
-            }
-
-            $('.step').each( function () {
-                $(this).hide();
-                $("li#nav_" + $(this).attr('id')).removeClass('nav_selected');
-            });
-            var li = $("li#nav_" + $(step).attr('id'));
-            li.addClass('nav_selected');
-            li.addClass('nav_visited');
-            li.removeClass('nav');
-            $(step).show();
-        };
-        
         $(init);
     </script>
 {% endblock %}
@@ -314,22 +330,8 @@
     <div class="container">
         <h1 id="title"> Forestry Land Owner's Tool Demo</h1>
         <div class="themap">
-            <!--
-            <div id="controls"> 
-                <ul id="controlToggle"> 
-                    <li> 
-                        <input type="radio" name="type" value="none" id="noneToggle"
-                            onclick="toggleControl(this);" checked="checked" /> 
-                        <label for="noneToggle">navigate</label> 
-                    </li> 
-                    <li> 
-                        <input type="radio" name="type" value="line" id="lineToggle" onclick="toggleControl(this);" /> 
-                        <label for="lineToggle">draw line</label> 
-                    </li> 
-                </ul> 
-            </div> 
-            -->
             <div id="map"></div>
+            <div class="loading"></div>
         </div>
         <div id="wizard" class="thepanel">
             <div>
@@ -339,14 +341,8 @@
             <hr/>
             <div id="step_container">
                 <div class="step" id="step1" title="Step 1: Locate Property">
-                <!--
-                1)	Locate Property 
-                a.	By APN
-                b.	Assumption: Already have spatial representations of property, single polygon
-                c.	Processing:  TreesAnalysis gets a parcel
-                -->
-                <p> Using the map controls on the right, zoom in to the extent of your property. </p>
-                <p class="todo"> Search by placename, coordinates or APN </p>
+                    <p> Using the map controls on the right, zoom in to the extent of your property. </p>
+                    <p class="todo"> Search by placename, coordinates or APN </p>
                 </div>
 
                 <div class="step" id="step2" title="Step 2: Delineate Stand">
@@ -386,9 +382,5 @@
 
          </div>
     </div>
-
-    <div id="loading">Loading...</div>
-
 {% endblock %}
-
 
