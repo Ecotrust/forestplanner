@@ -1,0 +1,131 @@
+/*sch_inputs.aml      aml developed for producing inputs for the 2100 
+/*                    scheudling model.
+
+/*MMM, SFA, 2005
+
+/*                   input files required for the scheduling model are
+/*                         attribute file with id, acres, owner
+/*                         adjacency file with id, adjacent_poly_id 
+/*                         gy results summary file with plot_id, volume (bf) cut, Rx, offset, and period
+/*                                  rx will change for different scenarios
+/*                         gy results are actually tracked in defferent program(s)
+
+&args scen
+&echo &on
+
+/*should be run from the stand_delin directory
+
+/*start by procing poly data
+&call proc_poly
+&call proc_gy
+
+&return
+
+/*===============================================================================
+
+
+/*===============================================================================
+/*===============================================================================
+&routine proc_poly
+/*===============================================================================
+/*===============================================================================
+
+/*get rid of files
+&if [exists t1 -cover] &then kill t1 all  /*this removes interim info files as well
+&if [exists testadj.txt -file] &then &sys del testadj.txt 
+&if [exists %scen%_pat.txt -file] &then &sys del %scen%_pat.txt 
+copy stand_mngt t1
+
+/*convert the pal to get adjacency info file 
+palinfo t1 t1.adj1
+
+/*perform frequency to remove duplicate
+&data arc frequency t1.adj1 t1.adj
+      unit
+      adjacent
+
+      y
+      y
+
+      y
+      y
+&end  /*data block
+
+/*add items to remove universal poly
+additem t1.pat t1.pat sch_ref 8 8 I
+/*additem t1.pat t1.pat alt_rx_code 3 3 I
+additem t1.adj t1.adj sch_ref 8 8 i
+additem t1.adj t1.adj adj_ref 8 8 i
+
+/*now go into INFO, calc out new items and output to files
+
+/*&set the ucase variable for info output
+  &sv uscen = [upcase %scen%]
+&data arc INFO
+   arc
+   &ECHO &ON
+   SEL T1.PAT
+   CA SCH_REF = T1# - 1
+   CALC $COMMA-SWITCH = -1
+   RES SCH_REF > 0
+   RES OWN_TYPE = ''
+   MOVE 'NA' TO OWN_TYPE
+   ASEL
+   RES STAND_ID = 0
+   CALC STAND_ID = 1
+   ASEL
+   CALC ACRES = AREA * 0.0002471054
+   RES SCH_REF > 0
+   RES STAND_ID NE 151
+   RES STAND_ID NE 112
+   OUTPUT ..\%scen%_pat.txt
+
+   PRINT SCH_REF,',',ACRES,',',OWN_TYPE,',',STAND_TEXT_IMP,',',%uscen%_RX_CODE
+   SEL T1.ADJ
+   CA SCH_REF = UNIT - 1
+   CA ADJ_REF = ADJACENT - 1
+   CALC $COMMA-SWITCH = -1
+   RES SCH_REF > 0
+   RES ADJ_REF > 0
+   OUTPUT ..\adj.txt
+   PRINT SCH_REF,',',ADJ_REF
+   Q STOP
+
+&end /*data block
+
+
+&return
+
+/*===============================================================================
+
+
+
+/*===============================================================================
+/*===============================================================================
+&routine proc_gy
+/*===============================================================================
+/*===============================================================================
+
+
+&return
+
+/*===============================================================================
+
+&goto skip_calcs
+   RES ALT_RX3  = 'AB' OR ALT_RX3 = 'AMB' OR ALT_RX3  = 'prorata alt'
+   CALC ALT_RX_CODE = 1
+   ASEL
+   RES ALT_RX3  = 'AF' OR ALT_RX3  = 'AF SNC' OR ALT_RX3  = 'SNC'
+   CALC ALT_RX_CODE = 2
+   ASEL
+   RES ALT_RX3 = 'AMF'
+   CALC ALT_RX_CODE = 3
+   ASEL
+   RES ALT_RX3 = 'NT' 
+   CALC ALT_RX_CODE = 5
+   ASEL
+   RES ALT_RX3 = 'RMZ'
+   CALC ALT_RX_CODE = 4
+   ASEL
+
+&label skip_calcs
