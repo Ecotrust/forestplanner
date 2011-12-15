@@ -13,3 +13,5 @@ Decision support tools, growth/yield and carbon modeling for forest land owners.
 
 - Matthew Perry (perrygeo)
 - Mike Mertens (mmertens)
+- Ryan Hodges (rhodges)
+- Ken Vollmer (kvollmer)
