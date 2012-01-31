@@ -7,6 +7,5 @@ urlpatterns = patterns('',
     url(r'^parcel/(?P<pk>\d+).json$', parcel_geojson, name='trees-parcel_geojson'),
     url(r'^construct_stands/$', construct_stands, name='trees-construct_stands'),
     url(r'^stands/$', stands, name='trees-stands'),
-    url(r'^stand/$', stand, name='stand'),
     url(r'^stands_json/$', stands_json, name='trees-stands_json'),
 )
