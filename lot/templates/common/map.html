@@ -41,13 +41,13 @@
         {% block layersConfig %}
             // setup which kml files are shown in the data layers panel
             {% if is_studyregion %}
-                lingcod.addLayer('{% url studyregion-kml %}', {setExtent: true});            
+                madrona.addLayer('{% url studyregion-kml %}', {setExtent: true});            
             {% endif %}
             {% if is_public_layers %}        
-                lingcod.addLayer('{% url public-data-layers %}');            
+                madrona.addLayer('{% url public-data-layers %}');            
             {% endif %}
             {% if user.is_authenticated and is_privatekml %}
-                lingcod.addLayer('{% url layers-privatekml-list session_key=session_key %}');            
+                madrona.addLayer('{% url layers-privatekml-list session_key=session_key %}');            
             {% endif %}
         {% endblock layersConfig %}
 
@@ -69,21 +69,21 @@
         {% block addToOptions %}{% endblock addToOptions %}
 
         $(document).ready(function(){
-            lingcod.init(options);
+            madrona.init(options);
             {% block js_ready %}{% endblock %}
             {% if camera and publicstate %}
-            $(lingcod).bind('geReady', function() {
+            $(madrona).bind('geReady', function() {
                 var camera = ge.getView().copyAsCamera(ge.ALTITUDE_RELATIVE_TO_GROUND);
                 {% for key, value in camera.items %}camera.set{{key}}({{value}});
                 {% endfor %}
                 ge.getView().setAbstractView(camera);
             });
-            $(lingcod).bind('publicReady',  function() {
+            $(madrona).bind('publicReady',  function() {
                 // Find the public layer tree
                 var tree = null;
-                for(var i=0; i<lingcod.layers.length; i++){
-                    if(lingcod.layers[i].url.indexOf('public') != -1) {
-                        tree = lingcod.layers[i].tree;
+                for(var i=0; i<madrona.layers.length; i++){
+                    if(madrona.layers[i].url.indexOf('public') != -1) {
+                        tree = madrona.layers[i].tree;
                         break;
                     }
                 }

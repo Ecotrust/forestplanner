@@ -1,5 +1,5 @@
 # Django settings for lot project.
-from lingcod.common.default_settings import *
+from madrona.common.default_settings import *
 
 SECRET_KEY = 'v%d&go+gr6zk-)rlm78n1ah$f92b(wb@eus#43f!)((3^+0n95'
 
@@ -15,7 +15,7 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += ( 'trees', 'lingcod.raster_stats', 'map2d')
+INSTALLED_APPS += ( 'trees', 'madrona.raster_stats', 'map2d')
 
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857

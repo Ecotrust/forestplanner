@@ -4,8 +4,8 @@ from django.contrib.gis.geos import GEOSGeometry
 from trees.models import *
 from itertools import izip
 from django.db import connection
-from lingcod.raster_stats.models import zonal_stats, RasterDataset
-from lingcod.common.utils import get_logger
+from madrona.raster_stats.models import zonal_stats, RasterDataset
+from madrona.common.utils import get_logger
 from django.conf import settings
 import json
 from django.conf import settings

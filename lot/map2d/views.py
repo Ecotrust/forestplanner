@@ -5,16 +5,16 @@ from django.db import connection
 from django.conf import settings
 from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
-from lingcod.common import default_mimetypes as mimetypes
-from lingcod.news.models import Entry
-from lingcod.common.utils import valid_browser
-from lingcod.features import user_sharing_groups
-from lingcod.studyregion.models import StudyRegion
-from lingcod.layers.models import PublicLayerList, PrivateKml
-from lingcod.layers.views import has_privatekml
-from lingcod.features.views import has_features
-from lingcod.raster_stats.models import zonal_stats, RasterDataset
-from lingcod.common.utils import get_logger
+from madrona.common import default_mimetypes as mimetypes
+from madrona.news.models import Entry
+from madrona.common.utils import valid_browser
+from madrona.features import user_sharing_groups
+from madrona.studyregion.models import StudyRegion
+from madrona.layers.models import PublicLayerList, PrivateKml
+from madrona.layers.views import has_privatekml
+from madrona.features.views import has_features
+from madrona.raster_stats.models import zonal_stats, RasterDataset
+from madrona.common.utils import get_logger
 from itertools import izip
 import json
 import datetime
