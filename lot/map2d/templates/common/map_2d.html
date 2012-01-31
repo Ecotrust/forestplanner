@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
+<style type="text/css">
+      html { height: 100%; width: 100%; }
+      body { height: 90%; width: 100%; /* padding-top: 40px; */ }
+      div.container-fluid { height: 100%; /* margin-top:40px; */ }
+      div.outermap { height: 100%; }
+
+      div.sidebar {
+          left: 10px !important; 
+          width: 400px !important;
+          margin-top: 56px !important;
+      }
+      div.content {
+          height: 100%; 
+          margin-left: 410px !important; 
+          margin-top: 56px !important; 
+      }
+ 
+    #map {
+        height: 100%;
+        border: 1px solid #ccc;
+    }
+    .baseLbl {
+        font-size: 115%;
+        font-weight: bold;
+        padding-top: 10px; 
+        padding-bottom: 10px; 
+    }
+    .dataLbl {
+        font-size: 115%;
+        font-weight: bold;
+        padding-top: 20px; 
+        padding-bottom: 10px; 
+    }
+    .right {
+        text-align:right;
+    }
+    .map-modal {
+        margin-top: 15px; 
+    }
+</style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
+<script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-modal.js"></script>
+<script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
+<script src="/media/OpenLayers.js"></script>
+
+
+<script>
+$(document).ready(function() {
+   $('.topbar').dropdown();
+   $('.tabs').tabs();
+   $('.pills').pills();
+});
+</script>
+
+    <script type="text/javascript">
+        var map, controls;
+        var stands;
+        var currentStep = 1;
+        var steps = [undefined]; // start with a blank to make it 1-indexed
+
+        function init() {
+            map = new OpenLayers.Map('map');
+            var switcher = new OpenLayers.Control.LayerSwitcher({
+                'div': OpenLayers.Util.getElement('tab_data'),
+                'roundedCorner': false,
+                'displayClass': 'mylayer'
+            });
+            map.addControl(switcher);
+
+            var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
+            var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20});
+            var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
+
+            var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                        "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                        "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                        "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
+            var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                            "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                            "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                            "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+            
+            var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
+            var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
+        
+            map.addLayers([gsat, gphy, ghyb]);
+            map.addLayer(baseOSM);
+            map.addLayer(baseAerial);
+
+            map.setCenter(new OpenLayers.LonLat(-124.38, 42.8).transform(
+                new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 13);
+            
+            for (var i=map.layers.length-1; i>=0; --i) {
+                map.layers[i].animationEnabled = false;
+            };
+
+            // Add stands
+            var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+            renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+            var new_styles = new OpenLayers.StyleMap({
+                "default": new OpenLayers.Style(null, {
+                    rules: [
+                        new OpenLayers.Rule({
+                            symbolizer: {
+                                "Polygon": {
+                                    fillColor: "green",
+                                    fillOpacity: 0.25,
+                                    strokeWidth: 1,
+                                    strokeOpacity: 1,
+                                    strokeColor: "#44ff00"
+                                },
+                            }
+                        })
+                    ]
+                }),
+                "select": new OpenLayers.Style({
+                    fillColor: "#44ff00",
+                    strokeOpacity: 1,
+                    strokeColor: "#ffcc00"
+                }),
+                "temporary": new OpenLayers.Style(null, {
+                    rules: [
+                        new OpenLayers.Rule({
+                            symbolizer: {
+                                "Point": {
+                                    pointRadius: 5,
+                                    fillColor: "#44ff00",
+                                },
+                                "Polygon": {
+                                    pointRadius: 5,
+                                    fillColor: "white",
+                                    fillOpacity: 0.25,
+                                    strokeWidth: 1,
+                                    strokeOpacity: 1,
+                                    strokeColor: "#44ff00"
+                                },
+                            }
+                        })
+                    ]
+                })
+            });
+            var styles = new OpenLayers.StyleMap({
+                "default": new OpenLayers.Style(null, {
+                    rules: [
+                        new OpenLayers.Rule({
+                            symbolizer: {
+                                "Polygon": {
+                                    fillColor: "#00ccff",
+                                    fillOpacity: 0.25,
+                                    strokeWidth: 0.25,
+                                    strokeOpacity: 1,
+                                    strokeColor: "white"
+                                }
+                            }
+                        })
+                    ]
+                }),
+                "select": new OpenLayers.Style({
+                    fillColor: "#ffcc00",
+                    strokeOpacity: 1,
+                    strokeColor: "#ffcc00"
+                }),
+                "temporary": new OpenLayers.Style(null, {
+                    rules: [
+                        new OpenLayers.Rule({
+                            symbolizer: {
+                                "Point": {
+                                    pointRadius: 5,
+                                    fillColor: "#ffcc00",
+                                },
+                                "Polygon": {
+                                    pointRadius: 5,
+                                    fillColor: "white",
+                                    fillOpacity: 0.25,
+                                    strokeWidth: 1,
+                                    strokeOpacity: 1,
+                                    strokeColor: "#ffcc00"
+                                },
+                            }
+                        })
+                    ]
+                })
+            });
+            stands = new OpenLayers.Layer.Vector("Stands", 
+                    {
+                        renderers: renderer, 
+                        styleMap: styles,
+                    }
+            );
+            stands.events.on({
+                'beforefeaturemodified': function(evt) {
+                    console.log("Selected " + evt.feature.id  + " for modification");
+                },
+                'afterfeaturemodified': function(evt) {
+                    console.log("Finished with " + evt.feature.id);
+                }
+            });
+            map.addLayer(stands);
+
+            new_stands = new OpenLayers.Layer.Vector("New Stands", 
+                    {
+                        renderers: renderer, 
+                        styleMap: new_styles,
+                    }
+            );
+            map.addLayer(new_stands);
+
+            var modify = new OpenLayers.Control.ModifyFeature(stands);
+            map.addControl(modify);
+
+            var selector = new OpenLayers.Control.SelectFeature(stands);
+            var selectCallback = function(f){ 
+                $('div#stand-selected').show();
+                console.log(f);
+                var x = f.attributes['id'];
+                $('div#stand-info').html(x);
+            };
+            selector.onSelect = selectCallback;
+            map.addControl(selector);
+
+            var draw = new OpenLayers.Control.DrawFeature(new_stands, OpenLayers.Handler.Polygon);
+            var featureCallback = function(f){ 
+                draw.deactivate();
+                $('div#stand-info-save').show();
+            };
+            draw.featureAdded = featureCallback;
+            map.addControl(draw);
+
+            $('input#confirm-save-stand').click( function(e) {
+                e.preventDefault();
+                fs = new_stands.features;
+                if (fs.length != 1) {
+                    alert("error: need exactly one new stand");
+                    console.log(fs);
+                }
+                wkt = fs[0].geometry.toString();
+                $.ajax({
+                    url: "/trees/stand/", 
+                    type: 'POST',
+                    data: { 'wkt': wkt }, 
+                    success: function(data) {
+                        alert(data);
+                        stands.addFeatures(geojson_format.read(data));
+                    },
+                    dataType: 'json',
+                    async: true
+                })
+                .error( function(e) { 
+                    console.log(e);
+                    alert("An error occured trying to record stand data... Please try again."); 
+                    continue_steps = false;
+                });
+            });
+
+            $('a#pill-create-stand').click(function(e) {
+                modify.deactivate();
+                selector.unselectAll();
+                selector.deactivate();
+                draw.activate();
+            });
+            $('a#pill-select-stand').click(function(e) {
+                $('div#stand-selected').hide();
+                modify.deactivate();
+                selector.activate();
+                draw.deactivate();
+            });
+            $('a#pill-navigate').click(function(e) {
+                modify.deactivate();
+                selector.unselectAll();
+                selector.deactivate();
+                draw.deactivate();
+            });
+ 
+            $('.cancel-stand').click(function(e) {
+                new_stands.removeAllFeatures();
+                $('div#stand-info-save').hide();
+                draw.activate();
+            });
+
+            // Ctl-Z to undo, Ctl-Y to redo, Esc to cancel
+            OpenLayers.Event.observe(document, "keydown", function(evt) {
+                var handled = false;
+                switch (evt.keyCode) {
+                    case 90: // z
+                        if (evt.metaKey || evt.ctrlKey) {
+                            draw.undo();
+                            handled = true;
+                        }
+                        break;
+                    case 89: // y
+                        if (evt.metaKey || evt.ctrlKey) {
+                            draw.redo();
+                            handled = true;
+                        }
+                        break;
+                    case 27: // esc
+                        draw.cancel();
+                        handled = true;
+                        break;
+                }
+                if (handled) {
+                    OpenLayers.Event.stop(evt);
+                }
+            });
+
+            // configure the snapping agent
+            var snap = new OpenLayers.Control.Snapping({
+                layer: new_stands,
+                targets: [stands, new_stands],
+                defaults: {
+                    nodeTolerance: 10,
+                    vertexTolerance: 10,
+                    edgeTolerance: 3 
+                },
+                greedy: true
+            });
+            map.addControl(snap);
+            snap.activate();
+
+            var geojson_format = new OpenLayers.Format.GeoJSON();
+            $.ajax({
+                url: "/trees/stands_json/", 
+                type: 'GET',
+                success: function(data) {
+                    stands.addFeatures(geojson_format.read(data));
+                },
+                dataType: 'json',
+                async: true
+            })
+            .error( function(e) { 
+                console.log(e);
+                alert("An error occured trying to record stand data... Please try again."); 
+                continue_steps = false;
+            });
+
+
+
+        }; //end init
+
+        $(init);
+    </script>
+</head>
+<body>
+    <div class="topbar" data-dropdown="dropdown">
+      <div class="topbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Land Owners Tool</a>
+          <ul class="nav">
+            <li class="active"><a href="#">Map</a></li>
+            <li><a href="#">About</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle">Help</a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Secondary link</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li class="divider"></li>
+                <li><a href="#">Another link</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="nav secondary-nav">
+            <li><a href="#" data-controls-modal="modal-register" data-backdrop="static">Register</a></li>
+            <div id="modal-register" class="modal hide fade">
+                <div class="modal-header">
+                    <a href="#" class="close">&times;</a>
+                    <h3>Register</h3>
+                </div>
+                <div class="modal-body">
+                    <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
+                        <input type="hidden" value="" name="next">
+                        <fieldset>
+                            <legend>Register for an account</legend> 
+                            <div class="clearfix">
+                                <label for="id_username">Username</label>
+                                <input type="text" maxlength="30" name="username" id="id_username">
+                            </div><!-- /clearfix -->
+                            <div class="clearfix">
+                                <label for="id_password">Password</label>
+                                <div class="input"><input type="password" id="id_password" name="password"></div>
+                            </div><!-- /clearfix -->
+                        </fieldset> 
+                    </form>
+                </div>  
+
+                <div class="modal-footer">
+                    <a href="#" class="btn primary">Register</a>
+                </div>
+            </div>
+
+            <li><a href="#" data-controls-modal="modal-login" data-backdrop="static">Login</a></li>
+            <div id="modal-login" class="modal hide fade">
+                <div class="modal-header">
+                    <a href="#" class="close">&times;</a>
+                    <h3>Sign In</h3>
+                </div>
+                <div class="modal-body">
+                    <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
+                        <input type="hidden" value="/map2d" name="next">
+                        <fieldset>
+                            <legend>Sign In</legend> 
+                            <div class="clearfix">
+                                <label for="id_username">Username</label>
+                                <div class="input"><input type="text" maxlength="30" name="username" id="signin_username"></div>
+                            </div><!-- /clearfix -->
+                            <div class="clearfix">
+                                <label for="id_password">Password</label>
+                                <div class="input"><input type="password" id="signin_password" name="password"></div>
+                            </div><!-- /clearfix -->
+                        </fieldset> 
+                    </form>
+                </div>  
+                <div class="modal-footer">
+                    <input type="submit" class="btn primary" value="Sign in" name="blogin">
+                </div>
+                </form>
+            </div>
+          </ul>
+        </div>
+      </div><!-- /topbar-inner -->
+    </div><!-- /topbar -->
+
+ <div class="container-fluid">
+      <div class="sidebar">
+        <ul class="tabs" data-tabs="tabs">
+          <li class="active"><a href="#tab_my">Manage Stands</a></li>
+          <li><a href="#tab_data">Map Layers</a></li>
+          <li><a href="#tab_tools">Tools</a></li>
+        </ul>
+        <div class="tab-content">
+            <div class="active" id="tab_my">
+
+                <div class="stand_menu">
+                    <ul class="pills" data-pills="pills">
+                        <li class="active"><a href="#cont-navigate" id="pill-navigate">Navigate</a></li>
+                        <li><a href="#cont-create-stand" id="pill-create-stand">Create New Stand</a></li>
+                        <li><a href="#cont-select-stand" id="pill-select-stand">Select Stand</a></li>
+                    </ul>
+
+                    <div class="pill-content">
+                        <div class="active" id="cont-navigate">
+                            <div class="alert-message block-message info">
+                                <h4> Just move around the map </h4> 
+                            </div>
+                        </div>
+
+                        <div id="cont-create-stand">
+                            <div class="alert-message block-message info" id="create-stand">
+                                <h4> Creating New Stand </h4>
+                                <p><ul>
+                                    <li>Start drawing</li> 
+                                    <li>Double-click to finish.</li>
+                                    <li>Repeat and save when ready.</li>
+                                    <li>Ctl-Z to undo last point; Ctl-Y to redo</li>
+                                </p>
+                                <div class="hide alert-message block-message success" style="margin-top: 16px;" id="stand-info-save">
+                                    <form class="form-stacked" action="">
+                                            <fieldset>
+                                            <legend>Enter Stand Information</legend>
+                                            <div class="clearfix">
+                                                <label for="rx">Silvicultural Prescription</label>
+                                                <div class="input">
+                                                <select id="rx" name="rx">
+                                                    <option>Seed tree</option>
+                                                    <option>Clearcut</option>
+                                                    <option>Shelterwood</option>
+                                                    <option>Thinning</option>
+                                                    <option>Variable Retention</option>
+                                                </select>
+                                                </div>
+                                            </div><!-- /clearfix -->
+                                            <div class="clearfix">
+                                                <label for="domspp">Dominant Species</label>
+                                                <div class="input">
+                                                <select id="domspp" name="domspp">
+                                                    <option>Douglas Fir</option>
+                                                    <option>Mountain Hemlock</option>
+                                                    <option>Red Alder</option>
+                                                    <option>Incense Cedar</option>
+                                                </select>
+                                                </div>
+                                            </div><!-- /clearfix -->
+                                            <div class="clearfix">
+                                                <label for="desc">Description</label>
+                                                <div class="input">
+                                                <input type="text" size="30" name="desc" id="desc" class="large">
+                                                </div>
+                                            </div><!-- /clearfix -->
+                                            </fieldset>
+                                            <div class="right">
+                                                <button class="btn cancel-stand" type="reset">Cancel</button>
+                                                <input type="submit" class="btn" id="confirm-save-stand" value="Save Stand" />
+                                            </div>
+                                        </form>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="cont-select-stand">
+                            <div class="map-modal alert-message block-message info" id="edit-stand">
+                                <h4> Click on a polgyon to see attributes </h4>
+                                <div class="hide alert-message block-message success" style="margin-top: 16px;" id="stand-selected">
+                                    <div id="stand-info">TBD</div>
+                                    <hr/>
+                                    <button class="btn" type="reset">Edit</button>
+                                </div>
+                            </div>
+                        
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+            <div id="tab_data">
+                <div id="switcher"></div>
+            </div>
+
+            <div id="tab_tools">
+                <h4>Tools</h4>
+                <h5> Search  </h5>
+                <div>
+                    <form class="pull-left" action="">
+                        <input type="text" placeholder="Search">
+                    </form>
+                    <p><a class="btn"> Fly To &raquo;</a></p>
+                </div>
+
+            </div>
+        </div>
+      </div>
+      <div class="content">
+          <div class="outermap">
+              <div id="map"></div>
+          </div>
+      </div>
+    </div>
+
+
+</div>
+
+</body>
+</html>
+

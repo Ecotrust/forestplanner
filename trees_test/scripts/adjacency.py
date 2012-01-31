@@ -9,7 +9,7 @@ by a minimum distance threshold.
 """
 from django.contrib.gis.gdal import DataSource
 import time
-import ipdb; ipdb.set_trace();
+#import ipdb; ipdb.set_trace();
 
 def calc_adj(inds, outfile, threshold, fid_field=None):
     ds = DataSource(inds)
@@ -39,7 +39,7 @@ def calc_adj(inds, outfile, threshold, fid_field=None):
                 continue
 
             # Determine adjacency
-            # Using the buffer method is ~ 4X faster than distance()
+            # Using the distance method is ~ 4X slower than buffer->intersect
             # adjacent = feat2.geom.geos.distance(geom_orig.geos) <= threshold
             adjacent = feat2.geom.geos.intersects(geom_buf)
 

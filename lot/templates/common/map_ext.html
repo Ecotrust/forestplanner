@@ -259,13 +259,15 @@
                             stands.removeAllFeatures();
                             processed_stands.addFeatures(geojson_format.read(data));
                             $('#stand_attributes').html( 
-                                'area :: ' + data['features'][0]['properties']['area'] + '<br/>' +
-                                'elevation :: ' + data['features'][0]['properties']['elevation'] + '<br/>' +
-                                'slope :: ' + data['features'][0]['properties']['slope'] + '<br/>' +
-                                'aspect :: ' + data['features'][0]['properties']['aspect'] + '<br/>' +
-                                'fcids :: ' + data['features'][0]['properties']['fcids'] + '<br/>' +
-                                'fcid_counts :: ' + data['features'][0]['properties']['fcid_counts']
+                                '<table>' +
+                                '<tr><th>Attribute</th><th>Value</th></tr>' +
+                                '<tr><td>area</td><td>' + data['features'][0]['properties']['area'] + '</td></tr>' +
+                                '<tr><td>elevation</td><td>' + data['features'][0]['properties']['elevation'] + '</td></tr>' +
+                                '<tr><td>slope</td><td>' + data['features'][0]['properties']['slope'] + '</td></tr>' +
+                                '<tr><td>aspect</td><td>' + data['features'][0]['properties']['aspect'] + '</td></tr>' +
+                                '</table>'
                             );
+                            $('#fcid_results').html(data['features'][0]['properties']['fcid_table']);
                             $('#tree_live_results').html(data['features'][0]['properties']['tree_live_html']);
                         },
                         dataType: 'json',
@@ -360,6 +362,8 @@
                 <div class="step" id="step3" title="Step 3: Attribute Stands">
                     <h4> Stand Attributes </h4>
                     <div id="stand_attributes"></div>
+                    <h4> Forest Class IDs from FIA/GNN data</h4>
+                    <div id="fcid_results"></div>
                     <p class="todo"> Allow user to override attributes </p>
                 </div>
 

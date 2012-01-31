@@ -64,6 +64,12 @@ def stands(request):
         for cat in stats.categories.all():
             fcids.append(cat.category)
             fcid_counts.append(cat.count)
+        fcid_table = "<table>"
+        fcid_table += "<tr><th>FCID</th><th>Count</th></tr>" 
+        for r in range(len(fcids)):
+            fcid_table += "<tr><td>%s</td><td>%s</td></tr>" % (fcids[r],fcid_counts[r])
+        fcid_table += "<tr><td><em>TOTAL</em></td><td>%s</td></tr>" % (sum(fcid_counts),)
+        fcid_table += "</table>"
 
         # Find the tree_live record of all FCIDs
         from django.db import connection, transaction
@@ -107,6 +113,7 @@ def stands(request):
                     "aspect": %s,
                     "fcids": [%s],
                     "fcid_counts": [%s],
+                    "fcid_table": "%s",
                     "tree_live_html": "%s"
                    }
                 }
@@ -114,6 +121,7 @@ def stands(request):
                 elev, slope, aspect, 
                 ','.join([str(f) for f in fcids]), 
                 ','.join([str(f) for f in fcid_counts]),
+                fcid_table, 
                 tree_live
                )
 
@@ -232,5 +240,23 @@ def query_to_dicts(query_string, *query_args):
         yield row_dict
     return
 
+from django.views.decorators.cache import cache_page
 
+@cache_page(60 * 15)
+def stands_json(request):
+    stands = Stand.objects.all()
+    collection_template = """{ "type": "FeatureCollection",
+    "features": [ %s
+    ]} """
+    json_geoms = []
+    for s in stands:
+        json_geoms.append("""
+        { 
+        "type": "Feature",
+        "geometry": %s,
+        "properties": {"id": %s}
+        }
+        """ % (s.geom.json, s.pk))
+    geojson = collection_template % ','.join(json_geoms)
+    return HttpResponse(geojson, status=200, content_type = 'application/json')
 

@@ -16,6 +16,14 @@ class StreamBuffer(models.Model):
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
+class Stand(models.Model):
+    geom = models.MultiPolygonField(srid=3857)
+    objects = models.GeoManager()
+
+stand_mapping = {
+    'geom': 'MULTIPOLYGON'
+}
+
 # Auto-generated `LayerMapping` dictionary for Parcel model
 parcel_mapping = {
     'apn' : 'APN',
@@ -46,3 +54,11 @@ def run():
         sb.delete()
     map2 = LayerMapping(StreamBuffer, streambuffer_shp, streambuffer_mapping, transform=False, encoding='iso-8859-1')
     map2.save(strict=True, verbose=verbose)
+
+def import_stands():
+    stands_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sixes/sixes_stands_3857b.shp'))
+    #stands_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sixes/elliot_stands_3857.shp'))
+    for s in Stand.objects.all():
+        s.delete()
+    map1 = LayerMapping(Stand, stands_shp, stand_mapping, transform=False, encoding='iso-8859-1')
+    map1.save(strict=True, verbose=True)
