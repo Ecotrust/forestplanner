@@ -7,3 +7,4 @@ wsgi.py
 data/*
 env/*
 OpenLayers*
+trees_test/work*
