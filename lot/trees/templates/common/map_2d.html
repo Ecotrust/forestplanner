@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+<title>Land Owner Tools (pre-alpha)</title>
 <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
 <style type="text/css">
       html { height: 100%; width: 100%; }
       body { height: 90%; width: 100%; /* padding-top: 40px; */ }
       div.container-fluid { height: 100%; /* margin-top:40px; */ }
       div.outermap { height: 100%; }
+
+      a { outline: none !important; } /* Removes Firefox imposed outline */
 
       div.sidebar {
           left: 10px !important; 
@@ -219,7 +222,10 @@ $(document).ready(function() {
             var selectCallback = function(f){ 
                 $('div#stand-selected').show();
                 console.log(f);
-                var x = f.attributes['id'];
+                var x = "<div><table><tr><th>Stand Id</th><td>" + f.attributes['id'] + "</td></tr>";
+                x += "<tr><th>Silvicultural Prescription</th><td>Shelterwood</td></tr>";
+                x += "<tr><th>Dominant Species</th><td>Douglas Fir</td></tr>";
+                x += "</table></div>";
                 $('div#stand-info').html(x);
             };
             selector.onSelect = selectCallback;
@@ -401,9 +407,9 @@ $(document).ready(function() {
                     <a href="#" class="close">&times;</a>
                     <h3>Sign In</h3>
                 </div>
+                <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
                 <div class="modal-body">
-                    <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
-                        <input type="hidden" value="/map2d" name="next">
+                        <input type="hidden" value="/map2d/" name="next">
                         <fieldset>
                             <legend>Sign In</legend> 
                             <div class="clearfix">
@@ -415,7 +421,6 @@ $(document).ready(function() {
                                 <div class="input"><input type="password" id="signin_password" name="password"></div>
                             </div><!-- /clearfix -->
                         </fieldset> 
-                    </form>
                 </div>  
                 <div class="modal-footer">
                     <input type="submit" class="btn primary" value="Sign in" name="blogin">
@@ -446,9 +451,11 @@ $(document).ready(function() {
 
                     <div class="pill-content">
                         <div class="active" id="cont-navigate">
+                            <!-- 
                             <div class="alert-message block-message info">
                                 <h4> Just move around the map </h4> 
                             </div>
+                            -->
                         </div>
 
                         <div id="cont-create-stand">

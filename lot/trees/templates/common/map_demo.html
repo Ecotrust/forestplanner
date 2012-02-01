@@ -1,6 +1,10 @@
 {% extends 'common/map.html' %}
 
 {% block scripts %}
+{% endblock %}
+{% block scripts2 %}{% endblock scripts2 %}
+
+{% block head %}
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <meta name="apple-mobile-web-app-capable" content="yes">
 
@@ -10,10 +14,6 @@
 
     <link rel="stylesheet" href="/media/google.css" type="text/css">
     <link rel="stylesheet" href="/media/style2.css" type="text/css">
-{% endblock %}
-{% block scripts2 %}{% endblock scripts2 %}
-
-{% block head %}
     <style type="text/css">
         #tree_live_results {
             height:250px;

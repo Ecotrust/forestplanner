@@ -1,6 +1,18 @@
+import os
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
-import os
+from madrona.features.models import PolygonFeature, FeatureCollection
+from madrona.features import register
+
+@register
+class Stand(PolygonFeature):
+    class Options:
+        form = "lot.trees.forms.StandForm"
+
+@register
+class Unit(FeatureCollection):
+    class Options:
+        form = "lot.trees.forms.UnitForm"
 
 class Parcel(models.Model):
     apn = models.CharField(max_length=40)
@@ -16,12 +28,9 @@ class StreamBuffer(models.Model):
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
-class Stand(models.Model):
-    geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
-
 stand_mapping = {
-    'geom': 'MULTIPOLYGON'
+    'name': 'STAND_TEXT',
+    'geometry_final': 'POLYGON'
 }
 
 # Auto-generated `LayerMapping` dictionary for Parcel model
@@ -57,7 +66,6 @@ def run():
 
 def import_stands():
     stands_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sixes/sixes_stands_3857b.shp'))
-    #stands_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sixes/elliot_stands_3857.shp'))
     for s in Stand.objects.all():
         s.delete()
     map1 = LayerMapping(Stand, stands_shp, stand_mapping, transform=False, encoding='iso-8859-1')

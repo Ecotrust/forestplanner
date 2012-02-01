@@ -15,15 +15,14 @@ DATABASES = {
     }
 }
 
-INSTALLED_APPS += ( 'trees', 'madrona.raster_stats', 'map2d')
+INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
-GEOMETRY_CLIENT_SRID = 3857
+#GEOMETRY_CLIENT_SRID = 3857 #for mercator
+GEOMETRY_CLIENT_SRID = 4326 #for latlon
 
 APP_NAME = "Forestry Land Owner Tools"
 
 TEMPLATE_DIRS = ( os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/')), )
-
-LOGIN_REDIRECT_URL = "/map2d/"
 
 from settings_local import *
