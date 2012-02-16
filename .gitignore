@@ -1,5 +1,5 @@
 *.pyc
-settings_local.py
+lot/settings_local.py
 *.log
 *.orig
 mediaroot/*
