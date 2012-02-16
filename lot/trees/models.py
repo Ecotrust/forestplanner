@@ -12,6 +12,7 @@ class Stand(PolygonFeature):
 @register
 class Unit(FeatureCollection):
     class Options:
+        valid_children = ('lot.trees.models.Stand',)
         form = "lot.trees.forms.UnitForm"
 
 class Parcel(models.Model):
