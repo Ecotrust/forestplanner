@@ -6,14 +6,24 @@ from madrona.features import register
 
 @register
 class Stand(PolygonFeature):
+    RX_CHOICES = (
+        ('CC', 'Clearcut'),
+        ('SW', 'Shelterwood'),
+    )
+    SPP_CHOICES = (
+        ('DF', 'Douglas Fir'),
+        ('MH', 'Mountain Hemlock'),
+    )
+    rx = models.CharField(max_length=2, choices=RX_CHOICES)
+    domspp = models.CharField(max_length=2, choices=SPP_CHOICES)
     class Options:
         form = "lot.trees.forms.StandForm"
 
 @register
-class Unit(FeatureCollection):
+class ForestProperty(FeatureCollection):
     class Options:
         valid_children = ('lot.trees.models.Stand',)
-        form = "lot.trees.forms.UnitForm"
+        form = "lot.trees.forms.PropertyForm"
 
 class Parcel(models.Model):
     apn = models.CharField(max_length=40)

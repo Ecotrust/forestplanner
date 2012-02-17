@@ -1,7 +1,9 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Land Owner Tools (pre-alpha)</title>
+<title>Forest Scenario Planner</title>
+<!-- TODO upgrade to bootstrap 2.0 -->
+<!-- <link rel="stylesheet" href="/media/bootstrap/css/bootstrap.css"> -->
 <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css">
 <style type="text/css">
       html { height: 100%; width: 100%; }
@@ -21,7 +23,7 @@
           margin-left: 410px !important; 
           margin-top: 56px !important; 
       }
- 
+
     #map {
         height: 100%;
         border: 1px solid #ccc;
@@ -234,7 +236,15 @@ $(document).ready(function() {
             var draw = new OpenLayers.Control.DrawFeature(new_stands, OpenLayers.Handler.Polygon);
             var featureCallback = function(f){ 
                 draw.deactivate();
-                $('div#stand-info-save').show();
+                var url = "/features/stand/form/"; // TODO BAD BAD
+                $.get(url, function(data) {
+                    var fc = $('div#stand-form-container'); 
+                    fc.show();
+                    // TODO load form
+                    //fc.empty();
+                    //var d = $(data);
+                    //d.appendTo(fc);
+                });
             };
             draw.featureAdded = featureCallback;
             map.addControl(draw);
@@ -286,7 +296,7 @@ $(document).ready(function() {
  
             $('.cancel-stand').click(function(e) {
                 new_stands.removeAllFeatures();
-                $('div#stand-info-save').hide();
+                $('div#stand-form-container').hide();
                 draw.activate();
             });
 
@@ -346,7 +356,18 @@ $(document).ready(function() {
                 continue_steps = false;
             });
 
-
+            $('#panel').modal({ backdrop: true });
+            $('.load-in-panel').live('click', function(e) {
+                    e.preventDefault();
+                    var url = $(e.target).attr('href');
+                    $.get(url, function(data) {
+                        console.log(data);
+                        $('#panel').empty();
+                        $('<div><div class="modal-header"><a href="#" class="close">&times;</a></div><div class="modal-body">' + data + '</div></div>').appendTo('#panel');
+                        $('#panel').modal('show');
+                    });
+                                    
+            });
 
         }; //end init
 
@@ -354,91 +375,64 @@ $(document).ready(function() {
     </script>
 </head>
 <body>
+    <div id="panel" class="modal hide fade"></div>
     <div class="topbar" data-dropdown="dropdown">
       <div class="topbar-inner">
         <div class="container-fluid">
-            <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Land Owners Tool</a>
+            <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Scenario Planner</a>
           <ul class="nav">
-            <li class="active"><a href="#">Map</a></li>
-            <li><a href="#">About</a></li>
+              <li><a href="{% url news-about %}" data-toggle="modal-register" data-backdrop="static" class="load-in-panel">About</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle">Help</a>
               <ul class="dropdown-menu">
-                <li><a href="#">Secondary link</a></li>
-                <li><a href="#">Something else here</a></li>
+                  <li><a href="{% url help-main %}" class="load-in-panel">Video Tutorial</a></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Photo Tutorial</a></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Documentation</a></li>
                 <li class="divider"></li>
-                <li><a href="#">Another link</a></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Contact Us</a></li>
               </ul>
             </li>
           </ul>
 
           <ul class="nav secondary-nav">
-            <li><a href="#" data-controls-modal="modal-register" data-backdrop="static">Register</a></li>
-            <div id="modal-register" class="modal hide fade">
-                <div class="modal-header">
-                    <a href="#" class="close">&times;</a>
-                    <h3>Register</h3>
-                </div>
-                <div class="modal-body">
-                    <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
-                        <input type="hidden" value="" name="next">
-                        <fieldset>
-                            <legend>Register for an account</legend> 
-                            <div class="clearfix">
-                                <label for="id_username">Username</label>
-                                <input type="text" maxlength="30" name="username" id="id_username">
-                            </div><!-- /clearfix -->
-                            <div class="clearfix">
-                                <label for="id_password">Password</label>
-                                <div class="input"><input type="password" id="id_password" name="password"></div>
-                            </div><!-- /clearfix -->
-                        </fieldset> 
-                    </form>
-                </div>  
-
-                <div class="modal-footer">
-                    <a href="#" class="btn primary">Register</a>
-                </div>
-            </div>
-
-            <li><a href="#" data-controls-modal="modal-login" data-backdrop="static">Login</a></li>
-            <div id="modal-login" class="modal hide fade">
-                <div class="modal-header">
-                    <a href="#" class="close">&times;</a>
-                    <h3>Sign In</h3>
-                </div>
-                <form method="post" class="form-stacked" action="/accounts/signin/" name="auth_form" id="auth_form">
-                <div class="modal-body">
-                        <input type="hidden" value="/map2d/" name="next">
-                        <fieldset>
-                            <legend>Sign In</legend> 
-                            <div class="clearfix">
-                                <label for="id_username">Username</label>
-                                <div class="input"><input type="text" maxlength="30" name="username" id="signin_username"></div>
-                            </div><!-- /clearfix -->
-                            <div class="clearfix">
-                                <label for="id_password">Password</label>
-                                <div class="input"><input type="password" id="signin_password" name="password"></div>
-                            </div><!-- /clearfix -->
-                        </fieldset> 
-                </div>  
-                <div class="modal-footer">
-                    <input type="submit" class="btn primary" value="Sign in" name="blogin">
-                </div>
-                </form>
-            </div>
+            {% if user.is_authenticated %}
+            <!-- TODO use full name if available -->
+            <li> <p>Welcome <em>{{ user.username }}</em></p> </li>
+            <li><a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">Account Info</a></li>
+            <li><a href="{% url user_signout %}">Sign Out</a></li>
+            {% else %}
+            <li><a href="{% url registration_register %}" id="register">Register</a></li>
+            <li><a href="{% url user_signin %}" id="signin">Sign In</a></li>
+            {% endif %}                
           </ul>
+
         </div>
       </div><!-- /topbar-inner -->
     </div><!-- /topbar -->
 
  <div class="container-fluid">
       <div class="sidebar">
-        <ul class="tabs" data-tabs="tabs">
-          <li class="active"><a href="#tab_my">Manage Stands</a></li>
-          <li><a href="#tab_data">Map Layers</a></li>
-          <li><a href="#tab_tools">Tools</a></li>
-        </ul>
+
+        
+        <div>
+            <form>
+                <span> Property : </span>
+                <select>
+                    <option>--</option>
+                </select>
+                <img src="/media/common/images/silk/add.png" />
+                <!-- TODO obviously need to make this interactive and ajaxy -->
+            </form>
+        </div>
+
+        <div>
+            <ul class="tabs" data-tabs="tabs">
+                <li class="active"><a href="#tab_my">Manage Stands</a></li>
+                <li><a href="#tab_data">Map Layers</a></li>
+                <li><a href="#tab_analysis">Analysis</a></li>
+            </ul>
+        </div>
+
         <div class="tab-content">
             <div class="active" id="tab_my">
 
@@ -450,13 +444,7 @@ $(document).ready(function() {
                     </ul>
 
                     <div class="pill-content">
-                        <div class="active" id="cont-navigate">
-                            <!-- 
-                            <div class="alert-message block-message info">
-                                <h4> Just move around the map </h4> 
-                            </div>
-                            -->
-                        </div>
+                        <div class="active" id="cont-navigate"> </div>
 
                         <div id="cont-create-stand">
                             <div class="alert-message block-message info" id="create-stand">
@@ -467,7 +455,7 @@ $(document).ready(function() {
                                     <li>Repeat and save when ready.</li>
                                     <li>Ctl-Z to undo last point; Ctl-Y to redo</li>
                                 </p>
-                                <div class="hide alert-message block-message success" style="margin-top: 16px;" id="stand-info-save">
+                                <div class="hide alert-message block-message success" style="margin-top: 16px;" id="stand-form-container">
                                     <form class="form-stacked" action="">
                                             <fieldset>
                                             <legend>Enter Stand Information</legend>
@@ -531,17 +519,10 @@ $(document).ready(function() {
                 <div id="switcher"></div>
             </div>
 
-            <div id="tab_tools">
-                <h4>Tools</h4>
-                <h5> Search  </h5>
-                <div>
-                    <form class="pull-left" action="">
-                        <input type="text" placeholder="Search">
-                    </form>
-                    <p><a class="btn"> Fly To &raquo;</a></p>
-                </div>
-
+            <div id="tab_analysis">
+                <h3> Run FVS and harvest scheduler, etc </h3>
             </div>
+
         </div>
       </div>
       <div class="content">
