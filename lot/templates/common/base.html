@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>{% block title %}Forest Scenario Planner{% endblock %}</title>
+
+    <!-- TODO upgrade to bootstrap 2.0 -->
+    <!-- <link rel="stylesheet" href="/media/bootstrap/css/bootstrap.css"> -->
+    <link rel="stylesheet" href="http://twitter.github.com/bootstrap/1.4.0/bootstrap.min.css" />
+    {% load compressed %}
+    {% compressed_css 'application' %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-dropdown.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-tabs.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/1.4.0/bootstrap-modal.js"></script>
+    {% block scripts %}{% endblock scripts %}
+</head>
+<body>
+    <div id="panel" class="modal hide fade"></div>
+    <div class="topbar" data-dropdown="dropdown">
+      <div class="topbar-inner">
+        <div class="container-fluid">
+            <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Scenario Planner</a>
+          <ul class="nav">
+              <li><a href="{% url news-about %}" data-toggle="modal-register" data-backdrop="static" class="load-in-panel">About</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle">Help</a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url help-main %}" class="load-in-panel">Getting Started</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Video Tutorial</a></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Photo Tutorial</a></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Documentation</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url help-main %}" class="load-in-panel">Contact Us</a></li>
+              </ul>
+            </li>
+          </ul>
+
+          <ul class="nav secondary-nav">
+            {% if user.is_authenticated %}
+            <!-- TODO use full name if available -->
+            <li> <p>Welcome <em>{{ user.username }}</em></p> </li>
+            <li><a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">Account Info</a></li>
+            <li><a href="{% url user_signout %}">Sign Out</a></li>
+            {% else %}
+            <li><a href="{% url registration_register %}" id="register">Register</a></li>
+            <li><a href="{% url user_signin %}" id="signin">Sign In</a></li>
+            {% endif %}                
+          </ul>
+
+        </div>
+      </div><!-- /topbar-inner -->
+    </div><!-- /topbar -->
+
+ <div class="container-fluid">{% block content %}{% endblock content %}</div>
+</body>
+</html>

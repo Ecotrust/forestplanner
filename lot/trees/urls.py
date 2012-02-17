@@ -8,6 +8,5 @@ urlpatterns = patterns('',
     url(r'^construct_stands/$', construct_stands, name='trees-construct_stands'),
     url(r'^stands/$', stands, name='trees-stands'),
     url(r'^stands_json/$', stands_json, name='trees-stands_json'),
-    url(r'^$', map2d, name='twod-map2d'),
     url(r'^demo/$', demo, name='twod-map2d'),
 )

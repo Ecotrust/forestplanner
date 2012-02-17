@@ -1,0 +1,13 @@
+{% extends 'common/base.html' %}
+{% load appname %}
+{% block title %}Register to Use {% appname %}{% endblock %}
+{% block content %}
+<div class="content">
+<p> By registering, you can create and analyze your own shapes, share information and collaborate with others.</p>
+<form action="{% url registration_register %}" method="post">
+    {{ form.as_p }}
+    <input type="submit" value="Submit" />
+</form>
+</div>
+{% endblock content %}
+
