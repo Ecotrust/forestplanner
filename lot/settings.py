@@ -15,6 +15,14 @@ DATABASES = {
     }
 }
 
+COMPRESS_CSS['application']['source_filenames'] = (
+    'common/trees.css',
+)
+
+COMPRESS_JS['application']['source_filenames'] = (
+    'common/trees.js',
+)
+
 INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
