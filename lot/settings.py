@@ -1,8 +1,6 @@
 # Django settings for lot project.
 from madrona.common.default_settings import *
 
-SECRET_KEY = 'v%d&go+gr6zk-)rlm78n1ah$f92b(wb@eus#43f!)((3^+0n95'
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TIME_ZONE = 'America/Vancouver'
 ROOT_URLCONF = 'lot.urls'
