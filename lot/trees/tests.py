@@ -43,6 +43,7 @@ class StandTest(TestCase):
 def ForestPropertyTest(TestCase):
     '''
     Basic tests for adding/removing stands from a property
+    TODO Test that date_modified reflects updates to the stands
     '''
 
     def setUp(self):
@@ -86,15 +87,13 @@ def ForestPropertyTest(TestCase):
         prop2 = ForestProperty(user=self.user, name="My Property")
         prop1.save()
         prop2.save()
-        # prop1.add(prop2)
+        # This `prop1.add(prop2)` should fail
         self.assertRaises(AssertionError, prop1.add, prop2)
 
 class RestTest(TestCase):
     '''
-    TODO
-    get show
-    get Edit form and post changes
-    Delete
+    Basic tests of the REST API 
+    A bit of a dup of the features tests but more concise and specific
     '''
 
     def setUp(self):
@@ -103,6 +102,11 @@ class RestTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.options = Stand.get_options()
         self.create_url = self.options.get_create_form()
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1, rx='CC', domspp='DF') 
+        self.stand1.save()
+        self.stand1_form_url = self.options.get_update_form(self.stand1.pk)
+        self.stand1_url = self.stand1.get_absolute_url()
+        enable_sharing()
 
     def test_submit_not_authenticated(self):
         response = self.client.post(self.create_url, 
@@ -133,12 +137,60 @@ class RestTest(TestCase):
         inst = Stand.objects.get(name='test')
         self.assertTrue(
             response._get_content().find(inst.get_absolute_url()) > -1)
+
+    def test_get_form(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.get(self.stand1_form_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.content.find('My Stand'), -1)
+
+    def test_post(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.post(self.stand1_url, {
+            'name': 'My New Name', 
+            'geometry_orig': self.stand1.geometry_orig.wkt,
+            'rx': self.stand1.rx,
+            'domspp': self.stand1.domspp
+        })
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(Stand.objects.get(pk=self.stand1.pk).name, 'My New Name')
+
+    def test_post_validation_error(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.post(self.stand1_url, {
+            'name': 'Another New Name', 
+            'geometry_orig': self.stand1.geometry_orig.wkt,
+            'rx': 'XX', # invalid rx
+            'domspp': self.stand1.domspp
+        })
+        self.assertEqual(response.status_code, 400)
+        # Nothing should have changed
+        self.assertEqual(Stand.objects.get(pk=self.stand1.pk).name, 'My Stand')
+
+    def test_delete(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(Stand.objects.filter(pk=self.stand1.pk).count(), 1)
+        response = self.client.delete(self.stand1_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(Stand.objects.filter(pk=self.stand1.pk).count(), 0)
         
+    def test_show(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.get(self.stand1_url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotEqual(response.content.find('<title>My Stand</title>'), -1)
+
+    def test_unauthorized(self):
+        response = self.client.get(self.stand1_url)
+        self.assertEqual(response.status_code, 401)
+
 
 class SpatialTest(TestCase):
     '''
     TODO
-    test manipulators
+    test overlap manipulators
+    test json output via python for stand and property
+    test json output via url for stand and property
     '''
 
     def setUp(self):
@@ -149,6 +201,14 @@ class SpatialTest(TestCase):
         self.stand1.save()
 
     def test_rest_defaultkml_url(self):
+        self.client.login(username='featuretest', password='pword')
+        link = self.stand1.options.get_link('KML')
+        url = link.reverse(self.stand1)
+        response = self.client.get(url)
+        errors = kml_errors(response.content)
+        self.assertFalse(errors,"invalid KML %s" % str(errors))
+
+    def test_prop_json_url(self):
         self.client.login(username='featuretest', password='pword')
         link = self.stand1.options.get_link('KML')
         url = link.reverse(self.stand1)
@@ -169,10 +229,11 @@ class ImputeTest(TestCase):
 
 class StandUploadTest(TestCase):
     '''
-    su = trees.upload.StandUploader()
+    su = trees.utils.StandUploader()
     su.upload('/path/to/shp', field_mapping_dict, property, user)
     # test bad shapefiles (other geom types, bad mapping dict)
     # assert that # of stands = number of geoms
+    # assert that mapped attributes are populated
     '''
     pass
 
@@ -193,6 +254,11 @@ class GrowthYieldTest(TestCase):
 class AdjacencyTest(TestCase):
     '''
     Test that stand adjacency can be reliably determined
+    self.prop = ForestProperty(..)
+    adj = self.prop.adjacency 
+    # @property method with caching
+    # returns what? list or txt or file handle? 
+
     needs fixture
     '''
     pass
@@ -225,14 +291,16 @@ class OutputsTest(TestCase):
     - carbon
     '''
     def setUp(self):
-        # self.prop = ForestProperty(..)
-        # self.prop.run_gy()
-        # self.prop.schedule()
+        '''
+        self.prop = ForestProperty(..)
+        self.prop.run_gy()
+        self.prop.schedule()
+        '''
         pass
 
     def test_yield(self):
-        # self.prop.generate('yield_over_time') 
-        # self.assertTrue(self.prop.outputs.yield['2085'] == 28000)
+        '''
+        self.prop.generate('yield_over_time') 
+        self.assertTrue(self.prop.outputs.yield['2085'] == 28000)
+        '''
         pass
-
-
