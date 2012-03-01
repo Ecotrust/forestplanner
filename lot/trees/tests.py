@@ -185,13 +185,16 @@ class RestTest(TestCase):
         response = self.client.get(self.stand1_url)
         self.assertEqual(response.status_code, 401)
 
+class ManipulatorsTest(TestCase):
+    '''
+    test overlap/sliver manipulators
+    '''
+    pass
 
 class SpatialTest(TestCase):
     '''
     TODO
-    test overlap/sliver manipulators
-    test json output via python for stand and property
-    test json output via url for stand and property
+    test multi stands, 
     '''
 
     def setUp(self):
@@ -200,6 +203,11 @@ class SpatialTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
         self.stand1.save()
+        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        self.stand2.save()
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+        self.prop1.add(self.stand1)
 
     def test_rest_defaultkml_url(self):
         self.client.login(username='featuretest', password='pword')
@@ -214,6 +222,16 @@ class SpatialTest(TestCase):
         d = loads(thejson)
         self.assertEquals(d['properties']['name'], 'My Stand')
 
+    def test_property_json(self):
+        thejson = self.prop1.geojson
+        d = loads(thejson)
+        self.assertEquals(len(d['features']), 1)
+        self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
+        self.prop1.add(self.stand2)
+        thejson = self.prop1.geojson
+        d = loads(thejson)
+        self.assertEquals(len(d['features']), 2)
+
     def test_stand_json_url(self):
         self.client.login(username='featuretest', password='pword')
         link = self.stand1.options.get_link('GeoJSON')
@@ -223,6 +241,39 @@ class SpatialTest(TestCase):
         self.assertTrue('application/json' in response['Content-Type'])
         d = loads(response.content)
         self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
+        
+    def test_multistand_json_url(self):
+        self.client.login(username='featuretest', password='pword')
+        uids = [self.stand1.uid, self.stand2.uid]
+        link = Stand.get_options().get_link('GeoJSON')
+        url = link.reverse([self.stand1, self.stand2])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('application/json' in response['Content-Type'])
+        d = loads(response.content)
+        self.assertEquals(len(d['features']), 2)
+        foundit = False
+        for f in d['features']:
+            if f['properties']['name'] == 'My Stand2':
+                foundit = True
+        self.assertTrue(foundit)
+
+    def test_property_json_url(self):
+        self.prop1.add(self.stand2)
+        self.client.login(username='featuretest', password='pword')
+        link = self.prop1.options.get_link('Property GeoJSON')
+        url = link.reverse(self.prop1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, response)
+        self.assertTrue('application/json' in response['Content-Type'])
+        d = loads(response.content)
+        self.assertEquals(len(d['features']), 2)
+        foundit = False
+        for f in d['features']:
+            if f['properties']['name'] == 'My Stand2':
+                foundit = True
+        self.assertTrue(foundit)
+
 
 class ImputeTest(TestCase):
     '''

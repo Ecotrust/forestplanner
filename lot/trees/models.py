@@ -25,35 +25,47 @@ class Stand(PolygonFeature):
         form = "lot.trees.forms.StandForm"
         links = (
             alternate('GeoJSON',
-                'trees.views.json_featurecollection',  
+                'trees.views.geojson_stands',  
                 type="application/json",
                 select='multiple single'),
         )
 
     @property
     def geojson(self):
-        d = {
-             'uid': self.uid,
+        d = {'uid': self.uid,
              'name': self.name,
              'date_modified': str(self.date_modified),
              'rx': self.get_rx_display(),
-             'domspp': self.get_domspp_display()
-        }
+             'domspp': self.get_domspp_display() }
 
-        j = """
-            { 
+        j = """{ 
               "type": "Feature",
               "geometry": %s,
               "properties": %s 
-            }""" % (self.geometry_final.json, dumps(d))
+}""" % (self.geometry_final.json, dumps(d))
 
         return j
 
 @register
 class ForestProperty(FeatureCollection):
+
+    @property
+    def geojson(self):
+        featxt = ', '.join([i.geojson for i in self.feature_set()])
+        return """{ "type": "FeatureCollection",
+        "features": [
+        %s
+        ]}""" % featxt
+
     class Options:
         valid_children = ('lot.trees.models.Stand',)
         form = "lot.trees.forms.PropertyForm"
+        links = (
+            alternate('Property GeoJSON',
+                'trees.views.geojson_forestproperty',  
+                type="application/json",
+                select='single'),
+        )
 
 class Parcel(models.Model):
     apn = models.CharField(max_length=40)

@@ -27,7 +27,13 @@ import json
 
 logger = get_logger()
 
-def json_featurecollection(request, instances):
+def geojson_forestproperty(request, instance):
+    '''
+    Generic view to represent Properties as GeoJSON
+    '''
+    return HttpResponse(instance.geojson, mimetype='application/json', status=200)
+
+def geojson_stands(request, instances):
     '''
     Generic view to represent Stands as GeoJSON
     '''
