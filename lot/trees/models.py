@@ -3,6 +3,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register
+from django.core.exceptions import ValidationError
 
 @register
 class Stand(PolygonFeature):
@@ -14,8 +15,10 @@ class Stand(PolygonFeature):
         ('DF', 'Douglas Fir'),
         ('MH', 'Mountain Hemlock'),
     )
-    rx = models.CharField(max_length=2, choices=RX_CHOICES)
-    domspp = models.CharField(max_length=2, choices=SPP_CHOICES)
+    rx = models.CharField(max_length=2, choices=RX_CHOICES, 
+            verbose_name="Presciption", default="CC")
+    domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
+            verbose_name="Dominant Species", default="DF")
     class Options:
         form = "lot.trees.forms.StandForm"
 
@@ -41,7 +44,8 @@ class StreamBuffer(models.Model):
 
 stand_mapping = {
     'name': 'STAND_TEXT',
-    'geometry_final': 'POLYGON'
+    'geometry_final': 'POLYGON',
+    'geometry_original': 'POLYGON'
 }
 
 # Auto-generated `LayerMapping` dictionary for Parcel model
