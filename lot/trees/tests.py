@@ -15,6 +15,9 @@ g1 = GEOSGeometry(
 g1.transform(settings.GEOMETRY_DB_SRID)
 
 class StandTest(TestCase):
+    ''' 
+    Basic tests for adding stands
+    '''
 
     def setUp(self):
         self.client = Client()
@@ -38,6 +41,9 @@ class StandTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 1)
 
 def ForestPropertyTest(TestCase):
+    '''
+    Basic tests for adding/removing stands from a property
+    '''
 
     def setUp(self):
         self.client = Client()
@@ -84,6 +90,12 @@ def ForestPropertyTest(TestCase):
         self.assertRaises(AssertionError, prop1.add, prop2)
 
 class RestTest(TestCase):
+    '''
+    TODO
+    get show
+    get Edit form and post changes
+    Delete
+    '''
 
     def setUp(self):
         self.client = Client()
@@ -122,7 +134,12 @@ class RestTest(TestCase):
         self.assertTrue(
             response._get_content().find(inst.get_absolute_url()) > -1)
         
+
 class SpatialTest(TestCase):
+    '''
+    TODO
+    test manipulators
+    '''
 
     def setUp(self):
         self.client = Client()
@@ -138,4 +155,84 @@ class SpatialTest(TestCase):
         response = self.client.get(url)
         errors = kml_errors(response.content)
         self.assertFalse(errors,"invalid KML %s" % str(errors))
+
+class ImputeTest(TestCase):
+    '''
+    Does this occur on model save()? Async or sync?
+    Or is there another API call done? Async or sync?
+    # Single raster stats on GNN
+    # Async raster stats
+    # Raster stats at the property level (or multiple stands)
+    # test pulling useful tree data out of database
+    '''
+    pass
+
+class StandUploadTest(TestCase):
+    '''
+    su = trees.upload.StandUploader()
+    su.upload('/path/to/shp', field_mapping_dict, property, user)
+    # test bad shapefiles (other geom types, bad mapping dict)
+    # assert that # of stands = number of geoms
+    '''
+    pass
+
+class GrowthYieldTest(TestCase):
+    '''
+    # Test via python API 
+    self.prop = ForestProperty(..)
+    self.prop.run_gy()
+
+    # Test via REST API
+    link = self.stand1.options.get_link('Grow')
+    url = link.reverse(self.prop)
+    response = self.client.post(url)
+    # check that reponse is OK ("Scheduling has commenced..")
+    '''
+    pass
+
+class AdjacencyTest(TestCase):
+    '''
+    Test that stand adjacency can be reliably determined
+    needs fixture
+    '''
+    pass
+
+class SchedulerTest(TestCase):
+    '''
+    # Test via python API 
+    self.prop.schedule()
+
+    # Test via REST API
+    link = self.stand1.options.get_link('Schedule')
+    url = link.reverse(self.prop)
+    response = self.client.post(url)
+    # check that reponse is OK ("Scheduling has commenced..")
+
+    cases:
+    manual scheduling without proper stand attributes
+    '''
+    pass
+
+class OutputsTest(TestCase):
+    '''
+    After GY and Scheduling, parse the tree list and 
+    generate/store as json data associated with
+    the stand or property as appropos
+
+    - harvest schedule
+    - yield over time
+    - standing timber over time
+    - carbon
+    '''
+    def setUp(self):
+        # self.prop = ForestProperty(..)
+        # self.prop.run_gy()
+        # self.prop.schedule()
+        pass
+
+    def test_yield(self):
+        # self.prop.generate('yield_over_time') 
+        # self.assertTrue(self.prop.outputs.yield['2085'] == 28000)
+        pass
+
 
