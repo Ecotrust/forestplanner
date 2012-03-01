@@ -27,6 +27,16 @@ import json
 
 logger = get_logger()
 
+def json_featurecollection(request, instances):
+    '''
+    Generic view to represent Stands as GeoJSON
+    '''
+    featxt = ', '.join([i.geojson for i in instances])
+    return HttpResponse("""{ "type": "FeatureCollection",
+      "features": [
+       %s
+      ]}""" % featxt , mimetype='application/json', status=200)
+
 def properties_list(request):
     parcels = Parcel.objects.all()
     apns = [{p.pk: p.apn} for p in parcels]
@@ -34,25 +44,6 @@ def properties_list(request):
     response.ContentType = 'application/json'
     return response
 
-def parcel_geojson(request, pk):
-    parcels = Parcel.objects.filter(pk=pk).geojson()
-    collection = """{
-              "type": "FeatureCollection", 
-              "features": [
-                {"geometry": {
-                    "type": "GeometryCollection", 
-                    "geometries": [
-                      %s
-                    ]
-                }, 
-                "type": "Feature", 
-                "properties": {}}
-              ]
-           }""" % ','.join([p.geojson for p in parcels])
-    response = HttpResponse(collection, status=200)
-    response.ContentType = 'application/json'
-    return response
-    
 def stands(request):
     stands_jsons = request.POST.getlist('stands[]')
     stand_geoms = []
@@ -257,7 +248,6 @@ def query_to_dicts(query_string, *query_args):
 
 from django.views.decorators.cache import cache_page
 
-@cache_page(60 * 15)
 def stands_json(request):
     stands = Stand.objects.all()
     collection_template = """{ "type": "FeatureCollection",

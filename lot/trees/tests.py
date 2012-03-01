@@ -4,6 +4,7 @@ from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from simplejson import loads
 from madrona.features import *
 from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
 from madrona.features.forms import FeatureForm
@@ -188,7 +189,7 @@ class RestTest(TestCase):
 class SpatialTest(TestCase):
     '''
     TODO
-    test overlap manipulators
+    test overlap/sliver manipulators
     test json output via python for stand and property
     test json output via url for stand and property
     '''
@@ -208,13 +209,20 @@ class SpatialTest(TestCase):
         errors = kml_errors(response.content)
         self.assertFalse(errors,"invalid KML %s" % str(errors))
 
-    def test_prop_json_url(self):
+    def test_stand_json(self):
+        thejson = self.stand1.geojson
+        d = loads(thejson)
+        self.assertEquals(d['properties']['name'], 'My Stand')
+
+    def test_stand_json_url(self):
         self.client.login(username='featuretest', password='pword')
-        link = self.stand1.options.get_link('KML')
+        link = self.stand1.options.get_link('GeoJSON')
         url = link.reverse(self.stand1)
         response = self.client.get(url)
-        errors = kml_errors(response.content)
-        self.assertFalse(errors,"invalid KML %s" % str(errors))
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('application/json' in response['Content-Type'])
+        d = loads(response.content)
+        self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
 
 class ImputeTest(TestCase):
     '''

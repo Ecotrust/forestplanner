@@ -1,9 +1,10 @@
 import os
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
-from madrona.features.models import PolygonFeature, FeatureCollection
-from madrona.features import register
 from django.core.exceptions import ValidationError
+from django.utils.simplejson import dumps
+from madrona.features.models import PolygonFeature, FeatureCollection
+from madrona.features import register, alternate
 
 @register
 class Stand(PolygonFeature):
@@ -19,8 +20,34 @@ class Stand(PolygonFeature):
             verbose_name="Presciption", default="CC")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="DF")
+
     class Options:
         form = "lot.trees.forms.StandForm"
+        links = (
+            alternate('GeoJSON',
+                'trees.views.json_featurecollection',  
+                type="application/json",
+                select='multiple single'),
+        )
+
+    @property
+    def geojson(self):
+        d = {
+             'uid': self.uid,
+             'name': self.name,
+             'date_modified': str(self.date_modified),
+             'rx': self.get_rx_display(),
+             'domspp': self.get_domspp_display()
+        }
+
+        j = """
+            { 
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s 
+            }""" % (self.geometry_final.json, dumps(d))
+
+        return j
 
 @register
 class ForestProperty(FeatureCollection):
