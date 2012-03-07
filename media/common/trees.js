@@ -1,7 +1,6 @@
 $(document).ready(function() {
-    $('.topbar').dropdown();
-    $('.tabs').tabs();
-    $('.pills').pills();
+    $('.dropdown-toggle').dropdown();
+    $('.tabs').tab();
     $(init);
 });
 
