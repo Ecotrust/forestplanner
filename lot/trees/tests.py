@@ -30,6 +30,16 @@ class StandTest(TestCase):
         # geometry_final will be set with manipulator
         stand1.save()
 
+    def test_incomplete_stand(self):
+        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        stand1.save()
+        self.assertFalse(stand1.complete)
+        self.assertEqual(stand1.rx, '--')
+        stand1.rx = "CC"
+        stand1.domspp = "DF"
+        stand1.save()
+        self.assertTrue(stand1.complete)
+
     def test_delete_stand(self):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1, rx="CC") 
         stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1, rx="SW") 

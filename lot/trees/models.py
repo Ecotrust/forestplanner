@@ -9,17 +9,19 @@ from madrona.features import register, alternate
 @register
 class Stand(PolygonFeature):
     RX_CHOICES = (
+        ('--', '--'),
         ('CC', 'Clearcut'),
         ('SW', 'Shelterwood'),
     )
     SPP_CHOICES = (
+        ('--', '--'),
         ('DF', 'Douglas Fir'),
         ('MH', 'Mountain Hemlock'),
     )
     rx = models.CharField(max_length=2, choices=RX_CHOICES, 
-            verbose_name="Presciption", default="CC")
+            verbose_name="Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
-            verbose_name="Dominant Species", default="DF")
+            verbose_name="Dominant Species", default="--")
 
     class Options:
         form = "lot.trees.forms.StandForm"
@@ -29,6 +31,14 @@ class Stand(PolygonFeature):
                 type="application/json",
                 select='multiple single'),
         )
+
+    @property
+    def complete(self):
+        if self.rx == '--':
+            return False
+        if self.domspp == '--':
+            return False
+        return True
 
     @property
     def geojson(self):
