@@ -20,28 +20,31 @@
             </form>
         </div>
 
-        <div>
-            <ul class="tabs" data-tabs="tabs">
-                <li class="active"><a href="#tab_my">Manage Stands</a></li>
-                <li><a href="#tab_data">Map Layers</a></li>
-                <li><a href="#tab_analysis">Analysis</a></li>
+        <div id="navigation-tabs">
+            <ul class="nav nav-tabs">
+                <li class="active" data-toggle="tab"><a href="#tab_my" data-toggle="tab">Manage Stands</a></li>
+                <li><a href="#tab_data" data-toggle="tab">Map Layers</a></li>
+                <li><a href="#tab_analysis" data-toggle="tab">Analysis</a></li>
             </ul>
         </div>
-
         <div class="tab-content">
-            <div class="active" id="tab_my">
-
+            <div class="active tab-pane" id="tab_my">
                 <div class="stand_menu">
-                    <ul class="pills" data-pills="pills">
-                        <li class="active"><a href="#cont-navigate" id="pill-navigate">Navigate</a></li>
-                        <li><a href="#cont-create-stand" id="pill-create-stand">Create New Stand</a></li>
-                        <li><a href="#cont-select-stand" id="pill-select-stand">Select Stand</a></li>
+                    <ul class="nav nav-pills">
+                        <li class="active">
+                            <a href="#cont-navigate" id="pill-navigate" data-toggle="pill">Navigate</a>
+                        </li>
+                        <li>
+                            <a href="#cont-create-stand" id="pill-create-stand" data-toggle="pill">Create New Stand</a>
+                        </li>
+                        <li>
+                            <a href="#cont-select-stand" id="pill-select-stand" data-toggle="pill">Select Stand</a>
+                        </li>
                     </ul>
-
-                    <div class="pill-content">
-                        <div class="active" id="cont-navigate"> </div>
-
-                        <div id="cont-create-stand">
+                    <div class="tab-content">
+                        <div class="active tab-pane" id="cont-navigate">empty
+                        </div>
+                        <div class="tab-pane" id="cont-create-stand">
                             <div class="alert-message block-message info" id="create-stand">
                                 <h4> Creating New Stand </h4>
                                 <p><ul>
@@ -92,8 +95,7 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div id="cont-select-stand">
+                        <div class="tab-pane" id="cont-select-stand">
                             <div class="map-modal alert-message block-message info" id="edit-stand">
                                 <h4> Click on a polgyon to see attributes </h4>
                                 <div class="hide alert-message block-message success" style="margin-top: 16px;" id="stand-selected">
@@ -101,23 +103,18 @@
                                     <hr/>
                                     <button class="btn" type="reset">Edit</button>
                                 </div>
-                            </div>
-                        
+                            </div>        
                         </div>
                     </div>
                 </div>
-
-
             </div>
-
-            <div id="tab_data">
+            <div class="tab-pane" id="tab_data">
                 <div id="switcher"></div>
             </div>
 
-            <div id="tab_analysis">
+            <div class="tab-pane" id="tab_analysis">
                 <h3> Run FVS and harvest scheduler, etc </h3>
             </div>
-
         </div>
       </div>
       <div class="content">

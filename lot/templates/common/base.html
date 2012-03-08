@@ -5,15 +5,6 @@
     <title>{% block title %}Forest Scenario Planner{% endblock %}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="/media/bootstrap/css/bootstrap.css">
-      <style type="text/css">
-      body {
-        padding-top: 60px;
-        padding-bottom: 40px;
-      }
-      .sidebar-nav {
-        padding: 9px 0;
-      }
-    </style>
     <link rel="stylesheet" href="/media/bootstrap/css/bootstrap-responsive.css">
     <!--[if lt IE 9]>
       <script src="//html5shim.googlecode.com/svn/trunk/html5.js"></script>
@@ -33,7 +24,7 @@
       <div class="navbar-inner">
         <div class="container-fluid">
             <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Scenario Planner</a>
-          <ul class="nav pills">
+          <ul class="nav">
               <li><a href="{% url news-about %}" data-toggle="modal-register" data-backdrop="static" class="load-in-panel">About</a></li>
             <li class="dropdown">
               <a href="#" class="dropdown-toggle" data-toggle="dropdown">Help<b class="caret"></b></a>
@@ -49,7 +40,7 @@
             </li>
           </ul>
 
-          <ul class="nav secondary-nav">
+          <ul class="nav secondary-nav pull-right">
             {% if user.is_authenticated %}
                 {% if user.first_name or user.last_name %}
                 <li> <p class="welcome">Welcome <em>{{ user.first_name }} {{ user.last_name }}</em> </p> </li>
