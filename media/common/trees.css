@@ -1,5 +1,13 @@
 html { height: 100%; width: 100%; }
-body { height: 90%; width: 100%; /* padding-top: 40px; */ }
+body {
+    height: 90%; width: 100%;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+.sidebar-nav {
+`padding: 9px 0;
+}
+
 div.container-fluid { height: 100%; /* margin-top:40px; */ }
 div.outermap { height: 100%; }
 
@@ -18,7 +26,6 @@ div.content {
 */
 #map {
     height: 545px;
-    margin-top: 88px !important;
     border: 1px solid #ccc;
 }
 .baseLbl {
