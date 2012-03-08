@@ -50,6 +50,10 @@ class Stand(PolygonFeature):
 class ForestProperty(FeatureCollection):
 
     @property
+    def adjacency(self):
+        return "blah"
+
+    @property
     def geojson(self):
         featxt = ', '.join([i.geojson for i in self.feature_set()])
         return """{ "type": "FeatureCollection",

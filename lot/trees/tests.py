@@ -193,8 +193,7 @@ class ManipulatorsTest(TestCase):
 
 class SpatialTest(TestCase):
     '''
-    TODO
-    test multi stands, 
+    Tests the spatial representations of Stands and ForestProperties
     '''
 
     def setUp(self):
@@ -286,15 +285,38 @@ class ImputeTest(TestCase):
     '''
     pass
 
-class StandUploadTest(TestCase):
+class StandImportTest(TestCase):
     '''
-    su = trees.utils.StandUploader()
-    su.upload('/path/to/shp', field_mapping_dict, property, user)
+    TODO
     # test bad shapefiles (other geom types, bad mapping dict)
-    # assert that # of stands = number of geoms
     # assert that mapped attributes are populated
     '''
-    pass
+    def setUp(self):
+        d = os.path.dirname(__file__)
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.shp'))
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+
+        self.field_mapping = {'name': 'STAND_TEXT'}
+
+    def test_shp_exists(self):
+        self.assertTrue(os.path.exists(self.shp_path), self.shp_path)
+
+    def test_importer_py(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        s.import_ogr(self.shp_path, self.field_mapping)
+
+        self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(self.prop1.feature_set()), 37)
+
 
 class GrowthYieldTest(TestCase):
     '''
@@ -320,7 +342,23 @@ class AdjacencyTest(TestCase):
 
     needs fixture
     '''
-    pass
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1.save()
+        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        self.stand2.save()
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+        self.prop1.add(self.stand1)
+        self.prop1.add(self.stand2)
+
+    def test_adjacency(self):
+        adj_text = """adjacency 
+        stand1, stand2
+        """
+        self.assertEquals(self.prop1.adjacency, adj_text)
 
 class SchedulerTest(TestCase):
     '''
