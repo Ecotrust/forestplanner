@@ -44,9 +44,9 @@
           <ul class="nav secondary-nav pull-right">
             {% if user.is_authenticated %}
                 {% if user.first_name or user.last_name %}
-                <li> <p class="welcome">Welcome <em>{{ user.first_name }} {{ user.last_name }}</em> </p> </li>
+                <li><p class="navbar-text">Welcome, <em>{{ user.first_name }} {{ user.last_name }}</em></p></li>
                 {% else %}
-                <li> <p class="welcome">Welcome <em>{{ user.username }}</em> </p> </li>
+                <li><p class="navbar-text">Welcome, <em>{{ user.username }}</em></p></li>
                 {% endif %}
             <li><a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">Account Info</a></li>
             <li><a href="{% url user_signout %}">Sign Out</a></li>

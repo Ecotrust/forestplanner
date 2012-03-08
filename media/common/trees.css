@@ -5,7 +5,7 @@ div.outermap { height: 100%; }
 
 a { outline: none !important; } /* Removes Firefox imposed outline */
 
-div.sidebar {
+/*div.sidebar {
     left: 10px !important; 
     width: 400px !important;
     margin-top: 56px !important;
@@ -15,9 +15,10 @@ div.content {
     margin-left: 410px !important; 
     margin-top: 56px !important; 
 }
-
+*/
 #map {
-    height: 100%;
+    height: 545px;
+    margin-top: 88px !important;
     border: 1px solid #ccc;
 }
 .baseLbl {
