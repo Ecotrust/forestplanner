@@ -311,8 +311,6 @@ class StandImportTest(TestCase):
         self.prop1 = ForestProperty(user=self.user, name="My Property")
         self.prop1.save()
 
-        self.field_mapping = {'name': 'STAND_TEXT'}
-
     def test_shp_exists(self):
         self.assertTrue(os.path.exists(self.shp_path), self.shp_path)
 
@@ -322,11 +320,30 @@ class StandImportTest(TestCase):
 
         from trees.utils import StandImporter
         s = StandImporter(self.prop1)
-        s.import_ogr(self.shp_path, self.field_mapping)
+        s.import_ogr(self.shp_path) 
 
         self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
+        # from the default 'name' field this time
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 0) 
+        self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
+    def test_importer_py_fieldmap(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        field_mapping = {'name': 'STAND_TEXT'}
+        s.import_ogr(self.shp_path, field_mapping) 
+
+        self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
+        # from the 'STAND_TEXT' field this time
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 1) 
+        self.assertEqual(len(Stand.objects.filter(name='277')), 0) 
+        self.assertEqual(len(self.prop1.feature_set()), 37)
 
 class GrowthYieldTest(TestCase):
     '''
@@ -349,6 +366,7 @@ class AdjacencyTest(TestCase):
     adj = self.prop.adjacency 
     # @property method with caching
     # returns what? list or txt or file handle? 
+    # does it also check for slivers or overlap? 
 
     needs fixture
     '''
