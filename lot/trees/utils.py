@@ -33,16 +33,21 @@ class StandImporter:
         num_features = len(layer)
         field_mapping = self._validate_field_mapping(layer, field_mapping)
 
+        stands = []
         for feature in layer:
-            stand1 = Stand(user=self.user, 
+            stand = Stand(user=self.user, 
                     name=feature.get(field_mapping['name']), 
                     geometry_orig=feature.geom.geos)
                     #geometry_final=feature.geom.geos) 
 
             for fname in self.optional_fields:
                 if fname in field_mapping.keys():
-                    stand1.__dict__[fname] = feature.get(field_mapping[fname])
+                    stand.__dict__[fname] = feature.get(field_mapping[fname])
 
-            stand1.save()
-            self.forest_property.add(stand1)
-            del stand1
+            stand.full_clean()
+            stands.append(stand)
+            del stand
+
+        for stand in stands:
+            stand.save()
+            self.forest_property.add(stand)

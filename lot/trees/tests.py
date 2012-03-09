@@ -305,6 +305,8 @@ class StandImportTest(TestCase):
         d = os.path.dirname(__file__)
         self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'test_stands.shp'))
+        self.bad_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.shp'))
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
@@ -344,6 +346,18 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.filter(name='001A')), 1) 
         self.assertEqual(len(Stand.objects.filter(name='277')), 0) 
         self.assertEqual(len(self.prop1.feature_set()), 37)
+
+    def test_importer_py_bad(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        with self.assertRaises(Exception):
+            s.import_ogr(self.bad_shp_path)
+
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
 
 class GrowthYieldTest(TestCase):
     '''
