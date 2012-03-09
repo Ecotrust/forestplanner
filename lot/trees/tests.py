@@ -101,6 +101,7 @@ def ForestPropertyTest(TestCase):
         # This `prop1.add(prop2)` should fail
         self.assertRaises(AssertionError, prop1.add, prop2)
 
+
 class RestTest(TestCase):
     '''
     Basic tests of the REST API 
@@ -194,6 +195,39 @@ class RestTest(TestCase):
     def test_unauthorized(self):
         response = self.client.get(self.stand1_url)
         self.assertEqual(response.status_code, 401)
+
+class UserPropertyListTest(TestCase):
+    '''
+    test web service to grab json of user's properties
+    {uid:name, ..}
+    '''
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+
+    def test_unauth(self):
+        url = reverse('trees-user_property_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_jsonlist_link(self):
+        self.client.login(username='featuretest', password='pword')
+        url = reverse('trees-user_property_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        plist = loads(response.content)
+        self.assertEquals(plist, {})
+
+        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        plist = loads(response.content)
+        print response.content
+        self.assertEquals(plist.items()[0][1], 'My Property')
 
 class ManipulatorsTest(TestCase):
     '''

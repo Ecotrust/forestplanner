@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 from django.db import connection
 from django.conf import settings
-from trees.models import *
+from django.contrib.auth.models import User 
 from itertools import izip
 from madrona.raster_stats.models import zonal_stats, RasterDataset
 from madrona.common.utils import get_logger
@@ -26,6 +26,23 @@ from madrona.common.utils import get_logger
 import json
 
 logger = get_logger()
+
+def user_property_list(request):
+    '''
+    Present list of properties for a given user 
+    '''
+    # import down here to avoid circular dependency
+    from trees.models import ForestProperty
+
+    if not request.user.is_authenticated():
+        return HttpResponse('You must be logged in.', status=401)
+
+    uplist = ForestProperty.objects.filter(user=request.user)
+    userprops = {}
+    for fp in uplist:
+        userprops[fp.uid] = fp.name
+    d = json.dumps(userprops)
+    return HttpResponse(d, mimetype='application/json', status=200)
 
 def geojson_forestproperty(request, instance):
     '''
