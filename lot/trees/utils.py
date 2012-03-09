@@ -1,7 +1,5 @@
 from trees.models import Stand, ForestProperty
 from django.contrib.gis.gdal import DataSource
-from django.db import transaction
-
 
 class StandImporter:
 
@@ -38,7 +36,8 @@ class StandImporter:
         for feature in layer:
             stand1 = Stand(user=self.user, 
                     name=feature.get(field_mapping['name']), 
-                    geometry_orig=feature.geom.geos) 
+                    geometry_orig=feature.geom.geos)
+                    #geometry_final=feature.geom.geos) 
 
             for fname in self.optional_fields:
                 if fname in field_mapping.keys():
@@ -47,7 +46,3 @@ class StandImporter:
             stand1.save()
             self.forest_property.add(stand1)
             del stand1
-
-        transaction.rollback()
-
-

@@ -25,6 +25,7 @@ class Stand(PolygonFeature):
 
     class Options:
         form = "lot.trees.forms.StandForm"
+        manipulators = []
         links = (
             alternate('GeoJSON',
                 'trees.views.geojson_stands',  
