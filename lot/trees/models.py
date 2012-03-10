@@ -2,6 +2,7 @@ import os
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
@@ -60,9 +61,13 @@ class Stand(PolygonFeature):
 @register
 class ForestProperty(FeatureCollection):
 
-    @property
-    def adjacency(self):
-        return "blah"
+    def adjacency(self, threshold=1.0):
+        from trees.utils import calculate_adjacency
+        stands = Stand.objects.filter(
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.pk
+        )
+        return calculate_adjacency(stands, threshold)
 
     @property
     def geojson(self):

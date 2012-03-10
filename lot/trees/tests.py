@@ -10,6 +10,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from trees.models import Stand, ForestProperty
+from trees.utils import StandImporter
 
 g1 = GEOSGeometry(
       'SRID=4326;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
@@ -477,20 +478,35 @@ class AdjacencyTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
-        self.stand1.save()
-        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
-        self.stand2.save()
         self.prop1 = ForestProperty(user=self.user, name="My Property")
         self.prop1.save()
-        self.prop1.add(self.stand1)
-        self.prop1.add(self.stand2)
+
+        d = os.path.dirname(__file__)
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.shp'))
+        s = StandImporter(self.prop1)
+        s.import_ogr(self.shp_path) 
 
     def test_adjacency(self):
-        adj_text = """adjacency 
-        stand1, stand2
-        """
-        #self.assertEquals(self.prop1.adjacency, adj_text)
+        '''
+        stand is adjacent to 332, 336, 405 and 412
+        using default threshold of 1.0
+        '''
+        test_stand = Stand.objects.get(name='397')
+        adj_stands = [Stand.objects.get(name=str(x)) for x in [332, 336, 405, 412]]
+        adj = self.prop1.adjacency()
+        for adj_stand in adj_stands:
+            self.assertTrue(adj_stand.pk in adj[test_stand.pk])
+
+    def test_adjacency_threshold(self):
+        '''
+        stand should be within 100 meters of 425 as well
+        '''
+        test_stand = Stand.objects.get(name='397')
+        adj_stands = [Stand.objects.get(name=str(x)) for x in [332, 336, 405, 412, 425]]
+        adj = self.prop1.adjacency(100.0)
+        for adj_stand in adj_stands:
+            self.assertTrue(adj_stand.pk in adj[test_stand.pk])
 
 class SchedulerTest(TestCase):
     '''

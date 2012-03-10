@@ -51,3 +51,34 @@ class StandImporter:
         for stand in stands:
             stand.save()
             self.forest_property.add(stand)
+
+
+def calculate_adjacency(qs, threshold):
+    """
+    Determines a matrix of adjacent polygons from a Feature queryset.
+    Since the data are not topological, adjacency is determined
+    by a minimum distance threshold.
+    """
+    features = list(qs)
+    adj = {}
+
+    for feat in features:
+        fid = feat.pk
+        adj[fid] = []
+
+        geom_orig = feat.geometry_final
+        geom_buf = feat.geometry_final.buffer(threshold)
+
+        filterqs = qs.filter(geometry_final__bboverlaps = geom_buf, geometry_final__intersects = geom_buf)
+        for feat2 in filterqs:
+            fid2 = feat2.pk
+            if fid == fid2:
+                continue
+            adj[fid].append(fid2)
+
+        if len(adj[fid]) == 0:
+            adj[fid] = None
+
+        del filterqs
+
+    return adj
