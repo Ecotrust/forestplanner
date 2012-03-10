@@ -393,6 +393,62 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
+    def test_importer_http(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertNotEqual(response.content.find('success'), -1, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 37)
+
+    def test_importer_http_unauth(self):
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_http_badfile(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 500, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_http_badproperty(self):
+        '''
+        If no property is found belonging to the user, should get a 404
+        '''
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': 8675309, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 404, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        
+
 class GrowthYieldTest(TestCase):
     '''
     # Test via python API 
