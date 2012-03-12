@@ -1,0 +1,3 @@
+This directory acts as a permanent storage for supporting files associated with features.
+
+It should be readable/writeable by the application server user.

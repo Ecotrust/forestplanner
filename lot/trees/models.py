@@ -4,6 +4,7 @@ from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps
+from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 
@@ -60,6 +61,28 @@ class Stand(PolygonFeature):
 
 @register
 class ForestProperty(FeatureCollection):
+
+    @property
+    def file_dir(self):
+        '''
+        Standard property for determining where supporting files reside
+        /feature_file_root/database_name/feature_uid/
+        '''
+        root = settings.FEATURE_FILE_ROOT
+        try:
+            dbname = settings.DATABASES['default']['NAME']
+        except:
+            dbname = settings.DATABASE_NAME
+
+        path = os.path.realpath(os.path.join(root, dbname, self.uid))
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        if not os.access(path, os.W_OK):
+            raise Exception("Feature file_dir %s is not writeable" % path)
+
+        return path
+
 
     def adjacency(self, threshold=1.0):
         from trees.utils import calculate_adjacency
