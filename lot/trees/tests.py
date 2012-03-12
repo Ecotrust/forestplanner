@@ -541,7 +541,21 @@ class OutputsTest(TestCase):
         self.prop.run_gy()
         self.prop.schedule()
         '''
-        pass
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+
+    def test_property_files(self):
+        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1.save()
+        print prop1.file_dir
+        path = os.path.join(prop1.file_dir, 'test.txt')
+        try:
+            fh = open(path, 'w')
+            fh.write("prop1")
+            fh.close()
+        except:
+            self.fail("Could not write file to " + path)
+        os.remove(path)
 
     def test_yield(self):
         '''
