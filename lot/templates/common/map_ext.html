@@ -22,7 +22,7 @@
 
         <div id="navigation-tabs">
             <ul class="nav nav-tabs">
-                <li class="active" data-toggle="tab"><a href="#tab_my" data-toggle="tab">Manage Stands</a></li>
+                <li class="active"><a href="#tab_my" data-toggle="tab">Manage Stands</a></li>
                 <li><a href="#tab_data" data-toggle="tab">Map Layers</a></li>
                 <li><a href="#tab_analysis" data-toggle="tab">Analysis</a></li>
             </ul>
@@ -123,4 +123,13 @@
           </div>
       </div>
     </div>
+    <script type="text/javascript">
+    $(document).ready(function () {
+      var onResize = function () {
+        $("#map").height($(window).height() * .875);
+      }
+      onResize();
+      $(window).resize(onResize);
+    });
+    </script>
 {% endblock content %}
