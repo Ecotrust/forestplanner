@@ -34,4 +34,6 @@ TEMPLATE_DIRS = ( os.path.realpath(os.path.join(os.path.dirname(__file__), 'temp
 FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
 GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 
+DEFAULT_EXTENT = (-14056200,4963200,-12471500,6128400) # in mercator
+
 from settings_local import *

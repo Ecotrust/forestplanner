@@ -61,6 +61,21 @@ class Stand(PolygonFeature):
 
 @register
 class ForestProperty(FeatureCollection):
+    # defaults to the approx extent (in mercator) of our study region
+    minx = models.IntegerField(default=settings.DEFAULT_EXTENT[0])
+    miny = models.IntegerField(default=settings.DEFAULT_EXTENT[1])
+    maxx = models.IntegerField(default=settings.DEFAULT_EXTENT[2])
+    maxy = models.IntegerField(default=settings.DEFAULT_EXTENT[3])
+
+    @property
+    def bbox(self):
+        return (self.minx, self.miny, self.maxx, self.maxy)
+
+    def set_bbox(self, bbox):
+        if len(bbox) != 4:
+            raise Exception("BBOX must be a 4-item list/tuple with minx,miny,maxx,maxy")
+        self.minx, self.miny, self.maxx, self.maxy = bbox
+        self.save()
 
     @property
     def file_dir(self):

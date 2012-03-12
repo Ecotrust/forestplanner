@@ -52,7 +52,7 @@ class StandTest(TestCase):
         self.assertEqual(len(Stand.objects.filter(rx='CC')), 0)
         self.assertEqual(len(Stand.objects.all()), 1)
 
-def ForestPropertyTest(TestCase):
+class ForestPropertyTest(TestCase):
     '''
     Basic tests for adding/removing stands from a property
     TODO Test that date_modified reflects updates to the stands
@@ -70,17 +70,26 @@ def ForestPropertyTest(TestCase):
         prop1 = ForestProperty(user=self.user, name="My Property")
         prop1.save()
 
+    def test_property_bbox(self):
+        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1.save()
+        self.assertEqual(prop1.bbox, settings.DEFAULT_EXTENT)
+        new_extent = (-14056250,4963250,-12471550,6128450) # in mercator
+        prop1.set_bbox(new_extent)
+        self.assertNotEqual(prop1.bbox, settings.DEFAULT_EXTENT)
+        self.assertEqual(prop1.bbox, new_extent)
+
     def test_add_property_to_stand(self):
         prop1 = ForestProperty(user=self.user, name="My Property")
         prop1.save()
 
         self.stand1.add_to_collection(prop1)
         self.assertEqual(self.stand1.collection, prop1)
-        self.assertTrue(self.stand11 in self.prop1.feature_set())
+        self.assertTrue(self.stand1 in prop1.feature_set())
 
         self.stand1.remove_from_collection()
         self.assertEqual(self.stand1.collection, None)
-        self.assertTrue(self.stand1 not in self.prop1.feature_set())
+        self.assertTrue(self.stand1 not in prop1.feature_set())
 
     def test_add_stand_to_property(self):
         prop1 = ForestProperty(user=self.user, name="My Property")
@@ -88,11 +97,11 @@ def ForestPropertyTest(TestCase):
 
         prop1.add(self.stand1)
         self.assertEqual(self.stand1.collection, prop1)
-        self.assertTrue(self.stand11 in self.prop1.feature_set())
+        self.assertTrue(self.stand1 in prop1.feature_set())
 
         prop1.remove(self.stand1)
         self.assertEqual(self.stand1.collection, None)
-        self.assertTrue(self.stand1 not in self.prop1.feature_set())
+        self.assertTrue(self.stand1 not in prop1.feature_set())
 
     def test_add_property_to_property(self):
         prop1 = ForestProperty(user=self.user, name="My Property")
@@ -227,7 +236,6 @@ class UserPropertyListTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
-        print response.content
         self.assertEquals(plist.items()[0][1], 'My Property')
 
 class ManipulatorsTest(TestCase):
@@ -547,7 +555,6 @@ class OutputsTest(TestCase):
     def test_property_files(self):
         prop1 = ForestProperty(user=self.user, name="My Property")
         prop1.save()
-        print prop1.file_dir
         path = os.path.join(prop1.file_dir, 'test.txt')
         try:
             fh = open(path, 'w')
