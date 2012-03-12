@@ -10,6 +10,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from trees.models import Stand, ForestProperty
+from trees.utils import StandImporter
 
 g1 = GEOSGeometry(
       'SRID=4326;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
@@ -29,6 +30,16 @@ class StandTest(TestCase):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
         # geometry_final will be set with manipulator
         stand1.save()
+
+    def test_incomplete_stand(self):
+        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        stand1.save()
+        self.assertFalse(stand1.complete)
+        self.assertEqual(stand1.rx, '--')
+        stand1.rx = "CC"
+        stand1.domspp = "DF"
+        stand1.save()
+        self.assertTrue(stand1.complete)
 
     def test_delete_stand(self):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1, rx="CC") 
@@ -90,6 +101,7 @@ def ForestPropertyTest(TestCase):
         prop2.save()
         # This `prop1.add(prop2)` should fail
         self.assertRaises(AssertionError, prop1.add, prop2)
+
 
 class RestTest(TestCase):
     '''
@@ -185,6 +197,39 @@ class RestTest(TestCase):
         response = self.client.get(self.stand1_url)
         self.assertEqual(response.status_code, 401)
 
+class UserPropertyListTest(TestCase):
+    '''
+    test web service to grab json of user's properties
+    {uid:name, ..}
+    '''
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+
+    def test_unauth(self):
+        url = reverse('trees-user_property_list')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_jsonlist_link(self):
+        self.client.login(username='featuretest', password='pword')
+        url = reverse('trees-user_property_list')
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        plist = loads(response.content)
+        self.assertEquals(plist, {})
+
+        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1.save()
+
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        plist = loads(response.content)
+        print response.content
+        self.assertEquals(plist.items()[0][1], 'My Property')
+
 class ManipulatorsTest(TestCase):
     '''
     test overlap/sliver manipulators
@@ -193,8 +238,7 @@ class ManipulatorsTest(TestCase):
 
 class SpatialTest(TestCase):
     '''
-    TODO
-    test multi stands, 
+    Tests the spatial representations of Stands and ForestProperties
     '''
 
     def setUp(self):
@@ -286,15 +330,125 @@ class ImputeTest(TestCase):
     '''
     pass
 
-class StandUploadTest(TestCase):
+class StandImportTest(TestCase):
     '''
-    su = trees.utils.StandUploader()
-    su.upload('/path/to/shp', field_mapping_dict, property, user)
+    TODO
     # test bad shapefiles (other geom types, bad mapping dict)
-    # assert that # of stands = number of geoms
     # assert that mapped attributes are populated
     '''
-    pass
+    def setUp(self):
+        d = os.path.dirname(__file__)
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.shp'))
+        self.bad_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.shp'))
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+
+    def test_shp_exists(self):
+        self.assertTrue(os.path.exists(self.shp_path), self.shp_path)
+
+    def test_importer_py(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        s.import_ogr(self.shp_path) 
+
+        self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
+        # from the default 'name' field this time
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 0) 
+        self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
+        self.assertEqual(len(self.prop1.feature_set()), 37)
+
+    def test_importer_py_fieldmap(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        field_mapping = {'name': 'STAND_TEXT'}
+        s.import_ogr(self.shp_path, field_mapping) 
+
+        self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
+        # from the 'STAND_TEXT' field this time
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 1) 
+        self.assertEqual(len(Stand.objects.filter(name='277')), 0) 
+        self.assertEqual(len(self.prop1.feature_set()), 37)
+
+    def test_importer_py_bad(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.prop1)
+        with self.assertRaises(Exception):
+            s.import_ogr(self.bad_shp_path)
+
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_http(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 200, response.content)
+        self.assertNotEqual(response.content.find('success'), -1, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 37)
+
+    def test_importer_http_unauth(self):
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_http_badfile(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 500, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_http_badproperty(self):
+        '''
+        If no property is found belonging to the user, should get a 404
+        '''
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_bad.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': 8675309, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 404, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        
 
 class GrowthYieldTest(TestCase):
     '''
@@ -317,10 +471,42 @@ class AdjacencyTest(TestCase):
     adj = self.prop.adjacency 
     # @property method with caching
     # returns what? list or txt or file handle? 
+    # does it also check for slivers or overlap? 
 
     needs fixture
     '''
-    pass
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+
+        d = os.path.dirname(__file__)
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.shp'))
+        s = StandImporter(self.prop1)
+        s.import_ogr(self.shp_path) 
+
+    def test_adjacency(self):
+        '''
+        stand is adjacent to 332, 336, 405 and 412
+        using default threshold of 1.0
+        '''
+        test_stand = Stand.objects.get(name='397')
+        adj_stands = [Stand.objects.get(name=str(x)) for x in [332, 336, 405, 412]]
+        adj = self.prop1.adjacency()
+        for adj_stand in adj_stands:
+            self.assertTrue(adj_stand.pk in adj[test_stand.pk])
+
+    def test_adjacency_threshold(self):
+        '''
+        stand should be within 100 meters of 425 as well
+        '''
+        test_stand = Stand.objects.get(name='397')
+        adj_stands = [Stand.objects.get(name=str(x)) for x in [332, 336, 405, 412, 425]]
+        adj = self.prop1.adjacency(100.0)
+        for adj_stand in adj_stands:
+            self.assertTrue(adj_stand.pk in adj[test_stand.pk])
 
 class SchedulerTest(TestCase):
     '''

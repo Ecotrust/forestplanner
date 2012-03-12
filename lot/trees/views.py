@@ -10,7 +10,7 @@ from django.template import RequestContext
 from django.shortcuts import get_object_or_404, render_to_response
 from django.db import connection
 from django.conf import settings
-from trees.models import *
+from django.contrib.auth.models import User 
 from itertools import izip
 from madrona.raster_stats.models import zonal_stats, RasterDataset
 from madrona.common.utils import get_logger
@@ -24,8 +24,90 @@ from madrona.layers.views import has_privatekml
 from madrona.features.views import has_features
 from madrona.common.utils import get_logger
 import json
+import os
 
 logger = get_logger()
+
+def user_property_list(request):
+    '''
+    Present list of properties for a given user 
+    '''
+    # import down here to avoid circular dependency
+    from trees.models import ForestProperty
+
+    if not request.user.is_authenticated():
+        return HttpResponse('You must be logged in.', status=401)
+
+    uplist = ForestProperty.objects.filter(user=request.user)
+    userprops = {}
+    for fp in uplist:
+        userprops[fp.uid] = fp.name
+    d = json.dumps(userprops)
+    return HttpResponse(d, mimetype='application/json', status=200)
+
+def upload_stands(request):
+    '''
+    Upload stands via OGR datasource
+    '''
+    from trees.forms import UploadStandsForm
+    from trees.models import ForestProperty
+    import tempfile
+    import zipfile
+
+    if not request.user.is_authenticated():
+        return HttpResponse('You must be logged in.', status=401)
+
+    if request.method == 'POST':
+        form = UploadStandsForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            # confirm property 
+            prop_pk = request.POST['property_pk']
+            try:
+                prop = ForestProperty.objects.get(pk=prop_pk, user=request.user)
+            except ForestProperty.DoesNotExist:
+                return HttpResponse('Could not find Forest Property %s' % prop_pk, status=404)
+
+            # Save to disk
+            f = request.FILES['ogrfile']
+            tempdir = os.path.join(tempfile.gettempdir(), request.user.username)
+            if not os.path.exists(tempdir):
+                os.makedirs(tempdir)
+            ogr_path = os.path.join(tempdir, f.name)
+            dest = open(ogr_path, 'wb+')
+            for chunk in f.chunks():
+                dest.write(chunk)
+            dest.close()
+            
+            #if zipfile, unzip and change ogr_path
+            if ogr_path.endswith('zip'):
+                shp_path = None
+                zf = zipfile.ZipFile(ogr_path)
+                for info in zf.infolist():
+                    contents = zf.read(info.filename)
+                    shp_part = os.path.join(tempdir, info.filename.split(os.path.sep)[-1])
+                    fout = open(shp_part, "wb")
+                    fout.write(contents)
+                    fout.close()
+                    if shp_part.endswith(".shp"):
+                        shp_path = shp_part
+                ogr_path = shp_path
+
+            assert os.path.exists(ogr_path)
+
+            # Import
+            from trees.utils import StandImporter
+            try:
+                s = StandImporter(prop)
+                s.import_ogr(ogr_path) 
+            except Exception as err:
+                return HttpResponse('Error importing stands\n\n%s' % err, status=500)
+
+            return HttpResponse('success', status=200)
+    else:
+        form = UploadStandsForm()
+
+    return render_to_response('upload.html', {'form': form})
 
 def geojson_forestproperty(request, instance):
     '''

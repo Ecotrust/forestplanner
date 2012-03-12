@@ -2,6 +2,7 @@ import os
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
+from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
@@ -9,26 +10,37 @@ from madrona.features import register, alternate
 @register
 class Stand(PolygonFeature):
     RX_CHOICES = (
+        ('--', '--'),
         ('CC', 'Clearcut'),
         ('SW', 'Shelterwood'),
     )
     SPP_CHOICES = (
+        ('--', '--'),
         ('DF', 'Douglas Fir'),
         ('MH', 'Mountain Hemlock'),
     )
     rx = models.CharField(max_length=2, choices=RX_CHOICES, 
-            verbose_name="Presciption", default="CC")
+            verbose_name="Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
-            verbose_name="Dominant Species", default="DF")
+            verbose_name="Dominant Species", default="--")
 
     class Options:
         form = "lot.trees.forms.StandForm"
+        manipulators = []
         links = (
             alternate('GeoJSON',
                 'trees.views.geojson_stands',  
                 type="application/json",
                 select='multiple single'),
         )
+
+    @property
+    def complete(self):
+        if self.rx == '--':
+            return False
+        if self.domspp == '--':
+            return False
+        return True
 
     @property
     def geojson(self):
@@ -48,6 +60,14 @@ class Stand(PolygonFeature):
 
 @register
 class ForestProperty(FeatureCollection):
+
+    def adjacency(self, threshold=1.0):
+        from trees.utils import calculate_adjacency
+        stands = Stand.objects.filter(
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.pk
+        )
+        return calculate_adjacency(stands, threshold)
 
     @property
     def geojson(self):
