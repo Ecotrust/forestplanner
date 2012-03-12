@@ -1,11 +1,19 @@
 html { height: 100%; width: 100%; }
-body { height: 90%; width: 100%; /* padding-top: 40px; */ }
+body {
+    height: 90%; width: 100%;
+    padding-top: 60px;
+    padding-bottom: 40px;
+}
+.sidebar-nav {
+`padding: 9px 0;
+}
+
 div.container-fluid { height: 100%; /* margin-top:40px; */ }
 div.outermap { height: 100%; }
 
 a { outline: none !important; } /* Removes Firefox imposed outline */
 
-div.sidebar {
+/*div.sidebar {
     left: 10px !important; 
     width: 400px !important;
     margin-top: 56px !important;
@@ -15,9 +23,8 @@ div.content {
     margin-left: 410px !important; 
     margin-top: 56px !important; 
 }
-
+*/
 #map {
-    height: 100%;
     border: 1px solid #ccc;
 }
 .baseLbl {

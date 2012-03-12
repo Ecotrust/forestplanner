@@ -1,7 +1,4 @@
 $(document).ready(function() {
-    $('.topbar').dropdown();
-    $('.tabs').tabs();
-    $('.pills').pills();
     $(init);
 });
 
@@ -301,9 +298,8 @@ function init() {
             e.preventDefault();
             var url = $(e.target).attr('href');
             $.get(url, function(data) {
-                console.log(data);
                 $('#panel').empty();
-                $('<div><div class="modal-header"><a href="#" class="close">&times;</a></div><div class="modal-body">' + data + '</div></div>').appendTo('#panel');
+                $('<div><div class="modal-header"><a href="#" class="close" data-dismiss="modal">x</a><h3>Forest Scenario Planner</h3></div><div class="modal-body">' + data + '</div></div>').appendTo('#panel');
                 $('#panel').modal('show');
             });
                             
