@@ -1,7 +1,7 @@
 from selenium import webdriver
 import unittest
 
-class TestSequenceFunctions(unittest.TestCase):
+class TestBrowserSupport(unittest.TestCase):
 	def setUp(self):
 		pass#
 	def tearDown(self):
