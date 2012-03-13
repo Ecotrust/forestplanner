@@ -48,6 +48,7 @@ class Stand(PolygonFeature):
                 status[name] = "COMPLETED"
             elif async_status is not None:
                 # STARTED, PENDING, SUCCESS, FAILURE, RETRY, REVOKED
+                # custom: RASTERNOTFOUND, ZONALNULL
                 status[name] = async_status
             else:
                 status[name] = "NOTSTARTED"

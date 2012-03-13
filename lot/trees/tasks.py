@@ -16,7 +16,9 @@ def impute(uid, raster_name, raster_proj4=None):
     try:
         raster = RasterDataset.objects.get(name=raster_name)
     except:
-        raster = None
+        impute.update_state(state="RASTERNOTFOUND")
+        return None
+
 
     if raster_name == 'elevation' and raster:
         geom = feature.geometry_final
@@ -24,10 +26,17 @@ def impute(uid, raster_name, raster_proj4=None):
             geom = geom.transform(raster_proj4, clone=True)
         stats = zonal_stats(geom, raster)
         result = stats.avg
+        if result is None:
+            impute.update_state(state="ZONALNULL")
+            return None
         feature.imputed_elevation = result 
         save = True
 
     if save:
         feature.save(impute=False)
 
+    if result is None:
+        impute.update_state(state="UNKNOWNERROR")
+        return None
+    
     return result

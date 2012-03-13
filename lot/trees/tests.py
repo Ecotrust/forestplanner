@@ -10,6 +10,7 @@ from madrona.features import *
 from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
+from madrona.raster_stats.models import RasterDataset
 from trees.models import Stand, ForestProperty
 from trees.utils import StandImporter
 
@@ -336,17 +337,16 @@ class ImputeTest(TestCase):
     Occurs asynchronously so this requires django-celery and a running celeryd
     '''
     def setUp(self):
-        g1 = GEOSGeometry(
+        g2 = GEOSGeometry(
             'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
             {'x1': -13793480, 'y1': 5071523, 'x2': -13781352, 'y2': 5086387})
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g2) 
         self.stand1.save(impute=False)
         self.pk1 = self.stand1.pk
 
-        from madrona.raster_stats.models import RasterDataset
         d = os.path.dirname(__file__)
         elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'elevation.tif'))
@@ -376,6 +376,27 @@ class ImputeTest(TestCase):
         self.stand1.save() # impute=True
         s1 = Stand.objects.get(pk=self.pk1)
         self.assertEqual(s1.status['imputed_elevation'], 'COMPLETED')
+
+    def test_raster_not_found(self):
+        self.elev.delete()
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'NOTSTARTED')
+        self.stand1.save() # impute=True
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'RASTERNOTFOUND')
+
+    def test_zonal_null(self):
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'NOTSTARTED')
+        offgeom = GEOSGeometry(
+            'SRID=3857;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
+        s1.geometry_final = offgeom # this geom should be off the elevation map
+        s1.save() # side benefit - also tests if _impute(preclean=True) is effective
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'ZONALNULL', s1.imputed_elevation)
+
+    def test_impute_reprojection(self):
+        pass
 
     def test_settings_fields(self):
         for rast,proj in settings.IMPUTE_RASTERS:
