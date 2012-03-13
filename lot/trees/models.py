@@ -7,6 +7,7 @@ from django.utils.simplejson import dumps
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
+from madrona.async.ProcessHandler import check_status_or_begin, get_process_status
 
 @register
 class Stand(PolygonFeature):
@@ -36,14 +37,39 @@ class Stand(PolygonFeature):
                 select='multiple single'),
         )
 
-    def _impute(self):
-        from trees.tasks import impute
-        from madrona.async.ProcessHandler import check_status_or_begin
-        task_ids = [] 
+    @property
+    def status(self):
+        status = {}
         for raster in settings.IMPUTE_RASTERS:
-            status, task_id = check_status_or_begin(impute, task_args=(self.uid,raster[0],raster[1]))
-            task_ids.append(task_id)
-        return task_ids
+            name = "imputed_%s" % raster[0]
+            url = "%s%s" % (self.get_absolute_url(), name)
+            async_status = get_process_status(polling_url=url)
+            if self.__dict__[name] is not None:
+                status[name] = "COMPLETED"
+            elif async_status is not None:
+                # STARTED, PENDING, SUCCESS, FAILURE, RETRY, REVOKED
+                status[name] = async_status
+            else:
+                status[name] = "NOTSTARTED"
+        return status
+
+    def _impute(self, preclean=True, limit_to=None):
+        '''
+        preclean: if True, will wipe out the old stored value before firing the process
+        limit_to: list of rasters to (re)impute
+        '''
+        from trees.tasks import impute
+        for raster in settings.IMPUTE_RASTERS:
+            if limit_to and raster[0] in limit_to:
+                continue
+            name = "imputed_%s" % raster[0]
+            url = "%s%s" % (self.get_absolute_url(), name)
+            if preclean:
+                self.__dict__[name] = None
+                self.save(impute=False)
+            status, task_id = check_status_or_begin(impute, 
+                    task_args=(self.uid,raster[0],raster[1]), 
+                    polling_url=url)
 
     def save(self, *args, **kwargs):
         impute = kwargs.pop('impute', True)

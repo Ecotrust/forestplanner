@@ -370,6 +370,13 @@ class ImputeTest(TestCase):
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
 
+    def test_impute_status(self):
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'NOTSTARTED')
+        self.stand1.save() # impute=True
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.status['imputed_elevation'], 'COMPLETED')
+
     def test_settings_fields(self):
         for rast,proj in settings.IMPUTE_RASTERS:
             fname = "imputed_" + rast
