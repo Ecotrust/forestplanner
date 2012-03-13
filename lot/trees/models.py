@@ -54,10 +54,11 @@ class Stand(PolygonFeature):
                 status[name] = "NOTSTARTED"
         return status
 
-    def _impute(self, preclean=True, limit_to=None):
+    def _impute(self, force=False, preclean=True, limit_to=None):
         '''
         preclean: if True, will wipe out the old stored value before firing the process
         limit_to: list of rasters to (re)impute
+        force: if True, bypass the zonal_stats cache
         '''
         from trees.tasks import impute
         for raster in settings.IMPUTE_RASTERS:
@@ -69,14 +70,42 @@ class Stand(PolygonFeature):
                 self.__dict__[name] = None
                 self.save(impute=False)
             status, task_id = check_status_or_begin(impute, 
-                    task_args=(self.uid,raster[0],raster[1]), 
+                    task_args=(self.uid,raster[0],raster[1],force), 
                     polling_url=url)
 
     def save(self, *args, **kwargs):
+        """
+        stand.save(impute=True, force=False) <- default; impute only if update is needed
+        stand.save(impute=True, force=True) <- will force redo of all imputations
+        stand.save(impute=False) <- don't trigger async impute routines, just save the model
+        """
         impute = kwargs.pop('impute', True)
+        force = kwargs.pop('force', False)
+        if self.pk is not None:
+            # modifying an existing feature
+            orig = Stand.objects.get(pk=self.pk)
+            geom_fields = [f for f in Stand._meta.fields if f.attname.startswith('geometry_')]
+            same_geom = True  # assume geometries have NOT changed
+            for f in geom_fields:
+                # Is original value different from form value?
+                if orig._get_FIELD_display(f) != self._get_FIELD_display(f):
+                    same_geom = False
+
+            all_imputes_done = True  # assume they are all complete
+            for raster in settings.IMPUTE_RASTERS:
+                name = "imputed_%s" % raster[0]
+                if self.__dict__[name] is None:
+                    all_imputes_done = False
+                    break
+
+            # If geom is the same and all imputed fields are completed, don't reimpute unless force=True 
+            if same_geom and all_imputes_done and not force:
+                impute = False
+
         super(Stand, self).save(*args, **kwargs)
+
         if impute:
-            self._impute()
+            self._impute(force=force)
 
     @property
     def complete(self):

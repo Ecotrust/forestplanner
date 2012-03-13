@@ -377,6 +377,33 @@ class ImputeTest(TestCase):
         s1 = Stand.objects.get(pk=self.pk1)
         self.assertEqual(s1.status['imputed_elevation'], 'COMPLETED')
 
+    def test_impute_smart_save(self):
+        d = os.path.dirname(__file__)
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.imputed_elevation, None)
+        s1.save() # no need to force since impute fields are None
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+        elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'elevationx2.tif')) # swap raster to elevation x 2
+        self.elev.filepath = elev_path
+        self.elev.save()
+        s1.save() # dont force
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev) # shouldn't change since we didn't force
+        s1.save(impute=True, force=True)  # this time force it
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev * 2, places=5) # now we should get a new elevation value  
+        elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'elevation.tif')) # swap rasters back to normal elevation
+        self.elev.filepath = elev_path
+        self.elev.save()
+        geom = s1.geometry_final
+        s1.geometry_final = geom.buffer(0.0001) # alter geom slightly
+        s1.save() # shouldn't need to force since geom is altered
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev) # back to the original elevation value
+
     def test_raster_not_found(self):
         self.elev.delete()
         s1 = Stand.objects.get(pk=self.pk1)
