@@ -24,6 +24,7 @@ class Stand(PolygonFeature):
             verbose_name="Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="--")
+    imputed_elevation = models.FloatField(null=True, blank=True, editable=False)
 
     class Options:
         form = "lot.trees.forms.StandForm"
@@ -34,6 +35,22 @@ class Stand(PolygonFeature):
                 type="application/json",
                 select='multiple single'),
         )
+
+    def _impute(self):
+        from trees.tasks import impute
+        from madrona.async.ProcessHandler import check_status_or_begin
+        impute_rasters = ['elevation']
+        task_ids = [] 
+        for raster in impute_rasters:
+            status, task_id = check_status_or_begin(impute, task_args=(self.uid,raster))
+            task_ids.append(task_id)
+        return task_ids
+
+    def save(self, *args, **kwargs):
+        impute = kwargs.pop('impute', True)
+        super(Stand, self).save(*args, **kwargs)
+        if impute:
+            self._impute()
 
     @property
     def complete(self):

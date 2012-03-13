@@ -329,19 +329,51 @@ class SpatialTest(TestCase):
 
 class ImputeTest(TestCase):
     '''
-    Does this occur on model save()? Async or sync?
-    Or is there another API call done? Async or sync?
-    # Single raster stats on GNN
-    # Async raster stats
-    # Raster stats at the property level (or multiple stands)
-    # test pulling useful tree data out of database
+    Occurs automatically on model save() UNLESS you pass impute=False.
+    Can also be called directly using feature._impute() though this should 
+      probably be considered a semi-private method
+    Occurs asynchronously so this requires django-celery and a running celeryd
     '''
-    pass
+    def setUp(self):
+        g1 = GEOSGeometry(
+            'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
+            {'x1': -13793480, 'y1': 5071523, 'x2': -13781352, 'y2': 5086387})
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1.save(impute=False)
+        self.pk1 = self.stand1.pk
+
+        from madrona.raster_stats.models import RasterDataset
+        d = os.path.dirname(__file__)
+        elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'elevation.tif'))
+        # Here we'll need to create dummy rasterdatasets for everything 
+        # in the _impute() -> impute_rasters list
+        self.elev = RasterDataset.objects.create(name="elevation",
+                filepath=elev_path, type='continuous')
+        self.avg_elev = 578.22636599
+
+    def test_impute_onsave(self):
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEqual(s1.imputed_elevation, None)
+        self.stand1.save() # impute=True
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertNotEqual(s1.imputed_elevation, None)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+
+    def test_impute_method(self):
+        self.stand1._impute()
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertNotEqual(s1.imputed_elevation, None)
+        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+
 
 class StandImportTest(TestCase):
     '''
     TODO
-    # test bad shapefiles (other geom types, bad mapping dict)
+    # test bad shapefiles (other geom types, bad mapping dict, projection)
     # assert that mapped attributes are populated
     '''
     def setUp(self):

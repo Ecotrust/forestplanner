@@ -36,4 +36,6 @@ GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '
 
 DEFAULT_EXTENT = (-14056200,4963200,-12471500,6128400) # in mercator
 
+TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
+
 from settings_local import *
