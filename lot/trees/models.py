@@ -39,10 +39,9 @@ class Stand(PolygonFeature):
     def _impute(self):
         from trees.tasks import impute
         from madrona.async.ProcessHandler import check_status_or_begin
-        impute_rasters = ['elevation']
         task_ids = [] 
-        for raster in impute_rasters:
-            status, task_id = check_status_or_begin(impute, task_args=(self.uid,raster))
+        for raster in settings.IMPUTE_RASTERS:
+            status, task_id = check_status_or_begin(impute, task_args=(self.uid,raster[0],raster[1]))
             task_ids.append(task_id)
         return task_ids
 

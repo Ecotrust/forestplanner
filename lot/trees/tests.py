@@ -4,6 +4,7 @@ from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry 
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
+from django.conf import settings
 from simplejson import loads
 from madrona.features import *
 from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
@@ -368,6 +369,11 @@ class ImputeTest(TestCase):
         s1 = Stand.objects.get(pk=self.pk1)
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+
+    def test_settings_fields(self):
+        for rast,proj in settings.IMPUTE_RASTERS:
+            fname = "imputed_" + rast
+            self.assertTrue(fname in self.stand1.__dict__)
 
 
 class StandImportTest(TestCase):

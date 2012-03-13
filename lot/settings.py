@@ -38,4 +38,10 @@ DEFAULT_EXTENT = (-14056200,4963200,-12471500,6128400) # in mercator
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
+# List of tuples: raster name and proj4 string of the raster 
+# proj4==None implies mercator
+albers = '+proj=aea +lat_1=43 +lat_2=48 +lat_0=34 +lon_0=-120 +x_0=600000 \
++y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
+IMPUTE_RASTERS = [('elevation', None),]
+
 from settings_local import *
