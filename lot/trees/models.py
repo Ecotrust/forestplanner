@@ -8,6 +8,7 @@ from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 from madrona.async.ProcessHandler import check_status_or_begin, get_process_status
+from madrona.raster_stats.models import RasterDataset
 
 @register
 class Stand(PolygonFeature):
@@ -25,7 +26,7 @@ class Stand(PolygonFeature):
             verbose_name="Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="--")
-    imputed_elevation = models.FloatField(null=True, blank=True, editable=False)
+
 
     class Options:
         form = "lot.trees.forms.StandForm"
@@ -38,37 +39,88 @@ class Stand(PolygonFeature):
         )
 
     @property
+    def imputed_elevation(self):
+        try:
+            raster = RasterDataset.objects.get(name="elevation")
+            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
+            result = imputed_data.val  
+        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
+            result = None
+        return result
+
+    @property
+    def imputed_aspect(self):
+        import math
+        try:
+            cos_raster = RasterDataset.objects.get(name="cos_aspect")
+            cos_sum = ImputedData.objects.get(raster=cos_raster,feature=self)
+
+            sin_raster = RasterDataset.objects.get(name="sin_aspect")
+            sin_sum = ImputedData.objects.get(raster=sin_raster,feature=self)
+
+            avg_aspect_rad = math.atan2(cos_sum.val, sin_sum.val)
+            result = math.degrees(avg_aspect_rad)
+        except ImputedData.DoesNotExist:
+            result = None
+        return result
+
+    @property
+    def imputed_slope(self):
+        try:
+            raster = RasterDataset.objects.get(name="slope")
+            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
+            result = imputed_data.val  
+        except ImputedData.DoesNotExist:
+            result = None
+        return result
+
+    @property
+    def imputed_gnn(self):
+        try:
+            raster = RasterDataset.objects.get(name="gnn")
+            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
+            result = imputed_data.val  
+        except ImputedData.DoesNotExist:
+            result = None
+        return result
+
+
+    @property
+    def imputed(self):
+        return {'aspect': self.imputed_aspect, 
+                'elevation': self.imputed_elevation, 
+                'slope': self.imputed_slope,
+                'gnn': self.imputed_gnn,
+               }
+    @property
     def status(self):
         status = {}
-        for raster in settings.IMPUTE_RASTERS:
-            name = "imputed_%s" % raster[0]
+        for raster in self.imputed.keys():
+            name = "imputed_%s" % raster
             url = "%s%s" % (self.get_absolute_url(), name)
             async_status = get_process_status(polling_url=url)
-            if self.__dict__[name] is not None:
-                status[name] = "COMPLETED"
+            if self.imputed[raster] is not None:
+                status[raster] = "COMPLETED"
             elif async_status is not None:
                 # STARTED, PENDING, SUCCESS, FAILURE, RETRY, REVOKED
                 # custom: RASTERNOTFOUND, ZONALNULL
-                status[name] = async_status
+                status[raster] = async_status
             else:
-                status[name] = "NOTSTARTED"
+                status[raster] = "NOTSTARTED"
         return status
 
-    def _impute(self, force=False, preclean=True, limit_to=None):
+    def _impute(self, force=False, limit_to=None):
         '''
-        preclean: if True, will wipe out the old stored value before firing the process
         limit_to: list of rasters to (re)impute
         force: if True, bypass the zonal_stats cache
         '''
         from trees.tasks import impute
         for raster in settings.IMPUTE_RASTERS:
-            if limit_to and raster[0] in limit_to:
+            if limit_to and raster[0] not in limit_to:
                 continue
             name = "imputed_%s" % raster[0]
             url = "%s%s" % (self.get_absolute_url(), name)
-            if preclean:
-                self.__dict__[name] = None
-                self.save(impute=False)
+
             status, task_id = check_status_or_begin(impute, 
                     task_args=(self.uid,raster[0],raster[1],force), 
                     polling_url=url)
@@ -81,7 +133,8 @@ class Stand(PolygonFeature):
         """
         impute = kwargs.pop('impute', True)
         force = kwargs.pop('force', False)
-        if self.pk is not None:
+
+        if self.pk:
             # modifying an existing feature
             orig = Stand.objects.get(pk=self.pk)
             geom_fields = [f for f in Stand._meta.fields if f.attname.startswith('geometry_')]
@@ -91,12 +144,7 @@ class Stand(PolygonFeature):
                 if orig._get_FIELD_display(f) != self._get_FIELD_display(f):
                     same_geom = False
 
-            all_imputes_done = True  # assume they are all complete
-            for raster in settings.IMPUTE_RASTERS:
-                name = "imputed_%s" % raster[0]
-                if self.__dict__[name] is None:
-                    all_imputes_done = False
-                    break
+            all_imputes_done = None not in self.imputed.values()
 
             # If geom is the same and all imputed fields are completed, don't reimpute unless force=True 
             if same_geom and all_imputes_done and not force:
@@ -130,6 +178,11 @@ class Stand(PolygonFeature):
 }""" % (self.geometry_final.json, dumps(d))
 
         return j
+
+class ImputedData(models.Model):
+    raster = models.ForeignKey(RasterDataset)
+    feature = models.ForeignKey(Stand)
+    val = models.FloatField(null=True, blank=True)
 
 @register
 class ForestProperty(FeatureCollection):
@@ -254,3 +307,4 @@ def import_stands():
         s.delete()
     map1 = LayerMapping(Stand, stands_shp, stand_mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
