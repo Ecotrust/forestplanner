@@ -60,7 +60,7 @@ class Stand(PolygonFeature):
 
             avg_aspect_rad = math.atan2(cos_sum.val, sin_sum.val)
             result = math.degrees(avg_aspect_rad)
-        except ImputedData.DoesNotExist:
+        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
             result = None
         return result
 
@@ -70,7 +70,7 @@ class Stand(PolygonFeature):
             raster = RasterDataset.objects.get(name="slope")
             imputed_data = ImputedData.objects.get(raster=raster,feature=self)
             result = imputed_data.val  
-        except ImputedData.DoesNotExist:
+        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
             result = None
         return result
 
@@ -80,7 +80,7 @@ class Stand(PolygonFeature):
             raster = RasterDataset.objects.get(name="gnn")
             imputed_data = ImputedData.objects.get(raster=raster,feature=self)
             result = imputed_data.val  
-        except ImputedData.DoesNotExist:
+        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
             result = None
         return result
 
