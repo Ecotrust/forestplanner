@@ -21,7 +21,8 @@ from madrona.features import user_sharing_groups
 from madrona.studyregion.models import StudyRegion
 from madrona.layers.models import PublicLayerList
 from madrona.layers.views import has_privatekml
-from madrona.features.views import has_features
+from madrona.features.views import has_features, get_object_for_viewing
+from madrona.features import get_feature_by_uid
 from madrona.common.utils import get_logger
 import json
 import os
@@ -38,12 +39,28 @@ def user_property_list(request):
     if not request.user.is_authenticated():
         return HttpResponse('You must be logged in.', status=401)
 
-    uplist = ForestProperty.objects.filter(user=request.user)
-    userprops = {}
-    for fp in uplist:
-        userprops[fp.uid] = fp.name
-    d = json.dumps(userprops)
-    return HttpResponse(d, mimetype='application/json', status=200)
+    user_fps = ForestProperty.objects.filter(user=request.user)
+    gj = """{ "type": "FeatureCollection",
+    "features": [
+    %s
+    ]}""" % '%s' % ', '.join([fp.geojson for fp in user_fps])
+    return HttpResponse(gj, mimetype='application/json', status=200)
+
+def property_stand_list(request, property_uid):
+    '''
+    Present list of stands for a given property
+    '''
+    from trees.models import ForestProperty
+
+    if not request.user.is_authenticated():
+        return HttpResponse('You must be logged in.', status=401)
+
+    fp = get_object_for_viewing(request, property_uid, target_klass=ForestProperty)
+    if isinstance(fp, HttpResponse):
+        return fp # some sort of http error response
+
+    gj = fp.stand_set_geojson()
+    return HttpResponse(gj, mimetype='application/json', status=200)
 
 def upload_stands(request):
     '''
@@ -113,7 +130,7 @@ def geojson_forestproperty(request, instance):
     '''
     Generic view to represent Properties as GeoJSON
     '''
-    return HttpResponse(instance.geojson, mimetype='application/json', status=200)
+    return HttpResponse(instance.stand_set_geojson(), mimetype='application/json', status=200)
 
 def geojson_stands(request, instances):
     '''

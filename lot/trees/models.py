@@ -27,7 +27,6 @@ class Stand(PolygonFeature):
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="--")
 
-
     class Options:
         form = "lot.trees.forms.StandForm"
         manipulators = []
@@ -37,6 +36,32 @@ class Stand(PolygonFeature):
                 type="application/json",
                 select='multiple single'),
         )
+
+    @property
+    def geojson(self):
+        '''
+        Couldn't find any serialization methods flexible enough for our needs
+        So we do it the hard way.
+        '''
+        d = {
+                'uid': self.uid,
+                'name': self.name,
+                'rx': self.rx,
+                'domspp': self.domspp,
+                'elevation': self.imputed_elevation,
+                'aspect': self.imputed_aspect,
+                'gnn': self.imputed_gnn,
+                'slope': self.imputed_slope,
+                'user_id': self.user.pk,
+                'date_modified': str(self.date_modified),
+                'date_created': str(self.date_created),
+            }
+        gj = """{ 
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s 
+        }""" % (self.geometry_final.json, dumps(d))
+        return gj
 
     @property
     def imputed_elevation(self):
@@ -163,22 +188,6 @@ class Stand(PolygonFeature):
             return False
         return True
 
-    @property
-    def geojson(self):
-        d = {'uid': self.uid,
-             'name': self.name,
-             'date_modified': str(self.date_modified),
-             'rx': self.get_rx_display(),
-             'domspp': self.get_domspp_display() }
-
-        j = """{ 
-              "type": "Feature",
-              "geometry": %s,
-              "properties": %s 
-}""" % (self.geometry_final.json, dumps(d))
-
-        return j
-
 class ImputedData(models.Model):
     raster = models.ForeignKey(RasterDataset)
     feature = models.ForeignKey(Stand)
@@ -186,21 +195,48 @@ class ImputedData(models.Model):
 
 @register
 class ForestProperty(FeatureCollection):
-    # defaults to the approx extent (in mercator) of our study region
-    minx = models.IntegerField(default=settings.DEFAULT_EXTENT[0])
-    miny = models.IntegerField(default=settings.DEFAULT_EXTENT[1])
-    maxx = models.IntegerField(default=settings.DEFAULT_EXTENT[2])
-    maxy = models.IntegerField(default=settings.DEFAULT_EXTENT[3])
+    geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
+            null=True, blank=True, verbose_name="Stand Polygon Geometry")
+
+    @property
+    def geojson(self):
+        '''
+        Couldn't find any serialization methods flexible enough for our needs
+        So we do it the hard way.
+        '''
+        d = {
+                'uid': self.uid,
+                'name': self.name,
+                'user_id': self.user.pk,
+                'bbox': self.bbox,
+                'date_modified': str(self.date_modified),
+                'date_created': str(self.date_created),
+            }
+        try:
+            geom_json = self.geometry_final.json
+        except AttributeError:
+            geom_json = 'null'
+
+        gj = """{ 
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s 
+        }""" % (geom_json, dumps(d))
+        return gj
+
+    def stand_set_geojson(self):
+        featxt = ', '.join([i.geojson for i in self.feature_set()])
+        return """{ "type": "FeatureCollection",
+        "features": [
+        %s
+        ]}""" % featxt
 
     @property
     def bbox(self):
-        return (self.minx, self.miny, self.maxx, self.maxy)
-
-    def set_bbox(self, bbox):
-        if len(bbox) != 4:
-            raise Exception("BBOX must be a 4-item list/tuple with minx,miny,maxx,maxy")
-        self.minx, self.miny, self.maxx, self.maxy = bbox
-        self.save()
+        try:
+            return self.geometry_final.extent
+        except AttributeError:
+            return settings.DEFAULT_EXTENT
 
     @property
     def file_dir(self):
@@ -232,13 +268,6 @@ class ForestProperty(FeatureCollection):
         )
         return calculate_adjacency(stands, threshold)
 
-    @property
-    def geojson(self):
-        featxt = ', '.join([i.geojson for i in self.feature_set()])
-        return """{ "type": "FeatureCollection",
-        "features": [
-        %s
-        ]}""" % featxt
 
     class Options:
         valid_children = ('lot.trees.models.Stand',)

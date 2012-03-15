@@ -77,9 +77,10 @@ class ForestPropertyTest(TestCase):
         prop1.save()
         self.assertEqual(prop1.bbox, settings.DEFAULT_EXTENT)
         new_extent = (-14056250,4963250,-12471550,6128450) # in mercator
-        prop1.set_bbox(new_extent)
+        prop1.geometry_final = g1
+        prop1.save()
         self.assertNotEqual(prop1.bbox, settings.DEFAULT_EXTENT)
-        self.assertEqual(prop1.bbox, new_extent)
+        self.assertEqual(prop1.bbox, g1.extent)
 
     def test_add_property_to_stand(self):
         prop1 = ForestProperty(user=self.user, name="My Property")
@@ -211,7 +212,7 @@ class RestTest(TestCase):
 class UserPropertyListTest(TestCase):
     '''
     test web service to grab json of user's properties
-    {uid:name, ..}
+    [{fpattrs}, ...]
     '''
     def setUp(self):
         self.client = Client()
@@ -223,14 +224,14 @@ class UserPropertyListTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
-    def test_jsonlist_link(self):
+    def test_jsonlist(self):
         self.client.login(username='featuretest', password='pword')
         url = reverse('trees-user_property_list')
 
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
-        self.assertEquals(plist, {})
+        self.assertEquals(plist['features'], [])
 
         prop1 = ForestProperty(user=self.user, name="My Property")
         prop1.save()
@@ -238,7 +239,63 @@ class UserPropertyListTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
-        self.assertEquals(plist.items()[0][1], 'My Property')
+        self.assertEquals(plist['features'][0]['properties']['name'], 'My Property')
+
+class PropertyStandListTest(TestCase):
+    '''
+    test web service to grab json of user's propertie's stands
+    [{stand-attrs}, ...]
+    '''
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.baduser = User.objects.create_user(
+            'baduser', 'baduser@madrona.org', password='pword')
+
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1.save()
+        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        self.stand2.save()
+        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1.save()
+        self.prop1.add(self.stand1)
+        enable_sharing()
+
+    def test_unauth(self):
+        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_notexists(self):
+        self.client.login(username='baduser', password='pword')
+        url = reverse('trees-property_stand_list', kwargs={'property_uid': 'trees_forestproperty_123456789'})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)
+
+    def test_baduser(self):
+        self.client.login(username='baduser', password='pword')
+        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 403) 
+
+    def test_jsonlist(self):
+        self.client.login(username='featuretest', password='pword')
+        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        stand_list = loads(response.content)
+        self.assertEquals(stand_list['features'][0]['properties']['name'], 'My Stand', stand_list)
+
+        self.prop1.add(self.stand2)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200) 
+        stand_list = loads(response.content)
+        names = [stand['properties']['name'] for stand in stand_list['features']]
+        names.sort()
+        expected_names = ['My Stand', 'My Stand2']
+        expected_names.sort()
+        self.assertEqual(names, expected_names)
 
 class ManipulatorsTest(TestCase):
     '''
@@ -277,12 +334,12 @@ class SpatialTest(TestCase):
         self.assertEquals(d['properties']['name'], 'My Stand')
 
     def test_property_json(self):
-        thejson = self.prop1.geojson
+        thejson = self.prop1.stand_set_geojson()
         d = loads(thejson)
         self.assertEquals(len(d['features']), 1)
         self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
         self.prop1.add(self.stand2)
-        thejson = self.prop1.geojson
+        thejson = self.prop1.stand_set_geojson()
         d = loads(thejson)
         self.assertEquals(len(d['features']), 2)
 

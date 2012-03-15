@@ -19,7 +19,6 @@ def impute(uid, raster_name, raster_proj4=None, force=False):
     save = False
     result = None
     raster = None
-   
     
     try:
         raster = RasterDataset.objects.get(name=raster_name)
