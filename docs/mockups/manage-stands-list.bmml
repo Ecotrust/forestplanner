@@ -1,0 +1,126 @@
+<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1182" mockupH="669">
+  <controls>
+    <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <markup>true</markup>
+        <text>Forest%20Scenario%20Planner%0Ahttp%3A//murdock.labs.ecotrust.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="59" controlTypeID="com.balsamiq.mockups::MenuBar" x="300" y="83" w="1040" h="39" measuredW="1042" measuredH="29" zOrder="1" locked="true" isInGroup="-1">
+      <controlProperties>
+        <icon>WorldIcon%7Csmall</icon>
+        <text>Forest%20Scenario%20Planner%2CAbout%2CHelp%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2CWelcome%5C%2C%20user%20Account%20Info%20Sign%20Out</text>
+      </controlProperties>
+    </control>
+    <control controlID="75" controlTypeID="com.balsamiq.mockups::SearchBox" x="1101" y="148" w="210" h="-1" measuredW="118" measuredH="25" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Soapstone%20Lake</text>
+      </controlProperties>
+    </control>
+    <control controlID="76" controlTypeID="com.balsamiq.mockups::Label" x="857" y="148" w="-1" h="-1" measuredW="244" measuredH="24" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Search%20by%20placename%20or%20parcel%20id%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="78" controlTypeID="com.balsamiq.mockups::Title" x="315" y="135" w="-1" h="-1" measuredW="279" measuredH="50" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Manage%20Stands</text>
+      </controlProperties>
+    </control>
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="134" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Home%2C%20Mirkwood</text>
+      </controlProperties>
+    </control>
+    <control controlID="92" controlTypeID="com.balsamiq.mockups::Paragraph" x="321" y="219" w="332" h="71" measuredW="200" measuredH="140" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>This%20property%20consists%20of%20143%20acres%20in%20Tillamook%20County%20and%20contains%201%20stand%20under%20management.</text>
+      </controlProperties>
+    </control>
+    <control controlID="110" controlTypeID="com.balsamiq.mockups::Image" x="687" y="188" w="-1" h="-1" measuredW="624" measuredH="414" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/manage-stands-creating.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="127" controlTypeID="com.balsamiq.mockups::DataGrid" x="329" y="290" w="324" h="131" measuredW="286" measuredH="60" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>square</borderStyle>
+        <rowHeight>35</rowHeight>
+        <selectedIndex>0</selectedIndex>
+        <text>Name%20%5E%2C%20Area%20%28acres%29%2C%20Species%0A100%20Acre%20Wood%2C100%2C%20Douglas%20Fir</text>
+        <value>0</value>
+        <verticalScrollbar>true</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="128" controlTypeID="com.balsamiq.mockups::SubTitle" x="321" y="432" w="-1" h="-1" measuredW="110" measuredH="26" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>18</size>
+        <text>Stand%20Details</text>
+      </controlProperties>
+    </control>
+    <control controlID="129" controlTypeID="com.balsamiq.mockups::Label" x="334" y="462" w="-1" h="-1" measuredW="44" measuredH="21" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Name%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="130" controlTypeID="com.balsamiq.mockups::Label" x="464" y="462" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>100%20Acre%20Wood</text>
+      </controlProperties>
+    </control>
+    <control controlID="131" controlTypeID="com.balsamiq.mockups::Label" x="332" y="486" w="-1" h="-1" measuredW="109" measuredH="21" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Dominant%20Species</text>
+      </controlProperties>
+    </control>
+    <control controlID="132" controlTypeID="com.balsamiq.mockups::Label" x="462" y="486" w="79" h="21" measuredW="67" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Douglas%20Fir</text>
+      </controlProperties>
+    </control>
+    <control controlID="133" controlTypeID="com.balsamiq.mockups::Label" x="332" y="507" w="-1" h="-1" measuredW="102" measuredH="21" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Calculated%20Area%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="134" controlTypeID="com.balsamiq.mockups::Label" x="462" y="508" w="79" h="21" measuredW="65" measuredH="21" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>100%20acres</text>
+      </controlProperties>
+    </control>
+    <control controlID="135" controlTypeID="__group__" x="334" y="529" w="209" h="24" measuredW="209" measuredH="24" zOrder="16" locked="false" isInGroup="-1">
+      <groupChildrenDescriptors>
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::Label" x="0" y="0" w="102" h="23" measuredW="64" measuredH="21" zOrder="0" locked="false" isInGroup="135">
+          <controlProperties>
+            <text>More%20Info%3A</text>
+          </controlProperties>
+        </control>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Label" x="130" y="1" w="79" h="23" measuredW="104" measuredH="21" zOrder="1" locked="false" isInGroup="135">
+          <controlProperties>
+            <text>Other%20information</text>
+          </controlProperties>
+        </control>
+      </groupChildrenDescriptors>
+    </control>
+    <control controlID="136" controlTypeID="com.balsamiq.mockups::Button" x="571" y="575" w="-1" h="-1" measuredW="82" measuredH="27" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <menuIcon>false</menuIcon>
+        <text>Edit%20Stand</text>
+      </controlProperties>
+    </control>
+    <control controlID="137" controlTypeID="com.balsamiq.mockups::Button" x="441" y="575" w="-1" h="-1" measuredW="119" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <menuIcon>false</menuIcon>
+        <text>Perform%20Analysis</text>
+      </controlProperties>
+    </control>
+    <control controlID="138" controlTypeID="com.balsamiq.mockups::StickyNote" x="158" y="528" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>analysis%20limited%20to%20single%20stand%3F</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
