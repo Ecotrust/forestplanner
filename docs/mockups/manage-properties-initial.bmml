@@ -1,0 +1,93 @@
+<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1040" mockupH="669">
+  <controls>
+    <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <markup>true</markup>
+        <text>Forest%20Scenario%20Planner%0Ahttp%3A//murdock.labs.ecotrust.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="59" controlTypeID="com.balsamiq.mockups::MenuBar" x="300" y="83" w="1040" h="39" measuredW="1042" measuredH="29" zOrder="1" locked="true" isInGroup="-1">
+      <controlProperties>
+        <icon>WorldIcon%7Csmall</icon>
+        <text>Forest%20Scenario%20Planner%2CAbout%2CHelp%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2CWelcome%5C%2C%20user%20Account%20Info%20Sign%20Out</text>
+      </controlProperties>
+    </control>
+    <control controlID="75" controlTypeID="com.balsamiq.mockups::SearchBox" x="1101" y="148" w="210" h="-1" measuredW="118" measuredH="25" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Soapstone%20Lake</text>
+      </controlProperties>
+    </control>
+    <control controlID="76" controlTypeID="com.balsamiq.mockups::Label" x="857" y="148" w="-1" h="-1" measuredW="244" measuredH="24" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Search%20by%20placename%20or%20parcel%20id%3A</text>
+      </controlProperties>
+    </control>
+    <control controlID="78" controlTypeID="com.balsamiq.mockups::Title" x="315" y="135" w="-1" h="-1" measuredW="340" measuredH="50" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Manage%20Properties</text>
+      </controlProperties>
+    </control>
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="142" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Home%2C%20Properties</text>
+      </controlProperties>
+    </control>
+    <control controlID="91" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="229" w="355" h="-1" measuredW="349" measuredH="26" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>18</size>
+        <text>You%20have%20no%20properties%20under%20management.</text>
+      </controlProperties>
+    </control>
+    <control controlID="92" controlTypeID="com.balsamiq.mockups::Paragraph" x="330" y="255" w="240" h="55" measuredW="200" measuredH="140" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>13</size>
+        <text>Find%20your%20properties%20on%20the%20map%20by%20searching%20for%20a%20placename%20or%20parcel%20id.</text>
+      </controlProperties>
+    </control>
+    <control controlID="93" controlTypeID="com.balsamiq.mockups::SearchBox" x="315" y="300" w="255" h="-1" measuredW="118" measuredH="25" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Soapstone%20Lake</text>
+      </controlProperties>
+    </control>
+    <control controlID="94" controlTypeID="com.balsamiq.mockups::PointyButton" x="580" y="299" w="70" h="-1" measuredW="61" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>search</text>
+      </controlProperties>
+    </control>
+    <control controlID="95" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="340" w="179" h="-1" measuredW="157" measuredH="26" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>18</size>
+        <text>Draw%20your%20property</text>
+      </controlProperties>
+    </control>
+    <control controlID="96" controlTypeID="com.balsamiq.mockups::Paragraph" x="330" y="364" w="228" h="57" measuredW="200" measuredH="140" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>When%20your%20property%20is%20in%20view%20on%20the%20map%2C%20click%20the%20button%20below%20to%20draw%20the%20boundaries%20of%20your%20first%20property.</text>
+      </controlProperties>
+    </control>
+    <control controlID="97" controlTypeID="com.balsamiq.mockups::Button" x="525" y="563" w="130" h="37" measuredW="127" measuredH="27" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Draw%20Property</text>
+      </controlProperties>
+    </control>
+    <control controlID="98" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="425" w="195" h="-1" measuredW="171" measuredH="26" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>18</size>
+        <text>Additional%20information</text>
+      </controlProperties>
+    </control>
+    <control controlID="99" controlTypeID="com.balsamiq.mockups::Paragraph" x="330" y="451" w="228" h="60" measuredW="200" measuredH="140" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Then%20you%20will%20be%20asked%20to%20enter%20some%20additional%20information%20to%20help%20describe%20your%20property.</text>
+      </controlProperties>
+    </control>
+    <control controlID="100" controlTypeID="com.balsamiq.mockups::Image" x="686" y="184" w="-1" h="-1" measuredW="625" measuredH="416" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/map-property-initial.png</src>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
