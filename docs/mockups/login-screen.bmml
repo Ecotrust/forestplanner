@@ -23,18 +23,6 @@
         <text>An%20online%20planning%20tool%20for%20the%20forests%20and%20rangelands%20of%20Oregon%20and%20Washington.%20%20Incorporating%20forest%20land%20management%2C%20carbon%20offset%2C%20quantification%20and%20spatially%20explicit%20ecosystem%20based%20management.</text>
       </controlProperties>
     </control>
-    <control controlID="28" controlTypeID="com.balsamiq.mockups::Image" x="391" y="210" w="75" h="101" measuredW="177" measuredH="212" zOrder="17" locked="false" isInGroup="-1">
-      <controlProperties>
-        <src>../../../../Documents/murdock/mockups/assets/lot-logo.png</src>
-        <text/>
-      </controlProperties>
-    </control>
-    <control controlID="29" controlTypeID="com.balsamiq.mockups::Image" x="754" y="220" w="299" h="371" measuredW="393" measuredH="468" zOrder="18" locked="false" isInGroup="-1">
-      <controlProperties>
-        <src>../../../../Documents/murdock/mockups/assets/map.png</src>
-        <text/>
-      </controlProperties>
-    </control>
     <control controlID="30" controlTypeID="com.balsamiq.mockups::Canvas" x="391" y="315" w="316" h="260" measuredW="100" measuredH="70" zOrder="3" locked="false" isInGroup="-1"/>
     <control controlID="31" controlTypeID="com.balsamiq.mockups::SubTitle" x="404" y="330" w="62" h="-1" measuredW="52" measuredH="33" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
@@ -63,6 +51,8 @@
     </control>
     <control controlID="36" controlTypeID="com.balsamiq.mockups::Button" x="604" y="398" w="88" h="26" measuredW="48" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-properties-initial%26bm%3Bmanage-properties-initial.bmml%26bm%3Bmanage-properties-initial.bmml%26bm%3Bmanage-properties-initial.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22348%2C372%2C436%2C398%22%20href%3D%22manage-properties-initial.bmml%22%20alt%3D%22manage-properties-initial%22%20id%3D%2236%22/%3E</map>
         <text>login</text>
       </controlProperties>
     </control>
@@ -94,6 +84,21 @@
     <control controlID="42" controlTypeID="com.balsamiq.mockups::Button" x="595" y="533" w="96" h="26" measuredW="64" measuredH="27" zOrder="15" locked="false" isInGroup="-1">
       <controlProperties>
         <text>create</text>
+      </controlProperties>
+    </control>
+    <control controlID="43" controlTypeID="com.balsamiq.mockups::Image" x="391" y="205" w="73" h="105" measuredW="303" measuredH="365" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/lot-logo.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::Image" x="769" y="206" w="347" h="398" measuredW="397" measuredH="467" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/login-map.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="45" controlTypeID="com.balsamiq.mockups::StickyNote" x="966" y="385" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>what%20layer%3F</text>
       </controlProperties>
     </control>
   </controls>

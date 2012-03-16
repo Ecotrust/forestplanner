@@ -28,7 +28,7 @@
         <text>Manage%20Properties</text>
       </controlProperties>
     </control>
-    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="142" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="143" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <size>16</size>
         <text>Home%2C%20Properties</text>
@@ -69,6 +69,8 @@
     </control>
     <control controlID="97" controlTypeID="com.balsamiq.mockups::Button" x="525" y="563" w="130" h="37" measuredW="127" measuredH="27" zOrder="12" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-properties-creating%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22225%2C546%2C355%2C583%22%20href%3D%22manage-properties-creating.bmml%22%20alt%3D%22manage-properties-creating%22%20id%3D%2297%22/%3E</map>
         <size>16</size>
         <text>Draw%20Property</text>
       </controlProperties>

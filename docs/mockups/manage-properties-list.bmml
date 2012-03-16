@@ -46,7 +46,7 @@
         <text>You%20are%20currently%20managing%20these%20properties.</text>
       </controlProperties>
     </control>
-    <control controlID="103" controlTypeID="com.balsamiq.mockups::DataGrid" x="328" y="247" w="315" h="169" measuredW="280" measuredH="165" zOrder="8" locked="false" isInGroup="-1">
+    <control controlID="103" controlTypeID="com.balsamiq.mockups::DataGrid" x="328" y="247" w="315" h="169" measuredW="296" measuredH="165" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>square</borderStyle>
         <rowHeight>35</rowHeight>
@@ -111,7 +111,7 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="120" controlTypeID="com.balsamiq.mockups::Button" x="555" y="586" w="-1" h="-1" measuredW="100" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
+    <control controlID="120" controlTypeID="com.balsamiq.mockups::Button" x="555" y="613" w="-1" h="-1" measuredW="100" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
         <menuIcon>false</menuIcon>
         <text>Edit%20Property</text>
@@ -120,6 +120,18 @@
     <control controlID="121" controlTypeID="com.balsamiq.mockups::Button" x="493" y="429" w="-1" h="-1" measuredW="150" measuredH="27" zOrder="19" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Create%20New%20Property</text>
+      </controlProperties>
+    </control>
+    <control controlID="122" controlTypeID="com.balsamiq.mockups::Button" x="458" y="613" w="-1" h="-1" measuredW="88" measuredH="27" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <menuIcon>false</menuIcon>
+        <text>Add%20Stands</text>
+      </controlProperties>
+    </control>
+    <control controlID="123" controlTypeID="com.balsamiq.mockups::Button" x="322" y="613" w="-1" h="-1" measuredW="119" measuredH="27" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <menuIcon>false</menuIcon>
+        <text>Perform%20Analysis</text>
       </controlProperties>
     </control>
   </controls>
