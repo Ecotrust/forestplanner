@@ -43,7 +43,7 @@
     <control controlID="92" controlTypeID="com.balsamiq.mockups::Paragraph" x="330" y="255" w="279" h="79" measuredW="200" measuredH="140" zOrder="7" locked="false" isInGroup="-1">
       <controlProperties>
         <size>13</size>
-        <text>You%20have%20specified%20a%20stand%20of%2040%20acres%20in%20the%20Mirkwood%20property.%20%20If%20you%27d%20like%20to%20revise%20this%20stand%2C%20you%20can%20redraw%20the%20shape%20by%20dragging%20the%20corners.</text>
+        <text>You%20have%20specified%20a%20stand%20of%20100%20acres%20in%20the%20Mirkwood%20property.%20%20If%20you%27d%20like%20to%20revise%20this%20stand%2C%20you%20can%20redraw%20the%20shape%20by%20dragging%20the%20corners.</text>
       </controlProperties>
     </control>
     <control controlID="97" controlTypeID="com.balsamiq.mockups::Button" x="533" y="593" w="130" h="37" measuredW="127" measuredH="27" zOrder="8" locked="false" isInGroup="-1">
@@ -130,9 +130,9 @@
         <text>Name</text>
       </controlProperties>
     </control>
-    <control controlID="130" controlTypeID="com.balsamiq.mockups::TextInput" x="509" y="408" w="-1" h="-1" measuredW="99" measuredH="27" zOrder="24" locked="false" isInGroup="-1">
+    <control controlID="130" controlTypeID="com.balsamiq.mockups::TextInput" x="509" y="408" w="-1" h="-1" measuredW="105" measuredH="27" zOrder="24" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>40%20Acre%20Wood</text>
+        <text>100%20Acre%20Wood</text>
       </controlProperties>
     </control>
   </controls>

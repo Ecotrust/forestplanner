@@ -45,12 +45,12 @@
         <src>./assets/manage-stands-creating.png</src>
       </controlProperties>
     </control>
-    <control controlID="127" controlTypeID="com.balsamiq.mockups::DataGrid" x="329" y="290" w="324" h="131" measuredW="280" measuredH="60" zOrder="8" locked="false" isInGroup="-1">
+    <control controlID="127" controlTypeID="com.balsamiq.mockups::DataGrid" x="329" y="290" w="324" h="131" measuredW="286" measuredH="60" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>square</borderStyle>
         <rowHeight>35</rowHeight>
         <selectedIndex>0</selectedIndex>
-        <text>Name%20%5E%2C%20Area%20%28acres%29%2C%20Species%0A40%20Acre%20Wood%2C40%2C%20Douglas%20Fir</text>
+        <text>Name%20%5E%2C%20Area%20%28acres%29%2C%20Species%0A100%20Acre%20Wood%2C100%2C%20Douglas%20Fir</text>
         <value>0</value>
         <verticalScrollbar>true</verticalScrollbar>
       </controlProperties>
@@ -66,9 +66,9 @@
         <text>Name%3A</text>
       </controlProperties>
     </control>
-    <control controlID="130" controlTypeID="com.balsamiq.mockups::Label" x="464" y="462" w="-1" h="-1" measuredW="91" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
+    <control controlID="130" controlTypeID="com.balsamiq.mockups::Label" x="464" y="462" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="11" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>40%20Acre%20Wood</text>
+        <text>100%20Acre%20Wood</text>
       </controlProperties>
     </control>
     <control controlID="131" controlTypeID="com.balsamiq.mockups::Label" x="332" y="486" w="-1" h="-1" measuredW="109" measuredH="21" zOrder="12" locked="false" isInGroup="-1">
@@ -86,9 +86,9 @@
         <text>Calculated%20Area%3A</text>
       </controlProperties>
     </control>
-    <control controlID="134" controlTypeID="com.balsamiq.mockups::Label" x="462" y="508" w="79" h="21" measuredW="59" measuredH="21" zOrder="15" locked="false" isInGroup="-1">
+    <control controlID="134" controlTypeID="com.balsamiq.mockups::Label" x="462" y="508" w="79" h="21" measuredW="65" measuredH="21" zOrder="15" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>40%20acres</text>
+        <text>100%20acres</text>
       </controlProperties>
     </control>
     <control controlID="135" controlTypeID="__group__" x="334" y="529" w="209" h="24" measuredW="209" measuredH="24" zOrder="16" locked="false" isInGroup="-1">

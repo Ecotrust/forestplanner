@@ -28,7 +28,7 @@
         <text>Manage%20Properties</text>
       </controlProperties>
     </control>
-    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="142" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="143" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <hrefs>%2C%2C</hrefs>
         <size>16</size>
@@ -46,12 +46,12 @@
         <text>You%20are%20currently%20managing%20these%20properties.</text>
       </controlProperties>
     </control>
-    <control controlID="103" controlTypeID="com.balsamiq.mockups::DataGrid" x="328" y="243" w="315" h="169" measuredW="295" measuredH="165" zOrder="8" locked="false" isInGroup="-1">
+    <control controlID="103" controlTypeID="com.balsamiq.mockups::DataGrid" x="328" y="247" w="315" h="169" measuredW="280" measuredH="165" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>square</borderStyle>
         <rowHeight>35</rowHeight>
         <selectedIndex>1</selectedIndex>
-        <text>Name%20%5E%2C%20Area%20%28acres%29%2C%20County%0ASmokey%20Forest%2C47.5%2C%20Multnomah%0AMirkwood%2C%20145%2C%20Yamhill%0AEndor%2C%2075.3%2C%20Marion%0ASchwarzwald%2C%20205%2C%20Multnomah</text>
+        <text>Name%20%5E%2C%20Area%20%28acres%29%2C%20County%0ASmokey%20Forest%2C47.5%2C%20Multnomah%0AMirkwood%2C%20145%2C%20Yamhill%0AEndor%2C%2075.3%2C%20Curry%0ASchwarzwald%2C%20205%2C%20Multnomah</text>
         <value>0</value>
         <verticalScrollbar>true</verticalScrollbar>
       </controlProperties>
@@ -77,7 +77,7 @@
         <text>Mirkwood</text>
       </controlProperties>
     </control>
-    <control controlID="109" controlTypeID="com.balsamiq.mockups::Label" x="326" y="521" w="-1" h="-1" measuredW="46" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
+    <control controlID="109" controlTypeID="com.balsamiq.mockups::Label" x="326" y="521" w="-1" h="-1" measuredW="45" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
         <text>County</text>
       </controlProperties>
