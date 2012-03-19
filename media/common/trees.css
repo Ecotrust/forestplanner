@@ -9,7 +9,7 @@ body {
 }
 
 div.container-fluid { height: 100%; /* margin-top:40px; */ }
-div.outermap { height: 100%; }
+div.outermap { height: 100%; width: 95%;}
 
 a { outline: none !important; } /* Removes Firefox imposed outline */
 
