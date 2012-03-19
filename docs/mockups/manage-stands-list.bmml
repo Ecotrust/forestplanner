@@ -1,4 +1,4 @@
-<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1182" mockupH="669">
+<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1040" mockupH="669">
   <controls>
     <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
       <controlProperties>
@@ -107,19 +107,36 @@
     </control>
     <control controlID="136" controlTypeID="com.balsamiq.mockups::Button" x="571" y="614" w="-1" h="-1" measuredW="82" measuredH="27" zOrder="17" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-stands-creating%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22271%2C597%2C353%2C624%22%20href%3D%22manage-stands-creating.bmml%22%20alt%3D%22manage-stands-creating%22%20id%3D%22136%22/%3E</map>
         <menuIcon>false</menuIcon>
         <text>Edit%20Stand</text>
       </controlProperties>
     </control>
-    <control controlID="138" controlTypeID="com.balsamiq.mockups::StickyNote" x="158" y="528" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="18" locked="false" isInGroup="-1">
+    <control controlID="138" controlTypeID="com.balsamiq.mockups::StickyNote" x="594" y="215" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="20" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>analysis%20limited%20to%20single%20stand%3F</text>
+        <text>Best%20way%20to%20get%20to%20property-level%20analysis%3F%20</text>
       </controlProperties>
     </control>
-    <control controlID="139" controlTypeID="com.balsamiq.mockups::Button" x="550" y="444" w="-1" h="-1" measuredW="103" measuredH="27" zOrder="19" locked="false" isInGroup="-1">
+    <control controlID="139" controlTypeID="com.balsamiq.mockups::Button" x="550" y="444" w="-1" h="-1" measuredW="103" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-stands-creating%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22250%2C427%2C353%2C454%22%20href%3D%22manage-stands-creating.bmml%22%20alt%3D%22manage-stands-creating%22%20id%3D%22139%22/%3E</map>
         <menuIcon>false</menuIcon>
         <text>Create%20Stand</text>
+      </controlProperties>
+    </control>
+    <control controlID="140" controlTypeID="com.balsamiq.mockups::Button" x="468" y="188" w="-1" h="-1" measuredW="173" measuredH="27" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>stand-analysis-scenarios%26bm%3Bstand-analysis-scenarios.bmml%26bm%3Bstand-analysis-scenarios.bmml%26bm%3Bstand-analysis-scenarios.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22168%2C171%2C341%2C198%22%20href%3D%22stand-analysis-scenarios.bmml%22%20alt%3D%22stand-analysis-scenarios%22%20id%3D%22140%22/%3E</map>
+        <menuIcon>false</menuIcon>
+        <text>Perform%20Property%20Analysis</text>
+      </controlProperties>
+    </control>
+    <control controlID="141" controlTypeID="com.balsamiq.mockups::StickyNote" x="571" y="484" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>May%20need%20a%20stand-level%20analysis%20in%20addition%20to%20property-level</text>
       </controlProperties>
     </control>
   </controls>

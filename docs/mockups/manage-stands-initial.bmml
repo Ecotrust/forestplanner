@@ -60,6 +60,8 @@
     </control>
     <control controlID="97" controlTypeID="com.balsamiq.mockups::Button" x="533" y="565" w="130" h="37" measuredW="127" measuredH="27" zOrder="11" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-stands-creating%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml%26bm%3Bmanage-stands-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22233%2C548%2C363%2C585%22%20href%3D%22manage-stands-creating.bmml%22%20alt%3D%22manage-stands-creating%22%20id%3D%2297%22/%3E</map>
         <size>16</size>
         <text>Draw%20Property</text>
       </controlProperties>
@@ -79,9 +81,9 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="109" controlTypeID="com.balsamiq.mockups::StickyNote" x="348" y="545" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="13" locked="false" isInGroup="-1">
+    <control controlID="109" controlTypeID="com.balsamiq.mockups::StickyNote" x="362" y="528" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>animation%20of%20drawing%2C%20here%3F</text>
+        <text>help/%20animation%20of%20digitizing%20process</text>
       </controlProperties>
     </control>
     <control controlID="110" controlTypeID="com.balsamiq.mockups::Image" x="685" y="190" w="-1" h="-1" measuredW="626" measuredH="414" zOrder="1" locked="false" isInGroup="-1">

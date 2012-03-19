@@ -53,7 +53,19 @@
     </control>
     <control controlID="105" controlTypeID="com.balsamiq.mockups::Button" x="542" y="319" w="-1" h="-1" measuredW="110" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-properties-list%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22242%2C302%2C352%2C329%22%20href%3D%22manage-properties-list.bmml%22%20alt%3D%22manage-properties-list%22%20id%3D%22105%22/%3E</map>
         <text>Save%20Property</text>
+      </controlProperties>
+    </control>
+    <control controlID="106" controlTypeID="com.balsamiq.mockups::StickyNote" x="391" y="331" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>MP%3A%20There%20may%20be%20more%20attributes%20as%20well.</text>
+      </controlProperties>
+    </control>
+    <control controlID="107" controlTypeID="com.balsamiq.mockups::StickyNote" x="1058" y="524" w="267" h="133" measuredW="109" measuredH="123" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Base%20layer%20will%20consist%20of%20township/range%20or%20parcel%20data%20if%20available.%20%0A%20%0ASelecting%20parcels%20may%20be%20alternative%20to%20drawing.</text>
       </controlProperties>
     </control>
   </controls>
