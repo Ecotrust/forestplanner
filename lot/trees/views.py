@@ -59,7 +59,7 @@ def property_stand_list(request, property_uid):
     if isinstance(fp, HttpResponse):
         return fp # some sort of http error response
 
-    gj = fp.stand_set_geojson()
+    gj = fp.feature_set_geojson()
     return HttpResponse(gj, mimetype='application/json', status=200)
 
 def upload_stands(request):
@@ -130,7 +130,7 @@ def geojson_forestproperty(request, instance):
     '''
     Generic view to represent Properties as GeoJSON
     '''
-    return HttpResponse(instance.stand_set_geojson(), mimetype='application/json', status=200)
+    return HttpResponse(instance.feature_set_geojson(), mimetype='application/json', status=200)
 
 def geojson_stands(request, instances):
     '''

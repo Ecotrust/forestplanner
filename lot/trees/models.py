@@ -224,7 +224,7 @@ class ForestProperty(FeatureCollection):
         }""" % (geom_json, dumps(d))
         return gj
 
-    def stand_set_geojson(self):
+    def feature_set_geojson(self):
         featxt = ', '.join([i.geojson for i in self.feature_set()])
         return """{ "type": "FeatureCollection",
         "features": [

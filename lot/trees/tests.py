@@ -334,12 +334,12 @@ class SpatialTest(TestCase):
         self.assertEquals(d['properties']['name'], 'My Stand')
 
     def test_property_json(self):
-        thejson = self.prop1.stand_set_geojson()
+        thejson = self.prop1.feature_set_geojson()
         d = loads(thejson)
         self.assertEquals(len(d['features']), 1)
         self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
         self.prop1.add(self.stand2)
-        thejson = self.prop1.stand_set_geojson()
+        thejson = self.prop1.feature_set_geojson()
         d = loads(thejson)
         self.assertEquals(len(d['features']), 2)
 
