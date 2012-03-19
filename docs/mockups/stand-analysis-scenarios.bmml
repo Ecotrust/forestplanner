@@ -1,4 +1,4 @@
-<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1182" mockupH="669">
+<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1040" mockupH="669">
   <controls>
     <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
       <controlProperties>
@@ -23,144 +23,119 @@
         <text>Search%20by%20placename%20or%20parcel%20id%3A</text>
       </controlProperties>
     </control>
-    <control controlID="78" controlTypeID="com.balsamiq.mockups::Title" x="315" y="135" w="-1" h="-1" measuredW="259" measuredH="50" zOrder="4" locked="false" isInGroup="-1">
+    <control controlID="78" controlTypeID="com.balsamiq.mockups::Title" x="315" y="135" w="-1" h="-1" measuredW="308" measuredH="50" zOrder="4" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Stand%20Analysis</text>
+        <text>Property%20Analysis</text>
       </controlProperties>
     </control>
-    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="341" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="210" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
+        <hrefs>manage-properties-list%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%2Cmanage-properties-list%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%2C</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2215%2C174%2C66%2C198%22%20href%3D%22manage-properties-list.bmml%22%20alt%3D%22manage-properties-list%22%20id%3D%2279_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%2278%2C174%2C153%2C198%22%20href%3D%22manage-properties-list.bmml%22%20alt%3D%22manage-properties-list%22%20id%3D%2279_1%22/%3E%0A</map>
         <size>16</size>
-        <text>Home%2C%20Mirkwood%2C%20100%20Acre%20Wood%2C%20Analysis</text>
+        <text>Home%2C%20Mirkwood%2C%20Analysis</text>
       </controlProperties>
     </control>
-    <control controlID="92" controlTypeID="com.balsamiq.mockups::Paragraph" x="321" y="219" w="332" h="98" measuredW="200" measuredH="140" zOrder="6" locked="false" isInGroup="-1">
-      <controlProperties>
-        <size>16</size>
-        <text>This%20stand%20consists%20of%20100%20acres%20in%20Tillamook%20County%20and%20is%20primarily%20Douglas%20Fir.%20%20It%20was%20last%20harvested%20on%204/8/1977%20and%20is%20managed%20with%20a%20shelterwood%20prescription.</text>
-      </controlProperties>
-    </control>
-    <control controlID="110" controlTypeID="com.balsamiq.mockups::Image" x="328" y="338" w="314" h="181" measuredW="304" measuredH="286" zOrder="7" locked="false" isInGroup="-1">
-      <controlProperties>
-        <crop>407%2C10%2C488%2C691</crop>
-        <src>./assets/manage-stands-creating.png</src>
-      </controlProperties>
-    </control>
-    <control controlID="128" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="306" w="-1" h="-1" measuredW="110" measuredH="26" zOrder="8" locked="false" isInGroup="-1">
-      <controlProperties>
-        <size>18</size>
-        <text>Stand%20Details</text>
-      </controlProperties>
-    </control>
-    <control controlID="138" controlTypeID="com.balsamiq.mockups::StickyNote" x="158" y="528" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="9" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>analysis%20limited%20to%20single%20stand%3F</text>
-      </controlProperties>
-    </control>
-    <control controlID="139" controlTypeID="com.balsamiq.mockups::ColumnChart" x="937" y="263" w="348" h="139" measuredW="187" measuredH="175" zOrder="11" locked="false" isInGroup="-1"/>
-    <control controlID="140" controlTypeID="com.balsamiq.mockups::TabBar" x="686" y="188" w="625" h="435" measuredW="501" measuredH="100" zOrder="10" locked="false" isInGroup="-1">
+    <control controlID="139" controlTypeID="com.balsamiq.mockups::ColumnChart" x="937" y="263" w="348" h="139" measuredW="187" measuredH="175" zOrder="7" locked="false" isInGroup="-1"/>
+    <control controlID="140" controlTypeID="com.balsamiq.mockups::TabBar" x="686" y="188" w="625" h="435" measuredW="501" measuredH="100" zOrder="6" locked="false" isInGroup="-1">
       <controlProperties>
         <borderStyle>square</borderStyle>
+        <hrefs>%2Cstand-analysis-cashflow%26bm%3Bstand-analysis-cashflow.bmml%26bm%3Bstand-analysis-cashflow.bmml%26bm%3Bstand-analysis-cashflow.bmml%2C%2Cstand-analysis-map%26bm%3Bstand-analysis-map.bmml%26bm%3Bstand-analysis-map.bmml%26bm%3Bstand-analysis-map.bmml</hrefs>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22544%2C171%2C665%2C196%22%20href%3D%22stand-analysis-cashflow.bmml%22%20alt%3D%22stand-analysis-cashflow%22%20id%3D%22140_0%22/%3E%0A%3Carea%20shape%3D%22rect%22%20coords%3D%22761%2C171%2C857%2C196%22%20href%3D%22stand-analysis-map.bmml%22%20alt%3D%22stand-analysis-map%22%20id%3D%22140_1%22/%3E%0A</map>
         <selectedIndex>0</selectedIndex>
         <text>Harvesting%20Scenarios%2C%20Cash%20Flow%20Analysis%2C%20Carbon%20Offset%2C%20Harvest%20Maps</text>
         <verticalScrollbar>false</verticalScrollbar>
       </controlProperties>
     </control>
-    <control controlID="141" controlTypeID="com.balsamiq.mockups::Label" x="1052" y="243" w="118" h="21" measuredW="118" measuredH="21" zOrder="12" locked="false" isInGroup="-1">
+    <control controlID="141" controlTypeID="com.balsamiq.mockups::Label" x="1052" y="243" w="118" h="21" measuredW="118" measuredH="21" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Average%20Annual%20Cut</text>
       </controlProperties>
     </control>
-    <control controlID="142" controlTypeID="com.balsamiq.mockups::ColumnChart" x="937" y="441" w="348" h="139" measuredW="187" measuredH="175" zOrder="13" locked="false" isInGroup="-1"/>
-    <control controlID="143" controlTypeID="com.balsamiq.mockups::Label" x="1013" y="427" w="-1" h="-1" measuredW="197" measuredH="21" zOrder="14" locked="false" isInGroup="-1">
+    <control controlID="142" controlTypeID="com.balsamiq.mockups::ColumnChart" x="937" y="441" w="348" h="139" measuredW="187" measuredH="175" zOrder="9" locked="false" isInGroup="-1"/>
+    <control controlID="143" controlTypeID="com.balsamiq.mockups::Label" x="1013" y="427" w="-1" h="-1" measuredW="197" measuredH="21" zOrder="10" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Total%20Standing%20Volume%20Over%20Time</text>
       </controlProperties>
     </control>
-    <control controlID="144" controlTypeID="com.balsamiq.mockups::Paragraph" x="711" y="262" w="200" h="102" measuredW="200" measuredH="140" zOrder="15" locked="false" isInGroup="-1">
+    <control controlID="144" controlTypeID="com.balsamiq.mockups::Paragraph" x="711" y="262" w="200" h="102" measuredW="200" measuredH="140" zOrder="11" locked="false" isInGroup="-1">
       <controlProperties>
         <text>The%20combination%20of%20the%20imputed%20plot%2C%20the%20specific%20prescription%20and%20the%20assigned%20offset%20allow%20for%20association%20with%20specific%20tree%20list%20and%20summary%20data%20expressed%20through%20growth-and-yield%20results.%20</text>
       </controlProperties>
     </control>
-    <control controlID="145" controlTypeID="com.balsamiq.mockups::Paragraph" x="711" y="456" w="200" h="88" measuredW="200" measuredH="140" zOrder="16" locked="false" isInGroup="-1">
+    <control controlID="145" controlTypeID="com.balsamiq.mockups::Paragraph" x="711" y="456" w="200" h="88" measuredW="200" measuredH="140" zOrder="12" locked="false" isInGroup="-1">
       <controlProperties>
         <text>For%20comparison%20purposes%2C%20we%20juxtapose%20these%20results%20against%20a%20modeled%20%u201Cbusiness%20as%20usual%u201D%20scenario%2C%20also%20represented%20in%20the%20figures.</text>
       </controlProperties>
     </control>
-    <control controlID="146" controlTypeID="com.balsamiq.mockups::ComboBox" x="717" y="557" w="179" h="-1" measuredW="158" measuredH="23" zOrder="17" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Alternate%20Prescription</text>
-      </controlProperties>
-    </control>
-    <control controlID="147" controlTypeID="com.balsamiq.mockups::HSlider" x="824" y="386" w="72" h="-1" measuredW="33" measuredH="11" zOrder="18" locked="false" isInGroup="-1">
-      <controlProperties>
-        <value>21</value>
-      </controlProperties>
-    </control>
-    <control controlID="148" controlTypeID="com.balsamiq.mockups::Label" x="717" y="380" w="99" h="22" measuredW="99" measuredH="21" zOrder="19" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Rate%20of%20Harvest</text>
-      </controlProperties>
-    </control>
-    <control controlID="149" controlTypeID="com.balsamiq.mockups::SubTitle" x="748" y="243" w="-1" h="-1" measuredW="126" measuredH="24" zOrder="20" locked="false" isInGroup="-1">
+    <control controlID="149" controlTypeID="com.balsamiq.mockups::SubTitle" x="748" y="243" w="-1" h="-1" measuredW="126" measuredH="24" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
         <size>16</size>
         <text>Scheduling%20Model</text>
       </controlProperties>
     </control>
-    <control controlID="150" controlTypeID="com.balsamiq.mockups::SubTitle" x="748" y="431" w="-1" h="-1" measuredW="127" measuredH="24" zOrder="21" locked="false" isInGroup="-1">
+    <control controlID="150" controlTypeID="com.balsamiq.mockups::SubTitle" x="748" y="431" w="-1" h="-1" measuredW="127" measuredH="24" zOrder="14" locked="false" isInGroup="-1">
       <controlProperties>
         <size>16</size>
         <text>Growth%20and%20Yield</text>
       </controlProperties>
     </control>
-    <control controlID="153" controlTypeID="com.balsamiq.mockups::Label" x="330" y="532" w="-1" h="-1" measuredW="44" measuredH="21" zOrder="22" locked="false" isInGroup="-1">
+    <control controlID="160" controlTypeID="com.balsamiq.mockups::Paragraph" x="324" y="228" w="332" h="98" measuredW="200" measuredH="140" zOrder="15" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Name%3A</text>
+        <size>16</size>
+        <text>This%20property%20consists%20of%2027%20stands%20in%20Tillamook%20County%20and%20is%20primarily%20Douglas%20Fir.%20%20It%20was%20last%20harvested%20on%204/8/1977%20and%20is%20managed%20with%20a%20shelterwood%20prescription.</text>
       </controlProperties>
     </control>
-    <control controlID="154" controlTypeID="com.balsamiq.mockups::Label" x="460" y="532" w="-1" h="-1" measuredW="97" measuredH="21" zOrder="23" locked="false" isInGroup="-1">
+    <control controlID="161" controlTypeID="com.balsamiq.mockups::Image" x="339" y="319" w="261" h="161" measuredW="304" measuredH="286" zOrder="16" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>100%20Acre%20Wood</text>
+        <crop>407%2C10%2C488%2C691</crop>
+        <src>./assets/manage-stands-creating.png</src>
       </controlProperties>
     </control>
-    <control controlID="155" controlTypeID="com.balsamiq.mockups::Label" x="328" y="556" w="-1" h="-1" measuredW="109" measuredH="21" zOrder="24" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Dominant%20Species</text>
-      </controlProperties>
-    </control>
-    <control controlID="156" controlTypeID="com.balsamiq.mockups::Label" x="458" y="556" w="79" h="21" measuredW="67" measuredH="21" zOrder="25" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Douglas%20Fir</text>
-      </controlProperties>
-    </control>
-    <control controlID="157" controlTypeID="com.balsamiq.mockups::Label" x="328" y="577" w="-1" h="-1" measuredW="102" measuredH="21" zOrder="26" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Calculated%20Area%3A</text>
-      </controlProperties>
-    </control>
-    <control controlID="158" controlTypeID="com.balsamiq.mockups::Label" x="458" y="578" w="79" h="21" measuredW="65" measuredH="21" zOrder="27" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>100%20acres</text>
-      </controlProperties>
-    </control>
-    <control controlID="159" controlTypeID="__group__" x="330" y="599" w="209" h="24" measuredW="209" measuredH="24" zOrder="28" locked="false" isInGroup="-1">
+    <control controlID="162" controlTypeID="__group__" x="369" y="490" w="200" h="140" measuredW="200" measuredH="140" zOrder="17" locked="false" isInGroup="-1">
       <groupChildrenDescriptors>
-        <control controlID="0" controlTypeID="com.balsamiq.mockups::Label" x="0" y="0" w="102" h="23" measuredW="64" measuredH="21" zOrder="0" locked="false" isInGroup="159">
+        <control controlID="0" controlTypeID="com.balsamiq.mockups::TextArea" x="0" y="0" w="-1" h="-1" measuredW="200" measuredH="140" zOrder="0" locked="false" isInGroup="162"/>
+        <control controlID="1" controlTypeID="com.balsamiq.mockups::Button" x="83" y="93" w="-1" h="-1" measuredW="105" measuredH="38" zOrder="1" locked="false" isInGroup="162">
           <controlProperties>
-            <text>More%20Info%3A</text>
+            <icon>ReloadIcon%7Cmedium</icon>
+            <text>Refresh</text>
           </controlProperties>
         </control>
-        <control controlID="1" controlTypeID="com.balsamiq.mockups::Label" x="130" y="1" w="79" h="23" measuredW="104" measuredH="21" zOrder="1" locked="false" isInGroup="159">
+        <control controlID="2" controlTypeID="com.balsamiq.mockups::Label" x="8" y="7" w="-1" h="-1" measuredW="108" measuredH="21" zOrder="2" locked="false" isInGroup="162">
           <controlProperties>
-            <text>Other%20information</text>
+            <text>Scheduler%20options</text>
+          </controlProperties>
+        </control>
+        <control controlID="3" controlTypeID="com.balsamiq.mockups::HSlider" x="20" y="76" w="114" h="-1" measuredW="33" measuredH="11" zOrder="3" locked="false" isInGroup="162">
+          <controlProperties>
+            <value>33</value>
+          </controlProperties>
+        </control>
+        <control controlID="4" controlTypeID="com.balsamiq.mockups::Label" x="20" y="50" w="-1" h="-1" measuredW="105" measuredH="21" zOrder="4" locked="false" isInGroup="162">
+          <controlProperties>
+            <text>Target%20boardfeet</text>
+          </controlProperties>
+        </control>
+        <control controlID="5" controlTypeID="com.balsamiq.mockups::CheckBox" x="20" y="28" w="-1" h="-1" measuredW="119" measuredH="22" zOrder="5" locked="false" isInGroup="162">
+          <controlProperties>
+            <text>Run%20unscheduled</text>
           </controlProperties>
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="160" controlTypeID="com.balsamiq.mockups::Button" x="568" y="598" w="-1" h="-1" measuredW="82" measuredH="27" zOrder="29" locked="false" isInGroup="-1">
+    <control controlID="163" controlTypeID="com.balsamiq.mockups::StickyNote" x="1210" y="140" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>Edit%20Stand</text>
+        <text>Should%20we%20remove%20the%20search%20in%20this%20page%3F%20</text>
+      </controlProperties>
+    </control>
+    <control controlID="164" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="595" w="16" h="18" measuredW="256" measuredH="256" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/Adobe-PDF-Logo.jpg</src>
+      </controlProperties>
+    </control>
+    <control controlID="165" controlTypeID="com.balsamiq.mockups::StickyNote" x="547" y="480" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Scheduler%20options%20TBD</text>
       </controlProperties>
     </control>
   </controls>

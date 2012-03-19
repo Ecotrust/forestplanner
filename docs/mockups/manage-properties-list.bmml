@@ -1,4 +1,4 @@
-<mockup version="1.0" skin="sketch" measuredW="1513" measuredH="686" mockupW="1213" mockupH="669">
+<mockup version="1.0" skin="sketch" measuredW="1340" measuredH="686" mockupW="1040" mockupH="669">
   <controls>
     <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
       <controlProperties>
@@ -28,7 +28,7 @@
         <text>Manage%20Properties</text>
       </controlProperties>
     </control>
-    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="143" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="142" measuredH="27" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <hrefs>%2C%2C</hrefs>
         <size>16</size>
@@ -62,8 +62,9 @@
         <text>Property%20Details</text>
       </controlProperties>
     </control>
-    <control controlID="105" controlTypeID="com.balsamiq.mockups::StickyNote" x="1364" y="140" w="149" h="123" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
+    <control controlID="105" controlTypeID="com.balsamiq.mockups::StickyNote" x="1176" y="148" w="149" h="84" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
       <controlProperties>
+        <size>10</size>
         <text>search%20autocompletes%20with%20property%20names</text>
       </controlProperties>
     </control>
@@ -113,23 +114,31 @@
     </control>
     <control controlID="120" controlTypeID="com.balsamiq.mockups::Button" x="555" y="613" w="-1" h="-1" measuredW="100" measuredH="27" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-properties-creating%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22255%2C596%2C355%2C623%22%20href%3D%22manage-properties-creating.bmml%22%20alt%3D%22manage-properties-creating%22%20id%3D%22120%22/%3E</map>
         <menuIcon>false</menuIcon>
         <text>Edit%20Property</text>
       </controlProperties>
     </control>
     <control controlID="121" controlTypeID="com.balsamiq.mockups::Button" x="493" y="429" w="-1" h="-1" measuredW="150" measuredH="27" zOrder="19" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-properties-creating%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml%26bm%3Bmanage-properties-creating.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22193%2C412%2C343%2C439%22%20href%3D%22manage-properties-creating.bmml%22%20alt%3D%22manage-properties-creating%22%20id%3D%22121%22/%3E</map>
         <text>Create%20New%20Property</text>
       </controlProperties>
     </control>
     <control controlID="122" controlTypeID="com.balsamiq.mockups::Button" x="458" y="613" w="-1" h="-1" measuredW="88" measuredH="27" zOrder="20" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>manage-stands-initial%26bm%3Bmanage-stands-initial.bmml%26bm%3Bmanage-stands-initial.bmml%26bm%3Bmanage-stands-initial.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22158%2C596%2C246%2C623%22%20href%3D%22manage-stands-initial.bmml%22%20alt%3D%22manage-stands-initial%22%20id%3D%22122%22/%3E</map>
         <menuIcon>false</menuIcon>
         <text>Add%20Stands</text>
       </controlProperties>
     </control>
     <control controlID="123" controlTypeID="com.balsamiq.mockups::Button" x="322" y="613" w="-1" h="-1" measuredW="119" measuredH="27" zOrder="21" locked="false" isInGroup="-1">
       <controlProperties>
+        <href>stand-analysis-scenarios%26bm%3Bstand-analysis-scenarios.bmml%26bm%3Bstand-analysis-scenarios.bmml%26bm%3Bstand-analysis-scenarios.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2222%2C596%2C141%2C623%22%20href%3D%22stand-analysis-scenarios.bmml%22%20alt%3D%22stand-analysis-scenarios%22%20id%3D%22123%22/%3E</map>
         <menuIcon>false</menuIcon>
         <text>Perform%20Analysis</text>
       </controlProperties>
