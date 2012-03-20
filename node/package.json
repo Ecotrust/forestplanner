@@ -1,0 +1,17 @@
+{
+  "author": "Edwin Knuth",
+  "name": "madrona-bouncer",
+  "version": "0.0.0",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Ecotrust/land_owner_tools.git"
+  },
+  "engines": {
+    "node": "~0.4.9"
+  },
+  "dependencies": {
+    "socket.io": "~0.9.2",
+    "redis": "~0.7.1" 
+  },
+  "devDependencies": {}
+}

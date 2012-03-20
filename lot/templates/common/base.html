@@ -62,10 +62,14 @@
     <div class="container-fluid">
       {% block content %}{% endblock content %}
     </div> <!-- /container -->
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-
+    <script type="text/javascript" src="{{MEDIA_URL}}js/socket.io/socket.io.js"></script>
+    <script type="text/javascript">
+    var socket = io.connect('http://localhost:8001/');
+    socket.on('connect', function () {
+      socket.on('alert', function (msg) {
+          alert(msg);
+      });
+    });
+    </script>
   </body>
 </html>
