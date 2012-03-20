@@ -3,7 +3,7 @@ from madrona.common.default_settings import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TIME_ZONE = 'America/Vancouver'
-ROOT_URLCONF = 'lot.urls'
+ROOT_URLCONF = 'urls'
 
 DATABASES = {
     'default': {
