@@ -43,267 +43,267 @@ function init() {
         map.layers[i].animationEnabled = false;
     };
 
-    // Add stands
-    var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
-    renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
-    var new_styles = new OpenLayers.StyleMap({
-        "default": new OpenLayers.Style(null, {
-            rules: [
-                new OpenLayers.Rule({
-                    symbolizer: {
-                        "Polygon": {
-                            fillColor: "green",
-                            fillOpacity: 0.25,
-                            strokeWidth: 1,
-                            strokeOpacity: 1,
-                            strokeColor: "#44ff00"
-                        },
-                    }
-                })
-            ]
-        }),
-        "select": new OpenLayers.Style({
-            fillColor: "#44ff00",
-            strokeOpacity: 1,
-            strokeColor: "#ffcc00"
-        }),
-        "temporary": new OpenLayers.Style(null, {
-            rules: [
-                new OpenLayers.Rule({
-                    symbolizer: {
-                        "Point": {
-                            pointRadius: 5,
-                            fillColor: "#44ff00",
-                        },
-                        "Polygon": {
-                            pointRadius: 5,
-                            fillColor: "white",
-                            fillOpacity: 0.25,
-                            strokeWidth: 1,
-                            strokeOpacity: 1,
-                            strokeColor: "#44ff00"
-                        },
-                    }
-                })
-            ]
-        })
-    });
-    var styles = new OpenLayers.StyleMap({
-        "default": new OpenLayers.Style(null, {
-            rules: [
-                new OpenLayers.Rule({
-                    symbolizer: {
-                        "Polygon": {
-                            fillColor: "#00ccff",
-                            fillOpacity: 0.25,
-                            strokeWidth: 0.25,
-                            strokeOpacity: 1,
-                            strokeColor: "white"
-                        }
-                    }
-                })
-            ]
-        }),
-        "select": new OpenLayers.Style({
-            fillColor: "#ffcc00",
-            strokeOpacity: 1,
-            strokeColor: "#ffcc00"
-        }),
-        "temporary": new OpenLayers.Style(null, {
-            rules: [
-                new OpenLayers.Rule({
-                    symbolizer: {
-                        "Point": {
-                            pointRadius: 5,
-                            fillColor: "#ffcc00",
-                        },
-                        "Polygon": {
-                            pointRadius: 5,
-                            fillColor: "white",
-                            fillOpacity: 0.25,
-                            strokeWidth: 1,
-                            strokeOpacity: 1,
-                            strokeColor: "#ffcc00"
-                        },
-                    }
-                })
-            ]
-        })
-    });
-    stands = new OpenLayers.Layer.Vector("Stands", 
-            {
-                renderers: renderer, 
-                styleMap: styles,
-            }
-    );
-    stands.events.on({
-        'beforefeaturemodified': function(evt) {
-            console.log("Selected " + evt.feature.id  + " for modification");
-        },
-        'afterfeaturemodified': function(evt) {
-            console.log("Finished with " + evt.feature.id);
-        }
-    });
-    map.addLayer(stands);
+    // // Add stands
+    // var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
+    // renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+    // var new_styles = new OpenLayers.StyleMap({
+    //     "default": new OpenLayers.Style(null, {
+    //         rules: [
+    //             new OpenLayers.Rule({
+    //                 symbolizer: {
+    //                     "Polygon": {
+    //                         fillColor: "green",
+    //                         fillOpacity: 0.25,
+    //                         strokeWidth: 1,
+    //                         strokeOpacity: 1,
+    //                         strokeColor: "#44ff00"
+    //                     },
+    //                 }
+    //             })
+    //         ]
+    //     }),
+    //     "select": new OpenLayers.Style({
+    //         fillColor: "#44ff00",
+    //         strokeOpacity: 1,
+    //         strokeColor: "#ffcc00"
+    //     }),
+    //     "temporary": new OpenLayers.Style(null, {
+    //         rules: [
+    //             new OpenLayers.Rule({
+    //                 symbolizer: {
+    //                     "Point": {
+    //                         pointRadius: 5,
+    //                         fillColor: "#44ff00",
+    //                     },
+    //                     "Polygon": {
+    //                         pointRadius: 5,
+    //                         fillColor: "white",
+    //                         fillOpacity: 0.25,
+    //                         strokeWidth: 1,
+    //                         strokeOpacity: 1,
+    //                         strokeColor: "#44ff00"
+    //                     },
+    //                 }
+    //             })
+    //         ]
+    //     })
+    // });
+    // var styles = new OpenLayers.StyleMap({
+    //     "default": new OpenLayers.Style(null, {
+    //         rules: [
+    //             new OpenLayers.Rule({
+    //                 symbolizer: {
+    //                     "Polygon": {
+    //                         fillColor: "#00ccff",
+    //                         fillOpacity: 0.25,
+    //                         strokeWidth: 0.25,
+    //                         strokeOpacity: 1,
+    //                         strokeColor: "white"
+    //                     }
+    //                 }
+    //             })
+    //         ]
+    //     }),
+    //     "select": new OpenLayers.Style({
+    //         fillColor: "#ffcc00",
+    //         strokeOpacity: 1,
+    //         strokeColor: "#ffcc00"
+    //     }),
+    //     "temporary": new OpenLayers.Style(null, {
+    //         rules: [
+    //             new OpenLayers.Rule({
+    //                 symbolizer: {
+    //                     "Point": {
+    //                         pointRadius: 5,
+    //                         fillColor: "#ffcc00",
+    //                     },
+    //                     "Polygon": {
+    //                         pointRadius: 5,
+    //                         fillColor: "white",
+    //                         fillOpacity: 0.25,
+    //                         strokeWidth: 1,
+    //                         strokeOpacity: 1,
+    //                         strokeColor: "#ffcc00"
+    //                     },
+    //                 }
+    //             })
+    //         ]
+    //     })
+    // });
+    // stands = new OpenLayers.Layer.Vector("Stands", 
+    //         {
+    //             renderers: renderer, 
+    //             styleMap: styles,
+    //         }
+    // );
+    // stands.events.on({
+    //     'beforefeaturemodified': function(evt) {
+    //         console.log("Selected " + evt.feature.id  + " for modification");
+    //     },
+    //     'afterfeaturemodified': function(evt) {
+    //         console.log("Finished with " + evt.feature.id);
+    //     }
+    // });
+    // map.addLayer(stands);
 
-    new_stands = new OpenLayers.Layer.Vector("New Stands", 
-            {
-                renderers: renderer, 
-                styleMap: new_styles,
-            }
-    );
-    map.addLayer(new_stands);
+    // new_stands = new OpenLayers.Layer.Vector("New Stands", 
+    //         {
+    //             renderers: renderer, 
+    //             styleMap: new_styles,
+    //         }
+    // );
+    // map.addLayer(new_stands);
 
-    var modify = new OpenLayers.Control.ModifyFeature(stands);
-    map.addControl(modify);
+    // var modify = new OpenLayers.Control.ModifyFeature(stands);
+    // map.addControl(modify);
 
-    var selector = new OpenLayers.Control.SelectFeature(stands);
-    var selectCallback = function(f){ 
-        $('div#stand-selected').show();
-        console.log(f);
-        var x = "<div><table><tr><th>Stand Id</th><td>" + f.attributes['id'] + "</td></tr>";
-        x += "<tr><th>Silvicultural Prescription</th><td>Shelterwood</td></tr>";
-        x += "<tr><th>Dominant Species</th><td>Douglas Fir</td></tr>";
-        x += "</table></div>";
-        $('div#stand-info').html(x);
-    };
-    selector.onSelect = selectCallback;
-    map.addControl(selector);
+    // var selector = new OpenLayers.Control.SelectFeature(stands);
+    // var selectCallback = function(f){ 
+    //     $('div#stand-selected').show();
+    //     console.log(f);
+    //     var x = "<div><table><tr><th>Stand Id</th><td>" + f.attributes['id'] + "</td></tr>";
+    //     x += "<tr><th>Silvicultural Prescription</th><td>Shelterwood</td></tr>";
+    //     x += "<tr><th>Dominant Species</th><td>Douglas Fir</td></tr>";
+    //     x += "</table></div>";
+    //     $('div#stand-info').html(x);
+    // };
+    // selector.onSelect = selectCallback;
+    // map.addControl(selector);
 
-    var draw = new OpenLayers.Control.DrawFeature(new_stands, OpenLayers.Handler.Polygon);
-    var featureCallback = function(f){ 
-        draw.deactivate();
-        var url = "/features/stand/form/"; // TODO BAD BAD
-        $.get(url, function(data) {
-            var fc = $('div#stand-form-container'); 
-            fc.show();
-            // TODO load form
-            //fc.empty();
-            //var d = $(data);
-            //d.appendTo(fc);
-        });
-    };
-    draw.featureAdded = featureCallback;
-    map.addControl(draw);
+    // var draw = new OpenLayers.Control.DrawFeature(new_stands, OpenLayers.Handler.Polygon);
+    // var featureCallback = function(f){ 
+    //     draw.deactivate();
+    //     var url = "/features/stand/form/"; // TODO BAD BAD
+    //     $.get(url, function(data) {
+    //         var fc = $('div#stand-form-container'); 
+    //         fc.show();
+    //         // TODO load form
+    //         //fc.empty();
+    //         //var d = $(data);
+    //         //d.appendTo(fc);
+    //     });
+    // };
+    // draw.featureAdded = featureCallback;
+    // map.addControl(draw);
 
-    $('input#confirm-save-stand').click( function(e) {
-        e.preventDefault();
-        fs = new_stands.features;
-        if (fs.length != 1) {
-            alert("error: need exactly one new stand");
-            console.log(fs);
-        }
-        wkt = fs[0].geometry.toString();
-        $.ajax({
-            url: "/trees/stand/", 
-            type: 'POST',
-            data: { 'wkt': wkt }, 
-            success: function(data) {
-                alert(data);
-                stands.addFeatures(geojson_format.read(data));
-            },
-            dataType: 'json',
-            async: true
-        })
-        .error( function(e) { 
-            console.log(e);
-            alert("An error occured trying to record stand data... Please try again."); 
-            continue_steps = false;
-        });
-    });
+    // $('input#confirm-save-stand').click( function(e) {
+    //     e.preventDefault();
+    //     fs = new_stands.features;
+    //     if (fs.length != 1) {
+    //         alert("error: need exactly one new stand");
+    //         console.log(fs);
+    //     }
+    //     wkt = fs[0].geometry.toString();
+    //     $.ajax({
+    //         url: "/trees/stand/", 
+    //         type: 'POST',
+    //         data: { 'wkt': wkt }, 
+    //         success: function(data) {
+    //             alert(data);
+    //             stands.addFeatures(geojson_format.read(data));
+    //         },
+    //         dataType: 'json',
+    //         async: true
+    //     })
+    //     .error( function(e) { 
+    //         console.log(e);
+    //         alert("An error occured trying to record stand data... Please try again."); 
+    //         continue_steps = false;
+    //     });
+    // });
 
-    $('a#pill-create-stand').click(function(e) {
-        modify.deactivate();
-        selector.unselectAll();
-        selector.deactivate();
-        draw.activate();
-    });
-    $('a#pill-select-stand').click(function(e) {
-        $('div#stand-selected').hide();
-        modify.deactivate();
-        selector.activate();
-        draw.deactivate();
-    });
-    $('a#pill-navigate').click(function(e) {
-        modify.deactivate();
-        selector.unselectAll();
-        selector.deactivate();
-        draw.deactivate();
-    });
+    // $('a#pill-create-stand').click(function(e) {
+    //     modify.deactivate();
+    //     selector.unselectAll();
+    //     selector.deactivate();
+    //     draw.activate();
+    // });
+    // $('a#pill-select-stand').click(function(e) {
+    //     $('div#stand-selected').hide();
+    //     modify.deactivate();
+    //     selector.activate();
+    //     draw.deactivate();
+    // });
+    // $('a#pill-navigate').click(function(e) {
+    //     modify.deactivate();
+    //     selector.unselectAll();
+    //     selector.deactivate();
+    //     draw.deactivate();
+    // });
 
-    $('.cancel-stand').click(function(e) {
-        new_stands.removeAllFeatures();
-        $('div#stand-form-container').hide();
-        draw.activate();
-    });
+    // $('.cancel-stand').click(function(e) {
+    //     new_stands.removeAllFeatures();
+    //     $('div#stand-form-container').hide();
+    //     draw.activate();
+    // });
 
-    // Ctl-Z to undo, Ctl-Y to redo, Esc to cancel
-    OpenLayers.Event.observe(document, "keydown", function(evt) {
-        var handled = false;
-        switch (evt.keyCode) {
-            case 90: // z
-                if (evt.metaKey || evt.ctrlKey) {
-                    draw.undo();
-                    handled = true;
-                }
-                break;
-            case 89: // y
-                if (evt.metaKey || evt.ctrlKey) {
-                    draw.redo();
-                    handled = true;
-                }
-                break;
-            case 27: // esc
-                draw.cancel();
-                handled = true;
-                break;
-        }
-        if (handled) {
-            OpenLayers.Event.stop(evt);
-        }
-    });
+    // // Ctl-Z to undo, Ctl-Y to redo, Esc to cancel
+    // OpenLayers.Event.observe(document, "keydown", function(evt) {
+    //     var handled = false;
+    //     switch (evt.keyCode) {
+    //         case 90: // z
+    //             if (evt.metaKey || evt.ctrlKey) {
+    //                 draw.undo();
+    //                 handled = true;
+    //             }
+    //             break;
+    //         case 89: // y
+    //             if (evt.metaKey || evt.ctrlKey) {
+    //                 draw.redo();
+    //                 handled = true;
+    //             }
+    //             break;
+    //         case 27: // esc
+    //             draw.cancel();
+    //             handled = true;
+    //             break;
+    //     }
+    //     if (handled) {
+    //         OpenLayers.Event.stop(evt);
+    //     }
+    // });
 
-    // configure the snapping agent
-    var snap = new OpenLayers.Control.Snapping({
-        layer: new_stands,
-        targets: [stands, new_stands],
-        defaults: {
-            nodeTolerance: 10,
-            vertexTolerance: 10,
-            edgeTolerance: 3 
-        },
-        greedy: true
-    });
-    map.addControl(snap);
-    snap.activate();
+    // // configure the snapping agent
+    // var snap = new OpenLayers.Control.Snapping({
+    //     layer: new_stands,
+    //     targets: [stands, new_stands],
+    //     defaults: {
+    //         nodeTolerance: 10,
+    //         vertexTolerance: 10,
+    //         edgeTolerance: 3 
+    //     },
+    //     greedy: true
+    // });
+    // map.addControl(snap);
+    // snap.activate();
 
-    var geojson_format = new OpenLayers.Format.GeoJSON();
-    $.ajax({
-        url: "/trees/stands_json/", 
-        type: 'GET',
-        success: function(data) {
-            stands.addFeatures(geojson_format.read(data));
-        },
-        dataType: 'json',
-        async: true
-    })
-    .error( function(e) { 
-        console.log(e);
-        alert("An error occured trying to record stand data... Please try again."); 
-        continue_steps = false;
-    });
+    // var geojson_format = new OpenLayers.Format.GeoJSON();
+    // $.ajax({
+    //     url: "/trees/stands_json/", 
+    //     type: 'GET',
+    //     success: function(data) {
+    //         stands.addFeatures(geojson_format.read(data));
+    //     },
+    //     dataType: 'json',
+    //     async: true
+    // })
+    // .error( function(e) { 
+    //     console.log(e);
+    //     alert("An error occured trying to record stand data... Please try again."); 
+    //     continue_steps = false;
+    // });
 
-    $('#panel').modal({ backdrop: true });
-    $('.load-in-panel').live('click', function(e) {
-            e.preventDefault();
-            var url = $(e.target).attr('href');
-            $.get(url, function(data) {
-                $('#panel').empty();
-                $('<div><div class="modal-header"><a href="#" class="close" data-dismiss="modal">x</a><h3>Forest Scenario Planner</h3></div><div class="modal-body">' + data + '</div></div>').appendTo('#panel');
-                $('#panel').modal('show');
-            });
+    // $('#panel').modal({ backdrop: true });
+    // $('.load-in-panel').live('click', function(e) {
+    //         e.preventDefault();
+    //         var url = $(e.target).attr('href');
+    //         $.get(url, function(data) {
+    //             $('#panel').empty();
+    //             $('<div><div class="modal-header"><a href="#" class="close" data-dismiss="modal">x</a><h3>Forest Scenario Planner</h3></div><div class="modal-body">' + data + '</div></div>').appendTo('#panel');
+    //             $('#panel').modal('show');
+    //         });
                             
-    });
+    // });
 
 }; //end init
 

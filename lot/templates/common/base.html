@@ -16,9 +16,16 @@
     </style>
     <link href="{{MEDIA_URL}}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <link rel="stylesheet" href="{{MEDIA_URL}}bootstrap/css/font-awesome.css">
-    {% load compressed %}
-    {% compressed_css 'application' %}
+    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/trees.css">
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/jquery.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.0.0.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tipsy.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
+ 
+
     {% block scripts %}{% endblock scripts %}
 
     <!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -44,20 +51,32 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo_small.png"/>Forest Scenario Planner</a>
+          <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo.png"/>Forest Scenario Planner</a>
           <div class="nav-collapse">
             <ul class="nav">
               <li class="active"><a href="#">Home</a></li>
               <li><a href="#about">About</a></li>
               <li><a href="#help">Help</a></li>
             </ul>
-            <p class="navbar-text pull-right">Welcome, <a href="#">username</a></p>
+            <p class="navbar-text pull-right">Welcome, <a href="#">{{user.username}}</a></p>
           </div><!--/.nav-collapse -->
         </div>
       </div>
     </div>
 
 
+    <div class="modal" id="modal" style="display:none">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>Modal header</h3>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" data-bind="click: saveEditForm">Save changes</a>
+        <a href="#" class="btn" data-bind="click: cancelEditForm">cancel</a>
+      </div>
+    </div>
 
     <div class="container-fluid">
       {% block content %}{% endblock content %}
@@ -66,6 +85,8 @@
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-
+ 
+ 
+ 
   </body>
 </html>
