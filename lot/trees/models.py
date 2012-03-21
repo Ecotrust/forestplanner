@@ -28,7 +28,7 @@ class Stand(PolygonFeature):
             verbose_name="Dominant Species", default="--")
 
     class Options:
-        form = "lot.trees.forms.StandForm"
+        form = "trees.forms.StandForm"
         manipulators = []
         links = (
             alternate('GeoJSON',
@@ -270,8 +270,8 @@ class ForestProperty(FeatureCollection):
 
 
     class Options:
-        valid_children = ('lot.trees.models.Stand',)
-        form = "lot.trees.forms.PropertyForm"
+        valid_children = ('trees.models.Stand',)
+        form = "trees.forms.PropertyForm"
         links = (
             alternate('Property GeoJSON',
                 'trees.views.geojson_forestproperty',  

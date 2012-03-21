@@ -24,8 +24,8 @@ COMPRESS_JS['application']['source_filenames'] = (
 INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
-#GEOMETRY_CLIENT_SRID = 3857 #for mercator
-GEOMETRY_CLIENT_SRID = 4326 #for latlon
+GEOMETRY_CLIENT_SRID = 3857 #for mercator
+#GEOMETRY_CLIENT_SRID = 4326 #for latlon
 
 APP_NAME = "Forestry Land Owner Tools"
 
