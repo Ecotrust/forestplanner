@@ -48,8 +48,8 @@
                     <tbody data-bind="foreach: propertyList">
                       <tr data-bind="click: $parent.selectProperty">
                         <td><a data-bind="text: name"></a></td>
-                        <td data-bind="text: area"></td>
-                        <td data-bind="text: county"></td>           
+                        <td>7</td>
+                        <td>Multnomah</td>           
                       </tr>
                     </tbody>
                   </table>
@@ -61,8 +61,8 @@
                   <h2>Property Details</h2>
                   <table class="table">
                     <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
-                    <tr><td>Area</td><td><span data-bind="text: selectedProperty().area"></span> acres</td></tr>
-                    <tr><td>County</td><td><span data-bind="text: selectedProperty().county"></span></td></tr>
+                    <tr><td>Area</td><td>7 acres</td></tr>
+                    <tr><td>County</td><td>Multnomah</td></tr>
                   </table>
                   <div class="pull-right">
                     <button class="btn" href="#">Perform Analysis</button>
@@ -85,85 +85,6 @@
 
     <script type="text/javascript">
 
-    var properties = {
-      "type": "FeatureCollection",
-      "features": [{
-        "type": "Feature",
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [-13405093.081326, 4078592.850650],
-              [-13318263.878507, 4071851.570255],
-              [-13317150.683599, 4044926.498167],
-              [-13407319.471142, 4048961.188709],
-              [-13405093.081326, 4078592.850650]
-            ]
-          ]
-        },
-        "properties": {
-          "user_id": 1,
-          "uid": "trees_forestproperty_1",
-          "date_modified": "2012-03-20 09:35:49.036457",
-          "bbox": [-13407319.471141858, 4044926.4981666785, -13317150.683599308, 4078592.8506504213],
-          "date_created": "2012-03-20 09:35:49.036377",
-          "name": "Deep Forest Site",
-          "area": 39,
-          "county": "Marion"
-        }
-      },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [-13405093.081326, 4078592.850650],
-              [-13318263.878507, 4071851.570255],
-              [-13317150.683599, 4044926.498167],
-              [-13407319.471142, 4048961.188709],
-              [-13405093.081326, 4078592.850650]
-            ]
-          ]
-        },
-        "properties": {
-          "user_id": 1,
-          "uid": "trees_forestproperty_2",
-          "date_modified": "2012-03-20 09:35:49.036457",
-          "bbox": [-13407319.471141858, 4044926.4981666785, -13317150.683599308, 4078592.8506504213],
-          "date_created": "2012-03-20 09:35:49.036377",
-          "name": "The Other Property",
-          "area": 27,
-          "county": "Tillamook"
-        }
-      },
-      {
-        "type": "Feature",
-        "geometry": {
-          "type": "Polygon",
-          "coordinates": [
-            [
-              [-13405093.081326, 4078592.850650],
-              [-13318263.878507, 4071851.570255],
-              [-13317150.683599, 4044926.498167],
-              [-13407319.471142, 4048961.188709],
-              [-13405093.081326, 4078592.850650]
-            ]
-          ]
-        },
-        "properties": {
-          "user_id": 1,
-          "uid": "trees_forestproperty_3",
-          "date_modified": "2012-03-20 09:35:49.036457",
-          "bbox": [-13407319.471141858, 4044926.4981666785, -13317150.683599308, 4078592.8506504213],
-          "date_created": "2012-03-20 09:35:49.036377",
-          "name": "The Woods",
-          "area": 4,
-          "county": "Multnomah"
-        }
-      }]
-    };
-
     $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
       console.dir(data);
     });
@@ -171,19 +92,16 @@
     function propertiesViewModel() {
       var self = this;
       // TODO: make function to map properties with test  
-      self.propertyList = ko.observableArray($.map(properties.features, function (feature, i) {
-        return ko.mapping.fromJS(feature.properties);
-      }));
+      self.propertyList = ko.observableArray();
 
       self.hasProperties = function () { return self.propertyList().length > 0 };
 
-      self.selectedProperty = ko.observable(self.propertyList()[0]);
 
       self.selectProperty = function (property, event) {
         // TODO: Make active!
-        // $(event.target).closest('tr')
-        //   .addClass('active')
-        //   .siblings().removeClass('active');
+        $(event.target).closest('tr')
+          .addClass('active')
+          .siblings().removeClass('active');
         
         self.selectedProperty(property);
       };
@@ -213,7 +131,7 @@
         var formUrl = 'features/forestproperty/form/';
 
         self.selectedProperty({
-          "name": ko.observable(),
+          "name": ko.observable(""),
           "area": 4,
           "county": "Multnomah"
         });
@@ -239,8 +157,7 @@
       self.saveEditForm = function () {
         var $form = $('#modal').find('form'), 
           actionUrl = $form.attr('action'),
-          values = {},
-          name = $form.find('#id_name').val();
+          values = {};
 
         $form.find('input').each(function () {
           var $input = $(this);
@@ -253,7 +170,20 @@
           type: "POST",
           data: values,
           success: function (data, textStatus, jqXHR) {
-            self.selectedProperty().name(name);
+            self.updateOrCreateProperty(JSON.parse(data), self.selectedProperty())
+          }
+        });
+      };
+
+      self.updateOrCreateProperty = function (data, property) {
+        var updateUrl = 'features/generic-links/links/geojson/{uid}/'.replace('{uid}', data["X-Madrona-Select"]);
+        $.get(updateUrl, function (data) {
+          var newProperty = data.features[0].properties;
+          if (property.uid) {
+            // updating existing property
+            ko.mapping.fromJS(newProperty, property);
+          } else {
+            self.propertyList.unshift(ko.mapping.fromJS(newProperty));
           }
         });
       };
@@ -262,18 +192,35 @@
         $('#modal').modal('hide');
       };
 
+      // initialize properties and vm
+      self.loadProperties = function () {
+        $.get('/trees/user_property_list/', function (data) {
+          
+          self.propertyList = ko.observableArray($.map(data.features, function (feature, i) {
+            return ko.mapping.fromJS(feature.properties);
+          }));
+          
+          self.selectedProperty = ko.observable(self.propertyList()[0]);
+          ko.applyBindings(self);
+
+        });  
+      }
+      
     };
+
+    window.viewModel = new propertiesViewModel();
+    viewModel.loadProperties();
 
     $(document).ready(function () {
       var onResize = function () {
         $("#map").height($(window).height() * .75);
       };
-      $('#modal').modal({'show': false});
+
+      //$('#modal').modal({'show': false});
+      
       onResize();
       $(window).resize(onResize);
       
-      ko.applyBindings(new propertiesViewModel());
-
     });
 
     </script>
