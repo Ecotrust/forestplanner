@@ -25,52 +25,58 @@
             </ul>
             <div class="well"> <!-- need to make this a different color -->
               <h2>Property List</h2>
-              <div id="properties-none" style="display:none" data-bind="visible: ! hasProperties">
-                <p>Find your properties on the map by searching for a placename or parcel id.</p>
-                <div>
-                    <form class="form-search">
-                        <input type="text" class="input-large search-query" placeholder="placename or parcel id">
-                        <button class="btn" type="submit">Search</button>
-                    </form>
-                </div>
-                <h3>Draw your property</h3>
-                <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
-                <h3>Add additional information</h3>
-                <p>Then you will be asked to enter some additional information to help describe your property.</p>
-                <div class="pull-right">
-                  <button href="#" class="btn btn-large btn-primary">Draw Property</button>
-                </div>
-              </div> <!-- no properties -->
-              <div id="properties-list" style="display:none" data-bind="visible: hasProperties">
-                <p><button href="#" class="btn" data-bind="click: showAddForm">Add Property</button><p>
-                <div class="row-fluid">
-                  <table class="table table-condensed table-bordered">
-                    <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
-                    <tbody data-bind="foreach: propertyList">
-                      <tr data-bind="click: $parent.selectProperty">
-                        <td><a data-bind="text: name"></a></td>
-                        <td>7</td>
-                        <td>Multnomah</td>           
-                      </tr>
-                    </tbody>
-                  </table>
-                  <div class="pull-right">
-                    <button class="btn btn-primary" href="#" data-bind="click: showEditForm">Edit Property</button>
+              <div data-bind="ifnot: propertyList().length">
+                <div id="properties-none" style="display:none" data-bind="visible: ! propertyList().length">
+                  <p>Find your properties on the map by searching for a placename or parcel id.</p>
+                  <div>
+                      <form class="form-search">
+                          <input type="text" class="input-large search-query" placeholder="placename or parcel id">
+                          <button class="btn" type="submit">Search</button>
+                      </form>
                   </div>
-                </div>
-                <div class="row-fluid">
-                  <h2>Property Details</h2>
-                  <table class="table">
-                    <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
-                    <tr><td>Area</td><td>7 acres</td></tr>
-                    <tr><td>County</td><td>Multnomah</td></tr>
-                  </table>
+                  <h3>Draw your property</h3>
+                  <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
+                  <h3>Add additional information</h3>
+                  <p>Then you will be asked to enter some additional information to help describe your property.</p>
                   <div class="pull-right">
-                    <button class="btn" href="#">Perform Analysis</button>
-                    <button class="btn" href="#">Add Stands</button>
+                    <button href="#" class="btn btn-large btn-primary" data-bind="click: showAddForm">Add Property</button>
                   </div>
-                </div>
-              </div><!-- has properties -->
+                </div> <!-- no properties -->
+              </div>
+              <div data-bind="if: propertyList().length">
+                <div id="properties-list" style="display:none" data-bind="visible: propertyList">
+                  <p><button href="#" class="btn" data-bind="click: showAddForm">Add Property</button><p>
+                  <div class="row-fluid">
+                    <table class="table table-condensed table-bordered">
+                      <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
+                      <tbody data-bind="foreach: propertyList">
+                        <tr data-bind="click: $parent.selectProperty">
+                          <td><a data-bind="text: name"></a></td>
+                          <td>7</td>
+                          <td>Multnomah</td>           
+                        </tr>
+                      </tbody>
+                    </table>
+                    <div class="pull-right">
+                      <button class="btn btn-primary" href="#" data-bind="click: showEditForm">Edit Property</button>
+                    </div>
+                  </div>
+                  <div class="row-fluid">
+                    <div data-bind="if: selectedProperty">
+                      <h2>Property Details</h2>
+                      <table class="table">
+                        <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
+                        <tr><td>Area</td><td>7 acres</td></tr>
+                        <tr><td>County</td><td>Multnomah</td></tr>
+                      </table>
+                      <div class="pull-right">
+                        <button class="btn" href="#">Perform Analysis</button>
+                        <button class="btn" href="#">Add Stands</button>
+                      </div>
+                    </div>
+                  </div>
+                </div><!-- has properties -->
+              </div>
             </div>
           </div>
           <div class="span9">
@@ -81,7 +87,52 @@
         </div>
       </div>
       <!-- end partial -->
+     <div class="modal" id="delete-dialog" style="display:none">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>Delete Property</h3>
+      </div>
+      <div class="modal-body">
+        <div data-bind="if: propertyList().length">
+          Are you sure you want to delete "<span data-bind="text: selectedProperty().name"></span>"?
+        </div>
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete property</a>
+        <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+      </div>
+    </div>
+
+    <div class="modal" id="edit-dialog" style="display:none">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>edit a property</h3>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
+        <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
+        <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+      </div>
+    </div>
+
+
+    <div class="modal" id="add-dialog" style="display:none">
+      <div class="modal-header">
+        <a class="close" data-dismiss="modal">×</a>
+        <h3>add a property</h3>
+      </div>
+      <div class="modal-body">
+      </div>
+      <div class="modal-footer">
+        <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
+        <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+      </div>
+    </div>
     
+        
+
 
     <script type="text/javascript">
 
@@ -94,14 +145,17 @@
       // TODO: make function to map properties with test  
       self.propertyList = ko.observableArray();
 
-      self.hasProperties = function () { return self.propertyList().length > 0 };
-
+      self.hasProperties = ko.computed(function () {
+        return self.propertyList().length > 0;
+      });
 
       self.selectProperty = function (property, event) {
         // TODO: Make active!
-        $(event.target).closest('tr')
-          .addClass('active')
-          .siblings().removeClass('active');
+        if (event) {
+          $(event.target).closest('tr')
+            .addClass('active')
+            .siblings().removeClass('active');         
+        }
         
         self.selectedProperty(property);
       };
@@ -121,20 +175,13 @@
           $form.find('input:visible').first().focus();
           
           // show the form in a modal
-          $('#modal').modal('show')
-            .find('.modal-body').empty().append($form).end()
-            .find('.modal-header').find('h3').text('Edit Property');
+          $('#edit-dialog').modal('show').find('.modal-body').empty().append($form);
         })
       };
 
       self.showAddForm = function () {
         var formUrl = 'features/forestproperty/form/';
 
-        self.selectedProperty({
-          "name": ko.observable(""),
-          "area": 4,
-          "county": "Multnomah"
-        });
         $.get(formUrl, function (data) {
           var $form = $(data).find('form');
           
@@ -148,29 +195,35 @@
           $form.find('input:visible').first().focus();
           
           // show the form in a modal
-          $('#modal').modal('show')
-            .find('.modal-body').empty().append($form).end()
-            .find('.modal-header').find('h3').text('Add Property');
+          $('#add-dialog').modal('show').find('.modal-body').empty().append($form);
         })
       };
 
-      self.saveEditForm = function () {
-        var $form = $('#modal').find('form'), 
+      self.addFeature = function (self, event) {
+        self.saveFeature(event);
+      };
+
+      self.updateFeature = function (self, event) {
+        self.saveFeature(event, self.selectedProperty());
+      };
+
+      self.saveFeature = function (event, property) {
+        var $dialog = $(event.target).closest('.modal'),
+          $form = $dialog.find('form'), 
           actionUrl = $form.attr('action'),
           values = {};
-
         $form.find('input').each(function () {
           var $input = $(this);
           values[$input.attr('name')] = $input.val();
         });
 
-        $('#modal').modal('hide');
+        $dialog.modal('hide');
         $.ajax({
           url: actionUrl,
           type: "POST",
           data: values,
           success: function (data, textStatus, jqXHR) {
-            self.updateOrCreateProperty(JSON.parse(data), self.selectedProperty())
+            self.updateOrCreateProperty(JSON.parse(data), property)
           }
         });
       };
@@ -179,17 +232,37 @@
         var updateUrl = 'features/generic-links/links/geojson/{uid}/'.replace('{uid}', data["X-Madrona-Select"]);
         $.get(updateUrl, function (data) {
           var newProperty = data.features[0].properties;
-          if (property.uid) {
+          if (property) {
             // updating existing property
             ko.mapping.fromJS(newProperty, property);
+            self.selectProperty(property);
           } else {
             self.propertyList.unshift(ko.mapping.fromJS(newProperty));
+            self.selectProperty(self.propertyList()[0]);
+            $("#properties-list tbody").find("tr").first().addClass('active');
+          }
+        });
+      };
+      self.showDeleteDialog = function () {
+        $("#edit-dialog").modal("hide");
+        $("#delete-dialog").modal("show");
+      };
+
+      self.deleteFeature = function () {
+        var url = "/features/generic-links/links/delete/{uid}/".replace("{uid}", self.selectedProperty().uid());
+        $('#delete-dialog').modal('hide');
+        $.ajax({
+          url: url,
+          type: "DELETE",
+          success: function (data, textStatus, jqXHR) {
+            self.propertyList.remove(self.selectedProperty());
+            self.selectProperty(self.propertyList()[0]);
           }
         });
       };
 
-      self.cancelEditForm = function () {
-        $('#modal').modal('hide');
+      self.closeDialog = function (self, event) {
+        $(event.target).closest(".modal").modal("hide");
       };
 
       // initialize properties and vm
@@ -201,6 +274,7 @@
           }));
           
           self.selectedProperty = ko.observable(self.propertyList()[0]);
+          $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
           ko.applyBindings(self);
 
         });  
