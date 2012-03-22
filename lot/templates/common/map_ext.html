@@ -231,14 +231,15 @@
       self.updateOrCreateProperty = function (data, property) {
         var updateUrl = 'features/generic-links/links/geojson/{uid}/'.replace('{uid}', data["X-Madrona-Select"]);
         $.get(updateUrl, function (data) {
-          var newProperty = data.features[0].properties;
+          var newPropertyVM, newProperty = data.features[0].properties;
           if (property) {
             // updating existing property
             ko.mapping.fromJS(newProperty, property);
             self.selectProperty(property);
           } else {
-            self.propertyList.unshift(ko.mapping.fromJS(newProperty));
-            self.selectProperty(self.propertyList()[0]);
+            newPropertyVM = ko.mapping.fromJS(newProperty);
+            self.selectProperty(newPropertyVM);
+            self.propertyList.unshift(newPropertyVM);
             $("#properties-list tbody").find("tr").first().addClass('active');
           }
         });
@@ -257,6 +258,8 @@
           success: function (data, textStatus, jqXHR) {
             self.propertyList.remove(self.selectedProperty());
             self.selectProperty(self.propertyList()[0]);
+            $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
+
           }
         });
       };
