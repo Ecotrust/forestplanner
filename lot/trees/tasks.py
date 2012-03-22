@@ -18,21 +18,14 @@ def impute(uid, raster_name, raster_proj4=None, force=False):
 
     save = False
     result = None
-    raster = None
     
     try:
         raster = RasterDataset.objects.get(name=raster_name)
         if not raster.is_valid:
             raise Exception(raster.filepath + " is not a valid rasterdataset")
     except:
-        if raster_name != 'aspect':
-            impute.update_state(state="RASTERNOTFOUND")
-            return None
-
-    if not raster:
         impute.update_state(state="RASTERNOTFOUND")
         return None
-
 
     if force:
         stats = zonal_stats(geom, raster, read_cache = False)
