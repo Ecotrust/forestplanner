@@ -31,8 +31,9 @@ class Stand(PolygonFeature):
         form = "trees.forms.StandForm"
         manipulators = []
         links = (
+            # Link to grab property geojson 
             alternate('GeoJSON',
-                'trees.views.geojson_stands',  
+                'trees.views.geojson_features',  
                 type="application/json",
                 select='multiple single'),
         )
@@ -273,10 +274,16 @@ class ForestProperty(FeatureCollection):
         valid_children = ('trees.models.Stand',)
         form = "trees.forms.PropertyForm"
         links = (
-            alternate('Property GeoJSON',
+            # Link to grab ALL *stands* associated with a property
+            alternate('Property Stands GeoJSON',
                 'trees.views.geojson_forestproperty',  
                 type="application/json",
                 select='single'),
+            # Link to grab property geojson 
+            alternate('GeoJSON',
+                'trees.views.geojson_features',  
+                type="application/json",
+                select='multiple single'),
         )
 
 class Parcel(models.Model):

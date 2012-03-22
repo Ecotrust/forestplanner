@@ -263,25 +263,30 @@ class PropertyStandListTest(TestCase):
         enable_sharing()
 
     def test_unauth(self):
-        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        link = self.prop1.options.get_link('Property Stands GeoJSON')
+        url = link.reverse(self.prop1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401)
 
     def test_notexists(self):
         self.client.login(username='baduser', password='pword')
-        url = reverse('trees-property_stand_list', kwargs={'property_uid': 'trees_forestproperty_123456789'})
+        link = self.prop1.options.get_link('Property Stands GeoJSON')
+        url = link.reverse(self.prop1)
+        url = url.replace(self.prop1.uid, 'trees_forestproperty_123456789')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
 
     def test_baduser(self):
         self.client.login(username='baduser', password='pword')
-        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        link = self.prop1.options.get_link('Property Stands GeoJSON')
+        url = link.reverse(self.prop1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 403) 
 
     def test_jsonlist(self):
         self.client.login(username='featuretest', password='pword')
-        url = reverse('trees-property_stand_list', kwargs={'property_uid': self.prop1.uid})
+        link = self.prop1.options.get_link('Property Stands GeoJSON')
+        url = link.reverse(self.prop1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200) 
         stand_list = loads(response.content)
@@ -353,6 +358,16 @@ class SpatialTest(TestCase):
         d = loads(response.content)
         self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
         
+    def test_property_json_url(self):
+        self.client.login(username='featuretest', password='pword')
+        link = self.stand1.options.get_link('GeoJSON')
+        url = link.reverse(self.prop1)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue('application/json' in response['Content-Type'])
+        d = loads(response.content)
+        self.assertEquals(d['features'][0]['properties']['name'], 'My Property')
+
     def test_multistand_json_url(self):
         self.client.login(username='featuretest', password='pword')
         uids = [self.stand1.uid, self.stand2.uid]
@@ -369,10 +384,10 @@ class SpatialTest(TestCase):
                 foundit = True
         self.assertTrue(foundit)
 
-    def test_property_json_url(self):
+    def test_property_stands_json_url(self):
         self.prop1.add(self.stand2)
         self.client.login(username='featuretest', password='pword')
-        link = self.prop1.options.get_link('Property GeoJSON')
+        link = self.prop1.options.get_link('Property Stands GeoJSON')
         url = link.reverse(self.prop1)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200, response)
