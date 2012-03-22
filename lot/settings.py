@@ -3,7 +3,7 @@ from madrona.common.default_settings import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 TIME_ZONE = 'America/Vancouver'
-ROOT_URLCONF = 'lot.urls'
+ROOT_URLCONF = 'urls'
 
 DATABASES = {
     'default': {
@@ -24,8 +24,8 @@ COMPRESS_JS['application']['source_filenames'] = (
 INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
-#GEOMETRY_CLIENT_SRID = 3857 #for mercator
-GEOMETRY_CLIENT_SRID = 4326 #for latlon
+GEOMETRY_CLIENT_SRID = 3857 #for mercator
+#GEOMETRY_CLIENT_SRID = 4326 #for latlon
 
 APP_NAME = "Forestry Land Owner Tools"
 
