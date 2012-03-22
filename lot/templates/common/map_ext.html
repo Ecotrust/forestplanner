@@ -42,8 +42,9 @@
                 </div>
               </div> <!-- no properties -->
               <div id="properties-list" style="display:none" data-bind="visible: hasProperties">
+                <p><button href="#" class="btn" data-bind="click: showAddForm">Add Property</button><p>
                 <div class="row-fluid">
-                  <table class="table table-condensed table-bordered table-striped">
+                  <table class="table table-condensed table-bordered">
                     <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
                     <tbody data-bind="foreach: propertyList">
                       <tr data-bind="click: $parent.selectProperty">
@@ -54,7 +55,7 @@
                     </tbody>
                   </table>
                   <div class="pull-right">
-                    <button href="#" class="pull-right btn btn-primary" data-bind="click: showAddForm">Add Property</button>
+                    <button class="btn btn-primary" href="#" data-bind="click: showEditForm">Edit Property</button>
                   </div>
                 </div>
                 <div class="row-fluid">
@@ -67,7 +68,6 @@
                   <div class="pull-right">
                     <button class="btn" href="#">Perform Analysis</button>
                     <button class="btn" href="#">Add Stands</button>
-                    <button class="btn" href="#" data-bind="click: showEditForm">Edit Property</button>
                   </div>
                 </div>
               </div><!-- has properties -->
