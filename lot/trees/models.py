@@ -1,4 +1,5 @@
 import os
+import math
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -8,7 +9,17 @@ from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 from madrona.async.ProcessHandler import check_status_or_begin, get_process_status
+from madrona.async.models import URLtoTaskID
 from madrona.raster_stats.models import RasterDataset
+
+def try_get(model, **kwargs):
+    """
+    Like model.objects.get(..) but returns None instead of DoesNotExist
+    """
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        return None
 
 @register
 class Stand(PolygonFeature):
@@ -31,7 +42,7 @@ class Stand(PolygonFeature):
         form = "trees.forms.StandForm"
         manipulators = []
         links = (
-            # Link to grab property geojson 
+            # Link to grab stand geojson 
             alternate('GeoJSON',
                 'trees.views.geojson_features',  
                 type="application/json",
@@ -66,50 +77,36 @@ class Stand(PolygonFeature):
 
     @property
     def imputed_elevation(self):
-        try:
-            raster = RasterDataset.objects.get(name="elevation")
-            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
-            result = imputed_data.val  
-        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
-            result = None
-        return result
+        elevation_raster = try_get(RasterDataset, name="elevation")
+        data = try_get(ImputedData, raster=elevation_raster, feature=self)
+        if data:
+            return data.val
 
     @property
     def imputed_aspect(self):
-        import math
-        try:
-            cos_raster = RasterDataset.objects.get(name="cos_aspect")
-            cos_sum = ImputedData.objects.get(raster=cos_raster,feature=self)
-
-            sin_raster = RasterDataset.objects.get(name="sin_aspect")
-            sin_sum = ImputedData.objects.get(raster=sin_raster,feature=self)
-
+        cos_raster = try_get(RasterDataset, name="cos_aspect")
+        sin_raster = try_get(RasterDataset, name="sin_aspect")
+        cos_sum = try_get(ImputedData, raster=cos_raster, feature=self)
+        sin_sum = try_get(ImputedData, raster=sin_raster, feature=self)
+        result = None
+        if cos_sum and sin_sum:
             avg_aspect_rad = math.atan2(cos_sum.val, sin_sum.val)
             result = math.degrees(avg_aspect_rad)
-        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
-            result = None
         return result
 
     @property
     def imputed_slope(self):
-        try:
-            raster = RasterDataset.objects.get(name="slope")
-            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
-            result = imputed_data.val  
-        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
-            result = None
-        return result
+        slope_raster = try_get(RasterDataset, name="slope")
+        data = try_get(ImputedData, raster=slope_raster, feature=self)
+        if data:
+            return data.val
 
     @property
     def imputed_gnn(self):
-        try:
-            raster = RasterDataset.objects.get(name="gnn")
-            imputed_data = ImputedData.objects.get(raster=raster,feature=self)
-            result = imputed_data.val  
-        except (ImputedData.DoesNotExist, RasterDataset.DoesNotExist):
-            result = None
-        return result
-
+        gnn_raster = try_get(RasterDataset, name="gnn")
+        data = try_get(ImputedData, raster=gnn_raster, feature=self)
+        if data:
+            return data.val
 
     @property
     def imputed(self):
@@ -135,21 +132,31 @@ class Stand(PolygonFeature):
                 status[raster] = "NOTSTARTED"
         return status
 
-    def _impute(self, force=False, limit_to=None):
+    def _impute(self, force=False, limit_to=None, async=False):
         '''
         limit_to: list of rasters to (re)impute
         force: if True, bypass the zonal_stats cache
         '''
         from trees.tasks import impute
+        tasks = []
         for raster in settings.IMPUTE_RASTERS:
             if limit_to and raster[0] not in limit_to:
                 continue
             name = "imputed_%s" % raster[0]
             url = "%s%s" % (self.get_absolute_url(), name)
 
-            status, task_id = check_status_or_begin(impute, 
-                    task_args=(self.uid,raster[0],raster[1],force), 
-                    polling_url=url)
+            if async:
+                status, task_id = check_status_or_begin(impute, 
+                        task_args=(self.uid,raster[0],raster[1],force), 
+                        polling_url=url)
+                tasks.append(task_id)
+            else:
+                task = impute.delay(self.uid,raster[0],raster[1],force)
+                URLtoTaskID(url=url, task_id=task.task_id).save()
+                tasks.append(task)
+
+        if not async:
+            results = [t.wait() for t in tasks]
 
     def save(self, *args, **kwargs):
         """

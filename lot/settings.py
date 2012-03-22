@@ -43,7 +43,6 @@ TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 albers = '+proj=aea +lat_1=43 +lat_2=48 +lat_0=34 +lon_0=-120 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs' 
 IMPUTE_RASTERS = [
         ('elevation', albers), 
-        #('aspect', albers), 
         ('cos_aspect', albers), 
         ('sin_aspect', albers), 
         ('slope', albers), 
