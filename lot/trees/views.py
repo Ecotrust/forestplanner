@@ -128,11 +128,11 @@ def upload_stands(request):
 
 def geojson_forestproperty(request, instance):
     '''
-    Generic view to represent Properties as GeoJSON
+    Generic view to represent all Properties as GeoJSON
     '''
     return HttpResponse(instance.feature_set_geojson(), mimetype='application/json', status=200)
 
-def geojson_stands(request, instances):
+def geojson_features(request, instances):
     '''
     Generic view to represent Stands as GeoJSON
     '''
