@@ -63,8 +63,8 @@
                   </div>
                   <div class="row-fluid">
                     <div>
+                      <div data-bind="if: showDetailPanel">
                       <h2>Property Details</h2>
-                      <div data-bind="ifnot: showEditPanel">
                         <table class="table">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
                           <tr><td>Area</td><td>7 acres</td></tr>
@@ -76,19 +76,20 @@
                         </div>
                       </div>
                       <div class="form-panel" data-bind="if: showEditPanel">
+                        <h2>Edit Property</h2>
                         <div id="edit-panel"></div>
                         <div class="pull-right" id="edit-panel-buttons">
-                          <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+                          <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
                           <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
                           <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
                         </div>
                       </div>
-                      <div class="form-panel" data-bind="if: actionPanelType==='create'">
+                      <div class="form-panel" data-bind="if: showCreatePanel">
+                        <h2>Create Property</h2>
                         <div id="create-panel"></div>
-                        <div class="pull-right" id="edit-panel-buttons">
+                        <div class="pull-right" id="create-panel-buttons">
                           <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
-                          <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
-                          <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
+                          <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
                         </div>
                       </div>
                     </div>
@@ -163,7 +164,8 @@
       // TODO: make function to map properties with test  
       self.propertyList = ko.observableArray();
       self.showEditPanel = ko.observable(false);
-
+      self.showDetailPanel = ko.observable(true);
+      self.showCreatePanel = ko.observable(false);
 
       self.hasProperties = ko.computed(function () {
         return self.propertyList().length > 0;
@@ -195,7 +197,7 @@
           $form.find('input:visible').first().focus();
           
           // show the form in the panel
-          self.actionPanelType('edit');
+          self.showDetailPanel(false);
           self.showEditPanel(true);
           $('#edit-panel').empty().append($form);
         })
@@ -217,7 +219,8 @@
           $form.find('input:visible').first().focus();
           
           // show the form in a modal
-          self.actionPanelType('create');
+          self.showDetailPanel(false);
+          self.showCreatePanel(true);
           $('#create-panel').empty().append($form);
         })
       };
@@ -241,6 +244,8 @@
         });
         $form.addClass('form-horizontal')
         self.showEditPanel(false);
+        self.showCreatePanel(false);
+        self.showDetailPanel(true);
         $.ajax({
           url: actionUrl,
           type: "POST",
@@ -276,6 +281,9 @@
       self.deleteFeature = function () {
         var url = "/features/generic-links/links/delete/{uid}/".replace("{uid}", self.selectedProperty().uid());
         $('#delete-dialog').modal('hide');
+        self.showEditPanel(false);
+        self.showCreatePanel(false);
+        self.showDetailPanel(true);
         $.ajax({
           url: url,
           type: "DELETE",
@@ -289,7 +297,13 @@
       };
 
       self.closeDialog = function (self, event) {
-        $(event.target).closest(".modal").modal("hide");
+         $(event.target).closest(".modal").modal("hide");
+      };
+
+      self.cancelEdit = function (self, event) {
+        self.showEditPanel(false);
+        self.showCreatePanel(false);
+        self.showDetailPanel(true);
       };
 
       // initialize properties and vm
