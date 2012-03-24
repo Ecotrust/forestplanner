@@ -24,9 +24,11 @@
               <li class="active">Properties</li>
             </ul>
             <div class="well"> <!-- need to make this a different color -->
-              <h2>Property List</h2>
-              <div data-bind="ifnot: propertyList().length">
-                <div id="properties-none" style="display:none" data-bind="visible: ! propertyList().length">
+              <div class="row-fluid" data-bind="ifnot: propertyList().length">
+                <h2>Create Properties</h2>
+                <p><em>You currently have no properties under management.</em></p>
+                <div id="properties-none">
+                  <h3>Draw your property</h3>
                   <p>Find your properties on the map by searching for a placename or parcel id.</p>
                   <div>
                       <form class="form-search">
@@ -34,7 +36,6 @@
                           <button class="btn" type="submit">Search</button>
                       </form>
                   </div>
-                  <h3>Draw your property</h3>
                   <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
                   <h3>Add additional information</h3>
                   <p>Then you will be asked to enter some additional information to help describe your property.</p>
@@ -42,9 +43,10 @@
                     <button href="#" class="btn btn-large btn-primary" data-bind="click: showAddForm">Add Property</button>
                   </div>
                 </div> <!-- no properties -->
-              </div>
-              <div data-bind="if: propertyList().length">
-                <div id="properties-list" style="display:none" data-bind="visible: propertyList">
+              </div><!-- end of no properties -->
+              <div>
+                <div id="properties-list" data-bind="if: propertyList().length">
+                  <h2>Property List</h2>
                   <p><button href="#" class="btn" data-bind="click: showAddForm, disable: showEditPanel">Add Property</button><p>
                   <div class="row-fluid">
                     <table class="table table-condensed table-bordered">
@@ -61,9 +63,10 @@
                       <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: showEditPanel">Edit Property</button>
                     </div>
                   </div>
-                  <div class="row-fluid">
-                    <div>
-                      <div data-bind="if: showDetailPanel">
+                </div><!-- has properties -->
+                <div class="row-fluid"><!-- panels -->
+                  <div>
+                    <div data-bind="if: showDetailPanel">
                       <h2>Property Details</h2>
                         <table class="table">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
@@ -75,26 +78,25 @@
                           <button class="btn" href="#">Add Stands</button>
                         </div>
                       </div>
-                      <div class="form-panel" data-bind="if: showEditPanel">
-                        <h2>Edit Property</h2>
-                        <div id="edit-panel"></div>
-                        <div class="pull-right" id="edit-panel-buttons">
-                          <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
-                          <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
-                          <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
-                        </div>
+                    </div>
+                    <div class="form-panel" data-bind="if: showEditPanel">
+                      <h2>Edit Property</h2>
+                      <div id="edit-panel"></div>
+                      <div class="pull-right" id="edit-panel-buttons">
+                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
+                        <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
+                        <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
                       </div>
-                      <div class="form-panel" data-bind="if: showCreatePanel">
-                        <h2>Create Property</h2>
-                        <div id="create-panel"></div>
-                        <div class="pull-right" id="create-panel-buttons">
-                          <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
-                          <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
-                        </div>
+                    </div>
+                    <div class="form-panel" data-bind="if: showCreatePanel">
+                      <h2>Create Property</h2>
+                      <div id="create-panel"></div>
+                      <div class="pull-right" id="create-panel-buttons">
+                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
+                        <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
                       </div>
                     </div>
                   </div>
-                </div><!-- has properties -->
               </div>
             </div>
           </div>
@@ -122,37 +124,6 @@
       </div>
     </div>
 
-    <div class="modal" id="edit-dialog" style="display:none">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3>edit a property</h3>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-        <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
-        <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
-        <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
-      </div>
-    </div>
-
-
-    <div class="modal" id="add-dialog" style="display:none">
-      <div class="modal-header">
-        <a class="close" data-dismiss="modal">×</a>
-        <h3>add a property</h3>
-      </div>
-      <div class="modal-body">
-      </div>
-      <div class="modal-footer">
-        <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
-        <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
-      </div>
-    </div>
-    
-        
-
-
     <script type="text/javascript">
 
     $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
@@ -164,7 +135,7 @@
       // TODO: make function to map properties with test  
       self.propertyList = ko.observableArray();
       self.showEditPanel = ko.observable(false);
-      self.showDetailPanel = ko.observable(true);
+      self.showDetailPanel = ko.observable(false);
       self.showCreatePanel = ko.observable(false);
 
       self.hasProperties = ko.computed(function () {
@@ -245,7 +216,6 @@
         $form.addClass('form-horizontal')
         self.showEditPanel(false);
         self.showCreatePanel(false);
-        self.showDetailPanel(true);
         $.ajax({
           url: actionUrl,
           type: "POST",
@@ -271,6 +241,7 @@
             self.propertyList.unshift(newPropertyVM);
             $("#properties-list tbody").find("tr").first().addClass('active');
           }
+          self.showDetailPanel(true);
         });
       };
       self.showDeleteDialog = function () {
@@ -289,9 +260,12 @@
           type: "DELETE",
           success: function (data, textStatus, jqXHR) {
             self.propertyList.remove(self.selectedProperty());
-            self.selectProperty(self.propertyList()[0]);
-            $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
-
+            if (self.propertyList().length) {
+              self.selectProperty(self.propertyList()[0]);
+             $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
+            } else {
+              self.showDetailPanel(false);
+            }
           }
         });
       };
@@ -303,7 +277,7 @@
       self.cancelEdit = function (self, event) {
         self.showEditPanel(false);
         self.showCreatePanel(false);
-        self.showDetailPanel(true);
+        self.showDetailPanel(self.propertyList().length ? true: false);
       };
 
       // initialize properties and vm
@@ -317,7 +291,7 @@
           
           // select the first property
           self.selectedProperty(self.propertyList()[0]);
-          self.actionPanelType('true');
+          self.showDetailPanel(true);
           // apply bindings should probably happen when dom is ready, but this 
           // seems to be working
           ko.applyBindings(self);
