@@ -290,8 +290,10 @@
           }));
           
           // select the first property
-          self.selectedProperty(self.propertyList()[0]);
-          self.showDetailPanel(true);
+          if (self.propertyList().length) {
+            self.selectedProperty(self.propertyList()[0]);
+            self.showDetailPanel(true);            
+          }
           // apply bindings should probably happen when dom is ready, but this 
           // seems to be working
           ko.applyBindings(self);
