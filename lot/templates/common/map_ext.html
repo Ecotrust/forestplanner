@@ -148,18 +148,17 @@
       self.selectProperty = function (property, event) {
         // TODO: Make active!
         var bounds = new OpenLayers.Bounds(property.bbox());
-
         if (event) {     
           $(event.target).closest('tr')
             .addClass('active')
             .siblings().removeClass('active');         
             app.selectFeature.unselectAll();
             app.selectFeature.select(property.feature);
-
         } 
         // set the selected property for the viewmodel
         self.selectedProperty(property);
         // zoom the map to the selected property
+
         map.zoomToExtent(bounds);
       };
 
@@ -258,9 +257,11 @@
             ko.mapping.fromJS(newProperty, property);
             self.selectProperty(property);
           } else {
-            newPropertyVM = ko.mapping.fromJS(newProperty);
-            self.selectProperty(newPropertyVM);
-            self.propertyList.unshift(newPropertyVM);
+            // newPropertyVM = ko.mapping.fromJS(newProperty);
+            // self.selectProperty(newPropertyVM);
+            // self.propertyList.unshift(newPropertyVM);
+            //debugger;
+            app.vector_layer.addFeatures(app.geojson_format.read(data));
             $("#properties-list tbody").find("tr").first().addClass('active');
           }
           self.showDetailPanel(true);
@@ -323,8 +324,14 @@
             },
             'featureadded': function (feature) {
               var featureViewModel = ko.mapping.fromJS(feature.feature.data);
+              // save a reference to the feature
               featureViewModel.feature = feature.feature;
-              app.viewModel.propertyList.push(featureViewModel);
+              // add it to the viewmodel
+              app.viewModel.propertyList.unshift(featureViewModel);
+            },
+            'featuresadded': function (data) {
+              app.selectFeature.unselectAll();
+              app.selectFeature.select(data.features[0]);
             }
           });
 
