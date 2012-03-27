@@ -40,14 +40,14 @@
                   <h3>Add additional information</h3>
                   <p>Then you will be asked to enter some additional information to help describe your property.</p>
                   <div class="pull-right">
-                    <button href="#" class="btn btn-large btn-primary" data-bind="click: showAddForm">Add Property</button>
+                    <button href="#" class="btn btn-large btn-primary" data-bind="click: startAddDrawing, disable: drawingActivated">Add Property</button>
                   </div>
                 </div> <!-- no properties -->
               </div><!-- end of no properties -->
               <div>
                 <div id="properties-list" data-bind="if: propertyList().length">
                   <h2>Property List</h2>
-                  <p><button href="#" class="btn" data-bind="click: showAddForm, disable: showEditPanel">Add Property</button><p>
+                  <p><button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button><p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
                     <table class="table table-condensed table-bordered">
                       <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
@@ -60,15 +60,22 @@
                       </tbody>
                     </table>
                     <div class="pull-right">
-                      <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: showEditPanel">Edit Property</button>
+                      <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: preventUpdates">Edit Property</button>
                     </div>
                   </div>
                 </div><!-- has properties -->
                 <div class="row-fluid"><!-- panels -->
                   <div>
+                    <div data-bind="if: showDrawHelpPanel">
+                      <h2>Drawing Property</h2>
+                      <p>Here we should have information about drawing the property and an animated gif</p>
+                      <div class="pull-right">
+                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
+                      </div>
+                    </div>
                     <div data-bind="if: showDetailPanel">
                       <h2>Property Details</h2>
-                        <table class="table">
+                        <table class="table" data-bind="if: selectedProperty().name">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
                           <tr><td>Area</td><td>7 acres</td></tr>
                           <tr><td>County</td><td>Multnomah</td></tr>
@@ -140,16 +147,13 @@
       self.showEditPanel = ko.observable(false);
       self.showDetailPanel = ko.observable(false);
       self.showCreatePanel = ko.observable(false);
-
-      self.hasProperties = ko.computed(function () {
-        return self.propertyList().length > 0;
-      });
+      self.showDrawHelpPanel = ko.observable(false);
+      self.drawingActivated = ko.observable(false);
+      self.preventUpdates = ko.observable(false);
 
       self.selectProperty = function (property, event) {
         // TODO: Make active!
-        if (app.drawFeature.active || app.modifyFeature.active) {
-          return false;
-        } else {
+        if (! self.preventUpdates()) {
           var bounds = new OpenLayers.Bounds(property.bbox());
           if (event) {     
             $(event.target).closest('tr')
@@ -161,7 +165,6 @@
           // set the selected property for the viewmodel
           self.selectedProperty(property);
           // zoom the map to the selected property
-
           map.zoomToExtent(bounds);
         }
       };
@@ -191,17 +194,21 @@
           // show the form in the panel
           self.showDetailPanel(false);
           self.showEditPanel(true);
+          self.preventUpdates(true);
           $('#edit-panel').empty().append($form);
           app.modifyFeature.selectFeature(self.selectedProperty().feature);
           app.modifyFeature.activate();
         })
       };
-
+      self.startAddDrawing = function () {
+        self.showDetailPanel(false);
+        self.showDrawHelpPanel(true);
+        self.drawingActivated(true);
+        self.preventUpdates(true);
+        app.drawFeature.activate();
+      };
       self.showAddForm = function () {
         var formUrl = 'features/forestproperty/form/';
-
-        // start drawing
-        app.drawFeature.activate();
 
         $.get(formUrl, function (data) {
           var $form = $(data).find('form');
@@ -231,6 +238,7 @@
         var geometry = app.modifyFeature.feature.geometry.toString();
         self.saveFeature(event, self.selectedProperty(), geometry);
         app.modifyFeature.deactivate();
+        app.new_features.removeAllFeatures();
       };
 
       self.saveFeature = function (event, property, geometry) {
@@ -246,13 +254,15 @@
         $form.addClass('form-horizontal')
         self.showEditPanel(false);
         self.showCreatePanel(false);
+        self.preventUpdates(false);
         $.ajax({
           url: actionUrl,
           type: "POST",
           data: values,
           success: function (data, textStatus, jqXHR) {
             // property is not defined if new
-            self.updateOrCreateProperty(JSON.parse(data), property)
+            self.updateOrCreateProperty(JSON.parse(data), property);
+            self.drawingActivated(false);
           }
         });
       };
@@ -266,12 +276,8 @@
             ko.mapping.fromJS(newProperty, property);
             self.selectProperty(property);
           } else {
-            // newPropertyVM = ko.mapping.fromJS(newProperty);
-            // self.selectProperty(newPropertyVM);
-            // self.propertyList.unshift(newPropertyVM);
-            //debugger;
+            // add a new property
             app.vector_layer.addFeatures(app.geojson_format.read(data));
-            $("#properties-list tbody").find("tr").first().addClass('active');
           }
           self.showDetailPanel(true);
         });
@@ -287,10 +293,13 @@
         self.showEditPanel(false);
         self.showCreatePanel(false);
         self.showDetailPanel(true);
+        self.preventUpdates(false);
         $.ajax({
           url: url,
           type: "DELETE",
           success: function (data, textStatus, jqXHR) {
+            app.modifyFeature.deactivate();
+            app.vector_layer.removeFeatures(self.selectedProperty().feature);
             self.propertyList.remove(self.selectedProperty());
             if (self.propertyList().length) {
               self.selectProperty(self.propertyList()[0]);
@@ -309,6 +318,11 @@
       self.cancelEdit = function (self, event) {
         self.showEditPanel(false);
         self.showCreatePanel(false);
+        self.showDrawHelpPanel(false);
+        self.preventUpdates(false);
+        app.modifyFeature.resetVertices();
+        app.modifyFeature.deactivate();
+        app.drawFeature.deactivate();
         self.showDetailPanel(self.propertyList().length ? true: false);
       };
 
@@ -331,20 +345,14 @@
           // activate select now
           app.selectFeature.activate();
 
+          app.drawFeature.featureAdded = function(feature) { 
+            app.drawFeature.deactivate();
+            self.showDrawHelpPanel(false);
+            app.saveFeature(feature);
+          };
+
           // bind event to selected feature
           vector_layer.events.on({
-            'beforefeatureunselected': function (feature) {
-              if (app.modifyFeature.active || app.drawFeature.active) {
-                return false;
-              }
-            },
-            'beforefeatureselected': function (feature) {
-              // don't allow feature selection if we are drawing
-              if (app.modifyFeature.active || app.drawFeature.active) {
-                return false;
-              }
-            },
-            
             'featureselected': function (feature) {
               self.selectPropertyByUID(feature.feature.data.uid);
             },
@@ -357,15 +365,16 @@
             },
             'featuresadded': function (data) {
               app.selectFeature.unselectAll();
-              app.selectFeature.select(data.features[0]);
+              self.selectPropertyByUID(data.features[0].uid);
+              map.zoomToExtent(data.object.getDataExtent());
             }
           });
 
-          vector_layer.addFeatures(geojson_format.read(data));
           app.vector_layer = vector_layer;
           app.geojson_format = geojson_format;
           // select the first property and show the detail panel
-          if (self.propertyList().length) {
+          if (data.features.length) {
+            vector_layer.addFeatures(geojson_format.read(data));
             self.selectedProperty(self.propertyList()[0]);
             self.showDetailPanel(true);            
           }
@@ -379,6 +388,7 @@
 
     app.saveFeature = function (f) {
       app.newGeometry = f.geometry.toString();
+      app.viewModel.showAddForm();
     };
 
     $(document).ready(function () {

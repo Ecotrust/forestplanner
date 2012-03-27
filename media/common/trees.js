@@ -37,7 +37,7 @@ function init() {
     map.addLayer(baseAerial);
 
     map.setCenter(new OpenLayers.LonLat(-124.38, 42.8).transform(
-        new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 13);
+        new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 8);
     
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = false;
@@ -153,7 +153,7 @@ function init() {
             }
     );
     map.addLayer(new_features);
-
+    app.new_features = new_features;
     // var modify = new OpenLayers.Control.ModifyFeature(stands);
     // map.addControl(modify);
 
@@ -171,11 +171,7 @@ function init() {
     // map.addControl(selector);
 
     draw = new OpenLayers.Control.DrawFeature(new_features, OpenLayers.Handler.Polygon);
-    var featureCallback = function(f) { 
-        draw.deactivate();
-        app.saveFeature(f);
-    };
-    draw.featureAdded = featureCallback;
+   
     map.addControl(draw);
 
     app.drawFeature = draw;
