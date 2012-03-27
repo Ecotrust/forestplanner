@@ -366,12 +366,18 @@
             'featuresadded': function (data) {
               app.selectFeature.unselectAll();
               self.selectPropertyByUID(data.features[0].uid);
-              map.zoomToExtent(data.object.getDataExtent());
+              // map.zoomToExtent(data.object.getDataExtent());
             }
           });
 
           app.vector_layer = vector_layer;
           app.geojson_format = geojson_format;
+          snap = new OpenLayers.Control.Snapping({
+                      layer: app.new_features,
+                      targets: [app.vector_layer],
+                      greedy: false
+                  });
+          snap.activate();
           // select the first property and show the detail panel
           if (data.features.length) {
             vector_layer.addFeatures(geojson_format.read(data));
