@@ -31,6 +31,7 @@ Ecotrust is developing online software that will give all Oregon and Washington 
 ### Authors
 
 * Matthew Perry (perrygeo)
+* Edwin Knuth (eknuth)
 * Mike Mertens (mmertens)
 * Ryan Hodges (rhodges)
 * Ken Vollmer (kvollmer)

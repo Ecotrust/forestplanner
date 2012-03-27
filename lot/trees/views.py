@@ -40,10 +40,18 @@ def user_property_list(request):
         return HttpResponse('You must be logged in.', status=401)
 
     user_fps = ForestProperty.objects.filter(user=request.user)
+    try:
+        bb = user_fps.extent(field_name='geometry_final')
+    except:
+        bb = ['null', 'null', 'null', 'null']
+
+
     gj = """{ "type": "FeatureCollection",
+    "bbox": [%s, %s, %s, %s],
     "features": [
     %s
-    ]}""" % '%s' % ', '.join([fp.geojson for fp in user_fps])
+    ]}""" % (bb[0], bb[1], bb[2], bb[3], ', '.join([fp.geojson for fp in user_fps]))
+
     return HttpResponse(gj, mimetype='application/json', status=200)
 
 def property_stand_list(request, property_uid):
