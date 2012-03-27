@@ -178,7 +178,7 @@ function init() {
     draw.featureAdded = featureCallback;
     map.addControl(draw);
 
-    app.draw = draw;
+    app.drawFeature = draw;
     // $('input#confirm-save-stand').click( function(e) {
     //     e.preventDefault();
     //     fs = new_stands.features;

@@ -147,19 +147,23 @@
 
       self.selectProperty = function (property, event) {
         // TODO: Make active!
-        var bounds = new OpenLayers.Bounds(property.bbox());
-        if (event) {     
-          $(event.target).closest('tr')
-            .addClass('active')
-            .siblings().removeClass('active');         
-            app.selectFeature.unselectAll();
-            app.selectFeature.select(property.feature);
-        } 
-        // set the selected property for the viewmodel
-        self.selectedProperty(property);
-        // zoom the map to the selected property
+        if (app.drawFeature.active || app.modifyFeature.active) {
+          return false;
+        } else {
+          var bounds = new OpenLayers.Bounds(property.bbox());
+          if (event) {     
+            $(event.target).closest('tr')
+              .addClass('active')
+              .siblings().removeClass('active');         
+              app.selectFeature.unselectAll();
+              app.selectFeature.select(property.feature);
+          } 
+          // set the selected property for the viewmodel
+          self.selectedProperty(property);
+          // zoom the map to the selected property
 
-        map.zoomToExtent(bounds);
+          map.zoomToExtent(bounds);
+        }
       };
 
       self.selectPropertyByUID = function (uid) {
@@ -188,6 +192,8 @@
           self.showDetailPanel(false);
           self.showEditPanel(true);
           $('#edit-panel').empty().append($form);
+          app.modifyFeature.selectFeature(self.selectedProperty().feature);
+          app.modifyFeature.activate();
         })
       };
 
@@ -195,7 +201,7 @@
         var formUrl = 'features/forestproperty/form/';
 
         // start drawing
-        app.draw.activate();
+        app.drawFeature.activate();
 
         $.get(formUrl, function (data) {
           var $form = $(data).find('form');
@@ -217,14 +223,17 @@
       };
 
       self.addFeature = function (self, event) {
-        self.saveFeature(event);
+        self.saveFeature(event, null, app.newGeometry);
+        app.drawFeature.deactivate();
       };
 
       self.updateFeature = function (self, event) {
-        self.saveFeature(event, self.selectedProperty());
+        var geometry = app.modifyFeature.feature.geometry.toString();
+        self.saveFeature(event, self.selectedProperty(), geometry);
+        app.modifyFeature.deactivate();
       };
 
-      self.saveFeature = function (event, property) {
+      self.saveFeature = function (event, property, geometry) {
         var $dialog = $(event.target).closest('.form-panel'),
           $form = $dialog.find('form'), 
           actionUrl = $form.attr('action'),
@@ -233,7 +242,7 @@
           var $input = $(this);
           values[$input.attr('name')] = $input.val();
         });
-        values.geometry_final = app.newGeometry;
+        values.geometry_final = geometry;
         $form.addClass('form-horizontal')
         self.showEditPanel(false);
         self.showCreatePanel(false);
@@ -312,13 +321,30 @@
           
           map.addLayer(vector_layer);
 
-          // need a reference to the selector control
-          app.selectFeature = new OpenLayers.Control.SelectFeature(vector_layer);;
+          // add controls, save references
+          app.selectFeature = new OpenLayers.Control.SelectFeature(vector_layer,
+            { "clickout": false});
           map.addControl(app.selectFeature);
+          app.modifyFeature = new OpenLayers.Control.ModifyFeature(vector_layer);
+          map.addControl(app.modifyFeature);
+          // draw is in tree.js TODO: move)
+          // activate select now
           app.selectFeature.activate();
 
           // bind event to selected feature
           vector_layer.events.on({
+            'beforefeatureunselected': function (feature) {
+              if (app.modifyFeature.active || app.drawFeature.active) {
+                return false;
+              }
+            },
+            'beforefeatureselected': function (feature) {
+              // don't allow feature selection if we are drawing
+              if (app.modifyFeature.active || app.drawFeature.active) {
+                return false;
+              }
+            },
+            
             'featureselected': function (feature) {
               self.selectPropertyByUID(feature.feature.data.uid);
             },
