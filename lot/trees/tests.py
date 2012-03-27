@@ -18,6 +18,8 @@ g1 = GEOSGeometry(
       'SRID=4326;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
 g1.transform(settings.GEOMETRY_DB_SRID)
 
+p1 = g1.buffer(1000)
+
 class StandTest(TestCase):
     ''' 
     Basic tests for adding stands
@@ -69,21 +71,20 @@ class ForestPropertyTest(TestCase):
         self.stand1.save()
 
     def test_create_property(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
 
     def test_property_bbox(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
-        self.assertEqual(prop1.bbox, settings.DEFAULT_EXTENT)
-        new_extent = (-14056250,4963250,-12471550,6128450) # in mercator
+        self.assertEqual(prop1.bbox, p1.extent)
         prop1.geometry_final = g1
         prop1.save()
-        self.assertNotEqual(prop1.bbox, settings.DEFAULT_EXTENT)
+        self.assertNotEqual(prop1.bbox, p1.extent)
         self.assertEqual(prop1.bbox, g1.extent)
 
     def test_add_property_to_stand(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
 
         self.stand1.add_to_collection(prop1)
@@ -95,7 +96,7 @@ class ForestPropertyTest(TestCase):
         self.assertTrue(self.stand1 not in prop1.feature_set())
 
     def test_add_stand_to_property(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
 
         prop1.add(self.stand1)
@@ -107,8 +108,8 @@ class ForestPropertyTest(TestCase):
         self.assertTrue(self.stand1 not in prop1.feature_set())
 
     def test_add_property_to_property(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
-        prop2 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        prop2 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
         prop2.save()
         # This `prop1.add(prop2)` should fail
@@ -232,8 +233,9 @@ class UserPropertyListTest(TestCase):
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
         self.assertEquals(plist['features'], [])
+        self.assertEquals(plist['bbox'], [None, None, None, None])
 
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
 
         response = self.client.get(url)
@@ -257,7 +259,7 @@ class PropertyStandListTest(TestCase):
         self.stand1.save()
         self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
         self.stand2.save()
-        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
         self.prop1.add(self.stand1)
         enable_sharing()
@@ -321,7 +323,7 @@ class SpatialTest(TestCase):
         self.stand1.save()
         self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
         self.stand2.save()
-        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
         self.prop1.add(self.stand1)
 
@@ -347,6 +349,12 @@ class SpatialTest(TestCase):
         thejson = self.prop1.feature_set_geojson()
         d = loads(thejson)
         self.assertEquals(len(d['features']), 2)
+
+    def test_property_bbox(self):
+        thejson = self.prop1.feature_set_geojson()
+        d = loads(thejson)
+        for x, y in zip(d['bbox'], self.prop1.bbox):
+            self.assertAlmostEquals(x, y, places=5)
 
     def test_stand_json_url(self):
         self.client.login(username='featuretest', password='pword')
@@ -533,7 +541,7 @@ class StandImportTest(TestCase):
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
 
     def test_shp_exists(self):
@@ -666,7 +674,7 @@ class AdjacencyTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.prop1 = ForestProperty(user=self.user, name="My Property")
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
 
         d = os.path.dirname(__file__)
@@ -733,7 +741,7 @@ class OutputsTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
 
     def test_property_files(self):
-        prop1 = ForestProperty(user=self.user, name="My Property")
+        prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
         path = os.path.join(prop1.file_dir, 'test.txt')
         try:

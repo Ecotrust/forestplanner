@@ -204,7 +204,7 @@ class ImputedData(models.Model):
 @register
 class ForestProperty(FeatureCollection):
     geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
-            null=True, blank=True, verbose_name="Stand Polygon Geometry")
+            verbose_name="Stand Polygon Geometry")
 
     @property
     def geojson(self):
@@ -233,11 +233,17 @@ class ForestProperty(FeatureCollection):
         return gj
 
     def feature_set_geojson(self):
+        # We'll use the bbox for the property geom itself
+        # Instead of using the overall bbox of the stands  
+        # Assumption is that property boundary SHOULD contain all stands
+        # and, if not, they should expand the property boundary
+        bb = self.bbox  
         featxt = ', '.join([i.geojson for i in self.feature_set()])
         return """{ "type": "FeatureCollection",
+        "bbox": [%f, %f, %f, %f],
         "features": [
         %s
-        ]}""" % featxt
+        ]}""" % (bb[0], bb[1], bb[2], bb[3], featxt)
 
     @property
     def bbox(self):
