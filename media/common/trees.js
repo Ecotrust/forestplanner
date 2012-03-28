@@ -20,25 +20,26 @@ function init() {
     var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20});
     var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
 
-    var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-                "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-                "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-                "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-                    "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+    // var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //             "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //             "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //             "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
+    // var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //                 "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //                 "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //                 "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
     
-    var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
-    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
+    // var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
+    // var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
 
     map.addLayers([gsat, gphy, ghyb]);
-    map.addLayer(baseOSM);
-    map.addLayer(baseAerial);
+    // map.addLayer(baseOSM);
+    // map.addLayer(baseAerial);
 
-    map.setCenter(new OpenLayers.LonLat(-124.38, 42.8).transform(
-        new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 8);
+    // map.setCenter(new OpenLayers.LonLat(-124.38, 42.8).transform(
+    //    new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 8);
     
+
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = false;
     };
@@ -145,7 +146,7 @@ function init() {
     //     }
     // });
     // map.addLayer(stands);
-
+    
     new_features = new OpenLayers.Layer.Vector("New Features", 
             {
                 renderers: renderer, 
@@ -154,6 +155,30 @@ function init() {
     );
     map.addLayer(new_features);
     app.new_features = new_features;
+    
+
+    app.geojson_format = new OpenLayers.Format.GeoJSON(),
+    app.vector_layer = new OpenLayers.Layer.Vector();
+    map.addLayer(app.vector_layer);
+
+    // add controls, save references
+    app.selectFeature = new OpenLayers.Control.SelectFeature(app.vector_layer,
+        { "clickout": false});
+    map.addControl(app.selectFeature);
+    app.modifyFeature = new OpenLayers.Control.ModifyFeature(app.vector_layer);
+    map.addControl(app.modifyFeature);
+    // draw is in tree.js TODO: move)
+    // activate select now
+    app.selectFeature.activate();
+
+    
+  
+    snap = new OpenLayers.Control.Snapping({
+                layer: app.new_features,
+                targets: [app.vector_layer],
+                greedy: false
+            });
+    snap.activate();
     // var modify = new OpenLayers.Control.ModifyFeature(stands);
     // map.addControl(modify);
 

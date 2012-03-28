@@ -60,6 +60,7 @@
                       </tbody>
                     </table>
                     <div class="pull-right">
+                      <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">Show All Properties</button>
                       <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: preventUpdates">Edit Property</button>
                     </div>
                   </div>
@@ -154,7 +155,6 @@
       self.selectProperty = function (property, event) {
         // TODO: Make active!
         if (! self.preventUpdates()) {
-          var bounds = new OpenLayers.Bounds(property.bbox());
           if (event) {     
             $(event.target).closest('tr')
               .addClass('active')
@@ -165,7 +165,9 @@
           // set the selected property for the viewmodel
           self.selectedProperty(property);
           // zoom the map to the selected property
-          map.zoomToExtent(bounds);
+          // map.zoomToExtent(bounds);
+          map.zoomToExtent(OpenLayers.Bounds.fromArray(property.bbox()));         
+
         }
       };
 
@@ -176,6 +178,10 @@
           }
         });
       };
+
+      self.zoomToExtent = function () {
+        map.zoomToExtent(OpenLayers.Bounds.fromArray(app.bounds));
+      }
 
       self.showEditForm = function () {
         var formUrl = 'features/forestproperty/{uid}/form/'.replace('{uid}', this.selectedProperty().uid());
@@ -283,7 +289,6 @@
         });
       };
       self.showDeleteDialog = function () {
-        $("#edit-dialog").modal("hide");
         $("#delete-dialog").modal("show");
       };
 
@@ -330,21 +335,6 @@
       // return request object to apply bindings when done
       self.init = function () {
         return $.get('/trees/user_property_list/', function (data) {
-          var geojson_format = new OpenLayers.Format.GeoJSON(),
-              vector_layer = new OpenLayers.Layer.Vector();
-          
-          map.addLayer(vector_layer);
-
-          // add controls, save references
-          app.selectFeature = new OpenLayers.Control.SelectFeature(vector_layer,
-            { "clickout": false});
-          map.addControl(app.selectFeature);
-          app.modifyFeature = new OpenLayers.Control.ModifyFeature(vector_layer);
-          map.addControl(app.modifyFeature);
-          // draw is in tree.js TODO: move)
-          // activate select now
-          app.selectFeature.activate();
-
           app.drawFeature.featureAdded = function(feature) { 
             app.drawFeature.deactivate();
             self.showDrawHelpPanel(false);
@@ -352,7 +342,7 @@
           };
 
           // bind event to selected feature
-          vector_layer.events.on({
+          app.vector_layer.events.on({
             'featureselected': function (feature) {
               self.selectPropertyByUID(feature.feature.data.uid);
             },
@@ -364,25 +354,19 @@
               app.viewModel.propertyList.unshift(featureViewModel);
             },
             'featuresadded': function (data) {
-              app.selectFeature.unselectAll();
-              self.selectPropertyByUID(data.features[0].uid);
+              // app.selectFeature.unselectAll();
+              // self.selectPropertyByUID(data.features[0].uid);
               // map.zoomToExtent(data.object.getDataExtent());
             }
           });
 
-          app.vector_layer = vector_layer;
-          app.geojson_format = geojson_format;
-          snap = new OpenLayers.Control.Snapping({
-                      layer: app.new_features,
-                      targets: [app.vector_layer],
-                      greedy: false
-                  });
-          snap.activate();
+          app.bounds = data.bbox;
           // select the first property and show the detail panel
           if (data.features.length) {
-            vector_layer.addFeatures(geojson_format.read(data));
+            app.vector_layer.addFeatures(app.geojson_format.read(data));
             self.selectedProperty(self.propertyList()[0]);
-            self.showDetailPanel(true);            
+            self.showDetailPanel(true);   
+            map.zoomToExtent(OpenLayers.Bounds.fromArray(data.bbox));         
           }
         });  
       }
@@ -397,12 +381,12 @@
       app.viewModel.showAddForm();
     };
 
+    app.onResize = function () {
+      $("#map").height($(window).height() * .75);
+    };
+    
     $(document).ready(function () {
-      var onResize = function () {
-        $("#map").height($(window).height() * .75);
-      };
-      
-
+      app.onResize();
       app.viewModel.init().done(function () {
         // apply the viewmodel
         ko.applyBindings(app.viewModel);
@@ -410,15 +394,15 @@
 
 
 
-      onResize();
-      $(window).resize(onResize);
+      
+      $(window).resize(app.onResize);
     });
 
     </script>
 {% endblock content %}
 {% block scripts %}
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
-    <script src="/media/OpenLayers.js"></script>
+    <script src="{{MEDIA_URL}}OpenLayers.js"></script>
     {% load compressed %}
     {% compressed_js 'application' %}
 {% endblock scripts %}
