@@ -18,11 +18,37 @@ class Command(BaseCommand):
         except User.DoesNotExist:
             user = User.objects.create_user('demo', 'mperry@madrona.org', password='demo')
 
-        prop1, created = ForestProperty.objects.get_or_create(user=user, name='Demo Property')
+        from shapely.geometry import Point
+        from shapely import wkt, wkb
+        from shapely.ops import cascaded_union
+
+        from django.contrib.gis.gdal import DataSource
+        ds = DataSource(shp_path)
+        layer = ds[0]
+        
+        if layer.srs.srid != settings.GEOMETRY_DB_SRID:
+            good_proj = raw_input('Are you sure this shapefile is in Mercator\n? ')
+            if good_proj.lower() not in ['y','yes']:
+                raise Exception("Shapefile must be Web Mercator projection")
+
+        namefld = raw_input('What is your `name` field? \n Choices: \n %s \n? ' % layer.fields)
+        if namefld not in layer.fields:
+            raise Exception(namefld + " is not a valid field name for this dataset")
+
+        print "Calculating property outline from stands..."
+        stands = []
+        for feature in layer:
+            stands.append(wkt.loads(feature.geom.wkt))
+        casc = cascaded_union(stands)
+        
+        print "Creating Property..."
+        prop1, created = ForestProperty.objects.get_or_create(user=user, name='Demo Property', geometry_final=casc.wkt)
         [x.delete() for x in prop1.feature_set()]
         prop1.save()
 
+        print "Import stands..."
+        field_mapping = {'name': namefld}
         s = StandImporter(prop1)
-        s.import_ogr(shp_path) 
+        s.import_ogr(shp_path, field_mapping, verbose=True) 
 
         print "%d stands imported from %s" % (len(prop1.feature_set()), shp_path)
