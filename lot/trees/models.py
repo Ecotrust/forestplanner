@@ -8,9 +8,9 @@ from django.utils.simplejson import dumps
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
-from madrona.async.ProcessHandler import check_status_or_begin, get_process_status
-from madrona.async.models import URLtoTaskID
-from madrona.raster_stats.models import RasterDataset
+from madrona.raster_stats.models import RasterDataset, zonal_stats
+from madrona.common.utils import get_logger
+logger = get_logger()
 
 def try_get(model, **kwargs):
     """
@@ -89,7 +89,7 @@ class Stand(PolygonFeature):
         cos_sum = try_get(ImputedData, raster=cos_raster, feature=self)
         sin_sum = try_get(ImputedData, raster=sin_raster, feature=self)
         result = None
-        if cos_sum and sin_sum:
+        if cos_sum and sin_sum and cos_sum.val and sin_sum.val:
             avg_aspect_rad = math.atan2(cos_sum.val, sin_sum.val)
             result = math.degrees(avg_aspect_rad)
         return result
@@ -115,48 +115,47 @@ class Stand(PolygonFeature):
                 'slope': self.imputed_slope,
                 'gnn': self.imputed_gnn,
                }
-    @property
-    def status(self):
-        status = {}
-        for raster in self.imputed.keys():
-            name = "imputed_%s" % raster
-            url = "%s%s" % (self.get_absolute_url(), name)
-            async_status = get_process_status(polling_url=url)
-            if self.imputed[raster] is not None:
-                status[raster] = "COMPLETED"
-            elif async_status is not None:
-                # STARTED, PENDING, SUCCESS, FAILURE, RETRY, REVOKED
-                # custom: RASTERNOTFOUND, ZONALNULL
-                status[raster] = async_status
-            else:
-                status[raster] = "NOTSTARTED"
-        return status
 
     def _impute(self, force=False, limit_to=None, async=False):
         '''
         limit_to: list of rasters to (re)impute
         force: if True, bypass the zonal_stats cache
         '''
-        from trees.tasks import impute
-        tasks = []
-        for raster in settings.IMPUTE_RASTERS:
+        for rname, rproj in settings.IMPUTE_RASTERS:
             if limit_to and raster[0] not in limit_to:
                 continue
-            name = "imputed_%s" % raster[0]
-            url = "%s%s" % (self.get_absolute_url(), name)
 
-            if async:
-                status, task_id = check_status_or_begin(impute, 
-                        task_args=(self.uid,raster[0],raster[1],force), 
-                        polling_url=url)
-                tasks.append(task_id)
+            orig_geom = self.geometry_final
+            if rproj:
+                geom = orig_geom.transform(rproj, clone=True)
+
+            result = None
+            try:
+                raster = RasterDataset.objects.get(name=rname)
+            except RasterDataset.DoesNotExist:
+                continue
+
+            if not raster.is_valid:
+                raise Exception(raster.filepath + " is not a valid rasterdataset")
+
+            if force:
+                stats = zonal_stats(geom, raster, read_cache = False)
             else:
-                task = impute.delay(self.uid,raster[0],raster[1],force)
-                URLtoTaskID(url=url, task_id=task.task_id).save()
-                tasks.append(task)
+                stats = zonal_stats(geom, raster)
+            
+            if rname in ['cos_aspect','sin_aspect']:  # aspect trig is special case
+                result = stats.sum
+            elif rname in ['gnn']: # gnn, we want the most common value
+                # may need to do something fancier here like store multiple categories
+                result = stats.mode
+            else:
+                result = stats.avg
 
-        if not async:
-            results = [t.wait() for t in tasks]
+            # cache result
+            imputed_data, created = ImputedData.objects.get_or_create(raster=raster, feature=self) 
+            imputed_data.val = result 
+            imputed_data.save()
+
 
     def save(self, *args, **kwargs):
         """
@@ -166,6 +165,7 @@ class Stand(PolygonFeature):
         """
         impute = kwargs.pop('impute', True)
         force = kwargs.pop('force', False)
+        async = kwargs.pop('async', False)
 
         if self.pk:
             # modifying an existing feature
@@ -186,14 +186,17 @@ class Stand(PolygonFeature):
         super(Stand, self).save(*args, **kwargs)
 
         if impute:
-            self._impute(force=force)
+            self._impute(force=force, async=async)
 
     @property
-    def complete(self):
+    def is_complete(self):
         if self.rx == '--':
             return False
         if self.domspp == '--':
             return False
+        for k,v in self.imputed.iteritems():
+            if v is None:
+                return False
         return True
 
 class ImputedData(models.Model):

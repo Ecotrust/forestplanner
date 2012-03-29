@@ -14,8 +14,8 @@ from madrona.raster_stats.models import RasterDataset
 from trees.models import Stand, ForestProperty
 from trees.utils import StandImporter
 
-g1 = GEOSGeometry(
-      'SRID=4326;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
+cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
+g1 = cntr.buffer(75)
 g1.transform(settings.GEOMETRY_DB_SRID)
 
 p1 = g1.buffer(1000)
@@ -24,6 +24,7 @@ class StandTest(TestCase):
     ''' 
     Basic tests for adding stands
     '''
+    fixtures = ("test_rasters.json",)
 
     def setUp(self):
         self.client = Client()
@@ -38,12 +39,8 @@ class StandTest(TestCase):
     def test_incomplete_stand(self):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
         stand1.save()
-        self.assertFalse(stand1.complete)
+        self.assertFalse(stand1.is_complete)
         self.assertEqual(stand1.rx, '--')
-        stand1.rx = "CC"
-        stand1.domspp = "DF"
-        stand1.save()
-        self.assertTrue(stand1.complete)
 
     def test_delete_stand(self):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1, rx="CC") 
@@ -461,9 +458,9 @@ class ImputeTest(TestCase):
 
     def test_impute_status(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.status['elevation'], 'NOTSTARTED')
+        self.assertEqual(s1.imputed['elevation'], None) 
         self.stand1.save() # impute=True
-        self.assertEqual(s1.status['elevation'], 'COMPLETED')
+        self.assertTrue(s1.imputed['elevation'] is not None)
 
     def test_impute_smart_save(self):
         d = os.path.dirname(__file__)
@@ -495,18 +492,17 @@ class ImputeTest(TestCase):
     def test_raster_not_found(self):
         self.elev.delete()
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.status['elevation'], 'NOTSTARTED')
+        self.assertTrue(s1.imputed['elevation'] is None)
         self.stand1.save() # impute=True
-        self.assertEqual(s1.status['elevation'], 'RASTERNOTFOUND')
+        self.assertTrue(s1.imputed['elevation'] is None)
 
     def test_zonal_null(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.status['elevation'], 'NOTSTARTED')
         offgeom = GEOSGeometry(
             'SRID=3857;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
         s1.geometry_final = offgeom # this geom should be off the elevation map
         s1.save() # side benefit - also tests if _impute(preclean=True) is effective
-        self.assertEqual(s1.status['elevation'], 'ZONALNULL', s1.imputed_elevation)
+        self.assertEqual(s1.imputed['elevation'], None, s1.imputed_elevation)
 
     def test_all_rasters(self):
         s1 = Stand.objects.get(pk=self.pk1)
@@ -515,8 +511,7 @@ class ImputeTest(TestCase):
         vals = [self.avg_elev, 88.436605872, 35.375365000, 529.0]
         kvs = zip(keys,vals)
         for rast,val in kvs:
-            self.assertNotEqual(getattr(s1,"imputed_" + rast), None, "imputed_" + rast)
-            self.assertEqual(self.stand1.status[rast],'COMPLETED')
+            self.assertNotEqual(getattr(s1,"imputed_" + rast), None, s1.imputed)
             self.assertAlmostEqual(self.stand1.imputed[rast], val)
 
     def test_settings_fields(self):
@@ -524,7 +519,6 @@ class ImputeTest(TestCase):
         kys = ['elevation','aspect','slope','gnn']
         for rast in kys:
             self.assertTrue(rast in self.stand1.imputed.keys())
-            self.assertTrue(rast in self.stand1.status.keys())
 
 class StandImportTest(TestCase):
     '''

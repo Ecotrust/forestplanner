@@ -1,5 +1,6 @@
 from trees.models import Stand, ForestProperty
 from django.contrib.gis.gdal import DataSource
+from django.contrib.gis.gdal.error import OGRIndexError
 
 class StandImporter:
 
@@ -27,7 +28,7 @@ class StandImporter:
             
         return field_mapping
 
-    def import_ogr(self, shp_path, field_mapping = {}, layer_num = 0):
+    def import_ogr(self, shp_path, field_mapping={}, layer_num=0):
         ds = DataSource(shp_path)
         layer = ds[0]
         num_features = len(layer)
@@ -42,7 +43,10 @@ class StandImporter:
 
             for fname in self.optional_fields:
                 if fname in field_mapping.keys():
-                    stand.__dict__[fname] = feature.get(field_mapping[fname])
+                    try:
+                        stand.__dict__[fname] = feature.get(field_mapping[fname])
+                    except OGRIndexError: 
+                        pass
 
             stand.full_clean()
             stands.append(stand)
