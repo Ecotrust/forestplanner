@@ -78,7 +78,7 @@
         <text>Mirkwood</text>
       </controlProperties>
     </control>
-    <control controlID="109" controlTypeID="com.balsamiq.mockups::Label" x="326" y="521" w="-1" h="-1" measuredW="45" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
+    <control controlID="109" controlTypeID="com.balsamiq.mockups::Label" x="326" y="521" w="-1" h="-1" measuredW="46" measuredH="21" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
         <text>County</text>
       </controlProperties>

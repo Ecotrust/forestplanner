@@ -1,50 +1,10 @@
-html { height: 100%; width: 100%; }
-body {
-    height: 90%; width: 100%;
-    padding-top: 60px;
-    padding-bottom: 40px;
-}
-.sidebar-nav {
-`padding: 9px 0;
+.table tr.active {
+    background: lightgray;
 }
 
-div.container-fluid { height: 100%; /* margin-top:40px; */ }
-div.outermap { height: 100%; }
+.hidden {
+    display: none;
+}
 
-a { outline: none !important; } /* Removes Firefox imposed outline */
+#map { height: 1000px; }
 
-/*div.sidebar {
-    left: 10px !important; 
-    width: 400px !important;
-    margin-top: 56px !important;
-}
-div.content {
-    height: 100%; 
-    margin-left: 410px !important; 
-    margin-top: 56px !important; 
-}
-*/
-#map {
-    border: 1px solid #ccc;
-}
-.baseLbl {
-    font-size: 115%;
-    font-weight: bold;
-    padding-top: 10px; 
-    padding-bottom: 10px; 
-}
-.dataLbl {
-    font-size: 115%;
-    font-weight: bold;
-    padding-top: 20px; 
-    padding-bottom: 10px; 
-}
-.right {
-    text-align:right;
-}
-.map-modal {
-    margin-top: 15px; 
-}
-.welcome {
-    padding-right: 25px;
-}
