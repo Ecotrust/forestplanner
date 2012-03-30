@@ -8,13 +8,24 @@ var currentStep = 1;
 var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
-    map = new OpenLayers.Map('map');
+    map = new OpenLayers.Map();
     var switcher = new OpenLayers.Control.LayerSwitcher({
         'div': OpenLayers.Util.getElement('tab_data'),
         'roundedCorner': false,
         'displayClass': 'mylayer'
     });
     map.addControl(switcher);
+
+    map.addControl(new OpenLayers.Control.Navigation({
+            dragPanOptions: {
+                enableKinetic: true
+            }
+        }));
+
+    map.addControl(new OpenLayers.Control.Attribution());
+
+    map.addControl(new OpenLayers.Control.Zoom());
+    
 
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
     var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20});
@@ -41,7 +52,7 @@ function init() {
     
 
     for (var i=map.layers.length-1; i>=0; --i) {
-        map.layers[i].animationEnabled = false;
+        map.layers[i].animationEnabled = true;
     };
 
     // Add stands
@@ -64,9 +75,9 @@ function init() {
             ]
         }),
         "select": new OpenLayers.Style({
-            fillColor: "#44ff00",
+            fillColor: "lightgrey",
             strokeOpacity: 1,
-            strokeColor: "#ffcc00"
+            strokeColor: "lightgrey"
         }),
         "temporary": new OpenLayers.Style(null, {
             rules: [
@@ -158,7 +169,10 @@ function init() {
     
 
     app.geojson_format = new OpenLayers.Format.GeoJSON(),
-    app.vector_layer = new OpenLayers.Layer.Vector();
+    app.vector_layer = new OpenLayers.Layer.Vector("Properties",  {
+                renderers: renderer, 
+                styleMap: new_styles,
+            });
     map.addLayer(app.vector_layer);
 
     // add controls, save references

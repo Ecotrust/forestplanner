@@ -1,10 +1,36 @@
 .table tr.active {
-    background: lightgray;
+    background: lightgrey;
 }
 
 .hidden {
     display: none;
 }
 
-#map { height: 1000px; }
-
+.olControlAttribution {
+        bottom: 5px;
+        font-size: 9px;
+    }
+#customZoom {
+    z-index: 1001;
+    position: relative;
+    top: 10px;
+    left: 10px;
+}
+#customZoom a {
+    text-decoration: none;
+    position: absolute;
+    display: block;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    background: #369;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+}
+#customZoom a:hover {
+    background: #036;
+}
+#customZoomOut {
+    top: 25px;
+}
