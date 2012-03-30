@@ -52,7 +52,7 @@ function init() {
     
 
     for (var i=map.layers.length-1; i>=0; --i) {
-        map.layers[i].animationEnabled = false;
+        map.layers[i].animationEnabled = true;
     };
 
     // Add stands
@@ -75,9 +75,9 @@ function init() {
             ]
         }),
         "select": new OpenLayers.Style({
-            fillColor: "#44ff00",
+            fillColor: "lightgrey",
             strokeOpacity: 1,
-            strokeColor: "#ffcc00"
+            strokeColor: "lightgrey"
         }),
         "temporary": new OpenLayers.Style(null, {
             rules: [
@@ -169,7 +169,10 @@ function init() {
     
 
     app.geojson_format = new OpenLayers.Format.GeoJSON(),
-    app.vector_layer = new OpenLayers.Layer.Vector();
+    app.vector_layer = new OpenLayers.Layer.Vector("Properties",  {
+                renderers: renderer, 
+                styleMap: new_styles,
+            });
     map.addLayer(app.vector_layer);
 
     // add controls, save references

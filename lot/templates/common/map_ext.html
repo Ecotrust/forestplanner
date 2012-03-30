@@ -49,8 +49,8 @@
                 <div id="properties-list" data-bind="if: propertyList().length, visible: showPropertyList">
                   <h2>Property List</h2>
                   <p>
-                    <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                     <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">Show All Properties</button>
+                    <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                   </p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
                     <table class="table table-condensed table-bordered">
@@ -83,7 +83,7 @@
                         <table class="table" data-bind="if: selectedProperty().name">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
                           <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(2)"></span> acres</td></tr>
-                          <tr><td>County</td><td>Multnomah</td></tr>
+                          <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
                         </table>
                         <div class="pull-right">
                           <button class="btn" href="#">Perform Analysis</button>
@@ -225,6 +225,8 @@
           $('#edit-panel').empty().append($form);
           app.modifyFeature.selectFeature(self.selectedProperty().feature);
           app.modifyFeature.activate();
+          app.viewModel.showPropertyList(false)
+
         })
       };
       self.startAddDrawing = function () {
@@ -233,6 +235,7 @@
         self.drawingActivated(true);
         self.preventUpdates(true);
         app.drawFeature.activate();
+        app.viewModel.showPropertyList(false)
       };
       self.showAddForm = function () {
         var formUrl = 'features/forestproperty/form/';
@@ -291,6 +294,7 @@
             // property is not defined if new
             self.updateOrCreateProperty(JSON.parse(data), property);
             self.drawingActivated(false);
+            app.viewModel.showPropertyList(true);
           }
         });
       };
@@ -305,6 +309,7 @@
             self.selectProperty(property);
           } else {
             // add a new property
+            self.selectPropertyByUID(data.features[0].uid)
             app.vector_layer.addFeatures(app.geojson_format.read(data));
           }
         });
@@ -350,7 +355,9 @@
         app.modifyFeature.deactivate();
         app.drawFeature.deactivate();
         self.showDetailPanel(self.propertyList().length ? true: false);
-        app.new_features.removeAllFeatures()
+        app.new_features.removeAllFeatures();
+        app.viewModel.showPropertyList(true);
+
       };
 
       // initialize properties and vm
