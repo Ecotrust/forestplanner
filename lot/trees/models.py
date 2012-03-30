@@ -221,6 +221,7 @@ class ForestProperty(FeatureCollection):
                 'user_id': self.user.pk,
                 'acres': self.acres,
                 'location': self.location,
+                'variant': self.variant,
                 'bbox': self.bbox,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -248,12 +249,40 @@ class ForestProperty(FeatureCollection):
         return area_acres
 
     @property
+    def variant(self):
+        '''
+        Returns: FVS variant name (string)
+        '''
+        geom = self.geometry_final
+        if geom:
+            variants = FVSVariant.objects.filter(geom__bboverlaps=geom)
+        else:
+            return None
+
+        the_size = 0
+        the_variant = None
+        for variant in variants:
+            variant_geom = variant.geom
+            if not variant_geom.valid:
+                variant_geom = variant_geom.buffer(0)
+            if variant_geom.intersects(geom):
+                overlap = variant_geom.intersection(geom)
+                area = overlap.area
+                if area > the_size:
+                    the_size = area
+                    the_variant = variant.fvsvariant.strip()
+        return the_variant
+
+    @property
     def location(self):
         '''
         Returns: (CountyName, State)
         '''
         geom = self.geometry_final
-        counties = County.objects.filter(geom__bboverlaps=geom)
+        if geom:
+            counties = County.objects.filter(geom__bboverlaps=geom)
+        else:
+            return None
 
         the_size = 0
         the_county = (None, None)
@@ -362,6 +391,18 @@ class County(models.Model):
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
+class FVSVariant(models.Model):
+    code = models.CharField(max_length=3)
+    fvsvariant = models.CharField(max_length=100)
+    geom = models.MultiPolygonField(srid=3857)
+    objects = models.GeoManager()
+
+fvsvariant_mapping = {
+    'code' : 'FVSVARIANT',
+    'fvsvariant': 'FULLNAME',
+    'geom' : 'MULTIPOLYGON',
+}
+
 county_mapping = {
         'fips': 'FIPS',
         'cntyname': 'CNTYNAME',
@@ -395,7 +436,16 @@ streambuffer_mapping = {
     'geom' : 'MULTIPOLYGON',
 }
 
-def example_mapping():
-    parcel_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/landowner_demo/merc/Parcels.shp'))
-    map1 = LayerMapping(Parcel, parcel_shp, parcel_mapping, transform=False, encoding='iso-8859-1')
-    map1.save(strict=True, verbose=verbose)
+def load_shp(path, feature_class):
+    '''
+    First run ogrinspect to generate the class and mapping. 
+        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
+    Paste code into models.py and modify as necessary.
+    Finally, load the shapefile:
+        from trees import models
+        models.load_shp('../data/fvs_variants/lot_fvsvariant_3857.shp', models.FVSVariant)
+    '''
+    mapping = eval("%s_mapping" % feature_class.__name__.lower())
+    print "Saving", path, "to", feature_class, "using", mapping
+    map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
+    map1.save(strict=True, verbose=True)
