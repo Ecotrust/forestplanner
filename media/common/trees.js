@@ -187,12 +187,18 @@ function init() {
 
     
   
-    snap = new OpenLayers.Control.Snapping({
+    new_snap = new OpenLayers.Control.Snapping({
                 layer: app.new_features,
                 targets: [app.vector_layer],
                 greedy: false
             });
-    snap.activate();
+    new_snap.activate();
+    existing_snap = new OpenLayers.Control.Snapping({
+                layer: app.vector_layer,
+                targets: [app.vector_layer],
+                greedy: false
+            });
+    existing_snap.activate();
     // var modify = new OpenLayers.Control.ModifyFeature(stands);
     // map.addControl(modify);
 
