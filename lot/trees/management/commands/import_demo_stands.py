@@ -49,6 +49,6 @@ class Command(BaseCommand):
         print "Import stands..."
         field_mapping = {'name': namefld}
         s = StandImporter(prop1)
-        s.import_ogr(shp_path, field_mapping, verbose=True) 
+        s.import_ogr(shp_path, field_mapping) 
 
         print "%d stands imported from %s" % (len(prop1.feature_set()), shp_path)

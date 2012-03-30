@@ -1,10 +1,7 @@
 .table tr.active {
-    background: lightgray;
+    background: lightgrey;
 }
 
 .hidden {
     display: none;
 }
-
-#map { height: 1000px; }
-

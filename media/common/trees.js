@@ -8,7 +8,7 @@ var currentStep = 1;
 var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
-    map = new OpenLayers.Map('map');
+    map = new OpenLayers.Map();
     var switcher = new OpenLayers.Control.LayerSwitcher({
         'div': OpenLayers.Util.getElement('tab_data'),
         'roundedCorner': false,

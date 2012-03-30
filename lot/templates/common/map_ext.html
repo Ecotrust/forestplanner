@@ -382,11 +382,13 @@
     };
 
     app.onResize = function () {
-      $("#map").height($(window).height() * .75);
+      $("#map").height($(window).height() * .85);
+      map.render('map');
     };
     
     $(document).ready(function () {
       app.onResize();
+
       app.viewModel.init().done(function () {
         // apply the viewmodel
         ko.applyBindings(app.viewModel);
