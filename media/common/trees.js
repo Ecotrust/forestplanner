@@ -68,7 +68,7 @@ function init() {
                             fillOpacity: 0.25,
                             strokeWidth: 1,
                             strokeOpacity: 1,
-                            strokeColor: "#44ff00"
+                            strokeColor: "#44ff00",
                         },
                     }
                 })
