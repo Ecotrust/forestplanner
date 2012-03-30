@@ -6,6 +6,11 @@ from django.contrib.auth.models import User
 from trees.models import Stand, ForestProperty
 from trees.utils import StandImporter
 
+from shapely.geometry import Point
+from shapely import wkt, wkb
+from shapely.ops import cascaded_union
+from django.contrib.gis.gdal import DataSource
+
 class Command(BaseCommand):
     help = 'Imports shapefile as stands in the demo account'
     args = '[shp_path]'
@@ -18,11 +23,6 @@ class Command(BaseCommand):
         except User.DoesNotExist:
             user = User.objects.create_user('demo', 'mperry@madrona.org', password='demo')
 
-        from shapely.geometry import Point
-        from shapely import wkt, wkb
-        from shapely.ops import cascaded_union
-
-        from django.contrib.gis.gdal import DataSource
         ds = DataSource(shp_path)
         layer = ds[0]
         
@@ -42,13 +42,13 @@ class Command(BaseCommand):
         casc = cascaded_union(stands)
         
         print "Creating Property..."
-        prop1, created = ForestProperty.objects.get_or_create(user=user, name='Demo Property', geometry_final=casc.wkt)
+        prop1, created = ForestProperty.objects.get_or_create(user=user, name=layer.name, geometry_final=casc.wkt)
         [x.delete() for x in prop1.feature_set()]
         prop1.save()
 
         print "Import stands..."
         field_mapping = {'name': namefld}
         s = StandImporter(prop1)
-        s.import_ogr(shp_path, field_mapping, verbose=True) 
+        s.import_ogr(shp_path, field_mapping) 
 
         print "%d stands imported from %s" % (len(prop1.feature_set()), shp_path)
