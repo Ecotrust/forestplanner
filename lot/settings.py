@@ -2,6 +2,7 @@
 from madrona.common.default_settings import *
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 TIME_ZONE = 'America/Vancouver'
 ROOT_URLCONF = 'urls'
 
@@ -34,7 +35,7 @@ TEMPLATE_DIRS = ( os.path.realpath(os.path.join(os.path.dirname(__file__), 'temp
 FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
 GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
 
-DEFAULT_EXTENT = (-14056200,4963200,-12471500,6128400) # in mercator
+DEFAULT_EXTENT = [-14056200,4963200,-12471500,6128400] # in mercator
 
 TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
