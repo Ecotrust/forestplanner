@@ -24,7 +24,6 @@ from madrona.layers.views import has_privatekml
 from madrona.features.views import has_features, get_object_for_viewing
 from madrona.features import get_feature_by_uid
 from madrona.common.utils import get_logger
-from django.conf import settings
 import json
 import os
 
@@ -44,7 +43,7 @@ def user_property_list(request):
     try:
         bb = user_fps.extent(field_name='geometry_final')
     except:
-        bb = settings.DEFAULT_EXTENT
+        bb = ['null', 'null', 'null', 'null']
 
 
     gj = """{ "type": "FeatureCollection",
