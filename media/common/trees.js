@@ -16,6 +16,17 @@ function init() {
     });
     map.addControl(switcher);
 
+    map.addControl(new OpenLayers.Control.Navigation({
+            dragPanOptions: {
+                enableKinetic: true
+            }
+        }));
+
+    map.addControl(new OpenLayers.Control.Attribution());
+
+    map.addControl(new OpenLayers.Control.Zoom());
+    
+
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
     var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20});
     var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});

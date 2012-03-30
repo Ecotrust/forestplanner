@@ -24,6 +24,7 @@
               <li class="active">Properties</li>
             </ul>
             <div class="well"> <!-- need to make this a different color -->
+              {% if user.is_authenticated %}
               <div class="row-fluid" data-bind="ifnot: propertyList().length">
                 <h2>Create Properties</h2>
                 <p><em>You currently have no properties under management.</em></p>
@@ -47,7 +48,10 @@
               <div>
                 <div id="properties-list" data-bind="if: propertyList().length">
                   <h2>Property List</h2>
-                  <p><button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button><p>
+                  <p>
+                    <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
+                    <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">Show All Properties</button>
+                  </p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
                     <table class="table table-condensed table-bordered">
                       <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
@@ -60,7 +64,7 @@
                       </tbody>
                     </table>
                     <div class="pull-right">
-                      <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">Show All Properties</button>
+                      <button href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</button>
                       <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: preventUpdates">Edit Property</button>
                     </div>
                   </div>
@@ -92,7 +96,6 @@
                       <div id="edit-panel"></div>
                       <div class="pull-right" id="edit-panel-buttons">
                         <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
-                        <a href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</a>
                         <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
                       </div>
                     </div>
@@ -106,6 +109,16 @@
                     </div>
                   </div>
               </div>
+            {% else %} 
+               <div class="row-fluid">
+                <h2>Login</h2>
+                <p><em>You currently not logged in to the Forest Scenario Planner.</em></p>
+                <ul>
+                  <li><a href="{% url registration_register %}" id="register">Register</a></li>
+                  <li><a href="{% url user_signin %}" id="signin">Sign In</a></li>                
+                </ul>
+              </div><!-- end of no properties -->
+            {% endif %}
             </div>
           </div>
           <div class="span9">
@@ -152,7 +165,8 @@
       self.drawingActivated = ko.observable(false);
       self.preventUpdates = ko.observable(false);
 
-      self.selectProperty = function (property, event) {
+      self.selectProperty = function (property, event, zoomTo) {
+        var bbox = OpenLayers.Bounds.fromArray(property.bbox());
         // TODO: Make active!
         if (! self.preventUpdates()) {
           if (event) {     
@@ -164,23 +178,30 @@
           } 
           // set the selected property for the viewmodel
           self.selectedProperty(property);
+          self.showDetailPanel(true);
           // zoom the map to the selected property
           // map.zoomToExtent(bounds);
-          map.zoomToExtent(OpenLayers.Bounds.fromArray(property.bbox()));         
-
+          console.log(map.getZoomForExtent(bbox) - map.zoom );
+          if (zoomTo) {
+            if (map.getZoomForExtent(bbox) - map.zoom > 1) {
+              map.panTo(bbox.getCenterLonLat());
+            } else {
+              map.zoomToExtent(bbox);        
+            }
+          }
         }
       };
 
-      self.selectPropertyByUID = function (uid) {
+      self.selectPropertyByUID = function (uid, zoomTo) {
         $.each(self.propertyList(), function (i, property) {
           if (property.uid() === uid) {
-            self.selectProperty(property);
+            self.selectProperty(property, null, zoomTo);
           }
         });
       };
 
       self.zoomToExtent = function () {
-        map.zoomToExtent(OpenLayers.Bounds.fromArray(app.bounds));
+        map.zoomToExtent(app.bounds);
       }
 
       self.showEditForm = function () {
@@ -238,6 +259,7 @@
       self.addFeature = function (self, event) {
         self.saveFeature(event, null, app.newGeometry);
         app.drawFeature.deactivate();
+        app.new_features.removeAllFeatures()
       };
 
       self.updateFeature = function (self, event) {
@@ -285,7 +307,6 @@
             // add a new property
             app.vector_layer.addFeatures(app.geojson_format.read(data));
           }
-          self.showDetailPanel(true);
         });
       };
       self.showDeleteDialog = function () {
@@ -329,6 +350,7 @@
         app.modifyFeature.deactivate();
         app.drawFeature.deactivate();
         self.showDetailPanel(self.propertyList().length ? true: false);
+        app.new_features.removeAllFeatures()
       };
 
       // initialize properties and vm
@@ -340,11 +362,13 @@
             self.showDrawHelpPanel(false);
             app.saveFeature(feature);
           };
-
+          app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
+            [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
+          map.zoomToExtent(app.bounds);
           // bind event to selected feature
           app.vector_layer.events.on({
             'featureselected': function (feature) {
-              self.selectPropertyByUID(feature.feature.data.uid);
+              self.selectPropertyByUID(feature.feature.data.uid, true);
             },
             'featureadded': function (feature) {
               var featureViewModel = ko.mapping.fromJS(feature.feature.data);
@@ -354,19 +378,23 @@
               app.viewModel.propertyList.unshift(featureViewModel);
             },
             'featuresadded': function (data) {
-              // app.selectFeature.unselectAll();
-              // self.selectPropertyByUID(data.features[0].uid);
-              // map.zoomToExtent(data.object.getDataExtent());
+              // if only adding one layer, select and zoom
+              // otherwise just select the last one and zoom to the full extent of the layer
+              if (data.features.length === 1) {
+                self.selectPropertyByUID(data.features[0].data.uid, true);
+              } else {
+                self.selectPropertyByUID(data.features[data.features.length-1].data.uid, false);                
+                map.zoomToExtent(app.bounds);         
+              }
             }
           });
 
-          app.bounds = data.bbox;
+          
           // select the first property and show the detail panel
           if (data.features.length) {
             app.vector_layer.addFeatures(app.geojson_format.read(data));
-            self.selectedProperty(self.propertyList()[0]);
+            //self.selectedProperty(self.propertyList()[0]);
             self.showDetailPanel(true);   
-            map.zoomToExtent(OpenLayers.Bounds.fromArray(data.bbox));         
           }
         });  
       }
@@ -389,11 +417,15 @@
     $(document).ready(function () {
       app.onResize();
 
-      app.viewModel.init().done(function () {
-        // apply the viewmodel
-        ko.applyBindings(app.viewModel);
-      });
-
+      app.viewModel.init()
+        .done(function () {
+          // apply the viewmodel
+          ko.applyBindings(app.viewModel);
+        })
+        .fail(function () {
+          map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
+          ko.applyBindings(app.viewModel);
+        });
 
 
       
