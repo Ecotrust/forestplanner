@@ -11,7 +11,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, ForestProperty, County
+from trees.models import Stand, ForestProperty, County, FVSVariant
 from trees.utils import StandImporter
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
@@ -775,3 +775,26 @@ class LocationTest(TestCase):
         self.prop1.geometry_final = g1 
         self.prop1.save()
         self.assertEqual(self.prop1.location, (None, None))
+
+class VariantTest(TestCase):
+    fixtures = ['test_fvs_variants.json',]
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
+        self.real = "Klamath Mountains"
+
+    def test_variant(self):
+        self.assertEqual(len(FVSVariant.objects.all()), 1, "Variant fixture didn't load properly!")
+        self.assertEqual(self.prop1.variant, self.real)
+
+    def test_bad_variant(self):
+        self.assertEqual(self.prop1.variant, self.real)
+        cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
+        g1 = cntr.buffer(75)
+        g1.transform(settings.GEOMETRY_DB_SRID)
+        self.prop1.geometry_final = g1 
+        self.prop1.save()
+        self.assertEqual(self.prop1.variant, None)
