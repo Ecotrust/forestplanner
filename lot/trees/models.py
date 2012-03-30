@@ -219,6 +219,8 @@ class ForestProperty(FeatureCollection):
                 'uid': self.uid,
                 'name': self.name,
                 'user_id': self.user.pk,
+                'acres': self.acres,
+                'location': self.location,
                 'bbox': self.bbox,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -234,6 +236,39 @@ class ForestProperty(FeatureCollection):
               "properties": %s 
         }""" % (geom_json, dumps(d))
         return gj
+
+    @property
+    def acres(self):
+        try:
+            area_m = self.geometry_final.area 
+        except:
+            return None
+        conversion = 0.000247105381 
+        area_acres = area_m * conversion
+        return area_acres
+
+    @property
+    def location(self):
+        '''
+        Returns: (CountyName, State)
+        '''
+        geom = self.geometry_final
+        counties = County.objects.filter(geom__bboverlaps=geom)
+
+        the_size = 0
+        the_county = (None, None)
+        for county in counties:
+            county_geom = county.geom
+            if not county_geom.valid:
+                county_geom = county_geom.buffer(0)
+            if county_geom.intersects(geom):
+                overlap = county_geom.intersection(geom)
+                area = overlap.area
+                if area > the_size:
+                    the_size = area
+                    the_county = (county.cntyname, county.stname)
+        return the_county
+
 
     def feature_set_geojson(self):
         # We'll use the bbox for the property geom itself
@@ -316,6 +351,28 @@ class StreamBuffer(models.Model):
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
+class County(models.Model):
+    fips = models.IntegerField()
+    cntyname = models.CharField(max_length=23)
+    polytype = models.IntegerField()
+    stname = models.CharField(max_length=2)
+    soc_cnty = models.IntegerField()
+    cnty_fips= models.IntegerField()
+    st_fips = models.IntegerField()
+    geom = models.MultiPolygonField(srid=3857)
+    objects = models.GeoManager()
+
+county_mapping = {
+        'fips': 'FIPS',
+        'cntyname': 'CNTYNAME',
+        'polytype': 'POLYTYPE', 
+        'stname': 'STNAME',
+        'soc_cnty': 'SOC_CNTY',
+        'cnty_fips': 'CNTY_FIPS',
+        'st_fips': 'ST_FIPS',
+        'geom': 'MULTIPOLYGON'
+    }
+
 stand_mapping = {
     'name': 'STAND_TEXT',
     'geometry_final': 'POLYGON',
@@ -338,25 +395,7 @@ streambuffer_mapping = {
     'geom' : 'MULTIPOLYGON',
 }
 
-def run():
-    verbose = True
-
+def example_mapping():
     parcel_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/landowner_demo/merc/Parcels.shp'))
-    for p in Parcel.objects.all():
-        p.delete()
     map1 = LayerMapping(Parcel, parcel_shp, parcel_mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=verbose)
-
-    streambuffer_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/landowner_demo/merc/stream_buffer_clip.shp'))
-    for sb in StreamBuffer.objects.all():
-        sb.delete()
-    map2 = LayerMapping(StreamBuffer, streambuffer_shp, streambuffer_mapping, transform=False, encoding='iso-8859-1')
-    map2.save(strict=True, verbose=verbose)
-
-def import_stands():
-    stands_shp = os.path.abspath(os.path.join(os.path.dirname(__file__), '../../data/sixes/sixes_stands_3857b.shp'))
-    for s in Stand.objects.all():
-        s.delete()
-    map1 = LayerMapping(Stand, stands_shp, stand_mapping, transform=False, encoding='iso-8859-1')
-    map1.save(strict=True, verbose=True)
-

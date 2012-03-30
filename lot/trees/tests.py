@@ -11,7 +11,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, ForestProperty
+from trees.models import Stand, ForestProperty, County
 from trees.utils import StandImporter
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
@@ -230,7 +230,7 @@ class UserPropertyListTest(TestCase):
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
         self.assertEquals(plist['features'], [])
-        self.assertEquals(plist['bbox'], [None, None, None, None])
+        self.assertEquals(plist['bbox'], settings.DEFAULT_EXTENT)
 
         prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
@@ -752,3 +752,26 @@ class OutputsTest(TestCase):
         self.assertTrue(self.prop.outputs.yield['2085'] == 28000)
         '''
         pass
+
+class LocationTest(TestCase):
+    fixtures = ['test_counties.json',]
+
+    def setUp(self):
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
+        self.realloc = ("CURRY", "OR")
+
+    def test_location(self):
+        self.assertEqual(len(County.objects.all()), 2, "Counties fixture didn't load properly!")
+        self.assertEqual(self.prop1.location, self.realloc)
+
+    def test_bad_location(self):
+        self.assertEqual(self.prop1.location, self.realloc)
+        cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
+        g1 = cntr.buffer(75)
+        g1.transform(settings.GEOMETRY_DB_SRID)
+        self.prop1.geometry_final = g1 
+        self.prop1.save()
+        self.assertEqual(self.prop1.location, (None, None))
