@@ -46,7 +46,7 @@
                 </div> <!-- no properties -->
               </div><!-- end of no properties -->
               <div>
-                <div id="properties-list" data-bind="if: propertyList().length">
+                <div id="properties-list" data-bind="if: propertyList().length, visible: showPropertyList">
                   <h2>Property List</h2>
                   <p>
                     <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
@@ -58,8 +58,8 @@
                       <tbody data-bind="foreach: propertyList">
                         <tr data-bind="click: $parent.selectProperty">
                           <td><a data-bind="text: name"></a></td>
-                          <td>7</td>
-                          <td>Multnomah</td>           
+                          <td><span data-bind="text: acres().toFixed(2)"></span></td>
+                          <td><span data-bind="text: location"></span></td>           
                         </tr>
                       </tbody>
                     </table>
@@ -82,7 +82,7 @@
                       <h2>Property Details</h2>
                         <table class="table" data-bind="if: selectedProperty().name">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
-                          <tr><td>Area</td><td>7 acres</td></tr>
+                          <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(2)"></span> acres</td></tr>
                           <tr><td>County</td><td>Multnomah</td></tr>
                         </table>
                         <div class="pull-right">
@@ -116,7 +116,7 @@
                 <ul>
                   <li><a href="{% url registration_register %}" id="register">Register</a></li>
                   <li><a href="{% url user_signin %}" id="signin">Sign In</a></li>                
-                </ul>
+                </ul>. 
               </div><!-- end of no properties -->
             {% endif %}
             </div>
@@ -164,7 +164,7 @@
       self.showDrawHelpPanel = ko.observable(false);
       self.drawingActivated = ko.observable(false);
       self.preventUpdates = ko.observable(false);
-
+      self.showPropertyList = ko.observable(true);
       self.selectProperty = function (property, event, zoomTo) {
         var bbox = OpenLayers.Bounds.fromArray(property.bbox());
         // TODO: Make active!
