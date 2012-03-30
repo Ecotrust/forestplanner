@@ -6,4 +6,6 @@ urlpatterns = patterns('',
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$', 
         upload_stands, name='trees-upload_stands'),
+    url(r'^geosearch/$', 
+        geosearch, name='trees-geosearch'),
 )
