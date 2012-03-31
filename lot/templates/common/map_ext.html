@@ -58,7 +58,7 @@
                       <tbody data-bind="foreach: propertyList">
                         <tr data-bind="click: $parent.selectProperty">
                           <td><a data-bind="text: name"></a></td>
-                          <td><span data-bind="text: acres().toFixed(1)"></span></td>
+                          <td><span data-bind="text: acres().toFixed(2)"></span></td>
                           <td><span data-bind="text: location"></span></td>           
                         </tr>
                       </tbody>
@@ -82,7 +82,7 @@
                       <h2>Property Details</h2>
                         <table class="table" data-bind="if: selectedProperty()">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
-                          <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(1)"></span> acres</td></tr>
+                          <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(2)"></span> acres</td></tr>
                           <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
                         </table>
                         <div class="pull-right">
@@ -201,7 +201,7 @@
       };
 
       self.zoomToExtent = function () {
-        map.zoomToExtent(app.bounds);
+        map.zoomToExtent(app.vector_layer.getDataExtent());
       }
 
       self.cleanupForm = function ($form) {

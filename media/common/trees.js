@@ -178,6 +178,10 @@ function init() {
     // add controls, save references
     app.selectFeature = new OpenLayers.Control.SelectFeature(app.vector_layer,
         { "clickout": false});
+    
+    // reenable click and drag in vectors
+    app.selectFeature.handlers.feature.stopDown = false; 
+    
     map.addControl(app.selectFeature);
     app.modifyFeature = new OpenLayers.Control.ModifyFeature(app.vector_layer);
     map.addControl(app.modifyFeature);
