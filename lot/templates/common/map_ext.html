@@ -87,7 +87,7 @@
                         </table>
                         <div class="pull-right">
                           <button class="btn" href="#">Perform Analysis</button>
-                          <button class="btn" href="#">Add Stands</button>
+                          <button class="btn" href="#">Manage Stands</button>
                         </div>
                       </div>
                     </div>
@@ -337,7 +337,6 @@
           var newPropertyVM, newProperty = data.features[0].properties;
           if (property) {
             // updating existing property
-            property.feature.style = { label: newProperty.name };
             ko.mapping.fromJS(newProperty, property);
             self.selectProperty(property);
           } else {
