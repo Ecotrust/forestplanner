@@ -230,7 +230,7 @@ class UserPropertyListTest(TestCase):
         self.assertEqual(response.status_code, 200) 
         plist = loads(response.content)
         self.assertEquals(plist['features'], [])
-        self.assertEquals(plist['bbox'], settings.DEFAULT_EXTENT)
+        self.assertEquals(plist['bbox'], settings.DEFAULT_EXTENT, plist)
 
         prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
@@ -798,3 +798,34 @@ class VariantTest(TestCase):
         self.prop1.geometry_final = g1 
         self.prop1.save()
         self.assertEqual(self.prop1.variant, None)
+
+class SearchTest(TestCase):
+    
+    def setUp(self):
+        self.searches = [
+            ('Tyron Creek', 200, [-12975480, 5732070]),
+            ('41.12345;-81.98765', 200, [-9126823, 5030567]),
+            ('39.3 N 76.4 W', 200, [-8504809, 4764735]), 
+            ('KJHASBUNCHOFNONSENSEDOIHJJDHSGF', 404, None),
+        ]
+
+    def test_no_search(self):
+        url = reverse('trees-geosearch')
+        response = self.client.post(url)
+        self.assertEqual(response.status_code, 405)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 400)
+
+    def test_search(self):
+        from urllib import quote_plus
+        baseurl = reverse('trees-geosearch')
+        for search in self.searches:
+            url = baseurl + "?search=" + quote_plus(search[0])
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, search[1])
+            c = loads(response.content)
+            if c['center'] is None:
+                self.assertEquals(search[2], None)
+            else:
+                for x, y in zip(c['center'], search[2]):
+                    self.assertAlmostEquals(x, y, delta=3)  # within 3 meters of expected

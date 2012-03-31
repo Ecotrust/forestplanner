@@ -50,4 +50,6 @@ IMPUTE_RASTERS = [
         ('gnn', albers), 
 ]
 
+POINT_BUFFER = 500  #meters
+
 from settings_local import *

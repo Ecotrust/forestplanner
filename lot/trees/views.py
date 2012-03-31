@@ -24,6 +24,8 @@ from madrona.layers.views import has_privatekml
 from madrona.features.views import has_features, get_object_for_viewing
 from madrona.features import get_feature_by_uid
 from madrona.common.utils import get_logger
+from geopy import geocoders  
+from geopy.point import Point
 import json
 import os
 
@@ -43,8 +45,7 @@ def user_property_list(request):
     try:
         bb = user_fps.extent(field_name='geometry_final')
     except:
-        bb = ['null', 'null', 'null', 'null']
-
+        bb = settings.DEFAULT_EXTENT
 
     gj = """{ "type": "FeatureCollection",
     "bbox": [%s, %s, %s, %s],
@@ -67,7 +68,7 @@ def property_stand_list(request, property_uid):
     if isinstance(fp, HttpResponse):
         return fp # some sort of http error response
 
-    gj = fp.feature_set_geojson()
+    gj = fp.feature_set_geojson() 
     return HttpResponse(gj, mimetype='application/json', status=200)
 
 def upload_stands(request):
@@ -148,5 +149,72 @@ def geojson_features(request, instances):
     return HttpResponse("""{ "type": "FeatureCollection",
       "features": [
        %s
-      ]}""" % featxt , mimetype='application/json', status=200)
+      ]}""" % featxt, mimetype='application/json', status=200)
+
+
+def geosearch(request):
+    """
+    Returns geocoded results in MERCATOR projection
+    First tries coordinates, then a series of geocoding engines
+    """
+    if request.method != 'GET':
+        return HttpResponse('Invalid http method; use GET', status=405)        
+
+    try:
+        txt = unicode(request.GET['search'])
+    except:
+        return HttpResponseBadRequest()
+
+    searchtype = lat = lon = None
+    try:
+        p = Point(txt) 
+        lat, lon, altitude = p
+        searchtype = 'coordinates'
+    except:
+        pass  # not a point
+
+    if not searchtype or not lat or not lon:  # try a geocoder
+        g = geocoders.Google()
+        try:
+            place, latlon = g.geocode(txt)  
+            lat = latlon[0]
+            lon = latlon[1]
+            searchtype = 'geocoded_google'
+        except:
+            pass
+
+    if not searchtype or not lat or not lon:  # try another geocoder
+        g = geocoders.GeoNames()
+        try:
+            place, latlon = g.geocode(txt)  
+            lat = latlon[0]
+            lon = latlon[1]
+            searchtype = 'geocoded_geonames'
+        except:
+            pass
+
+    if searchtype and lat and lon:  # we have a winner
+        cntr = GEOSGeometry('SRID=4326;POINT(%f %f)' % (lon, lat))
+        cntr.transform(settings.GEOMETRY_DB_SRID)
+        cntrbuf = cntr.buffer(settings.POINT_BUFFER)
+        extent = cntrbuf.extent
+        loc = {
+            'status': 'ok',
+            'search': txt, 
+            'type': searchtype, 
+            'extent': extent, 
+            'center': (cntr[0], cntr[1]),
+        }
+        json_loc = json.dumps(loc)
+        return HttpResponse(json_loc, mimetype='application/json', status=200)
+    else:
+        loc = {
+            'status': 'failed',
+            'search': txt, 
+            'type': None, 
+            'extent': None, 
+            'center': None,
+        }
+        json_loc = json.dumps(loc)
+        return HttpResponse(json_loc, mimetype='application/json', status=404)
 
