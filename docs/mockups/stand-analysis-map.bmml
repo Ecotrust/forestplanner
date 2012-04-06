@@ -106,24 +106,19 @@
         <value>70</value>
       </controlProperties>
     </control>
-    <control controlID="211" controlTypeID="com.balsamiq.mockups::StickyNote" x="1216" y="148" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="17" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Should%20we%20remove%20the%20search%20in%20this%20page%3F%20</text>
-      </controlProperties>
-    </control>
-    <control controlID="212" controlTypeID="com.balsamiq.mockups::Paragraph" x="324" y="228" w="332" h="98" measuredW="200" measuredH="140" zOrder="18" locked="false" isInGroup="-1">
+    <control controlID="212" controlTypeID="com.balsamiq.mockups::Paragraph" x="324" y="228" w="332" h="98" measuredW="200" measuredH="140" zOrder="17" locked="false" isInGroup="-1">
       <controlProperties>
         <size>16</size>
         <text>This%20property%20consists%20of%2027%20stands%20in%20Tillamook%20County%20and%20is%20primarily%20Douglas%20Fir.%20%20It%20was%20last%20harvested%20on%204/8/1977%20and%20is%20managed%20with%20a%20shelterwood%20prescription.</text>
       </controlProperties>
     </control>
-    <control controlID="213" controlTypeID="com.balsamiq.mockups::Image" x="339" y="319" w="261" h="161" measuredW="304" measuredH="286" zOrder="19" locked="false" isInGroup="-1">
+    <control controlID="213" controlTypeID="com.balsamiq.mockups::Image" x="339" y="319" w="261" h="161" measuredW="304" measuredH="286" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
         <crop>407%2C10%2C488%2C691</crop>
         <src>./assets/manage-stands-creating.png</src>
       </controlProperties>
     </control>
-    <control controlID="214" controlTypeID="__group__" x="369" y="490" w="200" h="140" measuredW="200" measuredH="140" zOrder="20" locked="false" isInGroup="-1">
+    <control controlID="214" controlTypeID="__group__" x="369" y="490" w="200" h="140" measuredW="200" measuredH="140" zOrder="19" locked="false" isInGroup="-1">
       <groupChildrenDescriptors>
         <control controlID="0" controlTypeID="com.balsamiq.mockups::TextArea" x="0" y="0" w="-1" h="-1" measuredW="200" measuredH="140" zOrder="0" locked="false" isInGroup="214"/>
         <control controlID="1" controlTypeID="com.balsamiq.mockups::Button" x="83" y="93" w="-1" h="-1" measuredW="105" measuredH="38" zOrder="1" locked="false" isInGroup="214">
@@ -154,17 +149,17 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="215" controlTypeID="com.balsamiq.mockups::Label" x="948" y="561" w="38" h="19" measuredW="35" measuredH="21" zOrder="21" locked="false" isInGroup="-1">
+    <control controlID="215" controlTypeID="com.balsamiq.mockups::Label" x="948" y="561" w="38" h="19" measuredW="35" measuredH="21" zOrder="20" locked="false" isInGroup="-1">
       <controlProperties>
         <text>2010</text>
       </controlProperties>
     </control>
-    <control controlID="216" controlTypeID="com.balsamiq.mockups::Label" x="1237" y="561" w="38" h="19" measuredW="34" measuredH="21" zOrder="22" locked="false" isInGroup="-1">
+    <control controlID="216" controlTypeID="com.balsamiq.mockups::Label" x="1237" y="561" w="38" h="19" measuredW="34" measuredH="21" zOrder="21" locked="false" isInGroup="-1">
       <controlProperties>
         <text>2110</text>
       </controlProperties>
     </control>
-    <control controlID="217" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="605" w="16" h="18" measuredW="256" measuredH="256" zOrder="23" locked="false" isInGroup="-1">
+    <control controlID="217" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="605" w="16" h="18" measuredW="256" measuredH="256" zOrder="22" locked="false" isInGroup="-1">
       <controlProperties>
         <src>./assets/Adobe-PDF-Logo.jpg</src>
       </controlProperties>

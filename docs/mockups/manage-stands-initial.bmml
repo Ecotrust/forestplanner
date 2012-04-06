@@ -81,11 +81,6 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="109" controlTypeID="com.balsamiq.mockups::StickyNote" x="362" y="528" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="13" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>help/%20animation%20of%20digitizing%20process</text>
-      </controlProperties>
-    </control>
     <control controlID="110" controlTypeID="com.balsamiq.mockups::Image" x="685" y="190" w="-1" h="-1" measuredW="626" measuredH="414" zOrder="1" locked="false" isInGroup="-1">
       <controlProperties>
         <src>./assets/manage-stands-initial.png</src>

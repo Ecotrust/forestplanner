@@ -126,17 +126,12 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="178" controlTypeID="com.balsamiq.mockups::StickyNote" x="1216" y="148" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="18" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Should%20we%20remove%20the%20search%20in%20this%20page%3F%20</text>
-      </controlProperties>
-    </control>
-    <control controlID="179" controlTypeID="com.balsamiq.mockups::DataGrid" x="714" y="243" w="186" h="130" measuredW="138" measuredH="129" zOrder="19" locked="false" isInGroup="-1">
+    <control controlID="179" controlTypeID="com.balsamiq.mockups::DataGrid" x="714" y="243" w="186" h="130" measuredW="138" measuredH="129" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
         <text>Year%2C%20Carbon%20price%5Cr%20%28per%20ton%29%0A2010%20%2C%20%2416.53%0A2050%2C%20%2489.50%0A2010%2C%20%24116.20</text>
       </controlProperties>
     </control>
-    <control controlID="180" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="605" w="16" h="18" measuredW="256" measuredH="256" zOrder="20" locked="false" isInGroup="-1">
+    <control controlID="180" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="605" w="16" h="18" measuredW="256" measuredH="256" zOrder="19" locked="false" isInGroup="-1">
       <controlProperties>
         <src>./assets/Adobe-PDF-Logo.jpg</src>
       </controlProperties>
