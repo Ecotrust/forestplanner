@@ -25,7 +25,7 @@
             </ul>
             <div class="well"> <!-- need to make this a different color -->
               {% if user.is_authenticated %}
-              <div class="row-fluid" data-bind="ifnot: propertyList().length">
+              <div class="row-fluid" data-bind="if: showNoPropertiesHelp">
                 <h2>Create Properties</h2>
                 <p><em>You currently have no properties under management.</em></p>
                 <div id="properties-none">
@@ -41,12 +41,12 @@
                   <h3>Add additional information</h3>
                   <p>Then you will be asked to enter some additional information to help describe your property.</p>
                   <div class="pull-right">
-                    <button href="#" class="btn btn-large btn-primary" data-bind="click: startAddDrawing, disable: drawingActivated">Add Property</button>
+                    <button href="#" class="btn btn-large btn-primary" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                   </div>
                 </div> <!-- no properties -->
               </div><!-- end of no properties -->
               <div>
-                <div id="properties-list" data-bind="if: propertyList().length, visible: showPropertyList">
+                <div id="properties-list" style="display: none" data-bind="if: propertyList().length, visible: showPropertyList">
                   <h2>Property List</h2>
                   <p>
                     <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">Show All Properties</button>
@@ -64,34 +64,34 @@
                       </tbody>
                     </table>
                     <div class="pull-right">
-                      <button href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">delete property</button>
+                      <button href="#" id="delete-button" class="btn" data-bind="click: showDeleteDialog">Delete Property</button>
                       <button class="btn btn-primary" href="#" data-bind="click: showEditForm, disable: preventUpdates">Edit Property</button>
                     </div>
                   </div>
                 </div><!-- has properties -->
                 <div class="row-fluid"><!-- panels -->
                   <div>
-                    <div data-bind="if: showDrawHelpPanel">
+                    <div style="display:none" data-bind="if: showDrawHelpPanel, visible: showDrawHelpPanel">
                       <h2>Drawing Property</h2>
                       <p>Here we should have information about drawing the property and an animated gif</p>
                       <div class="pull-right">
                         <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
                       </div>
                     </div>
-                    <div data-bind="if: showDetailPanel">
+                    <div style="display: none" data-bind="if: showDetailPanel, visible: showDetailPanel">
                       <h2>Property Details</h2>
-                        <table class="table" data-bind="if: selectedProperty().name">
+                        <table class="table" data-bind="if: selectedProperty()">
                           <tr><td>Name</td><td><span data-bind="text: selectedProperty().name"><span></td></tr>
                           <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(2)"></span> acres</td></tr>
                           <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
                         </table>
                         <div class="pull-right">
                           <button class="btn" href="#">Perform Analysis</button>
-                          <button class="btn" href="#">Add Stands</button>
+                          <button class="btn" href="#">Manage Stands</button>
                         </div>
                       </div>
                     </div>
-                    <div class="form-panel" data-bind="if: showEditPanel">
+                    <div class="form-panel" style="display: none" data-bind="if: showEditPanel, visible: showEditPanel">
                       <h2>Edit Property</h2>
                       <div id="edit-panel"></div>
                       <div class="pull-right" id="edit-panel-buttons">
@@ -99,7 +99,7 @@
                         <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
                       </div>
                     </div>
-                    <div class="form-panel" data-bind="if: showCreatePanel">
+                    <div class="form-panel" style="display:none" data-bind="if: showCreatePanel, visible: showCreatePanel">
                       <h2>Create Property</h2>
                       <div id="create-panel"></div>
                       <div class="pull-right" id="create-panel-buttons">
@@ -135,12 +135,12 @@
         <h3>Delete Property</h3>
       </div>
       <div class="modal-body">
-        <div data-bind="if: propertyList().length">
+        <div data-bind="if: selectedProperty()">
           Are you sure you want to delete "<span data-bind="text: selectedProperty().name"></span>"?
         </div>
       </div>
       <div class="modal-footer">
-        <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete property</a>
+        <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
         <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
       </div>
     </div>
@@ -165,6 +165,7 @@
       self.drawingActivated = ko.observable(false);
       self.preventUpdates = ko.observable(false);
       self.showPropertyList = ko.observable(true);
+      self.showNoPropertiesHelp = ko.observable(true);
       self.selectProperty = function (property, event, zoomTo) {
         var bbox = OpenLayers.Bounds.fromArray(property.bbox());
         // TODO: Make active!
@@ -181,7 +182,6 @@
           self.showDetailPanel(true);
           // zoom the map to the selected property
           // map.zoomToExtent(bounds);
-          console.log(map.getZoomForExtent(bbox) - map.zoom );
           if (zoomTo) {
             if (map.getZoomForExtent(bbox) - map.zoom > 1) {
               map.panTo(bbox.getCenterLonLat());
@@ -201,28 +201,48 @@
       };
 
       self.zoomToExtent = function () {
-        map.zoomToExtent(app.bounds);
+        map.zoomToExtent(app.vector_layer.getDataExtent());
+      }
+
+      self.cleanupForm = function ($form) {
+        // remove the submit button, strip out the geometry
+        $form
+          .find('input:submit').remove().end()
+          .find('#id_geometry_final').closest('.field').remove();
+
+        // put the form in a well and focus the first field
+        $form.addClass('well');
+        $form.find('.field').each(function () {
+          var $this = $(this);
+          // add the bootstrap classes
+          $this.addClass('control-group');
+          $this.find('label').addClass('control-label');
+          $this.find('input').wrap($('<div/>', { "class": "controls"}));
+          $this.find('.controls').append($('<p/>', { "class": "help-block"}));
+
+        });
+        $form.find('input:visible').first().focus();
+        
       }
 
       self.showEditForm = function () {
         var formUrl = 'features/forestproperty/{uid}/form/'.replace('{uid}', this.selectedProperty().uid());
         $.get(formUrl, function (data) {
           var $form = $(data).find('form');
-          
-          // remove the submit button, strip out the geometry
-          $form
-            .find('input:submit').remove().end()
-            .find('#id_geometry_final').closest('.field').remove();
-
-          // put the form in a well and focus the first field
-          $form.addClass('well');
-          $form.find('input:visible').first().focus();
-          
+            
+          self.cleanupForm($form);
           // show the form in the panel
           self.showDetailPanel(false);
           self.showEditPanel(true);
           self.preventUpdates(true);
           $('#edit-panel').empty().append($form);
+          $form.find('input:visible:first').focus();
+
+          $form.bind('submit', function (event) {
+            event.preventDefault();
+            self.updateFeature(self, event);
+          });
+
           app.modifyFeature.selectFeature(self.selectedProperty().feature);
           app.modifyFeature.activate();
           app.viewModel.showPropertyList(false)
@@ -233,6 +253,7 @@
         self.showDetailPanel(false);
         self.showDrawHelpPanel(true);
         self.drawingActivated(true);
+        self.showNoPropertiesHelp(false);
         self.preventUpdates(true);
         app.drawFeature.activate();
         app.viewModel.showPropertyList(false)
@@ -243,44 +264,48 @@
         $.get(formUrl, function (data) {
           var $form = $(data).find('form');
           
-          // remove the submit button, strip out the geometry
-          $form
-            .find('input:submit').remove().end()
-            .find('#id_geometry_final').closest('.field').remove();
-
-          // put the form in a well and focus the first field
-          $form.addClass('well');
-          $form.find('input:visible').first().focus();
+          self.cleanupForm($form);
           
           // show the form in a modal
           self.showDetailPanel(false);
           self.showCreatePanel(true);
           $('#create-panel').empty().append($form);
+          $form.find('input:visible:first').focus();
+           $form.bind('submit', function (event) {
+            event.preventDefault();
+            self.addFeature(self, event);
+          });
         })
       };
 
       self.addFeature = function (self, event) {
         self.saveFeature(event, null, app.newGeometry);
-        app.drawFeature.deactivate();
-        app.new_features.removeAllFeatures()
+        
       };
 
       self.updateFeature = function (self, event) {
         var geometry = app.modifyFeature.feature.geometry.toString();
         self.saveFeature(event, self.selectedProperty(), geometry);
-        app.modifyFeature.deactivate();
-        app.new_features.removeAllFeatures();
       };
 
       self.saveFeature = function (event, property, geometry) {
         var $dialog = $(event.target).closest('.form-panel'),
           $form = $dialog.find('form'), 
           actionUrl = $form.attr('action'),
-          values = {};
+          values = {}, error=false;
         $form.find('input').each(function () {
           var $input = $(this);
-          values[$input.attr('name')] = $input.val();
+          if ($input.closest('.field').hasClass('required') && $input.attr('type') !== 'hidden' && ! $input.val()) {
+            error = true;
+            $input.closest('.control-group').addClass('error');
+            $input.siblings('p.help-block').text('This field is required.');
+          } else {
+            values[$input.attr('name')] = $input.val();
+          }
         });
+        if (error) {
+          return false;
+        }
         values.geometry_final = geometry;
         $form.addClass('form-horizontal')
         self.showEditPanel(false);
@@ -293,8 +318,15 @@
           success: function (data, textStatus, jqXHR) {
             // property is not defined if new
             self.updateOrCreateProperty(JSON.parse(data), property);
-            self.drawingActivated(false);
             app.viewModel.showPropertyList(true);
+            app.drawFeature.deactivate();
+            app.modifyFeature.deactivate();
+            self.showNoPropertiesHelp(false);
+            app.new_features.removeAllFeatures()
+
+          },
+          error: function (jqXHR, textStatus, errorThrown) {
+            self.cancelEdit(self);
           }
         });
       };
@@ -337,6 +369,7 @@
              $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
             } else {
               self.showDetailPanel(false);
+              self.showNoPropertiesHelp(true);
             }
           }
         });
@@ -351,6 +384,7 @@
         self.showCreatePanel(false);
         self.showDrawHelpPanel(false);
         self.preventUpdates(false);
+        self.showNoPropertiesHelp(self.propertyList().length ? false: true);
         app.modifyFeature.resetVertices();
         app.modifyFeature.deactivate();
         app.drawFeature.deactivate();
@@ -387,6 +421,7 @@
             'featuresadded': function (data) {
               // if only adding one layer, select and zoom
               // otherwise just select the last one and zoom to the full extent of the layer
+              self.showNoPropertiesHelp(false);
               if (data.features.length === 1) {
                 self.selectPropertyByUID(data.features[0].data.uid, true);
               } else {
@@ -401,7 +436,7 @@
           if (data.features.length) {
             app.vector_layer.addFeatures(app.geojson_format.read(data));
             //self.selectedProperty(self.propertyList()[0]);
-            self.showDetailPanel(true);   
+            //self.showDetailPanel(true);   
           }
         });  
       }

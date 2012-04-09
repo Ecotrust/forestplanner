@@ -68,7 +68,7 @@ function init() {
                             fillOpacity: 0.25,
                             strokeWidth: 1,
                             strokeOpacity: 1,
-                            strokeColor: "#44ff00"
+                            strokeColor: "#44ff00",
                         },
                     }
                 })
@@ -178,6 +178,10 @@ function init() {
     // add controls, save references
     app.selectFeature = new OpenLayers.Control.SelectFeature(app.vector_layer,
         { "clickout": false});
+    
+    // reenable click and drag in vectors
+    app.selectFeature.handlers.feature.stopDown = false; 
+    
     map.addControl(app.selectFeature);
     app.modifyFeature = new OpenLayers.Control.ModifyFeature(app.vector_layer);
     map.addControl(app.modifyFeature);
@@ -187,12 +191,18 @@ function init() {
 
     
   
-    snap = new OpenLayers.Control.Snapping({
+    new_snap = new OpenLayers.Control.Snapping({
                 layer: app.new_features,
                 targets: [app.vector_layer],
                 greedy: false
             });
-    snap.activate();
+    new_snap.activate();
+    existing_snap = new OpenLayers.Control.Snapping({
+                layer: app.vector_layer,
+                targets: [app.vector_layer],
+                greedy: false
+            });
+    existing_snap.activate();
     // var modify = new OpenLayers.Control.ModifyFeature(stands);
     // map.addControl(modify);
 
