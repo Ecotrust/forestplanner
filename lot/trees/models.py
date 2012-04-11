@@ -397,6 +397,30 @@ class FVSVariant(models.Model):
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
+class FVSSpecies(models.Model):
+    usda = models.CharField(max_length=8, null=True, blank=True)
+    fia = models.CharField(max_length=3, null=True, blank=True)
+    fvs = models.CharField(max_length=2, null=True, blank=True)
+    common = models.TextField()
+    scientific = models.TextField()
+    AK = models.CharField(max_length=2)
+    BM = models.CharField(max_length=2)
+    CA = models.CharField(max_length=2)
+    CI = models.CharField(max_length=2)
+    CR = models.CharField(max_length=2)
+    EC = models.CharField(max_length=2)
+    EM = models.CharField(max_length=2)
+    IE = models.CharField(max_length=2)
+    KT = models.CharField(max_length=2)
+    NC = models.CharField(max_length=2)
+    NI = models.CharField(max_length=2)
+    PN = models.CharField(max_length=2)
+    SO = models.CharField(max_length=2)
+    TT = models.CharField(max_length=2)
+    UT = models.CharField(max_length=2)
+    WC = models.CharField(max_length=2)
+    WS = models.CharField(max_length=2)
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',

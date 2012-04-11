@@ -26,11 +26,12 @@ INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857 #for mercator
-#GEOMETRY_CLIENT_SRID = 4326 #for latlon
 
 APP_NAME = "Forestry Land Owner Tools"
 
-TEMPLATE_DIRS = ( os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/')), )
+TEMPLATE_DIRS = ( 
+        os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\','/')), 
+)
 
 FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
 GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
@@ -51,5 +52,7 @@ IMPUTE_RASTERS = [
 ]
 
 POINT_BUFFER = 500  #meters
+
+ENFORCE_SUPPORTED_BROWSER = False
 
 from settings_local import *
