@@ -21,7 +21,7 @@ CREATE TABLE TREE_LIVE
 	SOURCE_DB			varchar (30), 
 	STATE			varchar (4), 
 	PLOT			Int8, 
-	ASSESSMENT_DATE			varchar (100), 
+	ASSESSMENT_DATE			Timestamp, 
 	SPP_SYMBOL			varchar (20), 
 	SCIENTIFIC_NAME			varchar (200), 
 	CON			varchar (2), 

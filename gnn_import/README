@@ -1,0 +1,11 @@
+Loads the GNN data from mdbs
+
+1. run the schema_X.sh script to create a sql create table statement.
+2. run the export_X.sh script to dump the mdb tables to tab separated files
+3. Remove the first line of the file (the header) using : 
+    tail -n +2 TREE_LIVE.tsv > TREE_LIVE2.tsv; mv TREE_LIVE2.tsv TREE_LIVE.tsv
+4. run load_X.sh to create the table and import the tsv
+5. run manage.py inspectdb 
+
+DELETE FROM tree_live WHERE SPP_SYMBOL = 'NOTALY'
+
