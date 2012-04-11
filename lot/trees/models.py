@@ -422,7 +422,7 @@ class FVSSpecies(models.Model):
     WS = models.CharField(max_length=2)
 
 class TreeLive(models.Model):
-    live_id = models.BigIntegerField(null=True, blank=True, primary_key=True)
+    live_id = models.BigIntegerField(primary_key=True)
     pntid = models.BigIntegerField(null=True, blank=True)
     ccid = models.BigIntegerField(null=True, blank=True)
     fcid = models.BigIntegerField(null=True, blank=True)
@@ -488,8 +488,8 @@ class TreeLive(models.Model):
         db_table = u'tree_live'
 
 class PlotSummary(models.Model):
+    fcid = models.BigIntegerField(primary_key=True)
     value = models.BigIntegerField(null=True, blank=True)
-    fcid = models.BigIntegerField(null=True, blank=True, primary_key=True)
     map_source = models.CharField(max_length=8, blank=True)
     eslf_code = models.IntegerField(null=True, blank=True)
     eslf_name = models.CharField(max_length=300, blank=True)
