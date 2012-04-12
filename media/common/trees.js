@@ -55,6 +55,9 @@ function init() {
         map.layers[i].animationEnabled = true;
     };
 
+    app.markers = new OpenLayers.Layer.Markers("search");               
+    map.addLayer(app.markers);
+
     // Add stands
     var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
     app.renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;

@@ -3,20 +3,17 @@
 {% block content %}
    <!-- this should go into a partial -->
       <div class="row-fluid">
-        <div class="span4">
+        <div class="span5">
           <div><h1>Manage Properties</h1></div>
         </div>
-        <div class="span8">
+        <div class="span7">
           <span class="pull-right">
-            <form class="form-search">
-              <input type="text" class="input-large search-query" placeholder="placename or parcel id">
-              <button class="btn" type="submit">Search</button>
-            </form>
+            {% include "common/geosearch.html" %}
           </span>
         </div>
       </div>
         <div class="row-fluid">
-          <div class="span3">
+          <div class="span5">
             <ul class="breadcrumb">
               <li>
                 <a href="#">Home</a> <span class="divider">/</span>
@@ -104,7 +101,7 @@
                           <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
                         </table>
                         <div class="pull-right">
-                          <button class="btn" href="#">Perform Analysis</button>
+                          <button class="btn" href="#" disabled>Perform Analysis</button>
                           <button class="btn" href="#" data-bind="click: manageStands">Manage Stands</button>
                         </div>
                       </div>
@@ -138,14 +135,28 @@
                   <div data-bind="visible: showStandList">
                     <p data-bind="visible: ! standList().length"><em>You currently have no stands under management.</em></p>
                     <div data-bind="if: standList().length > 0">
-                      <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
-                      <table class="table">
-                        <thead><th>Name</th><th>Dominant Species</th><th>Prescription</th></thead>
+                      <p>
+                        <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
+                      </p>
+                      <table class="table table-condensed table-bordered">
+                        <thead>
+                          <th>Name</th>
+                          <th>Dominant Species</th>
+                          <th>Prescription</th>
+                          <th>GNN</th>
+                          <th>Elevation</th>
+                          <th>Aspect</th>
+                          <th>Slope</th>
+                        </thead>
                         <tbody data-bind="foreach: standList">
                           <tr>
                             <td data-bind="text: name"></td>
                             <td data-bind="text: domspp"></td>
                             <td data-bind="text: rx"></td>
+                            <td data-bind="text: gnn"></td>
+                            <td data-bind="text: elevation"></td>
+                            <td data-bind="text: aspect"></td>
+                            <td data-bind="text: slope"></td>
                           </tr>
                         </tbody>
                       </table>
@@ -196,7 +207,7 @@
             </div>
             {% endif %}
           </div>
-          <div class="span9">
+          <div class="span7">
             <div class="outermap">
               <div id="map"></div>
             </div>
