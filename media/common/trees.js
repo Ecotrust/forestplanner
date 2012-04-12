@@ -64,20 +64,20 @@ function init() {
                 new OpenLayers.Rule({
                     symbolizer: {
                         "Polygon": {
-                            fillColor: "green",
+                            fillColor: "white",
                             fillOpacity: 0.25,
                             strokeWidth: 1,
                             strokeOpacity: 1,
-                            strokeColor: "#44ff00",
+                            strokeColor: "darkgrey",
                         },
                     }
                 })
             ]
         }),
         "select": new OpenLayers.Style({
-            fillColor: "lightgrey",
+            fillColor: "lightgreen",
             strokeOpacity: 1,
-            strokeColor: "lightgrey"
+            strokeColor: "#44ff00"
         }),
         "temporary": new OpenLayers.Style(null, {
             rules: [
