@@ -2,11 +2,13 @@ var geosearch = function () {
     var self = this;
 
     self.searchTerm = ko.observable();
-    self.showError = ko.observable();
+    self.showError = ko.observable(false);
+    self.showSpinner = ko.observable(false);
 
     self.geoSearch = function () {
-
         var url = '/trees/geosearch';
+        self.showError(false);
+        self.showSpinner(true);
         $.ajax({
             "url": url,
             "type": "GET",
@@ -19,11 +21,13 @@ var geosearch = function () {
                 app.markers.addMarker(new OpenLayers.Marker(location,icon.clone()));             
                 map.zoomToExtent(OpenLayers.Bounds.fromArray(response.extent));
                 self.showError(false);
+                self.showSpinner(false);
             },
             "error": function (response) {
                 if (response.status === 404) {
                     self.showError(true);
                 }
+                self.showSpinner(false);
             }
         });
     };

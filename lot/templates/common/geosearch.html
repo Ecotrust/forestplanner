@@ -1,6 +1,7 @@
 <form class="form-search" id="geosearch-form" data-bind="submit: geoSearch">
     <div class="control-group" data-bind="css: { error: showError }">
         <div class="controls"> 
+            <img src="{{ MEDIA_URL }}img/ajax-loader.gif" data-bind="visible: showSpinner">
             <span class="help-inline" data-bind="visible: showError">error finding location</span>
             <input type="text" class="input-large search-query" placeholder="placename or parcel id" data-bind="value: searchTerm">
             <button class="btn" type="submit">Search</button>
