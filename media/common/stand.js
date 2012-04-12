@@ -65,7 +65,7 @@ function standsViewModel () {
     }
 
     self.associateStand = function (stand_id, property_id) {
-        var url = "http://localhost:8000/features/forestproperty/{forestproperty_uid}/add/{stand_uid}";
+        var url = "/features/forestproperty/{forestproperty_uid}/add/{stand_uid}";
         url = url.replace('{forestproperty_uid}', property_id);
         url = url.replace('{stand_uid}', stand_id);
         $.ajax({
