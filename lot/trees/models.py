@@ -139,15 +139,20 @@ class Stand(PolygonFeature):
         except (FVSSpecies.DoesNotExist, AttributeError):
             fortypes = fortype_str
 
-        summary = [
-                {'value': fortypes, 'units': '', 'desc': 'Forest Type'},
+        try:
+            bac_pct = ps.bac_prop * 100
+        except:
+            bac_pct = None
+
+        summary = {
+                'forest_type': {'value': fortypes, 'units': ''},
                 #{'value': uplcov, 'units': '', 'desc': 'Understory Species'},
-                {'value': ps.cancov, 'units': '%', 'desc': 'Canopy coverage'},
-                {'value': ps.stndhgt, 'units': 'm', 'desc': 'Stand Height'},
-                {'value': ps.sdi, 'units': '', 'desc': 'Stand Density Index'},
-                {'value': ps.baa_ge_3, 'units': 'm²/ha', 'desc': 'Basal Area'},
-                {'value': ps.bac_prop, 'units': 'proportion', 'desc': 'Proportion of Conifers'},
-        ]
+                'canopy_cover': {'value': ps.cancov, 'units': '%'},
+                'stand_height': {'value': ps.stndhgt, 'units': 'm'},
+                'density_index': {'value': ps.sdi, 'units': ''},
+                'basal_area': {'value': ps.baa_ge_3, 'units': 'm²/ha'},
+                'conifer_proportion': {'value': bac_pct, 'units': '%'},
+        }
         return summary
 
 
