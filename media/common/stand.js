@@ -155,10 +155,10 @@ function standsViewModel () {
                       renderers: app.renderer, 
                       styleMap:  new OpenLayers.StyleMap({
                           fillOpacity: .3,
-                          fillColor: "brown",
+                          fillColor: "white",
                           strokeWidth: 1,
                           strokeOpacity: 1,
-                          strokeColor: "brown",
+                          strokeColor: "orange",
                       })
                   });
       map.addLayer(self.stand_layer);
