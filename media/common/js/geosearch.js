@@ -9,6 +9,7 @@ var geosearch = function () {
         var url = '/trees/geosearch';
         self.showError(false);
         self.showSpinner(true);
+        app.markers.clearMarkers();
         $.ajax({
             "url": url,
             "type": "GET",
