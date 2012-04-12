@@ -1,3 +1,5 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 import os
 import math
 from django.contrib.gis.db import models
@@ -63,6 +65,7 @@ class Stand(PolygonFeature):
                 'elevation': self.imputed_elevation,
                 'aspect': self.imputed_aspect,
                 'gnn': self.imputed_gnn,
+                'plot_summary': self.plot_summary,
                 'slope': self.imputed_slope,
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
@@ -106,7 +109,44 @@ class Stand(PolygonFeature):
         gnn_raster = try_get(RasterDataset, name="gnn")
         data = try_get(ImputedData, raster=gnn_raster, feature=self)
         if data:
-            return data.val
+            return int(data.val)
+
+    @property
+    def plot_summary(self):
+        ''' 
+        Site charachteristics according to the majority GNN pixel
+        These will mainly be used to confirm with the user that the GNN data is accurate.
+        Other attrs:
+        # SIZECL, COVCL
+        '''
+        ps = PlotSummary.objects.get(fcid=self.imputed_gnn)
+
+        """
+        # understory species, most don't exist yet in our plant db
+        uplcov_code = ps.uplcov
+        try:
+            uplcov_code = uplcov_code.strip()
+            uplcov = FVSSpecies.objects.get(usda=uplcov_code).common
+        except (FVSSpecies.DoesNotExist, AttributeError):
+            uplcov = uplcov_code
+        """
+
+        fortype_str = ps.fortypba
+        try:
+            fortypes = [FVSSpecies.objects.get(usda=x).common for x in fortype_str.strip().split('/')]
+        except (FVSSpecies.DoesNotExist, AttributeError):
+            fortypes = fortype_str
+
+        summary = [
+                {'value': fortypes, 'units': '', 'desc': 'Forest Type'},
+                #{'value': uplcov, 'units': '', 'desc': 'Understory Species'},
+                {'value': ps.cancov, 'units': '%', 'desc': 'Canopy coverage'},
+                {'value': ps.sdi, 'units': '', 'desc': 'Stand Density Index'},
+                {'value': ps.baa_ge_3, 'units': 'm²/ha', 'desc': 'Basal Area'},
+                {'value': ps.bac_prop, 'units': 'proportion', 'desc': 'Proportion of Conifers'},
+        ]
+        return summary
+
 
     @property
     def imputed(self):
