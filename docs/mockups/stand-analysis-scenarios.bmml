@@ -123,19 +123,9 @@
         </control>
       </groupChildrenDescriptors>
     </control>
-    <control controlID="163" controlTypeID="com.balsamiq.mockups::StickyNote" x="1210" y="140" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="18" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Should%20we%20remove%20the%20search%20in%20this%20page%3F%20</text>
-      </controlProperties>
-    </control>
-    <control controlID="164" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="595" w="16" h="18" measuredW="256" measuredH="256" zOrder="19" locked="false" isInGroup="-1">
+    <control controlID="164" controlTypeID="com.balsamiq.mockups::Image" x="1285" y="595" w="16" h="18" measuredW="256" measuredH="256" zOrder="18" locked="false" isInGroup="-1">
       <controlProperties>
         <src>./assets/Adobe-PDF-Logo.jpg</src>
-      </controlProperties>
-    </control>
-    <control controlID="165" controlTypeID="com.balsamiq.mockups::StickyNote" x="547" y="480" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="20" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Scheduler%20options%20TBD</text>
       </controlProperties>
     </control>
   </controls>

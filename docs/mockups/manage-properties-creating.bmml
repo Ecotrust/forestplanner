@@ -35,37 +35,27 @@
         <text>Home%2C%20Properties%2C%20New%20Property</text>
       </controlProperties>
     </control>
-    <control controlID="101" controlTypeID="com.balsamiq.mockups::Image" x="686" y="198" w="625" h="415" measuredW="472" measuredH="358" zOrder="6" locked="false" isInGroup="-1">
-      <controlProperties>
-        <src>./assets/property-polygon.png</src>
-      </controlProperties>
-    </control>
-    <control controlID="102" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="229" w="-1" h="-1" measuredW="167" measuredH="26" zOrder="7" locked="false" isInGroup="-1">
+    <control controlID="102" controlTypeID="com.balsamiq.mockups::SubTitle" x="315" y="229" w="-1" h="-1" measuredW="167" measuredH="26" zOrder="6" locked="false" isInGroup="-1">
       <controlProperties>
         <size>18</size>
         <text>Property%20Information</text>
       </controlProperties>
     </control>
-    <control controlID="103" controlTypeID="com.balsamiq.mockups::Paragraph" x="324" y="255" w="313" h="76" measuredW="200" measuredH="140" zOrder="8" locked="false" isInGroup="-1">
+    <control controlID="103" controlTypeID="com.balsamiq.mockups::Paragraph" x="324" y="255" w="313" h="76" measuredW="200" measuredH="140" zOrder="7" locked="false" isInGroup="-1">
       <controlProperties>
         <text>You%20specifed%20a%20property%20of%20*47.5%20acres*%20in%20*Tillamook%20County%2C%20Oregon*.%20%20If%20you%27d%20like%20to%20revise%20this%20property%2C%20you%20can%20redraw%20the%20shape%20by%20dragging%20the%20corners.</text>
       </controlProperties>
     </control>
-    <control controlID="105" controlTypeID="com.balsamiq.mockups::Button" x="542" y="319" w="-1" h="-1" measuredW="110" measuredH="27" zOrder="9" locked="false" isInGroup="-1">
+    <control controlID="105" controlTypeID="com.balsamiq.mockups::Button" x="542" y="319" w="-1" h="-1" measuredW="110" measuredH="27" zOrder="8" locked="false" isInGroup="-1">
       <controlProperties>
         <href>manage-properties-list%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml%26bm%3Bmanage-properties-list.bmml</href>
         <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22242%2C302%2C352%2C329%22%20href%3D%22manage-properties-list.bmml%22%20alt%3D%22manage-properties-list%22%20id%3D%22105%22/%3E</map>
         <text>Save%20Property</text>
       </controlProperties>
     </control>
-    <control controlID="106" controlTypeID="com.balsamiq.mockups::StickyNote" x="391" y="331" w="-1" h="-1" measuredW="109" measuredH="123" zOrder="10" locked="false" isInGroup="-1">
+    <control controlID="106" controlTypeID="com.balsamiq.mockups::Image" x="678" y="189" w="633" h="451" measuredW="912" measuredH="600" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
-        <text>MP%3A%20There%20may%20be%20more%20attributes%20as%20well.</text>
-      </controlProperties>
-    </control>
-    <control controlID="107" controlTypeID="com.balsamiq.mockups::StickyNote" x="1058" y="524" w="267" h="133" measuredW="109" measuredH="123" zOrder="11" locked="false" isInGroup="-1">
-      <controlProperties>
-        <text>Base%20layer%20will%20consist%20of%20township/range%20or%20parcel%20data%20if%20available.%20%0A%20%0ASelecting%20parcels%20may%20be%20alternative%20to%20drawing.</text>
+        <src>./assets/property-drawing.png</src>
       </controlProperties>
     </control>
   </controls>

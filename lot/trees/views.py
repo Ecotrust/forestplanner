@@ -31,6 +31,13 @@ import os
 
 logger = get_logger()
 
+def manage_stands(request):
+    '''
+    Stand management view
+    '''
+    return render_to_response('common/manage_stands.html', {}, 
+        context_instance=RequestContext(request))
+
 def user_property_list(request):
     '''
     Present list of properties for a given user 
