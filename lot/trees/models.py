@@ -11,7 +11,7 @@ from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
-from madrona.common.utils import get_logger
+from madrona.common.utils import get_logger, cachemethod
 logger = get_logger()
 
 def try_get(model, **kwargs):
@@ -52,6 +52,7 @@ class Stand(PolygonFeature):
         )
 
     @property
+    @cachemethod('trees_stand_%(id)s_geojson')
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -112,6 +113,7 @@ class Stand(PolygonFeature):
             return int(data.val)
 
     @property
+    @cachemethod("trees_stand_%(id)s_plot_summary")
     def plot_summary(self):
         ''' 
         Site charachteristics according to the majority GNN pixel
@@ -141,6 +143,7 @@ class Stand(PolygonFeature):
                 {'value': fortypes, 'units': '', 'desc': 'Forest Type'},
                 #{'value': uplcov, 'units': '', 'desc': 'Understory Species'},
                 {'value': ps.cancov, 'units': '%', 'desc': 'Canopy coverage'},
+                {'value': ps.stndhgt, 'units': 'm', 'desc': 'Stand Height'},
                 {'value': ps.sdi, 'units': '', 'desc': 'Stand Density Index'},
                 {'value': ps.baa_ge_3, 'units': 'm²/ha', 'desc': 'Basal Area'},
                 {'value': ps.bac_prop, 'units': 'proportion', 'desc': 'Proportion of Conifers'},
@@ -209,6 +212,16 @@ class Stand(PolygonFeature):
 
         if self.pk:
             # modifying an existing feature
+
+            # Clear cache; for now manually for each cachemethod decorator
+            from django.core.cache import cache
+            caches = [
+                'trees_stand_%(id)s_plot_summary',
+                'trees_stand_%(id)s_geojson',
+            ]
+            for c in caches:
+                cache.delete(c)
+
             orig = Stand.objects.get(pk=self.pk)
             geom_fields = [f for f in Stand._meta.fields if f.attname.startswith('geometry_')]
             same_geom = True  # assume geometries have NOT changed
