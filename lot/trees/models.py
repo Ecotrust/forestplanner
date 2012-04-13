@@ -85,8 +85,8 @@ class Stand(PolygonFeature):
         gnn_raster = RasterDataset.objects.get(name=rastername)
         rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
         g1 = self.geometry_final
-        g1.transform(rproj)
-        stats = zonal_stats(g1, gnn_raster)
+        g2 = g1.transform(rproj, clone=True)
+        stats = zonal_stats(g2, gnn_raster)
         return stats
 
     @property
