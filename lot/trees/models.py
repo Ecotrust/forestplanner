@@ -13,6 +13,7 @@ from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger, cachemethod
 from operator import itemgetter
+from django.core.cache import cache
 logger = get_logger()
 
 def try_get(model, **kwargs):
@@ -114,15 +115,10 @@ class Stand(PolygonFeature):
             return int(data.val)
 
     @property
-    def imputed_gnn(self):
-        gnn_raster = try_get(RasterDataset, name="gnn")
-        data = try_get(ImputedData, raster=gnn_raster, feature=self)
-        if data:
-            return int(data.val)
-
-    @property
     def imputed_fcids(self):
-        gnn_raster = try_get(RasterDataset, name="gnn_categorical")
+        # this one doesn't get run on save but the raster_stats app will have 
+        # it cached from the imputed_gnn call (which only provided the majority pixel)
+        gnn_raster = RasterDataset.objects.get(name="gnn")
         rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == 'gnn'][0]
         g1 = self.geometry_final
         g1.transform(rproj)
@@ -133,7 +129,7 @@ class Stand(PolygonFeature):
             fcid_dict[cat.category] = cat.count / total_pixels
 
         fsorted = sorted(fcid_dict.iteritems(), key=itemgetter(1), reverse=True)
-        return fsorted[:4]
+        return fsorted[:4]  # return 4 most common GNN pixels
 
     @property
     def plot_summaries(self):
@@ -187,16 +183,16 @@ class Stand(PolygonFeature):
             
             if rname in ['cos_aspect','sin_aspect']:  # aspect trig is special case
                 result = stats.sum
-            elif rname in ['gnn']: # gnn, we want the most common value
-                # may need to do something fancier here like store multiple categories
-                result = stats.mode
+            elif rname in ['gnn']: 
+                result = stats.mode # gnn, we want the most common value
             else:
                 result = stats.avg
 
             # cache result
-            imputed_data, created = ImputedData.objects.get_or_create(raster=raster, feature=self) 
-            imputed_data.val = result 
-            imputed_data.save()
+            if result:
+                imputed_data, created = ImputedData.objects.get_or_create(raster=raster, feature=self) 
+                imputed_data.val = result 
+                imputed_data.save()
 
 
     def save(self, *args, **kwargs):
@@ -211,9 +207,7 @@ class Stand(PolygonFeature):
 
         if self.pk:
             # modifying an existing feature
-
             # Clear cache; for now manually for each cachemethod decorator
-            from django.core.cache import cache
             caches = [
                 'trees_stand_%(id)s_plot_summary',
                 'trees_stand_%(id)s_geojson',
@@ -255,6 +249,9 @@ class ImputedData(models.Model):
     raster = models.ForeignKey(RasterDataset)
     feature = models.ForeignKey(Stand)
     val = models.FloatField(null=True, blank=True)
+
+    def __unicode__(self):
+        return u'ImputedData object: raster %s with value %s' % (self.raster, self.val)
 
 @register
 class ForestProperty(FeatureCollection):
@@ -706,7 +703,7 @@ class PlotSummary(models.Model):
     @cachemethod('plot_summary_fcid-%(fcid)s')
     def summary(self):
         ''' 
-        Plot charachteristics according to the FCID
+        Plot characteristics according to the FCID
         '''
         fortype_str = self.fortypba
         try:

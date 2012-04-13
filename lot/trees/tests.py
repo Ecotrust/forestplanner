@@ -245,6 +245,8 @@ class PropertyStandListTest(TestCase):
     test web service to grab json of user's propertie's stands
     [{stand-attrs}, ...]
     '''
+    fixtures = ("test_rasters.json",)
+
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
@@ -311,6 +313,7 @@ class SpatialTest(TestCase):
     '''
     Tests the spatial representations of Stands and ForestProperties
     '''
+    fixtures = ("test_rasters.json",)
 
     def setUp(self):
         self.client = Client()

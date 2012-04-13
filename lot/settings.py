@@ -38,7 +38,7 @@ GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '
 
 DEFAULT_EXTENT = [-14056200,4963200,-12471500,6128400] # in mercator
 
-TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
+#TEST_RUNNER = 'djcelery.contrib.test_runner.CeleryTestSuiteRunner'
 
 # List of tuples: raster name and proj4 string of the raster 
 # proj4==None implies mercator

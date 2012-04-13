@@ -48,7 +48,7 @@
     "pk": 6, 
     "model": "raster_stats.rasterdataset", 
     "fields": {
-      "type": "continuous", "name": "gnn", "full_name": "gnn", 
+      "type": "categorical", "name": "gnn", "full_name": "gnn", 
       "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/gnn.tif"
     }
   }
