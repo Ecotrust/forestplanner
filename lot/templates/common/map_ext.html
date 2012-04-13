@@ -138,25 +138,46 @@
                       <p>
                         <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
                       </p>
-                      <table class="table table-condensed table-bordered">
+                      <table class="table table-bordered">
                         <thead>
                           <th>Name</th>
                           <th>Dominant Species</th>
                           <th>Prescription</th>
-                          <th>GNN</th>
                           <th>Elevation</th>
                           <th>Aspect</th>
                           <th>Slope</th>
                         </thead>
                         <tbody data-bind="foreach: standList">
-                          <tr>
+                          <tr data-bind="click: $parent.selectFeature">
                             <td data-bind="text: name"></td>
                             <td data-bind="text: domspp"></td>
                             <td data-bind="text: rx"></td>
-                            <td data-bind="text: gnn"></td>
                             <td data-bind="text: elevation"></td>
                             <td data-bind="text: aspect"></td>
                             <td data-bind="text: slope"></td>
+                          </tr>
+                          <tr data-bind="visible: $data === $parent.selectedFeature()">
+                            <td colspan="6">
+                              <div class="well">
+                                <table class="table table-striped">
+                                  <thead>
+                                    <th>percent</th>
+                                    <th>forest type</th>
+                                    <th>stand height</th>
+                                    <th>conifer proportion</th>
+                                    <th>basal area</th>
+                                  <tbody data-bind="foreach: plot_summaries">
+                                    <tr>
+                                      <td data-bind="text: fcid_coverage().toFixed(0)"></td>
+                                      <td data-bind="text: forest_type.value"></td>
+                                      <td data-bind="text: stand_height.value"></td>
+                                      <td data-bind="text: conifer_proportion.value"></td>
+                                      <td data-bind="text: basal_area.value"></td>
+                                    </tr>
+                                  </tbody>
+                                </table>
+                              </div>
+                            </td>
                           </tr>
                         </tbody>
                       </table>
@@ -218,7 +239,9 @@
 
     <script type="text/javascript" src="{{ MEDIA_URL }}common/property.js"></script>
     <script type="text/javascript" src="{{ MEDIA_URL }}common/stand.js"></script>
-
+    <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}support/jquery.flot.js"></script>
+      <script language="javascript" type="text/javascript" src="{{ MEDIA_URL }}support/jquery.flot.pie.js"></script>
+      
     <script type="text/javascript">
 
     // name space for app

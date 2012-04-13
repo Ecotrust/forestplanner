@@ -18,6 +18,8 @@ function standsViewModel () {
 
     self.standList = ko.observableArray();
 
+    self.selectedFeature = ko.observable();
+
     self.cancelManageStands = function () {
         self.showStandPanels(false);
         app.properties.viewModel.showPropertyPanels(true);
@@ -125,7 +127,9 @@ function standsViewModel () {
       self.showNoStandHelp(true);
     }
 
-
+    self.selectFeature = function (feature, event) {
+      self.selectedFeature(feature);
+    }
 
     self.initialize = function (property) {
       // bind the viewmodel
