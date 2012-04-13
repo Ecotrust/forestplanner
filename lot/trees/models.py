@@ -12,6 +12,7 @@ from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger, cachemethod
+from operator import itemgetter
 logger = get_logger()
 
 def try_get(model, **kwargs):
@@ -66,7 +67,7 @@ class Stand(PolygonFeature):
                 'elevation': self.imputed_elevation,
                 'aspect': self.imputed_aspect,
                 'gnn': self.imputed_gnn,
-                'plot_summary': self.plot_summary,
+                'plot_summaries': self.plot_summaries,
                 'slope': self.imputed_slope,
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
@@ -113,48 +114,41 @@ class Stand(PolygonFeature):
             return int(data.val)
 
     @property
-    @cachemethod("trees_stand_%(id)s_plot_summary")
-    def plot_summary(self):
+    def imputed_gnn(self):
+        gnn_raster = try_get(RasterDataset, name="gnn")
+        data = try_get(ImputedData, raster=gnn_raster, feature=self)
+        if data:
+            return int(data.val)
+
+    @property
+    def imputed_fcids(self):
+        gnn_raster = try_get(RasterDataset, name="gnn_categorical")
+        rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == 'gnn'][0]
+        g1 = self.geometry_final
+        g1.transform(rproj)
+        stats = zonal_stats(g1, gnn_raster)
+        total_pixels = stats.pixels
+        fcid_dict = {}
+        for cat in stats.categories.all():
+            fcid_dict[cat.category] = cat.count / total_pixels
+
+        fsorted = sorted(fcid_dict.iteritems(), key=itemgetter(1), reverse=True)
+        return fsorted[:4]
+
+    @property
+    def plot_summaries(self):
         ''' 
-        Site charachteristics according to the majority GNN pixel
+        Site charachteristics according to the 3 most common FCID GNN pixels 
         These will mainly be used to confirm with the user that the GNN data is accurate.
-        Other attrs:
-        # SIZECL, COVCL
         '''
-        ps = PlotSummary.objects.get(fcid=self.imputed_gnn)
-
-        """
-        # understory species, most don't exist yet in our plant db
-        uplcov_code = ps.uplcov
-        try:
-            uplcov_code = uplcov_code.strip()
-            uplcov = FVSSpecies.objects.get(usda=uplcov_code).common
-        except (FVSSpecies.DoesNotExist, AttributeError):
-            uplcov = uplcov_code
-        """
-
-        fortype_str = ps.fortypba
-        try:
-            fortypes = [FVSSpecies.objects.get(usda=x).common for x in fortype_str.strip().split('/')]
-        except (FVSSpecies.DoesNotExist, AttributeError):
-            fortypes = fortype_str
-
-        try:
-            bac_pct = ps.bac_prop * 100
-        except:
-            bac_pct = None
-
-        summary = {
-                'forest_type': {'value': fortypes, 'units': ''},
-                #{'value': uplcov, 'units': '', 'desc': 'Understory Species'},
-                'canopy_cover': {'value': ps.cancov, 'units': '%'},
-                'stand_height': {'value': ps.stndhgt, 'units': 'm'},
-                'density_index': {'value': ps.sdi, 'units': ''},
-                'basal_area': {'value': ps.baa_ge_3, 'units': 'm²/ha'},
-                'conifer_proportion': {'value': bac_pct, 'units': '%'},
-        }
-        return summary
-
+        fcids = self.imputed_fcids  # ((fcid, pct), ..)
+        summaries = []
+        for fcid, prop in fcids:
+            ps = PlotSummary.objects.get(fcid=fcid)
+            summary = ps.summary
+            summary['fcid_coverage'] = prop * 100
+            summaries.append(summary)
+        return summaries
 
     @property
     def imputed(self):
@@ -707,6 +701,35 @@ class PlotSummary(models.Model):
     ogsi = models.FloatField(null=True, blank=True)
     class Meta:
         db_table = u'sppsz_attr_all'
+
+    @property
+    @cachemethod('plot_summary_fcid-%(fcid)s')
+    def summary(self):
+        ''' 
+        Plot charachteristics according to the FCID
+        '''
+        fortype_str = self.fortypba
+        try:
+            fortypes = [FVSSpecies.objects.get(usda=x).common for x in fortype_str.strip().split('/')]
+        except (FVSSpecies.DoesNotExist, AttributeError):
+            fortypes = fortype_str
+
+        try:
+            bac_pct = self.bac_prop * 100
+        except:
+            bac_pct = None
+
+        summary = {
+                'fcid': self.fcid,
+                'forest_type': {'value': fortypes, 'units': ''},
+                'canopy_cover': {'value': self.cancov, 'units': '%'},
+                'stand_height': {'value': self.stndhgt, 'units': 'm'},
+                'density_index': {'value': self.sdi, 'units': ''},
+                'basal_area': {'value': self.baa_ge_3, 'units': 'm²/ha'},
+                'conifer_proportion': {'value': bac_pct, 'units': '%'},
+            }
+        return summary
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
