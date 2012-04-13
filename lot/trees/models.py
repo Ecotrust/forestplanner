@@ -81,48 +81,43 @@ class Stand(PolygonFeature):
         }""" % (self.geometry_final.json, dumps(d))
         return gj
 
+    def get_raster_stats(self, rastername):
+        gnn_raster = RasterDataset.objects.get(name=rastername)
+        rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
+        g1 = self.geometry_final
+        g1.transform(rproj)
+        stats = zonal_stats(g1, gnn_raster)
+        return stats
+
     @property
     def imputed_elevation(self):
-        elevation_raster = try_get(RasterDataset, name="elevation")
-        data = try_get(ImputedData, raster=elevation_raster, feature=self)
-        if data:
-            return data.val
+        data = self.get_raster_stats('elevation')
+        return data.avg
 
     @property
     def imputed_aspect(self):
-        cos_raster = try_get(RasterDataset, name="cos_aspect")
-        sin_raster = try_get(RasterDataset, name="sin_aspect")
-        cos_sum = try_get(ImputedData, raster=cos_raster, feature=self)
-        sin_sum = try_get(ImputedData, raster=sin_raster, feature=self)
+        cos = self.get_raster_stats('cos_aspect')
+        sin = self.get_raster_stats('sin_aspect')
         result = None
-        if cos_sum and sin_sum and cos_sum.val and sin_sum.val:
-            avg_aspect_rad = math.atan2(cos_sum.val, sin_sum.val)
+        if cos and sin and cos.sum and sin.sum:
+            #TODO confirm
+            avg_aspect_rad = math.atan2(cos.sum, sin.sum)
             result = math.degrees(avg_aspect_rad)
         return result
 
     @property
     def imputed_slope(self):
-        slope_raster = try_get(RasterDataset, name="slope")
-        data = try_get(ImputedData, raster=slope_raster, feature=self)
-        if data:
-            return data.val
+        data = self.get_raster_stats('slope')
+        return data.avg
 
     @property
     def imputed_gnn(self):
-        gnn_raster = try_get(RasterDataset, name="gnn")
-        data = try_get(ImputedData, raster=gnn_raster, feature=self)
-        if data:
-            return int(data.val)
+        data = self.get_raster_stats('gnn')
+        return data.mode
 
     @property
     def imputed_fcids(self):
-        # this one doesn't get run on save but the raster_stats app will have 
-        # it cached from the imputed_gnn call (which only provided the majority pixel)
-        gnn_raster = RasterDataset.objects.get(name="gnn")
-        rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == 'gnn'][0]
-        g1 = self.geometry_final
-        g1.transform(rproj)
-        stats = zonal_stats(g1, gnn_raster)
+        stats = self.get_raster_stats('gnn')
         total_pixels = stats.pixels
         fcid_dict = {}
         for cat in stats.categories.all():
@@ -146,112 +141,17 @@ class Stand(PolygonFeature):
             summaries.append(summary)
         return summaries
 
-    @property
-    def imputed(self):
-        return {'aspect': self.imputed_aspect, 
-                'elevation': self.imputed_elevation, 
-                'slope': self.imputed_slope,
-                'gnn': self.imputed_gnn,
-               }
-
-    def _impute(self, force=False, limit_to=None, async=False):
-        '''
-        limit_to: list of rasters to (re)impute
-        force: if True, bypass the zonal_stats cache
-        '''
-        for rname, rproj in settings.IMPUTE_RASTERS:
-            if limit_to and raster[0] not in limit_to:
-                continue
-
-            orig_geom = self.geometry_final
-            if rproj:
-                geom = orig_geom.transform(rproj, clone=True)
-
-            result = None
-            try:
-                raster = RasterDataset.objects.get(name=rname)
-            except RasterDataset.DoesNotExist:
-                continue
-
-            if not raster.is_valid:
-                raise Exception(raster.filepath + " is not a valid rasterdataset")
-
-            if force:
-                stats = zonal_stats(geom, raster, read_cache = False)
-            else:
-                stats = zonal_stats(geom, raster)
-            
-            if rname in ['cos_aspect','sin_aspect']:  # aspect trig is special case
-                result = stats.sum
-            elif rname in ['gnn']: 
-                result = stats.mode # gnn, we want the most common value
-            else:
-                result = stats.avg
-
-            # cache result
-            if result:
-                imputed_data, created = ImputedData.objects.get_or_create(raster=raster, feature=self) 
-                imputed_data.val = result 
-                imputed_data.save()
-
-
     def save(self, *args, **kwargs):
-        """
-        stand.save(impute=True, force=False) <- default; impute only if update is needed
-        stand.save(impute=True, force=True) <- will force redo of all imputations
-        stand.save(impute=False) <- don't trigger async impute routines, just save the model
-        """
-        impute = kwargs.pop('impute', True)
-        force = kwargs.pop('force', False)
-        async = kwargs.pop('async', False)
-
         if self.pk:
             # modifying an existing feature
             # Clear cache; for now manually for each cachemethod decorator
             caches = [
-                'trees_stand_%(id)s_plot_summary',
                 'trees_stand_%(id)s_geojson',
             ]
             for c in caches:
                 cache.delete(c)
 
-            orig = Stand.objects.get(pk=self.pk)
-            geom_fields = [f for f in Stand._meta.fields if f.attname.startswith('geometry_')]
-            same_geom = True  # assume geometries have NOT changed
-            for f in geom_fields:
-                # Is original value different from form value?
-                if orig._get_FIELD_display(f) != self._get_FIELD_display(f):
-                    same_geom = False
-
-            all_imputes_done = None not in self.imputed.values()
-
-            # If geom is the same and all imputed fields are completed, don't reimpute unless force=True 
-            if same_geom and all_imputes_done and not force:
-                impute = False
-
         super(Stand, self).save(*args, **kwargs)
-
-        if impute:
-            self._impute(force=force, async=async)
-
-    @property
-    def is_complete(self):
-        if self.rx == '--':
-            return False
-        if self.domspp == '--':
-            return False
-        for k,v in self.imputed.iteritems():
-            if v is None:
-                return False
-        return True
-
-class ImputedData(models.Model):
-    raster = models.ForeignKey(RasterDataset)
-    feature = models.ForeignKey(Stand)
-    val = models.FloatField(null=True, blank=True)
-
-    def __unicode__(self):
-        return u'ImputedData object: raster %s with value %s' % (self.raster, self.val)
 
 @register
 class ForestProperty(FeatureCollection):
