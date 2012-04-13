@@ -353,7 +353,7 @@ class ForestProperty(FeatureCollection):
                 area = overlap.area
                 if area > the_size:
                     the_size = area
-                    the_county = (county.cntyname, county.stname)
+                    the_county = (county.cntyname.title(), county.stname)
         return the_county
 
 
@@ -548,13 +548,13 @@ class TreeLive(models.Model):
 class PlotSummary(models.Model):
     fcid = models.BigIntegerField(primary_key=True)
     value = models.BigIntegerField(null=True, blank=True)
-    map_source = models.CharField(max_length=8, blank=True)
+    map_source = models.CharField(null=True, max_length=8, blank=True)
     eslf_code = models.IntegerField(null=True, blank=True)
-    eslf_name = models.CharField(max_length=300, blank=True)
-    data_source = models.CharField(max_length=40, blank=True)
+    eslf_name = models.CharField(null=True, max_length=300, blank=True)
+    data_source = models.CharField(null=True, max_length=40, blank=True)
     assessment_year = models.IntegerField(null=True, blank=True)
-    state = models.CharField(max_length=4, blank=True)
-    half_state = models.CharField(max_length=6, blank=True)
+    state = models.CharField(null=True, max_length=4, blank=True)
+    half_state = models.CharField(null=True, max_length=6, blank=True)
     cnty = models.SmallIntegerField(null=True, blank=True)
     plot = models.BigIntegerField(null=True, blank=True)
     occasion_num = models.SmallIntegerField(null=True, blank=True)
@@ -683,30 +683,31 @@ class PlotSummary(models.Model):
     vegclass = models.SmallIntegerField(null=True, blank=True)
     struccondr = models.SmallIntegerField(null=True, blank=True)
     vegclassr = models.SmallIntegerField(null=True, blank=True)
-    conplba = models.CharField(max_length=20, blank=True)
-    conpliv = models.CharField(max_length=20, blank=True)
-    conplcov = models.CharField(max_length=20, blank=True)
-    hdwplba = models.CharField(max_length=20, blank=True)
-    hdwpliv = models.CharField(max_length=20, blank=True)
-    hdwplcov = models.CharField(max_length=20, blank=True)
-    uplcov = models.CharField(max_length=20, blank=True)
-    fortypba = models.CharField(max_length=42, blank=True)
-    fortypiv = models.CharField(max_length=42, blank=True)
-    fortypcov = models.CharField(max_length=42, blank=True)
+    conplba = models.CharField(null=True, max_length=20, blank=True)
+    conpliv = models.CharField(null=True, max_length=20, blank=True)
+    conplcov = models.CharField(null=True, max_length=20, blank=True)
+    hdwplba = models.CharField(null=True, max_length=20, blank=True)
+    hdwpliv = models.CharField(null=True, max_length=20, blank=True)
+    hdwplcov = models.CharField(null=True, max_length=20, blank=True)
+    uplcov = models.CharField(null=True, max_length=20, blank=True)
+    fortypba = models.CharField(null=True, max_length=42, blank=True)
+    fortypiv = models.CharField(null=True, max_length=42, blank=True)
+    fortypcov = models.CharField(null=True, max_length=42, blank=True)
     sizecl = models.SmallIntegerField(null=True, blank=True)
     covcl = models.SmallIntegerField(null=True, blank=True)
     sc = models.SmallIntegerField(null=True, blank=True)
-    sc_decaid = models.CharField(max_length=2, blank=True)
-    imap_domspp = models.CharField(max_length=20, blank=True)
+    sc_decaid = models.CharField(null=True, max_length=2, blank=True)
+    imap_domspp = models.CharField(null=True, max_length=20, blank=True)
     imap_layers = models.SmallIntegerField(null=True, blank=True)
     imap_qmd = models.FloatField(null=True, blank=True)
     vc_qmda = models.SmallIntegerField(null=True, blank=True)
     vc_qmdc = models.SmallIntegerField(null=True, blank=True)
-    lsog = models.CharField(max_length=2, blank=True)
-    lsog_tphc_50 = models.CharField(max_length=2, blank=True)
+    lsog = models.CharField(null=True, max_length=2, blank=True)
+    lsog_tphc_50 = models.CharField(null=True, max_length=2, blank=True)
     ogsi = models.FloatField(null=True, blank=True)
     class Meta:
         db_table = u'sppsz_attr_all'
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
