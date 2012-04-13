@@ -10,3 +10,4 @@ gnn_import/*.mdb
 gnn_import/*.tsv
 OpenLayers*
 trees_test/work*
+lot/.coverage

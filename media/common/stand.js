@@ -201,7 +201,8 @@ function standsViewModel () {
       app.drawFeature.featureAdded = app.stands.featureAdded;
       app.selectFeature.deactivate();
       self.property_layer.addFeatures(property.feature.clone());
-      $.get('/trees/property_stand_list/{property_id}/'.replace('{property_id}', property.uid()), function (data) {
+      // TODO get this url from workspace doc
+      $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), function (data) {
           if (data.features.length) {
               self.stand_layer.addFeatures(app.geojson_format.read(data));
               self.showStandHelp(false);
