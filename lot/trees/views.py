@@ -62,22 +62,6 @@ def user_property_list(request):
 
     return HttpResponse(gj, mimetype='application/json', status=200)
 
-def property_stand_list(request, property_uid):
-    '''
-    Present list of stands for a given property
-    '''
-    from trees.models import ForestProperty
-
-    if not request.user.is_authenticated():
-        return HttpResponse('You must be logged in.', status=401)
-
-    fp = get_object_for_viewing(request, property_uid, target_klass=ForestProperty)
-    if isinstance(fp, HttpResponse):
-        return fp # some sort of http error response
-
-    gj = fp.feature_set_geojson() 
-    return HttpResponse(gj, mimetype='application/json', status=200)
-
 def upload_stands(request):
     '''
     Upload stands via OGR datasource
