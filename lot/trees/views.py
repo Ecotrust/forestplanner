@@ -208,4 +208,3 @@ def geosearch(request):
         }
         json_loc = json.dumps(loc)
         return HttpResponse(json_loc, mimetype='application/json', status=404)
-

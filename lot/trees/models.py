@@ -599,6 +599,9 @@ class PlotSummary(models.Model):
     class Meta:
         db_table = u'sppsz_attr_all'
 
+    def __unicode__(self):
+        return str(self.summary)
+
     @property
     @cachemethod('plot_summary_fcid-%(fcid)s')
     def summary(self):

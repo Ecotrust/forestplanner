@@ -87,9 +87,9 @@ def calculate_adjacency(qs, threshold):
 
     return adj
 
-def kdtree(querypoint=None):
+def nearest_plot(imap_domspp=None, **kwargs):
     """ 
-    find the closest one in coordinate space to a given point
+    find the closest GNN plot in coordinate space to a given point
     * construct an array of variables from the plot summary (filtering by dom sp or other qualtitative attrs)
     * normalize array
     * contructs kdtree
@@ -104,15 +104,37 @@ def kdtree(querypoint=None):
     from trees.models import PlotSummary
     from scipy.spatial import KDTree
 
-    if not querypoint:
+    def plot_attrs(ps, keys):
+        vals = []
+        for attr in keys:
+            vals.append(ps.__dict__[attr])
+        return vals
+
+    # Construct an n-dimensional point based on the numeric attributes
+    if not kwargs.keys():
+        keys = ['tph_ge_3','qmdc_dom']
         querypoint = np.random.random_sample(2) * 100
+    else:
+        keys = kwargs.keys()
+        querypoint = np.array([kwargs[attr] for attr in keys])
+
+    # We need to make sure there are no nulls
+    filter_keys = ["%s__isnull" % k for k in keys]
+    filter_vals = [False] * len(keys)
+    filter_kwargs = dict(zip(filter_keys, filter_vals))
+
+    # The coded/categorical data must be a match in the filter
+    if not imap_domspp:
+        imap_domspp = 'PSME'
+    filter_kwargs['imap_domspp__startswith'] = imap_domspp
+    print filter_kwargs
     print querypoint
 
-    psar = [[ps.tph_ge_3, ps.qmdc_dom] for ps in 
-            PlotSummary.objects.filter(baa_ge_100__isnull=False, baa_ge_100__gt=0, bph_ge_3__isnull=False,
-                tph_ge_3__isnull=False, qmdc_dom__isnull=False)[:20]]
+    plotsummaries = PlotSummary.objects.filter(**filter_kwargs)
+    psar = [plot_attrs(ps, keys) for ps in plotsummaries]
+
     allpoints = np.array(psar) 
-    # Normalize to 100
+    # Normalize to 100; linear scale
     multipliers = (100 / np.max(allpoints, axis=0))
     allpoints *= multipliers
 
@@ -120,7 +142,11 @@ def kdtree(querypoint=None):
     tree = KDTree(allpoints)
     querypoints = np.array([querypoint])
     result = tree.query(querypoints) 
-    return result[0][0], result[1][0]
-    #a("Closest is point #", result[1][0], "... distance", result[0][0])
-    #a("Closest point =",  allpoints[result[1][0]])
+    distance = result[0][0]
+    plot = plotsummaries[result[1][0]]
+    print "key        \trequested\tnearest"
+    for i in range(len(keys)):
+        key = keys[i]
+        print key, '\t', querypoint[i] / multipliers[i], '\t', plot.__dict__[key]
+    return distance, plot
 
