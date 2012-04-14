@@ -86,3 +86,41 @@ def calculate_adjacency(qs, threshold):
         del filterqs
 
     return adj
+
+def kdtree(querypoint=None):
+    """ 
+    find the closest one in coordinate space to a given point
+    * construct an array of variables from the plot summary (filtering by dom sp or other qualtitative attrs)
+    * normalize array
+    * contructs kdtree
+    * query kdtree for nearest point
+    * ?
+    requires scipy:
+        apt-get install libblas-dev liblapack-dev
+        apt-get build-dep scipy
+        pip install scipy
+    """
+    import numpy as np
+    from trees.models import PlotSummary
+    from scipy.spatial import KDTree
+
+    if not querypoint:
+        querypoint = np.random.random_sample(2) * 100
+    print querypoint
+
+    psar = [[ps.tph_ge_3, ps.qmdc_dom] for ps in 
+            PlotSummary.objects.filter(baa_ge_100__isnull=False, baa_ge_100__gt=0, bph_ge_3__isnull=False,
+                tph_ge_3__isnull=False, qmdc_dom__isnull=False)[:20]]
+    allpoints = np.array(psar) 
+    # Normalize to 100
+    multipliers = (100 / np.max(allpoints, axis=0))
+    allpoints *= multipliers
+
+    print allpoints
+    tree = KDTree(allpoints)
+    querypoints = np.array([querypoint])
+    result = tree.query(querypoints) 
+    return result[0][0], result[1][0]
+    #a("Closest is point #", result[1][0], "... distance", result[0][0])
+    #a("Closest point =",  allpoints[result[1][0]])
+
