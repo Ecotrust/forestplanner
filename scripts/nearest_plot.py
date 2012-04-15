@@ -9,6 +9,8 @@ setup_environ(settings)
 ##############################
 from trees.utils import nearest_plot
 try:
-    print nearest_plot(cancov=float(sys.argv[1]), stndhgt=float(sys.argv[2]))
+    dist, plot = nearest_plot(cancov=float(sys.argv[1]), stndhgt=float(sys.argv[2]))
+    print "requesting plot similar to :", "cancov", sys.argv[1], "stndhgt", sys.argv[2]
+    print "nearest fcid", plot, ":","cancov",  plot.cancov, "stndhgt", plot.stndhgt
 except IndexError:
     print "Need to specify:\n   1. canopy cover (%)\n   2. stand height (m)"

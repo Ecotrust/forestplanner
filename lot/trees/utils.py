@@ -146,10 +146,4 @@ def nearest_plot(imap_domspp=None, **kwargs):
     distance = result[0][0]
     plot = plotsummaries[result[1][0]]
 
-    print "key        \trequested\tnearest"
-    for i in range(len(keys)):
-        key = keys[i]
-        print key, '\t', querypoint[i] / multipliers[i], '\t', plot.__dict__[key]
-
     return distance, plot
-
