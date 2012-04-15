@@ -600,7 +600,7 @@ class PlotSummary(models.Model):
         db_table = u'sppsz_attr_all'
 
     def __unicode__(self):
-        return str(self.summary)
+        return "%s (%s)" % (self.fcid, self.imap_domspp)
 
     @property
     @cachemethod('plot_summary_fcid-%(fcid)s')
