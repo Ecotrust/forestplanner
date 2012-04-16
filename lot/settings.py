@@ -53,4 +53,7 @@ POINT_BUFFER = 500  #meters
 
 ENFORCE_SUPPORTED_BROWSER = False
 
-from settings_local import *
+try:
+    from settings_local import *
+except ImportError:
+    pass

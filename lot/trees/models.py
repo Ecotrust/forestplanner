@@ -82,11 +82,13 @@ class Stand(PolygonFeature):
         return gj
 
     def get_raster_stats(self, rastername):
-        gnn_raster = RasterDataset.objects.get(name=rastername)
+        raster = RasterDataset.objects.get(name=rastername)
         rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
         g1 = self.geometry_final
         g2 = g1.transform(rproj, clone=True)
-        stats = zonal_stats(g2, gnn_raster)
+        if not raster.is_valid:
+            raise Exception("Raster is not valid: %s" % raster )
+        stats = zonal_stats(g2, raster)
         return stats
 
     @property
