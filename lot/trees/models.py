@@ -122,7 +122,7 @@ class Stand(PolygonFeature):
     @property
     def plot_summaries(self):
         ''' 
-        Site charachteristics according to the 3 most common FCID GNN pixels 
+        Site charachteristics according to the most common FCID GNN pixels 
         These will mainly be used to confirm with the user that the GNN data is accurate.
         '''
         fcids = self.imputed_fcids  # ((fcid, pct), ..)
@@ -595,31 +595,38 @@ class PlotSummary(models.Model):
     def __unicode__(self):
         return "%s (%s)" % (self.fcid, self.imap_domspp)
 
+    def get_forest_types(self, fortype_str):
+        ''' 
+        Get forest types based on string, Returns list
+        '''
+        fortype_str = fortype_str.strip()
+        try:
+            fortypes = [FVSSpecies.objects.get(usda=x).common.title() for x in fortype_str.split('/')]
+            fortypes = [x.replace('-',' ') for x in fortypes]
+        except (FVSSpecies.DoesNotExist, AttributeError):
+            fortypes = [fortype_str]
+        return fortypes
+
     @property
     @cachemethod('plot_summary_fcid-%(fcid)s')
     def summary(self):
         ''' 
         Plot characteristics according to the FCID
         '''
-        fortype_str = self.fortypba
-        try:
-            fortypes = [FVSSpecies.objects.get(usda=x).common for x in fortype_str.strip().split('/')]
-        except (FVSSpecies.DoesNotExist, AttributeError):
-            fortypes = fortype_str
-
-        try:
-            bac_pct = self.bac_prop * 100
-        except:
-            bac_pct = None
+        fortype_str = self.fortypiv
+        fortypes = self.get_forest_types(fortype_str)
 
         summary = {
                 'fcid': self.fcid,
-                'forest_type': {'value': fortypes, 'units': ''},
-                'canopy_cover': {'value': self.cancov, 'units': '%'},
-                'stand_height': {'value': self.stndhgt, 'units': 'm'},
-                'density_index': {'value': self.sdi, 'units': ''},
-                'basal_area': {'value': self.baa_ge_3, 'units': 'm²/ha'},
-                'conifer_proportion': {'value': bac_pct, 'units': '%'},
+                'fortypiv': fortypes,
+                'vegclass': self.vegclass,
+                'cancov': self.cancov,
+                'stndhgt': self.stndhgt,
+                'sdi_reineke': self.sdi_reineke,
+                'qmda_dom': self.qmda_dom,
+                'baa_ge_3': self.baa_ge_3,
+                'tph_ge_3': self.baa_ge_3,
+                'bac_prop': self.bac_prop,
             }
         return summary
 

@@ -35,7 +35,7 @@ def import_rasters():
     sin_aspect = RasterDataset.objects.create(name="sin_aspect",
             filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
     gnn = RasterDataset.objects.create(name="gnn",
-            filepath=os.path.join(rast_path,'gnn.tif'), type='continuous')
+            filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
     slope = RasterDataset.objects.create(name="slope",
             filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
 
@@ -431,8 +431,9 @@ class ImputeTest(TestCase):
     Occurs automatically on model save() UNLESS you pass impute=False.
     Can also be called directly using feature._impute() though this should 
       probably be considered a semi-private method
-    Occurs asynchronously so this requires django-celery and a running celeryd
     '''
+    fixtures = ['test_plotsummary', 'fvs_species_western', ]
+
     def setUp(self):
         g2 = GEOSGeometry(
             'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
@@ -458,7 +459,7 @@ class ImputeTest(TestCase):
         self.sin_aspect = RasterDataset.objects.create(name="sin_aspect",
                 filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
         self.gnn = RasterDataset.objects.create(name="gnn",
-                filepath=os.path.join(rast_path,'gnn.tif'), type='continuous')
+                filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
         self.slope = RasterDataset.objects.create(name="slope",
                 filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
         self.avg_elev = 145.05799999
@@ -515,6 +516,12 @@ class ImputeTest(TestCase):
         kys = ['elevation','aspect','slope','gnn']
         for rast in kys:
             self.assertTrue(hasattr(self.stand1, "imputed_" + rast))
+
+    def test_plotsummary(self):
+        s = self.stand1.plot_summaries
+        s1 = s[0]
+        self.assertEqual(s1['fortypiv'], ['Douglas Fir'], s1)
+
 
 class StandImportTest(TestCase):
     '''
