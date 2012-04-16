@@ -13,6 +13,16 @@ DELETE FROM tree_live WHERE SPP_SYMBOL = 'NOTALY'
 
 psql -d murdock -U murdock -c "CREATE INDEX fcid_idx ON sppsz_attr_all USING btree (fcid)"
 psql -d murdock -U murdock -c "CREATE INDEX usda_idx ON trees_fvsspecies USING btree (usda)"
-psql -d murdock -U murdock -c "UPDATE sppsz_attr_all SET imap_domspp=TRIM( imap_domspp )"
+
+8. trim whitespace 
+
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET imap_domspp=TRIM( imap_domspp )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwpliv=TRIM( hdwpliv )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwplcov=TRIM( hdwplcov )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwplba=TRIM( hdwplba )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conpliv=TRIM( conpliv )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplcov=TRIM( conplcov )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplba=TRIM( conplba )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET uplcov=TRIM( uplcov )"
 
 
