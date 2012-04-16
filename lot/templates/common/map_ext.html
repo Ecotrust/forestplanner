@@ -141,7 +141,6 @@
                       <table class="table table-bordered">
                         <thead>
                           <th>Name</th>
-                          <th>Dominant Species</th>
                           <th>Prescription</th>
                           <th>Elevation</th>
                           <th>Aspect</th>
@@ -150,7 +149,6 @@
                         <tbody data-bind="foreach: standList">
                           <tr data-bind="click: $parent.selectFeature">
                             <td data-bind="text: name"></td>
-                            <td data-bind="text: domspp"></td>
                             <td data-bind="text: rx"></td>
                             <td data-bind="text: elevation"></td>
                             <td data-bind="text: aspect"></td>
@@ -159,14 +157,15 @@
                           <tr data-bind="visible: $data === $parent.selectedFeature()">
                             <td colspan="6">
                               <div class="well">
+                                <p> Which of these forest types matches your stand? </p>
                                 <table class="table table-striped">
                                   <thead>
-                                    <th>percent probability</th>
+                                    <th>probability</th>
                                     <th>forest type</th>
                                     <th>veg class</th>
-                                    <th>stand height</th>
-                                    <th>mean diameter</th>
-                                    <th>basal area</th>
+                                    <th>stand height (m)</th>
+                                    <th>mean diameter (cm)</th>
+                                    <th>basal area (m<sup>2</sup>/ha)</th>
                                     <th>trees per hectare</th>
                                     <th>conifer proportion</th>
                                   <tbody data-bind="foreach: plot_summaries">

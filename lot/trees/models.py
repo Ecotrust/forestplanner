@@ -20,8 +20,11 @@ logger = get_logger()
 class Stand(PolygonFeature):
     RX_CHOICES = (
         ('--', '--'),
-        ('CC', 'Clearcut'),
+        ('RE', 'Reserve; No Action'),
+        ('UG', 'Uneven-aged Group Selection'),
         ('SW', 'Shelterwood'),
+        ('CT', 'Commercial Thinning'),
+        ('CC', 'Even-aged Clearcut'),
     )
     SPP_CHOICES = (
         ('--', '--'),
