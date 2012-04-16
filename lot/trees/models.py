@@ -599,9 +599,8 @@ class PlotSummary(models.Model):
         ''' 
         Get forest types based on string, Returns list
         '''
-        fortype_str = fortype_str.strip()
         try:
-            fortypes = [FVSSpecies.objects.get(usda=x).common.title() for x in fortype_str.split('/')]
+            fortypes = [FVSSpecies.objects.get(usda=x).common.title() for x in fortype_str.strip().split('/')]
             fortypes = [x.replace('-',' ') for x in fortypes]
         except (FVSSpecies.DoesNotExist, AttributeError):
             fortypes = [fortype_str]

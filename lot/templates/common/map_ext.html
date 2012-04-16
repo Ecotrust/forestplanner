@@ -161,18 +161,24 @@
                               <div class="well">
                                 <table class="table table-striped">
                                   <thead>
-                                    <th>percent</th>
+                                    <th>percent probability</th>
                                     <th>forest type</th>
+                                    <th>veg class</th>
                                     <th>stand height</th>
-                                    <th>conifer proportion</th>
+                                    <th>mean diameter</th>
                                     <th>basal area</th>
+                                    <th>trees per hectare</th>
+                                    <th>conifer proportion</th>
                                   <tbody data-bind="foreach: plot_summaries">
                                     <tr>
                                       <td data-bind="text: fcid_coverage().toFixed(0)"></td>
-                                      <td data-bind="text: forest_type.value"></td>
-                                      <td data-bind="text: stand_height.value"></td>
-                                      <td data-bind="text: conifer_proportion.value"></td>
-                                      <td data-bind="text: basal_area.value"></td>
+                                      <td data-bind="text: fortypiv"></td>
+                                      <td data-bind="text: vegclass"></td>
+                                      <td data-bind="text: stndhgt"></td>
+                                      <td data-bind="text: qmda_dom"></td>
+                                      <td data-bind="text: baa_ge_3"></td>
+                                      <td data-bind="text: tph_ge_3"></td>
+                                      <td data-bind="text: bac_prop"></td>
                                     </tr>
                                   </tbody>
                                 </table>
