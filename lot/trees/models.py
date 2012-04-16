@@ -607,6 +607,31 @@ class PlotSummary(models.Model):
         return fortypes
 
     @property
+    def vegclass_decoded(self):
+        ''' 
+        Should this be in the database? Probably but this is quick and works for now
+        If we end up doing lots of field code lookups, then we can reassess
+        '''
+        vegclass = self.vegclass
+        if not vegclass:
+            return None
+
+        datadict = {
+            1 : "Sparse",
+            2 : "Open",
+            3 : "Broadleaf: sap/pole: mod/closed",
+            4 : "Broadleaf: sm/med/lg: mod/closed",
+            5 : "Mixed: sap/pole: mod/closed",
+            6 : "Mixed: sm/med: mod/closed",
+            7 : "Mixed: large+giant: mod/closed",
+            8 : "Conifer: sap/pole: mod/closed",
+            9 : "Conifer: sm/med: mod/closed",
+           10 : "Conifer: large: mod/closed",
+           11 : "Conifer: giant: mod/closed",
+        }
+        return datadict[vegclass]
+
+    @property
     @cachemethod('plot_summary_fcid-%(fcid)s')
     def summary(self):
         ''' 
@@ -618,7 +643,7 @@ class PlotSummary(models.Model):
         summary = {
                 'fcid': self.fcid,
                 'fortypiv': fortypes,
-                'vegclass': self.vegclass,
+                'vegclass': self.vegclass_decoded,
                 'cancov': self.cancov,
                 'stndhgt': self.stndhgt,
                 'sdi_reineke': self.sdi_reineke,
