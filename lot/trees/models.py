@@ -16,15 +16,6 @@ from operator import itemgetter
 from django.core.cache import cache
 logger = get_logger()
 
-def try_get(model, **kwargs):
-    """
-    Like model.objects.get(..) but returns None instead of DoesNotExist
-    """
-    try:
-        return model.objects.get(**kwargs)
-    except model.DoesNotExist:
-        return None
-
 @register
 class Stand(PolygonFeature):
     RX_CHOICES = (
