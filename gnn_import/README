@@ -24,5 +24,6 @@ psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conpliv=TRIM( conpliv 
 psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplcov=TRIM( conplcov )"
 psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplba=TRIM( conplba )"
 psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET uplcov=TRIM( uplcov )"
+psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET fortypiv=TRIM( fortypiv )"
 
 

@@ -221,37 +221,52 @@ def nearest_plot(request):
         </pre>"""
         return HttpResponse(html, status=200)
 
-    dist, plot = _nearest_plot(**r)
+    # split requested items into categorical and numeric
+    categorical = {}
+    numeric = {}
+    cats = ['imap_domspp', 'hdwpliv', 'conpliv', 'fortypiv', 'vegclass', 'sizecl', 'covcl']
+    for k,v in r.iteritems():
+        if k in cats:
+            categorical[k] = v
+        else:
+            numeric[k] = v
+
+    dist, plot, candidates = _nearest_plot(categorical, numeric)
     orig = dict(r)
-    if 'imap_domspp' not in orig.keys():
-        orig['imap_domspp'] = 'PSME'
     closest = dict([(k,v) for k,v in plot.__dict__.iteritems() if k in orig])
     fcid = plot.fcid
     
     if return_format == 'html':
         html = """
-    <table>
+    <style>
+        th {padding: 12px;}
+        td {padding: 12px;}
+    </style>
+    <table border="1">
     <tr>
         <th>Attribute</th>
         <th>Requested Plot</th>
-        <th>Most similar plot</th>
+        <th>Most similar plot <br/> (<em>out of %s candidates</em>)</th>
     </tr>
     <tr>
         <th>fcid</th>
         <td>--</td>
         <td>%s</td>
     </tr>
-    """ % fcid
+    """ % (candidates, fcid)
 
         for k in orig.keys():
+            iscat = ''
+            if k in cats:
+                iscat = '*' 
             html += """
         <tr>
-            <th>%s</th>
+            <th>%s%s</th>
             <td>%s</td>
             <td>%s</td>
         </tr>
-        """ % (k, orig[k], closest[k])
+        """ % (k, iscat, orig[k], closest[k])
 
-        html += "</table>"
+        html += "</table> <br/><p>* = <em>categorical variable used to filter potential candidate plots</em></p>"
         
         return HttpResponse(html, status=200)

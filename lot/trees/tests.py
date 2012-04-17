@@ -329,7 +329,7 @@ class NearestPlotTest(TestCase):
     def test_webservice(self):
         testcases = (
                 ("8853", "/trees/nearest_plot/?imap_domspp=PSME&cancov=40&stndhgt=40&sdi=100"),
-                ("14093", "/trees/nearest_plot/?imap_domspp=PSME&cancov=75&stndhgt=45&sdi=150"),
+                ("14093", "/trees/nearest_plot/?imap_domspp=PSME&cancov=75&stndhgt=45"),
         )
         for case in testcases:
             url = case[1]
