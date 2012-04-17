@@ -57,7 +57,7 @@ class Stand(PolygonFeature):
         d = {
                 'uid': self.uid,
                 'name': self.name,
-                'rx': self.rx,
+                'rx': self.get_rx_display(),
                 'domspp': self.domspp,
                 'elevation': self.imputed_elevation,
                 'aspect': self.imputed_aspect,
