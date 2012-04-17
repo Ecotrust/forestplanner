@@ -320,6 +320,24 @@ class PropertyStandListTest(TestCase):
         expected_names.sort()
         self.assertEqual(names, expected_names)
 
+class NearestPlotTest(TestCase):
+    '''
+    Tests nearest plot util function and web service
+    '''
+    fixtures = ['test_plotsummary', 'fvs_species_western', ]
+
+    def test_webservice(self):
+        testcases = (
+                ("8853", "/trees/nearest_plot/?imap_domspp=PSME&cancov=40&stndhgt=40&sdi=100"),
+                ("14093", "/trees/nearest_plot/?imap_domspp=PSME&cancov=75&stndhgt=45&sdi=150"),
+        )
+        for case in testcases:
+            url = case[1]
+            fcid = case[0]
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(fcid in response.content, response.content)  #TODO test json output, html output is just for testing
+
 class ManipulatorsTest(TestCase):
     '''
     test overlap/sliver manipulators
