@@ -133,11 +133,12 @@
               <div class="row-fluid">
                 <h2>Manage Stands</h2>
                   <div data-bind="visible: showStandList">
+                    <p>
+                      <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
+                      <button href="#" class="btn" data-bind="click: addStandStart">Add Stand</button>
+                    </p>
                     <p data-bind="visible: ! standList().length"><em>You currently have no stands under management.</em></p>
                     <div data-bind="if: standList().length > 0">
-                      <p>
-                        <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
-                      </p>
                       <table class="table table-bordered">
                         <thead>
                           <th>Name</th>
@@ -176,14 +177,14 @@
                                     </tr>
                                   </tbody>
                                 </table>
+                                <div class="pull-right">
+                                  <button class="btn" data-bind="click: $parent.editStand">Edit Stand</button>
+                                </div>
                               </div>
                             </td>
                           </tr>
-                        </tbody>
+                        </tbody> <!-- end of stand list -->
                       </table>
-                      <div class="pull-right">
-                        <button href="#" class="btn btn-primary" data-bind="click: addStandStart">Add Stand</button>
-                      </div>
                     </div>
                     <div id="stands-none" data-bind="visible: ! standList().length">
                       <h3>Draw your stand</h3>
@@ -205,7 +206,7 @@
                     </div>
                   </div>
                 </div> <!-- no properties -->
-                <div class="row-fluid" data-bind="visible: showStandForm">
+                <div class="row-fluid" data-bind="visible: showStandFormPanel">
                   <h3>Additional Information</h3>
                   <div id="stands-form-container" class="form-panel"></div>
                   <div class="pull-right">

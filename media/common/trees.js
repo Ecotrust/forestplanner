@@ -104,63 +104,6 @@ function init() {
         })
     });
 
-    // var styles = new OpenLayers.StyleMap({
-    //     "default": new OpenLayers.Style(null, {
-    //         rules: [
-    //             new OpenLayers.Rule({
-    //                 symbolizer: {
-    //                     "Polygon": {
-    //                         fillColor: "#00ccff",
-    //                         fillOpacity: 0.25,
-    //                         strokeWidth: 0.25,
-    //                         strokeOpacity: 1,
-    //                         strokeColor: "white"
-    //                     }
-    //                 }
-    //             })
-    //         ]
-    //     }),
-    //     "select": new OpenLayers.Style({
-    //         fillColor: "#ffcc00",
-    //         strokeOpacity: 1,
-    //         strokeColor: "#ffcc00"
-    //     }),
-    //     "temporary": new OpenLayers.Style(null, {
-    //         rules: [
-    //             new OpenLayers.Rule({
-    //                 symbolizer: {
-    //                     "Point": {
-    //                         pointRadius: 5,
-    //                         fillColor: "#ffcc00",
-    //                     },
-    //                     "Polygon": {
-    //                         pointRadius: 5,
-    //                         fillColor: "white",
-    //                         fillOpacity: 0.25,
-    //                         strokeWidth: 1,
-    //                         strokeOpacity: 1,
-    //                         strokeColor: "#ffcc00"
-    //                     },
-    //                 }
-    //             })
-    //         ]
-    //     })
-    // });
-    // stands = new OpenLayers.Layer.Vector("Stands", 
-    //         {
-    //             renderers: renderer, 
-    //             styleMap: styles,
-    //         }
-    // );
-    // stands.events.on({
-    //     'beforefeaturemodified': function(evt) {
-    //         console.log("Selected " + evt.feature.id  + " for modification");
-    //     },
-    //     'afterfeaturemodified': function(evt) {
-    //         console.log("Finished with " + evt.feature.id);
-    //     }
-    // });
-    // map.addLayer(stands);
     
     new_features = new OpenLayers.Layer.Vector("New Features", 
             {
