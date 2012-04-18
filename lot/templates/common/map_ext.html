@@ -183,6 +183,7 @@
                                   </tbody>
                                 </table>
                                 <div class="pull-right">
+                                  <button class="btn" data-bind="click: $parent.showDeleteDialog">Delete Stand</button>
                                   <button class="btn" data-bind="click: $parent.editStand">Edit Stand</button>
                                 </div>
                               </div>
@@ -219,6 +220,21 @@
                     <button href="#" class="btn btn-primary" data-bind="click: saveStandForm">Save Stand</button>
                   </div>
                 </div>
+                <div class="modal" id="stand-delete-dialog" style="display:none">
+                 <div class="modal-header">
+                   <a class="close" data-dismiss="modal">×</a>
+                   <h3>Delete Stand</h3>
+                 </div>
+                 <div class="modal-body">
+                   <div data-bind="if: selectedFeature()">
+                     Are you sure you want to delete "<span data-bind="text: selectedFeature().name"></span>"?
+                   </div>
+                 </div>
+                 <div class="modal-footer">
+                   <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Stand</a>
+                   <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+                 </div>
+               </div>
               </div>
             <!-- end of stand pages -->
             {% else %}

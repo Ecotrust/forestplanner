@@ -48,7 +48,7 @@ class Stand(PolygonFeature):
         )
 
     @property
-    @cachemethod('trees_stand_%(id)s_geojson')
+    #@cachemethod('trees_stand_%(id)s_geojson')
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs

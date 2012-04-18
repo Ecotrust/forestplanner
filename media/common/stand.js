@@ -67,7 +67,6 @@ function standsViewModel() {
       if (isNew) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
       } else {
-        debugger;
         ko.mapping.fromJS(data.features[0].properties, self.selectedFeature());
         self.showStandFormPanel(false);
         self.showStandList(true);
@@ -115,7 +114,8 @@ function standsViewModel() {
       self.modifyFeature.deactivate();
       isNew = false;
     } else {
-      values.geometry_final = values.geometry_orig = app.stands.geometry;
+      //values.geometry_final = values.geometry_orig = app.stands.geometry;
+      values.geometry_orig = app.stands.geometry;
       isNew = true;
     }
     $form.addClass('form-horizontal');
@@ -125,7 +125,6 @@ function standsViewModel() {
       data: values,
       success: function(data, textStatus, jqXHR) {
         var stand_uid = JSON.parse(data)["X-Madrona-Select"];
-        // property is not defined if new
         if (isNew) {
           self.associateStand(stand_uid, self.property.uid());
         } else {
@@ -135,6 +134,27 @@ function standsViewModel() {
       error: function(jqXHR, textStatus, errorThrown) {
         self.cancelAddStand();
       }
+    });
+  };
+
+  self.showDeleteDialog = function () {
+    $("#stand-delete-dialog").modal("show");
+  };
+
+  self.closeDialog = function () {
+    $("#stand-delete-dialog").modal("hide");
+  }
+
+  self.deleteFeature = function () {
+    var url = "/features/generic-links/links/delete/{uid}/".replace("{uid}", self.selectedFeature().uid());
+    $('#stand-delete-dialog').modal('hide');
+    $.ajax({
+      url: url,
+      type: "DELETE",
+      success: function (data, textStatus, jqXHR) {
+        self.stand_layer.removeFeatures(self.selectedFeature().feature);
+        self.standList.remove(self.selectedFeature());
+      }  
     });
   };
 
@@ -162,6 +182,8 @@ function standsViewModel() {
 
   self.selectFeature = function(feature, event) {
     self.selectedFeature(feature);
+    self.selectControl.unselectAll();
+    self.selectControl.select(feature.feature);
   }
 
   self.initialize = function(property) {
@@ -198,11 +220,15 @@ function standsViewModel() {
     self.modifyFeature = new OpenLayers.Control.ModifyFeature(self.stand_layer);
     map.addControl(self.modifyFeature);
 
+ 
+
     self.stand_layer.events.on({
-      'featureselected': function(feature) {},
+      'featureselected': function(feature) {
+        self.selectFeatureById(feature.feature.data.uid);
+      },
       'featureadded': function(feature) {
         var featureViewModel = ko.mapping.fromJS(feature.feature.data);
-        // save a reference to the feature
+        // save a reference to the feature in the viewmodel
         featureViewModel.feature = feature.feature;
         // add it to the viewmodel
         self.standList.unshift(featureViewModel);
@@ -211,6 +237,14 @@ function standsViewModel() {
     });
     map.addLayer(self.stand_layer);
 
+    self.selectControl = new OpenLayers.Control.SelectFeature(self.stand_layer,
+        { "clickout": false});
+    
+    // reenable click and drag in vectors
+    self.selectControl.handlers.feature.stopDown = false; 
+    map.addControl(self.selectControl);
+    self.selectControl.activate();
+
     self.snapper = new OpenLayers.Control.Snapping({
       layer: app.new_features,
       targets: [self.property_layer, self.stand_layer],
@@ -218,6 +252,14 @@ function standsViewModel() {
     });
     self.snapper.activate();
     self.loadStands(property);
+  }
+
+  self.selectFeatureById = function (id) {
+    $.each(self.standList(), function () {
+      if (this.uid() === id) {
+        self.selectedFeature(this);
+      }
+    });
   }
 
   self.reloadStands = function(property) {
