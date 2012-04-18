@@ -20,14 +20,33 @@ g1.transform(settings.GEOMETRY_DB_SRID)
 
 p1 = g1.buffer(1000)
 
+def import_rasters():
+    d = os.path.dirname(__file__)
+    rast_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        'testdata'))
+    # Here we'll need to create dummy rasterdatasets for everything 
+    # in the IMPUTE_RASTERS setting
+    elev = RasterDataset.objects.create(name="elevation",
+            filepath=os.path.join(rast_path,'elevation.tif'), type='continuous')
+    aspect = RasterDataset.objects.create(name="aspect",
+            filepath=os.path.join(rast_path,'aspect.tif'), type='continuous')
+    cos_aspect = RasterDataset.objects.create(name="cos_aspect",
+            filepath=os.path.join(rast_path,'cos_aspect.tif'), type='continuous')
+    sin_aspect = RasterDataset.objects.create(name="sin_aspect",
+            filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
+    gnn = RasterDataset.objects.create(name="gnn",
+            filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
+    slope = RasterDataset.objects.create(name="slope",
+            filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
+
 class StandTest(TestCase):
     ''' 
     Basic tests for adding stands
     '''
-    fixtures = ("test_rasters.json",)
 
     def setUp(self):
         self.client = Client()
+        import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
 
@@ -38,8 +57,6 @@ class StandTest(TestCase):
 
     def test_incomplete_stand(self):
         stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
-        stand1.save()
-        self.assertFalse(stand1.is_complete)
         self.assertEqual(stand1.rx, '--')
 
     def test_delete_stand(self):
@@ -245,10 +262,10 @@ class PropertyStandListTest(TestCase):
     test web service to grab json of user's propertie's stands
     [{stand-attrs}, ...]
     '''
-    fixtures = ("test_rasters.json",)
 
     def setUp(self):
         self.client = Client()
+        import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.baduser = User.objects.create_user(
@@ -303,6 +320,24 @@ class PropertyStandListTest(TestCase):
         expected_names.sort()
         self.assertEqual(names, expected_names)
 
+class NearestPlotTest(TestCase):
+    '''
+    Tests nearest plot util function and web service
+    '''
+    fixtures = ['test_plotsummary', 'fvs_species_western', ]
+
+    def test_webservice(self):
+        testcases = (
+                ("8853", "/trees/nearest_plot/?imap_domspp=PSME&cancov=40&stndhgt=40&sdi=100"),
+                ("14093", "/trees/nearest_plot/?imap_domspp=PSME&cancov=75&stndhgt=45&sdi=150"),
+        )
+        for case in testcases:
+            url = case[1]
+            fcid = case[0]
+            response = self.client.get(url)
+            self.assertEqual(response.status_code, 200)
+            self.assertTrue(fcid in response.content, response.content)  #TODO test json output, html output is just for testing
+
 class ManipulatorsTest(TestCase):
     '''
     test overlap/sliver manipulators
@@ -313,10 +348,10 @@ class SpatialTest(TestCase):
     '''
     Tests the spatial representations of Stands and ForestProperties
     '''
-    fixtures = ("test_rasters.json",)
 
     def setUp(self):
         self.client = Client()
+        import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
@@ -414,8 +449,9 @@ class ImputeTest(TestCase):
     Occurs automatically on model save() UNLESS you pass impute=False.
     Can also be called directly using feature._impute() though this should 
       probably be considered a semi-private method
-    Occurs asynchronously so this requires django-celery and a running celeryd
     '''
+    fixtures = ['test_plotsummary', 'fvs_species_western', ]
+
     def setUp(self):
         g2 = GEOSGeometry(
             'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
@@ -424,7 +460,7 @@ class ImputeTest(TestCase):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g2) 
-        self.stand1.save(impute=False)
+        self.stand1.save()
         self.pk1 = self.stand1.pk
 
         d = os.path.dirname(__file__)
@@ -441,45 +477,25 @@ class ImputeTest(TestCase):
         self.sin_aspect = RasterDataset.objects.create(name="sin_aspect",
                 filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
         self.gnn = RasterDataset.objects.create(name="gnn",
-                filepath=os.path.join(rast_path,'gnn.tif'), type='continuous')
+                filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
         self.slope = RasterDataset.objects.create(name="slope",
                 filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
         self.avg_elev = 145.05799999
 
     def test_impute_onsave(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.imputed_elevation, None)
-        self.stand1.save() # impute=True
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
-
-    def test_impute_method(self):
-        self.stand1._impute()
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
-
-    def test_impute_status(self):
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.imputed['elevation'], None) 
-        self.stand1.save() # impute=True
-        self.assertTrue(s1.imputed['elevation'] is not None)
 
     def test_impute_smart_save(self):
         d = os.path.dirname(__file__)
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEqual(s1.imputed_elevation, None)
-        s1.save() # no need to force since impute fields are None
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
         elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'elevationx2.tif')) # swap raster to elevation x 2
         self.elev.filepath = elev_path
-        self.elev.save()
-        s1.save() # dont force
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev) # shouldn't change since we didn't force
-        s1.save(impute=True, force=True)  # this time force it
+        self.elev.save()  # saving should wipe zonal stats cache
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev * 2, places=5) # now we should get a new elevation value  
         elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
@@ -487,41 +503,43 @@ class ImputeTest(TestCase):
         self.elev.filepath = elev_path
         self.elev.save()
         geom = s1.geometry_final
-        s1.geometry_final = geom.buffer(0.0001) # alter geom slightly
-        s1.save() # shouldn't need to force since geom is altered
+        s1.geometry_final = geom.buffer(0.0001) # alter geom very slightly
+        s1.save()
         self.assertNotEqual(s1.imputed_elevation, None)
         self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev) # back to the original elevation value
 
     def test_raster_not_found(self):
         self.elev.delete()
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertTrue(s1.imputed['elevation'] is None)
-        self.stand1.save() # impute=True
-        self.assertTrue(s1.imputed['elevation'] is None)
+        self.assertRaises(RasterDataset.DoesNotExist, getattr, s1, 'imputed_elevation')
 
     def test_zonal_null(self):
         s1 = Stand.objects.get(pk=self.pk1)
         offgeom = GEOSGeometry(
             'SRID=3857;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
         s1.geometry_final = offgeom # this geom should be off the elevation map
-        s1.save() # side benefit - also tests if _impute(preclean=True) is effective
-        self.assertEqual(s1.imputed['elevation'], None, s1.imputed_elevation)
+        s1.save()
+        self.assertEqual(s1.imputed_elevation, None)
 
     def test_all_rasters(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        s1.save() # impute
         keys = ['elevation','aspect','slope','gnn']
         vals = [self.avg_elev, 88.436605872, 35.375365000, 529.0]
         kvs = zip(keys,vals)
         for rast,val in kvs:
-            self.assertNotEqual(getattr(s1,"imputed_" + rast), None, s1.imputed)
-            self.assertAlmostEqual(self.stand1.imputed[rast], val)
+            self.assertNotEqual(getattr(s1,"imputed_" + rast), None)
+            self.assertAlmostEqual(getattr(self.stand1, "imputed_" + rast), val)
 
     def test_settings_fields(self):
-        self.assertTrue(getattr(self.stand1,'imputed'))
         kys = ['elevation','aspect','slope','gnn']
         for rast in kys:
-            self.assertTrue(rast in self.stand1.imputed.keys())
+            self.assertTrue(hasattr(self.stand1, "imputed_" + rast))
+
+    def test_plotsummary(self):
+        s = self.stand1.plot_summaries
+        s1 = s[0]
+        self.assertEqual(s1['fortypiv'], ['Douglas Fir'], s1)
+
 
 class StandImportTest(TestCase):
     '''
@@ -764,7 +782,7 @@ class LocationTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
-        self.realloc = ("CURRY", "OR")
+        self.realloc = ("Curry", "OR")
 
     def test_location(self):
         self.assertEqual(len(County.objects.all()), 2, "Counties fixture didn't load properly!")

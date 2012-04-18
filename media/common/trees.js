@@ -9,16 +9,16 @@ var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
     map = new OpenLayers.Map();
-    var switcher = new OpenLayers.Control.LayerSwitcher({
-        'div': OpenLayers.Util.getElement('tab_data'),
-        'roundedCorner': false,
-        'displayClass': 'mylayer'
-    });
-    map.addControl(switcher);
+    // var switcher = new OpenLayers.Control.LayerSwitcher({
+    //     'div': OpenLayers.Util.getElement('tab_data'),
+    //     'roundedCorner': false,
+    //     'displayClass': 'olControlLayerSwitcher'
+    // });
+    // map.addControl(switcher);
 
     map.addControl(new OpenLayers.Control.Navigation({
             dragPanOptions: {
-                enableKinetic: true
+                enableKinetic: false
             }
         }));
 
