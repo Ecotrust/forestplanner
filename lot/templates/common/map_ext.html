@@ -141,7 +141,6 @@
                       <table class="table table-bordered">
                         <thead>
                           <th>Name</th>
-                          <th>Dominant Species</th>
                           <th>Prescription</th>
                           <th>Elevation</th>
                           <th>Aspect</th>
@@ -150,7 +149,6 @@
                         <tbody data-bind="foreach: standList">
                           <tr data-bind="click: $parent.selectFeature">
                             <td data-bind="text: name"></td>
-                            <td data-bind="text: domspp"></td>
                             <td data-bind="text: rx"></td>
                             <td data-bind="text: elevation"></td>
                             <td data-bind="text: aspect"></td>
@@ -159,20 +157,27 @@
                           <tr data-bind="visible: $data === $parent.selectedFeature()">
                             <td colspan="6">
                               <div class="well">
+                                <p> Which of these forest types matches your stand? </p>
                                 <table class="table table-striped">
                                   <thead>
-                                    <th>percent</th>
+                                    <th>probability</th>
                                     <th>forest type</th>
-                                    <th>stand height</th>
+                                    <th>veg class</th>
+                                    <th>stand height (m)</th>
+                                    <th>mean diameter (cm)</th>
+                                    <th>basal area (m<sup>2</sup>/ha)</th>
+                                    <th>trees per hectare</th>
                                     <th>conifer proportion</th>
-                                    <th>basal area</th>
                                   <tbody data-bind="foreach: plot_summaries">
                                     <tr>
                                       <td data-bind="text: fcid_coverage().toFixed(0)"></td>
-                                      <td data-bind="text: forest_type.value"></td>
-                                      <td data-bind="text: stand_height.value"></td>
-                                      <td data-bind="text: conifer_proportion.value"></td>
-                                      <td data-bind="text: basal_area.value"></td>
+                                      <td data-bind="text: fortypiv"></td>
+                                      <td data-bind="text: vegclass"></td>
+                                      <td data-bind="text: stndhgt"></td>
+                                      <td data-bind="text: qmda_dom"></td>
+                                      <td data-bind="text: baa_ge_3"></td>
+                                      <td data-bind="text: tph_ge_3"></td>
+                                      <td data-bind="text: bac_prop"></td>
                                     </tr>
                                   </tbody>
                                 </table>

@@ -1,6 +1,7 @@
 from trees.models import Stand, ForestProperty
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import OGRIndexError
+from hashlib import sha1
 
 class StandImporter:
 
@@ -86,3 +87,93 @@ def calculate_adjacency(qs, threshold):
         del filterqs
 
     return adj
+
+
+from django.core.cache import cache as _djcache
+def cache_function(seconds=6000):
+    """
+        Cache the result of a function call for the specified number of seconds, 
+        using Django's caching mechanism.
+        Assumes that the function never returns None (as the cache returns None to indicate a miss), and that the function's result only depends on its parameters.
+        Note that the ordering of parameters is important. e.g. myFunction(x = 1, y = 2), myFunction(y = 2, x = 1), and myFunction(1,2) will each be cached separately. 
+
+        Usage:
+
+        @cache
+        def myExpensiveMethod(parm1, parm2, parm3):
+            ....
+            return expensiveResult
+    """
+    def doCache(f):
+        def x(*args, **kwargs):
+                key = sha1(str(f.__module__) + str(f.__name__) + str(args) + str(kwargs)).hexdigest()
+                result = _djcache.get(key)
+                if result is None:
+                    result = f(*args, **kwargs)
+                    _djcache.set(key, result, seconds)
+                return result
+        return x
+    return doCache
+
+@cache_function(6000)
+def nearest_plot(imap_domspp=None, **kwargs):
+    """ 
+    find the closest GNN plot in coordinate space to a given point
+    * construct an array of the numeric variables from potential plots
+       (filtering by dom sp or other qualtitative attrs)
+    * normalize array to 100
+    * contruct kdtree
+    * query kdtree for nearest point
+
+    requires scipy:
+        apt-get install libblas-dev liblapack-dev
+        apt-get build-dep scipy
+        pip install scipy
+    """
+    import numpy as np
+    from trees.models import PlotSummary
+    from scipy.spatial import KDTree
+
+    def plot_attrs(ps, keys):
+        vals = []
+        for attr in keys:
+            vals.append(ps.__dict__[attr])
+        return vals
+
+    # Construct an n-dimensional point based on the numeric attributes
+    if not kwargs.keys():
+        keys = ['cancov','qmdc_dom']
+        querypoint = np.random.random_sample(2) * 100
+    else:
+        keys = kwargs.keys()
+        querypoint = np.array([float(kwargs[attr]) for attr in keys])
+
+    # We need to make sure there are no nulls
+    filter_keys = ["%s__isnull" % k for k in keys]
+    filter_vals = [False] * len(keys)
+    filter_kwargs = dict(zip(filter_keys, filter_vals))
+
+    # The coded/categorical data must be a match in the filter
+    if not imap_domspp:
+        imap_domspp = 'PSME'
+    filter_kwargs['imap_domspp'] = imap_domspp
+
+    # Get any potential plots and create an array of n-dim points
+    # hashkey = ".plotsummary_" + sha1(str(filter_kwargs)).hexdigest() 
+    plotsummaries = list(PlotSummary.objects.filter(**filter_kwargs))
+    psar = [plot_attrs(ps, keys) for ps in plotsummaries]
+    allpoints = np.array(psar) 
+
+    # Normalize to 100; linear scale
+    multipliers = (100.0 / np.max(allpoints, axis=0))
+    allpoints *= multipliers
+    querypoint *= multipliers
+
+    # Create tree and query it for nearest plot
+    tree = KDTree(allpoints)
+    querypoints = np.array([querypoint])
+    result = tree.query(querypoints) 
+    distance = result[0][0]
+    plot = plotsummaries[result[1][0]]
+
+    return distance, plot

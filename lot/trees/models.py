@@ -16,21 +16,15 @@ from operator import itemgetter
 from django.core.cache import cache
 logger = get_logger()
 
-def try_get(model, **kwargs):
-    """
-    Like model.objects.get(..) but returns None instead of DoesNotExist
-    """
-    try:
-        return model.objects.get(**kwargs)
-    except model.DoesNotExist:
-        return None
-
 @register
 class Stand(PolygonFeature):
     RX_CHOICES = (
         ('--', '--'),
-        ('CC', 'Clearcut'),
+        ('RE', 'Reserve; No Action'),
+        ('UG', 'Uneven-aged Group Selection'),
         ('SW', 'Shelterwood'),
+        ('CT', 'Commercial Thinning'),
+        ('CC', 'Even-aged Clearcut'),
     )
     SPP_CHOICES = (
         ('--', '--'),
@@ -63,7 +57,7 @@ class Stand(PolygonFeature):
         d = {
                 'uid': self.uid,
                 'name': self.name,
-                'rx': self.rx,
+                'rx': self.get_rx_display(),
                 'domspp': self.domspp,
                 'elevation': self.imputed_elevation,
                 'aspect': self.imputed_aspect,
@@ -82,11 +76,13 @@ class Stand(PolygonFeature):
         return gj
 
     def get_raster_stats(self, rastername):
-        gnn_raster = RasterDataset.objects.get(name=rastername)
+        raster = RasterDataset.objects.get(name=rastername)
         rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
         g1 = self.geometry_final
         g2 = g1.transform(rproj, clone=True)
-        stats = zonal_stats(g2, gnn_raster)
+        if not raster.is_valid:
+            raise Exception("Raster is not valid: %s" % raster )
+        stats = zonal_stats(g2, raster)
         return stats
 
     @property
@@ -129,7 +125,7 @@ class Stand(PolygonFeature):
     @property
     def plot_summaries(self):
         ''' 
-        Site charachteristics according to the 3 most common FCID GNN pixels 
+        Site charachteristics according to the most common FCID GNN pixels 
         These will mainly be used to confirm with the user that the GNN data is accurate.
         '''
         fcids = self.imputed_fcids  # ((fcid, pct), ..)
@@ -599,31 +595,65 @@ class PlotSummary(models.Model):
     class Meta:
         db_table = u'sppsz_attr_all'
 
+    def __unicode__(self):
+        return "%s (%s)" % (self.fcid, self.imap_domspp)
+
+    def get_forest_types(self, fortype_str):
+        ''' 
+        Get forest types based on string, Returns list
+        '''
+        try:
+            fortypes = [FVSSpecies.objects.get(usda=x).common.title() for x in fortype_str.strip().split('/')]
+            fortypes = [x.replace('-',' ') for x in fortypes]
+        except (FVSSpecies.DoesNotExist, AttributeError):
+            fortypes = [fortype_str]
+        return fortypes
+
+    @property
+    def vegclass_decoded(self):
+        ''' 
+        Should this be in the database? Probably but this is quick and works for now
+        If we end up doing lots of field code lookups, then we can reassess
+        '''
+        vegclass = self.vegclass
+        if not vegclass:
+            return None
+
+        datadict = {
+            1 : "Sparse",
+            2 : "Open",
+            3 : "Broadleaf: sap/pole: mod/closed",
+            4 : "Broadleaf: sm/med/lg: mod/closed",
+            5 : "Mixed: sap/pole: mod/closed",
+            6 : "Mixed: sm/med: mod/closed",
+            7 : "Mixed: large+giant: mod/closed",
+            8 : "Conifer: sap/pole: mod/closed",
+            9 : "Conifer: sm/med: mod/closed",
+           10 : "Conifer: large: mod/closed",
+           11 : "Conifer: giant: mod/closed",
+        }
+        return datadict[vegclass]
+
     @property
     @cachemethod('plot_summary_fcid-%(fcid)s')
     def summary(self):
         ''' 
         Plot characteristics according to the FCID
         '''
-        fortype_str = self.fortypba
-        try:
-            fortypes = [FVSSpecies.objects.get(usda=x).common for x in fortype_str.strip().split('/')]
-        except (FVSSpecies.DoesNotExist, AttributeError):
-            fortypes = fortype_str
-
-        try:
-            bac_pct = self.bac_prop * 100
-        except:
-            bac_pct = None
+        fortype_str = self.fortypiv
+        fortypes = self.get_forest_types(fortype_str)
 
         summary = {
                 'fcid': self.fcid,
-                'forest_type': {'value': fortypes, 'units': ''},
-                'canopy_cover': {'value': self.cancov, 'units': '%'},
-                'stand_height': {'value': self.stndhgt, 'units': 'm'},
-                'density_index': {'value': self.sdi, 'units': ''},
-                'basal_area': {'value': self.baa_ge_3, 'units': 'm²/ha'},
-                'conifer_proportion': {'value': bac_pct, 'units': '%'},
+                'fortypiv': fortypes,
+                'vegclass': self.vegclass_decoded,
+                'cancov': self.cancov,
+                'stndhgt': self.stndhgt,
+                'sdi_reineke': self.sdi_reineke,
+                'qmda_dom': self.qmda_dom,
+                'baa_ge_3': self.baa_ge_3,
+                'tph_ge_3': self.baa_ge_3,
+                'bac_prop': self.bac_prop,
             }
         return summary
 

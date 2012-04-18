@@ -10,4 +10,6 @@ urlpatterns = patterns('',
         upload_stands, name='trees-upload_stands'),
     url(r'^geosearch/$', 
         geosearch, name='trees-geosearch'),
+    url(r'^nearest_plot/$', 
+        nearest_plot, name='trees-nearest_plot'),
 )
