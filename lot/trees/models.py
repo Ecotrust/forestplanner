@@ -48,7 +48,6 @@ class Stand(PolygonFeature):
         )
 
     @property
-    @cachemethod('trees_stand_%(id)s_geojson')
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -138,15 +137,7 @@ class Stand(PolygonFeature):
         return summaries
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            # modifying an existing feature
-            # Clear cache; for now manually for each cachemethod decorator
-            caches = [
-                'trees_stand_%(id)s_geojson',
-            ]
-            for c in caches:
-                cache.delete(c)
-
+        # placeholder for future save overrides
         super(Stand, self).save(*args, **kwargs)
 
 @register
