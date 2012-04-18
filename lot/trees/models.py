@@ -195,6 +195,8 @@ class ForestProperty(FeatureCollection):
         else:
             return None
 
+        if not geom.valid:
+            geom = geom.buffer(0)
         the_size = 0
         the_variant = None
         for variant in variants:
@@ -202,7 +204,11 @@ class ForestProperty(FeatureCollection):
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
             if variant_geom.intersects(geom):
-                overlap = variant_geom.intersection(geom)
+                try:
+                    overlap = variant_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
                 area = overlap.area
                 if area > the_size:
                     the_size = area
@@ -220,6 +226,8 @@ class ForestProperty(FeatureCollection):
         else:
             return None
 
+        if not geom.valid:
+            geom = geom.buffer(0)
         the_size = 0
         the_county = (None, None)
         for county in counties:
@@ -227,7 +235,11 @@ class ForestProperty(FeatureCollection):
             if not county_geom.valid:
                 county_geom = county_geom.buffer(0)
             if county_geom.intersects(geom):
-                overlap = county_geom.intersection(geom)
+                try:
+                    overlap = county_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
                 area = overlap.area
                 if area > the_size:
                     the_size = area
