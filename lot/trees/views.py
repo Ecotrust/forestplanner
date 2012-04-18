@@ -214,44 +214,69 @@ def nearest_plot(request):
     return_format = 'html'  #TODO support json
     r = request.REQUEST
 
-    if len(r.keys()) == 0:
-        html = """<h1> Search for Closest Plot (in attribute space)</h1><h3>Example</h3><pre>
-        <p> Search for GNN plot with PSME (Douglas Fir) dominant, 50% canopy cover, 40m stand height and stand density index of 75:</p>
+    # split requested items into categorical and numeric
+    categorical = {}
+    numeric = {}
+    cats = ['imap_domspp', 'hdwpliv', 'conpliv', 'fortypiv', 'vegclass', 'sizecl', 'covcl']
+    from trees.models import PlotSummary as PS
+    nums = [x.name for x in PS._meta.fields if 
+             x.get_internal_type() != 'CharField' and x.name not in cats]
+    orig = dict(r)
+    for k,v in orig.iteritems():
+        if k in cats:
+            categorical[k] = v
+        elif k in nums:
+            numeric[k] = float(v)
+
+    if len(orig.keys()) == 0:
+        html = """<h1> Search for Closest Plot (in attribute space)</h1><h3>Example</h3>
+        <p> Search for GNN plot with PSME (Douglas Fir) dominant, 50%% canopy cover, 40m stand height and stand density index of 75:</p>
+        <pre>
         <a href="/trees/nearest_plot/?imap_domspp=PSME&cancov=50&stndhgt=40&sdi=75">http://murdock.labs.ecotrust.org/trees/nearest_plot/?<strong>imap_domspp</strong>=PSME&<strong>cancov</strong>=50&<strong>stndhgt</strong>=40&<strong>sdi</strong>=75</a>
-        </pre>"""
+        </pre>
+         <h3> Categorical Filters </h3>
+         <pre>%s</pre>
+         <h3> Numeric Variables </h3>
+         <pre>%s</pre>
+        """ % ('\n'.join(cats), '\n'.join(nums))
         return HttpResponse(html, status=200)
 
-    dist, plot = _nearest_plot(**r)
-    orig = dict(r)
-    if 'imap_domspp' not in orig.keys():
-        orig['imap_domspp'] = 'PSME'
+
+    dist, plot, candidates = _nearest_plot(categorical, numeric)
     closest = dict([(k,v) for k,v in plot.__dict__.iteritems() if k in orig])
     fcid = plot.fcid
     
     if return_format == 'html':
         html = """
-    <table>
+    <style>
+        th {padding: 12px;}
+        td {padding: 12px;}
+    </style>
+    <table border="1">
     <tr>
         <th>Attribute</th>
         <th>Requested Plot</th>
-        <th>Most similar plot</th>
+        <th>Most similar plot <br/> (<em>out of %s candidates</em>)</th>
     </tr>
     <tr>
         <th>fcid</th>
         <td>--</td>
         <td>%s</td>
     </tr>
-    """ % fcid
+    """ % (candidates, fcid)
 
         for k in orig.keys():
+            iscat = ''
+            if k in cats:
+                iscat = '*' 
             html += """
         <tr>
-            <th>%s</th>
+            <th>%s%s</th>
             <td>%s</td>
             <td>%s</td>
         </tr>
-        """ % (k, orig[k], closest[k])
+        """ % (k, iscat, orig[k], closest[k])
 
-        html += "</table>"
+        html += "</table> <br/><p>* = <em>categorical variable used to filter potential candidate plots</em></p>"
         
         return HttpResponse(html, status=200)

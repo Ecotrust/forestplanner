@@ -48,7 +48,6 @@ class Stand(PolygonFeature):
         )
 
     @property
-    #@cachemethod('trees_stand_%(id)s_geojson')
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -138,15 +137,7 @@ class Stand(PolygonFeature):
         return summaries
 
     def save(self, *args, **kwargs):
-        if self.pk:
-            # modifying an existing feature
-            # Clear cache; for now manually for each cachemethod decorator
-            caches = [
-                'trees_stand_%(id)s_geojson',
-            ]
-            for c in caches:
-                cache.delete(c)
-
+        # placeholder for future save overrides
         super(Stand, self).save(*args, **kwargs)
 
 @register
@@ -204,6 +195,8 @@ class ForestProperty(FeatureCollection):
         else:
             return None
 
+        if not geom.valid:
+            geom = geom.buffer(0)
         the_size = 0
         the_variant = None
         for variant in variants:
@@ -211,7 +204,11 @@ class ForestProperty(FeatureCollection):
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
             if variant_geom.intersects(geom):
-                overlap = variant_geom.intersection(geom)
+                try:
+                    overlap = variant_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
                 area = overlap.area
                 if area > the_size:
                     the_size = area
@@ -229,6 +226,8 @@ class ForestProperty(FeatureCollection):
         else:
             return None
 
+        if not geom.valid:
+            geom = geom.buffer(0)
         the_size = 0
         the_county = (None, None)
         for county in counties:
@@ -236,7 +235,11 @@ class ForestProperty(FeatureCollection):
             if not county_geom.valid:
                 county_geom = county_geom.buffer(0)
             if county_geom.intersects(geom):
-                overlap = county_geom.intersection(geom)
+                try:
+                    overlap = county_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
                 area = overlap.area
                 if area > the_size:
                     the_size = area
@@ -592,6 +595,7 @@ class PlotSummary(models.Model):
     lsog = models.CharField(null=True, max_length=2, blank=True)
     lsog_tphc_50 = models.CharField(null=True, max_length=2, blank=True)
     ogsi = models.FloatField(null=True, blank=True)
+
     class Meta:
         db_table = u'sppsz_attr_all'
 
