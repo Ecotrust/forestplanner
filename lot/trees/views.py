@@ -214,25 +214,35 @@ def nearest_plot(request):
     return_format = 'html'  #TODO support json
     r = request.REQUEST
 
-    if len(r.keys()) == 0:
-        html = """<h1> Search for Closest Plot (in attribute space)</h1><h3>Example</h3><pre>
-        <p> Search for GNN plot with PSME (Douglas Fir) dominant, 50% canopy cover, 40m stand height and stand density index of 75:</p>
-        <a href="/trees/nearest_plot/?imap_domspp=PSME&cancov=50&stndhgt=40&sdi=75">http://murdock.labs.ecotrust.org/trees/nearest_plot/?<strong>imap_domspp</strong>=PSME&<strong>cancov</strong>=50&<strong>stndhgt</strong>=40&<strong>sdi</strong>=75</a>
-        </pre>"""
-        return HttpResponse(html, status=200)
-
     # split requested items into categorical and numeric
     categorical = {}
     numeric = {}
     cats = ['imap_domspp', 'hdwpliv', 'conpliv', 'fortypiv', 'vegclass', 'sizecl', 'covcl']
-    for k,v in r.iteritems():
+    from trees.models import PlotSummary as PS
+    nums = [x.name for x in PS._meta.fields if 
+             x.get_internal_type() != 'CharField' and x.name not in cats]
+    orig = dict(r)
+    for k,v in orig.iteritems():
         if k in cats:
             categorical[k] = v
-        else:
-            numeric[k] = v
+        elif k in nums:
+            numeric[k] = float(v)
+
+    if len(orig.keys()) == 0:
+        html = """<h1> Search for Closest Plot (in attribute space)</h1><h3>Example</h3>
+        <p> Search for GNN plot with PSME (Douglas Fir) dominant, 50%% canopy cover, 40m stand height and stand density index of 75:</p>
+        <pre>
+        <a href="/trees/nearest_plot/?imap_domspp=PSME&cancov=50&stndhgt=40&sdi=75">http://murdock.labs.ecotrust.org/trees/nearest_plot/?<strong>imap_domspp</strong>=PSME&<strong>cancov</strong>=50&<strong>stndhgt</strong>=40&<strong>sdi</strong>=75</a>
+        </pre>
+         <h3> Categorical Filters </h3>
+         <pre>%s</pre>
+         <h3> Numeric Variables </h3>
+         <pre>%s</pre>
+        """ % ('\n'.join(cats), '\n'.join(nums))
+        return HttpResponse(html, status=200)
+
 
     dist, plot, candidates = _nearest_plot(categorical, numeric)
-    orig = dict(r)
     closest = dict([(k,v) for k,v in plot.__dict__.iteritems() if k in orig])
     fcid = plot.fcid
     

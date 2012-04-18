@@ -592,6 +592,7 @@ class PlotSummary(models.Model):
     lsog = models.CharField(null=True, max_length=2, blank=True)
     lsog_tphc_50 = models.CharField(null=True, max_length=2, blank=True)
     ogsi = models.FloatField(null=True, blank=True)
+
     class Meta:
         db_table = u'sppsz_attr_all'
 
