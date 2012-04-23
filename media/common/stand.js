@@ -19,6 +19,10 @@ function standsViewModel() {
 
   self.selectedFeature = ko.observable();
 
+  self.progressBarWidth = ko.observable("0%");
+
+  self.showProgressBar = ko.observable(true);
+
   self.cancelManageStands = function() {
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
@@ -152,7 +156,7 @@ function standsViewModel() {
       url: url,
       type: "DELETE",
       success: function (data, textStatus, jqXHR) {
-        self.stand_layer.removeFeatures(self.selectedFeature().feature);
+        self.stand_layer.removeFeatures(self.stand_layer.getFeaturesByAttribute("uid", self.selectedFeature().uid()));
         self.standList.remove(self.selectedFeature());
       }  
     });
@@ -160,7 +164,7 @@ function standsViewModel() {
 
   // start the stand editing process
   self.editStand = function() {
-    self.modifyFeature.selectFeature(self.selectedFeature().feature);
+    self.modifyFeature.selectFeature(self.stand_layer.selectedFeatures[0]);
     self.modifyFeature.activate();
     self.showStandList(false);
     self.showStandForm("edit", self.selectedFeature().uid());
@@ -181,9 +185,9 @@ function standsViewModel() {
   }
 
   self.selectFeature = function(feature, event) {
-    self.selectedFeature(feature);
     self.selectControl.unselectAll();
-    self.selectControl.select(feature.feature);
+    self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", feature.uid())[0]);
+    self.selectedFeature(feature);
   }
 
   self.initialize = function(property) {
@@ -227,11 +231,14 @@ function standsViewModel() {
         self.selectFeatureById(feature.feature.data.uid);
       },
       'featureadded': function(feature) {
-        var featureViewModel = ko.mapping.fromJS(feature.feature.data);
-        // save a reference to the feature in the viewmodel
-        featureViewModel.feature = feature.feature;
-        // add it to the viewmodel
-        self.standList.unshift(featureViewModel);
+        // var featureViewModel = ko.mapping.fromJS(feature.feature.data);
+        // console.log('loading ' + feature.feature.data.name);
+        // // save a reference to the feature in the viewmodel
+        // featureViewModel.feature = feature.feature;
+        // // add it to the viewmodel
+        // self.standList.unshift(featureViewModel);
+
+
       },
       'featuresadded': function(data) {}
     });
@@ -262,6 +269,13 @@ function standsViewModel() {
     });
   }
 
+  self.loadViewModel = function (data) {
+    self.standList($.map(data.features, function (feature, i) {
+      return ko.mapping.fromJS(feature.properties);
+    }));
+
+  }
+
   self.reloadStands = function(property) {
     self.stand_layer.removeAllFeatures();
     self.standList.removeAll();
@@ -270,21 +284,35 @@ function standsViewModel() {
     map.addLayer(self.stand_layer);
     self.loadStands(property);
     self.showStandList(true);
+    app.selectFeature.deactivate();
+    self.progressBarWidth("0%");
+    self.showProgressBar(true);
   }
 
   self.loadStands = function(property) {
+    var i = 0,
+      timer = setInterval(function () {
+        self.progressBarWidth(i*15+"%");
+        i++;
+        if (i > 100) { clearInterval(timer);}
+    }, 100);
     self.property = property;
     app.drawFeature.featureAdded = app.stands.featureAdded;
-    app.selectFeature.deactivate();
     self.property_layer.addFeatures(property.feature.clone());
     // TODO get this url from workspace doc
     $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), function(data) {
+      console.log('got features');
       if (data.features.length) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
+        self.loadViewModel(data);
         self.showStandHelp(false);
       } else {
         self.showStandHelp(true);
       }
+      self.progressBarWidth("100%");
+      self.showProgressBar(false);
+      self.progressBarWidth("0%");
+
     });
 
   }

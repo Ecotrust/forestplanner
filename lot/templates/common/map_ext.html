@@ -133,6 +133,9 @@
               <div class="row-fluid">
                 <h2>Manage Stands</h2>
                   <div data-bind="visible: showStandList">
+                    <div class="progress progress-striped active" data-bind="visible: showProgressBar">
+                      <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
+                    </div>
                     <p>
                       <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
                       <button href="#" class="btn" data-bind="click: addStandStart">Add Stand</button>
