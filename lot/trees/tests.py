@@ -342,7 +342,22 @@ class ManipulatorsTest(TestCase):
     '''
     test overlap/sliver manipulators
     '''
-    pass
+
+    def setUp(self):
+        '''
+        A self-intersecting polyon
+        '''
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.bad_ewkt = "SRID=3857;POLYGON((-13738982.554637 5741643.81587,-13748693.674233 \
+                5750032.832398,-13740702.387773 5750625.1666924,-13744294.928102 \
+                5751848.1591448,-13738982.554637 5741643.81587))"
+
+    def test_clean_badgeom(self):
+        self.stand1 = Stand(user=self.user, name="Bad Stand", geometry_orig=self.bad_ewkt) 
+        self.stand1.save()
+        self.assertTrue(self.stand1.geometry_final.valid)
+
 
 class SpatialTest(TestCase):
     '''
