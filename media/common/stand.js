@@ -70,6 +70,8 @@ function standsViewModel() {
     $.get(updateUrl, function(data) {
       if (isNew) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
+        self.standList.unshift(ko.mapping.fromJS(data.features[0].properties));
+        self.selectedFeature(self.standList()[0]);
       } else {
         ko.mapping.fromJS(data.features[0].properties, self.selectedFeature());
         self.showStandFormPanel(false);
