@@ -53,6 +53,7 @@ class Stand(PolygonFeature):
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
         '''
+        from trees.utils import classify_aspect  # avoid circular import
         def int_or_none(val):
             try:
                 newval = int(val)
@@ -60,22 +61,9 @@ class Stand(PolygonFeature):
                 newval = None
             return newval
 
-        def classify_aspect(angle):
-            '''
-            from http://xkcd.com/cyborg.py
-            '''
-            if not angle:
-                return ""
-            angle += 22.5
-            angle %= 360
-            angle = int(angle/45)
-            angle %= 8
-            words=["East","North-East","North","North-West","West","South-West","South","South-East"]
-            return words[angle]
-            
-
         elevation = int_or_none(self.imputed_elevation)
-        aspect = classify_aspect(self.imputed_aspect)
+        aspect = int_or_none(self.imputed_aspect)
+        aspect_class = classify_aspect(self.imputed_aspect)
         slope = int_or_none(self.imputed_slope)
         gnn = int_or_none(self.imputed_gnn)
 
@@ -85,8 +73,8 @@ class Stand(PolygonFeature):
                 'rx': self.get_rx_display(),
                 'domspp': self.domspp,
                 'elevation': elevation,
-                'aspect': aspect,
-                'slope': '%d %%' % slope,
+                'aspect': "%s (%s)" % (aspect_class, aspect),
+                'slope': '%s %%' % slope,
                 'gnn': gnn,
                 'plot_summaries': self.plot_summaries,
                 'user_id': self.user.pk,

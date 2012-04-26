@@ -156,3 +156,14 @@ def nearest_plot(categories, numeric):
     plot = plotsummaries[result[1][0]]
 
     return distance, plot, candidates
+
+def classify_aspect(angle):
+    '''
+    inspired by http://xkcd.com/cyborg.py
+    '''
+    if not angle:
+        return ""
+    angle += 22.5
+    angle = int(angle/45.0)
+    words=["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West", "North"]
+    return words[angle]
