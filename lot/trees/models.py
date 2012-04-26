@@ -63,7 +63,7 @@ class Stand(PolygonFeature):
 
         elevation = int_or_none(self.imputed_elevation)
         aspect = int_or_none(self.imputed_aspect)
-        aspect_class = classify_aspect(self.imputed_aspect)
+        aspect_class = classify_aspect(aspect)
         slope = int_or_none(self.imputed_slope)
         gnn = int_or_none(self.imputed_gnn)
 
@@ -73,7 +73,7 @@ class Stand(PolygonFeature):
                 'rx': self.get_rx_display(),
                 'domspp': self.domspp,
                 'elevation': elevation,
-                'aspect': "%s (%s)" % (aspect_class, aspect),
+                'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
                 'gnn': gnn,
                 'plot_summaries': self.plot_summaries,
