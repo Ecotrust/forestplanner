@@ -53,16 +53,42 @@ class Stand(PolygonFeature):
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
         '''
+        def int_or_none(val):
+            try:
+                newval = int(val)
+            except:
+                newval = None
+            return newval
+
+        def classify_aspect(angle):
+            '''
+            from http://xkcd.com/cyborg.py
+            '''
+            if not angle:
+                return ""
+            angle += 22.5
+            angle %= 360
+            angle = int(angle/45)
+            angle %= 8
+            words=["East","North-East","North","North-West","West","South-West","South","South-East"]
+            return words[angle]
+            
+
+        elevation = int_or_none(self.imputed_elevation)
+        aspect = classify_aspect(self.imputed_aspect)
+        slope = int_or_none(self.imputed_slope)
+        gnn = int_or_none(self.imputed_gnn)
+
         d = {
                 'uid': self.uid,
                 'name': self.name,
                 'rx': self.get_rx_display(),
                 'domspp': self.domspp,
-                'elevation': self.imputed_elevation,
-                'aspect': self.imputed_aspect,
-                'gnn': self.imputed_gnn,
+                'elevation': elevation,
+                'aspect': aspect,
+                'slope': '%d %%' % slope,
+                'gnn': gnn,
                 'plot_summaries': self.plot_summaries,
-                'slope': self.imputed_slope,
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -96,8 +122,8 @@ class Stand(PolygonFeature):
         result = None
         if cos and sin and cos.sum and sin.sum:
             #TODO confirm
-            avg_aspect_rad = math.atan2(cos.sum, sin.sum)
-            result = math.degrees(avg_aspect_rad)
+            avg_aspect_rad = math.atan2(sin.sum, cos.sum)
+            result = math.degrees(avg_aspect_rad) % 360
         return result
 
     @property

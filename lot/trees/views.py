@@ -234,6 +234,7 @@ def nearest_plot(request):
         <pre>
         <a href="/trees/nearest_plot/?imap_domspp=PSME&cancov=50&stndhgt=40&sdi=75">http://murdock.labs.ecotrust.org/trees/nearest_plot/?<strong>imap_domspp</strong>=PSME&<strong>cancov</strong>=50&<strong>stndhgt</strong>=40&<strong>sdi</strong>=75</a>
         </pre>
+         <p> See the full <a href="http://www.fsl.orst.edu/lemma/php/getAjaxFields.php?tableName=SPPSZ_ATTR_ALL">field metadata</a></p>
          <h3> Categorical Filters </h3>
          <pre>%s</pre>
          <h3> Numeric Variables </h3>

@@ -48,6 +48,7 @@ IMPUTE_RASTERS = [
         ('elevation', albers), 
         ('cos_aspect', albers), 
         ('sin_aspect', albers), 
+        ('aspect', albers), 
         ('slope', albers), 
         ('gnn', albers), 
 ]

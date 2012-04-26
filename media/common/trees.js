@@ -9,12 +9,8 @@ var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
     map = new OpenLayers.Map();
-    // var switcher = new OpenLayers.Control.LayerSwitcher({
-    //     'div': OpenLayers.Util.getElement('tab_data'),
-    //     'roundedCorner': false,
-    //     'displayClass': 'olControlLayerSwitcher'
-    // });
-    // map.addControl(switcher);
+    var switcher = new OpenLayers.Control.LayerSwitcher();
+    map.addControl(switcher);
 
     map.addControl(new OpenLayers.Control.Navigation({
             dragPanOptions: {
@@ -28,32 +24,32 @@ function init() {
     
 
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
-    var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20});
+    var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 21});
     var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
-
-    // var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-    //             "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-    //             "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-    //             "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    // var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-    //                 "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-    //                 "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-    //                 "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-    
-    // var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
-    // var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
+    var arrayOSM = ["http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+                "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
+    var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                    "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                    "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+                    "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+    var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
+    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
 
     map.addLayers([gsat, gphy, ghyb]);
-    // map.addLayer(baseOSM);
-    // map.addLayer(baseAerial);
-
-    // map.setCenter(new OpenLayers.LonLat(-124.38, 42.8).transform(
-    //    new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 8);
-    
+    /*
+     * For some reason, these layers are not displaying properly
+     * they have a "striped" layout
+     *
+    */
+    map.addLayer(baseOSM);
+    map.addLayer(baseAerial);
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
     };
+
 
     app.markers = new OpenLayers.Layer.Markers("search");               
     map.addLayer(app.markers);
