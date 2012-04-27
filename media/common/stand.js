@@ -38,7 +38,7 @@ function standsViewModel() {
 
   self.setListIndex = function (button, event) {
     self.listStart(button.listIndex);
-    self.selectFeature(self.standList()[button.listIndex]);
+    //self.selectFeature(self.standList()[button.listIndex]);
   }
 
   // this will get bound to the active stand

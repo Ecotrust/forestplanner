@@ -152,7 +152,7 @@
                         </thead>
                         <tbody data-bind="foreach: standListPaginated">
                           <tr data-bind="click: $parent.selectFeature">
-                            <td data-bind="text: name"></td>
+                            <td><h4 data-bind="text: name"></h4></td>
                             <td data-bind="text: rx"></td>
                             <td data-bind="text: elevation"></td>
                             <td data-bind="text: aspect"></td>
@@ -160,34 +160,37 @@
                           </tr>
                           <tr data-bind="visible: $data === $parent.selectedFeature()">
                             <td colspan="6">
-                              <div class="well">
-                                <p> Which of these forest types matches your stand? </p>
-                                <table class="table table-striped">
-                                  <thead>
-                                    <th>probability</th>
-                                    <th>forest type</th>
-                                    <th>veg class</th>
-                                    <th>stand height (m)</th>
-                                    <th>mean diameter (cm)</th>
-                                    <th>basal area (m<sup>2</sup>/ha)</th>
-                                    <th>trees per hectare</th>
-                                    <th>conifer proportion</th>
-                                  <tbody data-bind="foreach: plot_summaries">
-                                    <tr>
-                                      <td data-bind="text: fcid_coverage().toFixed(0)"></td>
-                                      <td data-bind="text: fortypiv"></td>
-                                      <td data-bind="text: vegclass"></td>
-                                      <td data-bind="text: stndhgt"></td>
-                                      <td data-bind="text: qmda_dom"></td>
-                                      <td data-bind="text: baa_ge_3"></td>
-                                      <td data-bind="text: tph_ge_3"></td>
-                                      <td data-bind="text: bac_prop"></td>
-                                    </tr>
-                                  </tbody>
-                                </table>
-                                <div class="pull-right">
-                                  <button class="btn" data-bind="click: $parent.showDeleteDialog">Delete Stand</button>
-                                  <button class="btn" data-bind="click: $parent.editStand">Edit Stand</button>
+                              <div class="row-fluid">
+                                <div class="span4 stand-detail">
+                                  <div class="thumbnail">
+                                    <img src="{{ MEDIA_URL }}img/svs.gif"/>
+                                    <div class="caption">
+                                        <p><span data-bind="text: plot_summaries()[0].vegclass"></span></p>
+                                      </div>
+                                    </div>
+                                </div>
+                                <div class="span5">
+                                  <table class="table">
+                                    <!-- <tr><td data-bind="text: plot_summaries()[0].fcid_coverage().toFixed(0)"></td></tr> -->
+                                    <!-- <tr><td data-bind="text: plot_summaries()[0].fortypiv"></td></tr> -->
+                                    <!-- <tr><td data-bind="text: plot_summaries()[0].vegclass"></td></tr> -->
+                                    <tr><td>stand height</td><td><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
+                                    <tr><td>mean diameter</td><td><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td></tr>
+                                    <tr><td>basal area</td><td><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup>/ha</td></tr>
+                                    <tr><td>trees per hectare</td><td data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
+                                    <tr><td>confier proportion</td><td data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
+                                  </table>
+                                </div>
+                                <div class="span3">
+                                 <ul class="nav-list unstyled">
+                                   <li class="nav-header">Actions</li>
+                                  <li>
+                                    <a href="#" class="btn" data-bind="click: $parent.showDeleteDialog">Delete Stand</a>
+                                  </li>
+                                  <li>
+                                    <a href="#" class="btn" data-bind="click: $parent.editStand">Edit Stand</a>
+                                  </li>
+                                 </ul>
                                 </div>
                               </div>
                             </td>
