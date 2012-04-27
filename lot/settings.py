@@ -20,8 +20,8 @@ COMPRESS_CSS['application']['source_filenames'] = (
 
 COMPRESS_JS['application']['source_filenames'] = (
     'common/trees.js',
-    'common/property.js',
-    'common/stand.js'
+    # 'common/property.js',
+    # 'common/stand.js'
 
 )
 

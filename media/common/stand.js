@@ -15,12 +15,37 @@ function standsViewModel() {
 
   self.showNoStandHelp = ko.observable(true);
 
-  self.standList = ko.observableArray();
+  // pagination config will display x items 
+  // from this zero based index
+  self.listStart = ko.observable(0);
+  self.listDisplayCount = 5;
 
+  // list of all stands, primary viewmodel
+  self.standList = ko.observableArray();
+  self.standListPaginated = ko.computed(function () {
+    return self.standList.slice(self.listStart(), self.listDisplayCount+self.listStart());
+  });
+
+  self.paginationList = ko.computed(function () {
+    var list = [], listIndex = 0, displayIndex = 1, listIndex = 0;
+    for (listIndex=0; listIndex < self.standList().length; listIndex++) {
+      if (listIndex % self.listDisplayCount === 0) {
+        list.push({'displayIndex': displayIndex++, 'listIndex': listIndex });
+      }
+    }
+    return list;
+  });
+
+  self.setListIndex = function (button, event) {
+    self.listStart(button.listIndex);
+    self.selectFeature(self.standList()[button.listIndex]);
+  }
+
+  // this will get bound to the active stand
   self.selectedFeature = ko.observable();
 
+  // progress bar config
   self.progressBarWidth = ko.observable("0%");
-
   self.showProgressBar = ko.observable(true);
 
   self.cancelManageStands = function() {
@@ -186,6 +211,7 @@ function standsViewModel() {
     self.showNoStandHelp(true);
   }
 
+
   self.selectFeature = function(feature, event) {
     self.selectControl.unselectAll();
     self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", feature.uid())[0]);
@@ -230,6 +256,7 @@ function standsViewModel() {
 
     self.stand_layer.events.on({
       'featureselected': function(feature) {
+        // use true as second argument to indicate map event
         self.selectFeatureById(feature.feature.data.uid);
       },
       'featureadded': function(feature) {
@@ -248,6 +275,11 @@ function standsViewModel() {
 
     self.selectControl = new OpenLayers.Control.SelectFeature(self.stand_layer,
         { "clickout": false});
+
+
+    self.selectControl.onBeforeSelect = function (feature) {
+     // debugger;
+    }
     
     // reenable click and drag in vectors
     self.selectControl.handlers.feature.stopDown = false; 
@@ -264,18 +296,24 @@ function standsViewModel() {
   }
 
   self.selectFeatureById = function (id) {
-    $.each(self.standList(), function () {
-      if (this.uid() === id) {
+    var pageSize = self.standList().length / self.listDisplayCount;
+    $.each(self.standList(), function (i, feature) {
+      if (feature.uid() === id) {
+        // set list start to first in list page      
+        self.listStart(Math.floor(i / self.listDisplayCount) * self.listDisplayCount);
         self.selectedFeature(this);
       }
     });
   }
 
   self.loadViewModel = function (data) {
+    var percent = 90;
     self.standList($.map(data.features, function (feature, i) {
+      var remaining = 10 * i/data.length 
+      self.progressBarWidth(percent + remaining + "%");
       return ko.mapping.fromJS(feature.properties);
     }));
-
+    self.selectFeature(self.standList()[0]);
   }
 
   self.reloadStands = function(property) {
@@ -296,7 +334,7 @@ function standsViewModel() {
       timer = setInterval(function () {
         self.progressBarWidth(i*15+"%");
         i++;
-        if (i > 100) { clearInterval(timer);}
+        if (i > 90) { clearInterval(timer);}
     }, 100);
     self.property = property;
     app.drawFeature.featureAdded = app.stands.featureAdded;
@@ -311,7 +349,6 @@ function standsViewModel() {
       } else {
         self.showStandHelp(true);
       }
-      self.progressBarWidth("100%");
       self.showProgressBar(false);
       self.progressBarWidth("0%");
 

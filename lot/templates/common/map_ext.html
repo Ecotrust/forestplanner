@@ -150,7 +150,7 @@
                           <th>Aspect</th>
                           <th>Slope</th>
                         </thead>
-                        <tbody data-bind="foreach: standList">
+                        <tbody data-bind="foreach: standListPaginated">
                           <tr data-bind="click: $parent.selectFeature">
                             <td data-bind="text: name"></td>
                             <td data-bind="text: rx"></td>
@@ -194,6 +194,15 @@
                           </tr>
                         </tbody> <!-- end of stand list -->
                       </table>
+                    </div>
+                    <div class="pull-right" data-bind="if: standList().length, visible: standList().length > 10">
+                      <div class="pagination">
+                        <ul data-bind="foreach: paginationList">
+                          <li data-bind="click: $parent.setListIndex">
+                            <a href="#" data-bind="text: displayIndex, css: { active: listIndex === $parent.listStart }"></a>
+                          </li>
+                        </ul>
+                      </div>
                     </div>
                     <div id="stands-none" data-bind="visible: ! standList().length">
                       <h3>Draw your stand</h3>
@@ -261,7 +270,7 @@
         </div>
       </div>
       <!-- end partial -->
-      
+  
     <script type="text/javascript">
 
     // name space for app
