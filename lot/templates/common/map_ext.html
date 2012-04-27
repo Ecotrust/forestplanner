@@ -198,8 +198,8 @@
                     <div class="pull-right" data-bind="if: standList().length, visible: standList().length > 10">
                       <div class="pagination">
                         <ul data-bind="foreach: paginationList">
-                          <li data-bind="click: $parent.setListIndex">
-                            <a href="#" data-bind="text: displayIndex, css: { active: listIndex === $parent.listStart }"></a>
+                          <li data-bind="click: $parent.setListIndex, css: { 'active': $parent.listStart() === listIndex }">
+                            <a href="#" data-bind="text: displayIndex"></a>
                           </li>
                         </ul>
                       </div>
