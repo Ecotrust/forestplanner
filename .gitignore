@@ -8,6 +8,6 @@ data/*
 env/*
 gnn_import/*.mdb
 gnn_import/*.tsv
-OpenLayers*
+openlayers
 trees_test/work*
 lot/.coverage
