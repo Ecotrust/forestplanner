@@ -151,7 +151,7 @@
                           <th>Slope</th>
                         </thead>
                         <tbody data-bind="foreach: standListPaginated">
-                          <tr data-bind="click: $parent.selectFeature">
+                          <tr data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
                             <td><h4 data-bind="text: name"></h4></td>
                             <td data-bind="text: rx"></td>
                             <td data-bind="text: elevation"></td>
@@ -159,14 +159,14 @@
                             <td data-bind="text: slope"></td>
                           </tr>
                           <tr data-bind="visible: $data === $parent.selectedFeature()">
-                            <td colspan="6">
-                              <div class="row-fluid">
-                                <div class="span4 stand-detail">
+                            <td colspan="6" class="stand-detail-cell">
+                              <div class="row-fluid stand-detail">
+                                <div class="span5">
                                   <div class="thumbnail">
                                     <img src="{{ MEDIA_URL }}img/svs.gif"/>
+                                    </div>
                                     <div class="caption">
-                                        <p><span data-bind="text: plot_summaries()[0].vegclass"></span></p>
-                                      </div>
+                                      <h5><span data-bind="text: plot_summaries()[0].vegclass"></span></h5>
                                     </div>
                                 </div>
                                 <div class="span5">
@@ -174,21 +174,24 @@
                                     <!-- <tr><td data-bind="text: plot_summaries()[0].fcid_coverage().toFixed(0)"></td></tr> -->
                                     <!-- <tr><td data-bind="text: plot_summaries()[0].fortypiv"></td></tr> -->
                                     <!-- <tr><td data-bind="text: plot_summaries()[0].vegclass"></td></tr> -->
-                                    <tr><td>stand height</td><td><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
-                                    <tr><td>mean diameter</td><td><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td></tr>
-                                    <tr><td>basal area</td><td><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup>/ha</td></tr>
-                                    <tr><td>trees per hectare</td><td data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
-                                    <tr><td>confier proportion</td><td data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
+                                    <tr><td>stand height</td><td class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
+                                    <tr><td>mean diameter</td><td class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td></tr>
+                                    <tr><td>basal area</td><td class="value"><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup>/ha</td></tr>
+                                    <tr><td>trees per hectare</td><td class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
+                                    <tr><td>conifer proportion</td><td class="value" data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
                                   </table>
                                 </div>
-                                <div class="span3">
+                                <div class="span2">
                                  <ul class="nav-list unstyled">
                                    <li class="nav-header">Actions</li>
+                                   <li>
+                                     <a href="#" class="btn">Refine</a>
+                                   </li>
                                   <li>
-                                    <a href="#" class="btn" data-bind="click: $parent.showDeleteDialog">Delete Stand</a>
+                                    <a href="#" class="btn" data-bind="click: $parent.showDeleteDialog">Delete</a>
                                   </li>
                                   <li>
-                                    <a href="#" class="btn" data-bind="click: $parent.editStand">Edit Stand</a>
+                                    <a href="#" class="btn" data-bind="click: $parent.editStand">Edit</a>
                                   </li>
                                  </ul>
                                 </div>
