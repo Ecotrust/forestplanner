@@ -20,9 +20,7 @@
               </li>
               <li class="active">Properties</li>
             </ul>
-
             <!-- these are all property pages -->
-
             {% if user.is_authenticated %}
             <div id="property-html" class="well" data-bind="visible: showPropertyPanels" > <!-- need to make this a different color -->
                <div class="modal" id="delete-dialog" style="display:none">
@@ -142,66 +140,75 @@
                     </p>
                     <p data-bind="visible: ! standList().length"><em>You currently have no stands under management.</em></p>
                     <div data-bind="if: standList().length > 0">
-                      <table class="table table-bordered">
-                        <thead>
-                          <th>Name</th>
-                          <th>Prescription</th>
-                          <th>Elevation</th>
-                          <th>Aspect</th>
-                          <th>Slope</th>
-                        </thead>
-                        <tbody data-bind="foreach: standListPaginated">
-                          <tr data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
-                            <td><h4 data-bind="text: name"></h4></td>
-                            <td data-bind="text: rx"></td>
-                            <td data-bind="text: elevation"></td>
-                            <td data-bind="text: aspect"></td>
-                            <td data-bind="text: slope"></td>
-                          </tr>
-                          <tr data-bind="visible: $data === $parent.selectedFeature()">
-                            <td colspan="6" class="stand-detail-cell">
-                              <div class="row-fluid stand-detail">
-                                <div class="span5">
-                                  <div class="thumbnail">
-                                    <img src="{{ MEDIA_URL }}img/svs.gif"/>
-                                    </div>
-                                    <div class="caption">
-                                      <h5><span data-bind="text: plot_summaries()[0].vegclass"></span></h5>
-                                    </div>
-                                </div>
-                                <div class="span5">
-                                  <table class="table">
-                                    <!-- <tr><td data-bind="text: plot_summaries()[0].fcid_coverage().toFixed(0)"></td></tr> -->
-                                    <!-- <tr><td data-bind="text: plot_summaries()[0].fortypiv"></td></tr> -->
-                                    <!-- <tr><td data-bind="text: plot_summaries()[0].vegclass"></td></tr> -->
-                                    <tr><td>stand height</td><td class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
-                                    <tr><td>mean diameter</td><td class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td></tr>
-                                    <tr><td>basal area</td><td class="value"><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup>/ha</td></tr>
-                                    <tr><td>trees per hectare</td><td class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
-                                    <tr><td>conifer proportion</td><td class="value" data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
-                                  </table>
-                                </div>
-                                <div class="span2">
-                                 <ul class="nav-list unstyled">
-                                   <li class="nav-header">Actions</li>
-                                   <li>
-                                     <a href="#" class="btn">Refine</a>
-                                   </li>
-                                  <li>
-                                    <a href="#" class="btn" data-bind="click: $parent.showDeleteDialog">Delete</a>
-                                  </li>
-                                  <li>
-                                    <a href="#" class="btn" data-bind="click: $parent.editStand">Edit</a>
-                                  </li>
-                                 </ul>
-                                </div>
+                      <div class="row-fluid">
+                        <div class="span3">
+                          <h3>Stands</h3>
+                        <table class="table table-bordered">
+                          <tbody data-bind="foreach: standListPaginated">
+                            <tr data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
+                              <td><h4 data-bind="text: name"></h4></td>
+                            </tr>
+                          </tbody> <!-- end of stand list -->
+                        </table>
+                      </div>
+                      <div class="span9" data-bind="if: selectedFeature">
+                        <div class="stand-detail" data-bind="with: selectedFeature">
+                          <h3>Stand Details</h3>
+                          <table class="table">
+                            <tr>
+                              <td>Name</td><td data-bind="text: name"></td>
+                            </tr>
+                            <tr>
+                              <td>Dominant Species</td><td data-bind="text: domspp"></td>
+                            </tr>
+                            <tr>
+                              <td>Calculated Area</td><td>100 acres</td>
+                            </tr>
+                          </table>
+                          <div class="row-fluid">
+                            <div class="row-fluid">
+                              <div class="span5 well">
+                                <h4>Terrain</h4>
+                                <table class="table table-condensed">
+                                  <tr><td>Aspect</td><td data-bind="text: aspect"></td></tr>
+                                  <tr><td>Slope</td><td data-bind="text: slope">something</td></tr>
+                                  <tr><td>Elevation</td><td><span data-bind="text: elevation"></span> m</td></tr>
+                                </table>
                               </div>
-                            </td>
-                          </tr>
-                        </tbody> <!-- end of stand list -->
-                      </table>
+                              <div class="span4 well">
+                                <h4>Prescription</h4>
+                                <ul class="unstyled">
+                                  <li><span data-bind="text: rx"></span></li>
+                                  <li>45 year rotation</li>
+                                </ul>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="row-fluid">
+                            <h4>Vegetation</h4>
+                            <div class="span6">
+                              <table class="table table-condensed"> 
+                                <tr><td>stand height</td>
+                                  <td class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
+                                <tr><td>mean diameter</td>
+                                  <td class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td>
+                                <tr><td>basal area</td>
+                                  <td class="value"><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></td>
+                                <tr><td>trees per hectare</td>
+                                  <td class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
+                                <tr><td>conifer proportion</td>
+                                  <td class="value" data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
+                                </table>
+                            </div>
+                            <div class="span5">
+                              <img src="{{ MEDIA_URL }}img/svs.gif"/>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <div class="pull-right" data-bind="if: standList().length, visible: standList().length > 10">
+                    </div>
+                    <div data-bind="if: standList().length, visible: standList().length > 10">
                       <div class="pagination">
                         <ul data-bind="foreach: paginationList">
                           <li data-bind="click: $parent.setListIndex, css: { 'active': $parent.listStart() === listIndex }">

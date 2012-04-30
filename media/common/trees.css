@@ -1,5 +1,13 @@
 .table tr.active {
-    background: lightgrey;
+    background: #E4AF87;
+}
+
+.stand-detail img {
+    padding-left: 10px;
+}
+
+.stand-detail div, .stand-detail table {
+    padding-bottom: 0px;
 }
 
 .hidden {

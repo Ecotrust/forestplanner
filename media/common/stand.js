@@ -18,7 +18,7 @@ function standsViewModel() {
   // pagination config will display x items 
   // from this zero based index
   self.listStart = ko.observable(0);
-  self.listDisplayCount = 5;
+  self.listDisplayCount = 12;
 
   // list of all stands, primary viewmodel
   self.standList = ko.observableArray();
@@ -38,7 +38,7 @@ function standsViewModel() {
 
   self.setListIndex = function (button, event) {
     self.listStart(button.listIndex);
-    //self.selectFeature(self.standList()[button.listIndex]);
+    self.selectFeature(self.standList()[button.listIndex]);
   }
 
   // this will get bound to the active stand
@@ -336,6 +336,7 @@ function standsViewModel() {
         i++;
         if (i > 90) { clearInterval(timer);}
     }, 100);
+    self.showNoStandHelp(false);
     self.property = property;
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
@@ -345,9 +346,10 @@ function standsViewModel() {
       if (data.features.length) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
         self.loadViewModel(data);
-        self.showStandHelp(false);
       } else {
         self.showStandHelp(true);
+        self.showNoStandHelp(true);
+
       }
       self.showProgressBar(false);
       self.progressBarWidth("0%");
