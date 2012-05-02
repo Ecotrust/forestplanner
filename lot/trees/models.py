@@ -48,6 +48,16 @@ class Stand(PolygonFeature):
         )
 
     @property
+    def acres(self):
+        try:
+            area_m = self.geometry_final.area 
+        except:
+            return None
+        conversion = 0.000247105381 
+        area_acres = area_m * conversion
+        return area_acres
+
+    @property
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -71,6 +81,7 @@ class Stand(PolygonFeature):
                 'uid': self.uid,
                 'name': self.name,
                 'rx': self.get_rx_display(),
+                'acres': self.acres,
                 'domspp': self.domspp,
                 'elevation': elevation,
                 'aspect': "%s" % aspect_class,
