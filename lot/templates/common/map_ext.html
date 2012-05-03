@@ -13,7 +13,7 @@
         </div>
       </div>
         <div class="row-fluid">
-          <div class="span5">
+          <div class="span6">
             <ul id="breadcrumbs" class="breadcrumb" data-bind="foreach: breadcrumbs">
               <li data-bind="visible: ! $parent.isLast($data)">
                 <a data-bind="text: name, click: action"></a>
@@ -218,8 +218,8 @@
                   <div data-bind="if: standList().length, visible: standList().length > 10">
                     <div class="pagination">
                       <ul data-bind="foreach: paginationList">
-                        <li data-bind="click: $parent.setListIndex, css: { 'active': $parent.listStart() === listIndex }">
-                          <a href="#" data-bind="text: displayIndex"></a>
+                        <li data-bind="click: $parent.setListIndex, css: { 'active': $parent.listStart() === listIndex, 'disabled': displayIndex === '...' }">
+                          <a href="#" data-bind="text: displayIndex, attr: { title: listIndex }"></a>
                         </li>
                       </ul>
                     </div>
@@ -282,7 +282,7 @@
             </div>
             {% endif %}
           </div>
-          <div class="span7">
+          <div class="span6">
             <div class="outermap">
               <div id="map"></div>
             </div>

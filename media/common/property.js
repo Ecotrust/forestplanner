@@ -19,8 +19,8 @@ function propertiesViewModel () {
     if (! self.preventUpdates()) {
       if (event) {     
         $(event.target).closest('tr')
-          .addClass('active')
-          .siblings().removeClass('active');         
+          // .addClass('active')
+          // .siblings().removeClass('active');         
           app.selectFeature.unselectAll();
           app.selectFeature.select(property.feature);
       } 
