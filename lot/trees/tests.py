@@ -539,7 +539,7 @@ class ImputeTest(TestCase):
     def test_all_rasters(self):
         s1 = Stand.objects.get(pk=self.pk1)
         keys = ['elevation','aspect','slope','gnn']
-        vals = [self.avg_elev, 88.436605872, 35.375365000, 529.0]
+        vals = [self.avg_elev, 1.56339412, 35.375365000, 529.0]
         kvs = zip(keys,vals)
         for rast,val in kvs:
             self.assertNotEqual(getattr(s1,"imputed_" + rast), None)
