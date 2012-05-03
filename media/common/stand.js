@@ -22,10 +22,13 @@ function standsViewModel() {
 
   // list of all stands, primary viewmodel
   self.standList = ko.observableArray();
+
+  // paginated list
   self.standListPaginated = ko.computed(function () {
     return self.standList.slice(self.listStart(), self.listDisplayCount+self.listStart());
   });
 
+  // this list is model for pagination controls 
   self.paginationList = ko.computed(function () {
     var list = [], listIndex = 0, displayIndex = 1, listIndex = 0;
     for (listIndex=0; listIndex < self.standList().length; listIndex++) {
@@ -49,6 +52,7 @@ function standsViewModel() {
   self.showProgressBar = ko.observable(true);
 
   self.cancelManageStands = function() {
+    app.breadCrumbs.breadcrumbs.pop();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
@@ -340,6 +344,15 @@ function standsViewModel() {
     self.property = property;
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
+    
+    // update breadcrumbs
+    app.breadCrumbs.breadcrumbs.removeAll();
+    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
+
+    app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands})
+    
+    app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: 'Stands', action: null});
+    
     // TODO get this url from workspace doc
     $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), function(data) {
       console.log('got features');
