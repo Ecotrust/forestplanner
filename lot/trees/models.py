@@ -39,13 +39,6 @@ class Stand(PolygonFeature):
     class Options:
         form = "trees.forms.StandForm"
         manipulators = []
-        links = (
-            # Link to grab stand geojson 
-            alternate('GeoJSON',
-                'trees.views.geojson_features',  
-                type="application/json",
-                select='multiple single'),
-        )
 
     @property
     def acres(self):
@@ -332,11 +325,6 @@ class ForestProperty(FeatureCollection):
                 'trees.views.geojson_forestproperty',  
                 type="application/json",
                 select='single'),
-            # Link to grab property geojson 
-            alternate('GeoJSON',
-                'trees.views.geojson_features',  
-                type="application/json",
-                select='multiple single'),
         )
 
 class Parcel(models.Model):

@@ -132,17 +132,6 @@ def geojson_forestproperty(request, instance):
     '''
     return HttpResponse(instance.feature_set_geojson(), mimetype='application/json', status=200)
 
-def geojson_features(request, instances):
-    '''
-    Generic view to represent Stands as GeoJSON
-    '''
-    featxt = ', '.join([i.geojson for i in instances])
-    return HttpResponse("""{ "type": "FeatureCollection",
-      "features": [
-       %s
-      ]}""" % featxt, mimetype='application/json', status=200)
-
-
 def geosearch(request):
     """
     Returns geocoded results in MERCATOR projection
