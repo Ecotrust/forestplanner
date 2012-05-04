@@ -50,8 +50,7 @@ class Stand(PolygonFeature):
         area_acres = area_m * conversion
         return area_acres
 
-    @property
-    def geojson(self):
+    def geojson(self, srid):
         '''
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
@@ -85,11 +84,12 @@ class Stand(PolygonFeature):
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
             }
+        json_geom = self.geometry_final.transform(srid, clone=True).json
         gj = """{ 
               "type": "Feature",
               "geometry": %s,
               "properties": %s 
-        }""" % (self.geometry_final.json, dumps(d))
+        }""" % (json_geom, dumps(d))
         return gj
 
     def get_raster_stats(self, rastername):
@@ -163,8 +163,7 @@ class ForestProperty(FeatureCollection):
     geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
             verbose_name="Stand Polygon Geometry")
 
-    @property
-    def geojson(self):
+    def geojson(self, srid):
         '''
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
@@ -181,7 +180,7 @@ class ForestProperty(FeatureCollection):
                 'date_created': str(self.date_created),
             }
         try:
-            geom_json = self.geometry_final.json
+            geom_json = self.geometry_final.transform(srid, clone=True).json
         except AttributeError:
             geom_json = 'null'
 
