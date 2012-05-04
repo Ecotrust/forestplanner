@@ -270,7 +270,7 @@ class ForestProperty(FeatureCollection):
         # Assumption is that property boundary SHOULD contain all stands
         # and, if not, they should expand the property boundary
         bb = self.bbox  
-        featxt = ', '.join([i.geojson for i in self.feature_set()])
+        featxt = ', '.join([i.geojson(settings.GEOMETRY_CLIENT_SRID) for i in self.feature_set()])
         return """{ "type": "FeatureCollection",
         "bbox": [%f, %f, %f, %f],
         "features": [
