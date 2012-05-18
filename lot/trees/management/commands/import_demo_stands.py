@@ -51,4 +51,12 @@ class Command(BaseCommand):
         s = StandImporter(prop1)
         s.import_ogr(shp_path, field_mapping) 
 
-        print "%d stands imported from %s" % (len(prop1.feature_set()), shp_path)
+        print "Pre-imputing stands..."
+        stands = prop1.feature_set()
+        n = 0
+        for stand in stands:
+            n += 1
+            print '\t', stand.name
+            a = stand.geojson
+
+        print "%d stands imported from %s" % (n, shp_path)
