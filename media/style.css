@@ -5,6 +5,12 @@ div.olMap {
     cursor: default;
 }
 
+div.olLayerGoogleCopyright,
+div.olLayerGooglePoweredBy
+{
+      display: none !important;
+}
+
 div.olMapViewport {
     text-align: left;
 }
