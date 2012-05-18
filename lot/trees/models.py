@@ -686,6 +686,14 @@ class PlotSummary(models.Model):
             }
         return summary
 
+class GNN_ORWA(models.Model):
+    """
+    GNN 'histogram' for our study region
+    value is the fcid, count is the number of pixels
+    """
+    value = models.IntegerField()
+    count = models.IntegerField()
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
