@@ -300,7 +300,6 @@ function propertiesViewModel () {
             self.selectPropertyByUID(data.features[0].data.uid, true);
           } else {
             self.selectPropertyByUID(data.features[data.features.length-1].data.uid, false);                
-            map.zoomToExtent(app.bounds);         
           }
         }
       });
@@ -315,9 +314,16 @@ function propertiesViewModel () {
         app.property_layer.addFeatures(app.geojson_format.read(data));
         //self.selectedProperty(self.propertyList()[0]);
         //self.showDetailPanel(true);   
+      } else {
+        // no features
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(function (position) {
+            
+            map.setCenter(new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude).transform(
+                    new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 11)
+        });
       }
-    });  
-  }
-
-  
+    } 
+  });
+ }
 };
