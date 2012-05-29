@@ -128,7 +128,6 @@ function propertiesViewModel () {
 
   self.addFeature = function (self, event) {
     self.saveFeature(event, null, app.newGeometry);
-    
   };
 
   app.saveFeature = function (f) {
@@ -312,15 +311,12 @@ function propertiesViewModel () {
       // select the first property and show the detail panel
       if (data.features.length) {
         app.property_layer.addFeatures(app.geojson_format.read(data));
-        //self.selectedProperty(self.propertyList()[0]);
-        //self.showDetailPanel(true);   
       } else {
         // no features
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(function (position) {
-            
             map.setCenter(new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude).transform(
-                    new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 11)
+              new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 11)
         });
       }
     } 
