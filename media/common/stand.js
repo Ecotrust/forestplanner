@@ -22,23 +22,41 @@ function standsViewModel() {
 
   // list of all stands, primary viewmodel
   self.standList = ko.observableArray();
+
+  // paginated list
   self.standListPaginated = ko.computed(function () {
     return self.standList.slice(self.listStart(), self.listDisplayCount+self.listStart());
   });
 
+  // this list is model for pagination controls 
   self.paginationList = ko.computed(function () {
     var list = [], listIndex = 0, displayIndex = 1, listIndex = 0;
     for (listIndex=0; listIndex < self.standList().length; listIndex++) {
-      if (listIndex % self.listDisplayCount === 0) {
-        list.push({'displayIndex': displayIndex++, 'listIndex': listIndex });
+      if (listIndex % self.listDisplayCount === 0 && Math.abs(listIndex - self.listStart()) < 5 * self.listDisplayCount) {
+        list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
       }
     }
+    if (list.length < self.standList().length / self.listDisplayCount) {
+      list.push({'displayIndex': '...', 'listIndex': null })
+      list.push({'displayIndex': '»', 'listIndex': null });
+
+    }
+    if (self.listStart() > 10) {
+      list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
+    }
+    console.log('repaginating list');
     return list;
   });
 
   self.setListIndex = function (button, event) {
+    var listStart = self.listStart();
+    if (button.displayIndex === '»') {
+      self.listStart(listStart + self.listDisplayCount * 5);
+    } else {
     self.listStart(button.listIndex);
-    self.selectFeature(self.standList()[button.listIndex]);
+    }
+    console.log(self.listStart());
+    self.selectFeature(self.standList()[button.listIndex || self.listStart()]);
   }
 
   // this will get bound to the active stand
@@ -46,9 +64,10 @@ function standsViewModel() {
 
   // progress bar config
   self.progressBarWidth = ko.observable("0%");
-  self.showProgressBar = ko.observable(true);
+  self.showProgressBar = ko.observable(false);
 
   self.cancelManageStands = function() {
+    app.breadCrumbs.breadcrumbs.pop();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
@@ -326,7 +345,7 @@ function standsViewModel() {
     self.showStandList(true);
     app.selectFeature.deactivate();
     self.progressBarWidth("0%");
-    self.showProgressBar(true);
+    self.showProgressBar(false);
   }
 
   self.loadStands = function(property) {
@@ -340,9 +359,20 @@ function standsViewModel() {
     self.property = property;
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
+    
+    // update breadcrumbs
+    app.breadCrumbs.breadcrumbs.removeAll();
+    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
+
+    app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands})
+    
+    app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: 'Stands', action: null});
+    
+    map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc
-    $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), function(data) {
-      console.log('got features');
+    var key = 'stand_' +  property.uid();
+    var process = function(data) {
+      amplify.store(key, data);
       if (data.features.length) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
         self.loadViewModel(data);
@@ -354,7 +384,17 @@ function standsViewModel() {
       self.showProgressBar(false);
       self.progressBarWidth("0%");
 
-    });
+    };
+    if (amplify.store(key)) {
+      console.log('found cache');
+      process(amplify.store(key)); 
+      self.showProgressBar(false);
+
+    } else {
+      self.showProgressBar(false);
+      console.log('getting stands');
+      $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
+    }
 
   }
 

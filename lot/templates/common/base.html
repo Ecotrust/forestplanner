@@ -8,7 +8,7 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="{{MEDIA_URL}}bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -51,7 +51,6 @@
     </style>
     <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
     <link href="{{MEDIA_URL}}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
-    <link rel="stylesheet" href="{{MEDIA_URL}}bootstrap/css/font-awesome.css">
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/trees.css">
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/jquery.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.0.0.js"></script>
@@ -59,7 +58,9 @@
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
-   <script src="{{ MEDIA_URL }}common/property.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/amplify.js"></script>
+
+    <script src="{{ MEDIA_URL }}common/property.js"></script>
     <script src="{{ MEDIA_URL }}common/stand.js"></script>
     <script type="text/javascript">
       var madrona = {
@@ -105,14 +106,14 @@
            <ul class="nav secondary-nav pull-right">
               {% if user.is_authenticated %}
                   {% if user.first_name or user.last_name %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">{{ user.first_name }} {{ user.last_name }}</a></p></li>
+                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.first_name }} {{ user.last_name }} </a></p></li>
                   {% else %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">{{ user.username }}</a></p></li>
+                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.username }} </a></p></li>
                   {% endif %}
-              <li><a href="{% url user_signout %}">Sign Out</a></li>
+              <li><p class="navbar-text"> <a href="{% url 'user_signout' %}">Sign Out</a></p></li>
               {% else %}
-              <li><a href="{% url registration_register %}" id="register">Register</a></li>
-              <li><a href="{% url user_signin %}" id="signin">Sign In</a></li>
+                <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
+                <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
               {% endif %}                
             </ul>
           </div><!--/.nav-collapse -->
@@ -127,11 +128,13 @@
       {% block content %}{% endblock content %}
     </div> <!-- /container -->
 
+
     <!-- Le javascript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
  
- 
- 
+    <!-- page wide js -->
+    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
+
   </body>
 </html>

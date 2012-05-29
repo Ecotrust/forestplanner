@@ -1,15 +1,21 @@
+.olLayerGooglePoweredBy, .olLayerGoogleCopyright {
+    display: none;
+}
 .table tr.active {
     background: #E4AF87;
 }
 
-.stand-detail img {
-    padding-left: 10px;
-}
 
 .stand-detail div, .stand-detail table {
     padding-bottom: 0px;
 }
 
+.stand-detail .thumbnail h5 {
+    text-align: center;
+}
+.stand-detail .vegetation {
+    padding-bottom: 20px;
+}
 .hidden {
     display: none;
 }

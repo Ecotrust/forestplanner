@@ -19,8 +19,8 @@ function propertiesViewModel () {
     if (! self.preventUpdates()) {
       if (event) {     
         $(event.target).closest('tr')
-          .addClass('active')
-          .siblings().removeClass('active');         
+          // .addClass('active')
+          // .siblings().removeClass('active');         
           app.selectFeature.unselectAll();
           app.selectFeature.select(property.feature);
       } 
@@ -37,6 +37,7 @@ function propertiesViewModel () {
         }
       }
     }
+
   };
 
   self.selectPropertyByUID = function (uid, zoomTo) {
@@ -259,13 +260,12 @@ function propertiesViewModel () {
       app.stands.viewModel = new standsViewModel();
       app.stands.viewModel.initialize(self.selectedProperty());
     }
+
     // hide property panels
     app.stands.viewModel.showStandPanels(true);
     self.showPropertyPanels(false);
   }
-
-
-
+  
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
@@ -304,7 +304,11 @@ function propertiesViewModel () {
           }
         }
       });
+  
+      // set up the breadcrumbs    
+      app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
 
+      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null})
       
       // select the first property and show the detail panel
       if (data.features.length) {
