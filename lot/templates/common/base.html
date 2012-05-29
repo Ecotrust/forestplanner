@@ -101,14 +101,14 @@
            <ul class="nav secondary-nav pull-right">
               {% if user.is_authenticated %}
                   {% if user.first_name or user.last_name %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">{{ user.first_name }} {{ user.last_name }} </a></p></li>
+                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.first_name }} {{ user.last_name }} </a></p></li>
                   {% else %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url user_profile-form user.username %}" class="load-in-panel" id="profile">{{ user.username }} </a></p></li>
+                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.username }} </a></p></li>
                   {% endif %}
-              <li><p class="navbar-text"> <a href="{% url user_signout %}">Sign Out</a></p></li>
+              <li><p class="navbar-text"> <a href="{% url 'user_signout' %}">Sign Out</a></p></li>
               {% else %}
-              <li><a href="{% url registration_register %}" id="register">Register</a></li>
-              <li><a href="{% url user_signin %}" id="signin"> Sign In</a></li>
+                <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
+                <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
               {% endif %}                
             </ul>
           </div><!--/.nav-collapse -->

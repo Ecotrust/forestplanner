@@ -34,7 +34,7 @@
 {% endif %}
 
     <div class="login">
-        <form id="auth_form" name="auth_form" action="{% url user_signin %}" method="post">
+        <form id="auth_form" name="auth_form" action="{% url 'user_signin' %}" method="post">
             <input type="hidden" name="next" value="{{ next }}" />
             <fieldset>
                 <legend><strong>Sign In To {% appname %}</strong></legend> 
@@ -43,7 +43,7 @@
                 <div class="submit-row"><input type="submit" name="blogin" value="Sign in"> </div>
             </fieldset>	
         </form>
-        <p><a class="panel_link" href="{% url auth_password_reset %}">Forgot your password?</a></p>
+        <p><a class="panel_link" href="{% url 'auth_password_reset' %}">Forgot your password?</a></p>
     </div>	
 </div>
 {% endblock content %}
