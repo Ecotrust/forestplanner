@@ -345,7 +345,7 @@ function standsViewModel() {
     self.showStandList(true);
     app.selectFeature.deactivate();
     self.progressBarWidth("0%");
-    self.showProgressBar(false);
+    self.showProgressBar(true);
   }
 
   self.loadStands = function(property) {
@@ -371,8 +371,7 @@ function standsViewModel() {
     map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc
     var key = 'stand_' +  property.uid();
-    var process = function(data) {
-      amplify.store(key, data);
+    var process = function (data) {
       if (data.features.length) {
         self.stand_layer.addFeatures(app.geojson_format.read(data));
         self.loadViewModel(data);
@@ -385,16 +384,10 @@ function standsViewModel() {
       self.progressBarWidth("0%");
 
     };
-    if (amplify.store(key)) {
-      console.log('found cache');
-      process(amplify.store(key)); 
-      self.showProgressBar(false);
 
-    } else {
-      self.showProgressBar(false);
-      console.log('getting stands');
-      $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
-    }
+    self.showProgressBar(true);
+    console.log('getting stands');
+    $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
 
   }
 

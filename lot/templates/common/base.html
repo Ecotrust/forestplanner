@@ -107,7 +107,12 @@
             {% if user.is_authenticated %}
             <div class="btn-group pull-right">
               <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
-                <i class="icon-user"></i> {{ user.username }}
+                <i class="icon-user"></i> 
+                {% if user.first_name and user.last_name %}
+                  {{ user.first_name }} {{ user.last_name }}
+                {% else %}
+                  {{ user.username }}
+                {% endif %}
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
