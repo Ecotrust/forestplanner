@@ -28,14 +28,8 @@ function propertiesViewModel () {
       self.selectedProperty(property);
       self.showDetailPanel(true);
       //zoom the map to the selected property
-      // map.zoomToExtent(bbox);
-      // if (zoomTo) {
-      //   if (map.getZoomForExtent(bbox) - map.zoom > 1) {
-      //     map.panTo(bbox.getCenterLonLat());
-      //   } else {
-      //     map.zoomToExtent(bbox);        
-      //   }
-      // }
+      map.zoomToExtent(bbox);
+      
     }
 
   };
@@ -283,7 +277,7 @@ function propertiesViewModel () {
 
       app.property_layer.events.on({
         'featureselected': function (feature) {
-          self.selectPropertyByUID(feature.feature.data.uid);
+          self.selectPropertyByUID(feature.feature.data.uid, true);
         },
         'featureadded': function (feature) {
           var featureViewModel = ko.mapping.fromJS(feature.feature.data);
