@@ -27,15 +27,15 @@ function propertiesViewModel () {
       // set the selected property for the viewmodel
       self.selectedProperty(property);
       self.showDetailPanel(true);
-      // zoom the map to the selected property
-      // map.zoomToExtent(bounds);
-      if (zoomTo) {
-        if (map.getZoomForExtent(bbox) - map.zoom > 1) {
-          map.panTo(bbox.getCenterLonLat());
-        } else {
-          map.zoomToExtent(bbox);        
-        }
-      }
+      //zoom the map to the selected property
+      // map.zoomToExtent(bbox);
+      // if (zoomTo) {
+      //   if (map.getZoomForExtent(bbox) - map.zoom > 1) {
+      //     map.panTo(bbox.getCenterLonLat());
+      //   } else {
+      //     map.zoomToExtent(bbox);        
+      //   }
+      // }
     }
 
   };
@@ -272,8 +272,9 @@ function propertiesViewModel () {
       app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
         [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
       map.zoomToExtent(app.bounds);
+
       // bind event to selected feature
-      app.properties.featureAdded = function(feature) { 
+      app.properties.featureAdded = function (feature) { 
         app.drawFeature.deactivate();
         self.showDrawHelpPanel(false);
         app.saveFeature(feature);
@@ -282,7 +283,7 @@ function propertiesViewModel () {
 
       app.property_layer.events.on({
         'featureselected': function (feature) {
-          self.selectPropertyByUID(feature.feature.data.uid, true);
+          self.selectPropertyByUID(feature.feature.data.uid);
         },
         'featureadded': function (feature) {
           var featureViewModel = ko.mapping.fromJS(feature.feature.data);
@@ -295,10 +296,11 @@ function propertiesViewModel () {
           // if only adding one layer, select and zoom
           // otherwise just select the last one and zoom to the full extent of the layer
           self.showNoPropertiesHelp(false);
+
           if (data.features.length === 1) {
-            self.selectPropertyByUID(data.features[0].data.uid, true);
+            self.selectPropertyByUID(data.features[0].data.uid);
           } else {
-            self.selectPropertyByUID(data.features[data.features.length-1].data.uid, false);                
+            self.selectPropertyByUID(data.features[data.features.length-1].data.uid);
           }
         }
       });
@@ -310,16 +312,11 @@ function propertiesViewModel () {
       
       // select the first property and show the detail panel
       if (data.features.length) {
-        app.property_layer.addFeatures(app.geojson_format.read(data));
+        app.property_layer.addFeatures(app.geojson_format.read(data));        
       } else {
-        // no features
-        if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(function (position) {
-            map.setCenter(new OpenLayers.LonLat(position.coords.longitude, position.coords.latitude).transform(
-              new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 11)
-        });
       }
-    } 
+      app.onResize();
+      self.zoomToExtent();
   });
  }
 };

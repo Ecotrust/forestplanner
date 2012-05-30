@@ -20,7 +20,7 @@ function init() {
 
     map.addControl(new OpenLayers.Control.Attribution());
 
-    map.addControl(new OpenLayers.Control.Zoom());
+    //map.addControl(new OpenLayers.Control.Zoom());
     
 
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
