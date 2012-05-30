@@ -58,6 +58,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/amplify.js"></script>
 
     <script src="{{ MEDIA_URL }}common/property.js"></script>
@@ -103,18 +104,24 @@
               <li><a href="#about">About</a></li>
               <li><a href="#help">Help</a></li>
             </ul>
-           <ul class="nav secondary-nav pull-right">
-              {% if user.is_authenticated %}
-                  {% if user.first_name or user.last_name %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.first_name }} {{ user.last_name }} </a></p></li>
-                  {% else %}
-                  <li><p class="navbar-text">Welcome, <a href="{% url 'user_profile-form' user.username %}" class="load-in-panel" id="profile">{{ user.username }} </a></p></li>
-                  {% endif %}
-              <li><p class="navbar-text"> <a href="{% url 'user_signout' %}">Sign Out</a></p></li>
-              {% else %}
-                <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
-                <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
-              {% endif %}                
+            {% if user.is_authenticated %}
+            <div class="btn-group pull-right">
+              <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
+                <i class="icon-user"></i> {{ user.username }}
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="{% url 'user_profile-form' user.username %}">Profile</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url 'user_signout' %}">Sign Out</a></li>
+              </ul>
+            </div>
+            {% else %}
+            <ul class="nav secondary-nav pull-right">
+              <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
+              <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
+            </ul>
+            {% endif %}                
             </ul>
           </div><!--/.nav-collapse -->
         </div>
