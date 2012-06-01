@@ -31,20 +31,22 @@ function standsViewModel() {
   // this list is model for pagination controls 
   self.paginationList = ko.computed(function () {
     var list = [], listIndex = 0, displayIndex = 1, listIndex = 0;
-    for (listIndex=0; listIndex < self.standList().length; listIndex++) {
-      if (listIndex % self.listDisplayCount === 0 && Math.abs(listIndex - self.listStart()) < 5 * self.listDisplayCount) {
-        list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
+    for (listIndex=self.listStart(); listIndex < self.standList().length; listIndex++) {
+      if (listIndex % self.listDisplayCount === 0) {
+          list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
+        }
       }
-    }
-    if (list.length < self.standList().length / self.listDisplayCount) {
-      list.push({'displayIndex': '...', 'listIndex': null })
-      list.push({'displayIndex': '»', 'listIndex': null });
-
-    }
-    if (self.listStart() > 10) {
-      list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
-    }
-    console.log('repaginating list');
+    // if (list.length < self.standList().length / self.listDisplayCount) {
+    //   list.push({'displayIndex': '...', 'listIndex': null })
+    //   list.push({'displayIndex': '»', 'listIndex': null });
+    // }
+    // if (self.listStart() > 10) {
+    //   list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
+    // }
+    // console.log('repaginating list');
+    // return $.map(list, function () {
+    //   return this;
+    // });
     return list;
   });
 
@@ -55,7 +57,6 @@ function standsViewModel() {
     } else {
     self.listStart(button.listIndex);
     }
-    console.log(self.listStart());
     self.selectFeature(self.standList()[button.listIndex || self.listStart()]);
   }
 
