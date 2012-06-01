@@ -67,6 +67,7 @@
                     <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates"><i class="icon-zoom-in"></i> Show All Properties</button>
                     <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates"><i class="icon-plus-sign"></i> Add Property</button>
                   </div>
+                    <h2 class="pull-right" data-bind="text: selectedProperty().name">Property Name</h2>
                   </div>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
                   <div class="span6"> 
@@ -77,7 +78,6 @@
                     </ul>
                   </div>
                   <div class="span6" style="display: none" data-bind="if: showDetailPanel, visible: showDetailPanel">
-                    <h2 class="pull-right" data-bind="text: selectedProperty().name">Property Name</h2>
                       <table class="table" data-bind="if: selectedProperty()">
                         <tr><td>Area</td><td><span data-bind="text: selectedProperty().acres().toFixed(2)"></span> acres</td></tr>
                         <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
@@ -147,7 +147,6 @@
                       <h3>Stand List</h3>
                       <p>
                         <div class="btn-group">
-                          <button href="#" class="btn add-stand-btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Return</button>
                           <button href="#" class="btn add-stand-btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add Stand</button>
                         </div>
                       </p>
@@ -240,7 +239,6 @@
                     <h3>Add additional information</h3>
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
                     <div class="pull-right">
-                      <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
                       <button href="#" class="btn btn-primary" data-bind="click: addStandStart">Add Stand</button>
                     </div>
                   </div>

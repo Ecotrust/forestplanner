@@ -1,0 +1,296 @@
+<mockup version="1.0" skin="sketch" measuredW="1505" measuredH="715" mockupW="1217" mockupH="683">
+  <controls>
+    <control controlID="0" controlTypeID="com.balsamiq.mockups::TitleWindow" x="288" y="32" w="1178" h="683" measuredW="450" measuredH="400" zOrder="0" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Window%20Name</text>
+      </controlProperties>
+    </control>
+    <control controlID="2" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="306" y="119" w="-1" h="-1" measuredW="180" measuredH="24" zOrder="1" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Home%2C%20Properties%2C%20Stands</text>
+      </controlProperties>
+    </control>
+    <control controlID="3" controlTypeID="com.balsamiq.mockups::DataGrid" x="306" y="183" w="109" h="217" measuredW="42" measuredH="247" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hasHeader>false</hasHeader>
+        <selectedIndex>-1</selectedIndex>
+        <text>256%0A267%0A288%0A289%0A290%0A200%0A393%0A389</text>
+      </controlProperties>
+    </control>
+    <control controlID="4" controlTypeID="com.balsamiq.mockups::Button" x="306" y="147" w="-1" h="-1" measuredW="109" measuredH="30" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>CircledPlusIcon%7Csmall</icon>
+        <state>disabled</state>
+        <text>Add%20Stand</text>
+      </controlProperties>
+    </control>
+    <control controlID="5" controlTypeID="com.balsamiq.mockups::Title" x="303" y="71" w="-1" h="-1" measuredW="279" measuredH="50" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Manage%20Stands</text>
+      </controlProperties>
+    </control>
+    <control controlID="6" controlTypeID="com.balsamiq.mockups::Image" x="833" y="127" w="-1" h="-1" measuredW="604" measuredH="519" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/stand-drawing.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="8" controlTypeID="com.balsamiq.mockups::SubTitle" x="432" y="149" w="-1" h="-1" measuredW="330" measuredH="33" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <text>Does%20your%20stand%20look%20like%20this%3F</text>
+      </controlProperties>
+    </control>
+    <control controlID="9" controlTypeID="com.balsamiq.mockups::Canvas" x="432" y="185" w="381" h="461" measuredW="100" measuredH="70" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>square</borderStyle>
+        <color>16777215</color>
+      </controlProperties>
+    </control>
+    <control controlID="10" controlTypeID="com.balsamiq.mockups::Label" x="455" y="235" w="-1" h="-1" measuredW="70" measuredH="24" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Elevation</text>
+      </controlProperties>
+    </control>
+    <control controlID="11" controlTypeID="com.balsamiq.mockups::Label" x="455" y="301" w="-1" h="-1" measuredW="47" measuredH="24" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Slope</text>
+      </controlProperties>
+    </control>
+    <control controlID="12" controlTypeID="com.balsamiq.mockups::Label" x="455" y="267" w="-1" h="-1" measuredW="58" measuredH="24" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Aspect</text>
+      </controlProperties>
+    </control>
+    <control controlID="13" controlTypeID="com.balsamiq.mockups::Label" x="447" y="332" w="-1" h="-1" measuredW="351" measuredH="28" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>20</size>
+        <text>Vegetation%20and%20Forest%20Characteristics</text>
+      </controlProperties>
+    </control>
+    <control controlID="14" controlTypeID="com.balsamiq.mockups::Label" x="660" y="235" w="-1" h="-1" measuredW="59" measuredH="24" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>false</bold>
+        <size>16</size>
+        <text>meters</text>
+      </controlProperties>
+    </control>
+    <control controlID="16" controlTypeID="com.balsamiq.mockups::Label" x="650" y="301" w="-1" h="-1" measuredW="22" measuredH="24" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>false</bold>
+        <size>16</size>
+        <text>%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="17" controlTypeID="com.balsamiq.mockups::Label" x="447" y="198" w="317" h="21" measuredW="228" measuredH="28" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>20</size>
+        <text>Physical%20Characteristics</text>
+      </controlProperties>
+    </control>
+    <control controlID="18" controlTypeID="com.balsamiq.mockups::Image" x="637" y="406" w="161" h="123" measuredW="174" measuredH="121" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <src>./assets/svs.png</src>
+        <text/>
+      </controlProperties>
+    </control>
+    <control controlID="19" controlTypeID="com.balsamiq.mockups::Button" x="716" y="592" w="75" h="41" measuredW="81" measuredH="38" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>40463</color>
+        <icon>CheckMarkIcon%7Cmedium</icon>
+        <size>16</size>
+        <text>OK</text>
+      </controlProperties>
+    </control>
+    <control controlID="21" controlTypeID="com.balsamiq.mockups::DataGrid" x="449" y="394" w="181" h="150" measuredW="181" measuredH="157" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <borderStyle>none</borderStyle>
+        <hasHeader>false</hasHeader>
+        <selectedIndex>-1</selectedIndex>
+        <text>Stand%20Height%2C%2013%20m%0AMean%20Diameter%2C%2018%20cm%0ABasal%20Area%2C%2029%20m%5E2%0ATrees/Hectare%2C%2030%0AConifer%20Proportion%2C%2067%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="23" controlTypeID="com.balsamiq.mockups::NumericStepper" x="597" y="234" w="-1" h="-1" measuredW="57" measuredH="24" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>380</text>
+      </controlProperties>
+    </control>
+    <control controlID="25" controlTypeID="com.balsamiq.mockups::NumericStepper" x="597" y="301" w="-1" h="-1" measuredW="47" measuredH="24" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>15</text>
+      </controlProperties>
+    </control>
+    <control controlID="26" controlTypeID="com.balsamiq.mockups::ComboBox" x="597" y="268" w="-1" h="-1" measuredW="92" measuredH="23" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>North-East</text>
+      </controlProperties>
+    </control>
+    <control controlID="27" controlTypeID="com.balsamiq.mockups::Button" x="634" y="592" w="72" h="41" measuredW="72" measuredH="27" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>stand-inputation%26bm%3Bstand-inputation.bmml%26bm%3Bstand-inputation.bmml%26bm%3Bstand-inputation.bmml</href>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%22346%2C560%2C418%2C601%22%20href%3D%22stand-inputation.bmml%22%20alt%3D%22stand-inputation%22%20id%3D%2227%22/%3E</map>
+        <size>16</size>
+        <text>Cancel</text>
+      </controlProperties>
+    </control>
+    <control controlID="30" controlTypeID="com.balsamiq.mockups::PointyButton" x="646" y="553" w="-1" h="-1" measuredW="146" measuredH="27" zOrder="22" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>View%20Next%20Alternative</text>
+      </controlProperties>
+    </control>
+    <control controlID="31" controlTypeID="com.balsamiq.mockups::Button" x="447" y="553" w="-1" h="-1" measuredW="191" measuredH="27" zOrder="23" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Adjust%20Forest%20Characteristics</text>
+      </controlProperties>
+    </control>
+    <control controlID="32" controlTypeID="com.balsamiq.mockups::Paragraph" x="591" y="367" w="215" h="21" measuredW="200" measuredH="140" zOrder="24" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Conifer%3A%20sm/med%3A%20mod/closed</text>
+      </controlProperties>
+    </control>
+    <control controlID="33" controlTypeID="com.balsamiq.mockups::Label" x="455" y="365" w="-1" h="-1" measuredW="128" measuredH="24" zOrder="25" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Vegetation%20Class</text>
+      </controlProperties>
+    </control>
+    <control controlID="35" controlTypeID="com.balsamiq.mockups::TitleWindow" x="1086" y="46" w="419" h="298" measuredW="450" measuredH="400" zOrder="26" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bottomheight>47</bottomheight>
+        <close>false</close>
+        <dragger>false</dragger>
+        <maximizeRestore>false</maximizeRestore>
+        <minimize>false</minimize>
+        <text>Adjust%20Forest%20Characteristics</text>
+        <topheight>26</topheight>
+      </controlProperties>
+    </control>
+    <control controlID="36" controlTypeID="com.balsamiq.mockups::Arrow" x="613" y="344" w="485" h="218" measuredW="150" measuredH="100" zOrder="27" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>13369344</color>
+        <curvature>-1</curvature>
+        <direction>bottom</direction>
+      </controlProperties>
+    </control>
+    <control controlID="37" controlTypeID="com.balsamiq.mockups::Button" x="1416" y="310" w="74" h="24" measuredW="78" measuredH="27" zOrder="28" locked="false" isInGroup="-1">
+      <controlProperties>
+        <menuIcon>false</menuIcon>
+        <size>16</size>
+        <state>up</state>
+        <text>Confirm</text>
+      </controlProperties>
+    </control>
+    <control controlID="38" controlTypeID="com.balsamiq.mockups::Button" x="1341" y="310" w="69" h="24" measuredW="72" measuredH="27" zOrder="29" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Cancel</text>
+      </controlProperties>
+    </control>
+    <control controlID="39" controlTypeID="com.balsamiq.mockups::ComboBox" x="1324" y="131" w="-1" h="-1" measuredW="109" measuredH="26" zOrder="30" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>Douglas%20Fir</text>
+      </controlProperties>
+    </control>
+    <control controlID="40" controlTypeID="com.balsamiq.mockups::SubTitle" x="1109" y="86" w="-1" h="-1" measuredW="193" measuredH="33" zOrder="31" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Specify%20Attributes</text>
+      </controlProperties>
+    </control>
+    <control controlID="41" controlTypeID="com.balsamiq.mockups::Label" x="1112" y="132" w="-1" h="-1" measuredW="137" measuredH="24" zOrder="32" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Dominant%20Species</text>
+      </controlProperties>
+    </control>
+    <control controlID="42" controlTypeID="com.balsamiq.mockups::Label" x="1112" y="172" w="-1" h="-1" measuredW="100" measuredH="24" zOrder="33" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Stand%20Height</text>
+      </controlProperties>
+    </control>
+    <control controlID="43" controlTypeID="com.balsamiq.mockups::Label" x="1112" y="212" w="-1" h="-1" measuredW="110" measuredH="24" zOrder="34" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Canopy%20Cover</text>
+      </controlProperties>
+    </control>
+    <control controlID="44" controlTypeID="com.balsamiq.mockups::Label" x="1112" y="252" w="161" h="24" measuredW="152" measuredH="24" zOrder="35" locked="false" isInGroup="-1">
+      <controlProperties>
+        <bold>true</bold>
+        <size>16</size>
+        <text>Stand%20Density%20Index</text>
+      </controlProperties>
+    </control>
+    <control controlID="45" controlTypeID="com.balsamiq.mockups::NumericStepper" x="1325" y="168" w="-1" h="-1" measuredW="50" measuredH="27" zOrder="36" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>13</text>
+      </controlProperties>
+    </control>
+    <control controlID="46" controlTypeID="com.balsamiq.mockups::Label" x="1382" y="171" w="-1" h="-1" measuredW="50" measuredH="21" zOrder="37" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>meters</text>
+      </controlProperties>
+    </control>
+    <control controlID="47" controlTypeID="com.balsamiq.mockups::Label" x="1334" y="212" w="-1" h="-1" measuredW="39" measuredH="24" zOrder="38" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>50%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="48" controlTypeID="com.balsamiq.mockups::HSlider" x="1398" y="219" w="53" h="-1" measuredW="33" measuredH="11" zOrder="39" locked="false" isInGroup="-1">
+      <controlProperties>
+        <value>49</value>
+      </controlProperties>
+    </control>
+    <control controlID="49" controlTypeID="com.balsamiq.mockups::Label" x="1379" y="216" w="-1" h="-1" measuredW="21" measuredH="17" zOrder="40" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>10</size>
+        <text>0%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="50" controlTypeID="com.balsamiq.mockups::Label" x="1451" y="216" w="-1" h="-1" measuredW="32" measuredH="17" zOrder="41" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>10</size>
+        <text>100%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="51" controlTypeID="com.balsamiq.mockups::Label" x="1334" y="252" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="42" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>16</size>
+        <text>75</text>
+      </controlProperties>
+    </control>
+    <control controlID="52" controlTypeID="com.balsamiq.mockups::HSlider" x="1398" y="257" w="53" h="-1" measuredW="33" measuredH="11" zOrder="43" locked="false" isInGroup="-1">
+      <controlProperties>
+        <value>75</value>
+      </controlProperties>
+    </control>
+    <control controlID="53" controlTypeID="com.balsamiq.mockups::Label" x="1384" y="254" w="-1" h="-1" measuredW="12" measuredH="17" zOrder="44" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>10</size>
+        <text>0</text>
+      </controlProperties>
+    </control>
+    <control controlID="54" controlTypeID="com.balsamiq.mockups::Label" x="1454" y="254" w="-1" h="-1" measuredW="23" measuredH="17" zOrder="45" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>10</size>
+        <text>100</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
