@@ -77,7 +77,7 @@
         left: 50px;
         text-shadow: 5px 1px 1px black;
         opacity: 0.5;
-        filter:alpha(opacity=50); /* for <= IE 8 */
+        filter:alpha(opacity=50); /* for lteq IE 8 */
       }
     </style>
     <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
@@ -157,7 +157,6 @@
               <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
             </ul>
             {% endif %}                
-            </ul>
           </div><!--/.nav-collapse -->
         </div>
       </div>
