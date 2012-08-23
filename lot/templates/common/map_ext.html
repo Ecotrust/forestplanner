@@ -156,31 +156,17 @@
                             <td>Name</td><td data-bind="text: name"></td>
                           </tr>
                           <tr>
-                            <td>Dominant Species</td><td data-bind="text: domspp"></td>
-                          </tr>
-                          <tr>
-                            <td>Calculated Area</td><td>100 acres</td>
+                            <td>Calculated Area</td><td><span data-bind="text: acres"></span> acres</td>
                           </tr>
                         </table>
-                        <div class="row-fluid">
-                          <div class="row-fluid">
-                            <div class="span6 well">
-                              <h4>Terrain</h4>
-                              <table class="table table-condensed">
-                                <tr><td>Aspect</td><td data-bind="text: aspect"></td></tr>
-                                <tr><td>Slope</td><td data-bind="text: slope">something</td></tr>
-                                <tr><td>Elevation</td><td><span data-bind="text: elevation"></span> m</td></tr>
-                              </table>
-                            </div>
-                            <div class="span6 well">
-                              <h4>Prescription</h4>
-                              <table class="table table-condensed">
-                                <tr><td><span data-bind="text: rx"></span></td></tr>
-                                <tr><td>45 year rotation</td></tr>
-                              </table>
-                            </div>
-                          </div>
-                        </div>
+
+                        <h4>Terrain</h4>
+                        <table class="table table-condensed">
+                        <tr><td>Aspect</td><td data-bind="text: aspect"></td></tr>
+                        <tr><td>Slope</td><td data-bind="text: slope">something</td></tr>
+                        <tr><td>Elevation</td><td><span data-bind="text: elevation"></span> m</td></tr>
+                        </table>
+
                         <h4>Vegetation</h4>
                         <div class="row-fluid vegetation">
                           <div class="span6">
