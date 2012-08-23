@@ -141,7 +141,12 @@
                   <div class="row-fluid">
                     <div class="span3">
                       <h3>Stand List</h3>
-                      <button href="#" class="btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add Stand</button>
+                      <div class="row-fluid">
+                        <div class="btn-group">
+                            <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add</a>
+                            <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-upload"></i> Upload</a>
+                        </div>
+                      </div>
                       <ul class="nav nav-tabs nav-stacked" data-bind="foreach: standListPaginated">
                         <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
                           <a href="#" data-bind="text: name"></a>
@@ -186,7 +191,9 @@
                           </div>
                           <div class="span6">
                             <div class="thumbnail">
-                              <img src="{{ MEDIA_URL }}img/svs.gif"/>
+                              <div id="watermarked-image">
+                                <p>Sample</p>
+                              </div>
                               <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
                             </div>
                           </div>

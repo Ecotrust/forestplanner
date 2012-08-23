@@ -61,6 +61,24 @@
         text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       }
+      #watermarked-image {
+        height: 168px;
+        width: 260px;
+        background-image: url({{ MEDIA_URL }}img/svs.gif);
+        background-position: 0 0;
+        background-repeat: no-repeat;
+        position: relative;
+      }
+      #watermarked-image p {
+        position: absolute;
+        font-size: 36pt;
+        color: white;
+        top: 100px;
+        left: 50px;
+        text-shadow: 5px 1px 1px black;
+        opacity: 0.5;
+        filter:alpha(opacity=50); /* for <= IE 8 */
+      }
     </style>
     <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
     <link href="{{MEDIA_URL}}bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
