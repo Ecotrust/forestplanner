@@ -8,7 +8,8 @@
     <meta name="author" content="">
 
     <!-- Le styles -->
-    <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <!-- <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap.css" rel="stylesheet"> -->
+    <link href="{{MEDIA_URL}}common/bootstrap.spacelab.css" rel="stylesheet">
     <style>
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
@@ -32,8 +33,7 @@
           font-weight: bold;
           color: #fff;
           background: #369;
-          border: 1px solid #ccc;
-          border-radius: 3px;
+          border: 1px solid #ccc; border-radius: 3px;
       }
       #customZoom a:hover {
           background: #036;
@@ -47,6 +47,19 @@
       div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy
       {
             display: none !important;
+      }
+      img.olTileImage {
+        max-width: 256px !important;
+      }
+      label.olButton {
+        display: inline;
+        float: none;
+        padding: 9px 10px 11px;
+        line-height: 19px;
+        color: white;
+        text-decoration: none;
+        text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+        font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
       }
     </style>
     <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">

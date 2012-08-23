@@ -102,8 +102,8 @@
                           <tr><td>County</td><td><span data-bind="text: selectedProperty().location"></span></td></tr>
                         </table>
                         <div class="pull-right">
-                          <button class="btn" href="#" disabled>Perform Analysis</button>
-                          <button class="btn" href="#" data-bind="click: manageStands">Manage Stands</button>
+                          <button class="btn btn-primary" href="#" data-bind="click: manageStands">Setup Stands</button>
+                          <button class="btn" href="#" data-bind="click: defineScenarios">Define Scenarios</button>
                         </div>
                       </div>
                     </div>
@@ -311,7 +311,7 @@
    
 
     app.onResize = function () {
-      $("#map").height($(window).height() * .85);
+      $("#map").height($(window).height() - 114);
       map.render('map');
     };
     
