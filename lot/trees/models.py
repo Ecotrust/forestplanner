@@ -681,7 +681,7 @@ class PlotSummary(models.Model):
                 'sdi_reineke': self.sdi_reineke,
                 'qmda_dom': self.qmda_dom,
                 'baa_ge_3': self.baa_ge_3,
-                'tph_ge_3': self.baa_ge_3,
+                'tph_ge_3': self.tph_ge_3,
                 'bac_prop': self.bac_prop,
             }
         return summary
