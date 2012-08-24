@@ -71,10 +71,10 @@
                     <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                   </p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
-                    <table class="table table-condensed table-bordered">
+                    <table class="table table-condensed table-bordered table-hover">
                       <thead><th>Name</th><th>Area (acres)</th><th>County</th></thead>
                       <tbody data-bind="foreach: propertyList">
-                        <tr data-bind="click: $parent.selectProperty">
+                        <tr data-bind="click: $parent.selectProperty, css: { active: $data === $parent.selectedProperty() }">
                           <td><a data-bind="text: name"></a></td>
                           <td><span data-bind="text: acres"></span></td>
                           <td><span data-bind="text: location"></span></td>           
