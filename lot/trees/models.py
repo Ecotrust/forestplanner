@@ -11,10 +11,37 @@ from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
-from madrona.common.utils import get_logger, cachemethod
+from madrona.common.utils import get_logger
 from operator import itemgetter
 from django.core.cache import cache
 logger = get_logger()
+
+def cachemethod(cache_key, timeout=3600):
+    '''
+    http://djangosnippets.org/snippets/1130/    
+
+    @property
+    @cachemethod("SomeClass_get_some_result_%(id)s")
+    '''
+    def paramed_decorator(func):
+        def decorated(self):
+            if not settings.USE_CACHE:
+                res = func(self)
+                return res
+
+            key = cache_key % self.__dict__
+            #logger.debug("\nCACHING %s" % key)
+            res = cache.get(key)
+            if res == None:
+                #logger.debug("   Cache MISS")
+                res = func(self)
+                cache.set(key, res, timeout)
+                #logger.debug("   Cache SET")
+                if cache.get(key) != res:
+                    logger.error("*** Cache GET was NOT successful, %s" % key)
+            return res
+        return decorated 
+    return paramed_decorator
 
 @register
 class Stand(PolygonFeature):
@@ -57,6 +84,7 @@ class Stand(PolygonFeature):
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
+    @cachemethod("Stand_%(id)s_geojson")
     def geojson(self):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -164,8 +192,21 @@ class Stand(PolygonFeature):
             summaries.append(summary)
         return summaries
 
+    def invalidate_cache(self):
+        '''
+        Remove any cached values associated with this scenario.
+        Warning: additional caches will need to be added to this method
+        '''
+        keys = ["Stand_%(id)s_geojson"]
+        keys = [x % self.__dict__ for x in keys]
+        cache.delete_many(keys)
+        for key in keys:
+            assert cache.get(key) == None
+        logger.debug("invalidated cache for %s" % str(keys))
+        return True
+
     def save(self, *args, **kwargs):
-        # placeholder for future save overrides
+        self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
 
 @register
