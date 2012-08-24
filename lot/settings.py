@@ -57,6 +57,9 @@ POINT_BUFFER = 500  #meters
 
 ENFORCE_SUPPORTED_BROWSER = False
 
+EQUAL_AREA_SRID = 26910 # NAD83 UTM Zone 10 N meters
+EQUAL_AREA_ACRES_CONVERSION = 0.000247105381  # sq m to acres
+
 try:
     from settings_local import *
 except ImportError:

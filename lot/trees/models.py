@@ -49,13 +49,12 @@ class Stand(PolygonFeature):
 
     @property
     def acres(self):
+        g2 = self.geometry_final.transform(settings.EQUAL_AREA_SRID, clone=True)
         try:
-            area_m = self.geometry_final.area 
+            area_m = g2.area 
         except:
             return None
-        conversion = 0.000247105381 
-        area_acres = area_m * conversion
-        return area_acres
+        return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
     def geojson(self):
@@ -76,12 +75,16 @@ class Stand(PolygonFeature):
         aspect_class = classify_aspect(aspect)
         slope = int_or_none(self.imputed_slope)
         gnn = int_or_none(self.imputed_gnn)
+        if self.acres:
+            acres = round(self.acres, 1)
+        else:
+            acres = None
 
         d = {
                 'uid': self.uid,
                 'name': self.name,
                 'rx': self.get_rx_display(),
-                'acres': self.acres,
+                'acres': acres,
                 'domspp': self.domspp,
                 'elevation': elevation,
                 'aspect': "%s" % aspect_class,
@@ -176,11 +179,16 @@ class ForestProperty(FeatureCollection):
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
         '''
+        if self.acres:
+            acres = round(self.acres, 0)
+        else:
+            acres = None
+
         d = {
                 'uid': self.uid,
                 'name': self.name,
                 'user_id': self.user.pk,
-                'acres': self.acres,
+                'acres': acres,
                 'location': self.location,
                 'variant': self.variant,
                 'bbox': self.bbox,
@@ -201,13 +209,12 @@ class ForestProperty(FeatureCollection):
 
     @property
     def acres(self):
+        g2 = self.geometry_final.transform(settings.EQUAL_AREA_SRID, clone=True)
         try:
-            area_m = self.geometry_final.area 
+            area_m = g2.area 
         except:
             return None
-        conversion = 0.000247105381 
-        area_acres = area_m * conversion
-        return area_acres
+        return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
     def variant(self):
