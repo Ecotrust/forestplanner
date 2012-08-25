@@ -9,6 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
+from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger
@@ -24,7 +25,7 @@ def cachemethod(cache_key, timeout=3600):
     @cachemethod("SomeClass_get_some_result_%(id)s")
     '''
     def paramed_decorator(func):
-        def decorated(self):
+        def decorated(self, *args):
             if not settings.USE_CACHE:
                 res = func(self)
                 return res
@@ -34,7 +35,7 @@ def cachemethod(cache_key, timeout=3600):
             res = cache.get(key)
             if res == None:
                 #logger.debug("   Cache MISS")
-                res = func(self)
+                res = func(self, *args)
                 cache.set(key, res, timeout)
                 #logger.debug("   Cache SET")
                 if cache.get(key) != res:
@@ -43,16 +44,18 @@ def cachemethod(cache_key, timeout=3600):
         return decorated 
     return paramed_decorator
 
+# TODO: make this a model?
+RX_CHOICES = (
+    ('--', '--'),
+    ('RE', 'Reserve; No Action'),
+    ('UG', 'Uneven-aged Group Selection'),
+    ('SW', 'Shelterwood'),
+    ('CT', 'Commercial Thinning'),
+    ('CC', 'Even-aged Clearcut'),
+)
+
 @register
 class Stand(PolygonFeature):
-    RX_CHOICES = (
-        ('--', '--'),
-        ('RE', 'Reserve; No Action'),
-        ('UG', 'Uneven-aged Group Selection'),
-        ('SW', 'Shelterwood'),
-        ('CT', 'Commercial Thinning'),
-        ('CC', 'Even-aged Clearcut'),
-    )
     SPP_CHOICES = (
         ('--', '--'),
         ('DF', 'Douglas Fir'),
@@ -66,13 +69,6 @@ class Stand(PolygonFeature):
     class Options:
         form = "trees.forms.StandForm"
         manipulators = []
-        links = (
-            # Link to grab stand geojson 
-            alternate('GeoJSON',
-                'trees.views.geojson_features',  
-                type="application/json",
-                select='multiple single'),
-        )
 
     @property
     def acres(self):
@@ -83,9 +79,9 @@ class Stand(PolygonFeature):
             return None
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
-    @property
+    #@property
     @cachemethod("Stand_%(id)s_geojson")
-    def geojson(self):
+    def geojson(self, srid=None):
         '''
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
@@ -209,13 +205,86 @@ class Stand(PolygonFeature):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
 
+class JSONField(models.TextField):
+    """JSONField is a generic textfield that neatly serializes/unserializes
+    JSON objects seamlessly"""
+    # Used so to_python() is called
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        """Convert our string value to JSON after we load it from the DB"""
+        if value == "":
+            return None
+        # Actually we'll just return the string
+        # need to explicitly call json.loads(X) in your code
+        # reason: converting to dict then repr that dict in a form is invalid json
+        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single quotes)
+        return value
+
+    def get_db_prep_save(self, value, *args, **kwargs):
+        """Convert our JSON object to a string before we save"""
+        if value == "":
+            return None
+        if isinstance(value, dict):
+            value = json.dumps(value, cls=DjangoJSONEncoder)
+
+        return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
+
+# http://south.readthedocs.org/en/latest/customfields.html#extending-introspection
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^trees\.models\.JSONField"])
+
+@register
+class Scenario(Analysis):
+    """
+    NOTE: if no input Rx for a stand, use the default from stand model
+    """
+    description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
+    input_target_boardfeet = models.FloatField(verbose_name='Target Percentage of Habitat')
+    input_target_carbon = models.FloatField(verbose_name='Penalties for Missing Targets') 
+    input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
+
+    # All output fields should be allowed to be Null/Blank
+    output_scheduler_results = JSONField(null=True, blank=True)
+
+    def run(self):
+        # TODO prep scheduler, run it, parse the outputs
+        d = {
+                1: {'carbon': {2012:5, 2070:15, 2100:25}},
+                2: {'carbon': {2012:2, 2070:14, 2100:35}}
+            }
+        self.output_scheduler_results = d
+
+    def geojson(self, srid=None):
+        d = {
+            'uid': self.uid,
+            'name': self.name,
+            'user_id': self.user.pk,
+            'date_modified': str(self.date_modified),
+            'date_created': str(self.date_created),
+            'results': self.output_scheduler_results,
+        }
+        geom_json = 'null'
+
+        gj = """{ 
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s 
+        }""" % (geom_json, dumps(d))
+        return gj
+    
+    class Options:
+        form = "trees.forms.ScenarioForm"
+        verbose_name = 'Forest Scenario' 
+        form_context = { } 
+
 @register
 class ForestProperty(FeatureCollection):
     geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
             verbose_name="Stand Polygon Geometry")
 
-    @property
-    def geojson(self):
+    #@property
+    def geojson(self, srid=None):
         '''
         Couldn't find any serialization methods flexible enough for our needs
         So we do it the hard way.
@@ -326,7 +395,7 @@ class ForestProperty(FeatureCollection):
         # Assumption is that property boundary SHOULD contain all stands
         # and, if not, they should expand the property boundary
         bb = self.bbox  
-        featxt = ', '.join([i.geojson for i in self.feature_set()])
+        featxt = ', '.join([i.geojson() for i in self.feature_set()])
         return """{ "type": "FeatureCollection",
         "bbox": [%f, %f, %f, %f],
         "features": [
@@ -380,11 +449,6 @@ class ForestProperty(FeatureCollection):
                 'trees.views.geojson_forestproperty',  
                 type="application/json",
                 select='single'),
-            # Link to grab property geojson 
-            alternate('GeoJSON',
-                'trees.views.geojson_features',  
-                type="application/json",
-                select='multiple single'),
         )
 
 class Parcel(models.Model):

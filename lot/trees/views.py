@@ -58,7 +58,7 @@ def user_property_list(request):
     "bbox": [%s, %s, %s, %s],
     "features": [
     %s
-    ]}""" % (bb[0], bb[1], bb[2], bb[3], ', '.join([fp.geojson for fp in user_fps]))
+    ]}""" % (bb[0], bb[1], bb[2], bb[3], ', '.join([fp.geojson() for fp in user_fps]))
 
     return HttpResponse(gj, mimetype='application/json', status=200)
 

@@ -153,18 +153,6 @@ class RestTest(TestCase):
             {'name': "My Test", 'user': 1})
         self.assertEqual(response.status_code, 401)
 
-    def test_submit_invalid_form(self):
-        old_count = Stand.objects.count()
-        self.client.login(username='featuretest', password='pword')
-        response = self.client.post(self.create_url, {'name': 'test', 
-            'geometry_orig': g1.wkt,
-            'rx': 'XX', # Invalid prescription
-            'domspp': 'DF'})
-        self.assertEqual(response.status_code, 400)
-        self.assertTrue(old_count == Stand.objects.count())
-        self.assertNotEqual(
-            response.content.find('XX is not one of the available choices.'), -1)
-
     def test_submit_valid_form(self):
         old_count = Stand.objects.count()
         self.client.login(username='featuretest', password='pword')
@@ -194,18 +182,6 @@ class RestTest(TestCase):
         })
         self.assertEqual(response.status_code, 200, response.content)
         self.assertEqual(Stand.objects.get(pk=self.stand1.pk).name, 'My New Name')
-
-    def test_post_validation_error(self):
-        self.client.login(username='featuretest', password='pword')
-        response = self.client.post(self.stand1_url, {
-            'name': 'Another New Name', 
-            'geometry_orig': self.stand1.geometry_orig.wkt,
-            'rx': 'XX', # invalid rx
-            'domspp': self.stand1.domspp
-        })
-        self.assertEqual(response.status_code, 400)
-        # Nothing should have changed
-        self.assertEqual(Stand.objects.get(pk=self.stand1.pk).name, 'My Stand')
 
     def test_delete(self):
         self.client.login(username='featuretest', password='pword')
@@ -839,7 +815,7 @@ class SearchTest(TestCase):
     
     def setUp(self):
         self.searches = [
-            ('Tyron Creek', 200, [-12975480, 5732070]),
+            ('Tyron Creek', 200, [-9846283, 5208475]),
             ('41.12345;-81.98765', 200, [-9126823, 5030567]),
             ('39.3 N 76.4 W', 200, [-8504809, 4764735]), 
             ('KJHASBUNCHOFNONSENSEDOIHJJDHSGF', 404, None),
