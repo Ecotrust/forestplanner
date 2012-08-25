@@ -148,6 +148,7 @@ def geosearch(request):
     Returns geocoded results in MERCATOR projection
     First tries coordinates, then a series of geocoding engines
     """
+    from geopy import distance
     if request.method != 'GET':
         return HttpResponse('Invalid http method; use GET', status=405)        
 
@@ -157,6 +158,7 @@ def geosearch(request):
         return HttpResponseBadRequest()
 
     searchtype = lat = lon = None
+    place = txt
     try:
         p = Point(txt) 
         lat, lon, altitude = p
@@ -164,12 +166,21 @@ def geosearch(request):
     except:
         pass  # not a point
 
+    currentloc = Point("45.0 N 122.0 W")
+
     if not searchtype or not lat or not lon:  # try a geocoder
         g = geocoders.Google()
+        max_dist = 100000000
         try:
-            place, latlon = g.geocode(txt)  
-            lat = latlon[0]
-            lon = latlon[1]
+            for p, loc in g.geocode(txt, exactly_one=False):
+                d = distance.distance(loc, currentloc).miles
+                if d < max_dist:
+                    place = p
+                    lat = loc[0]
+                    lon = loc[1]
+                    max_dist = d
+                else:
+                    pass
             searchtype = 'geocoded_google'
         except:
             pass
@@ -192,8 +203,10 @@ def geosearch(request):
         loc = {
             'status': 'ok',
             'search': txt, 
+            'place': place,
             'type': searchtype, 
             'extent': extent, 
+            'latlon': [lat, lon],
             'center': (cntr[0], cntr[1]),
         }
         json_loc = json.dumps(loc)
