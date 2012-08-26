@@ -362,7 +362,7 @@ class SpatialTest(TestCase):
         self.assertFalse(errors,"invalid KML %s" % str(errors))
 
     def test_stand_json(self):
-        thejson = self.stand1.geojson
+        thejson = self.stand1.geojson()
         d = loads(thejson)
         self.assertEquals(d['properties']['name'], 'My Stand')
 
