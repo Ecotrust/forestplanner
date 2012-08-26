@@ -7,6 +7,7 @@ from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps
+from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
 from madrona.analysistools.models import Analysis
@@ -227,7 +228,7 @@ class JSONField(models.TextField):
         if value == "":
             return None
         if isinstance(value, dict):
-            value = json.dumps(value, cls=DjangoJSONEncoder)
+            value = dumps(value, cls=DjangoJSONEncoder)
 
         return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
 
