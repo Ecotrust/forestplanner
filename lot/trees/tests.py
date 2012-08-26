@@ -11,7 +11,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, ForestProperty, County, FVSVariant
+from trees.models import Stand, ForestProperty, County, FVSVariant, Scenario
 from trees.utils import StandImporter
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
@@ -841,3 +841,45 @@ class SearchTest(TestCase):
             else:
                 for x, y in zip(c['center'], search[2]):
                     self.assertAlmostEquals(x, y, delta=3)  # within 3 meters of expected
+
+class ScenarioTest(TestCase):
+    '''
+    TODO test invalid Rxs get rejected
+    TODO test posts
+    '''
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+
+        self.stand1 = Stand(user=self.user, name="My Stand 1", geometry_orig=g1) 
+        self.stand1.save()
+        self.stand2 = Stand(user=self.user, name="My Stand 2", geometry_orig=g1) 
+        self.stand2.save()
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
+        self.prop1.add(self.stand1)
+        self.prop1.add(self.stand2)
+
+    def test_create_scenario(self):
+        s1 = Scenario(user=self.user, name="My Scenario", 
+                input_target_boardfeet=2000,
+                input_target_carbon=1,
+                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+             )
+        s1.save()
+        self.assertEquals(Scenario.objects.get(name="My Scenario").input_target_boardfeet, 2000.0)
+
+    def test_scenario_results(self):
+        "TODO remove this hardcoded dummy data"
+        s1 = Scenario(user=self.user, name="My Scenario", 
+                input_target_boardfeet=2000,
+                input_target_carbon=1,
+                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+             )
+        s1.save()
+        out = s1.output_scheduler_results
+        self.assertEquals(out[1]['carbon'][2012], 5.0)
+
+
