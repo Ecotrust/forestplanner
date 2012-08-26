@@ -30,28 +30,29 @@ function init() {
                 "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
                 "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
                 "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
+
+    var arrayMapboxTerrain = [
+        "http://a.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png",
+        "http://b.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png",
+        "http://c.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png"];
+
     var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
                     "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
                     "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
                     "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-    var baseOSM = new OpenLayers.Layer.OSM("MapQuest-OSM Tiles", arrayOSM);
-    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial Tiles", arrayAerial);
 
-    map.addLayers([gsat, gphy, ghyb]);
-    /*
-     * For some reason, these layers are not displaying properly
-     * they have a "striped" layout
-     *
-    */
-    map.addLayer(baseOSM);
+    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial);
+    var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain);
     map.addLayer(baseAerial);
+    map.addLayer(baseOSM);
+    map.addLayers([gsat, gphy, ghyb]);
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
     };
 
 
-    app.markers = new OpenLayers.Layer.Markers("search");               
+    app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});               
     map.addLayer(app.markers);
 
     // Add stands
@@ -105,6 +106,7 @@ function init() {
             {
                 renderers: app.renderer, 
                 styleMap: app.new_styles,
+                displayInLayerSwitcher: false
             }
     );
     map.addLayer(new_features);
