@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load url from future %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -159,9 +160,9 @@
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="{# url 'user_profile-form' user.username #}#">Profile</a></li>
+                <li><a href="{% url 'user_profile-form' user.username %}">Profile</a></li>
                 <li class="divider"></li>
-                <li><a href="{# url 'user_signout' #}">Sign Out</a></li>
+                <li><a href="{% url 'user_signout' %}">Sign Out</a></li>
               </ul>
             </div>
             {% else %}
