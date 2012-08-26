@@ -17,9 +17,10 @@ from operator import itemgetter
 from django.core.cache import cache
 logger = get_logger()
 
-def cachemethod(cache_key, timeout=3600):
+def cachemethod(cache_key, timeout=60*60*24*7):
     '''
     http://djangosnippets.org/snippets/1130/    
+    default timeout = 1 week
 
     @property
     @cachemethod("SomeClass_get_some_result_%(id)s")
