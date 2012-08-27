@@ -425,12 +425,15 @@ class Scenario(Analysis):
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
 
+    def stand_set(self):
+        return self.input_property.feature_set()
+
     def run(self):
         # TODO prep scheduler, run it, parse the outputs
-        d = {
-                1: {'carbon': {2012:5, 2070:15, 2100:25}},
-                2: {'carbon': {2012:2, 2070:14, 2100:35}}
-            }
+        d = {}
+        for stand in self.stand_set():
+            d[stand.pk] = {'carbon': {2012:5, 2070:15, 2100:25}}
+
         self.output_scheduler_results = d
 
     def geojson(self, srid=None):
@@ -440,7 +443,7 @@ class Scenario(Analysis):
             'user_id': self.user.pk,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
-            'results': self.output_scheduler_results,
+            'results': loads(self.output_scheduler_results),
         }
         geom_json = 'null'
 

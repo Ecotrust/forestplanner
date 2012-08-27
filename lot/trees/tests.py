@@ -843,10 +843,6 @@ class SearchTest(TestCase):
                     self.assertAlmostEquals(x, y, delta=3)  # within 3 meters of expected
 
 class ScenarioTest(TestCase):
-    '''
-    TODO test invalid Rxs get rejected
-    TODO test posts
-    '''
 
     def setUp(self):
         self.client = Client()
@@ -866,6 +862,9 @@ class ScenarioTest(TestCase):
 
         self.options = Scenario.get_options()
         self.create_url = self.options.get_create_form()
+        self.geojson_link = self.options.get_link('GeoJSON')
+
+        enable_sharing()
 
     def test_create_scenario(self):
         s1 = Scenario(user=self.user, name="My Scenario", 
@@ -887,7 +886,7 @@ class ScenarioTest(TestCase):
              )
         s1.save()
         out = s1.output_scheduler_results
-        self.assertEquals(out[1]['carbon'][2012], 5.0)
+        self.assertEquals(out[self.stand1.pk]['carbon'][2012], 5.0, out)
 
     def test_post(self):
         self.client.login(username='featuretest', password='pword')
@@ -922,4 +921,23 @@ class ScenarioTest(TestCase):
         })
         self.assertEqual(response.status_code, 400, response.content)
 
+    def test_geojson_results(self):
+        s1 = Scenario(user=self.user, name="My Scenario", 
+                input_target_boardfeet=2000,
+                input_target_carbon=1,
+                input_property=self.prop1,
+                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+             )
+        s1.save()
+        url = self.geojson_link.reverse(s1)
+        # not logged in yet
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 401, response.content)
+        # now we log in
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200, response.content)
+        # make sure response is good
+        res = loads(response.content)['features'][0]['properties']['results']
+        self.assertEquals(res[str(self.stand1.pk)]['carbon']['2012'], 5.0, res)
 
