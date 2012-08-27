@@ -349,8 +349,7 @@
 {% block scripts %}
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
-    <script src="{{ MEDIA_URL }}common/styles.js"></script>
-    <script src='{{ MEDIA_URL }}common/trees.js'></script>
-    <script src="{{ MEDIA_URL }}common/property.js"></script>
-    <script src="{{ MEDIA_URL }}common/stand.js"></script>
+    {% load compressed %}
+    <!-- styles, trees, property, stand .js -->
+    {% compressed_js 'application' %}
 {% endblock scripts %}
