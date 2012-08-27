@@ -84,6 +84,7 @@ function init() {
     // Add stands
     var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
     app.renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
+
     app.new_styles = new OpenLayers.StyleMap({
         "default": new OpenLayers.Style(null, {
             rules: [
@@ -91,17 +92,63 @@ function init() {
                     symbolizer: {
                         "Polygon": {
                             fillColor: "white",
-                            fillOpacity: 0.25,
-                            strokeWidth: 1,
+                            fillOpacity: 0.35,
+                            strokeWidth: 2,
                             strokeOpacity: 1,
-                            strokeColor: "darkgrey",
+                            strokeColor: "#444444",
+                            label: "${name}",
+                            labelAlign: "cc",
+                            fontColor: "#333333",
+                            fontOpacity: 0.9,
+                            fontFamily: "Arial",
+                            fontSize: 14
                         },
                     }
                 })
             ]
         }),
         "select": new OpenLayers.Style({
-            fillColor: "lightgreen",
+            strokeColor: "#44ff00"
+        }),
+        "temporary": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Point": {
+                            pointRadius: 5,
+                            fillColor: "#44ff00",
+                        },
+                        "Polygon": {
+                            pointRadius: 5,
+                            fillColor: "white",
+                            fillOpacity: 0.35,
+                            strokeWidth: 2,
+                            strokeOpacity: 1,
+                            strokeColor: "#44ff00"
+                        },
+                    }
+                })
+            ]
+        })
+    });
+    app.stand_styles = new OpenLayers.StyleMap({
+        "default": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: {
+                        "Polygon": {
+                            fillOpacity: 0,
+                            strokeWidth: 1,
+                            strokeOpacity: 0.75,
+                            strokeColor: "white"
+                        },
+                    }
+                })
+            ]
+        }),
+        "select": new OpenLayers.Style({
+            graphicZIndex: 10000,
+            strokeWidth: 2,
             strokeOpacity: 1,
             strokeColor: "#44ff00"
         }),
@@ -116,8 +163,8 @@ function init() {
                         "Polygon": {
                             pointRadius: 5,
                             fillColor: "white",
-                            fillOpacity: 0.25,
-                            strokeWidth: 1,
+                            fillOpacity: 0.35,
+                            strokeWidth: 2,
                             strokeOpacity: 1,
                             strokeColor: "#44ff00"
                         },

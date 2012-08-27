@@ -263,7 +263,7 @@ function standsViewModel() {
     };
 
     self.stand_layer = new OpenLayers.Layer.Vector("Stands", {
-      styleMap: app.new_styles,
+      styleMap: app.stand_styles,
       renderers: app.renderer
     });
     
