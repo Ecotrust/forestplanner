@@ -5,7 +5,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from simplejson import loads
+from simplejson import loads, dumps
 from madrona.features import *
 from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
 from madrona.features.forms import FeatureForm
@@ -130,7 +130,7 @@ class ForestPropertyTest(TestCase):
         self.assertRaises(AssertionError, prop1.add, prop2)
 
 
-class RestTest(TestCase):
+class RESTTest(TestCase):
     '''
     Basic tests of the REST API 
     A bit of a dup of the features tests but more concise and specific
@@ -857,15 +857,21 @@ class ScenarioTest(TestCase):
         self.stand1.save()
         self.stand2 = Stand(user=self.user, name="My Stand 2", geometry_orig=g1) 
         self.stand2.save()
+        self.stand3 = Stand(user=self.user, name="My Stand 3 (not on property)", geometry_orig=g1) 
+        self.stand3.save()
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
         self.prop1.add(self.stand1)
         self.prop1.add(self.stand2)
 
+        self.options = Scenario.get_options()
+        self.create_url = self.options.get_create_form()
+
     def test_create_scenario(self):
         s1 = Scenario(user=self.user, name="My Scenario", 
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
+                input_property=self.prop1,
                 input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
              )
         s1.save()
@@ -876,10 +882,44 @@ class ScenarioTest(TestCase):
         s1 = Scenario(user=self.user, name="My Scenario", 
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
+                input_property=self.prop1,
                 input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
              )
         s1.save()
         out = s1.output_scheduler_results
         self.assertEquals(out[1]['carbon'][2012], 5.0)
+
+    def test_post(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.post(self.create_url, {
+            'name': "My Scenario", 
+            'input_target_boardfeet': 2000,
+            'input_target_carbon': 1,
+            'input_property': self.prop1.pk,
+            'input_rxs': dumps({self.stand1.pk: 'CC', self.stand2.pk: "SW"}),
+        })
+        self.assertEqual(response.status_code, 201)
+        
+    def test_post_invalid_rx(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.post(self.create_url, {
+            'name': "My Scenario", 
+            'input_target_boardfeet': 2000,
+            'input_target_carbon': 1,
+            'input_property': self.prop1.pk,
+            'input_rxs': dumps({self.stand1.pk: 'BAD', self.stand2.pk: "SW"}),
+        })
+        self.assertEqual(response.status_code, 400, response.content)
+
+    def test_post_invalid_stand(self):
+        self.client.login(username='featuretest', password='pword')
+        response = self.client.post(self.create_url, {
+            'name': "My Scenario", 
+            'input_target_boardfeet': 2000,
+            'input_target_carbon': 1,
+            'input_property': self.prop1.pk,
+            'input_rxs': dumps({self.stand3.pk: 'CC', self.stand2.pk: "SW"}),
+        })
+        self.assertEqual(response.status_code, 400, response.content)
 
 

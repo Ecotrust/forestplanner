@@ -6,7 +6,7 @@ from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
-from django.utils.simplejson import dumps
+from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection
@@ -16,6 +16,7 @@ from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger
 from operator import itemgetter
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 logger = get_logger()
 
 def cachemethod(cache_key, timeout=60*60*24*7):
@@ -50,6 +51,7 @@ def cachemethod(cache_key, timeout=60*60*24*7):
 RX_CHOICES = (
     ('--', '--'),
     ('RE', 'Reserve; No Action'),
+    ('RG', 'Riparian Grow Only'),
     ('UG', 'Uneven-aged Group Selection'),
     ('SW', 'Shelterwood'),
     ('CT', 'Commercial Thinning'),
@@ -64,7 +66,7 @@ class Stand(PolygonFeature):
         ('MH', 'Mountain Hemlock'),
     )
     rx = models.CharField(max_length=2, choices=RX_CHOICES, 
-            verbose_name="Presciption", default="--")
+            verbose_name="Default Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="--")
 
@@ -206,79 +208,6 @@ class Stand(PolygonFeature):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
-
-class JSONField(models.TextField):
-    """JSONField is a generic textfield that neatly serializes/unserializes
-    JSON objects seamlessly"""
-    # Used so to_python() is called
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """Convert our string value to JSON after we load it from the DB"""
-        if value == "":
-            return None
-        # Actually we'll just return the string
-        # need to explicitly call json.loads(X) in your code
-        # reason: converting to dict then repr that dict in a form is invalid json
-        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single quotes)
-        return value
-
-    def get_db_prep_save(self, value, *args, **kwargs):
-        """Convert our JSON object to a string before we save"""
-        if value == "":
-            return None
-        if isinstance(value, dict):
-            value = dumps(value, cls=DjangoJSONEncoder)
-
-        return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
-
-# http://south.readthedocs.org/en/latest/customfields.html#extending-introspection
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^trees\.models\.JSONField"])
-
-@register
-class Scenario(Analysis):
-    """
-    NOTE: if no input Rx for a stand, use the default from stand model
-    """
-    description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
-    input_target_boardfeet = models.FloatField(verbose_name='Target Percentage of Habitat')
-    input_target_carbon = models.FloatField(verbose_name='Penalties for Missing Targets') 
-    input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
-
-    # All output fields should be allowed to be Null/Blank
-    output_scheduler_results = JSONField(null=True, blank=True)
-
-    def run(self):
-        # TODO prep scheduler, run it, parse the outputs
-        d = {
-                1: {'carbon': {2012:5, 2070:15, 2100:25}},
-                2: {'carbon': {2012:2, 2070:14, 2100:35}}
-            }
-        self.output_scheduler_results = d
-
-    def geojson(self, srid=None):
-        d = {
-            'uid': self.uid,
-            'name': self.name,
-            'user_id': self.user.pk,
-            'date_modified': str(self.date_modified),
-            'date_created': str(self.date_created),
-            'results': self.output_scheduler_results,
-        }
-        geom_json = 'null'
-
-        gj = """{ 
-              "type": "Feature",
-              "geometry": %s,
-              "properties": %s 
-        }""" % (geom_json, dumps(d))
-        return gj
-    
-    class Options:
-        form = "trees.forms.ScenarioForm"
-        verbose_name = 'Forest Scenario' 
-        form_context = { } 
 
 @register
 class ForestProperty(FeatureCollection):
@@ -452,6 +381,90 @@ class ForestProperty(FeatureCollection):
                 type="application/json",
                 select='single'),
         )
+
+class JSONField(models.TextField):
+    """JSONField is a generic textfield that neatly serializes/unserializes
+    JSON objects seamlessly"""
+    # Used so to_python() is called
+    __metaclass__ = models.SubfieldBase
+
+    def to_python(self, value):
+        """Convert our string value to JSON after we load it from the DB"""
+        if value == "":
+            return None
+        # Actually we'll just return the string
+        # need to explicitly call json.loads(X) in your code
+        # reason: converting to dict then repr that dict in a form is invalid json
+        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single quotes)
+        return value
+
+    def get_db_prep_save(self, value, *args, **kwargs):
+        """Convert our JSON object to a string before we save"""
+        if value == "":
+            return None
+        if isinstance(value, dict):
+            value = dumps(value, cls=DjangoJSONEncoder)
+
+        return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
+
+# http://south.readthedocs.org/en/latest/customfields.html#extending-introspection
+from south.modelsinspector import add_introspection_rules
+add_introspection_rules([], ["^trees\.models\.JSONField"])
+
+@register
+class Scenario(Analysis):
+    """
+    NOTE: if no input Rx for a stand, use the default from stand model
+    """
+    description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
+    input_property = models.ForeignKey('ForestProperty')
+    input_target_boardfeet = models.FloatField(verbose_name='Target Percentage of Habitat')
+    input_target_carbon = models.FloatField(verbose_name='Penalties for Missing Targets') 
+    input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
+
+    # All output fields should be allowed to be Null/Blank
+    output_scheduler_results = JSONField(null=True, blank=True)
+
+    def run(self):
+        # TODO prep scheduler, run it, parse the outputs
+        d = {
+                1: {'carbon': {2012:5, 2070:15, 2100:25}},
+                2: {'carbon': {2012:2, 2070:14, 2100:35}}
+            }
+        self.output_scheduler_results = d
+
+    def geojson(self, srid=None):
+        d = {
+            'uid': self.uid,
+            'name': self.name,
+            'user_id': self.user.pk,
+            'date_modified': str(self.date_modified),
+            'date_created': str(self.date_created),
+            'results': self.output_scheduler_results,
+        }
+        geom_json = 'null'
+
+        gj = """{ 
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s 
+        }""" % (geom_json, dumps(d))
+        return gj
+    
+    def clean(self):
+        inrx = loads(self.input_rxs)
+        valid_rx_keys = dict(RX_CHOICES).keys()
+        valid_stand_ids = [x.pk for x in self.input_property.feature_set()]
+        for stand, rx in inrx.iteritems():
+            if int(stand) not in valid_stand_ids:
+                raise ValidationError('%s is not a valid stand id for this property' % stand)
+            if rx not in valid_rx_keys:
+                raise ValidationError('%s is not a valid prescription' % rx)
+
+    class Options:
+        form = "trees.forms.ScenarioForm"
+        verbose_name = 'Forest Scenario' 
+        form_context = { } 
 
 class Parcel(models.Model):
     apn = models.CharField(max_length=40)
