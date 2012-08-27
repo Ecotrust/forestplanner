@@ -43,8 +43,34 @@ function init() {
 
     var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial);
     var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain);
+    var nhd = new OpenLayers.Layer.XYZ( "EPA NHD",
+        "http://watersgeo.epa.gov/ARCGIS/REST/services/OW/NHD_Med_Detailed_WMERC/MapServer/tile/${z}/${y}/${x}",
+        //"/tile/${z}/${y}/${x}",
+        {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75} 
+    );
+    var huc = new OpenLayers.Layer.XYZ( "EPA HUCs",
+        //"/tile/${z}/${y}/${x}",
+        "http://watersgeo.epa.gov/ArcGIS/rest/services/OW/WBD_WMERC/MapServer/tile/${z}/${y}/${x}",
+        {sphericalMercator: true, isBaseLayer: false, visibility: false} 
+    );
+    var soils = new OpenLayers.Layer.XYZ( "Soil Survey Map",
+        //"/tile/${z}/${y}/${x}",
+        "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
+        {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75} 
+    );
+    /* 
+     * TODO legend for soils data
+     * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/legend
+     *
+     * TODO query for soils data
+     * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/1/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13673363.281068286%2C%22ymin%22%3A6024153.000358967%2C%22xmax%22%3A-13669694.3037106%2C%22ymax%22%3A6027821.977716654%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript20._jsonpCallback
+     * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/0/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13635374.078010553%2C%22ymin%22%3A5702238.455736051%2C%22xmax%22%3A-13634456.833671134%2C%22ymax%22%3A5703155.700075472%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript28._jsonpCallback
+     */
     map.addLayer(baseAerial);
     map.addLayer(baseOSM);
+    map.addLayer(soils);
+    map.addLayer(nhd);
+    map.addLayer(huc);
     map.addLayers([gsat, gphy, ghyb]);
 
     for (var i=map.layers.length-1; i>=0; --i) {
