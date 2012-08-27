@@ -106,10 +106,12 @@ stand:
         ]
     }),
     "select": new OpenLayers.Style({
-        graphicZIndex: 10000,
-        strokeWidth: 2,
+        graphicZIndex: 1,
+        fillColor: "white",
+        fillOpacity: 0.18,
+        strokeWidth: 3,
         strokeOpacity: 1,
-        strokeColor: "#44ff00"
+        strokeColor: "yellow"
     }),
     "temporary": new OpenLayers.Style(null, {
         rules: [
@@ -134,4 +136,3 @@ stand:
 })
 };
 
-console.log(map_styles);
