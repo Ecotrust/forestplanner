@@ -82,7 +82,7 @@ class StandImporter:
             stand.save()
             self.forest_property.add(stand)
             if pre_impute:
-                tmp = stand.geojson
+                tmp = stand.geojson()
 
 def calculate_adjacency(qs, threshold):
     """

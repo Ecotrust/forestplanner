@@ -197,6 +197,8 @@ class Stand(PolygonFeature):
         Remove any cached values associated with this scenario.
         Warning: additional caches will need to be added to this method
         '''
+        if not self.id:
+            return True
         keys = ["Stand_%(id)s_geojson"]
         keys = [x % self.__dict__ for x in keys]
         cache.delete_many(keys)

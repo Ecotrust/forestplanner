@@ -52,4 +52,5 @@ class Command(BaseCommand):
         s = StandImporter(user)
         s.import_ogr(shp_path, field_mapping, new_property_name=property_name, pre_impute=True) 
 
-        print "%d stands imported from %s" % (n, shp_path)
+        prop = ForestProperty.objects.filter(name=property_name).latest('date_modified')
+        print "%d stands imported from %s" % (len(prop.feature_set()), shp_path)
