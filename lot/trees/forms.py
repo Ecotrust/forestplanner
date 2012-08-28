@@ -21,5 +21,6 @@ class ScenarioForm(FeatureForm):
             exclude.append(f.attname)
 
 class UploadStandsForm(forms.Form):
-    property_pk = forms.IntegerField()
+    property_pk = forms.IntegerField(required=False)
+    new_property_name = forms.CharField(required=False)
     ogrfile = forms.FileField()

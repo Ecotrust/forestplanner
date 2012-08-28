@@ -18,6 +18,10 @@
       body {
         padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
       }
+      .label {
+        font-size: 13px;
+        line-height: 18px;
+      }
       .property-details {
           background-color: white; 
       }
@@ -118,6 +122,7 @@
       }
     </style>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/jquery.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.0.0.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
@@ -192,19 +197,10 @@
       </div>
     </div>
 
-
- 
-
     <div class="container-fluid">
       {% block content %}{% endblock content %}
     </div> <!-- /container -->
 
-
-    <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
- 
-    <!-- page wide js -->
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
 
   </body>

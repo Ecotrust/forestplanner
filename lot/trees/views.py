@@ -79,11 +79,18 @@ def upload_stands(request):
 
         if form.is_valid():
             # confirm property 
-            prop_pk = request.POST['property_pk']
             try:
-                prop = ForestProperty.objects.get(pk=prop_pk, user=request.user)
-            except ForestProperty.DoesNotExist:
-                return HttpResponse('Could not find Forest Property %s' % prop_pk, status=404)
+                prop_pk = request.POST['property_pk']
+            except KeyError:
+                prop_pk = None
+
+            try:
+                new_prop_name = request.POST['new_property_name']
+            except KeyError:
+                new_prop_name = None
+
+            if not prop_pk and not new_prop_name:
+                return HttpResponse('You must provide either a new property name or existing property id.', status=401)
 
             # Save to disk
             f = request.FILES['ogrfile']
@@ -115,16 +122,22 @@ def upload_stands(request):
             # Import
             from trees.utils import StandImporter
             try:
-                s = StandImporter(prop)
-                s.import_ogr(ogr_path) 
-            except Exception as err:
-                return HttpResponse('Error importing stands\n\n%s' % err, status=500)
+                s = StandImporter(request.user)
 
-            return HttpResponse('success', status=200)
+                if new_prop_name:
+                    s.import_ogr(ogr_path, new_property_name=new_prop_name, pre_impute=True) 
+                else:
+                    fp = ForestProperty.objects.get(pk=prop.pk)
+                    s.import_ogr(ogr_path, forest_property=fp, pre_impute=True) 
+            except Exception as err:
+                return HttpResponse('<p class="label label-important">Error importing stands:\n\n%s</p>' % err, status=500)
+
+            return HttpResponse('<p class="label label-success">Success</p>', status=201)
     else:
         form = UploadStandsForm()
 
-    return render_to_response('upload.html', {'form': form})
+    return HttpResponse('<p class="label label-important">Error importing stands: Invalid form submission</p>', status=400)
+    #return render_to_response('upload.html', {'form': form}, status=status)
 
 def geojson_forestproperty(request, instance):
     '''

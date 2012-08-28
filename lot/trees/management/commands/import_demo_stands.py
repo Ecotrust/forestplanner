@@ -29,7 +29,6 @@ class Command(BaseCommand):
         if layer.srs.srid != settings.GEOMETRY_DB_SRID:
             print "WARNING: Shapefile must be in Web Mercator. If it's not, the results will not be good."
 
-
         try: 
             namefld = args[1]
         except (IndexError):
@@ -48,29 +47,9 @@ class Command(BaseCommand):
         except User.DoesNotExist:
             user = User.objects.create_user('demo', 'mperry@ecotrust.org', password='demo')
 
-        print "Calculating property outline from stands..."
-        stands = []
-        for feature in layer:
-            stands.append(wkt.loads(feature.geom.wkt))
-        casc_poly = cascaded_union(stands)
-        casc = Polygon(casc_poly.exterior)
-        
-        print "Creating Property..."
-        prop1, created = ForestProperty.objects.get_or_create(user=user, name=property_name, geometry_final=casc.wkt)
-        [x.delete() for x in prop1.feature_set()]
-        prop1.save()
-
         print "Importing stands..."
         field_mapping = {'name': namefld}
-        s = StandImporter(prop1)
-        s.import_ogr(shp_path, field_mapping) 
-
-        print "Pre-imputing stands..."
-        stands = prop1.feature_set()
-        n = 0
-        for stand in stands:
-            n += 1
-            print '\t', stand.name
-            a = stand.geojson
+        s = StandImporter(user)
+        s.import_ogr(shp_path, field_mapping, new_property_name=property_name, pre_impute=True) 
 
         print "%d stands imported from %s" % (n, shp_path)

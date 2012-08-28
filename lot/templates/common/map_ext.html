@@ -73,7 +73,7 @@
                           <i class="icon-plus-sign"></i> Add Property</button>
                       <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
                           <i class="icon-resize-full"></i> Show All Properties</button>
-                      <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">
+                      <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                           <i class="icon-upload"></i> Upload</a>
                   </div>
                   </p>
@@ -94,6 +94,48 @@
                 </div><!-- has properties -->
                 <div class="row-fluid"><!-- panels -->
                   <div>
+                    <div style="display:none" data-bind="visible: showUploadPanel">
+                      <h2>Upload stands</h2>
+                      <p> File upload </p>
+                      <ul> 
+                          <li> A .zip file containing an ESRI Shapefile </li>
+                          <li> Projected to Web Mercator </li>
+                          <li> Contains polygons of all stands </li>
+                          <li> Must contain an string attribute field called "name" </li>
+                      </ul>
+                      <div class="well">
+                      <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data"> 
+                            <input type="hidden" name="MAX_FILE_SIZE" value="100000">
+                            <p> 
+                                <label for="upload-propertyname">
+                                    <span id="upload-propertyname-required" class="label label-important"
+                                        style="display:none;"> 
+                                        Required 
+                                        <i class="icon-exclamation-sign icon-white"></i> 
+                                    </span>
+                                    &nbsp; New Property Name
+                                </label>
+                                <input type="text" id="upload-propertyname" name="new_property_name" size="10"/>
+                            </p>
+                            <p> 
+                                <span id="upload-file-required" class="label label-important"
+                                    style="display:none;"> 
+                                    Required 
+                                    <i class="icon-exclamation-sign icon-white"></i> 
+                                </span>
+                                <input type="file" id="upload-file" name="ogrfile" size="10"/> 
+                                <input id="uploadbutton" type="submit" class="btn btn-primary" value="Upload"/>
+                            </p>
+                            <div class="pull-right">
+                                <a href="#" class="btn" data-bind="click: cancelUpload">cancel</a>
+                            </div>
+                      </form>
+                      <div id="uploadProgress" style="display: none; width:80%;" class="progress progress-striped active">
+                        <div class="bar" style="width: 0%;"></div>
+                      </div>
+                      <div id="uploadResponse" style="width: 80%; font-size: 125%;"></div>
+                      </div>
+                    </div>
                     <div style="display:none" data-bind="if: showDrawHelpPanel, visible: showDrawHelpPanel">
                       <h2>Draw Property Boundary</h2>
                       <p> Double-click to complete polygon. </p>
@@ -342,6 +384,45 @@
         });
 
       $(window).resize(app.onResize);
+
+      var options = {
+        beforeSubmit: function(formData, jqForm, options) {
+            var name, file;
+            $(formData).each(function () {
+                if (this.name === 'new_property_name') {
+                     name = this.value;
+                } else if (this.name === 'ogrfile') {
+                     file = this.value;
+                }
+            });
+            if (!name) {
+                $("#upload-propertyname-required").fadeIn();
+                return false;
+            };
+            if (!file) {
+                $("#upload-file-required").fadeIn();
+                return false;
+            };
+
+            $("#uploadProgress").show();
+        },
+        uploadProgress: function(event, position, total, percentComplete) {
+            var percentVal = percentComplete + '%';
+            $("#uploadProgress .bar").css('width', percentVal);
+        },
+        complete: function(xhr) {
+            $("#uploadResponse").html(xhr.responseText);
+            $("#uploadProgress").hide();
+            $("#uploadProgress .bar").css('width', '0%');
+            if (xhr.status == 201) {
+                // TODO refresh properties list and show proper panels
+            }
+        }
+      }; 
+      $('#uploadForm').submit( function () {
+          $(this).ajaxSubmit(options); 
+          return false; 
+      });
 
     });
 

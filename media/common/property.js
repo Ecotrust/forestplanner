@@ -7,6 +7,7 @@ function propertiesViewModel () {
   self.showDetailPanel = ko.observable(false);
   self.showCreatePanel = ko.observable(false);
   self.showDrawHelpPanel = ko.observable(false);
+  self.showUploadPanel = ko.observable(false);
   self.drawingActivated = ko.observable(false);
   self.preventUpdates = ko.observable(false);
   self.showPropertyList = ko.observable(true);
@@ -91,6 +92,7 @@ function propertiesViewModel () {
 
     })
   };
+
   self.startAddDrawing = function () {
     self.showDetailPanel(false);
     self.showDrawHelpPanel(true);
@@ -98,8 +100,17 @@ function propertiesViewModel () {
     self.showNoPropertiesHelp(false);
     self.preventUpdates(true);
     app.drawFeature.activate();
-    self.showPropertyList(false)
+    self.showPropertyList(false);
   };
+
+  self.startUpload = function () {
+    self.showDetailPanel(false);
+    self.showUploadPanel(true);
+    self.showNoPropertiesHelp(false);
+    self.preventUpdates(true);
+    self.showPropertyList(false);
+  };
+
   self.showAddForm = function () {
     var formUrl = '/features/forestproperty/form/';
 
@@ -238,7 +249,16 @@ function propertiesViewModel () {
     self.showDetailPanel(self.propertyList().length ? true: false);
     app.new_features.removeAllFeatures();
     self.showPropertyList(true);
+  };
 
+  self.cancelUpload = function (self, event) {
+    self.showEditPanel(false);
+    self.showCreatePanel(false);
+    self.showUploadPanel(false);
+    self.preventUpdates(false);
+    self.showNoPropertiesHelp(self.propertyList().length ? false: true);
+    self.showDetailPanel(self.propertyList().length ? true: false);
+    self.showPropertyList(true);
   };
 
   self.manageStands = function (self, event) {
@@ -301,14 +321,12 @@ function propertiesViewModel () {
   
       // set up the breadcrumbs    
       app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
-
       app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null})
       
       // select the first property and show the detail panel
       if (data.features.length) {
         app.property_layer.addFeatures(app.geojson_format.read(data));        
-      } else {
-      }
+      } 
       app.onResize();
       self.zoomToExtent();
   });

@@ -4,19 +4,23 @@ from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
 from madrona.common.utils import get_logger
 from hashlib import sha1
+from shapely.geometry import Point, Polygon
+from shapely import wkt, wkb
+from shapely.ops import cascaded_union
 
 logger = get_logger()
 
 class StandImporter:
 
-    def __init__(self, forest_property):
-        self.forest_property = forest_property
-        self.user = self.forest_property.user
+    def __init__(self, user):
+        self.user = user
         self.required_fields = ['name']
         self.optional_fields = ['domspp','rx'] # model must provide defaults!
 
     def _validate_field_mapping(self, layer, field_mapping):
         fields = layer.fields
+        if not field_mapping:
+            field_mapping = {}
 
         for fname in self.required_fields:
             if fname not in field_mapping.keys():
@@ -24,7 +28,7 @@ class StandImporter:
                 field_mapping[fname] = fname
 
             if field_mapping[fname] not in fields:
-                raise Exception("field_mapping must at least provide a 'name'")
+                raise Exception("Dataset does not have a required field called '%s'" % field_mapping[fname])
 
         for fname in self.optional_fields:
             if fname not in field_mapping.keys():
@@ -33,11 +37,28 @@ class StandImporter:
             
         return field_mapping
 
-    def import_ogr(self, shp_path, field_mapping={}, layer_num=0):
+    def import_ogr(self, shp_path, field_mapping=None, layer_num=0, 
+            forest_property=None, new_property_name=None, pre_impute=False):
         ds = DataSource(shp_path)
         layer = ds[0]
         num_features = len(layer)
         field_mapping = self._validate_field_mapping(layer, field_mapping)
+
+        if not forest_property and not new_property_name:
+            raise Exception("Must provide either existing forest_property OR new_property_name")
+
+        if new_property_name:
+            #print "Calculating property outline from stands..."
+            stands = []
+            for feature in layer:
+                stands.append(wkt.loads(feature.geom.wkt))
+            casc_poly = cascaded_union(stands)
+            casc = Polygon(casc_poly.exterior)
+            
+            #print "Creating Property..."
+            self.forest_property = ForestProperty.objects.create(user=self.user, name=new_property_name, geometry_final=casc.wkt)
+        else: 
+            self.forest_property = forest_property
 
         stands = []
         for feature in layer:
@@ -60,7 +81,8 @@ class StandImporter:
         for stand in stands:
             stand.save()
             self.forest_property.add(stand)
-
+            if pre_impute:
+                tmp = stand.geojson
 
 def calculate_adjacency(qs, threshold):
     """
