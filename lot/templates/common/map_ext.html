@@ -409,13 +409,16 @@
         uploadProgress: function(event, position, total, percentComplete) {
             var percentVal = percentComplete + '%';
             $("#uploadProgress .bar").css('width', percentVal);
+            if (percentComplete > 99) {
+                $("#uploadResponse").html('<p class="label label-info">Upload complete. Processing stand data...</p>');
+            }
         },
         complete: function(xhr) {
             $("#uploadResponse").html(xhr.responseText);
             $("#uploadProgress").hide();
             $("#uploadProgress .bar").css('width', '0%');
             if (xhr.status == 201) {
-                // TODO refresh properties list and show proper panels
+                app.properties.viewModel.afterUploadSuccess();
             }
         }
       }; 

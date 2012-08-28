@@ -251,6 +251,17 @@ function propertiesViewModel () {
     self.showPropertyList(true);
   };
 
+  self.afterUploadSuccess = function() {
+    alert("Upload successful... TODO reload property list");
+    self.showEditPanel(false);
+    self.showCreatePanel(false);
+    self.showUploadPanel(false);
+    self.preventUpdates(false);
+    self.showNoPropertiesHelp(self.propertyList().length ? false: true);
+    self.showDetailPanel(self.propertyList().length ? true: false);
+    self.showPropertyList(true);
+  };
+
   self.cancelUpload = function (self, event) {
     self.showEditPanel(false);
     self.showCreatePanel(false);
