@@ -127,7 +127,10 @@ def upload_stands(request):
                 if new_prop_name:
                     s.import_ogr(ogr_path, new_property_name=new_prop_name, pre_impute=True) 
                 else:
-                    fp = ForestProperty.objects.get(pk=prop.pk)
+                    try:
+                        fp = ForestProperty.objects.get(pk=prop_pk)
+                    except ForestProperty.DoesNotExist:
+                        return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
                     s.import_ogr(ogr_path, forest_property=fp, pre_impute=True) 
             except Exception as err:
                 return HttpResponse('<p class="label label-important">Error importing stands:\n\n%s</p>' % err, status=500)

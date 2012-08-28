@@ -558,8 +558,8 @@ class StandImportTest(TestCase):
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
         from trees.utils import StandImporter
-        s = StandImporter(self.prop1)
-        s.import_ogr(self.shp_path) 
+        s = StandImporter(self.user)
+        s.import_ogr(self.shp_path, forest_property=self.prop1) 
 
         self.assertEqual(len(Stand.objects.all()), 37)
         self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
@@ -568,14 +568,31 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
+    def test_importer_py_newproperty(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
+        from trees.utils import StandImporter
+        s = StandImporter(self.user)
+        s.import_ogr(self.shp_path, new_property_name="Another Property") 
+
+        self.assertEqual(len(Stand.objects.all()), 37)
+        self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
+        # from the default 'name' field this time
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 0) 
+        self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        new_stand = ForestProperty.objects.get(name="Another Property")
+        self.assertEqual(len(new_stand.feature_set()), 37)
+
     def test_importer_py_fieldmap(self):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
         from trees.utils import StandImporter
-        s = StandImporter(self.prop1)
+        s = StandImporter(self.user)
         field_mapping = {'name': 'STAND_TEXT'}
-        s.import_ogr(self.shp_path, field_mapping) 
+        s.import_ogr(self.shp_path, field_mapping, forest_property=self.prop1) 
 
         self.assertEqual(len(Stand.objects.all()), 37)
         self.assertEqual(len(Stand.objects.filter(rx='SW',domspp='MH')), 3)
@@ -589,9 +606,9 @@ class StandImportTest(TestCase):
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
         from trees.utils import StandImporter
-        s = StandImporter(self.prop1)
+        s = StandImporter(self.user)
         with self.assertRaises(Exception):
-            s.import_ogr(self.bad_shp_path)
+            s.import_ogr(self.bad_shp_path, forest_property=self.prop1)
 
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
@@ -606,7 +623,7 @@ class StandImportTest(TestCase):
         url = reverse('trees-upload_stands')
         response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
         f.close()
-        self.assertEqual(response.status_code, 200, response.content)
+        self.assertEqual(response.status_code, 201, response.content)
         self.assertNotEqual(response.content.find('success'), -1, response.content)
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
@@ -650,7 +667,26 @@ class StandImportTest(TestCase):
         f.close()
         self.assertEqual(response.status_code, 404, response.content)
         self.assertEqual(len(self.prop1.feature_set()), 0)
-        
+
+    def test_importer_http_newproperty(self):
+        '''
+        If no property is found belonging to the user, should get a 404
+        '''
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'new_property_name': 'Another Property', 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertNotEqual(response.content.find('success'), -1, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        new_stand = ForestProperty.objects.get(name="Another Property")
+        self.assertEqual(len(new_stand.feature_set()), 37)
+
 
 class GrowthYieldTest(TestCase):
     '''
@@ -686,8 +722,8 @@ class AdjacencyTest(TestCase):
         d = os.path.dirname(__file__)
         self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'test_stands.shp'))
-        s = StandImporter(self.prop1)
-        s.import_ogr(self.shp_path) 
+        s = StandImporter(self.user)
+        s.import_ogr(self.shp_path, forest_property=self.prop1) 
 
     def test_adjacency(self):
         '''
