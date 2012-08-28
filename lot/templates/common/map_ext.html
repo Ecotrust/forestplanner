@@ -70,9 +70,11 @@
                   <p>
                   <div class="btn-group">
                       <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">
-                          Add Property</button>
+                          <i class="icon-plus-sign"></i> Add Property</button>
                       <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
-                          Show All Properties</button>
+                          <i class="icon-resize-full"></i> Show All Properties</button>
+                      <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">
+                          <i class="icon-upload"></i> Upload</a>
                   </div>
                   </p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">
@@ -156,7 +158,6 @@
                       <p>
                         <div class="btn-group">
                             <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add</a>
-                            <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-upload"></i> Upload</a>
                         </div>
                       </p>
                       <div>
@@ -295,10 +296,10 @@
             {% endif %}
           </div>
           <div class="span6">
-            <div class="outermap">
-              <span class="pull-right">
+            <div class="outermap well">
+              <div id="searchbox-container" class="pull-right">
                 {% include "common/geosearch.html" %}
-              </span>
+              </div>
               <div id="map"></div>
             </div>
           </div>

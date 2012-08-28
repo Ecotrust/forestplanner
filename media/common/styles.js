@@ -65,7 +65,8 @@ forestProperty:
         ]
     }),
     "select": new OpenLayers.Style({
-        strokeColor: "#44ff00"
+        strokeColor: "#44ff00",
+        fillOpacity: 0.12
     }),
     "temporary": new OpenLayers.Style(null, {
         rules: [

@@ -66,12 +66,12 @@ function init() {
      * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/1/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13673363.281068286%2C%22ymin%22%3A6024153.000358967%2C%22xmax%22%3A-13669694.3037106%2C%22ymax%22%3A6027821.977716654%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript20._jsonpCallback
      * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/0/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13635374.078010553%2C%22ymin%22%3A5702238.455736051%2C%22xmax%22%3A-13634456.833671134%2C%22ymax%22%3A5703155.700075472%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript28._jsonpCallback
      */
+    map.addLayers([ghyb, gphy, gsat]);
     map.addLayer(baseAerial);
     map.addLayer(baseOSM);
     map.addLayer(soils);
     map.addLayer(nhd);
     map.addLayer(huc);
-    map.addLayers([gsat, gphy, ghyb]);
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
