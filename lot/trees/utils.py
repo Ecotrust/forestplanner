@@ -187,8 +187,11 @@ def classify_aspect(angle):
     '''
     inspired by http://xkcd.com/cyborg.py
     '''
+    angle = float(angle)
     if not angle:
         return ""
+    while angle > 360.0:
+        angle = angle - 360.0
     angle += 22.5
     angle = int(angle/45.0)
     words=["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West", "North"]

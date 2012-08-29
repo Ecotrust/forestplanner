@@ -1005,3 +1005,19 @@ class ScenarioTest(TestCase):
         res = loads(response.content)['features'][0]['properties']['results']
         self.assertEquals(res[str(self.stand1.pk)]['carbon']['2012'], 5.0, res)
 
+class AspectTest(TestCase):
+    def test_aspect(self):
+        from trees.utils import classify_aspect
+        aspect_examples = [
+          (355, 'North'),
+          (2, 'North'),
+          (22.4, 'North'),
+          (22.6, 'North-East'),
+          (45, 'North-East'),
+          (216, 'South-West'),
+          (355 + 360, 'North'),
+        ]
+        for ae in aspect_examples:
+            print ae[0], ae[1]
+            self.assertEquals(classify_aspect(ae[0]), ae[1], ae[0])
+
