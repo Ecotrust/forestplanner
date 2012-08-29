@@ -539,6 +539,7 @@ class StandImportTest(TestCase):
     # assert that mapped attributes are populated
     '''
     def setUp(self):
+        import_rasters()
         d = os.path.dirname(__file__)
         self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'test_stands.shp'))
@@ -612,6 +613,33 @@ class StandImportTest(TestCase):
 
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_holes(self):
+        '''
+        Test for handling of slivers
+        '''
+        d = os.path.dirname(__file__)
+        holes_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 'testdata', 'test_stands_holes.zip'))
+        url = reverse('trees-upload_stands')
+        self.client.login(username='featuretest', password='pword')
+
+        # With default threshold, the "sliver" should not show up
+        with open(holes_path) as f:
+            response = self.client.post(url, {'new_property_name': 'holes', 'ogrfile': f})
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(len(Stand.objects.all()), 35)
+        prop = ForestProperty.objects.get(name="holes")
+        self.assertEqual(prop.geometry_final.num_interior_rings, 1)
+
+        # Now try it with a tighter tolerance, the "sliver" should show up as another interior ring
+        Stand.objects.all().delete()
+        settings.SLIVER_THRESHOLD = 1.0
+        with open(holes_path) as f:
+            response = self.client.post(url, {'new_property_name': 'holes2', 'ogrfile': f})
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(len(Stand.objects.all()), 35)
+        prop2 = ForestProperty.objects.get(name="holes2")
+        self.assertEqual(prop2.geometry_final.num_interior_rings, 2)
 
     def test_importer_http(self):
         self.client.login(username='featuretest', password='pword')

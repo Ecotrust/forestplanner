@@ -48,14 +48,18 @@ class StandImporter:
             raise Exception("Must provide either existing forest_property OR new_property_name")
 
         if new_property_name:
-            #print "Calculating property outline from stands..."
+            # Calculating property outline from stands
             stands = []
             for feature in layer:
                 stands.append(wkt.loads(feature.geom.wkt))
             casc_poly = cascaded_union(stands)
-            casc = Polygon(casc_poly.exterior)
+
+            # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
+            # If they're smaller than the threshold, remove them
+            interiors = [x for x in casc_poly.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+            casc = Polygon(shell=casc_poly.exterior, holes=interiors)
             
-            #print "Creating Property..."
+            # Creating Property
             self.forest_property = ForestProperty.objects.create(user=self.user, name=new_property_name, geometry_final=casc.wkt)
         else: 
             self.forest_property = forest_property
