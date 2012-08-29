@@ -48,3 +48,109 @@
 #customZoomOut {
     top: 25px;
 }
+
+body {
+    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+}
+.label {
+    font-size: 13px;
+    line-height: 18px;
+}
+.property-details {
+    background-color: white; 
+}
+.olControlAttribution {
+    bottom: 5px;
+    font-size: 9px;
+}
+#customZoom {
+    z-index: 1001;
+    position: relative;
+    top: 100px;
+    left: 190px;
+}
+#customZoom a {
+    text-decoration: none;
+    position: absolute;
+    display: block;
+    width: 50px;
+    text-align: center;
+    font-weight: bold;
+    color: #fff;
+    background: #369;
+    border: 1px solid #ccc; border-radius: 3px;
+}
+#customZoom a:hover {
+    background: #036;
+}
+#customZoomOut {
+    top: 25px;
+}
+.olLayerGooglePoweredBy.olLayerGoogleV3.gmnoprint {
+    visibility:hidden;
+}
+div.olLayerGoogleCopyright, div.olLayerGooglePoweredBy
+{
+    display: none !important;
+}
+img.olTileImage {
+    max-width: 257% !important;
+    width: 257% !important;
+    height: 257% !important;
+}
+label.olButton {
+    display: inline;
+    float: none;
+    padding: 9px 10px 11px;
+    line-height: 19px;
+    color: white;
+    text-decoration: none;
+    text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+#watermarked-image {
+    height: 168px;
+    width: 260px;
+    background-image: url(/media/img/svs.gif);
+    background-position: 0 0;
+    background-repeat: no-repeat;
+    position: relative;
+    margin: 0px auto;
+}
+#watermarked-image p {
+    position: absolute;
+    font-size: 36pt;
+    color: white;
+    top: 100px;
+    left: 50px;
+    text-shadow: 5px 1px 1px black;
+    opacity: 0.5;
+    filter:alpha(opacity=50); /* for lteq IE 8 */
+}
+a {
+    cursor: pointer;
+}
+.table-hover tbody tr:hover td, .table-hover tbody tr:hover th {
+    background-color: white;
+}
+.table tr.active {
+    background: white;
+}
+#searchbox-container {
+    bottom: 31px;
+    margin: 2px;
+    position: absolute; 
+    z-index: 1043;
+    text-align:left;
+    vertical-align:center;
+    font-size: 85%;
+    padding: 2px;
+    background:none;
+}
+.outermap {
+    padding: 4px !important;
+}
+#input-geosearch {
+    border-radius: 8px !important;
+    height: 15px !important;
+}

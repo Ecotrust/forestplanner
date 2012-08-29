@@ -348,93 +348,35 @@
         </div>
       </div>
       <!-- end partial -->
-  
-    <script type="text/javascript">
 
-    // name space for app
-    var app = {
-      stands: {},
-      properties: {}
-    };
-
-    $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
-      app.workspace = data;
-    });
-
-    app.properties = {
-      viewModel: new propertiesViewModel()
-    };
-
-    app.onResize = function () {
-      $("#map").height($(window).height() - 114);
-      map.render('map');
-    };
-    
-    $(document).ready(function () {
-
-      app.properties.viewModel.init()
-        .done(function () {
-          // apply the viewmodel
-          ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
-          app.onResize();
-        })
-        .fail(function () {
-          map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
-          ko.applyBindings(app.viewModel);
-        });
-
-      $(window).resize(app.onResize);
-
-      var options = {
-        beforeSubmit: function(formData, jqForm, options) {
-            var name, file;
-            $(formData).each(function () {
-                if (this.name === 'new_property_name') {
-                     name = this.value;
-                } else if (this.name === 'ogrfile') {
-                     file = this.value;
-                }
-            });
-            if (!name) {
-                $("#upload-propertyname-required").fadeIn();
-                return false;
-            };
-            if (!file) {
-                $("#upload-file-required").fadeIn();
-                return false;
-            };
-
-            $("#uploadProgress").show();
-        },
-        uploadProgress: function(event, position, total, percentComplete) {
-            var percentVal = percentComplete + '%';
-            $("#uploadProgress .bar").css('width', percentVal);
-            if (percentComplete > 99) {
-                $("#uploadResponse").html('<p class="label label-info">Upload complete. Processing stand data...</p>');
-            }
-        },
-        complete: function(xhr) {
-            $("#uploadResponse").html(xhr.responseText);
-            $("#uploadProgress").hide();
-            $("#uploadProgress .bar").css('width', '0%');
-            if (xhr.status == 201) {
-                app.properties.viewModel.afterUploadSuccess();
-            }
-        }
-      }; 
-      $('#uploadForm').submit( function () {
-          $(this).ajaxSubmit(options); 
-          return false; 
-      });
-
-    });
-
-    </script>
 {% endblock content %}
 {% block scripts %}
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/jquery.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.0.0.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
+    {% load compressed %}
+    <script type="text/javascript">
+        var madrona = {
+            features: {}
+        };
+        var app = {
+            stands: {},
+            properties: {}
+        };
+        $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
+            app.workspace = data;
+        });
+    </script>
+    <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
-    {% load compressed %}
-    <!-- styles, trees, property, stand .js -->
     {% compressed_js 'application' %}
+    <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
+    <script src="{{ MEDIA_URL }}common/js/init.js"></script>
+    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
 {% endblock scripts %}

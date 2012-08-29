@@ -58,6 +58,7 @@ function init() {
         "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
         {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75} 
     );
+
     /* 
      * TODO legend for soils data
      * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/legend
@@ -66,8 +67,48 @@ function init() {
      * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/1/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13673363.281068286%2C%22ymin%22%3A6024153.000358967%2C%22xmax%22%3A-13669694.3037106%2C%22ymax%22%3A6027821.977716654%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript20._jsonpCallback
      * http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/0/query?f=json&returnGeometry=true&spatialRel=esriSpatialRelIntersects&geometry=%7B%22xmin%22%3A-13635374.078010553%2C%22ymin%22%3A5702238.455736051%2C%22xmax%22%3A-13634456.833671134%2C%22ymax%22%3A5703155.700075472%2C%22spatialReference%22%3A%7B%22wkid%22%3A102100%7D%7D&geometryType=esriGeometryEnvelope&inSR=102100&outFields=*&outSR=102100&callback=dojo.io.script.jsonp_dojoIoScript28._jsonpCallback
      */
-    map.addLayers([ghyb, gphy, gsat]);
+
+    var esri_base = new OpenLayers.Layer.XYZ( "ESRI Topo Maps",
+        /*
+        ESRI_Imagery_World_2D (MapServer)
+        ESRI_StreetMap_World_2D (MapServer)
+        NatGeo_World_Map (MapServer)
+        NGS_Topo_US_2D (MapServer)
+        Ocean_Basemap (MapServer)
+        USA_Topo_Maps (MapServer)
+        World_Imagery (MapServer)
+        World_Physical_Map (MapServer)
+        World_Shaded_Relief (MapServer)
+        World_Street_Map (MapServer)
+        World_Terrain_Base (MapServer)
+        World_Topo_Map (MapServer)
+        */
+        "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
+        {sphericalMercator: true} 
+    );
+
+    var apiKey = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70";
+
+    var road = new OpenLayers.Layer.Bing({
+        name: "Bing Road",
+        key: apiKey,
+        type: "Road"
+    });
+    var hybrid = new OpenLayers.Layer.Bing({
+        name: "Bing Hybrid",
+        key: apiKey,
+        type: "AerialWithLabels"
+    });
+    var aerial = new OpenLayers.Layer.Bing({
+        name: "Bing Aerial",
+        key: apiKey,
+        type: "Aerial"
+    });
+
+    map.addLayers([ghyb, gphy]);
     map.addLayer(baseAerial);
+    map.addLayers([hybrid, road]);
+    map.addLayer(esri_base);
     map.addLayer(baseOSM);
     map.addLayer(soils);
     map.addLayer(nhd);
@@ -116,8 +157,6 @@ function init() {
     // draw is in tree.js TODO: move)
     // activate select now
     app.selectFeature.activate();
-
-    
   
     new_snap = new OpenLayers.Control.Snapping({
                 layer: app.new_features,
