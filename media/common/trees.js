@@ -104,10 +104,11 @@ function init() {
         key: apiKey,
         type: "Aerial"
     });
-    map.addLayers([hybrid, road, aerial]);
-    map.addLayer(gphy);
-    map.addLayer(esri_base);
+
+    map.addLayers([ghyb, gphy]);
     map.addLayer(baseAerial);
+    map.addLayers([hybrid, road]);
+    map.addLayer(esri_base);
     map.addLayer(baseOSM);
     map.addLayer(soils);
     map.addLayer(nhd);
@@ -156,8 +157,6 @@ function init() {
     // draw is in tree.js TODO: move)
     // activate select now
     app.selectFeature.activate();
-
-    
   
     new_snap = new OpenLayers.Control.Snapping({
                 layer: app.new_features,

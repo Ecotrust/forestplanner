@@ -111,7 +111,7 @@ label.olButton {
 #watermarked-image {
     height: 168px;
     width: 260px;
-    background-image: url({{ MEDIA_URL }}img/svs.gif);
+    background-image: url(/media/img/svs.gif);
     background-position: 0 0;
     background-repeat: no-repeat;
     position: relative;
