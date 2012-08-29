@@ -30,19 +30,18 @@ function standsViewModel() {
 
   // this list is model for pagination controls 
   self.paginationList = ko.computed(function () {
-    var list = [], listIndex = 0, displayIndex = 1, listIndex = 0;
+    var list = [], displayIndex = 1, listIndex = 0;
     for (listIndex=0; listIndex < self.standList().length; listIndex++) {
       if (listIndex % self.listDisplayCount === 0 && Math.abs(listIndex - self.listStart()) < 5 * self.listDisplayCount) {
         list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
       }
     }
     if (list.length < self.standList().length / self.listDisplayCount) {
-      list.push({'displayIndex': '...', 'listIndex': null })
-      list.push({'displayIndex': '»', 'listIndex': null });
-
+        list.push({'displayIndex': '...', 'listIndex': null });
+        list.push({'displayIndex': '»', 'listIndex': null });
     }
     if (self.listStart() > 10) {
-      list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
+        list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
     }
     console.log('repaginating list');
     return list;
@@ -57,7 +56,7 @@ function standsViewModel() {
     }
     console.log(self.listStart());
     self.selectFeature(self.standList()[button.listIndex || self.listStart()]);
-  }
+  };
 
   // this will get bound to the active stand
   self.selectedFeature = ko.observable();
@@ -75,14 +74,14 @@ function standsViewModel() {
     map.removeLayer(self.property_layer);
     app.drawFeature.featureAdded = app.properties.featureAdded;
     app.selectFeature.activate();
-  }
+  };
 
   self.addStandStart = function() {
     app.drawFeature.activate();
     self.showStandHelp(false);
     self.showStandList(false);
     self.showDrawPanel(true);
-  }
+  };
 
   self.showStandForm = function(action, uid) {
     // get the form
@@ -105,9 +104,8 @@ function standsViewModel() {
       $form.bind('submit', function(event) {
         event.preventDefault();
       });
-    })
-   
-  }
+    });
+  };
 
   self.updateStand = function(stand_id, isNew) {
     var updateUrl = '/features/generic-links/links/geojson/{uid}/'.replace('{uid}', stand_id);
@@ -122,7 +120,7 @@ function standsViewModel() {
         self.showStandList(true);
       }
     });
-  }
+  };
 
   self.associateStand = function(stand_id, property_id) {
     var url = "/features/forestproperty/{forestproperty_uid}/add/{stand_uid}";
@@ -136,9 +134,8 @@ function standsViewModel() {
         app.stands.viewModel.showStandList(true);
         app.new_features.removeAllFeatures();
       }
-    })
-
-  }
+    });
+  };
 
   self.saveStandForm = function(self, event) {
     var isNew, $dialog = $('#stands-form-container'),
@@ -193,7 +190,7 @@ function standsViewModel() {
 
   self.closeDialog = function () {
     $("#stand-delete-dialog").modal("hide");
-  }
+  };
 
   self.deleteFeature = function () {
     var url = "/features/generic-links/links/delete/{uid}/".replace("{uid}", self.selectedFeature().uid());
@@ -228,14 +225,13 @@ function standsViewModel() {
       self.modifyFeature.deactivate();
     }
     self.showNoStandHelp(true);
-  }
-
+  };
 
   self.selectFeature = function(feature, event) {
     self.selectControl.unselectAll();
     self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", feature.uid())[0]);
     self.selectedFeature(feature);
-  }
+  };
 
   self.initialize = function(property) {
     // bind the viewmodel
@@ -295,10 +291,9 @@ function standsViewModel() {
     self.selectControl = new OpenLayers.Control.SelectFeature(self.stand_layer,
         { "clickout": false});
 
-
     self.selectControl.onBeforeSelect = function (feature) {
      // debugger;
-    }
+    };
     
     // reenable click and drag in vectors
     self.selectControl.handlers.feature.stopDown = false; 
@@ -312,7 +307,7 @@ function standsViewModel() {
     });
     self.snapper.activate();
     self.loadStands(property);
-  }
+  };
 
   self.selectFeatureById = function (id) {
     var pageSize = self.standList().length / self.listDisplayCount;
@@ -323,17 +318,17 @@ function standsViewModel() {
         self.selectedFeature(this);
       }
     });
-  }
+  };
 
   self.loadViewModel = function (data) {
     var percent = 90;
     self.standList($.map(data.features, function (feature, i) {
-      var remaining = 10 * i/data.length 
-      self.progressBarWidth(percent + remaining + "%");
-      return ko.mapping.fromJS(feature.properties);
+        var remaining = 10 * i/data.length;
+        self.progressBarWidth(percent + remaining + "%");
+        return ko.mapping.fromJS(feature.properties);
     }));
     self.selectFeature(self.standList()[0]);
-  }
+  };
 
   self.reloadStands = function(property) {
     self.stand_layer.removeAllFeatures();
@@ -346,7 +341,7 @@ function standsViewModel() {
     app.selectFeature.deactivate();
     self.progressBarWidth("0%");
     self.showProgressBar(true);
-  }
+  };
 
   self.loadStands = function(property) {
     var i = 0,
@@ -363,9 +358,7 @@ function standsViewModel() {
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
     app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
-
-    app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands})
-    
+    app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands});
     app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: 'Stands', action: null});
     
     map.zoomToExtent(property.bbox());
@@ -388,8 +381,7 @@ function standsViewModel() {
     self.showProgressBar(true);
     console.log('getting stands');
     $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
-
-  }
+  };
 
   return self;
 }

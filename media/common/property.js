@@ -19,7 +19,7 @@ function propertiesViewModel () {
     // TODO: Make active!
     if (! self.preventUpdates()) {
       if (event) {     
-        $(event.target).closest('tr')
+          $(event.target).closest('tr');
           // .addClass('active')
           // .siblings().removeClass('active');         
           app.selectFeature.unselectAll();
@@ -45,7 +45,7 @@ function propertiesViewModel () {
 
   self.zoomToExtent = function () {
     map.zoomToExtent(app.property_layer.getDataExtent());
-  }
+  };
 
   self.cleanupForm = function ($form) {
     // remove the submit button, strip out the geometry
@@ -65,8 +65,7 @@ function propertiesViewModel () {
 
     });
     $form.find('input:visible').first().focus();
-    
-  }
+  };
 
   self.showEditForm = function () {
     var formUrl = '/features/forestproperty/{uid}/form/'.replace('{uid}', this.selectedProperty().uid());
@@ -88,9 +87,8 @@ function propertiesViewModel () {
 
       app.modifyFeature.selectFeature(self.selectedProperty().feature);
       app.modifyFeature.activate();
-      self.showPropertyList(false)
-
-    })
+      self.showPropertyList(false);
+    });
   };
 
   self.startAddDrawing = function () {
@@ -128,7 +126,7 @@ function propertiesViewModel () {
         event.preventDefault();
         self.addFeature(self, event);
       });
-    })
+    });
   };
 
   self.addFeature = function (self, event) {
@@ -165,7 +163,7 @@ function propertiesViewModel () {
       return false;
     }
     values.geometry_final = geometry;
-    $form.addClass('form-horizontal')
+    $form.addClass('form-horizontal');
     self.showEditPanel(false);
     self.showCreatePanel(false);
     self.preventUpdates(false);
@@ -180,8 +178,7 @@ function propertiesViewModel () {
         app.drawFeature.deactivate();
         app.modifyFeature.deactivate();
         self.showNoPropertiesHelp(false);
-        app.new_features.removeAllFeatures()
-
+        app.new_features.removeAllFeatures();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         self.cancelEdit(self);
@@ -194,13 +191,13 @@ function propertiesViewModel () {
     $.get(updateUrl, function (data) {
       var newPropertyVM, newProperty = data.features[0].properties;
       if (property) {
-        // updating existing property
-        ko.mapping.fromJS(newProperty, property);
-        self.selectProperty(property);
+          // updating existing property
+          ko.mapping.fromJS(newProperty, property);
+          self.selectProperty(property);
       } else {
-        // add a new property
-        self.selectPropertyByUID(data.features[0].uid)
-        app.property_layer.addFeatures(app.geojson_format.read(data));
+          // add a new property
+          self.selectPropertyByUID(data.features[0].uid);
+          app.property_layer.addFeatures(app.geojson_format.read(data));
       }
     });
   };
@@ -276,7 +273,7 @@ function propertiesViewModel () {
     // create active property layer
     // copy active property to new layer
     // hide other properties
-    app.property_layer.setOpacity(.4);
+    app.property_layer.setOpacity(0.4);
     // initialize stand manager
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
@@ -288,7 +285,7 @@ function propertiesViewModel () {
     // hide property panels
     app.stands.viewModel.showStandPanels(true);
     self.showPropertyPanels(false);
-  }
+  };
   
   // initialize properties and vm
   // return request object to apply bindings when done
@@ -332,7 +329,7 @@ function propertiesViewModel () {
   
       // set up the breadcrumbs    
       app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
-      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null})
+      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null});
       
       // select the first property and show the detail panel
       if (data.features.length) {
@@ -341,5 +338,5 @@ function propertiesViewModel () {
       app.onResize();
       self.zoomToExtent();
   });
- }
-};
+ };
+}

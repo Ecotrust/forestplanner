@@ -10,8 +10,8 @@ drawn:
                         fillOpacity: 0.35,
                         strokeWidth: 2,
                         strokeOpacity: 1,
-                        strokeColor: "#444444",
-                    },
+                        strokeColor: "#444444"
+                    }
                 }
             })
         ]
@@ -25,7 +25,7 @@ drawn:
                 symbolizer: {
                     "Point": {
                         pointRadius: 5,
-                        fillColor: "#44ff00",
+                        fillColor: "#44ff00"
                     },
                     "Polygon": {
                         pointRadius: 5,
@@ -34,7 +34,7 @@ drawn:
                         strokeWidth: 2,
                         strokeOpacity: 1,
                         strokeColor: "#44ff00"
-                    },
+                    }
                 }
             })
         ]
@@ -59,7 +59,7 @@ forestProperty:
                         fontOpacity: 0.9,
                         fontFamily: "Arial",
                         fontSize: 14
-                    },
+                    }
                 }
             })
         ]
@@ -74,7 +74,7 @@ forestProperty:
                 symbolizer: {
                     "Point": {
                         pointRadius: 5,
-                        fillColor: "#44ff00",
+                        fillColor: "#44ff00"
                     },
                     "Polygon": {
                         pointRadius: 5,
@@ -83,7 +83,7 @@ forestProperty:
                         strokeWidth: 2,
                         strokeOpacity: 1,
                         strokeColor: "#44ff00"
-                    },
+                    }
                 }
             })
         ]
@@ -101,7 +101,7 @@ stand:
                         strokeWidth: 1,
                         strokeOpacity: 0.75,
                         strokeColor: "white"
-                    },
+                    }
                 }
             })
         ]
@@ -120,7 +120,7 @@ stand:
                 symbolizer: {
                     "Point": {
                         pointRadius: 5,
-                        fillColor: "#44ff00",
+                        fillColor: "#44ff00"
                     },
                     "Polygon": {
                         pointRadius: 5,
@@ -129,7 +129,7 @@ stand:
                         strokeWidth: 2,
                         strokeOpacity: 1,
                         strokeColor: "#44ff00"
-                    },
+                    }
                 }
             })
         ]

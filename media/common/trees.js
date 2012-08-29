@@ -75,7 +75,7 @@ function init() {
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
-    };
+    }
 
 
     app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});               
@@ -99,7 +99,7 @@ function init() {
     app.geojson_format = new OpenLayers.Format.GeoJSON(),
     app.property_layer = new OpenLayers.Layer.Vector("Properties",  {
                 renderers: app.renderer, 
-                styleMap: map_styles.forestProperty,
+                styleMap: map_styles.forestProperty
             });
     map.addLayer(app.property_layer);
 
@@ -155,7 +155,6 @@ function init() {
 
       });
       $form.find('input:visible').first().focus();
-      
-    }
-}; //end init
+    };
+} //end init
 
