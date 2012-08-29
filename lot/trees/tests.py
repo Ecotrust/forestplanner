@@ -680,6 +680,20 @@ class StandImportTest(TestCase):
         self.assertEqual(response.status_code, 500, response.content)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
+    def test_importer_http_noname(self):
+        self.client.login(username='featuretest', password='pword')
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+        d = os.path.dirname(__file__)
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+            'testdata', 'test_stands_noname.zip'))
+        f = open(ogr_path)
+        url = reverse('trees-upload_stands')
+        response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
+        f.close()
+        self.assertEqual(response.status_code, 500, response.content)
+        self.assertNotEqual(response.content.find('Dataset does not have a required field'), -1, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 0)
+
     def test_importer_http_badproperty(self):
         '''
         If no property is found belonging to the user, should get a 404
