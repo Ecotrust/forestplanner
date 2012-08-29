@@ -49,17 +49,30 @@ $(document).ready(function () {
         var percentVal = percentComplete + '%';
         $("#uploadProgress .bar").css('width', percentVal);
         if (percentComplete > 99) {
+            $("#uploadProgress").hide();
             $("#uploadResponse").html('<p class="label label-info">Upload complete. Processing stand data...</p>');
         }
     },
     complete: function(xhr) {
-        $("#uploadResponse").html(xhr.responseText);
         $("#uploadProgress").hide();
         $("#uploadProgress .bar").css('width', '0%');
+    },
+    error: function(data, status, xhr) {
+        $("#uploadResponse").html(data.responseText);
+    },
+    success: function(data, status, xhr) {
         if (xhr.status == 201) {
-            app.properties.viewModel.afterUploadSuccess();
+            $("#uploadResponse").fadeOut();
+            $("#uploadResponse").html('<p class="label label-success">Success</p>');
+            $("#uploadResponse").fadeIn();
+            $('#uploadForm').clearForm();
+            var interval = setTimeout( function() {   
+                $("#uploadResponse").html('');
+                app.properties.viewModel.afterUploadSuccess(data);
+            }, 2000); 
         }
     }
+
     }; 
     $('#uploadForm').submit( function () {
         $(this).ajaxSubmit(options); 

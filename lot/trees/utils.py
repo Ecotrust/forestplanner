@@ -187,9 +187,11 @@ def classify_aspect(angle):
     '''
     inspired by http://xkcd.com/cyborg.py
     '''
-    angle = float(angle)
-    if not angle:
+    try:
+        angle = float(angle)
+    except:
         return ""
+
     while angle > 360.0:
         angle = angle - 360.0
     angle += 22.5

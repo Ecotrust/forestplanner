@@ -133,9 +133,11 @@ def upload_stands(request):
                         return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
                     s.import_ogr(ogr_path, forest_property=fp, pre_impute=True) 
             except Exception as err:
-                return HttpResponse('<p class="label label-important">Error importing stands:\n\n%s</p>' % err, status=500)
+                return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
 
-            return HttpResponse('<p class="label label-success">Success</p>', status=201)
+            newfp = ForestProperty.objects.filter(name=new_prop_name).latest('date_modified')
+            res = HttpResponse(json.dumps({'X-Madrona-Select': newfp.uid}), status=201, mimetype='application/json')
+            return res
     else:
         form = UploadStandsForm()
 

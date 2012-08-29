@@ -248,8 +248,9 @@ function propertiesViewModel () {
     self.showPropertyList(true);
   };
 
-  self.afterUploadSuccess = function() {
-    alert("Upload successful... TODO reload property list");
+  self.afterUploadSuccess = function(data) {
+    var property; // undefined ~> new 
+    self.updateOrCreateProperty(data, property);
     self.showEditPanel(false);
     self.showCreatePanel(false);
     self.showUploadPanel(false);
@@ -257,6 +258,7 @@ function propertiesViewModel () {
     self.showNoPropertiesHelp(self.propertyList().length ? false: true);
     self.showDetailPanel(self.propertyList().length ? true: false);
     self.showPropertyList(true);
+    self.selectPropertyByUID(data['X-Madrona-Select']);
   };
 
   self.cancelUpload = function (self, event) {
