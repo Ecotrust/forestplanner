@@ -43,7 +43,7 @@ function standsViewModel() {
     if (self.listStart() > 10) {
         list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
     }
-    console.log('repaginating list');
+    //console.log('repaginating list');
     return list;
   });
 
@@ -54,7 +54,7 @@ function standsViewModel() {
     } else {
     self.listStart(button.listIndex);
     }
-    console.log(self.listStart());
+    //console.log(self.listStart());
     self.selectFeature(self.standList()[button.listIndex || self.listStart()]);
   };
 
@@ -379,7 +379,7 @@ function standsViewModel() {
     };
 
     self.showProgressBar(true);
-    console.log('getting stands');
+    //console.log('getting stands');
     $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
   };
 
