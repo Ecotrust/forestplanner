@@ -218,7 +218,11 @@
                       <div class="stand-detail" data-bind="with: selectedFeature">
                         <table class="table">
                           <tr>
-                            <td>Name</td><td data-bind="text: name"></td>
+                              <td> Name </td>
+                              <td>
+                                  <span data-bind="text: name"></span>
+                                  <a href="#" class="btn btn-mini pull-right" data-bind="click: $parent.editStand"><i class="icon-edit"></i> Edit</a>
+                              </td>
                           </tr>
                           <tr>
                             <td>Calculated Area</td><td><span data-bind="text: acres"></span> acres</td>
@@ -266,7 +270,6 @@
                             <button class="btn" href="#"><i class="icon-repeat"></i> Define Scenarios</button>
                             <a href="#" class="btn"><i class="icon-leaf"></i> Refine Vegetation</a>
                             <a href="#" class="btn" data-bind="click: $parent.showDeleteDialog"><i class="icon-remove"></i> Delete Stand</a>
-                            <a href="#" class="btn" data-bind="click: $parent.editStand"><i class="icon-edit"></i> Edit Stand</a>
                           </div>
                         </div>
                       </div>
