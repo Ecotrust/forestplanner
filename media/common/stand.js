@@ -76,6 +76,10 @@ function standsViewModel() {
     app.selectFeature.activate();
   };
 
+  self.refineBoundaries = function() {
+    $("#refine-boundaries-dialog").modal("show");
+  };
+
   self.addStandStart = function() {
     app.drawFeature.activate();
     self.showStandHelp(false);
@@ -186,10 +190,6 @@ function standsViewModel() {
 
   self.showDeleteDialog = function () {
     $("#stand-delete-dialog").modal("show");
-  };
-
-  self.closeDialog = function () {
-    $("#stand-delete-dialog").modal("hide");
   };
 
   self.deleteFeature = function () {

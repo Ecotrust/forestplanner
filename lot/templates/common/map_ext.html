@@ -40,7 +40,7 @@
                   </div>
                 </div>
                 <div class="modal-footer">
-                  <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
+                  <a href="#" class="btn" data-dismiss="modal">cancel</a>
                   <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
                 </div>
               </div>
@@ -200,6 +200,7 @@
                       <p>
                         <div class="btn-group">
                             <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add</a>
+                            <a href="#" class="btn" data-bind="click: refineBoundaries"><i class="icon-th"></i> Refine Boundaries</a>
                         </div>
                       </p>
                       <div>
@@ -210,7 +211,7 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="span9" data-bind="if: selectedFeature">
+                    <div class="span9 well" data-bind="if: selectedFeature">
                       <h3>Stand Details</h3>
                       <div class="stand-detail" data-bind="with: selectedFeature">
                         <table class="table">
@@ -307,21 +308,47 @@
                   <button href="#" class="btn btn-primary" data-bind="click: saveStandForm">Save Stand</button>
                 </div>
               </div>
+
               <div class="modal" id="stand-delete-dialog" style="display:none">
-               <div class="modal-header">
-                 <a class="close" data-dismiss="modal">×</a>
-                 <h3>Delete Stand</h3>
-               </div>
-               <div class="modal-body">
-                 <div data-bind="if: selectedFeature()">
-                   Are you sure you want to delete "<span data-bind="text: selectedFeature().name"></span>"?
-                 </div>
-               </div>
-               <div class="modal-footer">
-                 <a href="#" class="btn" data-bind="click: closeDialog">cancel</a>
-                 <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Stand</a>
-               </div>
-             </div>
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>Delete Stand</h3>
+                </div>
+                <div class="modal-body">
+                    <div data-bind="if: selectedFeature()">
+                    Are you sure you want to delete "<span data-bind="text: selectedFeature().name"></span>"?
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn" data-dismiss="modal">cancel</a>
+                    <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Stand</a>
+                </div>
+              </div>
+
+              <div class="modal" id="refine-boundaries-dialog" style="display:none">
+                <div class="modal-header">
+                    <a class="close" data-dismiss="modal">×</a>
+                    <h3>Refine Stand Boundaries</h3>
+                </div>
+                <div class="modal-body">
+                    <h4> Alter stand boundaries to account for: </h4>
+                    <br/> 
+                    <div style="margin-left: 12px;">
+                        <p><input type="checkbox"/> <strong>Riparian zones</strong> within 100 ft of streams</p>
+                        <p><input type="checkbox"/> Areas with <strong>Steep slopes</strong> greater than 45 % slope</p>
+                        <p><input type="checkbox"/> <strong>Conservation Zones</strong> and Easements</p>
+                        <p><input type="checkbox"/> Protected <strong>wildpfe habitat</strong>. You must provide point locations for spotted owl nests then a buffer will be applied.</p>
+                        <p><input type="checkbox"/> Stands divided by <strong>Roads</strong></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+                    <a href="#" class="btn btn-danger" data-dismiss="modal">Refine Boundaries</a>
+                </div>
+              </div>
+
+
+
             </div>
             <!-- end of stand pages -->
             {% else %}
