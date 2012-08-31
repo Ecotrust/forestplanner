@@ -60,7 +60,9 @@
                   <h3>Add additional information</h3>
                   <p>Then you will be asked to enter some additional information to help describe your property.</p>
                   <div class="pull-right">
-                    <button href="#" class="btn btn-large btn-primary" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
+                    <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
+                        <i class="icon-upload"></i> Upload</button>
+                    <button href="#" class="btn btn-primary" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                   </div>
                 </div> <!-- no properties -->
               </div><!-- end of no properties -->
@@ -74,7 +76,7 @@
                       <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
                           <i class="icon-resize-full"></i> Show All Properties</button>
                       <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
-                          <i class="icon-upload"></i> Upload</a>
+                          <i class="icon-upload"></i> Upload</button>
                   </div>
                   </p>
                   <div class="row-fluid" style="display:none"  data-bind="visible: propertyList().length">

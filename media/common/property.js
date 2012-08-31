@@ -44,7 +44,11 @@ function propertiesViewModel () {
   };
 
   self.zoomToExtent = function () {
-    map.zoomToExtent(app.property_layer.getDataExtent());
+    bounds = app.property_layer.getDataExtent();
+    if (!bounds) {
+        bounds = app.bounds;
+    }
+    map.zoomToExtent(bounds);
   };
 
   self.cleanupForm = function ($form) {
