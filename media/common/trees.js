@@ -105,9 +105,9 @@ function init() {
         type: "Aerial"
     });
 
+    map.addLayers([hybrid, road]);
     map.addLayers([ghyb, gphy]);
     map.addLayer(baseAerial);
-    map.addLayers([hybrid, road]);
     map.addLayer(esri_base);
     map.addLayer(baseOSM);
     map.addLayer(soils);

@@ -11,18 +11,11 @@ app.onResize = function () {
 
 $(document).ready(function () {
 
-    app.properties.viewModel.init()
-    .done(function () {
-        // apply the viewmodel
-        ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
-        app.onResize();
-    })
-    .fail(function () {
-        map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
-        ko.applyBindings(app.viewModel);
-    });
-
+    ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
+    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     $(window).resize(app.onResize);
+    app.onResize();
+    map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
 
     var options = {
     beforeSubmit: function(formData, jqForm, options) {
@@ -78,7 +71,11 @@ $(document).ready(function () {
         $(this).ajaxSubmit(options); 
         return false; 
     });
-
+    $('#manage-your-properties').click( function(e) {
+        e.preventDefault();
+        $('div#home-html').hide();
+        app.properties.viewModel.init();
+    });
 });
 
 

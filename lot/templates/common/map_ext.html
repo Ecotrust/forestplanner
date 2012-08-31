@@ -26,8 +26,57 @@
                 <span data-bind="text: name"></span>
               </li>
             </ul>
-            <!-- these are all property pages -->
+            <div id="home-html" class="hero-unit">
+
+                <h2>An Online Tool for Forest Management Scenario Planning</h2>
+                <div>
+                    <img src="/media/img/fsp_carousel.jpg" />
+                    <br/>
+                    <br/>
+                    <p>&nbsp;&nbsp;&nbsp;&nbsp;Ecotrust is developing online software that will give all Oregon and Washington 
+                    land managers forest managment scenario planning capacity. You will be able to visualize 
+                    alternative management scenarios on your lands and receive immediate feedback on how  
+                    decisions might pay off in terms of timber harvests and financial returns, as well as 
+                    public benefits like carbon storage and ecosystem services. </p>
+                    
+                    <p>
+                    {% if not user.is_authenticated %}
+                    <div class="btn-group pull-right">
+                        <a class="btn btn-large" href="{% url 'registration_register' %}" id="register">Register</a>
+                        <a class="btn btn-large" href="{% url 'user_signin' %}" id="signin">Sign In</a>
+                    </div>
+                    {% else %}
+                    <a class="btn btn-large btn-success pull-right" id="manage-your-properties" href="#">Manage Your Properties</a>
+                    {% endif %}
+                    </p>                
+                </div>
+                <div class="well hide">
+                    <h3> Using the Scenario Planning Tool</h3>
+                    <ul>
+                        <li>Identify their properties on an interactive map </li>
+                        <li>Use preloaded Forest Inventory Analysis data (FIA) or upload their own cruise data.</li>
+                        <li>Designate forest management areas or stands</li>
+                        <li>Define management prescriptions</li>
+                        <li>Specify timber and carbon market prices</li>
+                    </ul>
+                        
+                    <h3> Scenario Planning Tool Outputs:</h3>
+                    <ul>
+                        <li>Graphs of timber volume and financial returns generated over time</li>
+                        <li>Optimized harvest schedule</li>
+                        <li>Maps of standing timber volume, species and age class over time</li>
+                        <li>Visualize potential to realize carbon credits and ecostytem-based incentives over time</li>
+                    </ul>
+
+                    <h3> Additional Features</h3>
+                    <ul>
+                        <li>Secure and confidentially store and manage data and scenario runs</li>
+                        <li>Share scenarios between collaborators to explore collaborative decision making among forest landowners and managers</li>
+                    </ul>
+                </div>
+            </div>
             {% if user.is_authenticated %}
+            <!-- these are all property pages -->
             <div id="property-html" class="well" data-bind="visible: showPropertyPanels" > <!-- need to make this a different color -->
                <div class="modal" id="delete-dialog" style="display:none">
                 <div class="modal-header">
@@ -351,29 +400,18 @@
                     <a href="#" class="btn btn-danger" data-dismiss="modal">Refine Boundaries</a>
                 </div>
               </div>
-
-
-
             </div>
             <!-- end of stand pages -->
-            {% else %}
-              <div class="well"> 
-               <div class="row-fluid">
-                <h2>Login</h2>
-                <p><em>You currently not logged in to the Forest Scenario Planner.</em></p>
-                <ul>
-                  <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
-                  <li><a href="{% url 'user_signin' %}" id="signin">Sign In</a></li>                
-                </ul> 
-              </div><!-- end of no properties -->
-            </div>
-            {% endif %}
+          {% endif %}
           </div>
           <div class="span6">
             <div class="outermap well">
+              {% if user.is_authenticated %}
+              <!-- Not sure why but non authenticated requests cause failure in geoSearch knockout binding -->
               <div id="searchbox-container" class="pull-right">
                 {% include "common/geosearch.html" %}
               </div>
+              {% endif %}
               <div id="map"></div>
             </div>
           </div>
@@ -400,9 +438,16 @@
             stands: {},
             properties: {}
         };
+        {% if user.is_authenticated %}
         $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
             app.workspace = data;
         });
+        {% else %}
+        $.get('/features/workspace-public.json', function (data) {
+            app.workspace = data;
+        });
+        {% endif %}
+
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>

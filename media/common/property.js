@@ -1,7 +1,7 @@
 function propertiesViewModel () {
   var self = this;
   // TODO: make function to map properties with test  
-  self.showPropertyPanels = ko.observable(true);
+  self.showPropertyPanels = ko.observable(false);
   self.propertyList = ko.observableArray();
   self.showEditPanel = ko.observable(false);
   self.showDetailPanel = ko.observable(false);
@@ -296,6 +296,7 @@ function propertiesViewModel () {
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
+    self.showPropertyPanels(true);
     return $.get('/trees/user_property_list/', function (data) {
       app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
         [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
@@ -334,7 +335,6 @@ function propertiesViewModel () {
       });
   
       // set up the breadcrumbs    
-      app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
       app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null});
       
       // select the first property and show the detail panel
