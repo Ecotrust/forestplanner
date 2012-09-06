@@ -53,6 +53,7 @@ forestProperty:
                         strokeWidth: 2,
                         strokeOpacity: 1,
                         strokeColor: "#444444",
+                        strokeDashstyle: "dashdot",
                         label: "${name}",
                         labelAlign: "cc",
                         fontColor: "#333333",
@@ -80,7 +81,6 @@ forestProperty:
                         pointRadius: 5,
                         fillColor: "white",
                         fillOpacity: 0.35,
-                        strokeWidth: 2,
                         strokeOpacity: 1,
                         strokeColor: "#44ff00"
                     }
