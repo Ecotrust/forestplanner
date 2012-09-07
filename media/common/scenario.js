@@ -8,33 +8,26 @@ function scenarioViewModel() {
   self.selectedFeatures = ko.observableArray();
 
   self.reloadScenarios = function(property) {
-    /*
-    self.stand_layer.removeAllFeatures();
-    self.standList.removeAll();
-    self.property_layer.removeAllFeatures();
-    map.addLayer(self.property_layer);
-    map.addLayer(self.stand_layer);
-    self.showScenarioList(true);
-    app.selectFeature.deactivate();
-    */
+    // why is this here? 
     self.loadScenarios(property);
-      alert("reload scenarios");
   };
 
   self.loadScenarios = function(property) {
     self.property = property;
+    console.log(property);
     
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
     app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageScenarios});
-    app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: 'Scenarios', action: null});
+    app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: property.name() + ' Scenarios', action: null});
 
     self.showScenarioList(true);
 
     map.zoomToExtent(property.bbox());
     var process = function (data) {
         self.scenarioList(data);
+        refreshCharts();
     };
     $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
   }
@@ -48,6 +41,8 @@ function scenarioViewModel() {
   self.cancelManageScenarios = function() {
     app.breadCrumbs.breadcrumbs.pop();
     self.showScenarioPanels(false);
+    app.properties.viewModel.showPropertyPanels(true);
+    app.property_layer.setOpacity(1);
   };
 
   self.toggleFeature = function(f) {
@@ -67,6 +62,12 @@ function scenarioViewModel() {
         type: "GET",
         success: function(data, textStatus, jqXHR) {
             $('#scenario-form-container').html(data);
+            $('form#scenario-form button.cancel').click( function(e) {
+                e.preventDefault();
+                self.showScenarioList(true);
+                self.showScenarioForm(false);
+                $("form#scenario-form").empty();
+            });
             $('form#scenario-form button.submit').click( function(e) {
                 e.preventDefault();
                 var postData = $("form#scenario-form").serialize(); 

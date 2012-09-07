@@ -359,7 +359,7 @@ function standsViewModel() {
     app.breadCrumbs.breadcrumbs.removeAll();
     app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands});
-    app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: 'Stands', action: null});
+    app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: property.name() + ' Stands', action: null});
     
     map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc
