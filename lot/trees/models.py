@@ -424,8 +424,8 @@ class Scenario(Analysis):
     """
     description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
     input_property = models.ForeignKey('ForestProperty')
-    input_target_boardfeet = models.FloatField(verbose_name='Target Percentage of Habitat')
-    input_target_carbon = models.FloatField(verbose_name='Penalties for Missing Targets') 
+    input_target_boardfeet = models.FloatField(verbose_name='Target Boardfeet')
+    input_target_carbon = models.FloatField(verbose_name='Target Carbon') 
     input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
 
     # All output fields should be allowed to be Null/Blank
@@ -472,6 +472,7 @@ class Scenario(Analysis):
 
     class Options:
         form = "trees.forms.ScenarioForm"
+        form_template = "trees/scenario_form.html"
         verbose_name = 'Forest Scenario' 
         form_context = { } 
 

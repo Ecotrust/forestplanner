@@ -2,11 +2,10 @@ function scenarioViewModel() {
   var self = this;
 
   self.showScenarioPanels = ko.observable(true);
-  self.showScenarioHelp = ko.observable(false);
   self.showScenarioList = ko.observable(false);
-  self.showDrawPanel = ko.observable(false);
+  self.showScenarioForm = ko.observable(false);
   self.scenarioList = ko.observableArray();
-  self.selectedFeature = ko.observable();
+  self.selectedFeatures = ko.observableArray();
 
   self.reloadScenarios = function(property) {
     /*
@@ -30,13 +29,16 @@ function scenarioViewModel() {
     app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageScenarios});
     app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: 'Scenarios', action: null});
-    
+
+    self.showScenarioList(true);
+
     map.zoomToExtent(property.bbox());
     var process = function (data) {
         console.log(data);
+        self.scenarioList(data);
     };
     console.log('getting scenarios');
-    $.get('/features/forestproperty/links/property-scenarios-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
+    $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
   }
 
   self.initialize = function(property) {
@@ -49,22 +51,47 @@ function scenarioViewModel() {
   self.cancelManageScenarios = function() {
     app.breadCrumbs.breadcrumbs.pop();
     self.showScenarioPanels(false);
-      /*
-    app.properties.viewModel.showPropertyPanels(true);
-    app.property_layer.setOpacity(1);
-    map.removeLayer(self.stand_layer);
-    map.removeLayer(self.property_layer);
-    app.drawFeature.featureAdded = app.properties.featureAdded;
-    app.selectFeature.activate();
-     */
+  };
 
+  self.toggleFeature = function(f) {
+      var removed = self.selectedFeatures.remove(f);
+      if (removed.length == 0) { // add it
+        self.selectedFeatures.push(f);
+      }
   };
 
   self.addScenarioStart = function() {
-    app.drawFeature.activate();
-    self.showScenarioHelp(false);
     self.showScenarioList(false);
-    self.showDrawPanel(true);
+    self.showScenarioForm(true);
+    formUrl = "/features/scenario/form/"; // TODO get from workspace
+    $.ajax({
+        url: formUrl,
+        type: "GET",
+        success: function(data, textStatus, jqXHR) {
+            $('#scenario-form-container').html(data);
+            $('form#scenario-form button.submit').click( function(e) {
+                e.preventDefault();
+                var postData = $("form#scenario-form").serialize(); 
+                $.ajax({
+                    url: formUrl,
+                    type: "POST",
+                    data: postData,
+                    dataType: "json",
+                    success: function(data, textStatus, jqXHR) {
+                        self.showScenarioList(true);
+                        self.showScenarioForm(false);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert(errorThrown);
+                    }
+                });
+            });
+        },
+        error: function(jqXHR, textStatus, errorThrown) {
+            alert(errorThrown);
+        }
+    });
   };
+
   return self;
 }

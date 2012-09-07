@@ -152,10 +152,13 @@ def geojson_forestproperty(request, instance):
 
 def forestproperty_scenarios(request, instance):
     from trees.models import Scenario
+    from django.core import serializers
+
     res = Scenario.objects.filter(input_property=instance)
     if len(res) == 0:
-        return HttpResponse("[]", mimetype='application/json', status=404)
-    return HttpResponse(json.dumps(res), mimetype='application/json', status=200)
+        res = None
+    res_json = serializers.serialize('json', res, indent=2, use_natural_keys=True)
+    return HttpResponse(res_json, mimetype='application/json', status=200)
 
 def geojson_features(request, instances):
     '''

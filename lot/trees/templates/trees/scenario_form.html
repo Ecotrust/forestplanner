@@ -1,0 +1,21 @@
+{% block panel %}
+<form class="form-horizontal" id="scenario-form" method="POST">
+    {% for hidden in form.hidden_fields %}
+        {{hidden}}
+    {% endfor %}
+    {% for field in form.visible_fields %}
+    <div class="control-group">
+        {{field.errors}} 
+        <label for="{{field.auto_id}}" class="control-label"> {{ field.label }} </label>
+        <div class="controls">
+        {{ field }}
+        </div>
+    </div>
+    {% endfor %}
+    <div class="control-group">
+        <div class="controls">
+            <button class="btn btn-primary submit">Submit</button>
+        </div>
+    </div>
+</form>
+{% endblock panel %}

@@ -17,6 +17,7 @@ class ScenarioForm(FeatureForm):
     class Meta(FeatureForm.Meta):
         model = Scenario
         exclude = list(FeatureForm.Meta.exclude)
+        #exclude.extend(['user',])
         for f in model.output_fields():
             exclude.append(f.attname)
 
