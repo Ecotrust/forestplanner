@@ -14,7 +14,6 @@ function scenarioViewModel() {
 
   self.loadScenarios = function(property) {
     self.property = property;
-    console.log(property);
     
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
@@ -23,6 +22,7 @@ function scenarioViewModel() {
     app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: property.name() + ' Scenarios', action: null});
 
     self.showScenarioList(true);
+    self.showScenarioForm(false);
 
     map.zoomToExtent(property.bbox());
     var process = function (data) {

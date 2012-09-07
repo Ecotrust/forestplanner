@@ -301,6 +301,7 @@ function propertiesViewModel () {
       app.scenarios.viewModel = new scenarioViewModel();
       app.scenarios.viewModel.initialize(self.selectedProperty());
     }
+    app.scenarios.viewModel.selectedFeatures.removeAll();
     // hide property panels
     app.scenarios.viewModel.showScenarioPanels(true);
     if (app.stands.viewModel) {
