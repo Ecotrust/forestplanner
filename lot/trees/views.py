@@ -150,6 +150,13 @@ def geojson_forestproperty(request, instance):
     '''
     return HttpResponse(instance.feature_set_geojson(), mimetype='application/json', status=200)
 
+def forestproperty_scenarios(request, instance):
+    from trees.models import Scenario
+    res = Scenario.objects.filter(input_property=instance)
+    if len(res) == 0:
+        return HttpResponse("[]", mimetype='application/json', status=404)
+    return HttpResponse(json.dumps(res), mimetype='application/json', status=200)
+
 def geojson_features(request, instances):
     '''
     Generic view to represent Stands as GeoJSON

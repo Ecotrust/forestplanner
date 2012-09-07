@@ -22,7 +22,8 @@ COMPRESS_JS['application']['source_filenames'] = (
     'common/styles.js',
     'common/trees.js',
     'common/property.js',
-    'common/stand.js'
+    'common/stand.js',
+    'common/scenario.js'
 )
 
 INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')

@@ -321,7 +321,6 @@ class ForestProperty(FeatureCollection):
                     the_county = (county.cntyname.title(), county.stname)
         return the_county
 
-
     def feature_set_geojson(self):
         # We'll use the bbox for the property geom itself
         # Instead of using the overall bbox of the stands  
@@ -380,6 +379,11 @@ class ForestProperty(FeatureCollection):
             # Link to grab ALL *stands* associated with a property
             alternate('Property Stands GeoJSON',
                 'trees.views.geojson_forestproperty',  
+                type="application/json",
+                select='single'),
+            # Link to grab ALL *stands* associated with a property
+            alternate('Property Scenarios',
+                'trees.views.forestproperty_scenarios',  
                 type="application/json",
                 select='single'),
         )

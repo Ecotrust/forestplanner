@@ -293,6 +293,22 @@ function propertiesViewModel () {
     self.showPropertyPanels(false);
   };
   
+  self.manageScenarios = function (self, event) {
+    app.property_layer.setOpacity(0.4);
+    if (app.scenarios.viewModel) {
+      app.scenarios.viewModel.reloadScenarios(self.selectedProperty());
+    } else {
+      app.scenarios.viewModel = new scenarioViewModel();
+      app.scenarios.viewModel.initialize(self.selectedProperty());
+    }
+    // hide property panels
+    app.scenarios.viewModel.showScenarioPanels(true);
+    if (app.stands.viewModel) {
+        app.stands.viewModel.showStandPanels(false);
+    }
+    self.showPropertyPanels(false);
+  };
+
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
