@@ -32,9 +32,9 @@ function init() {
                 "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
 
     var arrayMapboxTerrain = [
-        "http://a.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png",
-        "http://b.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png",
-        "http://c.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.png"];
+        "http://a.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg",
+        "http://b.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg",
+        "http://c.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg"];
 
     var arrayAerial = ["http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
                     "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
@@ -117,7 +117,6 @@ function init() {
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
     }
-
 
     app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});               
     map.addLayer(app.markers);
