@@ -157,7 +157,11 @@ def forestproperty_scenarios(request, instance):
     res = Scenario.objects.filter(input_property=instance)
     if len(res) == 0:
         res = None
-    res_json = serializers.serialize('json', res, indent=2, use_natural_keys=True)
+    try:
+        res_json = serializers.serialize('json', res, indent=2, use_natural_keys=True)
+    except TypeError:
+        res_json = "[]"
+
     return HttpResponse(res_json, mimetype='application/json', status=200)
 
 def geojson_features(request, instances):
