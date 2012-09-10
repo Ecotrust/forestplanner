@@ -437,8 +437,39 @@ class Scenario(Analysis):
     def run(self):
         # TODO prep scheduler, run it, parse the outputs
         d = {}
+        # Stand-level outputs
         for stand in self.stand_set():
-            d[stand.pk] = {'carbon': {2012:5, 2070:15, 2100:25}}
+            d[stand.pk] = {
+                "carbon": [
+                    ['2004-08-12 4:00PM',3.2], 
+                    ['2024-09-12 4:00PM',5.7], 
+                    ['2048-10-12 4:00PM',6.5], 
+                    ['2067-12-12 4:00PM',4.0],
+                ],
+                "timber": [
+                    ['2004-08-12 4:00PM',4], 
+                    ['2024-09-12 4:00PM',6.5], 
+                    ['2048-10-12 4:00PM',5.7], 
+                    ['2067-12-12 4:00PM',3.2],
+                ]
+            }
+
+        # Property-level outputs
+        # note the '__all__' key
+        d['__all__'] = {
+            "carbon": [
+                ['2004-08-12 4:00PM',3.2+self.pk], 
+                ['2024-09-12 4:00PM',5.7+self.pk], 
+                ['2048-10-12 4:00PM',6.5+self.pk], 
+                ['2067-12-12 4:00PM',4.0+self.pk],
+            ],
+            "timber": [
+                ['2004-08-12 4:00PM',4+self.pk], 
+                ['2024-09-12 4:00PM',6.5+self.pk], 
+                ['2048-10-12 4:00PM',5.7+self.pk], 
+                ['2067-12-12 4:00PM',3.2+self.pk],
+            ]
+        }
 
         self.output_scheduler_results = d
 
