@@ -70,14 +70,17 @@ function scenarioViewModel() {
             });
             $('form#scenario-form button.submit').click( function(e) {
                 e.preventDefault();
+                $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
                 var postData = $("form#scenario-form").serialize(); 
+                console.log(postData);
                 $.ajax({
                     url: formUrl,
                     type: "POST",
                     data: postData,
                     dataType: "json",
                     success: function(data, textStatus, jqXHR) {
-                        self.showScenarioList(true);
+                        var uid = data["X-Madrona-Select"];
+                        self.loadScenarios(self.property); 
                         self.showScenarioForm(false);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {

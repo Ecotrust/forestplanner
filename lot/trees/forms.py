@@ -14,10 +14,12 @@ class PropertyForm(FeatureForm):
         model = ForestProperty
 
 class ScenarioForm(FeatureForm):
+    #input_property = forms.CharField(widget=forms.HiddenInput())
+    input_property = forms.ModelChoiceField(label="", queryset=ForestProperty.objects.all(), widget=forms.HiddenInput())
     class Meta(FeatureForm.Meta):
         model = Scenario
         exclude = list(FeatureForm.Meta.exclude)
-        #exclude.extend(['user',])
+        #exclude.extend(['input_property',])
         for f in model.output_fields():
             exclude.append(f.attname)
 

@@ -229,6 +229,7 @@ class ForestProperty(FeatureCollection):
 
         d = {
                 'uid': self.uid,
+                'id': self.id,
                 'name': self.name,
                 'user_id': self.user.pk,
                 'acres': acres,
