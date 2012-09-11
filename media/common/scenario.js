@@ -76,13 +76,21 @@ function scenarioViewModel() {
   };
 
   self.editFeature = function(f) {
-      console.log("EDIT feature", f);
+      self.activeScenario(f);
+      self.addScenarioStart(true);
   };
 
-  self.addScenarioStart = function() {
+  self.addScenarioStart = function(edit_mode) {
     self.showScenarioList(false);
     self.showScenarioForm(true);
-    formUrl = "/features/scenario/form/"; // TODO get from workspace
+    // TODO get formUrl from workspace
+    if (self.activeScenario() && edit_mode) {
+        formUrl = "/features/scenario/trees_scenario_{pk}/form/".replace('{pk}', self.activeScenario().pk);
+        postUrl = formUrl.replace("/form", "");
+    } else {
+        formUrl = "/features/scenario/form/"; 
+        postUrl = formUrl;
+    }
     $.ajax({
         url: formUrl,
         type: "GET",
@@ -98,14 +106,14 @@ function scenarioViewModel() {
                 e.preventDefault();
                 $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
                 var postData = $("form#scenario-form").serialize(); 
-                console.log(postData);
                 $.ajax({
-                    url: formUrl,
+                    url: postUrl,
                     type: "POST",
                     data: postData,
                     dataType: "json",
                     success: function(data, textStatus, jqXHR) {
                         var uid = data["X-Madrona-Select"];
+                        self.selectedFeatures.removeAll();
                         self.loadScenarios(self.property); 
                         self.showScenarioForm(false);
                     },
