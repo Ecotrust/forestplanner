@@ -6,6 +6,7 @@ function scenarioViewModel() {
   self.showScenarioForm = ko.observable(false);
   self.scenarioList = ko.observableArray();
   self.selectedFeatures = ko.observableArray();
+  self.activeScenario = ko.observable();
 
   self.reloadScenarios = function(property) {
     // why is this here? 
@@ -51,6 +52,31 @@ function scenarioViewModel() {
         self.selectedFeatures.push(f);
       }
       refreshCharts();
+  };
+
+  self.showDeleteDialog = function(f) {
+      self.activeScenario(f);
+      $("#scenario-delete-dialog").modal("show");
+  };
+
+  self.deleteFeature = function() {
+    var url = "/features/generic-links/links/delete/trees_scenario_{pk}/".replace("{pk}", self.activeScenario().pk);
+    $.ajax({
+        url: url,
+        type: "DELETE",
+        success: function (data, textStatus, jqXHR) {
+            self.selectedFeatures.remove(self.activeScenario());
+            self.scenarioList.remove(self.activeScenario());
+            refreshCharts();
+        },  
+        complete: function() {
+            $("#scenario-delete-dialog").modal("hide");
+        }
+    });
+  };
+
+  self.editFeature = function(f) {
+      console.log("EDIT feature", f);
   };
 
   self.addScenarioStart = function() {
