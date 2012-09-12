@@ -56,9 +56,6 @@ body {
     font-size: 13px;
     line-height: 18px;
 }
-.property-details {
-    background-color: white; 
-}
 .olControlAttribution {
     bottom: 5px;
     font-size: 9px;
@@ -153,4 +150,9 @@ a {
 #input-geosearch {
     border-radius: 8px !important;
     height: 15px !important;
+}
+.chart { 
+    height:250px; 
+    width:450px; 
+    margin: 28px; 
 }
