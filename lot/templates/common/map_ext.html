@@ -414,8 +414,9 @@
                         here are some likely vegetation structures that may match your current stand conditions. 
                         If none of them are accurate, you can select <em>None</em> and specify your own stand-level data.</p>
                         <hr/>
-                        <div class="row-fluid" data-bind="with: selectedFeature">
-                            <div class="span2">
+                        <div style="width: 90%; margin: auto" data-bind="with: selectedFeature">
+                            <!--
+                            <div>
                                 <dl class="dl-horizontal">
                                     <dt>Species<br/></dt>
                                     <dt>Height</dt>
@@ -424,53 +425,46 @@
                                     <dt>Avg Diameter</dt>
                                 </dl>
                             </div>
-                            <div class="span2">
-                                <ul class="unstyled">
-                                    <li class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
-                                    <li class="value">
-                                        <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
-                                    <li class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
-                                </ul>
-                                <img src="/media/img/svs.gif">
-                            </div>
-                            <div class="span2">
-                                <ul class="unstyled">
-                                    <li class="value"><span data-bind="text: plot_summaries()[1].fortypiv"></span></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[1].stndhgt"></span> m</dd>
-                                    <li class="value">
-                                        <span data-bind="text: plot_summaries()[1].baa_ge_3"></span> m<sup>2</sup></dd>
-                                    <li class="value" data-bind="text: plot_summaries()[1].tph_ge_3"></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[1].qmda_dom"></span> cm</dd>
-                                </ul>
-                                <img src="/media/img/svs.gif">
-                            </div>
-                            <div class="span2">
-                                <ul class="unstyled">
-                                    <li class="value"><span data-bind="text: plot_summaries()[2].fortypiv"></span></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[2].stndhgt"></span> m</dd>
-                                    <li class="value">
-                                        <span data-bind="text: plot_summaries()[2].baa_ge_3"></span> m<sup>2</sup></dd>
-                                    <li class="value" data-bind="text: plot_summaries()[2].tph_ge_3"></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[2].qmda_dom"></span> cm</dd>
-                                </ul>
-                                <img src="/media/img/svs.gif">
-                            </div>
-                            <div class="span2">
-                                <ul class="unstyled">
-                                    <li class="value"><span data-bind="text: plot_summaries()[3].fortypiv"></span></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[3].stndhgt"></span> m</dd>
-                                    <li class="value">
-                                        <span data-bind="text: plot_summaries()[3].baa_ge_3"></span> m<sup>2</sup></dd>
-                                    <li class="value" data-bind="text: plot_summaries()[3].tph_ge_3"></dd>
-                                    <li class="value"><span data-bind="text: plot_summaries()[3].qmda_dom"></span> cm</dd>
-                                </ul>
-                                <img src="/media/img/svs.gif">
-                            </div>
-                            <div class="span2">
-                                <p>None</p> 
-                                <p>Specify your own stand-level data.</p>
+                            -->
+                            <div class="btn-group" data-toggle="buttons-radio">
+                                <button type="button" class="btn btn-veg active"> 
+                                    <img src="/media/img/svs.gif">
+                                    <ul class="unstyled">
+                                        <li class="value"><strong><span data-bind="text: plot_summaries()[0].fortypiv"></span></strong></li>
+                                        <li class="value">height: <span data-bind="text: plot_summaries()[0].stndhgt"></span> m</li>
+                                        <li class="value">basal area:
+                                            <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></li>
+                                        <li class="value">tph: <span data-bind="text: plot_summaries()[0].tph_ge_3"></span></li>
+                                        <li class="value">diam: <span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</li>
+                                    </ul>
+                                </button>
+                                <button type="button" class="btn btn-veg"> 
+                                    <img src="/media/img/svs.gif">
+                                    <ul class="unstyled">
+                                        <li class="value"><strong><span data-bind="text: plot_summaries()[1].fortypiv"></span></strong></li>
+                                        <li class="value"><span data-bind="text: plot_summaries()[1].stndhgt"></span> m</li>
+                                        <li class="value">
+                                            <span data-bind="text: plot_summaries()[1].baa_ge_3"></span> m<sup>2</sup></li>
+                                        <li class="value" data-bind="text: plot_summaries()[1].tph_ge_3"></li>
+                                        <li class="value"><span data-bind="text: plot_summaries()[1].qmda_dom"></span> cm</li>
+                                    </ul>
+                                </button>
+                                <button type="button" class="btn btn-veg"> 
+                                    <img src="/media/img/svs.gif">
+                                    <ul class="unstyled">
+                                        <li class="value"><strong><span data-bind="text: plot_summaries()[2].fortypiv"></span></strong></li>
+                                        <li class="value"><span data-bind="text: plot_summaries()[2].stndhgt"></span> m</li>
+                                        <li class="value">
+                                            <span data-bind="text: plot_summaries()[2].baa_ge_3"></span> m<sup>2</sup></li>
+                                        <li class="value" data-bind="text: plot_summaries()[2].tph_ge_3"></li>
+                                        <li class="value"><span data-bind="text: plot_summaries()[2].qmda_dom"></span> cm</li>
+                                    </ul>
+                                </button>
+                                <button type="button" class="btn btn-veg"> 
+                                    <img src="/media/img/svs.gif" style="width:120px;"> 
+                                    <p> <strong>None of these match my stand</strong> </p>
+                                    <p> I want to specify my own stand charachteristics data</p>
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -631,6 +625,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-carousel.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-button.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
