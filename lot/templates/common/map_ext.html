@@ -74,7 +74,7 @@
                         <div class="pull-right">
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload</button>
-                            <button href="#" class="btn btn-primary" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
+                            <button href="#" class="btn btn-success" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                         </div>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
@@ -179,7 +179,7 @@
                       <h2>Draw Property Boundary</h2>
                       <p> Double-click to complete polygon. </p>
                       <div class="pull-right">
-                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
+                        <a href="#" class="btn" data-bind="click: cancelEdit">Cancel</a>
                       </div>
                     </div>
 
@@ -187,16 +187,16 @@
                       <h2>Edit Property</h2>
                       <div id="edit-panel"></div>
                       <div class="pull-right" id="edit-panel-buttons">
-                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
-                        <a href="#" class="btn btn-primary" data-bind="click: updateFeature">save changes</a>
+                        <a href="#" class="btn" data-bind="click: cancelEdit">Cancel</a>
+                        <a href="#" class="btn btn-success" data-bind="click: updateFeature">Save changes</a>
                       </div>
                     </div>
                     <div class="form-panel" style="display:none" data-bind="if: showCreatePanel, visible: showCreatePanel">
                       <h2>Create Property</h2>
                       <div id="create-panel"></div>
                       <div class="pull-right" id="create-panel-buttons">
-                        <a href="#" class="btn" data-bind="click: cancelEdit">cancel</a>
-                        <a href="#" class="btn btn-primary" data-bind="click: addFeature">create</a>
+                        <a href="#" class="btn" data-bind="click: cancelEdit">Cancel</a>
+                        <a href="#" class="btn btn-success" data-bind="click: addFeature">Create</a>
                       </div>
                     </div>
                   </div>
@@ -394,7 +394,7 @@
                         here are some likely vegetation structures that may match your current stand conditions. 
                         If none of them are accurate, you can select <em>None</em> and specify your own stand-level data.</p>
                         <hr/>
-                        <div style="width: 90%; margin: auto" data-bind="with: selectedFeature">
+                        <div data-bind="with: selectedFeature">
                             <!--
                             <div>
                                 <dl class="dl-horizontal">
@@ -407,39 +407,19 @@
                             </div>
                             -->
                             <div class="btn-group" data-toggle="buttons-radio">
-                                <button type="button" class="btn btn-veg active"> 
-                                    <img src="/media/img/svs.gif">
-                                    <ul class="unstyled">
-                                        <li class="value"><strong><span data-bind="text: plot_summaries()[0].fortypiv"></span></strong></li>
-                                        <li class="value">height: <span data-bind="text: plot_summaries()[0].stndhgt"></span> m</li>
-                                        <li class="value">basal area:
-                                            <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></li>
-                                        <li class="value">tph: <span data-bind="text: plot_summaries()[0].tph_ge_3"></span></li>
-                                        <li class="value">diam: <span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</li>
-                                    </ul>
-                                </button>
+                                <!-- ko foreach: plot_summaries -->
                                 <button type="button" class="btn btn-veg"> 
                                     <img src="/media/img/svs.gif">
                                     <ul class="unstyled">
-                                        <li class="value"><strong><span data-bind="text: plot_summaries()[1].fortypiv"></span></strong></li>
-                                        <li class="value"><span data-bind="text: plot_summaries()[1].stndhgt"></span> m</li>
-                                        <li class="value">
-                                            <span data-bind="text: plot_summaries()[1].baa_ge_3"></span> m<sup>2</sup></li>
-                                        <li class="value" data-bind="text: plot_summaries()[1].tph_ge_3"></li>
-                                        <li class="value"><span data-bind="text: plot_summaries()[1].qmda_dom"></span> cm</li>
+                                        <li><strong><span data-bind="text: fortypiv"></span></strong></li>
+                                        <li>option #<span data-bind="text: $index"></li>
+                                        <li>height: <span data-bind="text: stndhgt"></span> m</li>
+                                        <li>basal area: <span data-bind="text: baa_ge_3"></span> m<sup>2</sup></li>
+                                        <li>tph: <span data-bind="text: tph_ge_3"></span></li>
+                                        <li>diam: <span data-bind="text: qmda_dom"></span> cm</li>
                                     </ul>
                                 </button>
-                                <button type="button" class="btn btn-veg"> 
-                                    <img src="/media/img/svs.gif">
-                                    <ul class="unstyled">
-                                        <li class="value"><strong><span data-bind="text: plot_summaries()[2].fortypiv"></span></strong></li>
-                                        <li class="value"><span data-bind="text: plot_summaries()[2].stndhgt"></span> m</li>
-                                        <li class="value">
-                                            <span data-bind="text: plot_summaries()[2].baa_ge_3"></span> m<sup>2</sup></li>
-                                        <li class="value" data-bind="text: plot_summaries()[2].tph_ge_3"></li>
-                                        <li class="value"><span data-bind="text: plot_summaries()[2].qmda_dom"></span> cm</li>
-                                    </ul>
-                                </button>
+                                <!-- /ko -->
                                 <button type="button" class="btn btn-veg"> 
                                     <img src="/media/img/svs.gif" style="width:120px;"> 
                                     <p> <strong>None of these match my stand</strong> </p>
@@ -450,7 +430,7 @@
                     </div>
                     <div class="modal-footer">
                         <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-                        <a href="#" class="btn btn-danger" data-dismiss="modal">Save Vegetation Settings</a>
+                        <a href="#" class="btn btn-success" data-dismiss="modal">Save Vegetation Settings</a>
                     </div>
                 </div>
                   <div data-bind="if: standList().length, visible: standList().length > 10">
@@ -470,7 +450,7 @@
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
                     <div class="pull-right">
                       <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
-                      <button href="#" class="btn btn-primary" data-bind="click: addStandStart">Add Stand</button>
+                      <button href="#" class="btn btn-success" data-bind="click: addStandStart">Add Stand</button>
                     </div>
                   </div>
                 </div>
@@ -487,7 +467,7 @@
                 <div id="stands-form-container" class="form-panel"></div>
                 <div class="pull-right">
                   <button href="#" class="btn" data-bind="click: cancelAddStand">Cancel</button>
-                  <button href="#" class="btn btn-primary" data-bind="click: saveStandForm">Save Stand</button>
+                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand</button>
                 </div>
               </div>
 
@@ -525,7 +505,7 @@
                 </div>
                 <div class="modal-footer">
                     <a href="#" class="btn" data-dismiss="modal">Cancel</a>
-                    <a href="#" class="btn btn-danger" data-dismiss="modal">Refine Boundaries</a>
+                    <a href="#" class="btn btn-success" data-dismiss="modal">Refine Boundaries</a>
                 </div>
               </div>
 
