@@ -234,7 +234,7 @@
                     <h3>Scenario List</h3>
                     <p>
                     <div class="btn-group">
-                        <a href="#" class="btn" data-bind="click: addScenarioStart"><i class="icon-plus-sign"></i> New Scenario</a>
+                        <a href="#" class="btn" data-bind="click: newScenarioStart"><i class="icon-plus-sign"></i> New Scenario</a>
                     </div>
                     </p>
                     <div>
@@ -246,10 +246,13 @@
                     </div>
                 </div>
                 <div class="span9 well">
-                    <div data-bind="visible: selectedFeatures().length === 0" style="text-align:center">
-                        <p class="muted" style="margin-top: 88px; margin-bottom: 88px;">Click one or more scenarios to evaluate.</p> 
+                    <div data-bind="if: selectedFeatures().length == 0" style="text-align:center">
+                        <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length === 0">
+                           Create a New Scenario to evaluate.</p> 
+                        <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length > 0">
+                           Select one or more scenarios to evaluate.</p> 
                     </div>
-                    <div data-bind="visible: selectedFeatures().length > 0">
+                    <div data-bind="if: selectedFeatures().length > 0">
                         <h3>Details for Selected Scenarios</h3>
                         <table class="table table-condensed table-striped table-hover table-bordered">
                         <thead>

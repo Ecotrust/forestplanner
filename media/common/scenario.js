@@ -28,7 +28,9 @@ function scenarioViewModel() {
     map.zoomToExtent(property.bbox());
     var process = function (data) {
         self.scenarioList(data);
-        self.selectedFeatures.push(data[0]); // select the first one
+        if (data[0]) {
+            self.selectedFeatures.push(data[0]); // select the first one
+        }
         refreshCharts();
     };
     $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
@@ -74,6 +76,7 @@ function scenarioViewModel() {
             refreshCharts();
         },  
         complete: function() {
+            self.activeScenario(null);
             $("#scenario-delete-dialog").modal("hide");
         }
     });
@@ -82,6 +85,11 @@ function scenarioViewModel() {
   self.editFeature = function(f) {
       self.activeScenario(f);
       self.addScenarioStart(true);
+  };
+
+  self.newScenarioStart = function() {
+      self.activeScenario(null);
+      self.addScenarioStart(false);
   };
 
   self.addScenarioStart = function(edit_mode) {
