@@ -146,11 +146,12 @@
                             <dd><span data-bind="text: selectedProperty().location"></span></dd>
                         </dl>
 
-                        <p><div class="pull-right btn-group">
-                          <button class="btn btn-primary" href="#" data-bind="click: manageScenarios">
-                              <i class="icon-repeat"></i> Define Scenarios</button>
-                          <button class="btn btn-primary" href="#" 
-                              data-bind="click: manageStands"><i class="icon-adjust"></i> Setup Stands</button>
+                        <p><div class="pull-right">
+                          <button class="btn btn-success" href="#" 
+                              data-bind="click: manageStands">
+                              <i class="icon-adjust icon-white"></i> Setup Stands</button>
+                          <button class="btn btn-success" href="#" data-bind="click: manageScenarios">
+                              <i class="icon-repeat icon-white"></i> Define Scenarios</button>
                         </div></p>
                     </div>
                 </div>
@@ -186,10 +187,10 @@
                                     <i class="icon-exclamation-sign icon-white"></i> 
                                 </span>
                                 <input type="file" id="upload-file" name="ogrfile" size="10"/> 
-                                <input id="uploadbutton" type="submit" class="btn btn-primary" value="Upload"/>
                             </p>
                             <div class="pull-right">
-                                <a href="#" class="btn" data-bind="click: cancelUpload">cancel</a>
+                                <input id="uploadbutton" type="submit" class="btn btn-success" value="Upload"/>
+                                <a href="#" class="btn" data-bind="click: cancelUpload">Cancel</a>
                             </div>
                       </form>
                       <div id="uploadProgress" style="display: none; width:80%;" class="progress progress-striped active">
