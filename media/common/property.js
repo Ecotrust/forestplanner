@@ -308,6 +308,9 @@ function propertiesViewModel () {
         app.stands.viewModel.showStandPanels(false);
     }
     self.showPropertyPanels(false);
+    $('#map').hide();
+    $('#searchbox-container').hide();
+    $('#scenario-outputs').fadeIn();
   };
 
   // initialize properties and vm

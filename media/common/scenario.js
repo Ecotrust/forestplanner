@@ -28,6 +28,7 @@ function scenarioViewModel() {
     map.zoomToExtent(property.bbox());
     var process = function (data) {
         self.scenarioList(data);
+        self.selectedFeatures.push(data[0]); // select the first one
         refreshCharts();
     };
     $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
@@ -44,6 +45,9 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
+    $('#scenario-outputs').hide();
+    $('#searchbox-container').show();
+    $('#map').fadeIn();
   };
 
   self.toggleFeature = function(f) {

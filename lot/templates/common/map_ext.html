@@ -255,7 +255,6 @@
                                 <td>Boardfeet</td>
                                 <td>Carbon</td>
                                 <td>RXs</td>
-                                <td>Date</td>
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: selectedFeatures">
@@ -265,15 +264,14 @@
                                 <td data-bind="text: fields.input_target_boardfeet"></td>
                                 <td data-bind="text: fields.input_target_carbon"></td>
                                 <td data-bind="text: fields.input_rxs"></td>
-                                <td data-bind="text: fields.date_modified"></td>
                                 <td>
                                     <div class="pull-right btn-group">
                                     <button href="#" id="delete-button" class="btn btn-mini" 
                                         data-bind="click: $parent.showDeleteDialog">
-                                        <i class="icon-remove"></i> Delete Scenario</button>
+                                        <i class="icon-remove"></i> Delete</button>
                                     <button class="btn btn-mini" href="#" 
                                         data-bind="click: $parent.editFeature">
-                                        <i class="icon-edit"></i> Edit Scenario</button>
+                                        <i class="icon-edit"></i> Edit</button>
                                     </div>
                                 </td>
 
@@ -288,21 +286,6 @@
                             </tr>
                         </tbody>
                         </table>
-                        <div>
-                            <!--
-                            <select id="select-chart">
-                                <option value="timber" SELECTED>Timber</option>
-                                <option value="carbon">Carbon</option>
-                            </select>
-                            -->
-                            <div class="well">
-                                <div id="chart-carbon" class="chart"></div>
-                            </div>
-
-                            <div class="well">
-                                <div id="chart-timber" class="chart"></div>
-                            </div>
-                        </div>
                     </div>
                 </div>
                 <div class="btn-group pull-right">
@@ -517,6 +500,52 @@
               </div>
               {% endif %}
               <div id="map"></div>
+              <div id="scenario-outputs" style="display:none">
+
+                    <ul class="nav nav-tabs" id="myTab">
+                        <li class="active"><a href="#scenario-charts-tab" data-toggle="tab">Charts</a></li>
+                        <li><a href="#scenario-maps-tab" data-toggle="tab">Time-series Maps</a></li>
+                        <!--
+                        <li class="dropdown">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
+                            <ul class="dropdown-menu">
+                            <li class=""><a href="#dropdown1" data-toggle="tab">@fat</a></li>
+                            <li class=""><a href="#dropdown2" data-toggle="tab">@mdo</a></li>
+                            </ul>
+                        </li>
+                        -->
+                    </ul>
+                    
+                    <div class="tab-content">
+                        <div class="tab-pane fade active in" id="scenario-charts-tab">
+                            <div id="chart-carbon" class="chart"></div>
+                            <div id="chart-timber" class="chart"></div>
+                        </div>
+                        <div class="tab-pane fade" id="scenario-maps-tab">
+                            <div id="myCarousel" class="carousel slide">
+                                <!-- Carousel items -->
+                                <div class="carousel-inner">
+                                    <div class="active item">
+                                        <img src="{{MEDIA_URL}}img/stand_vol/10yr.jpg" />        
+                                    </div>
+                                    <div class="item">
+                                        <img src="{{MEDIA_URL}}img/stand_vol/20yr.jpg" />        
+                                    </div>
+                                    <div class="item">
+                                        <img src="{{MEDIA_URL}}img/stand_vol/50yr.jpg" />        
+                                    </div>
+                                    <div class="item">
+                                        <img src="{{MEDIA_URL}}img/stand_vol/100yr.jpg" />        
+                                    </div>
+                                </div>
+                                <!-- Carousel nav -->
+                                <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
+                                <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
+                            </div>
+                        </div>
+                    </div>
+              </div> <!-- end scenario-outputs -->
+              
             </div>
           </div>
         </div>
@@ -530,7 +559,9 @@
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-carousel.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-popover.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
@@ -548,7 +579,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}/common/js/chart.js"></script>
     <style>
-        .chart { height:250px; width:450px; }
+        .chart { height:250px; width:450px; margin: 28px; }
     </style>
 
 
@@ -556,6 +587,8 @@
 
     {% load compressed %}
     <script type="text/javascript">
+        $('.carousel').carousel();
+
         var madrona = {
             features: {}
         };
