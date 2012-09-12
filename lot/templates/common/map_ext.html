@@ -395,7 +395,7 @@
                                 <div class="btn-group pull-right">
                                     <button class="btn" data-bind="click: $parent.cancelManageStands">
                                         <i class="icon-backward"></i> Back to Properties </button>
-                                    <button class="btn" data-bind="click: $parent.refineBoundaries">
+                                    <button class="btn" data-bind="click: $parent.refineVegetation">
                                         <i class="icon-leaf"></i> Refine Vegetation</a>
                                 </div>
                             </div>
@@ -404,6 +404,81 @@
                     </div>
                   </div>
                   </div>
+                <div class="modal" id="refine-vegetation-dialog" style="display:none">
+                    <div class="modal-header">
+                        <a class="close" data-dismiss="modal">×</a>
+                        <h3> Specify current vegetation structure of this stand:</h3>
+                    </div>
+                    <div class="modal-body">
+                        <p class="text-info"> Based on the <abbr title="Gradient Nearest Neighbor">GNN</abbr> spatial dataset, 
+                        here are some likely vegetation structures that may match your current stand conditions. 
+                        If none of them are accurate, you can select <em>None</em> and specify your own stand-level data.</p>
+                        <hr/>
+                        <div class="row-fluid" data-bind="with: selectedFeature">
+                            <div class="span2">
+                                <dl class="dl-horizontal">
+                                    <dt>Species<br/></dt>
+                                    <dt>Height</dt>
+                                    <dt>Basal area</dt>
+                                    <dt>TPH</dt>
+                                    <dt>Avg Diameter</dt>
+                                </dl>
+                            </div>
+                            <div class="span2">
+                                <ul class="unstyled">
+                                    <li class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
+                                    <li class="value">
+                                        <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
+                                    <li class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
+                                </ul>
+                                <img src="/media/img/svs.gif">
+                            </div>
+                            <div class="span2">
+                                <ul class="unstyled">
+                                    <li class="value"><span data-bind="text: plot_summaries()[1].fortypiv"></span></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[1].stndhgt"></span> m</dd>
+                                    <li class="value">
+                                        <span data-bind="text: plot_summaries()[1].baa_ge_3"></span> m<sup>2</sup></dd>
+                                    <li class="value" data-bind="text: plot_summaries()[1].tph_ge_3"></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[1].qmda_dom"></span> cm</dd>
+                                </ul>
+                                <img src="/media/img/svs.gif">
+                            </div>
+                            <div class="span2">
+                                <ul class="unstyled">
+                                    <li class="value"><span data-bind="text: plot_summaries()[2].fortypiv"></span></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[2].stndhgt"></span> m</dd>
+                                    <li class="value">
+                                        <span data-bind="text: plot_summaries()[2].baa_ge_3"></span> m<sup>2</sup></dd>
+                                    <li class="value" data-bind="text: plot_summaries()[2].tph_ge_3"></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[2].qmda_dom"></span> cm</dd>
+                                </ul>
+                                <img src="/media/img/svs.gif">
+                            </div>
+                            <div class="span2">
+                                <ul class="unstyled">
+                                    <li class="value"><span data-bind="text: plot_summaries()[3].fortypiv"></span></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[3].stndhgt"></span> m</dd>
+                                    <li class="value">
+                                        <span data-bind="text: plot_summaries()[3].baa_ge_3"></span> m<sup>2</sup></dd>
+                                    <li class="value" data-bind="text: plot_summaries()[3].tph_ge_3"></dd>
+                                    <li class="value"><span data-bind="text: plot_summaries()[3].qmda_dom"></span> cm</dd>
+                                </ul>
+                                <img src="/media/img/svs.gif">
+                            </div>
+                            <div class="span2">
+                                <p>None</p> 
+                                <p>Specify your own stand-level data.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <a href="#" class="btn" data-dismiss="modal">Cancel</a>
+                        <a href="#" class="btn btn-danger" data-dismiss="modal">Save Vegetation Settings</a>
+                    </div>
+                </div>
                   <div data-bind="if: standList().length, visible: standList().length > 10">
                     <div class="pagination">
                       <ul data-bind="foreach: paginationList">
@@ -479,6 +554,8 @@
                     <a href="#" class="btn btn-danger" data-dismiss="modal">Refine Boundaries</a>
                 </div>
               </div>
+
+              
             </div>
             <!-- end of stand pages -->
           {% endif %}

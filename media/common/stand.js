@@ -80,6 +80,10 @@ function standsViewModel() {
     $("#refine-boundaries-dialog").modal("show");
   };
 
+  self.refineVegetation = function() {
+    $("#refine-vegetation-dialog").modal("show");
+  };
+
   self.addStandStart = function() {
     app.drawFeature.activate();
     self.showStandHelp(false);
