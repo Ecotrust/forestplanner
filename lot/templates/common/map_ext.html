@@ -341,8 +341,7 @@
                         </ul>
                       </div>
                     </div>
-                    <div class="span9 well" data-bind="if: selectedFeature">
-                      <h3>Stand Details</h3>
+                    <div class="span9 well"  data-bind="if: selectedFeature">
                         <div class="pull-right btn-group">
                             <button href="#" id="delete-button" class="btn btn-mini" 
                                 data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete Stand</button>
@@ -350,64 +349,54 @@
                                 data-bind="click: editStand">
                                 <i class="icon-edit"></i> Edit Stand</button>
                         </div>
-                      <div class="stand-detail" data-bind="with: selectedFeature">
-                        <table class="table">
-                          <tr>
-                              <td> Name </td>
-                              <td>
-                                  <span data-bind="text: name"></span>
-                                  <!-- <a href="#" class="btn btn-mini pull-right" data-bind="click: $parent.editStand"><i class="icon-edit"></i> Edit</a> -->
+                        <h3>Stand Details</h3>
+                        <div class="stand-detail" data-bind="with: selectedFeature">
+                            <dl class="dl-horizontal">
+                                <dt>Name</dt>
+                                <dd><span data-bind="text: name"></span></dd>
+                                <dt>Calculated Area</dt>
+                                <dd><span data-bind="text: acres"></span> acres</dd>
+                            </dl>
 
-                              </td>
-                          </tr>
-                          <tr>
-                            <td>Calculated Area</td><td><span data-bind="text: acres"></span> acres</td>
-                          </tr>
-                        </table>
+                            <!--<h4>Terrain</h4>-->
+                            <dl class="dl-horizontal">
+                                <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
+                                <dt>Slope</dt><dd data-bind="text: slope">something</dd>
+                                <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> m</dd>
+                            </dl>
 
-                        <h4>Terrain</h4>
-                        <table class="table table-condensed">
-                        <tr><td>Aspect</td><td data-bind="text: aspect"></td></tr>
-                        <tr><td>Slope</td><td data-bind="text: slope">something</td></tr>
-                        <tr><td>Elevation</td><td><span data-bind="text: elevation"></span> m</td></tr>
-                        </table>
+                            <!-- <h4>Vegetation</h4> -->
+                            <dl class="dl-horizontal">
+                                <dt>Species</dt>
+                                <dd class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
+                                <dt>Height</dt>
+                                <dd class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
+                                <dt>Basal area</dt>
+                                <dd class="value">
+                                    <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
+                                <dt>Trees per hectare</dt>
+                                <dd class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></dd>
+                                <dt>Average Diameter</dt>
+                                <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
+                            </dl>
 
-                        <h4>Vegetation</h4>
-                        <div class="row-fluid vegetation">
-                          <div class="span6">
-                            <table class="table table-condensed">
-                              <tr><td>Species</td>
-                                <td class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></td></tr>
-                              <tr><td>Height</td>
-                                <td class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</td></tr>
-                              <tr><td>Basal area</td>
-                                <td class="value"><span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></td>
-                              <tr><td>Trees per hectare</td>
-                                <td class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></td></tr>
-                              <!--
-                              <tr><td>mean diameter</td>
-                                <td class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</td>
-                              <tr><td>conifer proportion</td>
-                                <td class="value" data-bind="text: plot_summaries()[0].bac_prop"></td></tr>
-                               -->
-                            </table>
-                          </div>
-                          <div class="span6">
-                            <div class="thumbnail">
-                              <div id="watermarked-image">
-                                <p>Sample</p>
-                              </div>
-                              <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
+                            <div class="thumbnail" style="width:280px;">
+                                <div id="watermarked-image">
+                                    <p>Sample</p>
+                                </div>
+                                <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
                             </div>
-                          </div>
-                        </div>
-                        <div class="row-fluid">
-                          <div class="btn-group pull-right">
-                              <!--<button class="btn" href="#"><i class="icon-repeat"></i> Define Scenarios</button> -->
-                            <button class="btn" data-bind="click: $parent.cancelManageStands"><i class="icon-backward"></i> Back to Properties </button>
-                            <button class="btn" data-bind="click: $parent.refineBoundaries"><i class="icon-leaf"></i> Refine Vegetation</a>
-                          </div>
-                        </div>
+
+                            <p>
+                            <div class="row-fluid">
+                                <div class="btn-group pull-right">
+                                    <button class="btn" data-bind="click: $parent.cancelManageStands">
+                                        <i class="icon-backward"></i> Back to Properties </button>
+                                    <button class="btn" data-bind="click: $parent.refineBoundaries">
+                                        <i class="icon-leaf"></i> Refine Vegetation</a>
+                                </div>
+                            </div>
+                            </p>
                       </div>
                     </div>
                   </div>
