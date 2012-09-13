@@ -364,9 +364,10 @@
                             </dl>
 
                             <div class="thumbnail" style="width:280px;">
-                                <div id="watermarked-image">
+                                <div class="watermarked-image"
+                                    data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + gnn() + '/)' }">
                                     <p>Sample</p>
-                                </div>
+                                </div> 
                                 <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
                             </div>
 
@@ -409,7 +410,10 @@
                             <div class="btn-group" data-toggle="buttons-radio">
                                 <!-- ko foreach: plot_summaries -->
                                 <button type="button" class="btn btn-veg"> 
-                                    <img src="/media/img/svs.gif">
+                                    <div class="watermarked-image" style="width: 136px; height: 124px"
+                                        data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + fcid() + '/)' }">
+                                        <p style="font-size: 16pt;">Sample</p>
+                                    </div> 
                                     <ul class="unstyled">
                                         <li><strong><span data-bind="text: fortypiv"></span></strong></li>
                                         <li>option #<span data-bind="text: $index"></li>

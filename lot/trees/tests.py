@@ -1042,3 +1042,12 @@ class AspectTest(TestCase):
             print ae[0], ae[1]
             self.assertEquals(classify_aspect(ae[0]), ae[1], ae[0])
 
+class SVSTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.baseurl = "/trees/gnn2svs"
+
+    def test_get(self):
+        url = "%s/%s/" % (self.baseurl, 2222)
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 301)

@@ -106,16 +106,20 @@ label.olButton {
     text-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
-#watermarked-image {
+.watermarked-image {
     height: 168px;
     width: 260px;
     background-image: url(/media/img/svs.gif);
     background-position: 0 0;
     background-repeat: no-repeat;
+    -webkit-background-size: cover; /*for webKit*/
+    -moz-background-size: cover; /*Mozilla*/
+    -o-background-size: cover; /*opera*/
+    background-size: contain; /*generic*/
     position: relative;
     margin: 0px auto;
 }
-#watermarked-image p {
+.watermarked-image p {
     position: absolute;
     font-size: 36pt;
     color: white;

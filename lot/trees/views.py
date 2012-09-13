@@ -1,7 +1,7 @@
 # Create your views here.
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponsePermanentRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
@@ -306,3 +306,10 @@ def nearest_plot(request):
         html += "</table> <br/><p>* = <em>categorical variable used to filter potential candidate plots</em></p>"
         
         return HttpResponse(html, status=200)
+
+
+def svs_image(request, gnn):
+    imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1,7)]
+    idx = int(gnn) % len(imgs)
+    return HttpResponsePermanentRedirect(imgs[idx])
+

@@ -12,4 +12,6 @@ urlpatterns = patterns('',
         geosearch, name='trees-geosearch'),
     url(r'^nearest_plot/$', 
         nearest_plot, name='trees-nearest_plot'),
+    url(r'^gnn2svs/(\d+)/$', 
+        svs_image, name='trees-svs'),
 )
