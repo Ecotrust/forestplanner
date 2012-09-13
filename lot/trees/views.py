@@ -102,6 +102,7 @@ def upload_stands(request):
 
             # Import
             from trees.utils import StandImporter
+            fp = None
             try:
                 s = StandImporter(request.user)
 
@@ -116,8 +117,9 @@ def upload_stands(request):
             except Exception as err:
                 return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
 
-            newfp = ForestProperty.objects.filter(name=new_prop_name).latest('date_modified')
-            res = HttpResponse(json.dumps({'X-Madrona-Select': newfp.uid}), status=201, mimetype='application/json')
+            if not fp: 
+                fp = ForestProperty.objects.filter(name=new_prop_name).latest('date_modified')
+            res = HttpResponse(json.dumps({'X-Madrona-Select': fp.uid}), status=201, mimetype='application/json')
             return res
     else:
         form = UploadStandsForm()

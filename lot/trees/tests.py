@@ -652,7 +652,7 @@ class StandImportTest(TestCase):
         response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
         f.close()
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertNotEqual(response.content.find('success'), -1, response.content)
+        self.assertNotEqual(response.content.find('X-Madrona-Select'), -1, response.content)
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
     def test_importer_http_unauth(self):
@@ -724,7 +724,7 @@ class StandImportTest(TestCase):
         response = self.client.post(url, {'new_property_name': 'Another Property', 'ogrfile': f})
         f.close()
         self.assertEqual(response.status_code, 201, response.content)
-        self.assertNotEqual(response.content.find('success'), -1, response.content)
+        self.assertNotEqual(response.content.find('X-Madrona-Select'), -1, response.content)
         self.assertEqual(len(self.prop1.feature_set()), 0)
         new_stand = ForestProperty.objects.get(name="Another Property")
         self.assertEqual(len(new_stand.feature_set()), 37)
