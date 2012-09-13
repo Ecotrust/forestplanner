@@ -16,7 +16,7 @@ from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger
 from operator import itemgetter
 from django.core.cache import cache
-from django.core.exceptions import ValidationError
+
 logger = get_logger()
 
 def cachemethod(cache_key, timeout=60*60*24*7):
@@ -435,40 +435,74 @@ class Scenario(Analysis):
     def stand_set(self):
         return self.input_property.feature_set()
 
+    def output_property_results(self):
+        res = self.output_scheduler_results
+        return res['__all__']
+
+    def output_stand_results(self):
+        res = self.output_scheduler_results
+        del res['__all__']
+        return res
+
+
     def run(self):
         # TODO prep scheduler, run it, parse the outputs
         d = {}
+
+        # TODO Randomness is random
+        import math
+        import random
+        a = range(0,100)
+
+        rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
+        c = random.randint(0,90)
+        t = random.randint(0,90)
+        carbon = rsamp[c:c+6]
+        timber = rsamp[t:t+6]
+
         # Stand-level outputs
         for stand in self.stand_set():
             d[stand.pk] = {
                 "carbon": [
-                    ['2004-08-12 4:00PM',3.2], 
-                    ['2024-09-12 4:00PM',5.7], 
-                    ['2048-10-12 4:00PM',6.5], 
-                    ['2067-12-12 4:00PM',4.0],
+                    ['2004-08-12 4:00PM',carbon[0]], 
+                    ['2024-09-12 4:00PM',carbon[1]], 
+                    ['2048-10-12 4:00PM',carbon[2]], 
+                    ['2067-12-12 4:00PM',carbon[3]],
+                    ['2087-12-12 4:00PM',carbon[4]],
+                    ['2107-12-12 4:00PM',carbon[5]],
                 ],
                 "timber": [
-                    ['2004-08-12 4:00PM',4], 
-                    ['2024-09-12 4:00PM',6.5], 
-                    ['2048-10-12 4:00PM',5.7], 
-                    ['2067-12-12 4:00PM',3.2],
+                    ['2004-08-12 4:00PM', timber[5]], 
+                    ['2024-09-12 4:00PM', timber[1]], 
+                    ['2048-10-12 4:00PM', timber[2]], 
+                    ['2067-12-12 4:00PM', timber[3]],
+                    ['2087-12-12 4:00PM', timber[4]],
+                    ['2107-12-12 4:00PM', timber[5]],
                 ]
             }
 
         # Property-level outputs
         # note the '__all__' key
+        c = random.randint(0,90)
+        t = random.randint(0,90)
+        carbon = rsamp[c:c+6]
+        timber = rsamp[t:t+6]
         d['__all__'] = {
             "carbon": [
-                ['2004-08-12 4:00PM',3.2+self.pk], 
-                ['2024-09-12 4:00PM',5.7+self.pk], 
-                ['2048-10-12 4:00PM',6.5+self.pk], 
-                ['2067-12-12 4:00PM',4.0+self.pk],
+                ['2004-08-12 4:00PM',carbon[0]], 
+                ['2024-09-12 4:00PM',carbon[1]], 
+                ['2048-10-12 4:00PM',carbon[2]], 
+                ['2067-12-12 4:00PM',carbon[3]],
+                ['2087-12-12 4:00PM',carbon[4]],
+                ['2107-12-12 4:00PM',carbon[5]],
             ],
             "timber": [
-                ['2004-08-12 4:00PM',4+self.pk], 
-                ['2024-09-12 4:00PM',6.5+self.pk], 
-                ['2048-10-12 4:00PM',5.7+self.pk], 
-                ['2067-12-12 4:00PM',3.2+self.pk],
+                ['2004-08-12 4:00PM', timber[5]], 
+                ['2024-09-12 4:00PM', timber[1]], 
+                ['2048-10-12 4:00PM', timber[2]], 
+                ['2067-12-12 4:00PM', timber[3]],
+                ['2087-12-12 4:00PM', timber[4]],
+                ['2107-12-12 4:00PM', timber[5]],
             ]
         }
 
