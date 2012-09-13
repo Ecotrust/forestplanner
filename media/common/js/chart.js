@@ -58,7 +58,7 @@ var refreshCharts = function(){
     var newTimberData;
     var newCarbonData;
 
-    var res = JSON.parse(this.fields.output_scheduler_results);
+    var res = this.fields.output_scheduler_results;
     var resall = res['__all__'];
 
     if (resall) {

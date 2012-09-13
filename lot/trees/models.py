@@ -435,14 +435,34 @@ class Scenario(Analysis):
     def stand_set(self):
         return self.input_property.feature_set()
 
+    @property
     def output_property_results(self):
-        res = self.output_scheduler_results
-        return res['__all__']
+        res = loads(self.output_scheduler_results)
+        return {'__all__': res['__all__']}
 
+    @property
     def output_stand_results(self):
-        res = self.output_scheduler_results
+        res = loads(self.output_scheduler_results)
         del res['__all__']
         return res
+
+    @property
+    def property_level_dict(self):
+        d = {
+            'pk': self.pk, 
+            'model': 'trees.scenario',
+            'fields': {
+                'description': self.description,
+                'input_property': self.input_property.pk,
+                'input_rxs': self.input_rxs,
+                'input_target_boardfeet': self.input_target_boardfeet,
+                'input_target_carbon': self.input_target_carbon,
+                'name': self.name,
+                'output_scheduler_results': self.output_property_results, # don't include stand-level results
+                'user': self.user.username,
+            }
+        }
+        return d
 
 
     def run(self):
@@ -472,7 +492,7 @@ class Scenario(Analysis):
                     ['2107-12-12 4:00PM',carbon[5]],
                 ],
                 "timber": [
-                    ['2004-08-12 4:00PM', timber[5]], 
+                    ['2004-08-12 4:00PM', timber[0]], 
                     ['2024-09-12 4:00PM', timber[1]], 
                     ['2048-10-12 4:00PM', timber[2]], 
                     ['2067-12-12 4:00PM', timber[3]],
@@ -497,7 +517,7 @@ class Scenario(Analysis):
                 ['2107-12-12 4:00PM',carbon[5]],
             ],
             "timber": [
-                ['2004-08-12 4:00PM', timber[5]], 
+                ['2004-08-12 4:00PM', timber[0]], 
                 ['2024-09-12 4:00PM', timber[1]], 
                 ['2048-10-12 4:00PM', timber[2]], 
                 ['2067-12-12 4:00PM', timber[3]],
@@ -509,23 +529,25 @@ class Scenario(Analysis):
         self.output_scheduler_results = d
 
     def geojson(self, srid=None):
-        d = {
-            'uid': self.uid,
-            'name': self.name,
-            'user_id': self.user.pk,
-            'date_modified': str(self.date_modified),
-            'date_created': str(self.date_created),
-            'results': loads(self.output_scheduler_results),
-        }
-        geom_json = 'null'
+        res = self.output_stand_results
+        stand_data = []
+        for stand in self.stand_set():
+            stand_dict = loads(stand.geojson())
+            stand_dict['properties']['id'] = stand.pk
+            stand_dict['properties']['scenario'] = self.pk
+            stand_dict['properties']['results'] = res[str(stand.pk)]
 
-        gj = """{ 
-              "type": "Feature",
-              "geometry": %s,
-              "properties": %s 
-        }""" % (geom_json, dumps(d))
+            stand_data.append(stand_dict)
+
+        gj = dumps(stand_data) 
+        # madrona doesn't expect an array/list of features here
+        # we have to hack it by removing the []
+        if gj.startswith("["): 
+            gj = gj[1:]
+        if gj.endswith("]"): 
+            gj = gj[:-1]
         return gj
-    
+        
     def clean(self):
         inrx = loads(self.input_rxs)
         valid_rx_keys = dict(RX_CHOICES).keys()

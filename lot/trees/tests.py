@@ -924,6 +924,7 @@ class ScenarioTest(TestCase):
 
     def setUp(self):
         self.client = Client()
+        import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
 
@@ -964,7 +965,7 @@ class ScenarioTest(TestCase):
              )
         s1.save()
         out = s1.output_scheduler_results
-        self.assertEquals(out[self.stand1.pk]['carbon'][2012], 5.0, out)
+        self.assertEquals(out[self.stand1.pk]['carbon'][0][0], '2004-08-12 4:00PM' , out)
 
     def test_post(self):
         self.client.login(username='featuretest', password='pword')
@@ -1016,8 +1017,14 @@ class ScenarioTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200, response.content)
         # make sure response is good
-        res = loads(response.content)['features'][0]['properties']['results']
-        self.assertEquals(res[str(self.stand1.pk)]['carbon']['2012'], 5.0, res)
+        res = loads(response.content) 
+        results = res['features'][0]['properties']['results']
+        self.assertEquals(results['carbon'][0][0], '2004-08-12 4:00PM', results)
+        self.assertEquals(results['timber'][0][0], '2004-08-12 4:00PM', results)
+        with self.assertRaises(KeyError):
+            results['non existent'][0][0]
+        with self.assertRaises(IndexError):
+            results['timber'][0][2]
 
 class AspectTest(TestCase):
     def test_aspect(self):
