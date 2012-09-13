@@ -1,28 +1,9 @@
 # Create your views here.
-from django.http import HttpResponse
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, HttpResponseServerError, HttpResponseForbidden
-from django.contrib.gis.geos import GEOSGeometry
-from django.db import connection
-from django.conf import settings
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.template import RequestContext
-from django.shortcuts import get_object_or_404, render_to_response
-from django.db import connection
-from django.conf import settings
-from django.contrib.auth.models import User 
-from itertools import izip
-from madrona.raster_stats.models import zonal_stats, RasterDataset
-from madrona.common.utils import get_logger
-from madrona.common import default_mimetypes as mimetypes
-from madrona.news.models import Entry
-from madrona.common.utils import valid_browser
-from madrona.features import user_sharing_groups
-from madrona.studyregion.models import StudyRegion
-from madrona.layers.models import PublicLayerList
-from madrona.layers.views import has_privatekml
-from madrona.features.views import has_features, get_object_for_viewing
-from madrona.features import get_feature_by_uid
+from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
 from geopy import geocoders  
 from geopy.point import Point

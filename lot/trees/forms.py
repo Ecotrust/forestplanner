@@ -2,8 +2,6 @@ from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
 from trees.models import Stand, ForestProperty, Scenario
 
-from django.forms.widgets import RadioSelect
-
 class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
         model = Stand
