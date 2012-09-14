@@ -334,42 +334,46 @@
                         </div>
                         <h3>Stand Details</h3>
                         <div class="stand-detail" data-bind="with: selectedFeature">
-                            <dl class="dl-horizontal">
-                                <dt>Name</dt>
-                                <dd><span data-bind="text: name"></span></dd>
-                                <dt>Calculated Area</dt>
-                                <dd><span data-bind="text: acres"></span> acres</dd>
-                            </dl>
+                            <p>
+                                <dl class="dl-horizontal">
+                                    <dt>Name</dt>
+                                    <dd><span data-bind="text: name"></span></dd>
+                                    <dt>Calculated Area</dt>
+                                    <dd><span data-bind="text: acres"></span> acres</dd>
+                                </dl>
 
-                            <!--<h4>Terrain</h4>-->
-                            <dl class="dl-horizontal">
-                                <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
-                                <dt>Slope</dt><dd data-bind="text: slope">something</dd>
-                                <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> m</dd>
-                            </dl>
+                                <!--<h4>Terrain</h4>-->
+                                <dl class="dl-horizontal">
+                                    <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
+                                    <dt>Slope</dt><dd data-bind="text: slope">something</dd>
+                                    <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> m</dd>
+                                </dl>
 
-                            <!-- <h4>Vegetation</h4> -->
-                            <dl class="dl-horizontal">
-                                <dt>Species</dt>
-                                <dd class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
-                                <dt>Height</dt>
-                                <dd class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
-                                <dt>Basal area</dt>
-                                <dd class="value">
-                                    <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
-                                <dt>Trees per hectare</dt>
-                                <dd class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></dd>
-                                <dt>Average Diameter</dt>
-                                <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
-                            </dl>
+                                <!-- <h4>Vegetation</h4> -->
+                                <dl class="dl-horizontal">
+                                    <dt>Species</dt>
+                                    <dd class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
+                                    <dt>Height</dt>
+                                    <dd class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
+                                    <dt>Basal area</dt>
+                                    <dd class="value">
+                                        <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
+                                    <dt>Trees per hectare</dt>
+                                    <dd> <span class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></span></dd>
+                                    <dt>Average Diameter</dt>
+                                    <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
+                                </dl>
+                            </p>
 
-                            <div class="thumbnail" style="width:280px;">
-                                <div class="watermarked-image"
-                                    data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + gnn() + '/)' }">
-                                    <p>Sample</p>
-                                </div> 
-                                <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
-                            </div>
+                            <p>
+                                <div class="thumbnail" style="width:280px;">
+                                    <div class="watermarked-image"
+                                        data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + gnn() + '/)' }">
+                                        <p>Sample</p>
+                                    </div> 
+                                    <h5><span data-bind="text: plot_summaries()[0].vegclass"></h5>
+                                </div>
+                            </p>
 
                             <p>
                             <div class="row-fluid">
@@ -410,7 +414,7 @@
                             <div class="btn-group" data-toggle="buttons-radio">
                                 <!-- ko foreach: plot_summaries -->
                                 <button type="button" class="btn btn-veg"> 
-                                    <div class="watermarked-image" style="width: 136px; height: 124px"
+                                    <div class="watermarked-image" style="width: 124px; height: 124px"
                                         data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + fcid() + '/)' }">
                                         <p style="font-size: 16pt;">Sample</p>
                                     </div> 
