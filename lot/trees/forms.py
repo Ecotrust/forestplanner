@@ -17,13 +17,17 @@ class ScenarioForm(FeatureForm):
     input_property = forms.ModelChoiceField(label="", queryset=ForestProperty.objects.all(), widget=forms.HiddenInput())
     input_target_boardfeet = forms.FloatField(
         help_text="Target an even flow of timber",
+        label='Target Boardfeet', 
         widget=SliderWidget(min=0, max=100, step=1, show_number=True))
     input_site_diversity = forms.FloatField(
         help_text="Optimize for a target site diversity",
+        label='Target Site Diversity Index',
         widget=SliderWidget(min=0, max=100, step=1, show_number=True))
     input_age_class = forms.FloatField(
         help_text="Optimize for target proportion of mature trees",
+        label='Target Mature Age Class',
         widget=SliderWidget(min=0, max=100, step=1, show_number=True))
+
 
     class Meta(FeatureForm.Meta):
         model = Scenario
