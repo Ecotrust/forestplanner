@@ -82,15 +82,32 @@
                     <div class="span4">
                         <div id="properties-list" style="display: none" class="well"
                             data-bind="if: propertyList().length, visible: showPropertyList">
-                            <h3>Property List</h3>
-                            <p><div class="btn-group">
-                                <button href="#" class="btn" data-bind="click: startAddDrawing, disable: preventUpdates">
-                                    <i class="icon-plus-sign"></i> New</button>
-                                <button class="btn" href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
-                                    <i class="icon-resize-full"></i> Show All</button>
-                                <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
-                                    <i class="icon-upload"></i> Upload</button>
-                            </div></p>
+                            <p>
+                                <div class="btn-group">
+                                    <a class="btn" href="#">Property List</a>
+                                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+                                                <i class="icon-plus-sign"></i> New
+                                            </a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
+                                                <i class="icon-resize-full"></i> Show All
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-bind="click: startUpload, disable: preventUpdates">
+                                                <i class="icon-upload"></i> Upload
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </p>
+
+
                             <div style="display:none"  data-bind="visible: propertyList().length">
                                 <table class="table table-condensed table-bordered table-hover">
                                 <tbody data-bind="foreach: propertyList">
@@ -122,13 +139,20 @@
                             <dd><span data-bind="text: selectedProperty().location"></span></dd>
                         </dl>
 
-                        <p><div class="pull-right">
-                          <button class="btn btn-success" href="#" 
-                              data-bind="click: manageStands">
-                              <i class="icon-adjust icon-white"></i> Setup Stands</button>
-                          <button class="btn btn-success" href="#" data-bind="click: manageScenarios">
-                              <i class="icon-repeat icon-white"></i> Define Scenarios</button>
-                        </div></p>
+                        <p class="pull-right">
+                            <ul class="unstyled">
+                                <li>
+                                    <button class="btn pull-right btn-success" style="width: 255px;" href="#" 
+                                    data-bind="click: manageStands">
+                                    <i class="icon-adjust icon-white"></i> Define Current Stand Vegetation</button>
+                                </li>
+                                <li><br/><br/></li>
+                                <li>
+                                    <button class="btn pull-right btn-success" style="width: 255px;" href="#" data-bind="click: manageScenarios">
+                                    <i class="icon-repeat icon-white"></i> Evalutate Future Scenarios</button>
+                                </li>
+                            </ul>
+                        </p>
                     </div>
                 </div>
                 <div class="row-fluid"><!-- panels -->
@@ -140,7 +164,7 @@
                           <li> A .zip file containing an ESRI Shapefile </li>
                           <li> Projected to Web Mercator </li>
                           <li> Contains polygons of all stands </li>
-                          <li> Must contain an string attribute field called "name" </li>
+                          <li> Must contain an string attribute field called <em>name</em> or <em>STAND_ID</em> </li>
                       </ul>
                       <div class="well">
                       <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data"> 
@@ -209,17 +233,20 @@
                 <div class="span4 well">
                     <h3>Scenario List</h3>
                     <p>
-                    <div class="btn-group">
-                        <a href="#" class="btn" data-bind="click: newScenarioStart"><i class="icon-plus-sign"></i> New Scenario</a>
-                    </div>
+                        <div class="btn-group">
+                            <a href="#" class="btn" data-bind="click: newScenarioStart"><i class="icon-plus-sign"></i> New Scenario</a>
+                        </div>
                     </p>
                     <div>
                         <ul class="nav nav-tabs nav-stacked" data-bind="foreach: scenarioList">
-                        <li data-bind="click: $parent.toggleFeature, css: { active: $parent.selectedFeatures.indexOf($data) != -1  }">
-                            <a href="#" data-bind="text: fields.name"></a>
-                        </li>
-                    </ul>
+                            <li data-bind="click: $parent.toggleFeature, css: { active: $parent.selectedFeatures.indexOf($data) != -1  }">
+                                <a href="#" data-bind="text: fields.name"></a>
+                            </li>
+                        </ul>
                     </div>
+                    <button class="btn btn-mini" data-bind="click: cancelManageScenarios">
+                        <i class="icon-backward"></i> Back to Properties 
+                    </button>
                 </div>
                 <div class="span8 well">
                     <div data-bind="if: selectedFeatures().length == 0" style="text-align:center">
@@ -271,10 +298,6 @@
                         </table>
                     </div>
                 </div>
-                <div class="btn-group pull-right">
-                    <button class="btn" data-bind="click: cancelManageScenarios">
-                        <i class="icon-backward"></i> Back to Properties </button>
-                </div>
               </div>
               <div class="row-fluid" data-bind="visible: showScenarioForm">
                   <h3>Define your scenario</h3>
@@ -308,11 +331,22 @@
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
                     <div class="span4 well">
-                            <h3>Stand List</h3>
                             <p>
                                 <div class="btn-group">
-                                    <a href="#" class="btn" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Add</a>
-                                    <a href="#" class="btn" data-bind="click: refineBoundaries"><i class="icon-th"></i> Refine Boundaries</a>
+                                    <a class="btn" href="#">Stand List</a>
+                                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+                                    <ul class="dropdown-menu">
+                                        <li>
+                                            <a href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i>Draw New Stand</a>
+                                        </li>
+                                        <li class="divider"></li>
+                                        <li>
+                                            <a href="#" data-bind="click: refineBoundaries"><i class="icon-th"></i>Refine Boundaries</a>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-bind="click: refineBoundaries"><i class="icon-th-large"></i>Define Strata</a>
+                                        </li>
+                                    </ul>
                                 </div>
                             </p>
                             <div>
@@ -322,6 +356,11 @@
                                     </li>
                                 </ul>
                             </div>
+                            <p>
+                                <button class="btn btn-mini" data-bind="click: cancelManageStands">
+                                    <i class="icon-backward"></i> Back to Properties 
+                                </button>
+                            </p>
                     </div>
                     <div class="span8 well"  data-bind="if: selectedFeature">
                         <div class="pull-right btn-group">
@@ -335,9 +374,9 @@
                         <div class="stand-detail" data-bind="with: selectedFeature">
                             <p>
                                 <dl class="dl-horizontal">
-                                    <dt>Name</dt>
+                                    <dt>Stand ID</dt>
                                     <dd><span data-bind="text: name"></span></dd>
-                                    <dt>Calculated Area</dt>
+                                    <dt>Area</dt>
                                     <dd><span data-bind="text: acres"></span> acres</dd>
                                 </dl>
 
@@ -377,9 +416,7 @@
                             <p>
                             <div class="row-fluid">
                                 <div class="btn-group pull-right">
-                                    <button class="btn" data-bind="click: $parent.cancelManageStands">
-                                        <i class="icon-backward"></i> Back to Properties </button>
-                                    <button class="btn" data-bind="click: $parent.refineVegetation">
+                                    <a class="btn" data-bind="click: $parent.refineVegetation">
                                         <i class="icon-leaf"></i> Refine Vegetation</a>
                                 </div>
                             </div>
@@ -428,7 +465,7 @@
                                 </button>
                                 <!-- /ko -->
                                 <button type="button" class="btn btn-veg"> 
-                                    <img src="/media/img/svs.gif" style="width:120px;"> 
+                                    <i class="icon-question-sign"></i>
                                     <p> <strong>None of these match my stand</strong> </p>
                                     <p> I want to specify my own stand characteristics data</p>
                                 </button>
