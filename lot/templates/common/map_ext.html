@@ -634,19 +634,28 @@
     <script type="text/javascript" src="{{MEDIA_URL}}bootstrap/js/bootstrap-modal.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
 
-    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}/jqplot/jquery.jqplot.min.css" />
+    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}jqplot/jquery.jqplot.min.css" />
+    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/jquery-widgets.css" />
+
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
-    <script class="include" type="text/javascript" src="{{MEDIA_URL}}/jqplot/jquery.jqplot.min.js"></script>
-    <script class="include" type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
-    <script class="include" type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.highlighter.min.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}/jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}/common/js/chart.js"></script>
+    <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
+    <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/chart.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
 
     {% load compressed %}
     <script type="text/javascript">
         var madrona = {
+            onShow: function (callback) {
+                callback();
+                //madrona.formCallbacks.push(callback);
+            }, 
+            formCallbacks: [],
             features: {}
         };
 

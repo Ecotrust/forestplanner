@@ -185,3 +185,6 @@ a {
     padding-right: 8px;
     text-align: right;
 }
+.form-horizontal .controls {
+    margin-left: 260px;
+}

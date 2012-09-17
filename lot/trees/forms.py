@@ -1,6 +1,7 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
 from trees.models import Stand, ForestProperty, Scenario
+from madrona.analysistools.widgets import SliderWidget
 
 class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
@@ -14,6 +15,15 @@ class PropertyForm(FeatureForm):
 class ScenarioForm(FeatureForm):
     input_rxs = forms.CharField(widget=forms.HiddenInput(), initial="{}")
     input_property = forms.ModelChoiceField(label="", queryset=ForestProperty.objects.all(), widget=forms.HiddenInput())
+    input_target_boardfeet = forms.FloatField(
+        help_text="Target an even flow of timber",
+        widget=SliderWidget(min=0, max=100, step=1, show_number=True))
+    input_site_diversity = forms.FloatField(
+        help_text="Optimize for a target site diversity",
+        widget=SliderWidget(min=0, max=100, step=1, show_number=True))
+    input_age_class = forms.FloatField(
+        help_text="Optimize for target proportion of mature trees",
+        widget=SliderWidget(min=0, max=100, step=1, show_number=True))
 
     class Meta(FeatureForm.Meta):
         model = Scenario
