@@ -240,7 +240,11 @@
                     <div>
                         <ul class="nav nav-tabs nav-stacked" data-bind="foreach: scenarioList">
                             <li data-bind="click: $parent.toggleFeature, css: { active: $parent.selectedFeatures.indexOf($data) != -1  }">
-                                <a href="#" data-bind="text: fields.name"></a>
+                            <a href="#"> 
+                                <i style="width:14px; height:14px; padding-right: 6px;" class="icon-ok"
+                                   data-bind="css: { 'icon-white': $parent.selectedFeatures.indexOf($data) == -1 }"></i>
+                                <span data-bind="text: fields.name">
+                            </a>
                             </li>
                         </ul>
                     </div>
