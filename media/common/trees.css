@@ -170,3 +170,18 @@ a {
    width: 164px;
    height: 256px;
 }
+.img-polaroid {
+    padding: 4px;
+    background-color: white;
+    border: 1px solid #CCC;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.form-horizontal .control-label {
+    float: left;
+    width: 240px;
+    padding-top: 5px;
+    padding-right: 8px;
+    text-align: right;
+}

@@ -1,17 +1,26 @@
 {% block panel %}
+<div class="well">
 <form class="form-horizontal" id="scenario-form" method="POST">
     {% for hidden in form.hidden_fields %}
         {{hidden}}
     {% endfor %}
+
     {% for field in form.visible_fields %}
     <div class="control-group">
         {{field.errors}} 
-        <label for="{{field.auto_id}}" class="control-label"> {{ field.label }} </label>
+        <label for="{{field.auto_id}}" class="control-label"> <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
         <div class="controls">
         {{ field }}
         </div>
     </div>
     {% endfor %}
+
+    <div class="control-group">
+        <label for="" class="control-label"><strong>Apply Silvicultural Prescriptions</strong></label>
+        <div class="controls">
+            <img src="/media/img/temp_rx.jpg" class="img-polaroid"/>
+        </div>
+    </div>
     <div class="control-group">
         <div class="controls">
             <button class="btn btn-primary submit">Submit</button>
@@ -19,4 +28,5 @@
         </div>
     </div>
 </form>
+<div>
 {% endblock panel %}
