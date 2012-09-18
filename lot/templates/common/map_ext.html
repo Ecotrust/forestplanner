@@ -15,16 +15,20 @@
             </ul>
             <div id="home-html" class="hero-unit">
 
-                <h2>An Online Tool for Forest Management Scenario Planning</h2>
+                <div style="width: 100%; text-align: center;">
+                    <h3>An online tool for forest management and scenario planning</h3>
+                </div>
                 <div>
-                    <img src="/media/img/fsp_carousel.jpg" />
+                    <img src="/media/img/fsp_carousel.jpg" class="img-polaroid"/>
                     <br/>
                     <br/>
-                    <p>&nbsp;&nbsp;&nbsp;&nbsp;Ecotrust is developing online software that will give all Oregon and Washington 
+                    <p>
+                        &nbsp;&nbsp;&nbsp;&nbsp;Ecotrust is developing online software that will give all Oregon and Washington 
                     land managers forest managment scenario planning capacity. You will be able to visualize 
                     alternative management scenarios on your lands and receive immediate feedback on how  
                     decisions might pay off in terms of timber harvests and financial returns, as well as 
-                    public benefits like carbon storage and ecosystem services. </p>
+                    public benefits like carbon storage and ecosystem services.
+                    </p>
                     
                     <p>
                     {% if not user.is_authenticated %}
@@ -73,7 +77,7 @@
                         <p>Then you will be asked to enter some additional information to help describe your property.</p>
                         <div class="pull-right">
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
-                                <i class="icon-upload"></i> Upload</button>
+                                <i class="icon-upload"></i> Upload GIS Data</button>
                             <button href="#" class="btn btn-success" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
                         </div>
                     </div> <!-- no properties -->
@@ -89,18 +93,18 @@
                                     <ul class="dropdown-menu">
                                         <li>
                                             <a href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
-                                                <i class="icon-plus-sign"></i> New
+                                                <i class="icon-plus-sign"></i> Draw New Property
+                                            </a>
+                                        </li>
+                                        <li>
+                                            <a href="#" data-bind="click: startUpload, disable: preventUpdates">
+                                                <i class="icon-upload"></i> Upload GIS Data
                                             </a>
                                         </li>
                                         <li class="divider"></li>
                                         <li>
                                             <a href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
                                                 <i class="icon-resize-full"></i> Show All
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" data-bind="click: startUpload, disable: preventUpdates">
-                                                <i class="icon-upload"></i> Upload
                                             </a>
                                         </li>
                                     </ul>
@@ -123,10 +127,10 @@
                         data-bind="if: showDetailPanel, visible: showDetailPanel">
                         <div class="pull-right btn-group">
                           <button href="#" id="delete-button" class="btn btn-mini" 
-                              data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete Property</button>
+                              data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete </button>
                           <button class="btn btn-mini" href="#" 
                               data-bind="click: showEditForm, disable: preventUpdates">
-                              <i class="icon-edit"></i> Edit Property</button>
+                              <i class="icon-edit"></i> Edit </button>
                         </div>
                         <h3>Property Details</h3>
 
@@ -265,28 +269,35 @@
                         <thead>
                             <tr>
                                 <td>Name</td>
-                                <td>Desc</td>
-                                <td>Boardfeet</td>
                                 <td>Carbon</td>
-                                <td>RXs</td>
+                                <td>Target Boardfeet</td>
+                                <!--
+                                <td>Site Diversity</td>
+                                <td>Mature Age Class</td>
+                                -->
+                                <td colspan="2">Controls</td>
                             </tr>
                         </thead>
                         <tbody data-bind="foreach: selectedFeatures">
                             <tr>
                                 <td data-bind="text: fields.name"></td>
-                                <td data-bind="text: fields.description"></td>
-                                <td data-bind="text: fields.input_target_boardfeet"></td>
+                                <!--<td data-bind="text: fields.description"></td>-->
                                 <td data-bind="text: fields.input_target_carbon"></td>
-                                <td data-bind="text: fields.input_rxs"></td>
+                                <td data-bind="text: fields.input_target_boardfeet"></td>
+                                <!--
+                                <td data-bind="text: fields.input_site_diversity"></td>
+                                <td data-bind="text: fields.input_age_class"></td>
+                                -->
+                                <!-- <td data-bind="text: fields.input_rxs"></td> -->
                                 <td>
-                                    <div class="pull-right btn-group">
                                     <button href="#" id="delete-button" class="btn btn-mini" 
                                         data-bind="click: $parent.showDeleteDialog">
-                                        <i class="icon-remove"></i> Delete</button>
+                                        <i class="icon-remove"></i></button>
+                                </td>
+                                <td>
                                     <button class="btn btn-mini" href="#" 
                                         data-bind="click: $parent.editFeature">
-                                        <i class="icon-edit"></i> Edit</button>
-                                    </div>
+                                        <i class="icon-edit"></i></button>
                                 </td>
 
                                 <!--
@@ -343,6 +354,9 @@
                                         <li>
                                             <a href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i>Draw New Stand</a>
                                         </li>
+                                        <li>
+                                            <a href="#"><i class="icon-upload"></i> Upload GIS Data</button>
+                                        </li>
                                         <li class="divider"></li>
                                         <li>
                                             <a href="#" data-bind="click: refineBoundaries"><i class="icon-th"></i>Refine Boundaries</a>
@@ -369,10 +383,10 @@
                     <div class="span8 well"  data-bind="if: selectedFeature">
                         <div class="pull-right btn-group">
                             <button href="#" id="delete-button" class="btn btn-mini" 
-                                data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete Stand</button>
+                                data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete</button>
                             <button class="btn btn-mini" href="#" 
                                 data-bind="click: editStand">
-                                <i class="icon-edit"></i> Edit Stand</button>
+                                <i class="icon-edit"></i> Edit</button>
                         </div>
                         <h3>Stand Details</h3>
                         <div class="stand-detail" data-bind="with: selectedFeature">

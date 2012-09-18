@@ -458,6 +458,8 @@ class Scenario(Analysis):
                 'input_property': self.input_property.pk,
                 'input_rxs': self.input_rxs,
                 'input_target_boardfeet': self.input_target_boardfeet,
+                'input_site_diversity': self.input_site_diversity,
+                'input_age_class': self.input_age_class,
                 'input_target_carbon': self.input_target_carbon,
                 'name': self.name,
                 'output_scheduler_results': self.output_property_results, # don't include stand-level results

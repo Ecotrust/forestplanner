@@ -52,7 +52,7 @@ forestProperty:
                         fillOpacity: 0.35,
                         strokeWidth: 2,
                         strokeOpacity: 1,
-                        strokeColor: "#444444",
+                        strokeColor: "#999999",
                         strokeDashstyle: "dashdot",
                         label: "${name}",
                         labelAlign: "cc",
@@ -66,7 +66,7 @@ forestProperty:
         ]
     }),
     "select": new OpenLayers.Style({
-        strokeColor: "#44ff00",
+        strokeColor: "#444444",
         fillOpacity: 0.12
     }),
     "temporary": new OpenLayers.Style(null, {
@@ -82,7 +82,8 @@ forestProperty:
                         fillColor: "white",
                         fillOpacity: 0.35,
                         strokeOpacity: 1,
-                        strokeColor: "#44ff00"
+                        strokeColor: "#444444",
+                        strokeDashstyle: "solid",
                     }
                 }
             })

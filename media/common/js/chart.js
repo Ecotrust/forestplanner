@@ -80,11 +80,11 @@ var refreshCharts = function(){
 
   if (carbonData.length > 0) {
     carbonPlot = $.jqplot('chart-carbon', carbonData, $.extend(globalChartOptions, {
-        title: 'Carbon Sequestration over time',
+        title: 'Carbon Sequestration',
         series: carbonLabels, 
         axes: {
             xaxis: {
-            label: "Time",
+            label: "Year",
             renderer: $.jqplot.DateAxisRenderer,
             tickOptions: {formatString:'%Y'},
             min:'Jan 01, 2000 8:00AM', 
@@ -101,11 +101,11 @@ var refreshCharts = function(){
 
   if (timberData.length > 0) {
     timberPlot = $.jqplot('chart-timber', timberData, $.extend(globalChartOptions, {
-        title: 'Timber Harvest over time',
+        title: 'Annual Timber Harvest',
         series: timberLabels, 
         axes: {
             xaxis: {
-            label: "Time",
+            label: "Year",
             renderer: $.jqplot.DateAxisRenderer,
             tickOptions: {formatString:'%Y'},
             min:'Jan 01, 2000 8:00AM', 

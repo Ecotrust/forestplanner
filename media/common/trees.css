@@ -188,3 +188,6 @@ a {
 .form-horizontal .controls {
     margin-left: 260px;
 }
+.slider {
+    width: 88% !important;
+}
