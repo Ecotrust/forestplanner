@@ -1,33 +1,36 @@
 {% block panel %}
-<div class="well">
 <form class="form-horizontal" id="scenario-form" method="POST">
-    {% for hidden in form.hidden_fields %}
-        {{hidden}}
-    {% endfor %}
+<div class="well">
+    <div class="row-fluid">
+        <div class="span6">
+                {% for hidden in form.hidden_fields %}
+                    {{hidden}}
+                {% endfor %}
 
-    {% for field in form.visible_fields %}
-    <div class="control-group">
-        {{field.errors}} 
-        <label for="{{field.auto_id}}" class="control-label"> <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
-        <div class="controls">
-        {{ field }}
+                {% for field in form.visible_fields %}
+                <div class="control-group">
+                    {{field.errors}} 
+                    <label for="{{field.auto_id}}" class="control-label"> 
+                        <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
+                    <div class="controls">
+                    {{ field }}
+                    </div>
+                </div>
+                {% endfor %}
+        </div>
+        <div class="span6">
+                <p> <strong>Apply Silvicultural Prescriptions</strong> </p>
+                <p>
+                    <img src="/media/img/temp_rx.jpg" class="img-polaroid"/>
+                </p>
         </div>
     </div>
-    {% endfor %}
-
-    <div "control-group">
-        <label for="" class="control-label"><strong>Apply Silvicultural Prescriptions</strong></label>
-        <div class="controls"></div>
-    </div>
-    <div>
-        <img src="/media/img/temp_rx.jpg" class="img-polaroid"/>
-    </div>
-    <div class="control-group">
+    <div class="control-group pull-right">
         <div class="controls">
             <button class="btn btn-primary submit">Submit</button>
             <button class="btn cancel">Cancel</button>
         </div>
     </div>
+</div>
 </form>
-<div>
 {% endblock panel %}

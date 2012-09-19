@@ -3,7 +3,6 @@ function scenarioViewModel() {
 
   self.showScenarioPanels = ko.observable(true);
   self.showScenarioList = ko.observable(false);
-  self.showScenarioForm = ko.observable(false);
   self.scenarioList = ko.observableArray();
   self.selectedFeatures = ko.observableArray();
   self.activeScenario = ko.observable();
@@ -23,7 +22,7 @@ function scenarioViewModel() {
     app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: property.name() + ' Scenarios', action: null});
 
     self.showScenarioList(true);
-    self.showScenarioForm(false);
+    self.toggleScenarioForm(false);
 
     map.zoomToExtent(property.bbox());
     var process = function (data) {
@@ -92,9 +91,20 @@ function scenarioViewModel() {
       self.addScenarioStart(false);
   };
 
+  self.toggleScenarioForm = function(stat) {
+      // self.showScenarioForm(stat);
+      if (stat) {
+          $("div#scenario-form-metacontainer").show();
+          $("div.outermap").hide();
+      } else {
+          $("div#scenario-form-metacontainer").hide();
+          $("div.outermap").show();
+      }
+  };
+
   self.addScenarioStart = function(edit_mode) {
     self.showScenarioList(false);
-    self.showScenarioForm(true);
+    self.toggleScenarioForm(true);
     // TODO get formUrl from workspace
     if (self.activeScenario() && edit_mode) {
         formUrl = "/features/scenario/trees_scenario_{pk}/form/".replace('{pk}', self.activeScenario().pk);
@@ -108,13 +118,13 @@ function scenarioViewModel() {
         type: "GET",
         success: function(data, textStatus, jqXHR) {
             $('#scenario-form-container').html(data);
-            $('form#scenario-form button.cancel').click( function(e) {
+            $('#scenario-form-container').find('button.cancel').click( function(e) {
                 e.preventDefault();
                 self.showScenarioList(true);
-                self.showScenarioForm(false);
+                self.toggleScenarioForm(false);
                 $("form#scenario-form").empty();
             });
-            $('form#scenario-form button.submit').click( function(e) {
+            $('#scenario-form-container').find('button.submit').click( function(e) {
                 e.preventDefault();
                 $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
                 var postData = $("form#scenario-form").serialize(); 
@@ -127,7 +137,7 @@ function scenarioViewModel() {
                         var uid = data["X-Madrona-Select"];
                         self.selectedFeatures.removeAll();
                         self.loadScenarios(self.property); 
-                        self.showScenarioForm(false);
+                        self.toggleScenarioForm(false);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
                         alert(errorThrown);

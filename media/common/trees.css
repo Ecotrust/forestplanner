@@ -180,13 +180,13 @@ a {
 }
 .form-horizontal .control-label {
     float: left;
-    width: 240px;
+    width: 200px;
     padding-top: 5px;
     padding-right: 8px;
     text-align: right;
 }
 .form-horizontal .controls {
-    margin-left: 260px;
+    margin-left: 220px;
 }
 .slider {
     width: 88% !important;
@@ -200,4 +200,6 @@ a {
 .dl-horizontal dt {
     width: 168px;
 }
-
+textarea#id_description {
+    width: 80%;
+}
