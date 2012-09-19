@@ -266,51 +266,61 @@
                     <div data-bind="if: selectedFeatures().length > 0">
                         <h3>Details for Selected Scenarios</h3>
                         <table class="table table-condensed table-striped table-hover table-bordered">
-                        <thead>
-                            <tr>
-                                <td>Name</td>
-                                <td>Carbon</td>
-                                <td>Target Boardfeet</td>
-                                <!--
-                                <td>Site Diversity</td>
-                                <td>Mature Age Class</td>
-                                -->
-                                <td colspan="2">Controls</td>
-                            </tr>
-                        </thead>
                         <tbody data-bind="foreach: selectedFeatures">
-                            <tr>
-                                <td data-bind="text: fields.name"></td>
-                                <!--<td data-bind="text: fields.description"></td>-->
-                                <td data-bind="text: fields.input_target_carbon"></td>
-                                <td data-bind="text: fields.input_target_boardfeet"></td>
-                                <!--
-                                <td data-bind="text: fields.input_site_diversity"></td>
-                                <td data-bind="text: fields.input_age_class"></td>
-                                -->
-                                <!-- <td data-bind="text: fields.input_rxs"></td> -->
-                                <td>
-                                    <button href="#" id="delete-button" class="btn btn-mini" 
-                                        data-bind="click: $parent.showDeleteDialog">
-                                        <i class="icon-remove"></i></button>
+                            <tr class="scenario-row" rel="popover">
+                                <td> 
+                                    <h5> <span data-bind="text: fields.name"><span> </h5>
+                                    <span data-bind="text: fields.description"></span>
+                                    <div class="pull-right">
+                                        <button href="#" id="delete-button" class="btn btn-mini" 
+                                            data-bind="click: $parent.showDeleteDialog">
+                                            <i class="icon-remove"></i></button>
+                                        <button class="btn btn-mini" href="#" 
+                                            data-bind="click: $parent.editFeature">
+                                            <i class="icon-edit"></i></button>
+                                        <!--
+                                        <button class="btn btn-mini" href="#" 
+                                            data-bind="click: ">
+                                            <i class="icon-info-sign"></i></button>
+                                        -->
+                                    </div>
+                                    <p>
+                                    <div class="scenario-details hide">
+                                        <div>
+                                            <dl class="dl-horizontal">
+                                                <dt>Target Carbon?</dt>
+                                                <dd data-bind="text: fields.input_target_carbon"></dd>
+                                                <dt>Target Annual Cut</dt>
+                                                <dd data-bind="text: fields.input_target_boardfeet"></dd>
+                                                <dt>Target Site Diversity</dt>
+                                                <dd data-bind="text: fields.input_site_diversity"></dd>
+                                                <dt>Target Mature Age Class</dt>
+                                                <dd data-bind="text: fields.input_age_class"></dd>
+                                            </dl>
+                                        </div>
+                                        <div>
+                                            <img src="/media/img/temp_rx.jpg" size="width:300px;" class="img-polaroid"/>
+                                        </div>
+                                    </div>
+                                    </p>
                                 </td>
-                                <td>
-                                    <button class="btn btn-mini" href="#" 
-                                        data-bind="click: $parent.editFeature">
-                                        <i class="icon-edit"></i></button>
-                                </td>
-
                                 <!--
-                                <td data-bind="text: chartColors[0]"></td>
-                                <td data-bind="text: $index"></td> 
-                                <td data-bind="text: chartColors[$index]"></td>
-                                <td><div style="height: 20px; width: 20px; border: 1px grey solid;" data-bind="style: {backgroundColor: chartColors[$index]}"></div></td>
+                                <td data-bind="text: fields.name" class="hide scenario-name"></td>
+                                <td class="hide scenario-details">
                                 -->
-
-                                <!-- <td data-bind="text: fields.output_scheduler_results"></td> -->
+                                    <!--
+                                    <dd data-bind="text: fields.input_rxs"></dd> 
+                                    <span data-bind="text: chartColors[0]"></span>
+                                    <span data-bind="text: $index"></span> 
+                                    <span data-bind="text: chartColors[$index]"></span>
+                                    <span><div style="height: 20px; width: 20px; border: 1px grey solid;" 
+                                            data-bind="style: {backgroundColor: chartColors[$index]}"></div></span>
+                                    <span data-bind="text: fields.output_scheduler_results"></span> 
+                                    -->
                             </tr>
                         </tbody>
                         </table>
+
                     </div>
                 </div>
               </div>
@@ -355,7 +365,7 @@
                                             <a href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i>Draw New Stand</a>
                                         </li>
                                         <li>
-                                            <a href="#"><i class="icon-upload"></i> Upload GIS Data</button>
+                                            <a href="#"><i class="icon-upload"></i> Upload GIS Data</a>
                                         </li>
                                         <li class="divider"></li>
                                         <li>

@@ -119,4 +119,10 @@ var refreshCharts = function(){
         }
     }));
   }
+ 
+  $("tr.scenario-row").click( function() {
+      var row = $(this);
+      row.find("div.scenario-details").fadeToggle();
+  });
+
 };

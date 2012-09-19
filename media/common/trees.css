@@ -191,3 +191,13 @@ a {
 .slider {
     width: 88% !important;
 }
+.popover {
+    width: 436px !important;
+}
+.dl-horizontal dd {
+    margin-left: 180px;
+}
+.dl-horizontal dt {
+    width: 168px;
+}
+
