@@ -3,7 +3,7 @@
 
 {% block content %}
         <div class="row-fluid">
-          <div class="span6">
+          <div class="span5">
             <ul id="breadcrumbs" class="breadcrumb" data-bind="foreach: breadcrumbs">
               <li data-bind="visible: ! $parent.isLast($data)">
                 <a data-bind="text: name, click: action"></a>
@@ -298,9 +298,11 @@
                                                 <dd data-bind="text: fields.input_age_class"></dd>
                                             </dl>
                                         </div>
+                                        <!--
                                         <div>
                                             <img src="/media/img/temp_rx.jpg" size="width:300px;" class="img-polaroid"/>
                                         </div>
+                                        -->
                                     </div>
                                     </p>
                                 </td>
@@ -582,7 +584,7 @@
             <!-- end of stand pages -->
           {% endif %}
           </div>
-          <div class="span6">
+          <div class="span7">
             <div class="outermap well">
               {% if user.is_authenticated %}
               <!-- Not sure why but non authenticated requests cause failure in geoSearch knockout binding -->
@@ -593,8 +595,8 @@
               <div id="map"></div>
               <div id="scenario-outputs" style="display:none">
                     <ul class="nav nav-tabs" id="myTab">
-                        <li class="active"><a href="#scenario-charts-tab" data-toggle="tab">Charts</a></li>
-                        <li><a href="#scenario-maps-tab" data-toggle="tab">Time-series Maps</a></li>
+                        <li class="active"><a href="#scenario-charts-tab-content" id="scenario-charts-tab" data-toggle="tab">Charts</a></li>
+                        <li><a href="#scenario-maps-tab-content" id="scenario-maps-tab" data-toggle="tab">Time-series Maps</a></li>
                         <!--
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
@@ -607,13 +609,60 @@
                     </ul>
                     
                     <div class="tab-content">
-                        <div class="tab-pane fade active in" id="scenario-charts-tab">
+                        <div class="tab-pane fade active in" id="scenario-charts-tab-content">
                             <div id="chart-carbon" class="chart"></div>
                             <div id="chart-timber" class="chart"></div>
                         </div>
-                        <div class="tab-pane fade" id="scenario-maps-tab">
+
+                        <div class="tab-pane fade" id="scenario-maps-tab-content">
+                            <div id="year-slider">
+                                <div class="row-fluid">
+                                    <div class="span2">
+                                        <h4><span id="timemap-type">Stand Volume</span></h4>
+                                    </div>
+                                    <div class="span1">
+                                        <label class="pull-right" for="field-year-slider">Year:</label> 
+                                    </div>
+                                    <div class="span1">
+                                        <input class="input-mini slidervalue year-slider-value" 
+                                               type="text" name="year-slider" id="field-year-slider" />
+                                    </div>
+                                    <div class="span8">
+                                        <div class="row-fluid">
+                                            <div class="span2"><p class="pull-right">2010</p></div>
+                                            <div class="span8">
+                                                <div class="slider" id="slider-year-slider"></div> 
+                                            </div>
+                                            <div class="span2"><p class="pull-left">2150</p></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <hr/>
+
+                            <div class="timemap-container">
+                                <h5>Scenario1</h5>
+                                <div class="timemap" id="timemap1"></div>
+                            </div>
+                            <div class="timemap-container">
+                                <h5>Scenario2</h5>
+                                <div class="timemap" id="timemap2"></div>
+                            </div>
+
+                            <!--
+                            <div class="row-fluid">
+                                <div class="span6">
+                                    <h5>Scenario1</h5>
+                                    <img src="/media/img/stand_vol/10yr.jpg" class="img-polaroid"/>
+                                </div>
+                                <div class="span6">
+                                    <h5>Scenario2</h5>
+                                    <img src="/media/img/stand_vol/10yr.jpg" class="img-polaroid"/>
+                                </div>
+                            </div>
+                            -->
+
+                            <!--
                             <div id="myCarousel" class="carousel slide">
-                                <!-- Carousel items -->
                                 <div class="carousel-inner">
                                     <div class="active item">
                                         <img src="{{MEDIA_URL}}img/stand_vol/10yr.jpg" />        
@@ -628,10 +677,10 @@
                                         <img src="{{MEDIA_URL}}img/stand_vol/100yr.jpg" />        
                                     </div>
                                 </div>
-                                <!-- Carousel nav -->
                                 <a class="carousel-control left" href="#myCarousel" data-slide="prev">&lsaquo;</a>
                                 <a class="carousel-control right" href="#myCarousel" data-slide="next">&rsaquo;</a>
                             </div>
+                            -->
                         </div>
                     </div>
               </div> <!-- end scenario-outputs -->
@@ -712,4 +761,93 @@
     <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
     <script src="{{ MEDIA_URL }}common/js/init.js"></script>
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
+
+    <script type="text/javascript">
+        var field = $('#field-year-slider');
+        var slidy = $('#slider-year-slider');
+        slidy.slider({
+            range: 'min',
+            min : 2010, 
+            max : 2150,
+            step : 10,
+            change : function(event, ui) { field.val(slidy.slider('value')); },
+            slide : function(event, ui) { field.val(slidy.slider('value')); }
+        });
+        slidy.slider("value", field.val() ); 
+        field.change( function (){ slidy.slider("value", field.val()) }); 
+    </script>
+    <script>
+        $(document).ready(function() {
+
+            $("#scenario-maps-tab").on('shown', function (e) {
+                //e.target // activated tab
+                //e.relatedTarget // previous tab
+                timemap1.render("timemap1");
+                timemap2.render("timemap2");
+                if (!timemapInitialized) {
+                    timemap1.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
+                    timemap2.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
+                    var c1, c2, z1, z2;
+                    var updatingMap1 = false;
+                    var updatingMap2 = false;
+                    timemap1.events.register("moveend", timemap1, function() {
+                            if(!updatingMap2){
+                                c1 = this.getCenter();
+                                z1 = this.getZoom();
+                                updatingMap1 = true;
+                                timemap2.panTo(c1);
+                                timemap2.zoomTo(z1);
+                                updatingMap1 = false;
+                            }
+                    });
+                    timemap2.events.register("moveend", timemap2, function() {
+                            if(!updatingMap2){
+                                c2 = this.getCenter();
+                                z2 = this.getZoom();
+                                updatingMap2 = true;
+                                timemap1.panTo(c2);
+                                timemap1.zoomTo(z2);
+                                updatingMap2 = false;
+                            }
+                    });       
+                    timemapInitialized = true;
+                }
+            });
+
+            var apiKey = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70";
+            var aerial1 = new OpenLayers.Layer.Bing({
+                name: "Bing Aerial",
+                key: apiKey,
+                type: "Aerial"
+            });
+            var timemap1 = new OpenLayers.Map();
+            timemap1.addLayer(aerial1);
+            //timemap1.addControl(new OpenLayers.Control.LayerSwitcher());
+
+            var aerial2 = new OpenLayers.Layer.Bing({
+                name: "Bing Aerial",
+                key: apiKey,
+                type: "Aerial"
+            });
+            var timemap2 = new OpenLayers.Map();
+            timemap2.addLayer(aerial2);
+            var timemapInitialized = false;
+
+/*
+            timemap1.addControl(new OpenLayers.Control.Navigation({
+                dragPanOptions: {
+                    enableKinetic: false
+                }
+            }));
+            timemap2.addControl(new OpenLayers.Control.Navigation({
+                dragPanOptions: {
+                    enableKinetic: false
+                }
+            }));
+  */
+         });
+    </script>
+
+
+
 {% endblock scripts %}

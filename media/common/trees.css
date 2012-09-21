@@ -203,3 +203,38 @@ a {
 textarea#id_description {
     width: 80%;
 }
+.timemap {
+    margin: 3px;
+    width: 98%;
+    border: 2px grey solid;
+}
+#year-slider {
+    padding: 12px;
+}
+input.year-slider-value {
+    display: inline-block;
+    padding: 3px;
+    margin-bottom: 0px !important;
+}
+#timemap-type {
+    font-size: 18px;
+    line-height: 22px;
+}
+#slider-year-slider {
+    width: 100% !important;
+}
+
+@media (max-width: 1280px) {
+    .timemap-container {
+        width: 100%;
+        display: block;
+    }
+}
+
+@media (min-width: 1281px) {
+    .timemap-container {
+        width: 49%;
+        display: inline-block;
+    }
+}
+

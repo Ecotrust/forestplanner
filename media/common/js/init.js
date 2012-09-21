@@ -4,9 +4,16 @@ app.properties = {
     viewModel: new propertiesViewModel()
 };
 
+var widthThreshold = 1280;
 app.onResize = function () {
     $("#map").height($(window).height() - 114);
     map.render('map');
+    var width = $(window).width();
+    if (width > widthThreshold) {
+        $(".timemap").height($(window).height() - 264);
+    } else {
+        $(".timemap").height(($(window).height()/2.0)-264);
+    }
 };
 
 $(document).ready(function () {
@@ -76,6 +83,5 @@ $(document).ready(function () {
         $('div#home-html').hide();
         app.properties.viewModel.init();
     });
+
 });
-
-
