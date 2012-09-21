@@ -60,32 +60,24 @@
                         <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
                     </div>
                 </div>
-                <div class="row-fluid" style="display:none" data-bind="if: propertyList().length === 0"> <!-- data-bind="if: showNoPropertiesHelp"> -->
+                <div class="well" style="display:none;" data-bind="visible: propertyList().length === 0"> 
+                    <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
                     <p><em>You currently have no properties under management.</em></p>
                     <div id="properties-none">
-                        <h3>Draw your property</h3>
-                        <p>Find your properties on the map by searching for a placename or parcel id.</p>
-                        <div>
-                            <form class="form-search">
-                                <input type="text" class="input-large search-query" placeholder="placename or parcel id">
-                                <button class="btn" type="submit">Search</button>
-                            </form>
-                        </div>
                         <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
-                        <h3>Add additional information</h3>
-                        <p>Then you will be asked to enter some additional information to help describe your property.</p>
                         <div class="pull-right">
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
-                            <button href="#" class="btn btn-success" data-bind="click: startAddDrawing, disable: preventUpdates">Add Property</button>
+                            <button href="#" class="btn btn-success" 
+                                data-bind="click: startAddDrawing, disable: preventUpdates">Draw Property Boundary</button>
                         </div>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
                 <div class="row-fluid">
                     <div class="span4">
-                        <div id="properties-list" style="display: none" class="well"
-                            data-bind="if: propertyList().length, visible: showPropertyList">
+                        <div id="properties-list" style="display: none;" class="well"
+                            data-bind="visible: propertyList().length > 0">
                             <p>
                                 <div class="btn-group">
                                     <a class="btn" href="#">Property List</a>
@@ -193,8 +185,8 @@
                                 <input type="file" id="upload-file" name="ogrfile" size="10"/> 
                             </p>
                             <div class="pull-right">
-                                <input id="uploadbutton" type="submit" class="btn btn-success" value="Upload"/>
                                 <a href="#" class="btn" data-bind="click: cancelUpload">Cancel</a>
+                                <input id="uploadbutton" type="submit" class="btn btn-success" value="Upload"/>
                             </div>
                       </form>
                       <div id="uploadProgress" style="display: none; width:80%;" class="progress progress-striped active">
@@ -512,15 +504,12 @@
                       </ul>
                     </div>
                   </div>
-                  <div id="stands-none" data-bind="visible: ! standList().length">
-                    <h3>Draw your stand</h3>
-                    <p>Find your stands on the map by searching for a placename or parcel id.</p>
-                    <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
-                    <h3>Add additional information</h3>
+                  <div id="stands-none" class="well" data-bind="visible: ! standList().length">
+                    <h3>Define New Stand Boundaries</h3>
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
                     <div class="pull-right">
-                      <button href="#" class="btn" data-bind="click: cancelManageStands">Return to Properties</button>
-                      <button href="#" class="btn btn-success" data-bind="click: addStandStart">Add Stand</button>
+                      <button href="#" class="btn" data-bind="click: cancelManageStands">Cancel</button>
+                      <button href="#" class="btn btn-success" data-bind="click: addStandStart">Draw Stand</button>
                     </div>
                   </div>
                 </div>
@@ -810,9 +799,10 @@
                             }
                     });       
 
-                    // TODO AGGGGG hook to app.scenario.viewModel 
+                    // TODO AGGGGG this is hideous !!! hook to app.scenario.viewModel 
                     // or better yet make this whole function part of the viewmodel and bindings
-                    var geojson_url = "/features/generic-links/links/geojson/trees_scenario_25/"
+                    var f1 = app.scenarios.viewModel.scenarioList()[0];
+                    var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + f1.pk +"/";
                     $.get( geojson_url, function(data) {
                         if (data.features.length) {
                             standScenario1.addFeatures(app.geojson_format.read(data));        
@@ -822,7 +812,8 @@
                             }
                         } 
                     });
-                    geojson_url = "/features/generic-links/links/geojson/trees_scenario_26/"
+                    var f2 = app.scenarios.viewModel.scenarioList()[1];
+                    var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
                     $.get( geojson_url, function(data) {
                         if (data.features.length) {
                             standScenario2.addFeatures(app.geojson_format.read(data));        
@@ -841,7 +832,6 @@
                 getColour: function(feature) {
                     var color;
                     var attr = feature.attributes["results"]["carbon"][yearIndex]; 
-                    console.log(feature, attr);
                     // assumes 0-20 range TODO
                     if (attr < 4) {
                         color = "#EDF8E9";

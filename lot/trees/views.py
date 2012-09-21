@@ -136,12 +136,38 @@ def geojson_forestproperty(request, instance):
 def forestproperty_scenarios(request, instance):
     from trees.models import Scenario
 
-    scenarios = Scenario.objects.filter(input_property=instance)
+    # TODO secure this 
+    scenarios = Scenario.objects.filter(user=request.user, input_property=instance)
     if len(scenarios) == 0:
-        res_json = "[]" 
-    else:
-        res_json = json.dumps([x.property_level_dict for x in scenarios])
+        s1 = Scenario(user=request.user, 
+                input_property=instance,
+                name="Grow Only",
+                description="No management activities; allow natural regeneration for entire time period.",
+                input_target_boardfeet=0,
+                input_target_carbon=True,
+                input_rxs={},
+                input_site_diversity = 10,
+                input_age_class = 10, 
+        )
+        s1.save()
+        s2 = Scenario(user=request.user, 
+                input_property=instance,
+                name="Conventional Even-Aged",
+                description="Even-aged management for timber. 40-year rotation clear cut.",
+                input_target_boardfeet=2000,
+                input_target_carbon=False,
+                input_rxs={},
+                input_site_diversity = 1,
+                input_age_class = 1, 
+        )
+        s2.save()
+        scenarios = Scenario.objects.filter(user=request.user, input_property=instance)
 
+    if len(scenarios) == 0:
+        # this should never happen
+        return HttpResponse([], mimetype='application/json', status=404)
+
+    res_json = json.dumps([x.property_level_dict for x in scenarios])
     return HttpResponse(res_json, mimetype='application/json', status=200)
 
 def geojson_features(request, instances):
