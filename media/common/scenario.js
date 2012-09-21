@@ -38,6 +38,7 @@ function scenarioViewModel() {
   self.initialize = function(property) {
     // bind the viewmodel
     ko.applyBindings(self, document.getElementById('scenario-html'));
+    ko.applyBindings(self, document.getElementById('scenario-outputs'));
     self.loadScenarios(property);
   };
 
@@ -101,6 +102,10 @@ function scenarioViewModel() {
           $("div.outermap").show();
       }
   };
+
+  self.test = function() {
+      alert("test works");
+  }; 
 
   self.addScenarioStart = function(edit_mode) {
     self.showScenarioList(false);

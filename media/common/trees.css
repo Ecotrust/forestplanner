@@ -5,7 +5,6 @@
     background: #E4AF87;
 }
 
-
 .stand-detail div, .stand-detail table {
     padding-bottom: 0px;
 }
@@ -216,17 +215,22 @@ input.year-slider-value {
     padding: 3px;
     margin-bottom: 0px !important;
 }
-#timemap-type {
-    font-size: 18px;
-    line-height: 22px;
-}
 #slider-year-slider {
     width: 100% !important;
 }
-
+select.timemap-type {
+    padding: 1px;
+    margin-bottom: 0px;
+}
 .timemap-container {
     width: 100%;
     padding-left: 2px;
     display: inline-block;
 }
-
+.scenario-select {
+    position: relative;
+    top: -48px;
+    z-index: 99999;
+    right: -12px;
+    opacity: 0.8;
+}

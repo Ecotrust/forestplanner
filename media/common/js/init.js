@@ -12,7 +12,6 @@ app.onResize = function () {
     map.render('map');
 
     divWidth = width * (7/12); // span7
-    console.log(width, divWidth, height);
     if (divWidth > height) {
         // "widescreen" so go side-by-side
         $(".timemap-container").width('48%');
@@ -20,7 +19,7 @@ app.onResize = function () {
     } else {
         // "narrow" so go top-to-bottom
         $(".timemap-container").width('99%');
-        $(".timemap").height((height - 264)/2.0);
+        $(".timemap").height((height - 284)/2.0);
     }
 };
 
