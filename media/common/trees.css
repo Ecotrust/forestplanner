@@ -234,3 +234,6 @@ select.timemap-type {
     right: -12px;
     opacity: 0.8;
 }
+label#year-label {
+    display: inline;
+}

@@ -477,31 +477,33 @@ class Scenario(Analysis):
         import math
         import random
         a = range(0,100)
-
         rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
-        c = random.randint(0,90)
-        t = random.randint(0,90)
-        carbon = rsamp[c:c+6]
-        timber = rsamp[t:t+6]
 
         # Stand-level outputs
+        # Note the data structure for stands is different than properties
+        # (stands are optimized for openlayers map while property-level works with jqplot)
         for stand in self.stand_set():
+            c = random.randint(0,90)
+            t = random.randint(0,90)
+            carbon = rsamp[c:c+6]
+            timber = rsamp[t:t+6]
             d[stand.pk] = {
+                "years": range(2020, 2121, 20),
                 "carbon": [
-                    ['2004-08-12 4:00PM',carbon[0]], 
-                    ['2024-09-12 4:00PM',carbon[1]], 
-                    ['2048-10-12 4:00PM',carbon[2]], 
-                    ['2067-12-12 4:00PM',carbon[3]],
-                    ['2087-12-12 4:00PM',carbon[4]],
-                    ['2107-12-12 4:00PM',carbon[5]],
+                    carbon[0], 
+                    carbon[1], 
+                    carbon[2], 
+                    carbon[3],
+                    carbon[4],
+                    carbon[5],
                 ],
                 "timber": [
-                    ['2004-08-12 4:00PM', timber[0]], 
-                    ['2024-09-12 4:00PM', timber[1]], 
-                    ['2048-10-12 4:00PM', timber[2]], 
-                    ['2067-12-12 4:00PM', timber[3]],
-                    ['2087-12-12 4:00PM', timber[4]],
-                    ['2107-12-12 4:00PM', timber[5]],
+                    timber[0], 
+                    timber[1], 
+                    timber[2], 
+                    timber[3],
+                    timber[4],
+                    timber[5],
                 ]
             }
 
