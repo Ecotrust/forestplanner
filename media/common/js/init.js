@@ -4,15 +4,23 @@ app.properties = {
     viewModel: new propertiesViewModel()
 };
 
-var widthThreshold = 1280;
 app.onResize = function () {
-    $("#map").height($(window).height() - 114);
-    map.render('map');
+    var height = $(window).height();
     var width = $(window).width();
-    if (width > widthThreshold) {
-        $(".timemap").height($(window).height() - 264);
+
+    $("#map").height(height - 114);
+    map.render('map');
+
+    divWidth = width * (7/12); // span7
+    console.log(width, divWidth, height);
+    if (divWidth > height) {
+        // "widescreen" so go side-by-side
+        $(".timemap-container").width('48%');
+        $(".timemap").height(height - 264);
     } else {
-        $(".timemap").height(($(window).height()/2.0)-264);
+        // "narrow" so go top-to-bottom
+        $(".timemap-container").width('99%');
+        $(".timemap").height((height - 264)/2.0);
     }
 };
 
