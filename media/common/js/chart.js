@@ -8,7 +8,7 @@ var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228",
 var globalChartOptions = {
       seriesColors: chartColors,
       grid: {
-          backgroundColor: "white",
+          backgroundColor: "white"
       },
       axesDefaults: {
           labelRenderer: $.jqplot.CanvasAxisLabelRenderer

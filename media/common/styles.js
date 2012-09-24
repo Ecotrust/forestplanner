@@ -83,7 +83,7 @@ forestProperty:
                         fillOpacity: 0.35,
                         strokeOpacity: 1,
                         strokeColor: "#444444",
-                        strokeDashstyle: "solid",
+                        strokeDashstyle: "solid"
                     }
                 }
             })

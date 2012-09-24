@@ -44,11 +44,11 @@ $(document).ready(function () {
         if (!name) {
             $("#upload-propertyname-required").fadeIn();
             return false;
-        };
+        }
         if (!file) {
             $("#upload-file-required").fadeIn();
             return false;
-        };
+        }
 
         $("#uploadProgress").show();
     },

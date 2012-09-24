@@ -33,7 +33,7 @@ function scenarioViewModel() {
         refreshCharts();
     };
     $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
-  }
+  };
 
   self.initialize = function(property) {
     // bind the viewmodel
@@ -54,7 +54,7 @@ function scenarioViewModel() {
 
   self.toggleFeature = function(f) {
       var removed = self.selectedFeatures.remove(f);
-      if (removed.length == 0) { // add it
+      if (removed.length === 0) { // add it
         self.selectedFeatures.push(f);
       }
       refreshCharts();

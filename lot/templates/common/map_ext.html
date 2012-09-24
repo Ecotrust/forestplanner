@@ -770,9 +770,9 @@
             $("#scenario-maps-tab").on('shown', function (e) {
                 //e.target // activated tab
                 //e.relatedTarget // previous tab
-                timemap1.render("timemap1");
-                timemap2.render("timemap2");
                 if (!timemapInitialized) {
+                    timemap1.render("timemap1");
+                    timemap2.render("timemap2");
                     timemap1.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
                     timemap2.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
                     var c1, c2, z1, z2;
@@ -828,6 +828,7 @@
                 }
             });
 
+            var timemapInitialized = false;
             var context = {
                 getColour: function(feature) {
                     var color;
@@ -882,8 +883,6 @@
             });
             timemap2.addLayer(standScenario2);
 
-            var timemapInitialized = false;
-
          });
     </script>
     <script type="text/javascript">
@@ -914,7 +913,5 @@
         slidy.slider("value", field.val() ); 
         field.change( function (){ slidy.slider("value", field.val()) }); 
     </script>
-
-
 
 {% endblock scripts %}
