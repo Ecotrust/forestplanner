@@ -509,26 +509,42 @@ class Scenario(Analysis):
 
         # Property-level outputs
         # note the '__all__' key
-        c = random.randint(0,90)
-        t = random.randint(0,90)
-        carbon = rsamp[c:c+6]
-        timber = rsamp[t:t+6]
+        def scale(data):
+            # fake data for ~3500 acres, adjust for size
+            sf = 3500.0/self.input_property.acres
+            return [ x/sf for x in data ]
+
+        carbon_alt =  scale([338243.812, 631721, 775308, 792018, 754616])
+        timber_alt = scale([0,1861789,2371139,2613845,3172212])
+
+        carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
+        timber_biz = scale([0,2333800,2982600,2989000,2793700])
+
+        if self.input_target_carbon:
+            carbon = carbon_alt
+            timber = timber_alt
+        else:
+            carbon = carbon_biz
+            timber = timber_biz
+        if self.name.startswith("Grow"):
+            carbon = [c * 1.5 for c in carbon_alt]
+            carbon[0] = carbon_alt[0]
+            timber = [0,0,0,0,0]
+
         d['__all__'] = {
             "carbon": [
-                ['2004-08-12 4:00PM',carbon[0]], 
-                ['2024-09-12 4:00PM',carbon[1]], 
-                ['2048-10-12 4:00PM',carbon[2]], 
-                ['2067-12-12 4:00PM',carbon[3]],
-                ['2087-12-12 4:00PM',carbon[4]],
-                ['2107-12-12 4:00PM',carbon[5]],
+                ['2010-08-12 4:00PM',carbon[0]], 
+                ['2035-09-12 4:00PM',carbon[1]], 
+                ['2060-10-12 4:00PM',carbon[2]], 
+                ['2085-12-12 4:00PM',carbon[3]],
+                ['2110-12-12 4:00PM',carbon[4]],
             ],
             "timber": [
-                ['2004-08-12 4:00PM', timber[0]], 
-                ['2024-09-12 4:00PM', timber[1]], 
-                ['2048-10-12 4:00PM', timber[2]], 
-                ['2067-12-12 4:00PM', timber[3]],
-                ['2087-12-12 4:00PM', timber[4]],
-                ['2107-12-12 4:00PM', timber[5]],
+                ['2010-08-12 4:00PM',timber[0]], 
+                ['2035-09-12 4:00PM',timber[1]], 
+                ['2060-10-12 4:00PM',timber[2]], 
+                ['2085-12-12 4:00PM',timber[3]],
+                ['2110-12-12 4:00PM',timber[4]],
             ]
         }
 

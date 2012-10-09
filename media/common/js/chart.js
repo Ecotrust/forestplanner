@@ -113,8 +113,9 @@ var refreshCharts = function(){
             pad: 0
             },
             yaxis: {
+            min: 0, 
             label: "Timber",
-            tickOptions: {formatString:'%.1f bdft'}
+            tickOptions: {formatString:'%.1f bft'}
             }
         }
     }));
