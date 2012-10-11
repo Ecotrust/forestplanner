@@ -515,10 +515,10 @@ class Scenario(Analysis):
             return [ x/sf for x in data ]
 
         carbon_alt =  scale([338243.812, 631721, 775308, 792018, 754616])
-        timber_alt = scale([0,1861789,2371139,2613845,3172212])
+        timber_alt = scale([1361780,1861789,2371139,2613845,3172212])
 
         carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
-        timber_biz = scale([0,2333800,2982600,2989000,2793700])
+        timber_biz = scale([2111800,2333800,2982600,2989000,2793700])
 
         if self.input_target_carbon:
             carbon = carbon_alt
@@ -529,7 +529,9 @@ class Scenario(Analysis):
         if self.name.startswith("Grow"):
             carbon = [c * 1.5 for c in carbon_alt]
             carbon[0] = carbon_alt[0]
-            timber = [0,0,0,0,0]
+            carbon[-2] = carbon_alt[-2] * 1.6
+            carbon[-1] = carbon_alt[-1] * 1.7
+            timber = [1,1,1,1,1]
 
         d['__all__'] = {
             "carbon": [
