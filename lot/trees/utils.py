@@ -144,9 +144,9 @@ def nearest_plot(categories, numeric):
         return vals
 
     if len(categories.keys()) == 0:
-        raise Exception("Invalid categories dict supplied, %s" )
+        raise Exception("Invalid categories dict supplied, %s" % categories)
     if len(numeric.keys()) == 0:
-        raise Exception("Invalid numeric dict supplied, %s")
+        raise Exception("Invalid numeric dict supplied, %s" % numeric)
 
     # Construct an n-dimensional point based on the remaining numeric attributes
     keys = numeric.keys()
