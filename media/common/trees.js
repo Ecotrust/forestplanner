@@ -43,17 +43,17 @@ function init() {
 
     var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial);
     var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain);
-    var nhd = new OpenLayers.Layer.XYZ( "EPA NHD",
+    var nhd = new OpenLayers.Layer.XYZ( "Streams",
         "http://watersgeo.epa.gov/ARCGIS/REST/services/OW/NHD_Med_Detailed_WMERC/MapServer/tile/${z}/${y}/${x}",
         //"/tile/${z}/${y}/${x}",
         {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75} 
     );
-    var huc = new OpenLayers.Layer.XYZ( "EPA HUCs",
+    var huc = new OpenLayers.Layer.XYZ( "Watershed Boundaries",
         //"/tile/${z}/${y}/${x}",
         "http://watersgeo.epa.gov/ArcGIS/rest/services/OW/WBD_WMERC/MapServer/tile/${z}/${y}/${x}",
         {sphericalMercator: true, isBaseLayer: false, visibility: false} 
     );
-    var soils = new OpenLayers.Layer.XYZ( "Soil Survey Map",
+    var soils = new OpenLayers.Layer.XYZ( "Soil Survey",
         //"/tile/${z}/${y}/${x}",
         "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
         {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75} 
