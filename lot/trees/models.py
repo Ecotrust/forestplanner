@@ -99,6 +99,9 @@ class Stand(PolygonFeature):
             return newval
 
         elevation = int_or_none(self.imputed_elevation)
+        # Unit conversion
+        if elevation:
+            elevation = int(elevation * 3.28084)
         aspect = int_or_none(self.imputed_aspect)
         aspect_class = classify_aspect(aspect)
         slope = int_or_none(self.imputed_slope)
@@ -151,7 +154,6 @@ class Stand(PolygonFeature):
         sin = self.get_raster_stats('sin_aspect')
         result = None
         if cos and sin and cos.sum and sin.sum:
-            #TODO confirm
             avg_aspect_rad = math.atan2(sin.sum, cos.sum)
             result = math.degrees(avg_aspect_rad) % 360
         return result
@@ -189,6 +191,11 @@ class Stand(PolygonFeature):
             ps = PlotSummary.objects.get(fcid=fcid)
             summary = ps.summary
             summary['fcid_coverage'] = prop * 100
+            # Unit conversions
+            summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
+            summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
+            summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) #h to acres
+            summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
             summaries.append(summary)
         return summaries
 

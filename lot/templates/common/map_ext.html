@@ -401,23 +401,23 @@
                                 <!--<h4>Terrain</h4>-->
                                 <dl class="dl-horizontal">
                                     <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
-                                    <dt>Slope</dt><dd data-bind="text: slope">something</dd>
-                                    <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> m</dd>
+                                    <dt>Slope</dt><dd data-bind="text: slope"></dd>
+                                    <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
                                 </dl>
 
                                 <!-- <h4>Vegetation</h4> -->
-                                <dl class="dl-horizontal">
+                                <dl class="dl-horizontal" data-bind="if: plot_summaries()[0]">
                                     <dt>Species</dt>
                                     <dd class="value"><span data-bind="text: plot_summaries()[0].fortypiv"></span></dd>
                                     <dt>Height</dt>
-                                    <dd class="value"><span data-bind="text: plot_summaries()[0].stndhgt"></span> m</dd>
-                                    <dt>Basal area</dt>
+                                    <dd class="value"><span data-bind="text: plot_summaries()[0].stndhgt_ft"></span> ft</dd>
+                                    <dt>Basal Area</dt>
                                     <dd class="value">
-                                        <span data-bind="text: plot_summaries()[0].baa_ge_3"></span> m<sup>2</sup></dd>
-                                    <dt>Trees per hectare</dt>
-                                    <dd> <span class="value" data-bind="text: plot_summaries()[0].tph_ge_3"></span></dd>
-                                    <dt>Average Diameter</dt>
-                                    <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom"></span> cm</dd>
+                                        <span data-bind="text: plot_summaries()[0].baa_ge_3_sqft"></span> ft<sup>2</sup></dd>
+                                    <dt>Trees per Acre</dt>
+                                    <dd><span class="value" data-bind="text: plot_summaries()[0].tph_ge_3_tpa"></span></dd>
+                                    <dt>DBH</dt>
+                                    <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom_in"></span> in</dd>
                                 </dl>
                             </p>
 
