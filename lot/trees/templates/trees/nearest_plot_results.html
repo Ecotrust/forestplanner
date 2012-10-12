@@ -1,0 +1,35 @@
+<html>
+    <body>
+        <a href="/trees/nearest_plot/"> GO BACK </a>
+        <table border="1">
+            <tr>
+                <th>Attribute</th>
+                <th>Requested Plot</th>
+                <th>Most similar plot <br/> (<em>out of {{candidates}} candidates</em>)</th>
+            </tr>
+            <tr>
+                <th>fcid</th>
+                <td>--</td>
+                <td>{{plot.fcid}}</td>
+            </tr>
+            {% for k, cat, orig, chosen  in specified_vars %} 
+                <tr>
+                    <th>{{k}}{% if cat %}*{% endif %}</th>
+                    <td>{{orig}}</td>
+                    <td>{{chosen}}</td>
+                </tr>
+            {% endfor %}
+            <tr> <td colspan="3"><em> ALL variables </em></td></tr>
+            {% for k, chosen in closest.items %} 
+                <tr>
+                    <th>{{k}}</th>
+                    <td>--</td>
+                    <td>{{chosen}}</td>
+                </tr>
+            {% endfor %}
+        </table> 
+        <br/>
+        <p>* = <em>categorical variable used to filter potential candidate plots</em></p>
+    </body>
+</html>
+
