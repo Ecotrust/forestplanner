@@ -118,7 +118,7 @@ def calculate_adjacency(qs, threshold):
 
     return adj
 
-def nearest_plot(categories, numeric):
+def nearest_plot(categories, numeric, species, forest_class):
     """ 
     find the closest GNN plot in coordinate space to a given point
     * filter by categorical variables
@@ -160,6 +160,22 @@ def nearest_plot(categories, numeric):
     for cat, val in categories.iteritems():
         filter_kwargs[cat] = val
 
+    # handle "special" vars
+    if forest_class == "broadleaf":
+        filter_kwargs['bah_prop__gt'] = 0.65
+    elif forest_class == "mixed":
+        filter_kwargs['bah_prop__lte'] = 0.65
+        filter_kwargs['bah_prop__gt'] = 0.2
+    elif forest_class == "conifer":
+        filter_kwargs['bah_prop__lte'] = 0.2
+
+    if 'dom' in species:
+        filter_kwargs['imap_domspp__contains'] = species['dom']
+
+    if 'codom' in species:
+        filter_kwargs['fortypba__contains'] = species['codom']
+
+    print filter_kwargs
     # Get any potential plots and create an array of n-dim points
     # hashkey = ".plotsummary_" + sha1(str(filter_kwargs)).hexdigest() 
     plotsummaries = list(PlotSummary.objects.filter(**filter_kwargs))
@@ -167,7 +183,7 @@ def nearest_plot(categories, numeric):
     allpoints = np.array(psar) 
     candidates = len(plotsummaries)
     if candidates == 0:
-        raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
+        raise Exception("There are no candidate plots matching the categorical variables: %s" % filter_kwargs)
 
     # Normalize to 100; linear scale
     multipliers = (100.0 / np.max(allpoints, axis=0))

@@ -273,16 +273,32 @@ def nearest_plot(request):
     nums = [x.name for x in PS._meta.fields if 
              x.get_internal_type() != 'CharField' and x.name not in cats]
     orig = dict(r)
+    species = {}
+    forest_class = None
     for k,v in orig.iteritems():
-        if k in cats:
+        if k == "_DOMSPECIES":
+            species['dom'] = v
+        if k == "_CODOMSPECIES":
+            species['codom'] = v
+        elif k == '_FORCLASS':
+            forest_class = v
+        elif k in ['sizecl','covcl']:
+            categorical[k] = int(v)
+        elif k in cats:
             categorical[k] = v
         elif k in nums:
-            numeric[k] = float(v)
+            if v and v != '':
+                numeric[k] = float(v)
+
+    all_species = {
+        'PSME': 'Douglas Fir',
+        'ALRU2': 'Red Alder',
+    }
 
     if len(orig.keys()) == 0:
         return render_to_response("trees/nearest_plot_form.html", locals())
 
-    dist, plot, candidates = _nearest_plot(categorical, numeric)
+    dist, plot, candidates = _nearest_plot(categorical, numeric, species, forest_class)
     closest = dict([(k,v) for k,v in plot.__dict__.iteritems()]) # if k in orig])
     
     if return_format == 'html':
@@ -291,7 +307,15 @@ def nearest_plot(request):
             iscat = ''
             if k in cats:
                 iscat = '*' 
-            specified_vars.append((k, iscat, orig[k], closest[k]))
+            try:
+                specified_vars.append((k, iscat, orig[k], closest[k]))
+            except:
+                if k == "_DOMSPECIES":
+                    specified_vars.append((k, iscat, orig[k], closest['imap_domspp']))
+                elif k == "_CODOMSPECIES":
+                    specified_vars.append((k, iscat, orig[k], closest['fortypba']))
+                elif k == '_FORCLASS':
+                    specified_vars.append((k, iscat, orig[k], "hdwd = %s " % closest['bah_prop'] ))
 
         return render_to_response("trees/nearest_plot_results.html", locals())
 
