@@ -449,46 +449,88 @@
                         <h3> Specify current vegetation structure of this stand:</h3>
                     </div>
                     <div class="modal-body">
-                        <p class="text-info"> Based on the <abbr title="Gradient Nearest Neighbor">GNN</abbr> spatial dataset, 
-                        here are some likely vegetation structures that may match your current stand conditions. 
-                        If none of them are accurate, you can select <em>None</em> and specify your own stand-level data.</p>
-                        <hr/>
-                        <div data-bind="with: selectedFeature">
-                            <!--
-                            <div>
-                                <dl class="dl-horizontal">
-                                    <dt>Species<br/></dt>
-                                    <dt>Height</dt>
-                                    <dt>Basal area</dt>
-                                    <dt>TPH</dt>
-                                    <dt>Avg Diameter</dt>
-                                </dl>
+                        <p class="text-info"> Based on the FIA plot database, 
+                        describe the vegetation structures that for your current stand conditions. 
+                        </p>
+                        <form>
+                            <div class="row-fluid">
+                            <div class="span6">
+                                <p>
+                                    <label for="half_state">Region</label>
+                                    <select name="half_state">
+                                        <option value="EWA"> Washington (Eastern) </option>
+                                        <option value="WWA"> Washington (Western) </option>
+                                        <option value="EOR"> Oregon (Eastern) </option>
+                                        <option value="WOR"> Oregon (Western) </option>
+                                    </select>
+                                </p>
+
+                                <p>
+                                    <label for="sizecl">Size</label>
+                                    <select name="sizecl">
+                                        <option value="1"> Shrub/seedling (~1" dbh)</option>
+                                        <option value="2"> Sapling/pole (1" to 10" dbh)</option>
+                                        <option value="3"> Small tree (10" to 15" dbh)</option>
+                                        <option value="4"> Medium tree (15" to 20" dbh)</option>
+                                        <option value="5"> Large tree (20" to 30" dbh) </option>
+                                        <option value="6"> Giant tree (&gt; 30" dbh) </option>
+                                    </select>
+                                </p>
+
+                                <p>
+                                    <label for="covcl">Canopy Cover</label>
+                                    <select name="covcl">
+                                        <option value="1"> Sparse/remnant (Almost no canopy cover) </option>
+                                        <option value="2"> Open (canopy cover &lt; 40%) </option>
+                                        <option value="3"> Moderate (canopy cover between 40% and 70%) </option>
+                                        <option value="4"> Closed (canopy cover &gt; 70%) </option>
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="_FORCLASS">Forest Class</label>
+                                    <select name="_FORCLASS">
+                                        <option value="broadleaf"> Broadleaf </option>
+                                        <option value="mixed"> Mixed </option>
+                                        <option value="conifer"> Conifer </option>
+                                    </select>
+                                </p>
                             </div>
-                            -->
-                            <div class="btn-group" data-toggle="buttons-radio">
-                                <!-- ko foreach: plot_summaries -->
-                                <button type="button" class="btn btn-veg"> 
-                                    <div class="watermarked-image" style="width: 124px; height: 124px"
-                                        data-bind="style: { backgroundImage: 'url(/trees/gnn2svs/' + fcid() + '/)' }">
-                                        <p style="font-size: 16pt;">Sample</p>
-                                    </div> 
-                                    <ul class="unstyled">
-                                        <li><strong><span data-bind="text: fortypiv"></span></strong></li>
-                                        <li>option #<span data-bind="text: $index"></li>
-                                        <li>height: <span data-bind="text: stndhgt"></span> m</li>
-                                        <li>basal area: <span data-bind="text: baa_ge_3"></span> m<sup>2</sup></li>
-                                        <li>tph: <span data-bind="text: tph_ge_3"></span></li>
-                                        <li>diam: <span data-bind="text: qmda_dom"></span> cm</li>
-                                    </ul>
-                                </button>
-                                <!-- /ko -->
-                                <button type="button" class="btn btn-veg"> 
-                                    <i class="icon-question-sign"></i>
-                                    <p> <strong>None of these match my stand</strong> </p>
-                                    <p> I want to specify my own stand characteristics data</p>
-                                </button>
+                            <div class="span6">
+                                <p>
+                                    <label for="_DOMSPECIES">Dominant Species</label>
+                                    <select name="_DOMSPECIES"/>
+                                        <option value=""> -- </option>
+                                        
+                                        <option value="PSME">Douglas Fir</option>
+                                        
+                                        <option value="ALRU2">Red Alder</option>
+                                        
+                                    </select>
+                                </p>
+                                <p>
+                                    <label for="_CODOMSPECIES">Co-Dominant Species (optional)</label>
+                                    <select name="_CODOMSPECIES"/>
+                                        <option value=""> -- </option>
+                                        
+                                        <option value="PSME">Douglas Fir</option>
+                                        
+                                        <option value="ALRU2">Red Alder</option>
+                                        
+                                    </select>
+                                </p>
+
+                                <p>
+                                    <label for="tph_ge_3">Trees per Hectare</label>
+                                    <input type="text" name="tph_ge_3"/>
+                                </p>
+                                <p>
+                                    <label for="age_dom">Age</label>
+                                    <input type="text" name="age_dom"/>
+                                </p>
+                                <input type="submit" />
                             </div>
-                        </div>
+                            </div>
+                        </form>
                     </div>
                     <div class="modal-footer">
                         <a href="#" class="btn" data-dismiss="modal">Cancel</a>

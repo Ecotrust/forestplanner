@@ -432,10 +432,10 @@ class Scenario(Analysis):
     """
     description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
     input_property = models.ForeignKey('ForestProperty')
-    input_target_carbon = models.BooleanField(verbose_name='Target Carbon', help_text="Optimize harvest schedule for carbon sequestration") 
     input_target_boardfeet = models.FloatField(verbose_name='Target Boardfeet', help_text="Target an even flow of timber")
     input_site_diversity = models.FloatField(verbose_name='Target Site Diversity Index', help_text="Optimize for a target site diversity")
     input_age_class = models.FloatField(verbose_name='Target Mature Age Class', help_text="Optimize for target proportion of mature trees")
+    input_target_carbon = models.BooleanField(verbose_name='Target Carbon', help_text="Optimize harvest schedule for carbon sequestration") 
     input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
 
     # All output fields should be allowed to be Null/Blank

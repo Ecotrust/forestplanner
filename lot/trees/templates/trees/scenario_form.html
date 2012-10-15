@@ -1,57 +1,71 @@
 {% block panel %}
 <form class="form-horizontal" id="scenario-form" method="POST">
 <div class="well">
-    <div class="row-fluid">
-        <div class="span6">
-                {% for hidden in form.hidden_fields %}
-                    {{hidden}}
-                {% endfor %}
+    <ul class="nav nav-tabs" id="myTab">
+        <li class="active">
+            <a href="#scenario-edit-objectives-content" id="scenario-edit-objectives-tab" data-toggle="tab">Objectives</a>
+        </li>
+        <li>
+            <a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab">Spatial Contraints</a>
+        </li>
+        <li>
+            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Silvicultural Prescriptions</a>
+        </li>
+    </ul>
+    
+    <div class="tab-content">
 
-                {% for field in form.visible_fields %}
-                <div class="control-group">
-                    {{field.errors}} 
-                    <label for="{{field.auto_id}}" class="control-label"> 
-                        <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
-                    <div class="controls">
-                    {{ field }}
-                    </div>
+        <div class="tab-pane fade" id="scenario-edit-objectives-content">
+            {% for hidden in form.hidden_fields %}
+                {{hidden}}
+            {% endfor %}
+
+            {% for field in form.visible_fields %}
+            <div class="control-group">
+                {{field.errors}} 
+                <label for="{{field.auto_id}}" class="control-label"> 
+                    <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
+                <div class="controls">
+                {{ field }}
                 </div>
-                {% endfor %}
+            </div>
+            {% endfor %}
         </div>
-        <div class="span6">
-                <p> <strong>Apply Silvicultural Prescriptions</strong> </p>
-                <p>
-                    <img src="/media/img/temp_rx.jpg" class="img-polaroid"/>
-                </p>
-                <div class="well">
-                    <div class="control-group">
-                        <label for="id_buffer" class="control-label"> 
-                            <strong>Buffer streams</strong><p class="muted">Introduce a stream buffer of </p></label>
-                        <div class="controls">
-                            <input type="text" name="input_stream_buffer" id="id_input_stream_buffer" />
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label for="id_buffer" class="control-label"> 
-                            <strong>Avoid Steep Slopes</strong><p class="muted">Steep Slopes greater than</p></label>
-                        <div class="controls">
-                            <input type="text" name="input_stream_buffer" id="id_input_stream_buffer" />
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label for="id_buffer" class="control-label"> 
-                            <strong>Visibility</strong><p class="muted">Avoid areas visible from roads</p></label>
-                        <div class="controls">
-                            <input type="checkbox" name="input_stream_buffer" id="id_input_stream_buffer" />
-                        </div>
-                    </div>
-                    <div>
-                        <a href="#" class="btn">Adjust Stand Boundaries for this Scenario</a>
-                    </div>
-                    
+
+        <div class="tab-pane fade" id="scenario-edit-spatial-content">
+            <div class="control-group">
+                <label for="id_buffer" class="control-label"> 
+                    <strong>Buffer streams</strong><p class="muted">Introduce a stream buffer of </p></label>
+                <div class="controls">
+                    <input type="text" name="input_stream_buffer" id="id_input_stream_buffer" />
                 </div>
+            </div>
+            <div class="control-group">
+                <label for="id_buffer" class="control-label"> 
+                    <strong>Avoid Steep Slopes</strong><p class="muted">Steep Slopes greater than</p></label>
+                <div class="controls">
+                    <input type="text" name="input_stream_buffer" id="id_input_stream_buffer" />
+                </div>
+            </div>
+            <div class="control-group">
+                <label for="id_buffer" class="control-label"> 
+                    <strong>Visibility</strong><p class="muted">Avoid areas visible from roads</p></label>
+                <div class="controls">
+                    <input type="checkbox" name="input_stream_buffer" id="id_input_stream_buffer" />
+                </div>
+            </div>
+            <div>
+                <a href="#" class="btn">Adjust Stand Boundaries for this Scenario</a>
+            </div>
         </div>
+
+        <div class="tab-pane fade" id="scenario-edit-rx-content">
+            <p> <strong>Apply Silvicultural Prescriptions</strong> </p>
+            <p> <img src="/media/img/temp_rx.jpg" class="img-polaroid"/> </p>
+        </div>
+
     </div>
+
     <div class="control-group pull-right">
         <div class="controls">
             <button class="btn btn-primary submit">Submit</button>
