@@ -131,8 +131,11 @@
                             <dd><em><span data-bind="text: selectedProperty().name"><span></em></dd>
                             <dt>Area</dt>
                             <dd><span data-bind="text: selectedProperty().acres()"></span> acres</dd>
-                            <dt>County</dt>
+                            <dt>Location</dt>
                             <dd><span data-bind="text: selectedProperty().location"></span></dd>
+                            <dt>Number of Stands</dt>
+                            <dd><span data-bind="text: selectedProperty().stand_summary.total"></span> 
+                            (<em><span data-bind="text: selectedProperty().stand_summary.without_plot"></span> without vegetation data</em>)</dd>
                         </dl>
 
                         <p class="pull-right">
@@ -359,18 +362,19 @@
                                         </li>
                                         <li class="divider"></li>
                                         <li>
-                                            <a href="#" data-bind="click: refineBoundaries"><i class="icon-th"></i>Refine Boundaries</a>
-                                        </li>
-                                        <li>
                                             <a href="#" data-bind="click: refineBoundaries"><i class="icon-th-large"></i>Define Strata</a>
                                         </li>
                                     </ul>
                                 </div>
                             </p>
                             <div>
-                                <ul class="nav nav-tabs nav-stacked" data-bind="foreach: standListPaginated">
+                                <ul class="unstyled" data-bind="foreach: standListPaginated">
                                     <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
-                                        <a href="#" data-bind="text: name"></a>
+                                        <span>
+                                            <span data-bind="ifnot: plot_summary"><i class="icon-exclamation-sign"></i></span>
+                                            <span data-bind="if: plot_summary"><i class="icon-ok"></i></span>
+                                            <a href="#" data-bind="text: name"></a>
+                                        </span>
                                     </li>
                                 </ul>
                             </div>
@@ -420,6 +424,9 @@
                                     <dd class="value"><span data-bind="text: plot_summaries()[0].qmda_dom_in"></span> in</dd>
                                 </dl>
                             </p>
+                            <p data-bind="ifnot: plot_summary">
+                                <span class="label label-important">FCID imputed from GNN</span>
+                            </p>
 
                             <p>
                                 <div class="thumbnail" style="width:280px;">
@@ -464,61 +471,37 @@
                                         <option value="WOR"> Oregon (Western) </option>
                                     </select>
                                 </p>
-
-                                <p>
-                                    <label for="sizecl">Size</label>
-                                    <select name="sizecl">
-                                        <option value="1"> Shrub/seedling (~1" dbh)</option>
-                                        <option value="2"> Sapling/pole (1" to 10" dbh)</option>
-                                        <option value="3"> Small tree (10" to 15" dbh)</option>
-                                        <option value="4"> Medium tree (15" to 20" dbh)</option>
-                                        <option value="5"> Large tree (20" to 30" dbh) </option>
-                                        <option value="6"> Giant tree (&gt; 30" dbh) </option>
-                                    </select>
-                                </p>
-
-                                <p>
-                                    <label for="covcl">Canopy Cover</label>
-                                    <select name="covcl">
-                                        <option value="1"> Sparse/remnant (Almost no canopy cover) </option>
-                                        <option value="2"> Open (canopy cover &lt; 40%) </option>
-                                        <option value="3"> Moderate (canopy cover between 40% and 70%) </option>
-                                        <option value="4"> Closed (canopy cover &gt; 70%) </option>
-                                    </select>
-                                </p>
-                                <p>
-                                    <label for="_FORCLASS">Forest Class</label>
-                                    <select name="_FORCLASS">
-                                        <option value="broadleaf"> Broadleaf </option>
-                                        <option value="mixed"> Mixed </option>
-                                        <option value="conifer"> Conifer </option>
-                                    </select>
-                                </p>
-                            </div>
-                            <div class="span6">
                                 <p>
                                     <label for="_DOMSPECIES">Dominant Species</label>
                                     <select name="_DOMSPECIES"/>
                                         <option value=""> -- </option>
-                                        
                                         <option value="PSME">Douglas Fir</option>
-                                        
                                         <option value="ALRU2">Red Alder</option>
-                                        
                                     </select>
                                 </p>
                                 <p>
                                     <label for="_CODOMSPECIES">Co-Dominant Species (optional)</label>
                                     <select name="_CODOMSPECIES"/>
                                         <option value=""> -- </option>
-                                        
                                         <option value="PSME">Douglas Fir</option>
-                                        
                                         <option value="ALRU2">Red Alder</option>
-                                        
                                     </select>
                                 </p>
 
+                            </div>
+                            <div class="span6">
+                                <p>
+                                    <label for="sizecl">DBH</label>
+                                    <input type="text" name="tph_ge_3"/>
+                                </p>
+                                <p>
+                                    <label for="covcl">Canopy Cover</label>
+                                    <input type="text" name="tph_ge_3"/>
+                                </p>
+                                <p>
+                                    <label for="_FORCLASS">Proportion of Conifers</label>
+                                    <input type="text" name="tph_ge_3"/>
+                                </p>
                                 <p>
                                     <label for="tph_ge_3">Trees per Hectare</label>
                                     <input type="text" name="tph_ge_3"/>
@@ -527,7 +510,6 @@
                                     <label for="age_dom">Age</label>
                                     <input type="text" name="age_dom"/>
                                 </p>
-                                <input type="submit" />
                             </div>
                             </div>
                         </form>

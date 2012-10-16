@@ -124,7 +124,8 @@ class Stand(PolygonFeature):
                 'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
                 'gnn': gnn,
-                'plot_summaries': self.plot_summaries,
+                'plot_summary': self.plot_summary,
+                'plot_summaries': self.plot_summaries, #TODO rm
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -145,6 +146,22 @@ class Stand(PolygonFeature):
             raise Exception("Raster is not valid: %s" % raster )
         stats = zonal_stats(g2, raster)
         return stats
+
+    def autofill_plot(self):
+        ''' 
+        Automatically populate the plot using GNN's best guest if available
+        '''
+        try:
+            fcid = self.imputed_fcids[0]
+        except IndexError:
+            return False
+        try:
+            ps = PlotSummary.objects.get(fcid=fcid[0]) 
+        except PlotSummary.DoesNotExist:
+            return False
+        self.plot = ps
+        self.save()
+        return True
 
     @property
     def imputed_elevation(self):
@@ -202,6 +219,24 @@ class Stand(PolygonFeature):
             summaries.append(summary)
         return summaries
 
+    @property
+    def plot_summary(self):
+        ''' 
+        Site charachteristics according to the chosen plot
+        '''
+        if not self.plot:
+            return None
+
+        ps = self.plot
+        summary = ps.summary
+        # Unit conversions
+        summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
+        summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
+        summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) #h to acres
+        summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
+
+        return summary
+
     def invalidate_cache(self):
         '''
         Remove any cached values associated with this scenario.
@@ -244,6 +279,7 @@ class ForestProperty(FeatureCollection):
                 'user_id': self.user.pk,
                 'acres': acres,
                 'location': self.location,
+                'stand_summary': self.stand_summary,
                 'variant': self.variant,
                 'bbox': self.bbox,
                 'date_modified': str(self.date_modified),
@@ -260,6 +296,37 @@ class ForestProperty(FeatureCollection):
               "properties": %s 
         }""" % (geom_json, dumps(d))
         return gj
+
+    @property
+    def has_plots(self):
+        ''' 
+        Boolean. 
+        Do all the stands have associated plots?
+        '''
+        for stand in self.feature_set(feature_classes=[Stand]):
+            if not stand.plot:
+                return False
+        return True
+
+    @property 
+    def stand_summary(self):
+        '''
+        Summarize the status of stands in this property
+        '''
+        n_with_plot = 0
+        n_without_plot = 0
+        stands = self.feature_set(feature_classes=[Stand])
+        for stand in stands:
+            if not stand.plot:
+                n_without_plot += 1
+            else:
+                n_with_plot += 1
+        assert(n_with_plot + n_without_plot == len(stands))
+        return {
+                'total': len(stands),
+                'with_plot': n_with_plot,
+                'without_plot': n_without_plot,
+               }
 
     @property
     def acres(self):

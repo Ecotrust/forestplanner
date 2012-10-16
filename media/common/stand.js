@@ -18,7 +18,7 @@ function standsViewModel() {
   // pagination config will display x items 
   // from this zero based index
   self.listStart = ko.observable(0);
-  self.listDisplayCount = 12;
+  self.listDisplayCount = 25;
 
   // list of all stands, primary viewmodel
   self.standList = ko.observableArray();
@@ -31,11 +31,13 @@ function standsViewModel() {
   // this list is model for pagination controls 
   self.paginationList = ko.computed(function () {
     var list = [], displayIndex = 1, listIndex = 0;
+    
     for (listIndex=0; listIndex < self.standList().length; listIndex++) {
       if (listIndex % self.listDisplayCount === 0 && Math.abs(listIndex - self.listStart()) < 5 * self.listDisplayCount) {
         list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
       }
     }
+    /*
     if (list.length < self.standList().length / self.listDisplayCount) {
         list.push({'displayIndex': '...', 'listIndex': null });
         list.push({'displayIndex': '»', 'listIndex': null });
@@ -44,6 +46,7 @@ function standsViewModel() {
         list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
     }
     //console.log('repaginating list');
+    */
     return list;
   });
 
