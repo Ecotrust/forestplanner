@@ -69,6 +69,9 @@ class Stand(PolygonFeature):
             verbose_name="Default Presciption", default="--")
     domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
             verbose_name="Dominant Species", default="--")
+    plot = models.ForeignKey("PlotSummary", verbose_name="Matched FIA Plot", 
+            null=True, blank=True, default=None)
+
 
     class Options:
         form = "trees.forms.StandForm"
@@ -717,7 +720,7 @@ class TreeLive(models.Model):
         db_table = u'tree_live'
 
 class PlotSummary(models.Model):
-    fcid = models.BigIntegerField(primary_key=True)
+    fcid = models.BigIntegerField(primary_key=True, unique=True)
     value = models.BigIntegerField(null=True, blank=True)
     map_source = models.CharField(null=True, max_length=8, blank=True)
     eslf_code = models.IntegerField(null=True, blank=True)
