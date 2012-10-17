@@ -25,7 +25,6 @@ app.breadCrumbs = {
             }
         });
         this.breadcrumbs.splice(index + 1, this.breadcrumbs().length);
-
     }
 };
 

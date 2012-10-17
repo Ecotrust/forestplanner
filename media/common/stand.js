@@ -70,6 +70,7 @@ function standsViewModel() {
 
   self.cancelManageStands = function() {
     app.breadCrumbs.breadcrumbs.pop();
+    app.updateUrl();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
@@ -364,9 +365,9 @@ function standsViewModel() {
     
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
-    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands});
-    app.breadCrumbs.breadcrumbs.push({url: '/properties/stands', name: property.name() + ' Stands', action: null});
+    app.breadCrumbs.breadcrumbs.push({url: 'stands/' + property.id(), name: property.name() + ' Stands', action: null});
+    app.updateUrl();
     
     map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc

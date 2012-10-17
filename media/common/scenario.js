@@ -17,9 +17,9 @@ function scenarioViewModel() {
     
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
-    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageScenarios});
-    app.breadCrumbs.breadcrumbs.push({url: '/properties/scenarios', name: property.name() + ' Scenarios', action: null});
+    app.breadCrumbs.breadcrumbs.push({url: 'scenarios/' + property.id(), name: property.name() + ' Scenarios', action: null});
+    app.updateUrl();
 
     self.showScenarioList(true);
     self.toggleScenarioForm(false);
@@ -44,6 +44,7 @@ function scenarioViewModel() {
 
   self.cancelManageScenarios = function() {
     app.breadCrumbs.breadcrumbs.pop();
+    app.updateUrl();
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);

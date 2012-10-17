@@ -279,7 +279,9 @@ function propertiesViewModel () {
     // create active property layer
     // copy active property to new layer
     // hide other properties
-    app.property_layer.setOpacity(0.4);
+    if (app.property_layer) {
+        app.property_layer.setOpacity(0.4);
+    }
     // initialize stand manager
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
@@ -355,7 +357,8 @@ function propertiesViewModel () {
       });
   
       // set up the breadcrumbs    
-      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: null});
+      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
+      app.updateUrl();
       
       // select the first property and show the detail panel
       if (data.features.length) {

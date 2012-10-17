@@ -26,7 +26,6 @@ app.onResize = function () {
 $(document).ready(function () {
 
     ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
-    app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
     $(window).resize(app.onResize);
     app.onResize();
     map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
