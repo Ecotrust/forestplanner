@@ -4,45 +4,48 @@
 {% block content %}
         <div class="row-fluid">
           <div class="span5">
-            <ul id="breadcrumbs" class="breadcrumb" data-bind="foreach: breadcrumbs">
-              <li data-bind="visible: ! $parent.isLast($data)">
-                <a data-bind="text: name, click: action"></a>
-                  <span class="divider">/</span>
-              </li>
-              <li class="active" data-bind="visible: $parent.isLast($data)">
-                <span data-bind="text: name"></span>
-              </li>
-            </ul>
-            <div id="home-html" class="hero-unit">
-
+              <div data-bind="visible: breadcrumbs.length > 0">
+                <ul id="breadcrumbs" class="breadcrumb" data-bind="foreach: breadcrumbs">
+                    <li data-bind="visible: ! $parent.isLast($data)">
+                        <a data-bind="text: name, click: action"></a>
+                        <span class="divider">/</span>
+                    </li>
+                    <li class="active" data-bind="visible: $parent.isLast($data)">
+                        <span data-bind="text: name"></span>
+                    </li>
+                </ul>
+            </div>
+            <div id="home-html" class="well">
                 <div style="width: 100%; text-align: center;">
                     <h3>An online tool for forest management and scenario planning</h3>
                 </div>
 
-                <div id="myCarousel" class="carousel slide">
-                    <div class="carousel-inner">
-                    <div class="item active">
-                        <img src="/media/img/forest_photos/garibaldi.jpg"/>
+                <div class="img-polaroid">
+                    <div id="myCarousel" class="carousel slide">
+                        <div class="carousel-inner" style="max-height: 440px;">
+                            <div class="item active">
+                                <img src="/media/img/forest_photos/garibaldi.jpg"/>
+                            </div>
+                            <div class="item">
+                                <img src="/media/img/forest_photos/jedsmith.jpg"/>
+                            </div>
+                            <div class="item">
+                                <img src="/media/img/forest_photos/drift_creek.jpg"/>
+                                <!-- <div class="carousel-caption"> </div> -->
+                            </div>
+                        </div>
+                        <a class="left carousel-control" href="#myCarousel" data-slide="prev">‹</a>
+                        <a class="right carousel-control" href="#myCarousel" data-slide="next">›</a>
                     </div>
-                    <div class="item">
-                        <img src="/media/img/forest_photos/jedsmith.jpg"/>
-                    </div>
-                    <div class="item">
-                        <img src="/media/img/forest_photos/drift_creek.jpg"/>
-                        <!-- <div class="carousel-caption"> </div> -->
-                    </div>
-                    </div>
-                    <a class="left carousel-control" href="#myCarousel" data-slide="prev">‹</a>
-                    <a class="right carousel-control" href="#myCarousel" data-slide="next">›</a>
                 </div>
 
-                <div>
+                <div style="margin: 16px;">
                     <p>
                         &nbsp;&nbsp;&nbsp;&nbsp;Ecotrust is developing online software that will give all Oregon and Washington 
-                    land managers forest managment scenario planning capacity. You will be able to visualize 
-                    alternative management scenarios on your lands and receive immediate feedback on how  
-                    decisions might pay off in terms of timber harvests and financial returns, as well as 
-                    public benefits like carbon storage and ecosystem services.
+                        land managers forest managment scenario planning capacity. You will be able to <strong>visualize 
+                            alternative management scenarios</strong> on your lands and receive immediate feedback on <strong>how  
+                            decisions might pay off</strong> in terms of timber harvests and financial returns, as well as 
+                        <strong>public benefits</strong> like carbon storage and ecosystem services.
                     </p>
                     
                     <p>
