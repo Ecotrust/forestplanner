@@ -212,10 +212,22 @@ class Stand(PolygonFeature):
             summary = ps.summary
             summary['fcid_coverage'] = prop * 100
             # Unit conversions
-            summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
-            summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
-            summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) #h to acres
-            summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
+            try:
+                summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
+            except TypeError:
+                summary['stndhgt_ft'] = None
+            try:
+                summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
+            except TypeError:
+                summary['baa_ge_3_sqft'] = None
+            try:
+                summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) # h to acres
+            except TypeError:
+                summary['tph_ge_3_tpa'] = None
+            try:
+                summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
+            except TypeError:
+                summary['qmda_dom_in'] = None
             summaries.append(summary)
         return summaries
 
