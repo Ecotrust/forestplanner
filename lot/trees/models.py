@@ -270,8 +270,8 @@ class Stand(PolygonFeature):
 
 @register
 class ForestProperty(FeatureCollection):
-    geometry_final = models.PolygonField(srid=settings.GEOMETRY_DB_SRID, 
-            verbose_name="Stand Polygon Geometry")
+    geometry_final = models.MultiPolygonField(srid=settings.GEOMETRY_DB_SRID, null=True,blank=True,
+            verbose_name="Forest Property MultiPolygon Geometry")
 
     #@property
     def geojson(self, srid=None):

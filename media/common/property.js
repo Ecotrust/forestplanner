@@ -166,7 +166,12 @@ function propertiesViewModel () {
     if (error) {
       return false;
     }
-    values.geometry_final = geometry;
+
+    if (geometry.indexOf("POLY") === 0) {
+        // Properties expect multipolygons even if only a single polygon was digitized
+        geometry = geometry.replace("POLYGON", "MULTIPOLYGON(") + ")";
+    }
+    values.geometry_final = geometry; 
     $form.addClass('form-horizontal');
     self.showEditPanel(false);
     self.showCreatePanel(false);
@@ -185,6 +190,7 @@ function propertiesViewModel () {
         app.new_features.removeAllFeatures();
       },
       error: function (jqXHR, textStatus, errorThrown) {
+        alert("Failed to save property drawing: " + errorThrown);
         self.cancelEdit(self);
       }
     });

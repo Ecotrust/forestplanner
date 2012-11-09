@@ -4,7 +4,7 @@ from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
 from madrona.common.utils import get_logger
 from hashlib import sha1
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point, Polygon, MultiPolygon
 from shapely import wkt, wkb
 from shapely.ops import cascaded_union
 
@@ -54,10 +54,20 @@ class StandImporter:
                 stands.append(wkt.loads(feature.geom.wkt))
             casc_poly = cascaded_union(stands)
 
-            # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
-            # If they're smaller than the threshold, remove them
-            interiors = [x for x in casc_poly.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
-            casc = Polygon(shell=casc_poly.exterior, holes=interiors)
+            if casc_poly.type == 'MultiPolygon':
+                polys = []
+                for c in casc_poly:
+                    # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
+                    # If they're smaller than the threshold, remove them
+                    interiors = [x for x in c.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+                    polys.append(Polygon(shell=c.exterior, holes=interiors))
+            elif casc_poly.type == 'Polygon':
+                # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
+                # If they're smaller than the threshold, remove them
+                interiors = [x for x in casc_poly.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+                polys = [Polygon(shell=casc_poly.exterior, holes=interiors)]
+
+            casc = MultiPolygon(polys)
             
             # Creating Property
             self.forest_property = ForestProperty.objects.create(user=self.user, name=new_property_name, geometry_final=casc.wkt)
