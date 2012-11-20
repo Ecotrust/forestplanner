@@ -1,7 +1,8 @@
 import os
 from django.test import TestCase
 from django.test.client import Client
-from django.contrib.gis.geos import GEOSGeometry 
+from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.conf import settings
@@ -18,7 +19,8 @@ cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 g1 = cntr.buffer(75)
 g1.transform(settings.GEOMETRY_DB_SRID)
 
-p1 = g1.buffer(1000)
+single_p1 = g1.buffer(1000)
+p1 = MultiPolygon(single_p1)
 
 def import_rasters():
     d = os.path.dirname(__file__)
@@ -92,10 +94,6 @@ class ForestPropertyTest(TestCase):
         prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         prop1.save()
         self.assertEqual(prop1.bbox, p1.extent)
-        prop1.geometry_final = g1
-        prop1.save()
-        self.assertNotEqual(prop1.bbox, p1.extent)
-        self.assertEqual(prop1.bbox, g1.extent)
 
     def test_add_property_to_stand(self):
         prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
@@ -558,7 +556,6 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
-        from trees.utils import StandImporter
         s = StandImporter(self.user)
         s.import_ogr(self.shp_path, forest_property=self.prop1) 
 
@@ -573,7 +570,6 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
-        from trees.utils import StandImporter
         s = StandImporter(self.user)
         s.import_ogr(self.shp_path, new_property_name="Another Property") 
 
@@ -590,7 +586,6 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
-        from trees.utils import StandImporter
         s = StandImporter(self.user)
         field_mapping = {'name': 'STAND_TEXT'}
         s.import_ogr(self.shp_path, field_mapping, forest_property=self.prop1) 
@@ -606,13 +601,28 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
-        from trees.utils import StandImporter
         s = StandImporter(self.user)
         with self.assertRaises(Exception):
             s.import_ogr(self.bad_shp_path, forest_property=self.prop1)
 
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
+
+    def test_importer_multi(self):
+        '''
+        Test for handling of multipart polygons
+        '''
+        d = os.path.dirname(__file__)
+        multi_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 'testdata', 'test_stands_multi.zip'))
+        url = reverse('trees-upload_stands')
+        self.client.login(username='featuretest', password='pword')
+
+        with open(multi_path) as f:
+            response = self.client.post(url, {'new_property_name': 'Test Multi', 'ogrfile': f})
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertEqual(len(Stand.objects.all()), 27)
+        prop = ForestProperty.objects.get(name="Test Multi")
+        self.assertEqual(len(prop.geometry_final), 2)
 
     def test_importer_holes(self):
         '''
@@ -629,7 +639,7 @@ class StandImportTest(TestCase):
         self.assertEqual(response.status_code, 201, response.content)
         self.assertEqual(len(Stand.objects.all()), 35)
         prop = ForestProperty.objects.get(name="holes")
-        self.assertEqual(prop.geometry_final.num_interior_rings, 1)
+        self.assertEqual(prop.geometry_final[0].num_interior_rings, 1)
 
         # Now try it with a tighter tolerance, the "sliver" should show up as another interior ring
         Stand.objects.all().delete()
@@ -639,7 +649,7 @@ class StandImportTest(TestCase):
         self.assertEqual(response.status_code, 201, response.content)
         self.assertEqual(len(Stand.objects.all()), 35)
         prop2 = ForestProperty.objects.get(name="holes2")
-        self.assertEqual(prop2.geometry_final.num_interior_rings, 2)
+        self.assertEqual(prop2.geometry_final[0].num_interior_rings, 2)
 
     def test_importer_http(self):
         self.client.login(username='featuretest', password='pword')
@@ -862,7 +872,8 @@ class LocationTest(TestCase):
         cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
         g1 = cntr.buffer(75)
         g1.transform(settings.GEOMETRY_DB_SRID)
-        self.prop1.geometry_final = g1 
+        p1 = MultiPolygon(g1)
+        self.prop1.geometry_final = p1 
         self.prop1.save()
         self.assertEqual(self.prop1.location, (None, None))
 
@@ -885,7 +896,8 @@ class VariantTest(TestCase):
         cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
         g1 = cntr.buffer(75)
         g1.transform(settings.GEOMETRY_DB_SRID)
-        self.prop1.geometry_final = g1 
+        p1 = MultiPolygon(g1)
+        self.prop1.geometry_final = p1 
         self.prop1.save()
         self.assertEqual(self.prop1.variant, None)
 
@@ -976,6 +988,7 @@ class ScenarioTest(TestCase):
             'input_property': self.prop1.pk,
             'input_rxs': dumps({self.stand1.pk: 'CC', self.stand2.pk: "SW"}),
         })
+        print response.content
         self.assertEqual(response.status_code, 201)
         
     def test_post_invalid_rx(self):
