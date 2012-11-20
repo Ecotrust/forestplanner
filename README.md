@@ -1,4 +1,4 @@
-# Land Owner Tools
+# Forest Scenario Planner
 ## An Online Tool for Forest Management Scenario Planning
 
 Ecotrust is developing online software that will give all Oregon and Washington land managers forest managment scenario planning capacity. They will be able to visualize alternative management scenarios on their lands and receive immediate feedback on how thier decisions might pay off in terms of timber harvests and financial returns, as well as public benefits like carbon storage and ecosystem services. 
