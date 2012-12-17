@@ -66,7 +66,17 @@ CREATE TABLE IDB_SUMMARY
 	COVCL			Int2, 
 	OGSI			double precision, 
 	BAC_PROP			double precision, 
-	TPH_GE_3			double precision
+	TPH_GE_3			double precision, 
+	MAI			Float4, 
+	OWNER			Int4, 
+	OWN_GROUP			Int4, 
+	BAH_GE_3			double precision, 
+	BAC_GE_3			double precision, 
+	BAA_GE_3			double precision, 
+	qmda_dom_stunits			double precision, 
+	stndhgt_stunits			double precision, 
+	baa_ge_3_stunits			double precision, 
+	tph_ge_3_stunits			double precision
 );
 -- CREATE ANY INDEXES ...
 

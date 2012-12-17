@@ -3,27 +3,12 @@ Loads the GNN data from mdbs
 1. run the schema_X.sh script to create a sql create table statement.
 2. run the export_X.sh script to dump the mdb tables to tab separated files
 3. Remove the first line of the file (the header) using : 
-    tail -n +2 TREE_LIVE.tsv > TREE_LIVE2.tsv; mv TREE_LIVE2.tsv TREE_LIVE.tsv
-4. run load_X.sh to create the table and import the tsv
-5. run manage.py inspectdb 
-6. 
-DELETE FROM tree_live WHERE SPP_SYMBOL = 'NOTALY'
+4. rename to table in the schema file to IDB_SUMMARY 
+5. run load_X.sh to create the table and import the tsv
+6. run manage.py inspectdb and copy-n-paste into models.py
 
-7. Index all fields that you might filter by:
+7. TODO Index all fields that you might filter by:
 
 psql -d murdock -U murdock -c "CREATE INDEX fcid_idx ON sppsz_attr_all USING btree (fcid)"
 psql -d murdock -U murdock -c "CREATE INDEX usda_idx ON trees_fvsspecies USING btree (usda)"
-
-8. trim whitespace 
-
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET imap_domspp=TRIM( imap_domspp )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwpliv=TRIM( hdwpliv )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwplcov=TRIM( hdwplcov )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET hdwplba=TRIM( hdwplba )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conpliv=TRIM( conpliv )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplcov=TRIM( conplcov )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET conplba=TRIM( conplba )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET uplcov=TRIM( uplcov )"
-psql -d murdock -U postgres -c "UPDATE sppsz_attr_all SET fortypiv=TRIM( fortypiv )"
-
 

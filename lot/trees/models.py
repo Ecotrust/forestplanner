@@ -1096,9 +1096,18 @@ class IdbSummary(models.Model):
     ogsi = models.FloatField(null=True, blank=True)
     bac_prop = models.FloatField(null=True, blank=True)
     tph_ge_3 = models.FloatField(null=True, blank=True)
+    mai = models.FloatField(null=True, blank=True)
+    owner = models.IntegerField(null=True, blank=True)
+    own_group = models.IntegerField(null=True, blank=True)
+    bah_ge_3 = models.FloatField(null=True, blank=True)
+    bac_ge_3 = models.FloatField(null=True, blank=True)
+    baa_ge_3 = models.FloatField(null=True, blank=True)
+    qmda_dom_stunits = models.FloatField(null=True, blank=True)
+    stndhgt_stunits = models.FloatField(null=True, blank=True)
+    baa_ge_3_stunits = models.FloatField(null=True, blank=True)
+    tph_ge_3_stunits = models.FloatField(null=True, blank=True)
     class Meta:
         db_table = u'idb_summary'
-
 
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',

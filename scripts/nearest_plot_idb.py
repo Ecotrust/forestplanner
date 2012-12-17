@@ -21,6 +21,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from trees.models import IdbSummary
 from trees.utils import angular_diff
 from scipy.spatial import KDTree
+from django.db.models import Min, Max
 
 
 def nearest_plot(categories, input_params, weight_dict):
@@ -63,8 +64,8 @@ def nearest_plot(categories, input_params, weight_dict):
     querypoint = np.array([float(search_params[attr]) for attr in keys])
 
     rawpoints = np.array(psar) 
-    candidates = len(plotsummaries)
-    if candidates == 0:
+    num_candidates = len(plotsummaries)
+    if num_candidates == 0:
         raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
 
     # Normalize to 100; linear scale
@@ -82,19 +83,15 @@ def nearest_plot(categories, input_params, weight_dict):
     distances = result[0][0]
     plots = result[1][0]
 
-    print
-    print input_params
-    print
-    print "Top 5 (out of", candidates, "candidates)"
     top = zip(plots, distances)
-    for t in top:
-        plotidx = t[0]
-        plot = plotsummaries[plotidx]
-        plot.__dict__['aspect'] = plot.calc_aspect
-        plot.__dict__['geographic'] = "%s %s" %  (plot.latitude_fuzz, plot.longitude_fuzz)
+    return [plotsummaries[t[0]] for t in top], num_candidates
 
-        print "plot", ' '.join([x+":"+str(plot.__dict__[x]) for x in search_params.keys()]), 'distance:', t[1]
 
+def potential_minmax(categories, weight_dict):
+    ps = IdbSummary.objects.filter(**categories)
+    keys = [k for k in weight_dict.keys() if k not in ['aspect','geographic']] # TODO 
+    args = [Min(k) for k in keys] + [Max(k) for k in keys] 
+    return ps.aggregate(*args) #Min('elev_ft'), Max('elev_ft'))
 
 if __name__ == "__main__":
  
@@ -132,4 +129,12 @@ if __name__ == "__main__":
         'avgofdbh_in': 1,
     } 
 
-    nearest_plot(categories, input_params, weight_dict)
+    print potential_minmax(categories, weight_dict)
+    top, num_candidates = nearest_plot(categories, input_params, weight_dict)
+
+    print "Top 5 (out of", num_candidates, "candidates)"
+    for plot in top:
+        plot.__dict__['aspect'] = plot.calc_aspect
+        plot.__dict__['geographic'] = "%s %s" %  (plot.latitude_fuzz, plot.longitude_fuzz)
+        print ' '.join([x+":"+str(plot.__dict__[x]) for x in input_params.keys()])
+
