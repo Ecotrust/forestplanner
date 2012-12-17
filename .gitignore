@@ -6,8 +6,8 @@ mediaroot/*
 wsgi.py
 data/*
 env/*
-gnn_import/*.mdb
-gnn_import/*.tsv
+*_import/*.mdb
+*_import/*.tsv
 openlayers
 trees_test/work*
 lot/.coverage

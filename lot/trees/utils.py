@@ -128,6 +128,75 @@ def calculate_adjacency(qs, threshold):
 
     return adj
 
+def nearest_plot_idb(categories, numeric, species, forest_class):
+    import numpy as np
+    from trees.models import PlotSummary
+    from scipy.spatial import KDTree
+
+    def plot_attrs(ps, keys):
+        vals = []
+        for attr in keys:
+            vals.append(ps.__dict__[attr])
+        return vals
+
+    if len(categories.keys()) == 0:
+        raise Exception("Invalid categories dict supplied, %s" % categories)
+    if len(numeric.keys()) == 0:
+        raise Exception("Invalid numeric dict supplied, %s" % numeric)
+
+    # Construct an n-dimensional point based on the remaining numeric attributes
+    keys = numeric.keys()
+    querypoint = np.array([float(numeric[attr]) for attr in keys])
+    # We need to make sure there are no nulls
+    filter_keys = ["%s__isnull" % k for k in keys]
+    filter_vals = [False] * len(keys)
+    filter_kwargs = dict(zip(filter_keys, filter_vals))
+
+    # The coded/categorical data must be a match in the filter
+    for cat, val in categories.iteritems():
+        filter_kwargs[cat] = val
+
+    # handle "special" vars
+    '''
+    if forest_class == "broadleaf":
+        filter_kwargs['bah_prop__gt'] = 0.65
+    elif forest_class == "mixed":
+        filter_kwargs['bah_prop__lte'] = 0.65
+        filter_kwargs['bah_prop__gt'] = 0.2
+    elif forest_class == "conifer":
+        filter_kwargs['bah_prop__lte'] = 0.2
+
+    if 'dom' in species:
+        filter_kwargs['imap_domspp__contains'] = species['dom']
+
+    if 'codom' in species:
+        filter_kwargs['fortypba__contains'] = species['codom']
+    '''
+
+    print filter_kwargs
+    # Get any potential plots and create an array of n-dim points
+    # hashkey = ".plotsummary_" + sha1(str(filter_kwargs)).hexdigest() 
+    plotsummaries = list(PlotSummary.objects.filter(**filter_kwargs))
+    psar = [plot_attrs(ps, keys) for ps in plotsummaries]
+    allpoints = np.array(psar) 
+    candidates = len(plotsummaries)
+    if candidates == 0:
+        raise Exception("There are no candidate plots matching the categorical variables: %s" % filter_kwargs)
+
+    # Normalize to 100; linear scale
+    multipliers = (100.0 / np.max(allpoints, axis=0))
+    allpoints *= multipliers
+    querypoint *= multipliers
+
+    # Create tree and query it for nearest plot
+    tree = KDTree(allpoints)
+    querypoints = np.array([querypoint])
+    result = tree.query(querypoints) 
+    distance = result[0][0]
+    plot = plotsummaries[result[1][0]]
+
+    return distance, plot, candidates
+
 def nearest_plot(categories, numeric, species, forest_class):
     """ 
     find the closest GNN plot in coordinate space to a given point

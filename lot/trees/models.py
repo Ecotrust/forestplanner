@@ -1036,6 +1036,53 @@ class GNN_ORWA(models.Model):
     value = models.IntegerField()
     count = models.IntegerField()
 
+
+class IdbSummary(models.Model):
+    plot_id = models.BigIntegerField(primary_key=True, null=True, blank=True)
+    cond_id = models.BigIntegerField(null=True, blank=True)
+    sumofba_ft2 = models.FloatField(null=True, blank=True)
+    avgofba_ft2_ac = models.FloatField(null=True, blank=True)
+    avgofht_ft = models.FloatField(null=True, blank=True)
+    avgoftpa = models.FloatField(null=True, blank=True)
+    avgofdbh_in = models.FloatField(null=True, blank=True)
+    state_name = models.CharField(max_length=40, blank=True)
+    county_name = models.CharField(max_length=100, blank=True)
+    halfstate_name = models.CharField(max_length=100, blank=True)
+    forest_name = models.CharField(max_length=510, blank=True)
+    acres = models.FloatField(null=True, blank=True)
+    acres_vol = models.FloatField(null=True, blank=True)
+    fia_forest_type_name = models.CharField(max_length=60, blank=True)
+    latitude_fuzz = models.FloatField(null=True, blank=True)
+    longitude_fuzz = models.FloatField(null=True, blank=True)
+    aspect_deg = models.IntegerField(null=True, blank=True)
+    stdevofaspect_deg = models.FloatField(null=True, blank=True)
+    firstofaspect_deg = models.IntegerField(null=True, blank=True)
+    slope = models.IntegerField(null=True, blank=True)
+    stdevofslope = models.FloatField(null=True, blank=True)
+    avgofslope = models.FloatField(null=True, blank=True)
+    elev_ft = models.IntegerField(null=True, blank=True)
+    fvs_variant = models.CharField(max_length=4, blank=True)
+    site_species = models.IntegerField(null=True, blank=True)
+    site_index_fia = models.IntegerField(null=True, blank=True)
+    plant_assoc_code = models.CharField(max_length=20, blank=True)
+    countofsubplot_id = models.BigIntegerField(null=True, blank=True)
+    qmd_hwd_cm = models.FloatField(null=True, blank=True)
+    qmd_swd_cm = models.FloatField(null=True, blank=True)
+    qmd_tot_cm = models.FloatField(null=True, blank=True)
+    calc_aspect = models.IntegerField(null=True, blank=True)
+    calc_slope = models.IntegerField(null=True, blank=True)
+    stand_size_class = models.IntegerField(null=True, blank=True)
+    site_class_fia = models.IntegerField(null=True, blank=True)
+    stand_age_even_yn = models.CharField(max_length=2, blank=True)
+    stand_age = models.IntegerField(null=True, blank=True)
+    for_type = models.IntegerField(null=True, blank=True)
+    for_type_secdry = models.IntegerField(null=True, blank=True)
+    for_type_name = models.CharField(max_length=60, blank=True)
+    for_type_secdry_name = models.CharField(max_length=60, blank=True)
+    class Meta:
+        db_table = u'idb_summary'
+
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
