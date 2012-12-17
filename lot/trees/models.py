@@ -1038,8 +1038,8 @@ class GNN_ORWA(models.Model):
 
 
 class IdbSummary(models.Model):
-    plot_id = models.BigIntegerField(primary_key=True, null=True, blank=True)
-    cond_id = models.BigIntegerField(null=True, blank=True)
+    plot_id = models.BigIntegerField(null=True, blank=True)
+    cond_id = models.BigIntegerField(primary_key=True)
     sumofba_ft2 = models.FloatField(null=True, blank=True)
     avgofba_ft2_ac = models.FloatField(null=True, blank=True)
     avgofht_ft = models.FloatField(null=True, blank=True)
@@ -1079,6 +1079,23 @@ class IdbSummary(models.Model):
     for_type_secdry = models.IntegerField(null=True, blank=True)
     for_type_name = models.CharField(max_length=60, blank=True)
     for_type_secdry_name = models.CharField(max_length=60, blank=True)
+    qmdc_dom = models.FloatField(null=True, blank=True)
+    qmdh_dom = models.FloatField(null=True, blank=True)
+    qmda_dom = models.FloatField(null=True, blank=True)
+    cancov = models.FloatField(null=True, blank=True)
+    stndhgt = models.FloatField(null=True, blank=True)
+    sdi = models.FloatField(null=True, blank=True)
+    sdi_reineke = models.FloatField(null=True, blank=True)
+    age_dom = models.FloatField(null=True, blank=True)
+    vegclassr = models.SmallIntegerField(null=True, blank=True)
+    vegclass = models.SmallIntegerField(null=True, blank=True)
+    struccondr = models.SmallIntegerField(null=True, blank=True)
+    struccond = models.SmallIntegerField(null=True, blank=True)
+    sizecl = models.SmallIntegerField(null=True, blank=True)
+    covcl = models.SmallIntegerField(null=True, blank=True)
+    ogsi = models.FloatField(null=True, blank=True)
+    bac_prop = models.FloatField(null=True, blank=True)
+    tph_ge_3 = models.FloatField(null=True, blank=True)
     class Meta:
         db_table = u'idb_summary'
 

@@ -293,3 +293,14 @@ def classify_aspect(angle):
     angle = int(angle/45.0)
     words=["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West", "North"]
     return words[angle]
+
+def angular_diff(x,y):
+    '''
+    input: two angles in degrees
+    output: absolute value of the angular difference in degrees
+    '''
+    import math
+    x = math.radians(x)
+    y = math.radians(y)
+    return math.fabs(math.degrees(min(y-x, y-x+2*math.pi, y-x-2*math.pi, key=abs)))
+

@@ -49,7 +49,24 @@ CREATE TABLE IDB_SUMMARY
 	FOR_TYPE			Int4, 
 	FOR_TYPE_SECDRY			Int4, 
 	FOR_TYPE_NAME			varchar (60), 
-	FOR_TYPE_SECDRY_NAME			varchar (60)
+	FOR_TYPE_SECDRY_NAME			varchar (60), 
+	QMDC_DOM			double precision, 
+	QMDH_DOM			double precision, 
+	QMDA_DOM			double precision, 
+	CANCOV			double precision, 
+	STNDHGT			double precision, 
+	SDI			double precision, 
+	SDI_REINEKE			double precision, 
+	AGE_DOM			double precision, 
+	VEGCLASSR			Int2, 
+	VEGCLASS			Int2, 
+	STRUCCONDR			Int2, 
+	STRUCCOND			Int2, 
+	SIZECL			Int2, 
+	COVCL			Int2, 
+	OGSI			double precision, 
+	BAC_PROP			double precision, 
+	TPH_GE_3			double precision
 );
 -- CREATE ANY INDEXES ...
 
