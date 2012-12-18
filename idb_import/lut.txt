@@ -1,0 +1,66 @@
+1	plot_id	IDB						
+2	cond_id	IDB						
+3	sumofba_ft2	IDB						
+4	avgofba_ft2_ac	IDB						
+5	avgofht_ft	IDB						
+6	avgoftpa	IDB						
+7	avgofdbh_in	IDB						
+8	state_name	IDB						
+9	county_name	IDB						
+10	halfstate_name	IDB						
+11	forest_name	IDB						
+12	acres	IDB						
+13	acres_vol	IDB						
+14	fia_forest_type_name	IDB						
+15	latitude_fuzz	IDB	latitude	latitude	1	stand	degrees	
+16	longitude_fuzz	IDB	longitude	longitude	1	stand	degrees	
+17	aspect_deg	IDB						
+18	stdevofaspect_deg	IDB						
+19	firstofaspect_deg	IDB						
+20	slope	IDB						
+21	stdevofslope	IDB						
+22	avgofslope	IDB						
+23	elev_ft	IDB	Elevation	Elevation	1	stand	ft	
+24	fvs_variant	IDB						
+25	site_species	IDB						
+26	site_index_fia	IDB	Site Index	Site index; 	1	num	index	
+27	plant_assoc_code	IDB						
+28	countofsubplot_id	IDB						
+29	qmd_hwd_cm	IDB						
+30	qmd_swd_cm	IDB						
+31	qmd_tot_cm	IDB						
+32	calc_aspect	IDB	Aspect	Aspect	1	stand	azimuth	
+33	calc_slope	IDB	Slope	Slope	1	stand	percent	
+34	stand_size_class	IDB						
+35	site_class_fia	IDB	classification of MAI	classification of MAI				
+36	mai	IDB	Mean Annual Increment	mean annual increment	1	num	ft3/ac/yr	
+37	stand_age_even_yn	IDB						
+38	stand_age	IDB						
+39	for_type	IDB						
+40	for_type_secdry	IDB						
+41	for_type_name	IDB	Forest type	Forest type	1	cat		
+42	for_type_secdry_name	IDB	Forest type (secondary)	Forest type (secondary)	1	cat		
+43	qmdc_dom	GNN		Quadratic mean diameter of all dominant and codominant conifers				
+44	qmdh_dom	GNN		Quadratic mean diameter of all dominant and codominant hardwoods				
+45	qmda_dom	GNN	Average DBH	Quadratic mean diameter of all dominant and codominant trees				
+46	qmda_dom_stunits	GNN	Average DBH	Quadratic mean diameter of all dominant and codominant trees	1	num	in	converted in the DB
+47	cancov	GNN	Canopy Cover	Canopy cover of all live trees: calculated using methods in the Forest Vegetation Simulator for Inventory plots; sum of occular estimates for Ecology plots	1	num	percent	
+48	stndhgt	GNN	Stand Height	"Stand height, computed as average of heights of all dominant and codominant trees"				
+49	stndhgt_stunits	GNN	Stand Height	"Stand height, computed as average of heights of all dominant and codominant trees"	1	num	ft	converted in the DB
+50	sdi	GNN		Stand density index				
+51	sdi_reineke	GNN		Reineke's stand density index				
+52	age_dom	GNN	Stand Age	Stand age based on field recorded ages of dominant and codominant tree species	1	num	years	
+53	vegclassr	GNN						
+54	vegclass	GNN		"Vegetation class based on CANCOV, BAH_PROP, QMDA_DOM"				
+55	struccondr	GNN						
+56	struccond	GNN		Structural condition (lumping of Johnson and O'Neil's (2001) SIZECL and COVCL)		 		
+57	sizecl	GNN		"Size class, based on QMDA_DOM and CANCOV, modified slightly from Johnson et al. (2001)"		 		
+58	covcl	GNN		"Cover class, based on CANCOV, modified slightly from Johnson et al. (2001)"		 		
+59	ogsi	GNN	Old growth index	"Old-growth structure index; an index of 'old-growthedness' developed by Spies et.al. (2007). Calculated from stand age, abundance of large live trees, snags, and down wood, and diversity of tree sizes."	1	num	index	
+60	bac_prop	GNN	Conifer 	Proportion of Basal area of all live trees >=2.5 cm dbh that is conifer	1	num	percent	
+61	tph_ge_3	GNN	Density	Density of live trees >=2.5 cm dbh				
+62	baa_ge_3	GNN	Basal area	Basal area of all live trees >=2.5 cm dbh				
+63	tph_ge_3_stunits	GNN	Density	Density of live trees >=2.5 cm dbh	1	num	trees/acre	converted in the DB
+64	baa_ge_3_stunits	GNN	Basal area	Basal area of all live trees >=2.5 cm dbh	1	num	ft^2/ac	converted in the DB
+65	bac_ge_3	GNN						
+66	bah_ge_3	GNN						

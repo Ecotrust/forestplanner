@@ -113,8 +113,8 @@ def potential_minmax(categories, weight_dict):
 if __name__ == "__main__":
  
     categories = {
-        'for_type_name': 'Douglas-fir', 
-        #'for_type_secdry_name': 'Red alder', 
+        'for_type_secdry_name': 'Douglas-fir', 
+        'for_type_name': 'Red alder', 
     }
 
     input_params = {
@@ -146,7 +146,7 @@ if __name__ == "__main__":
     } 
 
     pmm = potential_minmax(categories, weight_dict)
-    top, num_candidates = nearest_plot(categories, input_params, weight_dict, k=20)
+    top, num_candidates = nearest_plot(categories, input_params, weight_dict, k=10)
 
     print weight_dict
     print 
@@ -154,7 +154,6 @@ if __name__ == "__main__":
     print '\t'.join([str(x).ljust(12) for x in input_params.values()])
     print 
 
-
     print "Top matches (out of", num_candidates, "candidates)"
     for plot in top:
-        print '\t'.join([str(plot.__dict__[x]).ljust(10) for x in input_params.keys()]), "\t", plot._kdtree_distance, "\t", plot._uncertainty
+        print '\t'.join([str(plot.__dict__[x]).ljust(10) for x in input_params.keys()]), "\t", plot._kdtree_distance, "\t", plot._uncertainty, '\t', plot.for_type_name

@@ -1109,6 +1109,27 @@ class IdbSummary(models.Model):
     class Meta:
         db_table = u'idb_summary'
 
+class PlotLookupManager(models.Manager):
+    def get_query_set(self):
+        return super(PlotLookupManager, self).get_query_set().filter(weight__gt=0)
+
+class PlotLookup(models.Model):
+    attr = models.CharField(max_length=30, blank=True, null=True)
+    source = models.CharField(max_length=10, blank=True, null=True)
+    name = models.CharField(max_length=60, blank=True, null=True)
+    desc = models.TextField(blank=True, null=True)
+    weight = models.FloatField(blank=True, null=True)
+    type = models.CharField(max_length=20, blank=True, null=True)
+    units = models.CharField(max_length=30, blank=True, null=True)
+    notes = models.TextField(blank=True, null=True)
+    objects = models.Manager() # The default manager.
+    nn_objects = PlotLookupManager() # The filtered manager showing ONLY plot attrs used in the NN search.
+
+    def __unicode__(self):
+        return u"%s (%s)" % (self.attr, self.name)
+
+
+
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
