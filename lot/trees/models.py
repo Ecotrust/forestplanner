@@ -16,6 +16,7 @@ from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger
 from operator import itemgetter
 from django.core.cache import cache
+from django.contrib.gis.geos import GEOSGeometry
 
 logger = get_logger()
 
@@ -29,20 +30,11 @@ def cachemethod(cache_key, timeout=60*60*24*7):
     '''
     def paramed_decorator(func):
         def decorated(self, *args):
-            if not settings.USE_CACHE:
-                res = func(self)
-                return res
-
             key = cache_key % self.__dict__
-            #logger.debug("\nCACHING %s" % key)
             res = cache.get(key)
             if res == None:
-                #logger.debug("   Cache MISS")
                 res = func(self, *args)
                 cache.set(key, res, timeout)
-                #logger.debug("   Cache SET")
-                if cache.get(key) != res:
-                    logger.error("*** Cache GET was NOT successful, %s" % key)
             return res
         return decorated 
     return paramed_decorator
@@ -1108,6 +1100,13 @@ class IdbSummary(models.Model):
     tph_ge_3_stunits = models.FloatField(null=True, blank=True)
     class Meta:
         db_table = u'idb_summary'
+
+    @property
+    @cachemethod("IdbSummary_eqd_point_%(cond_id)s")
+    def eqd_point(self):
+        plot_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (self.longitude_fuzz, self.latitude_fuzz))
+        plot_centroid.transform(settings.EQD_SRID)
+        return plot_centroid
 
 class PlotLookupManager(models.Manager):
     def get_query_set(self):

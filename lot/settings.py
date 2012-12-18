@@ -30,6 +30,7 @@ INSTALLED_APPS += ( 'trees', 'madrona.raster_stats')
 
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857 #for mercator
+EQD_SRID = 3786 # World Equidistant Cylindrical (Sphere) 
 
 APP_NAME = "Forestry Land Owner Tools"
 

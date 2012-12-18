@@ -13,6 +13,9 @@ Lookup for field names/descriptions
 create a view
 Create a testing interface
 Hook into "refine veg" interface
+import json
+from django.template.defaultfilters import slugify
+from django.core.cache import cache
 '''
 
 ##############################
@@ -31,9 +34,8 @@ def nearest_plot(categories, input_params, weight_dict, k=5):
     for sp in keys:
         categories[sp+"__isnull"] = False
 
-    EQD = 3786 # World Equidistant Cylindrical (Sphere) 
     stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
-    stand_centroid.transform(EQD)
+    stand_centroid.transform(settings.EQD_SRID)
 
     def plot_attrs(ps, keys):
         vals = []
@@ -46,19 +48,23 @@ def nearest_plot(categories, input_params, weight_dict, k=5):
         search_params['_aspect'] = 0 # anglular difference to self is 0
 
         # Deal with latlon, another special case
-        plot_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (ps.longitude_fuzz, ps.latitude_fuzz))
-        plot_centroid.transform(EQD)
+        plot_centroid = ps.eqd_point
         distance = stand_centroid.distance(plot_centroid)
         vals.append(distance)
         search_params['_geographic'] = 0 # distance to self is 0
         return vals
 
-    plotsummaries = list(IdbSummary.objects.filter(**categories))
+    plotsum_qs = IdbSummary.objects.filter(**categories)
+    plotsummaries = list(plotsum_qs)
     ps_attr_list= [plot_attrs(ps, keys) for ps in plotsummaries]
-    
+
     # include our additional special cases
     keys.append('_aspect') 
     keys.append('_geographic')
+
+    num_candidates = len(plotsummaries)
+    if num_candidates == 0:
+        raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
 
     weights = np.ones(len(keys))
     for i in range(len(keys)):
@@ -69,9 +75,6 @@ def nearest_plot(categories, input_params, weight_dict, k=5):
     querypoint = np.array([float(search_params[attr]) for attr in keys])
 
     rawpoints = np.array(ps_attr_list) 
-    num_candidates = len(plotsummaries)
-    if num_candidates == 0:
-        raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
 
     # Normalize to 100; linear scale
     multipliers = (100.0 / np.max(rawpoints, axis=0))
@@ -113,8 +116,8 @@ def potential_minmax(categories, weight_dict):
 if __name__ == "__main__":
  
     categories = {
-        'for_type_secdry_name': 'Douglas-fir', 
-        'for_type_name': 'Red alder', 
+        'for_type_name': 'Douglas-fir', 
+        #'for_type_name': 'Red alder', 
     }
 
     input_params = {
@@ -146,6 +149,8 @@ if __name__ == "__main__":
     } 
 
     pmm = potential_minmax(categories, weight_dict)
+    print pmm
+
     top, num_candidates = nearest_plot(categories, input_params, weight_dict, k=10)
 
     print weight_dict
