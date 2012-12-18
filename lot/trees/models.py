@@ -1128,7 +1128,6 @@ class PlotLookup(models.Model):
         return u"%s (%s)" % (self.attr, self.name)
 
 
-
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',

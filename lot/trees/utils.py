@@ -1,12 +1,14 @@
-from trees.models import Stand, ForestProperty
+from trees.models import Stand, ForestProperty, IdbSummary
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
 from madrona.common.utils import get_logger
-from hashlib import sha1
-from shapely.geometry import Point, Polygon, MultiPolygon
-from shapely import wkt, wkb
+from django.db.models import Min, Max
+from django.contrib.gis.geos import GEOSGeometry
 from shapely.ops import cascaded_union
+import numpy as np
+from scipy.spatial import KDTree
+import math
 
 logger = get_logger()
 
@@ -128,155 +130,85 @@ def calculate_adjacency(qs, threshold):
 
     return adj
 
-def nearest_plot_idb(categories, numeric, species, forest_class):
-    import numpy as np
-    from trees.models import PlotSummary
-    from scipy.spatial import KDTree
+
+def nearest_plots(categories, input_params, weight_dict, k=5):
+    search_params = input_params.copy()
+    keys = search_params.keys()
+    for sp in keys:
+        categories[sp+"__isnull"] = False
+
+    stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
+    stand_centroid.transform(settings.EQD_SRID)
 
     def plot_attrs(ps, keys):
         vals = []
         for attr in keys:
             vals.append(ps.__dict__[attr])
+
+        # an additional special case
+        angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
+        vals.append(angle)
+        search_params['_aspect'] = 0 # anglular difference to self is 0
+
+        # Deal with latlon, another special case
+        plot_centroid = ps.eqd_point
+        distance = stand_centroid.distance(plot_centroid)
+        vals.append(distance)
+        search_params['_geographic'] = 0 # distance to self is 0
         return vals
 
-    if len(categories.keys()) == 0:
-        raise Exception("Invalid categories dict supplied, %s" % categories)
-    if len(numeric.keys()) == 0:
-        raise Exception("Invalid numeric dict supplied, %s" % numeric)
+    plotsum_qs = IdbSummary.objects.filter(**categories)
+    plotsummaries = list(plotsum_qs)
+    ps_attr_list= [plot_attrs(ps, keys) for ps in plotsummaries]
 
-    # Construct an n-dimensional point based on the remaining numeric attributes
-    keys = numeric.keys()
-    querypoint = np.array([float(numeric[attr]) for attr in keys])
-    # We need to make sure there are no nulls
-    filter_keys = ["%s__isnull" % k for k in keys]
-    filter_vals = [False] * len(keys)
-    filter_kwargs = dict(zip(filter_keys, filter_vals))
+    # include our additional special cases
+    keys.append('_aspect') 
+    keys.append('_geographic')
 
-    # The coded/categorical data must be a match in the filter
-    for cat, val in categories.iteritems():
-        filter_kwargs[cat] = val
+    num_candidates = len(plotsummaries)
+    if num_candidates == 0:
+        raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
 
-    # handle "special" vars
-    '''
-    if forest_class == "broadleaf":
-        filter_kwargs['bah_prop__gt'] = 0.65
-    elif forest_class == "mixed":
-        filter_kwargs['bah_prop__lte'] = 0.65
-        filter_kwargs['bah_prop__gt'] = 0.2
-    elif forest_class == "conifer":
-        filter_kwargs['bah_prop__lte'] = 0.2
+    weights = np.ones(len(keys))
+    for i in range(len(keys)):
+        key = keys[i]
+        if key in weight_dict:
+            weights[i] = weight_dict[key]
 
-    if 'dom' in species:
-        filter_kwargs['imap_domspp__contains'] = species['dom']
+    querypoint = np.array([float(search_params[attr]) for attr in keys])
 
-    if 'codom' in species:
-        filter_kwargs['fortypba__contains'] = species['codom']
-    '''
-
-    print filter_kwargs
-    # Get any potential plots and create an array of n-dim points
-    # hashkey = ".plotsummary_" + sha1(str(filter_kwargs)).hexdigest() 
-    plotsummaries = list(PlotSummary.objects.filter(**filter_kwargs))
-    psar = [plot_attrs(ps, keys) for ps in plotsummaries]
-    allpoints = np.array(psar) 
-    candidates = len(plotsummaries)
-    if candidates == 0:
-        raise Exception("There are no candidate plots matching the categorical variables: %s" % filter_kwargs)
+    rawpoints = np.array(ps_attr_list) 
 
     # Normalize to 100; linear scale
-    multipliers = (100.0 / np.max(allpoints, axis=0))
-    allpoints *= multipliers
+    multipliers = (100.0 / np.max(rawpoints, axis=0))
+    # Apply weights
+    multipliers = multipliers * weights
+    # Apply multipliers
+    allpoints = rawpoints * multipliers
     querypoint *= multipliers
 
     # Create tree and query it for nearest plot
     tree = KDTree(allpoints)
     querypoints = np.array([querypoint])
-    result = tree.query(querypoints) 
-    distance = result[0][0]
-    plot = plotsummaries[result[1][0]]
+    result = tree.query(querypoints, k=k)
+    distances = result[0][0]
+    plots = result[1][0]
 
-    return distance, plot, candidates
+    top = zip(plots, distances)
+    ps = []
 
-def nearest_plot(categories, numeric, species, forest_class):
-    """ 
-    find the closest GNN plot in coordinate space to a given point
-    * filter by categorical variables
-    * construct an array of the numeric variables from potential plots
-       (filtering by dom sp or other qualtitative attrs)
-    * normalize array to 100
-    * contruct kdtree
-    * query kdtree for nearest point
+    xs = [100 * x for x in weights if x > 0]
+    squares = [x * x for x in xs]
+    print squares
+    print distances
+    max_dist = math.sqrt(sum(squares)) # the real max 
+    for t in top:
+        p = plotsummaries[t[0]]
+        p.__dict__['_kdtree_distance'] = t[1]
+        p.__dict__['_uncertainty'] = (t[1] / max_dist) * len(squares) # increase uncertainty as the number of variables goes up?
+        ps.append(p)
+    return ps, num_candidates
 
-    requires scipy:
-        apt-get install libblas-dev liblapack-dev
-        apt-get build-dep scipy
-        pip install scipy
-    """
-    import numpy as np
-    from trees.models import PlotSummary
-    from scipy.spatial import KDTree
-
-    def plot_attrs(ps, keys):
-        vals = []
-        for attr in keys:
-            vals.append(ps.__dict__[attr])
-        return vals
-
-    if len(categories.keys()) == 0:
-        raise Exception("Invalid categories dict supplied, %s" % categories)
-    if len(numeric.keys()) == 0:
-        raise Exception("Invalid numeric dict supplied, %s" % numeric)
-
-    # Construct an n-dimensional point based on the remaining numeric attributes
-    keys = numeric.keys()
-    querypoint = np.array([float(numeric[attr]) for attr in keys])
-    # We need to make sure there are no nulls
-    filter_keys = ["%s__isnull" % k for k in keys]
-    filter_vals = [False] * len(keys)
-    filter_kwargs = dict(zip(filter_keys, filter_vals))
-
-    # The coded/categorical data must be a match in the filter
-    for cat, val in categories.iteritems():
-        filter_kwargs[cat] = val
-
-    # handle "special" vars
-    if forest_class == "broadleaf":
-        filter_kwargs['bah_prop__gt'] = 0.65
-    elif forest_class == "mixed":
-        filter_kwargs['bah_prop__lte'] = 0.65
-        filter_kwargs['bah_prop__gt'] = 0.2
-    elif forest_class == "conifer":
-        filter_kwargs['bah_prop__lte'] = 0.2
-
-    if 'dom' in species:
-        filter_kwargs['imap_domspp__contains'] = species['dom']
-
-    if 'codom' in species:
-        filter_kwargs['fortypba__contains'] = species['codom']
-
-    print filter_kwargs
-    # Get any potential plots and create an array of n-dim points
-    # hashkey = ".plotsummary_" + sha1(str(filter_kwargs)).hexdigest() 
-    plotsummaries = list(PlotSummary.objects.filter(**filter_kwargs))
-    psar = [plot_attrs(ps, keys) for ps in plotsummaries]
-    allpoints = np.array(psar) 
-    candidates = len(plotsummaries)
-    if candidates == 0:
-        raise Exception("There are no candidate plots matching the categorical variables: %s" % filter_kwargs)
-
-    # Normalize to 100; linear scale
-    multipliers = (100.0 / np.max(allpoints, axis=0))
-    allpoints *= multipliers
-    querypoint *= multipliers
-
-    # Create tree and query it for nearest plot
-    tree = KDTree(allpoints)
-    querypoints = np.array([querypoint])
-    result = tree.query(querypoints) 
-    distance = result[0][0]
-    plot = plotsummaries[result[1][0]]
-
-    return distance, plot, candidates
 
 def classify_aspect(angle):
     '''
@@ -304,3 +236,8 @@ def angular_diff(x,y):
     y = math.radians(y)
     return math.fabs(math.degrees(min(y-x, y-x+2*math.pi, y-x-2*math.pi, key=abs)))
 
+def potential_minmax(categories, weight_dict):
+    ps = IdbSummary.objects.filter(**categories)
+    keys = [k for k in weight_dict.keys() if not k.startswith("_")]
+    args = [Min(k) for k in keys] + [Max(k) for k in keys] 
+    return ps.aggregate(*args)
