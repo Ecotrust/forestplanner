@@ -1110,7 +1110,8 @@ class IdbSummary(models.Model):
 
 class PlotLookupManager(models.Manager):
     def get_query_set(self):
-        return super(PlotLookupManager, self).get_query_set().filter(weight__gt=0)
+        from django.db.models import Q
+        return super(PlotLookupManager, self).get_query_set().filter(~Q(type="cat"), weight__gte=0)
 
 class PlotLookup(models.Model):
     attr = models.CharField(max_length=30, blank=True, null=True)
@@ -1123,6 +1124,10 @@ class PlotLookup(models.Model):
     notes = models.TextField(blank=True, null=True)
     objects = models.Manager() # The default manager.
     nn_objects = PlotLookupManager() # The filtered manager showing ONLY plot attrs used in the NN search.
+
+    @classmethod
+    def weight_dict(cls):
+        return dict([(x.attr, x.weight) for x in cls.nn_objects.all()])
 
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)

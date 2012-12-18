@@ -260,7 +260,17 @@ def geosearch(request):
         json_loc = json.dumps(loc)
         return HttpResponse(json_loc, mimetype='application/json', status=404)
 
-def nearest_plot(request):
+def potential_minmax(request):
+    from trees.utils import potential_minmax as _pmm
+    from trees.models import PlotLookup
+    categories = request.GET.get("categories", {})
+    pld = PlotLookup.weight_dict()
+    pmm = _pmm(categories, pld)
+    jpmm = json.dumps(pmm)
+    return HttpResponse(jpmm, mimetype='application/json', status=200)
+
+
+def nearest_plot_old(request):
     from trees.utils import nearest_plot as _nearest_plot
     return_format = 'html'  #TODO support json, get from url parsing
     r = request.REQUEST
