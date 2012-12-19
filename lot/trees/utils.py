@@ -137,8 +137,10 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     for sp in keys:
         categories[sp+"__isnull"] = False
 
-    stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
-    stand_centroid.transform(settings.EQD_SRID)
+    stand_centroid = None
+    if 'latitude_fuzz' in keys and 'longitude_fuzz' in keys:
+        stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
+        stand_centroid.transform(settings.EQD_SRID)
 
     def plot_attrs(ps, keys):
         vals = []
@@ -146,14 +148,20 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
             vals.append(ps.__dict__[attr])
 
         # an additional special case
-        angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
+        if 'calc_aspect' in keys:
+            angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
+        else:
+            angle = 0
         vals.append(angle)
         search_params['_aspect'] = 0 # anglular difference to self is 0
 
         # Deal with latlon, another special case
-        plot_centroid = ps.eqd_point
-        distance = stand_centroid.distance(plot_centroid)
-        vals.append(distance)
+        if stand_centroid:
+            plot_centroid = ps.eqd_point
+            distance = stand_centroid.distance(plot_centroid)
+            vals.append(distance)
+        else: 
+            vals.append(0)
         search_params['_geographic'] = 0 # distance to self is 0
         return vals
 
@@ -169,6 +177,7 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     if num_candidates == 0:
         raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
 
+    print keys
     weights = np.ones(len(keys))
     for i in range(len(keys)):
         key = keys[i]
@@ -179,10 +188,11 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
 
     rawpoints = np.array(ps_attr_list) 
 
-    # Normalize to 100; linear scale
+    # Normalize to max of 100; linear scale
     multipliers = (100.0 / np.max(rawpoints, axis=0))
     # Apply weights
     multipliers = multipliers * weights
+    multipliers = np.nan_to_num(multipliers)
     # Apply multipliers
     allpoints = rawpoints * multipliers
     querypoint *= multipliers
@@ -205,7 +215,7 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     for t in top:
         p = plotsummaries[t[0]]
         p.__dict__['_kdtree_distance'] = t[1]
-        p.__dict__['_uncertainty'] = (t[1] / max_dist) * len(squares) # increase uncertainty as the number of variables goes up?
+        p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) * len(squares)) # decrease certainty as the number of variables goes up?
         ps.append(p)
     return ps, num_candidates
 

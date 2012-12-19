@@ -1,35 +1,157 @@
 <html>
+    <head>
+       <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+       <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+       <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+       <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <script>
+            var divHeight =  $(window).height() - 150; 
+            // where 150 is the fixed height of everything above and below the table, 
+            // adjust until no vertical scrolling on the page.
+
+            // based on
+            // http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery
+            $.fn.serializeObject = function()
+            {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name] !== undefined) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        if (this.value)
+                            o[this.name].push(this.value);
+                    } else {
+                        if (this.value)
+                            o[this.name] = this.value;
+                    }
+                });
+                return o;
+            };
+            $.fn.serializeNNObject = function()
+            {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name] !== undefined) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        if (this.value)
+                            o[this.name].push(parseFloat(this.value));
+                    } else {
+                        if (this.value)
+                            o[this.name] = parseFloat(this.value);
+                    }
+                });
+                return o;
+            };
+
+            $(document).ready(function() {
+                $('table#top-plots').dataTable( {
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bInfo": true,
+                    "bAutoWidth": false,
+                    "bPaginate": false,
+                    "sScrollY": divHeight + "px",
+                    "bScrollCollapse": true
+                } );
+                $('button.submit').click( function(e) {
+                    e.preventDefault();
+                    input_params = $('form#nn').serializeNNObject();
+                    categories = $('form#cat').serializeObject();
+                    console.log(input_params);
+                    console.log(categories);
+                    location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(input_params); 
+                });
+            } );
+        </script>
+        <style>
+            .control-group {
+                margin-bottom: 0px !important;
+            }
+        </style>
+    </head>
     <body>
-        <a href="/trees/nearest_plot/"> GO BACK </a>
-        <table border="1">
-            <tr>
-                <th>Attribute</th>
-                <th>Requested Plot</th>
-                <th>Most similar plot <br/> (<em>out of {{candidates}} candidates</em>)</th>
-            </tr>
-            <tr>
-                <th>fcid</th>
-                <td>--</td>
-                <td>{{plot.fcid}}</td>
-            </tr>
-            {% for k, cat, orig, chosen  in specified_vars %} 
-                <tr>
-                    <th>{{k}}{% if cat %}*{% endif %}</th>
-                    <td>{{orig}}</td>
-                    <td>{{chosen}}</td>
-                </tr>
-            {% endfor %}
-            <tr> <td colspan="3"><em> ALL variables </em></td></tr>
-            {% for k, chosen in closest.items %} 
-                <tr>
-                    <th>{{k}}</th>
-                    <td>--</td>
-                    <td>{{chosen}}</td>
-                </tr>
-            {% endfor %}
-        </table> 
-        <br/>
-        <p>* = <em>categorical variable used to filter potential candidate plots</em></p>
+        <h3> Data input </h3>
+        <div class="well">
+            <form class="form-horizontal" id="cat">
+                <div class="control-group">
+                    <label class="control-label" for="for_type_name">Forest Type</label>
+                    <div class="controls">
+                        <input type="text" name="for_type_name" id="for_type_name" value="Douglas-fir">
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
+                    <div class="controls">
+                        <input type="text" name="for_type_secdry_name" id="for_type_secdry_name">
+                    </div>
+                </div>
+            </form>
+            <form class="form-horizontal" id="nn">
+                {% for k in weight_dict.keys %}
+                <div class="control-group">
+                    <label class="control-label" for="{{k}}">{{k}}</label>
+                    <div class="controls">
+                        <input class="nn" type="text" name="{{k}}" id="{{k}}">
+                    </div>
+                </div>
+                {% endfor %}
+                <div class="control-group">
+                    <div class="controls">
+                        <button type="submit" class="btn submit">Submit</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+        
+        {% if num_candidates == 0 %}
+        <h3>No matching plots</h3>
+        {{ categories }}
+        {% else %}
+        <h3>Top plots (<em>out of {{num_candidates}} candidates</em>)</h3>
+        <h4>Search plot in <strong>bold</strong></h4>
+        <div class="well">
+            <table id="top-plots">
+                <thead>
+                    <tr>
+                        <th>Condition ID</th>
+                        {% for k in input_params.keys %}
+                        <th> 
+                            {{k}}
+                        </th> 
+                        {% endfor %}
+                        <th> Forest type </th>
+                        <th> Certainty </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="font-weight: bold;">
+                        <td> -- </td>
+                        {% for v in input_params.values %}
+                        <td> 
+                            {{v}}
+                        </td> 
+                        {% endfor %}
+                        <td> {{category_string}} </td>
+                        <td> -- </td>
+                    </tr>
+                    {% for plot in plots %} 
+                    <tr> 
+                        {% for v in plot %}
+                        <td> 
+                            {{v}}
+                        </td> 
+                        {% endfor %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table> 
+        </div>
+        {% endif %}
     </body>
 </html>
 

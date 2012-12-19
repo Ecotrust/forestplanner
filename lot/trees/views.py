@@ -8,6 +8,7 @@ from madrona.common.utils import get_logger
 from geopy import geocoders  
 from geopy.point import Point
 import json
+import simplejson
 import os
 
 logger = get_logger()
@@ -263,12 +264,60 @@ def geosearch(request):
 def potential_minmax(request):
     from trees.utils import potential_minmax as _pmm
     from trees.models import PlotLookup
-    categories = request.GET.get("categories", {})
+    categories = request.GET.get("categories", None)
+    if categories:
+        categories = json.loads(categories)
+    else:
+        categories = {}
     pld = PlotLookup.weight_dict()
     pmm = _pmm(categories, pld)
     jpmm = json.dumps(pmm)
     return HttpResponse(jpmm, mimetype='application/json', status=200)
 
+def nearest_plots(request):
+    from trees.utils import potential_minmax as _potential_minmax
+    from trees.utils import nearest_plots as _nearest_plots
+    from trees.models import PlotLookup
+    categories = request.GET.get("categories", None)
+    print categories
+    if categories:
+        categories = simplejson.loads(categories)
+    else:
+        categories = { 'for_type_name': 'Douglas-fir' } # , 'for_type_secdry_name': 'Red alder'}
+    print categories
+
+    if 'for_type_secdry_name' in categories.keys():
+        category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
+    else:
+        category_string = categories['for_type_name']
+
+    input_params = request.GET.get("input_params", None)
+    if input_params:
+        input_params = json.loads(input_params)
+    else:
+        input_params = {
+            'age_dom': 40,
+            'elev_ft': 1279,
+            'calc_slope': 25,
+            'calc_aspect': 225, 
+            'longitude_fuzz': -123.0, 
+            'latitude_fuzz': 43.0, 
+        }
+
+    weight_dict = PlotLookup.weight_dict()
+    print weight_dict
+    pmm = _potential_minmax(categories, weight_dict)
+    top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
+    plots = []
+    for plot in top:
+        if plot.for_type_secdry_name:
+            for_type = "%s and %s" % (plot.for_type_name, plot.for_type_secdry_name)
+        else:
+            for_type = plot.for_type_name
+
+        vals = [plot.cond_id] + [str(plot.__dict__[x]) for x in input_params.keys()] + [for_type, str(int(plot._certainty*100)) + "%"]
+        plots.append(vals)
+    return render_to_response("trees/nearest_plot_results.html", locals())
 
 def nearest_plot_old(request):
     from trees.utils import nearest_plot as _nearest_plot

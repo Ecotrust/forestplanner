@@ -66,4 +66,4 @@ if __name__ == "__main__":
 
     print "Top matches (out of", num_candidates, "candidates)"
     for plot in top:
-        print '\t'.join([str(plot.__dict__[x]).ljust(10) for x in input_params.keys()]), "\t", plot._kdtree_distance, "\t", plot._uncertainty, '\t', plot.for_type_name
+        print '\t'.join([str(plot.__dict__[x]).ljust(10) for x in input_params.keys()]), "\t", plot._kdtree_distance, "\t", plot._certainty, '\t', plot.for_type_name
