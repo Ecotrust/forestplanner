@@ -1129,6 +1129,14 @@ class PlotLookup(models.Model):
     def weight_dict(cls):
         return dict([(x.attr, x.weight) for x in cls.nn_objects.all()])
 
+    @classmethod
+    def field_dict(cls):
+        return {
+            'cat': dict([(x.attr, x) for x in cls.objects.filter(type='cat')]) ,
+            'numeric': dict([(x.attr, x) for x in cls.nn_objects.filter(type='num')]) ,
+            'stand': dict([(x.attr, x) for x in cls.nn_objects.filter(type='stand')]) ,
+        }
+
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)
 

@@ -284,7 +284,6 @@ def nearest_plots(request):
         categories = simplejson.loads(categories)
     else:
         categories = { 'for_type_name': 'Douglas-fir' } # , 'for_type_secdry_name': 'Red alder'}
-    print categories
 
     if 'for_type_secdry_name' in categories.keys():
         category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
@@ -305,7 +304,7 @@ def nearest_plots(request):
         }
 
     weight_dict = PlotLookup.weight_dict()
-    print weight_dict
+    field_dict = PlotLookup.field_dict()
     pmm = _potential_minmax(categories, weight_dict)
     top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
     plots = []

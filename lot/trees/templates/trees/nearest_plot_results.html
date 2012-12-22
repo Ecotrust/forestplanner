@@ -2,12 +2,48 @@
     <head>
        <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
        <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+       <script src="http://openlayers.org/dev/OpenLayers.js"></script>
+       <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
        <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <script>
             var divHeight =  $(window).height() - 150; 
             // where 150 is the fixed height of everything above and below the table, 
             // adjust until no vertical scrolling on the page.
+
+
+            OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+                defaultHandlerOptions: {
+                    'single': true,
+                    'double': false,
+                    'pixelTolerance': 0,
+                    'stopSingle': false,
+                    'stopDouble': false
+                },
+                initialize: function(options) {
+                    this.handlerOptions = OpenLayers.Util.extend(
+                        {}, this.defaultHandlerOptions
+                    );
+                    OpenLayers.Control.prototype.initialize.apply(
+                        this, arguments
+                    ); 
+                    this.handler = new OpenLayers.Handler.Click(
+                        this, {
+                            'click': this.trigger
+                        }, this.handlerOptions
+                    );
+                }, 
+                trigger: function(e) {
+                    var pntMerc = map.getLonLatFromPixel(e.xy);
+                    var lonlat =  pntMerc.transform(
+                        map.getProjectionObject(),
+                        new OpenLayers.Projection("EPSG:4326")
+                    );
+                    $('input#longitude_fuzz').val(lonlat.lon);
+                    $('input#latitude_fuzz').val(lonlat.lat);
+                    //alert("You clicked near " + lonlat.lat + " N, " + + lonlat.lon + " E");
+                }
+            });
 
             // based on
             // http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery
@@ -49,6 +85,25 @@
             };
 
             $(document).ready(function() {
+                map = new OpenLayers.Map('map');
+
+                layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+                map.addLayer(layer);
+                map.setCenter(
+                    new OpenLayers.LonLat(-123.147, 44.472).transform(
+                        new OpenLayers.Projection("EPSG:4326"),
+                        map.getProjectionObject()
+                    ), 6
+                );  
+
+                var click = new OpenLayers.Control.Click();
+                map.addControl(click);
+                click.activate();
+ 
+                $('input.nn').popover( {
+                    'trigger': 'focus',
+                    'placement': 'left'
+                });
                 $('table#top-plots').dataTable( {
                     "bLengthChange": false,
                     "bFilter": false,
@@ -69,42 +124,86 @@
             } );
         </script>
         <style>
+            .form-horizontal input {
+                margin-bottom: 6px;
+            }
+            input[type="text"] {
+                height: 30px;
+                width: 106px;
+            }
+
+            .olcontrolattribution {
+                display: none !important;
+            }
+            .smallmap {
+                border: 1px solid grey; 
+                width: 400px; height: 200px;
+            }
             .control-group {
                 margin-bottom: 0px !important;
+            }
+            .add-on {
+                width: 60px !important;
+                font-size: 9pt !important;
+                text-align: right !important;
             }
         </style>
     </head>
     <body>
         <h3> Data input </h3>
-        <div class="well">
-            <form class="form-horizontal" id="cat">
-                <div class="control-group">
-                    <label class="control-label" for="for_type_name">Forest Type</label>
-                    <div class="controls">
-                        <input type="text" name="for_type_name" id="for_type_name" value="Douglas-fir">
+        <div class="row-fluid">
+            <span class="span4">
+                <form class="form-horizontal" id="cat">
+                    <div class="control-group">
+                        <label class="control-label" for="for_type_name">Forest Type</label>
+                        <div class="controls">
+                            <input type="text" class="span12" name="for_type_name" id="for_type_name" value="Douglas-fir">
+                        </div>
                     </div>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
-                    <div class="controls">
-                        <input type="text" name="for_type_secdry_name" id="for_type_secdry_name">
+                    <div class="control-group">
+                        <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
+                        <div class="controls">
+                            <input type="text" class="span12" name="for_type_secdry_name" id="for_type_secdry_name">
+                        </div>
                     </div>
-                </div>
-            </form>
+                </form>
+            </span>
             <form class="form-horizontal" id="nn">
-                {% for k in weight_dict.keys %}
-                <div class="control-group">
-                    <label class="control-label" for="{{k}}">{{k}}</label>
-                    <div class="controls">
-                        <input class="nn" type="text" name="{{k}}" id="{{k}}">
+                <span class="span4">
+                    <div style="margin-left: 45px;">
+                        <div id="map" class="smallmap"></div>
                     </div>
-                </div>
-                {% endfor %}
-                <div class="control-group">
-                    <div class="controls">
-                        <button type="submit" class="btn submit">Submit</button>
+                    <br/>
+                    {% for k, v in field_dict.stand.items %}
+                    <div class="control-group">
+                        <label class="control-label" for="{{k}}">{{v.name}}</label>
+                        <div class="controls">
+                            <div class="input-append span6">
+                                <input class="nn" type="text" name="{{k}}" id="{{k}}" title="{{v.desc}}">
+                                <span class="add-on">{{v.units}}</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                    {% endfor %}
+                </span>
+                <span class="span4">
+                    {% for k, v in field_dict.numeric.items %}
+                    <div class="control-group">
+                        <label class="control-label" for="{{k}}">{{v.name}}</label>
+                        <div class="controls">
+                            <div class="input-append">
+                                <input class="nn" type="text" name="{{k}}" id="{{k}}" title="{{v.desc}}">
+                                <span class="add-on">{{v.units}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    <div class="control-group">
+                        <div class="controls">
+                            <button type="submit" class="btn submit">Submit</button>
+                        </div>
+                    </div>
+                </span>
             </form>
         </div>
         
