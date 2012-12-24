@@ -111,7 +111,8 @@
                     "bAutoWidth": false,
                     "bPaginate": false,
                     "sScrollY": divHeight + "px",
-                    "bScrollCollapse": true
+                    "bScrollCollapse": true,
+                    "aaSorting": [[ 2, "desc" ]]                    
                 } );
                 $('button.submit').click( function(e) {
                     e.preventDefault();
@@ -121,6 +122,16 @@
                     console.log(categories);
                     location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(input_params); 
                 });
+                {% if for_type_names_json %}
+                $('#for_type_name').typeahead({
+                    source: {{for_type_names_json|safe}},
+                });
+                {% endif %}
+                {% if for_type_secdry_names_json %}
+                $('#for_type_secdry_name').typeahead({
+                    source: {{for_type_secdry_names_json|safe}},
+                });
+                {% endif %}
             } );
         </script>
         <style>
@@ -143,7 +154,7 @@
                 margin-bottom: 0px !important;
             }
             .add-on {
-                width: 60px !important;
+                width: 50px !important;
                 font-size: 9pt !important;
                 text-align: right !important;
             }
@@ -217,26 +228,26 @@
             <table id="top-plots">
                 <thead>
                     <tr>
-                        <th>Condition ID</th>
+                        <th> Condition ID </th>
+                        <th> Forest type </th>
+                        <th> Certainty </th>
                         {% for k in input_params.keys %}
                         <th> 
                             {{k}}
                         </th> 
                         {% endfor %}
-                        <th> Forest type </th>
-                        <th> Certainty </th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr style="font-weight: bold;">
+                        <td> -- </td>
+                        <td> {{category_string}} </td>
                         <td> -- </td>
                         {% for v in input_params.values %}
                         <td> 
                             {{v}}
                         </td> 
                         {% endfor %}
-                        <td> {{category_string}} </td>
-                        <td> -- </td>
                     </tr>
                     {% for plot in plots %} 
                     <tr> 

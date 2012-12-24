@@ -277,7 +277,7 @@ def potential_minmax(request):
 def nearest_plots(request):
     from trees.utils import potential_minmax as _potential_minmax
     from trees.utils import nearest_plots as _nearest_plots
-    from trees.models import PlotLookup
+    from trees.models import PlotLookup, IdbSummary 
     categories = request.GET.get("categories", None)
     print categories
     if categories:
@@ -305,6 +305,13 @@ def nearest_plots(request):
 
     weight_dict = PlotLookup.weight_dict()
     field_dict = PlotLookup.field_dict()
+
+    # Get all unique forest type names
+    for_type_names_json = json.dumps([x.for_type_name 
+        for x in IdbSummary.objects.all().distinct('for_type_name')])
+    for_type_secdry_names_json = json.dumps([x.for_type_secdry_name 
+        for x in IdbSummary.objects.filter(for_type_secdry_name__isnull=False).distinct('for_type_secdry_name')])
+
     pmm = _potential_minmax(categories, weight_dict)
     top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
     plots = []
@@ -314,9 +321,14 @@ def nearest_plots(request):
         else:
             for_type = plot.for_type_name
 
-        vals = [plot.cond_id] + [str(plot.__dict__[x]) for x in input_params.keys()] + [for_type, str(int(plot._certainty*100)) + "%"]
+        vals = [plot.cond_id] + [for_type, str(int(plot._certainty*100)) + "%"] + [str(plot.__dict__[x]) for x in input_params.keys()] 
         plots.append(vals)
     return render_to_response("trees/nearest_plot_results.html", locals())
+
+
+    
+
+
 
 def nearest_plot_old(request):
     from trees.utils import nearest_plot as _nearest_plot
