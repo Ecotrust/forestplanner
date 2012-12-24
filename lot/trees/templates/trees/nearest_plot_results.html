@@ -87,7 +87,12 @@
             $(document).ready(function() {
                 map = new OpenLayers.Map('map');
 
-                layer = new OpenLayers.Layer.OSM( "Simple OSM Map");
+                var layer = new OpenLayers.Layer.XYZ( "National Geographic Base Map",
+                    "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/${z}/${y}/${x}",
+                    {sphericalMercator: true, 
+                    opacity: 0.65,
+                    attribution: "National Geographic, Esri"}
+                );
                 map.addLayer(layer);
                 map.setCenter(
                     new OpenLayers.LonLat(-123.147, 44.472).transform(
@@ -132,9 +137,74 @@
                     source: {{for_type_secdry_names_json|safe}},
                 });
                 {% endif %}
+
+                // Show results
+                resultsMap = new OpenLayers.Map('results-map');
+                var layer = new OpenLayers.Layer.XYZ( "National Geographic Base Map",
+                    "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/${z}/${y}/${x}",
+                    {sphericalMercator: true, 
+                    opacity: 0.65,
+                    attribution: "National Geographic, Esri"}
+                );
+                resultsMap.addLayer(layer);
+                resultsMap.setCenter(
+                    new OpenLayers.LonLat(-123.147, 44.472).transform(
+                        new OpenLayers.Projection("EPSG:4326"),
+                        resultsMap.getProjectionObject()
+                    ), 6
+                );  
+
+/*
+                layer_style = new OpenLayers.StyleMap({'default':{
+                    strokeColor: "#00FF00",
+                    strokeOpacity: 1,
+                    strokeWidth: 3,
+                    fillColor: "#FF5500",
+                    fillOpacity: 0.5,
+                    pointRadius: 6,
+                    pointerEvents: "visiblePainted",
+                    // label with \n linebreaks
+                    //label : "name:${age}",
+                    label: "boo",
+                    
+                    fontColor: "#000000",
+                    fontSize: "9px",
+                    fontFamily: "Courier New, monospace",
+                    fontWeight: "bold",
+                    //labelAlign: "{align}",
+                    //labelXOffset: "${xOffset}",
+                    //labelYOffset: "${yOffset}",
+                    labelOutlineColor: "white",
+                    labelOutlineWidth: 3
+                }});
+ */
+
+                var pointList = [];
+                var newPoint;
+                var pointFeature;
+                var epsg4326 = new OpenLayers.Projection('EPSG:4326');
+                var epsg900913 = new OpenLayers.Projection('EPSG:900913');
+                {% for coord in plot_coords %} 
+                newPoint = new OpenLayers.Geometry.Point({{coord.0}}, {{coord.1}});
+                newPoint.transform(epsg4326, epsg900913)
+                pointFeature = new OpenLayers.Feature.Vector(newPoint, null);
+                pointList.push(pointFeature);
+                {% endfor %}
+
+                var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {
+                    //style: layer_style
+                    //renderers: renderer
+                });
+                vectorLayer.addFeatures(pointList);
+                resultsMap.addLayer(vectorLayer);
+                resultsMap.zoomToExtent(resultsMap.layers[1].getDataExtent());
             } );
         </script>
         <style>
+            #search-plot {
+                font-weight: bold;
+                font-style: italic;
+            }
             .form-horizontal input {
                 margin-bottom: 6px;
             }
@@ -146,9 +216,13 @@
             .olcontrolattribution {
                 display: none !important;
             }
+            #results-map {
+                border: 1px solid grey; 
+                width: 800px; height: 400px;
+            }
             .smallmap {
                 border: 1px solid grey; 
-                width: 400px; height: 200px;
+                width: 450px; height: 330px;
             }
             .control-group {
                 margin-bottom: 0px !important;
@@ -178,13 +252,13 @@
                         </div>
                     </div>
                 </form>
-            </span>
-            <form class="form-horizontal" id="nn">
-                <span class="span4">
+                    <br/>
                     <div style="margin-left: 45px;">
                         <div id="map" class="smallmap"></div>
                     </div>
-                    <br/>
+            </span>
+            <form class="form-horizontal" id="nn">
+                <span class="span4">
                     {% for k, v in field_dict.stand.items %}
                     <div class="control-group">
                         <label class="control-label" for="{{k}}">{{v.name}}</label>
@@ -239,10 +313,10 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr style="font-weight: bold;">
+                    <tr id="search-plot">
                         <td> -- </td>
                         <td> {{category_string}} </td>
-                        <td> -- </td>
+                        <td style="font-size: 0px;"> 100 </td>
                         {% for v in input_params.values %}
                         <td> 
                             {{v}}
@@ -260,6 +334,9 @@
                     {% endfor %}
                 </tbody>
             </table> 
+        </div>
+        <div class="well">
+            <div id="results-map"></div>
         </div>
         {% endif %}
     </body>

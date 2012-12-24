@@ -312,22 +312,25 @@ def nearest_plots(request):
     for_type_secdry_names_json = json.dumps([x.for_type_secdry_name 
         for x in IdbSummary.objects.filter(for_type_secdry_name__isnull=False).distinct('for_type_secdry_name')])
 
+    # offset for plotid, fortype, certainty
     pmm = _potential_minmax(categories, weight_dict)
     top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
     plots = []
+    plot_coords = []
     for plot in top:
         if plot.for_type_secdry_name:
             for_type = "%s and %s" % (plot.for_type_name, plot.for_type_secdry_name)
         else:
             for_type = plot.for_type_name
 
-        vals = [plot.cond_id] + [for_type, str(int(plot._certainty*100)) + "%"] + [str(plot.__dict__[x]) for x in input_params.keys()] 
+        vals = [plot.cond_id] + [for_type, str(int(plot._certainty*100))] + [str(plot.__dict__[x]) for x in input_params.keys()] 
         plots.append(vals)
+        
+        if plot.latitude_fuzz and plot.longitude_fuzz:
+            plot_coords.append((plot.longitude_fuzz, plot.latitude_fuzz))
+        else:
+            plot_coords.append(None)
     return render_to_response("trees/nearest_plot_results.html", locals())
-
-
-    
-
 
 
 def nearest_plot_old(request):
