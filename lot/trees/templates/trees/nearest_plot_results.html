@@ -127,6 +127,10 @@
                     categories = $('form#cat').serializeObject();
                     location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(input_params); 
                 });
+                $('button.clear').click( function(e) {
+                    e.preventDefault();
+                    $("input[type=text], textarea").val("");
+                });
                 {% if for_type_names_json %}
                 $('#for_type_name').typeahead({
                     source: {{for_type_names_json|safe}},
@@ -309,6 +313,7 @@
                     <div class="control-group">
                         <div class="controls">
                             <button type="submit" class="btn submit">Submit</button>
+                            <button class="btn clear">Clear</button>
                         </div>
                     </div>
                 </span>
