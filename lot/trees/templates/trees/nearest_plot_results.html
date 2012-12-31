@@ -8,6 +8,7 @@
        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <script>
             var params;
+            var cats;
             var divHeight =  $(window).height() - 150; 
             // where 150 is the fixed height of everything above and below the table, 
             // adjust until no vertical scrolling on the page.
@@ -124,8 +125,6 @@
                     e.preventDefault();
                     input_params = $('form#nn').serializeNNObject();
                     categories = $('form#cat').serializeObject();
-                    console.log(input_params);
-                    console.log(categories);
                     location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(input_params); 
                 });
                 {% if for_type_names_json %}
@@ -139,10 +138,26 @@
                 });
                 {% endif %}
 
-                params = JSON.parse(OpenLayers.Util.getParameters().input_params.join());
-                console.log(params);
-                // TODO restore  fields
+                // restore fields
+                params = OpenLayers.Util.getParameters().input_params;
+                if ($.isArray(params)) {
+                    params = JSON.parse(params.join());
+                } else {
+                    params = JSON.parse(params);
+                } 
+                $.each(params, function(k, val) {
+                    $('#' + k).val(val); 
+                });
 
+                cats = OpenLayers.Util.getParameters().categories;
+                if ($.isArray(cats)) {
+                    cats = JSON.parse(cats.join());
+                } else {
+                    cats = JSON.parse(cats);
+                } 
+                $.each(cats, function(k, val) {
+                    $('#' + k).val(val); 
+                });
 
                 // Show results
                 resultsMap = new OpenLayers.Map('results-map');
@@ -226,7 +241,7 @@
             }
             #results-map {
                 border: 1px solid grey; 
-                width: 800px; height: 400px;
+                height: 400px;
             }
             .smallmap {
                 border: 1px solid grey; 
@@ -243,8 +258,8 @@
         </style>
     </head>
     <body>
+        <div class="row-fluid well">
         <h3> Data input </h3>
-        <div class="row-fluid">
             <span class="span4">
                 <form class="form-horizontal" id="cat">
                     <div class="control-group">
@@ -299,52 +314,54 @@
                 </span>
             </form>
         </div>
-        
+        <br/> 
+        <br/> 
         {% if num_candidates == 0 %}
         <h3>No matching plots</h3>
         {{ categories }}
         {% else %}
-        <h3>Top plots (<em>out of {{num_candidates}} candidates</em>)</h3>
-        <h4>Search plot in <strong>bold</strong></h4>
         <div class="well">
-            <table id="top-plots">
-                <thead>
-                    <tr>
-                        <th> Condition ID </th>
-                        <th> Forest type </th>
-                        <th> Certainty </th>
-                        {% for k in input_params.keys %}
-                        <th> 
-                            {{k}}
-                        </th> 
-                        {% endfor %}
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="search-plot">
-                        <td> -- </td>
-                        <td> {{category_string}} </td>
-                        <td style="font-size: 0px;"> 100 </td>
-                        {% for v in input_params.values %}
-                        <td> 
-                            {{v}}
-                        </td> 
-                        {% endfor %}
-                    </tr>
-                    {% for plot in plots %} 
-                    <tr> 
-                        {% for v in plot %}
-                        <td> 
-                            {{v}}
-                        </td> 
-                        {% endfor %}
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table> 
-        </div>
-        <div class="well">
+            <h3>Nearest Neighbor search results.</h3> 
+            <p>(Top 10 potential plots out of {{num_candidates}} candidates). Search plot in <strong>bold</strong>.</p>
+            <hr/>
             <div id="results-map"></div>
+            <div>
+                <table id="top-plots">
+                    <thead>
+                        <tr>
+                            <th> Condition ID </th>
+                            <th> Forest type </th>
+                            <th> Certainty </th>
+                            {% for k in input_params.keys %}
+                            <th> 
+                                {{k}}
+                            </th> 
+                            {% endfor %}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="search-plot">
+                            <td> -- </td>
+                            <td> {{category_string}} </td>
+                            <td style="font-size: 0px;"> 100 </td>
+                            {% for v in input_params.values %}
+                            <td> 
+                                {{v}}
+                            </td> 
+                            {% endfor %}
+                        </tr>
+                        {% for plot in plots %} 
+                        <tr> 
+                            {% for v in plot %}
+                            <td> 
+                                {{v}}
+                            </td> 
+                            {% endfor %}
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table> 
+            </div>
         </div>
         {% endif %}
     </body>
