@@ -7,6 +7,7 @@
        <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
        <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
         <script>
+            var params;
             var divHeight =  $(window).height() - 150; 
             // where 150 is the fixed height of everything above and below the table, 
             // adjust until no vertical scrolling on the page.
@@ -138,6 +139,11 @@
                 });
                 {% endif %}
 
+                params = JSON.parse(OpenLayers.Util.getParameters().input_params.join());
+                console.log(params);
+                // TODO restore  fields
+
+
                 // Show results
                 resultsMap = new OpenLayers.Map('results-map');
                 var layer = new OpenLayers.Layer.XYZ( "National Geographic Base Map",
@@ -154,31 +160,6 @@
                     ), 6
                 );  
 
-/*
-                layer_style = new OpenLayers.StyleMap({'default':{
-                    strokeColor: "#00FF00",
-                    strokeOpacity: 1,
-                    strokeWidth: 3,
-                    fillColor: "#FF5500",
-                    fillOpacity: 0.5,
-                    pointRadius: 6,
-                    pointerEvents: "visiblePainted",
-                    // label with \n linebreaks
-                    //label : "name:${age}",
-                    label: "boo",
-                    
-                    fontColor: "#000000",
-                    fontSize: "9px",
-                    fontFamily: "Courier New, monospace",
-                    fontWeight: "bold",
-                    //labelAlign: "{align}",
-                    //labelXOffset: "${xOffset}",
-                    //labelYOffset: "${yOffset}",
-                    labelOutlineColor: "white",
-                    labelOutlineWidth: 3
-                }});
- */
-
                 var pointList = [];
                 var newPoint;
                 var pointFeature;
@@ -187,16 +168,43 @@
                 {% for coord in plot_coords %} 
                 newPoint = new OpenLayers.Geometry.Point({{coord.0}}, {{coord.1}});
                 newPoint.transform(epsg4326, epsg900913)
-                pointFeature = new OpenLayers.Feature.Vector(newPoint, null);
+                pointFeature = new OpenLayers.Feature.Vector(newPoint, {'id': {{coord.2}} });
                 pointList.push(pointFeature);
                 {% endfor %}
 
-                var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", {
-                    //style: layer_style
-                    //renderers: renderer
-                });
+                var styleMap = new OpenLayers.StyleMap(
+                    OpenLayers.Util.applyDefaults({
+                            fillColor: "green", 
+                            label: "${id}",
+                            labelAlign: "lb",
+                            labelXOffset: "5",
+                            labelYOffset: "5",
+                            fontColor: "#000000",
+                            fontSize: "11px",
+                            fillOpacity: 1, 
+                            strokeColor: "black" 
+                        },
+                        OpenLayers.Feature.Vector.style["default"]
+                    )
+                );
+
+                var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", { styleMap: styleMap });
                 vectorLayer.addFeatures(pointList);
                 resultsMap.addLayer(vectorLayer);
+
+                // Add marker for query point
+                if (params.longitude_fuzz && params.latitude_fuzz) {
+                    var lonLat = new OpenLayers.LonLat(params.longitude_fuzz, params.latitude_fuzz).transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+
+                    var markers = new OpenLayers.Layer.Markers( "Markers" );
+                    resultsMap.addLayer(markers);
+
+                    markers.addMarker(new OpenLayers.Marker(lonLat));
+                }
+
                 resultsMap.zoomToExtent(resultsMap.layers[1].getDataExtent());
             } );
         </script>

@@ -327,7 +327,7 @@ def nearest_plots(request):
         plots.append(vals)
         
         if plot.latitude_fuzz and plot.longitude_fuzz:
-            plot_coords.append((plot.longitude_fuzz, plot.latitude_fuzz))
+            plot_coords.append((plot.longitude_fuzz, plot.latitude_fuzz, plot.cond_id))
         else:
             plot_coords.append(None)
     return render_to_response("trees/nearest_plot_results.html", locals())
