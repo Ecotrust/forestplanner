@@ -146,22 +146,26 @@
                 params = OpenLayers.Util.getParameters().input_params;
                 if ($.isArray(params)) {
                     params = JSON.parse(params.join());
-                } else {
+                } else if (params) {
                     params = JSON.parse(params);
+                }
+                if (params) {
+                    $.each(params, function(k, val) {
+                        $('#' + k).val(val); 
+                    });
                 } 
-                $.each(params, function(k, val) {
-                    $('#' + k).val(val); 
-                });
 
                 cats = OpenLayers.Util.getParameters().categories;
                 if ($.isArray(cats)) {
                     cats = JSON.parse(cats.join());
-                } else {
+                } else if (cats) {
                     cats = JSON.parse(cats);
                 } 
-                $.each(cats, function(k, val) {
-                    $('#' + k).val(val); 
-                });
+                if (cats) {
+                    $.each(cats, function(k, val) {
+                        $('#' + k).val(val); 
+                    });
+                }
 
                 // Show results
                 resultsMap = new OpenLayers.Map('results-map');
@@ -212,7 +216,7 @@
                 resultsMap.addLayer(vectorLayer);
 
                 // Add marker for query point
-                if (params.longitude_fuzz && params.latitude_fuzz) {
+                if (params && params.longitude_fuzz && params.latitude_fuzz) {
                     var lonLat = new OpenLayers.LonLat(params.longitude_fuzz, params.latitude_fuzz).transform(
                         new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
                         map.getProjectionObject() // to Spherical Mercator Projection
@@ -225,9 +229,17 @@
                 }
 
                 resultsMap.zoomToExtent(resultsMap.layers[1].getDataExtent());
+                resultsMap.setOptions({restrictedExtent: resultsMap.layers[1].getDataExtent()});
             } );
         </script>
         <style>
+            #stand-note {
+                margin-left: 64px; 
+                margin-right: 48px; 
+                margin-top: 12px; 
+                margin-bottom: 12px; 
+                font-size: 8pt;
+            }
             #search-plot {
                 font-weight: bold;
                 font-style: italic;
@@ -246,6 +258,7 @@
             #results-map {
                 border: 1px solid grey; 
                 height: 400px;
+                width: 800px;
             }
             .smallmap {
                 border: 1px solid grey; 
@@ -259,119 +272,127 @@
                 font-size: 9pt !important;
                 text-align: right !important;
             }
+            body {
+                margin: 12px;
+            }
         </style>
     </head>
     <body>
-        <div class="row-fluid well">
-        <h3> Data input </h3>
-            <span class="span4">
-                <form class="form-horizontal" id="cat">
-                    <div class="control-group">
-                        <label class="control-label" for="for_type_name">Forest Type</label>
-                        <div class="controls">
-                            <input type="text" class="span12" name="for_type_name" id="for_type_name" value="Douglas-fir">
-                        </div>
-                    </div>
-                    <div class="control-group">
-                        <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
-                        <div class="controls">
-                            <input type="text" class="span12" name="for_type_secdry_name" id="for_type_secdry_name">
-                        </div>
-                    </div>
-                </form>
-                    <br/>
-                    <div style="margin-left: 45px;">
-                        <div id="map" class="smallmap"></div>
-                    </div>
-            </span>
-            <form class="form-horizontal" id="nn">
+        <div class="well" id="input">
+            <h3> Data Input </h3>
+            <div class="row-fluid">
                 <span class="span4">
-                    <p class="alert" style="margin: 46px; font-size: 8pt;"> Note: In the Forest Scenario Planner, data in this column will be 
-                    populated automatically based on the location of the stand </p>
+                    <form class="form-horizontal" id="cat">
+                        <div class="control-group">
+                            <label class="control-label" for="for_type_name">Forest Type</label>
+                            <div class="controls">
+                                <input type="text" class="span12" name="for_type_name" id="for_type_name" value="Douglas-fir">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
+                            <div class="controls">
+                                <input type="text" class="span12" name="for_type_secdry_name" id="for_type_secdry_name">
+                            </div>
+                        </div>
+                    </form>
+                        <br/>
+                        <div style="margin-left: 45px;">
+                            <div id="map" class="smallmap"></div>
+                        </div>
+                </span>
+                <form class="form-horizontal" id="nn">
+                    <span class="span4">
+                        <p class="alert" id="stand-note" > Note: In the Forest Scenario Planner, data in this column will be 
+                        populated automatically based on the location of the stand </p>
 
-                    {% for k, v in field_dict.stand.items %}
-                    <div class="control-group">
-                        <label class="control-label" for="{{k}}">{{v.name}}</label>
-                        <div class="controls">
-                            <div class="input-append span6">
-                                <input class="nn" type="text" name="{{k}}" id="{{k}}" title="{{v.desc}}">
-                                <span class="add-on">{{v.units}}</span>
+                        {% for v in field_dict.stands %}
+                        <div class="control-group">
+                            <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
+                            <div class="controls">
+                                <div class="input-append">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.desc}}">
+                                    <span class="add-on">{{v.units}}</span>
+                                </div>
+                                <span class="badge">{{v.weight}}</span>
                             </div>
                         </div>
-                    </div>
-                    {% endfor %}
-                </span>
-                <span class="span4">
-                    {% for k, v in field_dict.numeric.items %}
-                    <div class="control-group">
-                        <label class="control-label" for="{{k}}">{{v.name}}</label>
-                        <div class="controls">
-                            <div class="input-append">
-                                <input class="nn" type="text" name="{{k}}" id="{{k}}" title="{{v.desc}}">
-                                <span class="add-on">{{v.units}}</span>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                    <div class="control-group">
-                        <div class="controls">
-                            <button type="submit" class="btn submit">Submit</button>
-                            <button class="btn clear">Clear</button>
-                        </div>
-                    </div>
-                </span>
-            </form>
-        </div>
-        <br/> 
-        <br/> 
-        {% if num_candidates == 0 %}
-        <h3>No matching plots</h3>
-        {{ categories }}
-        {% else %}
-        <div class="well">
-            <h3>Nearest Neighbor search results.</h3> 
-            <p>(Top 10 potential plots out of {{num_candidates}} candidates). Search plot in <strong>bold</strong>.</p>
-            <hr/>
-            <div id="results-map"></div>
-            <div>
-                <table id="top-plots">
-                    <thead>
-                        <tr>
-                            <th> Condition ID </th>
-                            <th> Forest type </th>
-                            <th> Certainty </th>
-                            {% for k in input_params.keys %}
-                            <th> 
-                                {{k}}
-                            </th> 
-                            {% endfor %}
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr id="search-plot">
-                            <td> -- </td>
-                            <td> {{category_string}} </td>
-                            <td style="font-size: 0px;"> 100 </td>
-                            {% for v in input_params.values %}
-                            <td> 
-                                {{v}}
-                            </td> 
-                            {% endfor %}
-                        </tr>
-                        {% for plot in plots %} 
-                        <tr> 
-                            {% for v in plot %}
-                            <td> 
-                                {{v}}
-                            </td> 
-                            {% endfor %}
-                        </tr>
                         {% endfor %}
-                    </tbody>
-                </table> 
+                    </span>
+                    <span class="span4">
+                        {% for v in field_dict.numerics %}
+                        <div class="control-group">
+                            <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
+                            <div class="controls">
+                                <div class="input-append">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.desc}}">
+                                    <span class="add-on">{{v.units}}</span>
+                                </div>
+                                <span class="badge">{{v.weight}}</span>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn submit">Submit</button>
+                                <button class="btn clear">Clear</button>
+                            </div>
+                        </div>
+                    </span>
+                </form>
             </div>
         </div>
-        {% endif %}
+        <br>
+        <br>
+        <div class="well" id="output">
+            {% if num_candidates == 0 %}
+            <h3>No matching plots</h3>
+            {{ categories }}
+            {% else %}
+            <h3> Nearest Neighbor Search Results </h3>
+            <div>
+                <p class="small">Top 10 potential plots out of {{num_candidates}} candidates. Search plot in <strong>bold</strong>.</p>
+                <div id="results-map"></div>
+                <div>
+                    <table id="top-plots">
+                        <thead>
+                            <tr>
+                                <th> Condition ID </th>
+                                <th> Forest type </th>
+                                <th> Certainty </th>
+                                {% for k in input_params.keys %}
+                                <th> 
+                                    {{k}}
+                                </th> 
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="search-plot">
+                                <td> -- </td>
+                                <td> {{category_string}} </td>
+                                <td style="font-size: 0px;"> 100 </td>
+                                {% for v in input_params.values %}
+                                <td> 
+                                    {{v}}
+                                </td> 
+                                {% endfor %}
+                            </tr>
+                            {% for plot in plots %} 
+                            <tr> 
+                                {% for v in plot %}
+                                <td> 
+                                    {{v}}
+                                </td> 
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table> 
+                </div>
+            </div>
+            {% endif %}
+        </div>
     </body>
 </html>
 

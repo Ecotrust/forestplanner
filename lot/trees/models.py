@@ -1135,9 +1135,9 @@ class PlotLookup(models.Model):
     @classmethod
     def field_dict(cls):
         return {
-            'cat': dict([(x.attr, x) for x in cls.objects.filter(type='cat')]) ,
-            'numeric': dict([(x.attr, x) for x in cls.nn_objects.filter(type='num')]) ,
-            'stand': dict([(x.attr, x) for x in cls.nn_objects.filter(type='stand')]) ,
+            'cats': cls.objects.filter(type='cat'),
+            'numerics': cls.nn_objects.filter(type='num'),
+            'stands': cls.nn_objects.filter(type='stand'),
         }
 
     def __unicode__(self):
