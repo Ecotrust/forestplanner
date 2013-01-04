@@ -279,7 +279,6 @@ def nearest_plots(request):
     from trees.utils import nearest_plots as _nearest_plots
     from trees.models import PlotLookup, IdbSummary 
     categories = request.GET.get("categories", None)
-    print categories
     if categories:
         categories = simplejson.loads(categories)
     else:
@@ -330,6 +329,7 @@ def nearest_plots(request):
             plot_coords.append((plot.longitude_fuzz, plot.latitude_fuzz, plot.cond_id))
         else:
             plot_coords.append(None)
+
     return render_to_response("trees/nearest_plot_results.html", locals())
 
 

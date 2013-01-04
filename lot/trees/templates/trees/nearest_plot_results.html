@@ -123,9 +123,9 @@
                 } );
                 $('button.submit').click( function(e) {
                     e.preventDefault();
-                    input_params = $('form#nn').serializeNNObject();
+                    var inputParams = $('form#nn').serializeNNObject();
                     categories = $('form#cat').serializeObject();
-                    location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(input_params); 
+                    location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(inputParams); 
                 });
                 $('button.clear').click( function(e) {
                     e.preventDefault();
