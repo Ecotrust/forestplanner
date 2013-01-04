@@ -237,10 +237,7 @@
                 font-size: 10pt !important;
             }
             #stand-note {
-                margin-left: 64px; 
-                margin-right: 48px; 
-                margin-top: 12px; 
-                margin-bottom: 12px; 
+                margin-left: 14px; 
                 font-size: 8pt;
             }
             #search-plot {
@@ -265,7 +262,7 @@
             }
             .smallmap {
                 border: 1px solid grey; 
-                width: 450px; height: 330px;
+                height: 330px;
             }
             .control-group {
                 margin-bottom: 0px !important;
@@ -299,15 +296,13 @@
                             </div>
                         </div>
                     </form>
-                        <br/>
-                        <div style="margin-left: 45px;">
-                            <div id="map" class="smallmap"></div>
-                        </div>
                 </span>
                 <form class="form-horizontal" id="nn">
                     <span class="span4">
                         <p class="alert" id="stand-note" > Note: In the Forest Scenario Planner, data in this column will be 
                         populated automatically based on the location of the stand </p>
+                        <div id="map" class="smallmap"></div>
+                        <br>
 
                         {% for v in field_dict.stands %}
                         <div class="control-group">
