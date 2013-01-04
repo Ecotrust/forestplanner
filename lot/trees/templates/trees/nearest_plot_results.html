@@ -233,6 +233,9 @@
             } );
         </script>
         <style>
+            .popover-content {
+                font-size: 10pt !important;
+            }
             #stand-note {
                 margin-left: 64px; 
                 margin-right: 48px; 
@@ -311,7 +314,7 @@
                             <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
                             <div class="controls">
                                 <div class="input-append">
-                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.desc}}">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}}" data-content="{{v.desc}}">
                                     <span class="add-on">{{v.units}}</span>
                                 </div>
                                 <span class="badge">{{v.weight}}</span>
@@ -325,7 +328,7 @@
                             <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
                             <div class="controls">
                                 <div class="input-append">
-                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.desc}}">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}}" data-content="{{v.desc}}">
                                     <span class="add-on">{{v.units}}</span>
                                 </div>
                                 <span class="badge">{{v.weight}}</span>
