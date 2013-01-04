@@ -289,7 +289,7 @@
                         <div class="control-group">
                             <label class="control-label" for="for_type_name">Forest Type</label>
                             <div class="controls">
-                                <input type="text" class="span12" name="for_type_name" id="for_type_name" value="Douglas-fir">
+                                <input type="text" class="span12" name="for_type_name" id="for_type_name">
                             </div>
                         </div>
                         <div class="control-group">
@@ -345,6 +345,7 @@
                 </form>
             </div>
         </div>
+        {% if plots %}
         <br>
         <br>
         <div class="well" id="output">
@@ -396,6 +397,7 @@
             </div>
             {% endif %}
         </div>
+        {% endif %}
     </body>
 </html>
 

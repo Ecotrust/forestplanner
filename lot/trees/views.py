@@ -278,29 +278,14 @@ def nearest_plots(request):
     from trees.utils import potential_minmax as _potential_minmax
     from trees.utils import nearest_plots as _nearest_plots
     from trees.models import PlotLookup, IdbSummary 
+
     categories = request.GET.get("categories", None)
     if categories:
         categories = simplejson.loads(categories)
-    else:
-        categories = { 'for_type_name': 'Douglas-fir' } # , 'for_type_secdry_name': 'Red alder'}
-
-    if 'for_type_secdry_name' in categories.keys():
-        category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
-    else:
-        category_string = categories['for_type_name']
 
     input_params = request.GET.get("input_params", None)
     if input_params:
         input_params = json.loads(input_params)
-    else:
-        input_params = {
-            'age_dom': 40,
-            'elev_ft': 1279,
-            'calc_slope': 25,
-            'calc_aspect': 225, 
-            'longitude_fuzz': -123.0, 
-            'latitude_fuzz': 43.0, 
-        }
 
     weight_dict = PlotLookup.weight_dict()
     field_dict = PlotLookup.field_dict()
@@ -310,6 +295,14 @@ def nearest_plots(request):
         for x in IdbSummary.objects.all().distinct('for_type_name')])
     for_type_secdry_names_json = json.dumps([x.for_type_secdry_name 
         for x in IdbSummary.objects.filter(for_type_secdry_name__isnull=False).distinct('for_type_secdry_name')])
+
+    if not categories and not input_params:
+        return render_to_response("trees/nearest_plot_results.html", locals())
+        
+    if 'for_type_secdry_name' in categories.keys():
+        category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
+    else:
+        category_string = categories['for_type_name']
 
     # offset for plotid, fortype, certainty
     pmm = _potential_minmax(categories, weight_dict)
