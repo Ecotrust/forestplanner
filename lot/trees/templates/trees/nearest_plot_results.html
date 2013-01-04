@@ -340,13 +340,17 @@
                 </form>
             </div>
         </div>
-        {% if plots %}
+        {% if plots or num_candidates == 0 %}
         <br>
         <br>
         <div class="well" id="output">
             {% if num_candidates == 0 %}
-            <h3>No matching plots</h3>
-            {{ categories }}
+            <div class="alert alert-error">
+                <h3>No matching plots for that forest type...</h3>
+                {% for k,v in categories.items %}
+                <p> {{k}}: {{v}}</p>
+                {% endfor %}
+            </div>
             {% else %}
             <h3> Nearest Neighbor Search Results </h3>
             <div>

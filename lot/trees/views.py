@@ -277,6 +277,7 @@ def potential_minmax(request):
 def nearest_plots(request):
     from trees.utils import potential_minmax as _potential_minmax
     from trees.utils import nearest_plots as _nearest_plots
+    from trees.utils import NoPlotMatchError
     from trees.models import PlotLookup, IdbSummary 
 
     categories = request.GET.get("categories", None)
@@ -306,7 +307,13 @@ def nearest_plots(request):
 
     # offset for plotid, fortype, certainty
     pmm = _potential_minmax(categories, weight_dict)
-    top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
+
+    try:
+        top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
+    except NoPlotMatchError:
+        top = []
+        num_candidates = 0
+
     plots = []
     plot_coords = []
     for plot in top:

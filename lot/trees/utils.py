@@ -131,6 +131,9 @@ def calculate_adjacency(qs, threshold):
     return adj
 
 
+class NoPlotMatchError(Exception):
+    pass
+
 def nearest_plots(categories, input_params, weight_dict, k=5):
     search_params = input_params.copy()
     keys = search_params.keys()
@@ -175,7 +178,7 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
 
     num_candidates = len(plotsummaries)
     if num_candidates == 0:
-        raise Exception("There are no candidate plots matching the categorical variables: %s" % categories)
+        raise NoPlotMatchError("There are no candidate plots matching the categorical variables: %s" % categories)
 
     print keys
     weights = np.ones(len(keys))
@@ -213,9 +216,13 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     print distances
     max_dist = math.sqrt(sum(squares)) # the real max 
     for t in top:
-        p = plotsummaries[t[0]]
-        p.__dict__['_kdtree_distance'] = t[1]
-        p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) * len(squares)) # decrease certainty as the number of variables goes up?
+        try:
+            p = plotsummaries[t[0]]
+            p.__dict__['_kdtree_distance'] = t[1]
+            # decrease certainty as the number of variables goes up?
+            p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) * len(squares)) 
+        except:
+            pass
         ps.append(p)
     return ps, num_candidates
 
