@@ -3,7 +3,7 @@ from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
 from madrona.common.utils import get_logger
-from django.db.models import Min, Max
+from django.db.models import Min, Max, Avg
 from django.contrib.gis.geos import GEOSGeometry
 from shapely.ops import cascaded_union
 import numpy as np
@@ -256,5 +256,5 @@ def angular_diff(x,y):
 def potential_minmax(categories, weight_dict):
     ps = IdbSummary.objects.filter(**categories)
     keys = [k for k in weight_dict.keys() if not k.startswith("_")]
-    args = [Min(k) for k in keys] + [Max(k) for k in keys] 
+    args = [Min(k) for k in keys] + [Max(k) for k in keys] + [Avg(k) for k in keys]
     return ps.aggregate(*args)

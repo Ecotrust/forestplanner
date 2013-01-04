@@ -298,9 +298,7 @@
                     </form>
                 </span>
                 <form class="form-horizontal" id="nn">
-                    <span class="span4">
-                        <p class="alert" id="stand-note" > Note: In the Forest Scenario Planner, data in this column will be 
-                        populated automatically based on the location of the stand </p>
+                    <span class="span4" style="margin-left: 12px !important;">
                         <div id="map" class="smallmap"></div>
                         <br>
 
@@ -316,6 +314,11 @@
                             </div>
                         </div>
                         {% endfor %}
+
+                        <p class="alert" id="stand-note">
+                            Note: In the Forest Scenario Planner, data in this column will 
+                            be populated automatically based on the location of the stand 
+                        </p>
                     </span>
                     <span class="span4">
                         {% for v in field_dict.numerics %}

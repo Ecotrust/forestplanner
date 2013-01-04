@@ -289,7 +289,7 @@ def nearest_plots(request):
         input_params = json.loads(input_params)
 
     weight_dict = PlotLookup.weight_dict()
-    field_dict = PlotLookup.field_dict()
+    field_dict = PlotLookup.field_dict() 
 
     # Get all unique forest type names
     for_type_names_json = json.dumps([x.for_type_name 
@@ -302,8 +302,10 @@ def nearest_plots(request):
         
     if 'for_type_secdry_name' in categories.keys():
         category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
-    else:
+    elif 'for_type_name' in categories.keys():
         category_string = categories['for_type_name']
+    else:
+        category_string = "None"
 
     # offset for plotid, fortype, certainty
     pmm = _potential_minmax(categories, weight_dict)
