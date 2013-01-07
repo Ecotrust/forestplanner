@@ -300,12 +300,14 @@ def nearest_plots(request):
     if not categories and not input_params:
         return render_to_response("trees/nearest_plot_results.html", locals())
         
-    if 'for_type_secdry_name' in categories.keys():
-        category_string = "%s and %s" % (categories['for_type_name'], categories['for_type_secdry_name'])
-    elif 'for_type_name' in categories.keys():
+    # Construct a description string for the forest type
+    if 'for_type_name' in categories.keys():
         category_string = categories['for_type_name']
     else:
-        category_string = "None"
+        category_string = "No primary forest type"
+
+    if 'for_type_secdry_name' in categories.keys():
+        category_string = "%s and %s" % (category_string, categories['for_type_secdry_name'])
 
     # offset for plotid, fortype, certainty
     pmm = _potential_minmax(categories, weight_dict)

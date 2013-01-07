@@ -140,6 +140,13 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     for sp in keys:
         categories[sp+"__isnull"] = False
 
+    if 'for_type_name' not in categories:
+        raise NoPlotMatchError("Must provide a primary Forest Type")
+
+    # If secondary forest type not provided, assume NO secondary forest type
+    if 'for_type_secdry_name' not in categories:
+        categories['for_type_secdry_name__isnull'] = True
+
     stand_centroid = None
     if 'latitude_fuzz' in keys and 'longitude_fuzz' in keys:
         stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
