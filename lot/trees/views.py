@@ -270,7 +270,7 @@ def potential_minmax(request):
     else:
         categories = {}
     pld = PlotLookup.weight_dict()
-    pmm = _pmm(categories, pld)
+    pmm = _pmm(categories, pld, {})
     jpmm = json.dumps(pmm)
     return HttpResponse(jpmm, mimetype='application/json', status=200)
 
@@ -310,7 +310,7 @@ def nearest_plots(request):
         category_string = "%s and %s" % (category_string, categories['for_type_secdry_name'])
 
     # offset for plotid, fortype, certainty
-    pmm = _potential_minmax(categories, weight_dict)
+    pmm = _potential_minmax(categories, weight_dict, input_params)
 
     try:
         top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)

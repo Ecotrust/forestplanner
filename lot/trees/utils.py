@@ -134,8 +134,7 @@ def calculate_adjacency(qs, threshold):
 class NoPlotMatchError(Exception):
     pass
 
-def nearest_plots(categories, input_params, weight_dict, k=5):
-    search_params = input_params.copy()
+def process_categories(categories, search_params):
     keys = search_params.keys()
     for sp in keys:
         categories[sp+"__isnull"] = False
@@ -146,6 +145,13 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     # If secondary forest type not provided, assume NO secondary forest type
     if 'for_type_secdry_name' not in categories:
         categories['for_type_secdry_name__isnull'] = True
+
+    return categories
+
+def nearest_plots(categories, input_params, weight_dict, k=5):
+    search_params = input_params.copy()
+    keys = search_params.keys()
+    categories = process_categories(categories, search_params)
 
     stand_centroid = None
     if 'latitude_fuzz' in keys and 'longitude_fuzz' in keys:
@@ -260,7 +266,8 @@ def angular_diff(x,y):
     y = math.radians(y)
     return math.fabs(math.degrees(min(y-x, y-x+2*math.pi, y-x-2*math.pi, key=abs)))
 
-def potential_minmax(categories, weight_dict):
+def potential_minmax(categories, weight_dict, search_params):
+    categories = process_categories(categories, search_params)
     ps = IdbSummary.objects.filter(**categories)
     keys = [k for k in weight_dict.keys() if not k.startswith("_")]
     args = [Min(k) for k in keys] + [Max(k) for k in keys] + [Avg(k) for k in keys]
