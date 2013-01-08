@@ -798,8 +798,10 @@
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
     {% compressed_js 'application' %}
 
+
     <script>
         // TODO move to init.js or seperate js file
+
         app.hash = window.location.hash;
 
         app.getState = function () {
