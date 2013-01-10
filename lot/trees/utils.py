@@ -153,17 +153,12 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     keys = search_params.keys()
     categories = process_categories(categories, search_params)
 
-    stand_centroid = None
-    if 'latitude_fuzz' in keys and 'longitude_fuzz' in keys:
-        stand_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (input_params['longitude_fuzz'], input_params['latitude_fuzz']))
-        stand_centroid.transform(settings.EQD_SRID)
-
     def plot_attrs(ps, keys):
         vals = []
         for attr in keys:
             vals.append(ps.__dict__[attr])
 
-        # an additional special case
+        # Aspect is a special case
         if 'calc_aspect' in keys:
             angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
         else:
@@ -171,23 +166,14 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
         vals.append(angle)
         search_params['_aspect'] = 0 # anglular difference to self is 0
 
-        # Deal with latlon, another special case
-        if stand_centroid:
-            plot_centroid = ps.eqd_point
-            distance = stand_centroid.distance(plot_centroid)
-            vals.append(distance)
-        else: 
-            vals.append(0)
-        search_params['_geographic'] = 0 # distance to self is 0
         return vals
 
     plotsum_qs = IdbSummary.objects.filter(**categories)
     plotsummaries = list(plotsum_qs)
     ps_attr_list= [plot_attrs(ps, keys) for ps in plotsummaries]
 
-    # include our additional special cases
+    # include our special case
     keys.append('_aspect') 
-    keys.append('_geographic')
 
     num_candidates = len(plotsummaries)
     if num_candidates == 0:
@@ -232,8 +218,10 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
         try:
             p = plotsummaries[t[0]]
             p.__dict__['_kdtree_distance'] = t[1]
-            # decrease certainty as the number of variables goes up?
-            p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) * len(squares)) 
+            # certainty of 0 -> distance is furthest possible
+            # certainty of 1 -> the point matches exactly
+            # sqrt of ratio taken to exgarrate small diffs
+            p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) ** 0.5)
         except:
             pass
         ps.append(p)
