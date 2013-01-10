@@ -321,12 +321,18 @@ def nearest_plots(request):
     plots = []
     plot_coords = []
     for plot in top:
+        '''
         if plot.for_type_secdry_name:
             for_type = "%s and %s" % (plot.for_type_name, plot.for_type_secdry_name)
         else:
             for_type = plot.for_type_name
+        '''
 
-        vals = [plot.cond_id] + [for_type, str(int(plot._certainty*100))] + [str(plot.__dict__[x]) for x in input_params.keys()] 
+        hidden_cols = ['latitude_fuzz', 'longitude_fuzz', ]
+        revised_keys = [x for x in input_params.keys() if x not in hidden_cols] 
+        vals = [plot.cond_id] + \
+               [str(int(plot._certainty*100))] + \
+               [str(plot.__dict__[x]) for x in revised_keys] 
         plots.append(vals)
         
         if plot.latitude_fuzz and plot.longitude_fuzz:

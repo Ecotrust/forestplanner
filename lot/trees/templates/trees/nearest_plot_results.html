@@ -119,7 +119,7 @@
                     "bPaginate": false,
                     "sScrollY": divHeight + "px",
                     "bScrollCollapse": true,
-                    "aaSorting": [[ 2, "desc" ]]                    
+                    "aaSorting": [[ 1, "desc" ]]                    
                 } );
                 $('button.submit').click( function(e) {
                     e.preventDefault();
@@ -364,9 +364,8 @@
                         <thead>
                             <tr>
                                 <th> Condition ID </th>
-                                <th> Forest type </th>
                                 <th> Certainty </th>
-                                {% for k in input_params.keys %}
+                                {% for k in revised_keys %}
                                 <th> 
                                     {{k}}
                                 </th> 
@@ -376,12 +375,14 @@
                         <tbody>
                             <tr id="search-plot">
                                 <td> -- </td>
-                                <td> {{category_string}} </td>
+                                <!-- <td> {{category_string}} </td> -->
                                 <td style="font-size: 0px;"> 100 </td>
-                                {% for v in input_params.values %}
+                                {% for k,v in input_params.items %}
+                                {% if k not in hidden_cols %}
                                 <td> 
                                     {{v}}
                                 </td> 
+                                {% endif %}
                                 {% endfor %}
                             </tr>
                             {% for plot in plots %} 
