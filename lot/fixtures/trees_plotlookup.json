@@ -1,0 +1,240 @@
+[
+  {
+    "pk": 32, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "calc_aspect", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Aspect", 
+      "source": "IDB", 
+      "units": "azimuth", 
+      "type": "stand", 
+      "desc": "Aspect"
+    }
+  }, 
+  {
+    "pk": 46, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "qmda_dom_stunits", 
+      "weight": 1.0, 
+      "notes": "converted in the DB", 
+      "name": "Average DBH", 
+      "source": "GNN", 
+      "units": "in", 
+      "type": "num", 
+      "desc": "Quadratic mean diameter of all dominant and codominant trees"
+    }
+  }, 
+  {
+    "pk": 64, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "baa_ge_3_stunits", 
+      "weight": 1.0, 
+      "notes": "converted in the DB", 
+      "name": "Basal area", 
+      "source": "GNN", 
+      "units": "ft^2/ac", 
+      "type": "num", 
+      "desc": "Basal area of all live trees >=2.5 cm dbh"
+    }
+  }, 
+  {
+    "pk": 47, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "cancov", 
+      "weight": 1.0, 
+      "notes": "", 
+      "name": "Canopy Cover", 
+      "source": "GNN", 
+      "units": "percent", 
+      "type": "num", 
+      "desc": "Canopy cover of all live trees: calculated using methods in the Forest Vegetation Simulator for Inventory plots; sum of occular estimates for Ecology plots (0 to 100%)"
+    }
+  }, 
+  {
+    "pk": 60, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "bac_prop", 
+      "weight": 1.0, 
+      "notes": "", 
+      "name": "Conifer ", 
+      "source": "GNN", 
+      "units": "proportion", 
+      "type": "num", 
+      "desc": "Proportion of Basal area of all live trees >=2.5 cm dbh that is conifer (0 to 1.0)"
+    }
+  }, 
+  {
+    "pk": 63, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "tph_ge_3_stunits", 
+      "weight": 1.0, 
+      "notes": "converted in the DB", 
+      "name": "Density", 
+      "source": "GNN", 
+      "units": "trees/acre", 
+      "type": "num", 
+      "desc": "Density of live trees >=2.5 cm dbh"
+    }
+  }, 
+  {
+    "pk": 23, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "elev_ft", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Elevation", 
+      "source": "IDB", 
+      "units": "ft", 
+      "type": "stand", 
+      "desc": "Elevation"
+    }
+  }, 
+  {
+    "pk": 41, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "for_type_name", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Forest type", 
+      "source": "IDB", 
+      "units": null, 
+      "type": "cat", 
+      "desc": "Forest type"
+    }
+  }, 
+  {
+    "pk": 42, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "for_type_secdry_name", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Forest type (secondary)", 
+      "source": "IDB", 
+      "units": null, 
+      "type": "cat", 
+      "desc": "Forest type (secondary)"
+    }
+  }, 
+  {
+    "pk": 15, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "latitude_fuzz", 
+      "weight": 0.20000000000000001, 
+      "notes": "", 
+      "name": "Latitude", 
+      "source": "IDB", 
+      "units": "degrees", 
+      "type": "stand", 
+      "desc": "latitude"
+    }
+  }, 
+  {
+    "pk": 16, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "longitude_fuzz", 
+      "weight": 0.5, 
+      "notes": "", 
+      "name": "Longitude", 
+      "source": "IDB", 
+      "units": "degrees", 
+      "type": "stand", 
+      "desc": "longitude"
+    }
+  }, 
+  {
+    "pk": 36, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "mai", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Mean Annual Increment", 
+      "source": "IDB", 
+      "units": "ft3/ac/yr", 
+      "type": "num", 
+      "desc": "mean annual increment"
+    }
+  }, 
+  {
+    "pk": 59, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "ogsi", 
+      "weight": 1.0, 
+      "notes": null, 
+      "name": "Old growth index", 
+      "source": "GNN", 
+      "units": "index", 
+      "type": "num", 
+      "desc": "\"Old-growth structure index; an index of 'old-growthedness' developed by Spies et.al. (2007). Calculated from stand age, abundance of large live trees, snags, and down wood, and diversity of tree sizes.\""
+    }
+  }, 
+  {
+    "pk": 26, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "site_index_fia", 
+      "weight": 1.0, 
+      "notes": "", 
+      "name": "Site Index", 
+      "source": "IDB", 
+      "units": "ft", 
+      "type": "num", 
+      "desc": "Maximum height of site tree"
+    }
+  }, 
+  {
+    "pk": 33, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "calc_slope", 
+      "weight": 1.0, 
+      "notes": "", 
+      "name": "Slope", 
+      "source": "IDB", 
+      "units": "percent", 
+      "type": "stand", 
+      "desc": "Slope"
+    }
+  }, 
+  {
+    "pk": 52, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "age_dom", 
+      "weight": 1.0, 
+      "notes": "", 
+      "name": "Stand Age", 
+      "source": "GNN", 
+      "units": "years", 
+      "type": "num", 
+      "desc": "Stand age based on field recorded ages of dominant and codominant tree species"
+    }
+  }, 
+  {
+    "pk": 49, 
+    "model": "trees.plotlookup", 
+    "fields": {
+      "attr": "stndhgt_stunits", 
+      "weight": 1.0, 
+      "notes": "converted in the DB", 
+      "name": "Stand Height", 
+      "source": "GNN", 
+      "units": "ft", 
+      "type": "num", 
+      "desc": "Stand height, computed as average of heights of all dominant and codominant trees"
+    }
+  }
+]
