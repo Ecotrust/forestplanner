@@ -336,66 +336,6 @@ def nearest_plots(request):
 
     return render_to_response("trees/nearest_plot_results.html", locals())
 
-
-def nearest_plot_old(request):
-    from trees.utils import nearest_plot as _nearest_plot
-    return_format = 'html'  #TODO support json, get from url parsing
-    r = request.REQUEST
-
-    # split requested items into categorical and numeric
-    categorical = {}
-    numeric = {}
-    cats = ['imap_domspp', 'hdwpliv', 'conpliv', 'fortypiv', 'vegclass', 'sizecl', 'covcl', 'half_state']
-    from trees.models import PlotSummary as PS
-    nums = [x.name for x in PS._meta.fields if 
-             x.get_internal_type() != 'CharField' and x.name not in cats]
-    orig = dict(r)
-    species = {}
-    forest_class = None
-    for k,v in orig.iteritems():
-        if k == "_DOMSPECIES":
-            species['dom'] = v
-        if k == "_CODOMSPECIES":
-            species['codom'] = v
-        elif k == '_FORCLASS':
-            forest_class = v
-        elif k in ['sizecl','covcl']:
-            categorical[k] = int(v)
-        elif k in cats:
-            categorical[k] = v
-        elif k in nums:
-            if v and v != '':
-                numeric[k] = float(v)
-
-    all_species = {
-        'PSME': 'Douglas Fir',
-        'ALRU2': 'Red Alder',
-    }
-
-    if len(orig.keys()) == 0:
-        return render_to_response("trees/nearest_plot_form.html", locals())
-
-    dist, plot, candidates = _nearest_plot(categorical, numeric, species, forest_class)
-    closest = dict([(k,v) for k,v in plot.__dict__.iteritems()]) # if k in orig])
-    
-    if return_format == 'html':
-        specified_vars = []
-        for k in orig.keys():
-            iscat = ''
-            if k in cats:
-                iscat = '*' 
-            try:
-                specified_vars.append((k, iscat, orig[k], closest[k]))
-            except:
-                if k == "_DOMSPECIES":
-                    specified_vars.append((k, iscat, orig[k], closest['imap_domspp']))
-                elif k == "_CODOMSPECIES":
-                    specified_vars.append((k, iscat, orig[k], closest['fortypba']))
-                elif k == '_FORCLASS':
-                    specified_vars.append((k, iscat, orig[k], "hdwd = %s " % closest['bah_prop'] ))
-
-        return render_to_response("trees/nearest_plot_results.html", locals())
-
 def svs_image(request, gnn):
     imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1,7)]
     idx = int(gnn) % len(imgs)
