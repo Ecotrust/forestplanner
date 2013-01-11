@@ -5,12 +5,12 @@
     "fields": {
       "attr": "calc_aspect", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Aspect", 
       "source": "IDB", 
       "units": "azimuth", 
       "type": "stand", 
-      "desc": "Aspect"
+      "desc": "The direction towards which a stand slope faces. "
     }
   }, 
   {
@@ -66,7 +66,7 @@
       "source": "GNN", 
       "units": "proportion", 
       "type": "num", 
-      "desc": "Proportion of Basal area of all live trees >=2.5 cm dbh that is conifer (0 to 1.0)"
+      "desc": "Proportion of basal area of all live trees >=2.5 cm dbh that is conifer (0 to 1.0)"
     }
   }, 
   {
@@ -80,7 +80,7 @@
       "source": "GNN", 
       "units": "trees/acre", 
       "type": "num", 
-      "desc": "Density of live trees >=2.5 cm dbh"
+      "desc": "Density of live trees >=2.5 cm DBH"
     }
   }, 
   {
@@ -89,12 +89,12 @@
     "fields": {
       "attr": "elev_ft", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Elevation", 
       "source": "IDB", 
       "units": "ft", 
       "type": "stand", 
-      "desc": "Elevation"
+      "desc": "Elevation above sea level"
     }
   }, 
   {
@@ -103,12 +103,12 @@
     "fields": {
       "attr": "for_type_name", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Forest type", 
       "source": "IDB", 
-      "units": null, 
+      "units": "", 
       "type": "cat", 
-      "desc": "Forest type"
+      "desc": "A classification of the forest stand based on the tree species which dominates the stand."
     }
   }, 
   {
@@ -117,12 +117,12 @@
     "fields": {
       "attr": "for_type_secdry_name", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Forest type (secondary)", 
       "source": "IDB", 
-      "units": null, 
+      "units": "", 
       "type": "cat", 
-      "desc": "Forest type (secondary)"
+      "desc": "Forest type, second level, indicates a mixed stand (softwood is >= 31% and <= 69% of total stocking)"
     }
   }, 
   {
@@ -136,7 +136,7 @@
       "source": "IDB", 
       "units": "degrees", 
       "type": "stand", 
-      "desc": "latitude"
+      "desc": ""
     }
   }, 
   {
@@ -150,7 +150,7 @@
       "source": "IDB", 
       "units": "degrees", 
       "type": "stand", 
-      "desc": "longitude"
+      "desc": ""
     }
   }, 
   {
@@ -159,12 +159,12 @@
     "fields": {
       "attr": "mai", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Mean Annual Increment", 
       "source": "IDB", 
       "units": "ft3/ac/yr", 
       "type": "num", 
-      "desc": "mean annual increment"
+      "desc": "Average growth per year a tree or stand of trees has exhibited/experienced to a specified age. Used as a measure of site capacity or site productivity."
     }
   }, 
   {
@@ -173,12 +173,12 @@
     "fields": {
       "attr": "ogsi", 
       "weight": 1.0, 
-      "notes": null, 
+      "notes": "", 
       "name": "Old growth index", 
       "source": "GNN", 
       "units": "index", 
       "type": "num", 
-      "desc": "\"Old-growth structure index; an index of 'old-growthedness' developed by Spies et.al. (2007). Calculated from stand age, abundance of large live trees, snags, and down wood, and diversity of tree sizes.\""
+      "desc": "Old-growth structure index; an index of 'old-growthedness' developed by Spies et.al. (2007). Calculated from stand age, abundance of large live trees, snags, and down wood, and diversity of tree sizes."
     }
   }, 
   {
@@ -192,7 +192,7 @@
       "source": "IDB", 
       "units": "ft", 
       "type": "num", 
-      "desc": "Maximum height of site tree"
+      "desc": "A measure of forest productivity based on the average height of dominant\r\nand codominant trees at a specified age."
     }
   }, 
   {
@@ -206,7 +206,7 @@
       "source": "IDB", 
       "units": "percent", 
       "type": "stand", 
-      "desc": "Slope"
+      "desc": "Average percent slope of plot"
     }
   }, 
   {
