@@ -197,10 +197,12 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
     rng = maxs - mins
     scaled_points = high - (((high - low) * (maxs - rawpoints)) / rng)
     scaled_querypoint = high - (((high - low) * (maxs - querypoint)) / rng)
+    scaled_querypoint[np.isinf(scaled_querypoint)] = high  # replace all infinite values with high val
 
     # Apply weights
-    scaled_points *= weights
-    scaled_querypoint *= weights
+    # and guard against any nans due to zero range or other
+    scaled_points = np.nan_to_num(scaled_points * weights) 
+    scaled_querypoint = np.nan_to_num(scaled_querypoint * weights)
 
     # Create tree and query it for nearest plot
     tree = KDTree(scaled_points)
@@ -216,16 +218,20 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
     squares = [x * x for x in xs]
     max_dist = math.sqrt(sum(squares)) # the real max 
     for t in top:
+        if np.isinf(t[1]):
+            continue
         try:
             p = plotsummaries[t[0]]
-            p.__dict__['_kdtree_distance'] = t[1]
-            # certainty of 0 -> distance is furthest possible
-            # certainty of 1 -> the point matches exactly
-            # sqrt of ratio taken to exagerate small diffs
-            p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) ** 0.5)
-        except:
-            pass
+        except IndexError:
+            continue
+
+        p.__dict__['_kdtree_distance'] = t[1]
+        # certainty of 0 -> distance is furthest possible
+        # certainty of 1 -> the point matches exactly
+        # sqrt of ratio taken to exagerate small diffs
+        p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) ** 0.5)
         ps.append(p)
+
     return ps, num_candidates
 
 
