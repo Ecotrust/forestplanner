@@ -378,11 +378,16 @@
                                 <!-- <td> {{category_string}} </td> -->
                                 <td style="font-size: 0px;"> 100 </td>
                                 {% for k,v in input_params.items %}
-                                {% if k not in hidden_cols %}
-                                <td> 
-                                    {{v}}
-                                </td> 
-                                {% endif %}
+                                    {% if k not in hidden_cols %}
+                                    <td> 
+                                        {{v}}
+                                    </td> 
+                                    {% endif %}
+                                {% endfor %}
+                                {% for k in additional_cols %}
+                                    {% if k not in input_params.keys %}
+                                    <td style="font-size: 0px;"> 0 </td> 
+                                    {% endif %}
                                 {% endfor %}
                             </tr>
                             {% for plot in plots %} 

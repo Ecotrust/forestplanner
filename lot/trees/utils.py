@@ -148,9 +148,10 @@ def process_categories(categories, search_params):
 
     return categories
 
-def nearest_plots(categories, input_params, weight_dict, k=5):
+def nearest_plots(categories, input_params, weight_dict, k=10):
     search_params = input_params.copy()
-    keys = search_params.keys()
+    origkeys = search_params.keys()
+    keys = [x for x in origkeys if x not in ['calc_aspect',]] # special case
     categories = process_categories(categories, search_params)
 
     def plot_attrs(ps, keys):
@@ -159,7 +160,7 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
             vals.append(ps.__dict__[attr])
 
         # Aspect is a special case
-        if 'calc_aspect' in keys:
+        if 'calc_aspect' in origkeys:
             angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
         else:
             angle = 0
@@ -179,7 +180,6 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     if num_candidates == 0:
         raise NoPlotMatchError("There are no candidate plots matching the categorical variables: %s" % categories)
 
-    print keys
     weights = np.ones(len(keys))
     for i in range(len(keys)):
         key = keys[i]
@@ -191,17 +191,21 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
     rawpoints = np.array(ps_attr_list) 
 
     # Normalize to max of 100; linear scale
-    multipliers = (100.0 / np.max(rawpoints, axis=0))
+    high = 100.0
+    low = 0.0
+    mins = np.min(rawpoints, axis=0)
+    maxs = np.max(rawpoints, axis=0)
+    rng = maxs - mins
+    scaled_points = high - (((high - low) * (maxs - rawpoints)) / rng)
+    scaled_querypoint = high - (((high - low) * (maxs - querypoint)) / rng)
+
     # Apply weights
-    multipliers = multipliers * weights
-    multipliers = np.nan_to_num(multipliers)
-    # Apply multipliers
-    allpoints = rawpoints * multipliers
-    querypoint *= multipliers
+    scaled_points *= weights
+    scaled_querypoint *= weights
 
     # Create tree and query it for nearest plot
-    tree = KDTree(allpoints)
-    querypoints = np.array([querypoint])
+    tree = KDTree(scaled_points)
+    querypoints = np.array([scaled_querypoint])
     result = tree.query(querypoints, k=k)
     distances = result[0][0]
     plots = result[1][0]
@@ -211,8 +215,6 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
 
     xs = [100 * x for x in weights if x > 0]
     squares = [x * x for x in xs]
-    print squares
-    print distances
     max_dist = math.sqrt(sum(squares)) # the real max 
     for t in top:
         try:
@@ -220,7 +222,7 @@ def nearest_plots(categories, input_params, weight_dict, k=5):
             p.__dict__['_kdtree_distance'] = t[1]
             # certainty of 0 -> distance is furthest possible
             # certainty of 1 -> the point matches exactly
-            # sqrt of ratio taken to exgarrate small diffs
+            # sqrt of ratio taken to exagerate small diffs
             p.__dict__['_certainty'] = 1.0 - ((t[1] / max_dist) ** 0.5)
         except:
             pass

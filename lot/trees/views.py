@@ -313,7 +313,7 @@ def nearest_plots(request):
     pmm = _potential_minmax(categories, weight_dict, input_params)
 
     try:
-        top, num_candidates = _nearest_plots(categories, input_params, weight_dict, k=10)
+        top, num_candidates = _nearest_plots(categories, input_params, weight_dict)
     except NoPlotMatchError:
         top = []
         num_candidates = 0
@@ -321,15 +321,14 @@ def nearest_plots(request):
     plots = []
     plot_coords = []
     for plot in top:
-        '''
-        if plot.for_type_secdry_name:
-            for_type = "%s and %s" % (plot.for_type_name, plot.for_type_secdry_name)
-        else:
-            for_type = plot.for_type_name
-        '''
-
+        # Tweak the display columns
         hidden_cols = ['latitude_fuzz', 'longitude_fuzz', ]
+        additional_cols = ['qmda_dom_stunits', 'tph_ge_3_stunits', 'baa_ge_3_stunits', 'site_index_fia']
         revised_keys = [x for x in input_params.keys() if x not in hidden_cols] 
+        for col in additional_cols:
+            if col not in revised_keys:
+                revised_keys.append(col)
+
         vals = [plot.cond_id] + \
                [str(int(plot._certainty*100))] + \
                [str(plot.__dict__[x]) for x in revised_keys] 
