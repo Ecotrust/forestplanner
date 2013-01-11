@@ -233,6 +233,12 @@
             } );
         </script>
         <style>
+            .form-horizontal .control-label {
+                width: 220px !important;
+            }
+            .form-horizontal .controls {
+                margin-left: 240px !important;
+            }
             .popover-content {
                 font-size: 10pt !important;
             }
@@ -272,6 +278,10 @@
                 font-size: 9pt !important;
                 text-align: right !important;
             }
+            .underline {
+                border-bottom: 1px #ccc solid;
+                margin-bottom: 4px;
+            }
             body {
                 margin: 12px;
             }
@@ -279,9 +289,22 @@
     </head>
     <body>
         <div class="well" id="input">
-            <h3> Data Input </h3>
             <div class="row-fluid">
-                <span class="span4">
+                <span class="span6 underline">
+                    <h4> Site Conditions (Stand)</h4>
+                </span>
+                <span class="span6 underline">
+                    <h4> Vegetation (Strata)</h4>
+                </span>
+            </div>
+            <div class="row-fluid">
+                <span class="span6">
+                    <p class="alert" id="stand-note">
+                        Note: In the Forest Scenario Planner, data in this column will 
+                        be populated automatically based on the location of the stand 
+                    </p>
+                </span>
+                <span class="span6">
                     <form class="form-horizontal" id="cat">
                         <div class="control-group">
                             <label class="control-label" for="for_type_name">Forest Type</label>
@@ -297,8 +320,10 @@
                         </div>
                     </form>
                 </span>
+            </div>
+            <div class="row-fluid">
                 <form class="form-horizontal" id="nn">
-                    <span class="span4" style="margin-left: 12px !important;">
+                    <span class="span6">
                         <div id="map" class="smallmap"></div>
                         <br>
 
@@ -307,32 +332,27 @@
                             <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
                             <div class="controls">
                                 <div class="input-append">
-                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}}">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}} (weight: {{v.weight}})">
                                     <span class="add-on">{{v.units}}</span>
                                 </div>
-                                <span class="badge">{{v.weight}}</span>
                             </div>
                         </div>
                         {% endfor %}
 
-                        <p class="alert" id="stand-note">
-                            Note: In the Forest Scenario Planner, data in this column will 
-                            be populated automatically based on the location of the stand 
-                        </p>
                     </span>
-                    <span class="span4">
+                    <span class="span6">
                         {% for v in field_dict.numerics %}
                         <div class="control-group">
                             <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
                             <div class="controls">
                                 <div class="input-append">
-                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}}">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}} (weight: {{v.weight}})">
                                     <span class="add-on">{{v.units}}</span>
                                 </div>
-                                <span class="badge">{{v.weight}}</span>
                             </div>
                         </div>
                         {% endfor %}
+                        <hr>
                         <div class="control-group">
                             <div class="controls">
                                 <button type="submit" class="btn submit">Submit</button>
@@ -379,9 +399,9 @@
                                 <td style="font-size: 0px;"> 100 </td>
                                 {% for k,v in input_params.items %}
                                     {% if k not in hidden_cols %}
-                                    <td> 
+                                    <td>
                                         {{v}}
-                                    </td> 
+                                    </td>
                                     {% endif %}
                                 {% endfor %}
                                 {% for k in additional_cols %}
