@@ -162,10 +162,8 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
         # Aspect is a special case
         if 'calc_aspect' in origkeys:
             angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
-        else:
-            angle = 0
-        vals.append(angle)
-        search_params['_aspect'] = 0 # anglular difference to self is 0
+            vals.append(angle)
+            search_params['_aspect'] = 0 # anglular difference to self is 0
 
         return vals
 
@@ -174,7 +172,8 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
     ps_attr_list= [plot_attrs(ps, keys) for ps in plotsummaries]
 
     # include our special case
-    keys.append('_aspect') 
+    if 'calc_aspect' in origkeys:
+        keys.append('_aspect') 
 
     num_candidates = len(plotsummaries)
     if num_candidates == 0:
