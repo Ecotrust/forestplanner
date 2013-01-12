@@ -290,6 +290,7 @@ def nearest_plots(request):
 
     weight_dict = PlotLookup.weight_dict()
     field_dict = PlotLookup.field_dict() 
+    key_lookup = PlotLookup.lookup()
 
     # Get all unique forest type names
     for_type_names_json = json.dumps([x.for_type_name 
@@ -328,6 +329,8 @@ def nearest_plots(request):
         for col in additional_cols:
             if col not in revised_keys:
                 revised_keys.append(col)
+
+        pprint_keys = [key_lookup[k] for k in revised_keys]
 
         vals = [plot.cond_id] + \
                [str(int(plot._certainty*100))] + \

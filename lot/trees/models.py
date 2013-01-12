@@ -1129,6 +1129,10 @@ class PlotLookup(models.Model):
     def weight_dict(cls):
         return dict([(x.attr, x.weight) for x in cls.nn_objects.all()])
 
+    @classmethod
+    def lookup(cls):
+        return dict([(x.attr, x.name) for x in cls.nn_objects.all()])
+
     class Meta:
         ordering = ['name']
 
