@@ -4,8 +4,9 @@ from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
 from madrona.common.utils import get_logger
 from django.db.models import Min, Max, Avg
-from django.contrib.gis.geos import GEOSGeometry
 from shapely.ops import cascaded_union
+from shapely import wkt
+from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
 from scipy.spatial import KDTree
 import math
