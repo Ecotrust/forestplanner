@@ -18,7 +18,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "qmda_dom_stunits", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "converted in the DB", 
       "name": "Average DBH", 
       "source": "GNN", 
@@ -32,7 +32,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "baa_ge_3_stunits", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "converted in the DB", 
       "name": "Basal area", 
       "source": "GNN", 
@@ -46,7 +46,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "cancov", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Canopy Cover", 
       "source": "GNN", 
@@ -60,7 +60,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "bac_prop", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Conifer ", 
       "source": "GNN", 
@@ -74,7 +74,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "tph_ge_3_stunits", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "converted in the DB", 
       "name": "Density", 
       "source": "GNN", 
@@ -130,7 +130,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "latitude_fuzz", 
-      "weight": 0.20000000000000001, 
+      "weight": 0.25, 
       "notes": "", 
       "name": "Latitude", 
       "source": "IDB", 
@@ -158,7 +158,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "mai", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Mean Annual Increment", 
       "source": "IDB", 
@@ -172,7 +172,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "ogsi", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Old growth index", 
       "source": "GNN", 
@@ -186,7 +186,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "site_index_fia", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Site Index", 
       "source": "IDB", 
@@ -214,7 +214,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "age_dom", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "", 
       "name": "Stand Age", 
       "source": "GNN", 
@@ -228,7 +228,7 @@
     "model": "trees.plotlookup", 
     "fields": {
       "attr": "stndhgt_stunits", 
-      "weight": 1.0, 
+      "weight": 2.0, 
       "notes": "converted in the DB", 
       "name": "Stand Height", 
       "source": "GNN", 
