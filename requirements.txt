@@ -3,3 +3,4 @@ geopy>=0.94.2
 selenium
 scipy>=0.10.1
 python-memcached>=1.48
+pandas>=0.10.1

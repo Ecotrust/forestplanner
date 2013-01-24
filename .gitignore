@@ -8,6 +8,12 @@ data/*
 env/*
 *_import/*.mdb
 *_import/*.tsv
+idb_import/treelive_summary/*/*.tsv
+idb_import/treelive_summary/*/*.csv
+idb_import/treelive_summary/*/*.sqlite
+idb_import/treelive_summary/*/*.pickle
+idb_import/treelive_summary/*/*.tab
 openlayers
 trees_test/work*
 lot/.coverage
+
