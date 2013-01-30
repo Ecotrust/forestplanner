@@ -20,7 +20,7 @@ def dictfetchall(cursor):
     ]
 
 
-def filter_stand_list(stand_list, min_candidates=6, max_tpa_factor=10):
+def filter_stand_list(stand_list, min_candidates=6, max_tpa_factor=10, output="candidates_concat.csv"):
     cursor = connection.cursor()
 
     tpa_factor = 1.2
@@ -100,7 +100,6 @@ def filter_stand_list(stand_list, min_candidates=6, max_tpa_factor=10):
     else:
         print " All species accounted for." % skip_species
     candidates['sumall'] = candidates[[x for x in candidates.columns if x.startswith('PCTBA')]].sum(axis=1)
-    output = 'candidates_concat.tsv'
-    candidates.to_csv(output, sep="\t")
+    candidates.to_csv(output)
     print " See output in %s" % output
 
