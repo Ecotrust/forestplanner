@@ -54,19 +54,22 @@ def get_candidates(stand_list, min_candidates=6, tpa_factor=1.2, output="candida
         cursor.execute(sql)
         rows = dictfetchall(cursor)
 
-        if rows:
-            df = pd.DataFrame(rows)
-            df.index = df['cond_id']
-            del df['cond_id']
-            dfs.append(df)
+        if not rows:
+            raise Exception("No matches for %s, %s in" % (sc[0], sc[1]))
+
+        df = pd.DataFrame(rows)
+        df.index = df['cond_id']
+        del df['cond_id']
+        dfs.append(df)
 
     if len(dfs) == 0:
-        raise Exception("The stand list provided does not provide enough matches, even with very high tolerances for density variation")
+        raise Exception("The stand list provided does not provide enough matches.")
 
     candidates = pd.concat(dfs, axis=1, join="inner")
     #num_candidates = len(candidates)
 
     candidates['TOTAL_PCTBA'] = candidates[[x for x in candidates.columns if x.startswith('PCTBA')]].sum(axis=1)
+    candidates['TOTAL_BA'] = candidates[[x for x in candidates.columns if x.startswith('BAA')]].sum(axis=1)
     candidates['TOTAL_TPA'] = candidates[[x for x in candidates.columns if x.startswith('TPA')]].sum(axis=1)
     candidates['PLOT_CLASS_COUNT'] = candidates[[x for x in candidates.columns if x.startswith('PLOTCLASSCOUNT')]].mean(axis=1)
     candidates['SEARCH_CLASS_COUNT'] = len(stand_list)
@@ -101,11 +104,18 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
 
     # process stand_list into dict
     tpa_dict = {}
+    ba_dict = {}
     total_tpa = 0
+    total_ba = 0
     for ssc in stand_list:
+        key = '_'.join([str(x) for x in ssc[0:2]])
         total_tpa += ssc[2]
-        tpa_dict['_'.join([str(x) for x in ssc[0:2]])] = ssc[2]
-    
+        tpa_dict[key] = ssc[2]
+                
+        ## est_ba = tpa * (0.005454 * dbh^2)
+        est_ba = ssc[2] * (0.005454 * ((ssc[1] + 2)**2))
+        total_ba += est_ba
+        ba_dict[key] = est_ba
 
     # query for candidates 
     candidates = get_candidates(stand_list)
@@ -122,16 +132,19 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
         """
         keep
             TPA_Western redcedar_14
+            BAA_Western redcedar_14
             TOTAL_PCTBA
             TOTAL_TPA
         remove
-            BAA_Western redcedar_14
             PCTBA_Western redcedar_14
             PLOT_CLASS_COUNT
             SEARCH_CLASS_COUNT
         """
-        if attr.startswith("BAA_") or attr.startswith("PCTBA_") or "_CLASS_COUNT" in attr: 
+        if attr.startswith("PCTBA_") or "_CLASS_COUNT" in attr: 
             pass
+        elif attr.startswith("BAA_"):
+            ssc = attr.replace("BAA_","")
+            input_params[attr] = ba_dict[ssc] 
         elif attr.startswith("TPA_"):
             ssc = attr.replace("TPA_","")
             input_params[attr] = tpa_dict[ssc] 
@@ -139,6 +152,9 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
             input_params[attr] = 100.0 #TODO don't assume 100%
         elif attr == "TOTAL_TPA":
             input_params[attr] = total_tpa
+        elif attr == "TOTAL_BA":
+            input_params[attr] = total_ba
+
 
     # Add site conditions
     input_params.update(site_cond)
@@ -254,11 +270,11 @@ if __name__ == "__main__":
         ]
 
         site_cond = {
-            "calc_aspect": 360,
-            "elev_ft": 1000,
-            "latitude_fuzz": 44.70,
-            "longitude_fuzz": -122.13,
-            "calc_slope": 15
+            'calc_aspect': 360,
+            'elev_ft': 1000,
+            'latitude_fuzz': 44.70,
+            'longitude_fuzz': -122.13,
+            'calc_slope': 15
         }
         
         weight_dict = {
