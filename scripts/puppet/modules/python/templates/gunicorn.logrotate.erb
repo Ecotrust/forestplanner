@@ -1,0 +1,12 @@
+<%= logfile %> {
+  weekly
+  missingok
+  rotate 520
+  compress
+  delaycompress
+  notifempty
+  create 640 <%= owner %> <%= group %>
+  postrotate
+    <%= initscript %> restart
+  endscript
+}

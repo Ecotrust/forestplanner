@@ -1,0 +1,71 @@
+#!/bin/sh
+
+NAME=gunicorn-<%= name %>
+DESC=$NAME
+VENV=<%= venv %>
+SRC=<%= src %>
+DAEMON=$VENV/bin/gunicorn<% if django %>_django<% end %>
+<% if owner == 'undef' or group == 'undef' %>
+CHOWN=""
+<% else %>
+CHOWN="-c<%= owner %>:<%= group %>"
+<% end %>
+SOCKET=<%= socket %>
+RUNDIR=<%= rundir %>
+PIDFILE=<%= pidfile %>
+LOGFILE=<%= logfile %>
+WORKERS=<%= workers %>
+TIMEOUT=<%= timeout_seconds %>
+MODULE=<%= django ? django_settings : wsgi_module %>
+
+DAEMON_OPTS="-b $SOCKET -p $PIDFILE --log-file $LOGFILE \
+--workers $WORKERS -t $TIMEOUT --daemon --name $NAME $MODULE"
+
+test -x $DAEMON || exit 0
+
+set -e
+
+. /lib/lsb/init-functions
+
+if [ ! -d $RUNDIR ]; then
+  mkdir -p $RUNDIR
+  <% if owner != 'undef' and group != 'undef' %>
+  chown <%= owner %>:<%= group%> $RUNDIR
+  <% end %>
+fi
+
+case "$1" in
+  start)
+    echo -n "Starting $DESC: "
+    start-stop-daemon -S $CHOWN -q -p $PIDFILE -d $SRC \
+      -x $DAEMON -- $DAEMON_OPTS || true
+    echo "$NAME."
+	;;
+  stop)
+    echo -n "Stopping $DESC: "
+    start-stop-daemon -K -q -p $PIDFILE -s QUIT || true
+    echo "$NAME."
+	;;
+  restart)
+    echo -n "Restarting $DESC: "
+    start-stop-daemon -K -q -p $PIDFILE -s QUIT || true
+    sleep 1
+    start-stop-daemon -S $CHOWN -q -p $PIDFILE -d $SRC \
+      -x $DAEMON -- $DAEMON_OPTS || true
+    echo "$NAME."
+	;;
+  reload)
+    echo -n "Reloading $DESC: "
+    start-stop-daemon -K -q -p $PIDFILE -s HUP || true
+    echo "$NAME."
+	;;
+  status)
+    status_of_proc -p $PIDFILE "$DAEMON" $NAME && exit 0 || exit $?
+	;;
+  *)
+	echo "Usage: $NAME {start|stop|restart|status}" >&2
+	exit 1
+	;;
+esac
+
+exit 0
