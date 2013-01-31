@@ -16,4 +16,5 @@ idb_import/treelive_summary/*/*.tab
 openlayers
 trees_test/work*
 lot/.coverage
-
+.vagrant
+.DS_Store
