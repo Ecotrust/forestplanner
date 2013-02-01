@@ -1,4 +1,3 @@
-# Create your views here.
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponsePermanentRedirect
@@ -348,4 +347,71 @@ def svs_image(request, gnn):
     imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1,7)]
     idx = int(gnn) % len(imgs)
     return HttpResponsePermanentRedirect(imgs[idx])
+
+def stand_list_nn(request):
+    from plots import get_nearest_neighbors
+
+    stand_list = {
+        'classes': [
+            ('Douglas-fir', 6, 160),
+            ('Douglas-fir', 10, 31),
+            ('Douglas-fir', 14, 7),
+            ('Western hemlock', 14, 5),
+            ('Western redcedar', 14, 5),
+            #('Red alder', 6, 20),
+        ]
+    }
+
+    site_cond = {
+        "age_dom": 40,
+        "calc_aspect": 360,
+        "elev_ft": 1100,
+        "latitude_fuzz": 45.97,
+        "longitude_fuzz": -123.26,
+        "calc_slope": 5
+    }
+
+    weight_dict = {
+        'TOTAL_PCTBA': 1,
+        'TOTAL_TPA': 1,
+        'TOTAL_BA': 1,
+        "calc_aspect": 1,
+        "elev_ft": 0.6,
+        "latitude_fuzz": 0.3,
+        "longitude_fuzz": 0.6,
+        "calc_slope": 0.6,
+    }
+
+    in_stand_list = request.GET.get("stand_list", None)
+    if in_stand_list:
+        stand_list = json.loads(in_stand_list)
+    in_site_cond = request.GET.get("site_cond", None)
+    if in_site_cond:
+        site_cond = json.loads(in_site_cond)
+    in_weight_dict = request.GET.get("weight_dict", None)
+    if in_weight_dict:
+        weight_dict = json.loads(in_weight_dict)
+
+    mod_stand_list = [tuple(s) + (s[2] * (0.005454 * ((s[1] + 2)**2)),) for s in stand_list['classes']]
+    total_ba = sum(s[3] for s in mod_stand_list)
+
+    out = []
+    out.append("Searching for:\n  ")
+    out.extend("%s, %s in, %s tpa, %d ba est" % s for s in mod_stand_list)
+    out.append("   (Total basal area: %d ft2/ac)" % total_ba)
+    out.append("\n")
+
+
+    ps, num_candidates = get_nearest_neighbors(site_cond, mod_stand_list, weight_dict, k=5)
+
+    stand_list_json = json.dumps(stand_list)
+    site_cond_json = json.dumps(site_cond)
+    weight_dict_json = json.dumps(weight_dict)
+
+    out.append("Candidates: %d" % num_candidates)
+    out.append("\n")
+    for pseries in ps:
+        out.append("%s\t%d%% certainty\t%s basal area\tstand list accounts for %d %% of the total basal area" % (pseries.name, 
+                pseries['_certainty'] * 100, pseries['TOTAL_BA'], pseries['TOTAL_PCTBA']))
+    return render_to_response("trees/stand_list_nn.html", locals())
 
