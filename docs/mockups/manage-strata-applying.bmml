@@ -1,0 +1,139 @@
+<mockup version="1.0" skin="sketch" measuredW="1342" measuredH="798" mockupW="1042" mockupH="715">
+  <controls>
+    <control controlID="57" controlTypeID="com.balsamiq.mockups::BrowserWindow" x="300" y="17" w="1040" h="669" measuredW="450" measuredH="400" zOrder="0" locked="true" isInGroup="-1">
+      <controlProperties>
+        <markup>true</markup>
+        <text>Forest%20Scenario%20Planner%0Ahttp%3A//murdock.labs.ecotrust.org</text>
+      </controlProperties>
+    </control>
+    <control controlID="59" controlTypeID="com.balsamiq.mockups::MenuBar" x="300" y="83" w="1040" h="39" measuredW="1042" measuredH="29" zOrder="1" locked="true" isInGroup="-1">
+      <controlProperties>
+        <icon>WorldIcon%7Csmall</icon>
+        <text>Forest%20Scenario%20Planner%2CAbout%2CHelp%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2C%2CWelcome%5C%2C%20user%20Account%20Info%20Sign%20Out</text>
+      </controlProperties>
+    </control>
+    <control controlID="78" controlTypeID="com.balsamiq.mockups::Title" x="311" y="135" w="-1" h="-1" measuredW="222" measuredH="50" zOrder="2" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Apply%20Strata</text>
+      </controlProperties>
+    </control>
+    <control controlID="79" controlTypeID="com.balsamiq.mockups::BreadCrumbs" x="315" y="188" w="-1" h="-1" measuredW="219" measuredH="27" zOrder="3" locked="false" isInGroup="-1">
+      <controlProperties>
+        <hrefs>%2C%2C</hrefs>
+        <size>16</size>
+        <text>Home%2C%20Strata%2C%20Apply%20Strata</text>
+      </controlProperties>
+    </control>
+    <control controlID="114" controlTypeID="com.balsamiq.mockups::Button" x="1206" y="742" w="-1" h="-1" measuredW="131" measuredH="54" zOrder="4" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>CheckMarkIcon%7Clarge</icon>
+        <size>24</size>
+        <text>Done</text>
+      </controlProperties>
+    </control>
+    <control controlID="115" controlTypeID="com.balsamiq.mockups::Button" x="1099" y="740" w="97" h="58" measuredW="97" measuredH="34" zOrder="5" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>24</size>
+        <text>Cancel</text>
+      </controlProperties>
+    </control>
+    <control controlID="119" controlTypeID="com.balsamiq.mockups::Image" x="754" y="146" w="588" h="557" measuredW="514" measuredH="499" zOrder="6" locked="false" isInGroup="-1">
+      <controlProperties>
+        <src>./assets/Screen%2520Shot%25202013-01-30%2520at%25204.12.35%2520PM.png</src>
+      </controlProperties>
+    </control>
+    <control controlID="120" controlTypeID="com.balsamiq.mockups::Button" x="315" y="222" w="-1" h="-1" measuredW="139" measuredH="30" zOrder="7" locked="false" isInGroup="-1">
+      <controlProperties>
+        <href>manage-strata-defining%26bm%3Bmanage-strata-defining.bmml%26bm%3Bmanage-strata-defining.bmml%26bm%3Bmanage-strata-defining.bmml</href>
+        <icon>PlusIcon%7Csmall</icon>
+        <map>%3Carea%20shape%3D%22rect%22%20coords%3D%2215%2C139%2C154%2C169%22%20href%3D%22manage-strata-defining.bmml%22%20alt%3D%22manage-strata-defining%22%20id%3D%22120%22/%3E</map>
+        <size>16</size>
+        <text>Create%20New</text>
+      </controlProperties>
+    </control>
+    <control controlID="121" controlTypeID="com.balsamiq.mockups::ProgressBar" x="519" y="222" w="216" h="30" measuredW="100" measuredH="20" zOrder="8" locked="false" isInGroup="-1">
+      <controlProperties>
+        <indeterminate>false</indeterminate>
+      </controlProperties>
+    </control>
+    <control controlID="122" controlTypeID="com.balsamiq.mockups::MultilineButton" x="336" y="299" w="156" h="81" measuredW="162" measuredH="81" zOrder="10" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>16776960</color>
+        <text>Doug%20Fir%0A75%25%20Doug%20Fir%201%22-5%22%0A25%25%20Big%20Leaf%20Maple%2C%201%22-5%22</text>
+      </controlProperties>
+    </control>
+    <control controlID="123" controlTypeID="com.balsamiq.mockups::MultilineButton" x="524" y="299" w="-1" h="-1" measuredW="156" measuredH="81" zOrder="11" locked="false" isInGroup="-1">
+      <controlProperties>
+        <color>16750848</color>
+        <text>Big%20Leaf%20Maple%0A75%25%20Big%20Leaf%20Maple1%22-5%22%0A25%25%20Doug%20Fir%2C%201%22-5%22</text>
+      </controlProperties>
+    </control>
+    <control controlID="125" controlTypeID="com.balsamiq.mockups::Canvas" x="311" y="267" w="424" h="254" measuredW="100" measuredH="70" zOrder="9" locked="false" isInGroup="-1">
+      <controlProperties>
+        <verticalScrollbar>true</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="126" controlTypeID="com.balsamiq.mockups::Title" x="302" y="535" w="-1" h="-1" measuredW="295" measuredH="33" zOrder="12" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>24</size>
+        <text>Select%20Stands%20by%20Attributes</text>
+      </controlProperties>
+    </control>
+    <control controlID="129" controlTypeID="com.balsamiq.mockups::ComboBox" x="351" y="603" w="122" h="-1" measuredW="72" measuredH="23" zOrder="14" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Aspect</text>
+      </controlProperties>
+    </control>
+    <control controlID="130" controlTypeID="com.balsamiq.mockups::ComboBox" x="516" y="603" w="191" h="-1" measuredW="104" measuredH="23" zOrder="15" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>West%20Facing</text>
+      </controlProperties>
+    </control>
+    <control controlID="131" controlTypeID="com.balsamiq.mockups::DataGrid" x="306" y="575" w="429" h="127" measuredW="129" measuredH="25" zOrder="13" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Attribute%2C%20Value</text>
+        <verticalScrollbar>true</verticalScrollbar>
+      </controlProperties>
+    </control>
+    <control controlID="133" controlTypeID="com.balsamiq.mockups::Icon" x="321" y="602" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>Trash2Icon%7Csmall</icon>
+      </controlProperties>
+    </control>
+    <control controlID="134" controlTypeID="com.balsamiq.mockups::ComboBox" x="351" y="629" w="122" h="-1" measuredW="84" measuredH="23" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Elevation</text>
+      </controlProperties>
+    </control>
+    <control controlID="135" controlTypeID="com.balsamiq.mockups::Icon" x="321" y="628" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="18" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>Trash2Icon%7Csmall</icon>
+      </controlProperties>
+    </control>
+    <control controlID="136" controlTypeID="com.balsamiq.mockups::ComboBox" x="516" y="629" w="113" h="-1" measuredW="112" measuredH="23" zOrder="19" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Greater%20Than</text>
+      </controlProperties>
+    </control>
+    <control controlID="137" controlTypeID="com.balsamiq.mockups::TextInput" x="639" y="627" w="68" h="-1" measuredW="66" measuredH="27" zOrder="20" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>750%20feet</text>
+      </controlProperties>
+    </control>
+    <control controlID="138" controlTypeID="com.balsamiq.mockups::ComboBox" x="351" y="661" w="122" h="-1" measuredW="81" measuredH="23" zOrder="21" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Attribute</text>
+      </controlProperties>
+    </control>
+    <control controlID="139" controlTypeID="com.balsamiq.mockups::Icon" x="321" y="660" w="-1" h="-1" measuredW="24" measuredH="24" zOrder="22" locked="false" isInGroup="-1">
+      <controlProperties>
+        <icon>Trash2Icon%7Csmall</icon>
+      </controlProperties>
+    </control>
+    <control controlID="142" controlTypeID="com.balsamiq.mockups::Button" x="601" y="538" w="-1" h="-1" measuredW="130" measuredH="27" zOrder="23" locked="false" isInGroup="-1">
+      <controlProperties>
+        <text>Select%20Unassigned</text>
+      </controlProperties>
+    </control>
+  </controls>
+</mockup>
