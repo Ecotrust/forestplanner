@@ -9,7 +9,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
-from madrona.features.models import PolygonFeature, FeatureCollection
+from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
@@ -52,15 +52,7 @@ RX_CHOICES = (
 
 @register
 class Stand(PolygonFeature):
-    SPP_CHOICES = (
-        ('--', '--'),
-        ('DF', 'Douglas Fir'),
-        ('MH', 'Mountain Hemlock'),
-    )
-    rx = models.CharField(max_length=2, choices=RX_CHOICES, 
-            verbose_name="Default Presciption", default="--")
-    domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
-            verbose_name="Dominant Species", default="--")
+    strata = models.ForeignKey("Strata", blank=True, default=None, null=True)
     plot = models.ForeignKey("PlotSummary", verbose_name="Matched FIA Plot", 
             null=True, blank=True, default=None)
 
@@ -1146,6 +1138,17 @@ class PlotLookup(models.Model):
 
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)
+
+class Strata(Feature):
+    # stand will have a FK to Strata
+    search_age = models.FloatField()
+    search_tpa = models.FloatField()
+    additional_desc = models.TextField(blank=True, null=True)
+    stand_list = JSONField() # {'classes': [(species, age class, tpa), ...]}
+    
+    @property
+    def desc(self):
+        return "description created from stand list attrs"
 
 
 fvsvariant_mapping = {
