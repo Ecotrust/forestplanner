@@ -14,7 +14,7 @@ def dictfetchall(cursor):
     ]
 
 
-def get_candidates(stand_list, min_candidates=6, tpa_factor=1.2, output="candidates_concat.csv"):
+def get_candidates(stand_list, min_candidates=5, tpa_factor=1.2):
     cursor = connection.cursor()
 
     dfs = []
@@ -30,7 +30,8 @@ def get_candidates(stand_list, min_candidates=6, tpa_factor=1.2, output="candida
                 SUM(SumOfTPA) as "TPA_%(species)s_%(size)d",
                 SUM(SumOfBA_FT2_AC) as "BAA_%(species)s_%(size)d", 
                 SUM(pct_of_totalba) as "PCTBA_%(species)s_%(size)d",
-                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT_%(species)s_%(size)d" 
+                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT_%(species)s_%(size)d", 
+                AVG(TOTAL_BA_FT2_AC) as "PLOTBA_%(species)s_%(size)d" 
             FROM treelive_summary 
             WHERE fia_forest_type_name = '%(species)s' 
             %(class_clause)s
@@ -54,17 +55,26 @@ def get_candidates(stand_list, min_candidates=6, tpa_factor=1.2, output="candida
     if len(dfs) == 0:
         raise Exception("The stand list provided does not provide enough matches.")
 
-    candidates = pd.concat(dfs, axis=1, join="inner")
-    #num_candidates = len(candidates)
+    sdfs = sorted(dfs, key=lambda x: len(x), reverse=True)
+    enough = False
+    while not enough:
+        candidates = pd.concat(sdfs, axis=1, join="inner")
+        if len(candidates) < min_candidates:
+            aa = sdfs.pop() # remove the one with smallest number
+            print "Popping ", [x.replace("BAA_", "") for x in aa.columns.tolist() if x.startswith('BAA_')][0]
+            continue
+        else: 
+            enough = True
 
-    candidates['TOTAL_PCTBA'] = candidates[[x for x in candidates.columns if x.startswith('PCTBA')]].sum(axis=1)
-    candidates['TOTAL_BA'] = candidates[[x for x in candidates.columns if x.startswith('BAA')]].sum(axis=1)
-    candidates['TOTAL_TPA'] = candidates[[x for x in candidates.columns if x.startswith('TPA')]].sum(axis=1)
-    candidates['PLOT_CLASS_COUNT'] = candidates[[x for x in candidates.columns if x.startswith('PLOTCLASSCOUNT')]].mean(axis=1)
-    candidates['SEARCH_CLASS_COUNT'] = len(stand_list)
-    for x in candidates.columns:
-        if x.startswith('PLOTCLASSCOUNT'):
-            del candidates[x]
+        candidates['TOTAL_PCTBA'] = candidates[[x for x in candidates.columns if x.startswith('PCTBA')]].sum(axis=1)
+        candidates['TOTAL_BA'] = candidates[[x for x in candidates.columns if x.startswith('BAA')]].sum(axis=1)
+        candidates['TOTAL_TPA'] = candidates[[x for x in candidates.columns if x.startswith('TPA')]].sum(axis=1)
+        candidates['PLOT_CLASS_COUNT'] = candidates[[x for x in candidates.columns if x.startswith('PLOTCLASSCOUNT')]].mean(axis=1)
+        candidates['PLOT_BA'] = candidates[[x for x in candidates.columns if x.startswith('PLOTBA')]].mean(axis=1)
+        candidates['SEARCH_CLASS_COUNT'] = len(stand_list)
+        for x in candidates.columns:
+            if x.startswith('PLOTCLASSCOUNT_') or x.startswith("PLOTBA_"):
+                del candidates[x]
 
     return candidates
 
@@ -102,7 +112,7 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
         tpa_dict[key] = ssc[2]
                 
         ## est_ba = tpa * (0.005454 * dbh^2)
-        est_ba = ssc[2] * (0.005454 * ((ssc[1] + 2)**2))
+        est_ba = ssc[2] * (0.005454 * ((ssc[1] + 2)**2)) # TODO assumption of 4" classes
         total_ba += est_ba
         ba_dict[key] = est_ba
 
@@ -118,40 +128,21 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
 
     input_params = {}
     for attr in plotsummaries.axes[1].tolist():
-        """
-        keep
-            TPA_Western redcedar_14
-            BAA_Western redcedar_14
-            TOTAL_PCTBA
-            TOTAL_TPA
-        remove
-            PCTBA_Western redcedar_14
-            PLOT_CLASS_COUNT
-            SEARCH_CLASS_COUNT
-        """
-        if attr.startswith("PCTBA_") or "_CLASS_COUNT" in attr: 
-            pass
-        elif attr.startswith("BAA_"):
+        if attr.startswith("BAA_"): # or TPA?
             ssc = attr.replace("BAA_","")
             input_params[attr] = ba_dict[ssc] 
-        elif attr.startswith("TPA_"):
-            ssc = attr.replace("TPA_","")
-            input_params[attr] = tpa_dict[ssc] 
         elif attr == "TOTAL_PCTBA": 
             input_params[attr] = 100.0 #TODO don't assume 100%
-        elif attr == "TOTAL_TPA":
-            input_params[attr] = total_tpa
-        elif attr == "TOTAL_BA":
+        elif attr == "PLOT_BA":
             input_params[attr] = total_ba
 
 
     # Add site conditions
     input_params.update(site_cond)
 
-    # run NN analysis based on site_cond
     if not weight_dict:
-        #weight_dict = {'TOTAL_PCTBA': 5}
         weight_dict = {}
+
     nearest = nearest_plots(input_params, plotsummaries, weight_dict, k)
 
     return nearest 
@@ -268,7 +259,6 @@ if __name__ == "__main__":
         
         weight_dict = {
             'TOTAL_PCTBA': 5,
-            'TOTAL_TPA': 5
         }
 
         ps, num_candidates = get_nearest_neighbors(site_cond, stand_list, weight_dict, k=5)
@@ -279,6 +269,4 @@ if __name__ == "__main__":
         for pseries in ps:
             print pseries.name , pseries['_certainty']
         print
-
-
 
