@@ -101,9 +101,9 @@ class Stand(PolygonFeature):
         d = {
                 'uid': self.uid,
                 'name': self.name,
-                'rx': self.get_rx_display(),
+                'rx': '', #TODO rm ; was self.get_rx_display(),
                 'acres': acres,
-                'domspp': self.domspp,
+                'domspp': '', #TODO rm, was self.domspp,
                 'elevation': elevation,
                 'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
