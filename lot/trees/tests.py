@@ -988,7 +988,6 @@ class ScenarioTest(TestCase):
             'input_property': self.prop1.pk,
             'input_rxs': dumps({self.stand1.pk: 'CC', self.stand2.pk: "SW"}),
         })
-        print response.content
         self.assertEqual(response.status_code, 201)
         
     def test_post_invalid_rx(self):
@@ -1052,7 +1051,6 @@ class AspectTest(TestCase):
           (355 + 360, 'North'),
         ]
         for ae in aspect_examples:
-            print ae[0], ae[1]
             self.assertEquals(classify_aspect(ae[0]), ae[1], ae[0])
 
 class SVSTest(TestCase):
