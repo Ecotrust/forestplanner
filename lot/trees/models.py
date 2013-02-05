@@ -53,12 +53,35 @@ RX_CHOICES = (
 @register
 class Stand(PolygonFeature):
     strata = models.ForeignKey("Strata", blank=True, default=None, null=True)
-    plot = models.ForeignKey("PlotSummary", verbose_name="Matched FIA Plot", 
-            null=True, blank=True, default=None)
+    cond_id = models.BigIntegerField(blank=True, null=True, default=None)
 
     class Options:
         form = "trees.forms.StandForm"
         manipulators = []
+
+    def get_idb_cond(self):
+        from trees.plots import get_nearest_neighbors
+        if not self.cond_id:
+            stand_list = self.strata.stand_list 
+            site_cond = {
+                'calc_aspect': self.imputed_aspect,
+                'elev_ft': self.imputed_elevation, 
+                'latitude_fuzz': self.geometry_final.centroid[0],
+                'longitude_fuzz': self.geometry_final.centroid[1],
+                'calc_slope': self.imputed_slope,
+            }
+            weight_dict = self.default_weighting
+            ps, num_candidates = get_nearest_neighbors(site_cond, stand_list, weight_dict, k=5)
+            self.cond_id = ps[0].name
+            self.save()
+        idb = IdbSummary.objects.get(id=self.cond_id) # TODO handle missing/bad cond_id
+        return idb
+
+    @property
+    def default_weighting(self):
+        return {
+            'TOTAL_PCTBA': 5,
+        }
 
     @property
     def acres(self):
@@ -129,22 +152,6 @@ class Stand(PolygonFeature):
             raise Exception("Raster is not valid: %s" % raster )
         stats = zonal_stats(g2, raster)
         return stats
-
-    def autofill_plot(self):
-        ''' 
-        Automatically populate the plot using GNN's best guest if available
-        '''
-        try:
-            fcid = self.imputed_fcids[0]
-        except IndexError:
-            return False
-        try:
-            ps = PlotSummary.objects.get(fcid=fcid[0]) 
-        except PlotSummary.DoesNotExist:
-            return False
-        self.plot = ps
-        self.save()
-        return True
 
     @property
     def imputed_elevation(self):
@@ -1022,7 +1029,7 @@ class GNN_ORWA(models.Model):
 
 class IdbSummary(models.Model):
     plot_id = models.BigIntegerField(null=True, blank=True)
-    cond_id = models.BigIntegerField(primary_key=True)
+    cond_id = models.BigIntegerField(primary_key=True, unique=True)
     sumofba_ft2 = models.FloatField(null=True, blank=True)
     avgofba_ft2_ac = models.FloatField(null=True, blank=True)
     avgofht_ft = models.FloatField(null=True, blank=True)

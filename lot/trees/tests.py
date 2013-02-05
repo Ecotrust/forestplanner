@@ -1067,4 +1067,7 @@ class StrataStandNearestPlotPyTest(TestCase):
         self.assertTrue(strata)
         self.stand1.strata = strata
         self.stand1.save()
-        self.assertEquals(self.stand1.plot_matches[0], 1332)
+        self.assertEquals(self.stand1.cond, None)
+        self.assertEquals(self.stand1.get_idb_cond(), 1332)
+        self.assertEquals(self.stand1.cond, 1332)
+
