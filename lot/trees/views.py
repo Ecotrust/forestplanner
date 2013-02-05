@@ -362,6 +362,7 @@ def stand_list_nn(request):
         ]
     }
 
+    """
     stand_list = {
         'classes': [
             ('Douglas-fir', 10, 69),
@@ -377,6 +378,7 @@ def stand_list_nn(request):
             #('Tanoak', 0, 200),
         ]
     }
+    """
 
     site_cond = {
         "age_dom": 40,

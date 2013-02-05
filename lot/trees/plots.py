@@ -14,7 +14,7 @@ def dictfetchall(cursor):
     ]
 
 
-def get_candidates(stand_list, min_candidates=5, tpa_factor=1.2):
+def get_candidates(stand_list, min_candidates=5):
     cursor = connection.cursor()
 
     dfs = []

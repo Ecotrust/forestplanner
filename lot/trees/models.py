@@ -56,7 +56,6 @@ class Stand(PolygonFeature):
     plot = models.ForeignKey("PlotSummary", verbose_name="Matched FIA Plot", 
             null=True, blank=True, default=None)
 
-
     class Options:
         form = "trees.forms.StandForm"
         manipulators = []
@@ -1139,6 +1138,7 @@ class PlotLookup(models.Model):
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)
 
+#TODO @register
 class Strata(Feature):
     # stand will have a FK to Strata
     search_age = models.FloatField()
@@ -1146,9 +1146,17 @@ class Strata(Feature):
     additional_desc = models.TextField(blank=True, null=True)
     stand_list = JSONField() # {'classes': [(species, age class, tpa), ...]}
     
+    def candidates(self, min_candidates=5):
+        from plots import get_candidates
+        return get_candidates(self.stand_list['classes'], min_candidates=min_candidates) 
+
     @property
     def desc(self):
         return "description created from stand list attrs"
+
+    # TODO form
+    class Options:
+        pass
 
 
 fvsvariant_mapping = {
@@ -1203,3 +1211,23 @@ def load_shp(path, feature_class):
     print "Saving", path, "to", feature_class, "using", mapping
     map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
+class TreeliveSummary(models.Model):
+    plot_id = models.BigIntegerField(null=True, blank=True)
+    cond_id = models.BigIntegerField(primary_key=True)
+    fia_forest_type_name = models.CharField(max_length=60, blank=True)
+    calc_dbh_class = models.FloatField(null=True, blank=True)
+    calc_tree_count = models.IntegerField(null=True, blank=True)
+    sumoftpa = models.FloatField(null=True, blank=True)
+    avgoftpa = models.FloatField(null=True, blank=True)
+    sumofba_ft2_ac = models.FloatField(null=True, blank=True)
+    avgofba_ft2_ac = models.FloatField(null=True, blank=True)
+    avgofht_ft = models.FloatField(null=True, blank=True)
+    avgofdbh_in = models.FloatField(null=True, blank=True)
+    avgofage_bh = models.FloatField(null=True, blank=True)
+    total_ba_ft2_ac = models.FloatField(null=True, blank=True)
+    count_speciessizeclasses = models.IntegerField(null=True, blank=True)
+    pct_of_totalba = models.FloatField(null=True, blank=True)
+    class Meta:
+        db_table = u'treelive_summary'
+

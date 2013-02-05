@@ -12,7 +12,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, ForestProperty, County, FVSVariant, Scenario
+from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario
 from trees.utils import StandImporter
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
@@ -1025,3 +1025,46 @@ class SVSTest(TestCase):
         url = "%s/%s/" % (self.baseurl, 2222)
         response = self.client.get(url)
         self.assertEqual(response.status_code, 301)
+
+class StrataStandNearestPlotPyTest(TestCase):
+    fixtures = ['treelive_summary', ]
+
+    def setUp(self):
+        self.client = Client()
+        #import_rasters()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1.save()
+
+    def _create_strata(self):
+        stand_list = {
+            'classes': [
+                ('Douglas-fir', 6, 160),
+            ]
+        }
+        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
+        strata.save()
+        return strata
+
+    def test_bad_stand_list(self):
+        #TODO
+        pass
+
+    def test_assign_strata_to_stand(self):
+        strata = self._create_strata()
+        self.assertTrue(strata)
+        self.stand1.strata = strata
+        self.assertEqual("My Strata", self.stand1.strata.name)
+
+    def test_find_candidates_for_strata(self):
+        strata = self._create_strata()
+        self.assertTrue(1332 in [x[0] for x in strata.candidates(1).iterrows()])
+
+    def test_nearest_for_stratastand(self):
+        strata = self._create_strata()
+        self.assertTrue(strata)
+        self.stand1.strata = strata
+        self.stand1.save()
+        self.assertEquals(self.stand1.plot_matches[0], 1332)
