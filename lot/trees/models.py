@@ -1258,8 +1258,10 @@ def load_shp(path, feature_class):
     map1.save(strict=True, verbose=True)
 
 class TreeliveSummary(models.Model):
+    class_id = models.BigIntegerField(primary_key=True)
     plot_id = models.BigIntegerField(null=True, blank=True)
-    cond_id = models.BigIntegerField(primary_key=True)
+    cond_id = models.BigIntegerField(null=True, blank=True)
+    varname = models.CharField(max_length=60, blank=True)
     fia_forest_type_name = models.CharField(max_length=60, blank=True)
     calc_dbh_class = models.FloatField(null=True, blank=True)
     calc_tree_count = models.IntegerField(null=True, blank=True)
