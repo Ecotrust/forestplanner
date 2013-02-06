@@ -40,7 +40,6 @@ def cachemethod(cache_key, timeout=60*60*24*7):
         return decorated 
     return paramed_decorator
 
-# TODO: make this a model?
 RX_CHOICES = (
     ('--', '--'),
     ('RE', 'Reserve; No Action'),
@@ -67,15 +66,19 @@ class Stand(PolygonFeature):
             site_cond = {
                 'latitude_fuzz': self.geometry_final.centroid[0],
                 'longitude_fuzz': self.geometry_final.centroid[1],
-                #'calc_aspect': self.imputed_aspect,
-                #'elev_ft': self.imputed_elevation, 
-                #'calc_slope': self.imputed_slope,
             }
+            # include terrain variables
+            if self.imputed_aspect:
+                site_cond['calc_aspect'] = self.imputed_aspect
+            if self.imputed_elevation:
+                site_cond['elev_ft'] = self.imputed_elevation
+            if self.imputed_slope:
+                site_cond['calc_slope'] = self.imputed_slope
             weight_dict = self.default_weighting
             ps, num_candidates = get_nearest_neighbors(site_cond, stand_list['classes'], weight_dict, k=5)
             self.cond_id = ps[0].name
             self.save()
-        idb = IdbSummary.objects.get(cond_id=self.cond_id) # TODO handle missing/bad cond_id
+        idb = IdbSummary.objects.get(cond_id=self.cond_id)
         return idb
 
     @property
@@ -132,7 +135,8 @@ class Stand(PolygonFeature):
                 'slope': '%s %%' % slope,
                 'gnn': gnn,
                 'plot_summary': self.plot_summary,
-                'plot_summaries': self.plot_summaries, #TODO rm
+                'plot_summaries': self.plot_summaries, #TODO include idb data
+                #TODO include strata info 
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -1184,9 +1188,12 @@ class Strata(Feature):
         for c in self.stand_list['classes']:
             if len(c) != 4:
                 raise Exception("Not a valid stand list")
-            # TODO c[0] is valid species?
-            # TODO c[1] is valid diam class
-            # TODO c[-1] is a valid tpa
+            # c[0] is valid species?
+            assert(TreeliveSummary.objects.filter(fia_forest_type_name=c[0]).count() > 0)
+            # c[1] thru c[2] is valid diam class ?
+            assert(c[1] < c[2])
+            # c[3] is a valid tpa?
+            assert(c[3] > 0 and c[3] < 10000)
         super(Strata, self).save(*args, **kwargs)
 
 

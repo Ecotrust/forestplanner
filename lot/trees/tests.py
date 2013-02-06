@@ -69,7 +69,6 @@ class StandTest(TestCase):
 class ForestPropertyTest(TestCase):
     '''
     Basic tests for adding/removing stands from a property
-    TODO Test that date_modified reflects updates to the stands
     '''
 
     def setUp(self):
@@ -282,12 +281,6 @@ class PropertyStandListTest(TestCase):
         expected_names = ['My Stand', 'My Stand2']
         expected_names.sort()
         self.assertEqual(names, expected_names)
-
-class NearestPlotTest(TestCase):
-    '''
-    Tests nearest plot util function and web service
-    '''
-    pass #TODO
 
 
 class ManipulatorsTest(TestCase):
@@ -510,9 +503,9 @@ class ImputeTest(TestCase):
 
 class StandImportTest(TestCase):
     '''
-    TODO
-    # test bad shapefiles (other geom types, bad mapping dict, projection)
-    # assert that mapped attributes are populated
+    TODO test bad shapefiles (other geom types, bad mapping dict, projection)
+    TODO assert that mapped attributes are populated
+    TODO strata from shp
     '''
     def setUp(self):
         import_rasters()
@@ -571,10 +564,6 @@ class StandImportTest(TestCase):
         self.assertEqual(len(Stand.objects.filter(name='001A')), 1) 
         self.assertEqual(len(Stand.objects.filter(name='277')), 0) 
         self.assertEqual(len(self.prop1.feature_set()), 37)
-
-    def test_importer_py_bad_strata(self):
-        #TODO 
-        pass
 
     def test_importer_multi(self):
         '''
@@ -644,8 +633,6 @@ class StandImportTest(TestCase):
         f.close()
         self.assertEqual(response.status_code, 401)
         self.assertEqual(len(self.prop1.feature_set()), 0)
-
-    # TODO test import strata field
 
     def test_importer_http_noname(self):
         self.client.login(username='featuretest', password='pword')
@@ -925,7 +912,6 @@ class ScenarioTest(TestCase):
         self.assertEquals(Scenario.objects.get(name="My Scenario").input_target_boardfeet, 2000.0)
 
     def test_scenario_results(self):
-        "TODO remove this hardcoded dummy data"
         s1 = Scenario(user=self.user, name="My Scenario", 
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
