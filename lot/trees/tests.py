@@ -1137,6 +1137,7 @@ class NearestPlotRestTest(TestCase):
                 'search_tpa': 160,
                 'search_age': 40,
                 'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 14, 31], ] })
+                # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-Lists
             }
         )
         self.assertEqual(response.status_code, 201, response.content)
