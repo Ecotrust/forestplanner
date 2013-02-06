@@ -59,22 +59,22 @@ class Stand(PolygonFeature):
         form = "trees.forms.StandForm"
         manipulators = []
 
-    def get_idb_cond(self):
+    def get_idb(self):
         from trees.plots import get_nearest_neighbors
         if not self.cond_id:
             stand_list = self.strata.stand_list 
             site_cond = {
-                'calc_aspect': self.imputed_aspect,
-                'elev_ft': self.imputed_elevation, 
                 'latitude_fuzz': self.geometry_final.centroid[0],
                 'longitude_fuzz': self.geometry_final.centroid[1],
-                'calc_slope': self.imputed_slope,
+                #'calc_aspect': self.imputed_aspect,
+                #'elev_ft': self.imputed_elevation, 
+                #'calc_slope': self.imputed_slope,
             }
             weight_dict = self.default_weighting
-            ps, num_candidates = get_nearest_neighbors(site_cond, stand_list, weight_dict, k=5)
+            ps, num_candidates = get_nearest_neighbors(site_cond, stand_list['classes'], weight_dict, k=5)
             self.cond_id = ps[0].name
             self.save()
-        idb = IdbSummary.objects.get(id=self.cond_id) # TODO handle missing/bad cond_id
+        idb = IdbSummary.objects.get(cond_id=self.cond_id) # TODO handle missing/bad cond_id
         return idb
 
     @property
@@ -1029,7 +1029,7 @@ class GNN_ORWA(models.Model):
 
 class IdbSummary(models.Model):
     plot_id = models.BigIntegerField(null=True, blank=True)
-    cond_id = models.BigIntegerField(primary_key=True, unique=True)
+    cond_id = models.BigIntegerField(primary_key=True)
     sumofba_ft2 = models.FloatField(null=True, blank=True)
     avgofba_ft2_ac = models.FloatField(null=True, blank=True)
     avgofht_ft = models.FloatField(null=True, blank=True)
@@ -1038,10 +1038,10 @@ class IdbSummary(models.Model):
     state_name = models.CharField(max_length=40, blank=True)
     county_name = models.CharField(max_length=100, blank=True)
     halfstate_name = models.CharField(max_length=100, blank=True)
-    forest_name = models.CharField(max_length=510, blank=True)
+    forest_name = models.CharField(max_length=510, blank=True, null=True)
     acres = models.FloatField(null=True, blank=True)
     acres_vol = models.FloatField(null=True, blank=True)
-    fia_forest_type_name = models.CharField(max_length=60, blank=True)
+    fia_forest_type_name = models.CharField(max_length=60, blank=True, null=True)
     latitude_fuzz = models.FloatField(null=True, blank=True)
     longitude_fuzz = models.FloatField(null=True, blank=True)
     aspect_deg = models.IntegerField(null=True, blank=True)
@@ -1067,8 +1067,8 @@ class IdbSummary(models.Model):
     stand_age = models.IntegerField(null=True, blank=True)
     for_type = models.IntegerField(null=True, blank=True)
     for_type_secdry = models.IntegerField(null=True, blank=True)
-    for_type_name = models.CharField(max_length=60, blank=True)
-    for_type_secdry_name = models.CharField(max_length=60, blank=True)
+    for_type_name = models.CharField(max_length=60, blank=True, null=True)
+    for_type_secdry_name = models.CharField(max_length=60, blank=True, null=True)
     qmdc_dom = models.FloatField(null=True, blank=True)
     qmdh_dom = models.FloatField(null=True, blank=True)
     qmda_dom = models.FloatField(null=True, blank=True)
@@ -1164,6 +1164,17 @@ class Strata(Feature):
     # TODO form
     class Options:
         pass
+
+    def save(self, *args, **kwargs):
+        if 'classes' not in self.stand_list:
+            raise Exception("Not a valid stand list")
+        for c in self.stand_list['classes']:
+            if len(c) != 3:
+                raise Exception("Not a valid stand list")
+            # TODO c[0] is valid species?
+            # TODO c[1] is valid diam class
+            # TODO c[-1] is a valid tpa
+        super(Strata, self).save(*args, **kwargs)
 
 
 fvsvariant_mapping = {

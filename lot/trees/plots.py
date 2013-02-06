@@ -4,6 +4,8 @@ from scipy.spatial import KDTree
 import math
 import pandas as pd
 from django.db import connection
+from madrona.common.utils import get_logger
+logger = get_logger()
 
 def dictfetchall(cursor):
     "Returns all rows from a cursor as a dict"
@@ -14,7 +16,7 @@ def dictfetchall(cursor):
     ]
 
 
-def get_candidates(stand_list, min_candidates=5):
+def get_candidates(stand_list, min_candidates=1):
     cursor = connection.cursor()
 
     dfs = []
@@ -54,14 +56,17 @@ def get_candidates(stand_list, min_candidates=5):
 
     if len(dfs) == 0:
         raise Exception("The stand list provided does not provide enough matches.")
+    elif len(dfs) == 1:
+        sdfs = dfs
+    else:
+        sdfs = sorted(dfs, key=lambda x: len(x), reverse=True)
 
-    sdfs = sorted(dfs, key=lambda x: len(x), reverse=True)
     enough = False
     while not enough:
         candidates = pd.concat(sdfs, axis=1, join="inner")
         if len(candidates) < min_candidates:
             aa = sdfs.pop() # remove the one with smallest number
-            print "Popping ", [x.replace("BAA_", "") for x in aa.columns.tolist() if x.startswith('BAA_')][0]
+            logger.warn("Popping ", [x.replace("BAA_", "") for x in aa.columns.tolist() if x.startswith('BAA_')][0])
             continue
         else: 
             enough = True

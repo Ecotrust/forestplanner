@@ -1026,12 +1026,11 @@ class SVSTest(TestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, 301)
 
-class StrataStandNearestPlotPyTest(TestCase):
-    fixtures = ['treelive_summary', ]
+class NearestPlotPyTest(TestCase):
+    fixtures = ['test_treelive_summary', 'test_idb_summary']
 
     def setUp(self):
         self.client = Client()
-        #import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
 
@@ -1041,7 +1040,7 @@ class StrataStandNearestPlotPyTest(TestCase):
     def _create_strata(self):
         stand_list = {
             'classes': [
-                ('Douglas-fir', 6, 160),
+                ('Douglas-fir', 10, 31),
             ]
         }
         strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
@@ -1049,8 +1048,19 @@ class StrataStandNearestPlotPyTest(TestCase):
         return strata
 
     def test_bad_stand_list(self):
-        #TODO
-        pass
+        stand_list = [ ('Douglas-fir', 10, 31), ] 
+        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
+        with self.assertRaises(Exception):
+            strata.save()
+
+        stand_list = {
+            'classes': [
+                ('Douglas-fir', "booo"),
+            ]
+        }
+        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
+        with self.assertRaises(Exception):
+            strata.save()
 
     def test_assign_strata_to_stand(self):
         strata = self._create_strata()
@@ -1060,14 +1070,18 @@ class StrataStandNearestPlotPyTest(TestCase):
 
     def test_find_candidates_for_strata(self):
         strata = self._create_strata()
-        self.assertTrue(1332 in [x[0] for x in strata.candidates(1).iterrows()])
+        self.assertTrue(1 in [x[0] for x in strata.candidates(1).iterrows()])
+        self.assertTrue(2 in [x[0] for x in strata.candidates(1).iterrows()])
 
-    def test_nearest_for_stratastand(self):
+    def test_nearest(self):
         strata = self._create_strata()
+        import_rasters()
         self.assertTrue(strata)
         self.stand1.strata = strata
         self.stand1.save()
-        self.assertEquals(self.stand1.cond, None)
-        self.assertEquals(self.stand1.get_idb_cond(), 1332)
-        self.assertEquals(self.stand1.cond, 1332)
+        self.assertEquals(self.stand1.cond_id, None)
+        self.assertTrue(1 in [x[0] for x in strata.candidates(1).iterrows()])
+        self.assertTrue(2 in [x[0] for x in strata.candidates(1).iterrows()])
+        self.assertEquals(self.stand1.get_idb().pk, 1)
+        self.assertEquals(self.stand1.cond_id, 1)
 
