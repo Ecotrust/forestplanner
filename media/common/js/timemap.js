@@ -51,7 +51,7 @@ $(document).ready(function() {
                 } 
             });
             var f2 = app.scenarios.viewModel.scenarioList()[1];
-            var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
+            var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
             $.get( geojson_url, function(data) {
                 if (data.features.length) {
                     standScenario2.addFeatures(app.geojson_format.read(data));        
@@ -70,7 +70,7 @@ $(document).ready(function() {
     var context = {
         getColour: function(feature) {
             var color;
-            var attr = feature.attributes["results"]["carbon"][yearIndex]; 
+            var attr = feature.attributes.results.carbon[yearIndex]; 
             // TODO assumes 0-20 range
             if (attr < 4) {
                 color = "#EDF8E9";
@@ -82,7 +82,7 @@ $(document).ready(function() {
                 color = "#31A354";
             } else {
                 color = "#006D2C";
-            };
+            }
             return color;
         }
     };
@@ -130,7 +130,7 @@ var yearIndex = 0;
 onChange = function() {
     field.val(slidy.slider('value')); 
     var val = field.val();
-    yearIndex = Math.floor((parseInt(val) - 2020)/20);
+    yearIndex = Math.floor((parseInt(val, 10) - 2020)/20);
     if (standScenario1) {
         standScenario1.redraw();
     }
@@ -148,4 +148,6 @@ slidy.slider({
     //slide : function(event, ui) { field.val(slidy.slider('value')); }
 });
 slidy.slider("value", field.val() ); 
-field.change( function (){ slidy.slider("value", field.val()) }); 
+field.change( function (){ 
+    slidy.slider("value", field.val());
+}); 
