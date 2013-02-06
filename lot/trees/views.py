@@ -354,11 +354,11 @@ def stand_list_nn(request):
 
     stand_list = {
         'classes': [
-            ('Douglas-fir', 6, 160),
-            ('Douglas-fir', 10, 31),
-            ('Douglas-fir', 14, 7),
-            ('Western hemlock', 14, 5),
-            ('Western redcedar', 14, 5),
+            ('Douglas-fir', 6, 10, 160),
+            ('Douglas-fir', 10, 14, 31),
+            ('Douglas-fir', 14, 18, 7),
+            ('Western hemlock', 14, 18, 5),
+            ('Western redcedar', 14, 18, 5),
             #('Red alder', 6, 20),
         ]
     }
@@ -416,7 +416,7 @@ def stand_list_nn(request):
 
     out = []
     out.append("Searching for:\n  ")
-    out.extend("%s, %s in, %s tpa, %d ba est" % s for s in mod_stand_list)
+    out.extend("%s, %s to %s in, %s tpa, %d ba est" % s for s in mod_stand_list)
     out.append("   (Total basal area: %d ft2/ac)" % total_ba)
     out.append("\n")
 
