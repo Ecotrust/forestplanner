@@ -119,6 +119,12 @@ class Stand(PolygonFeature):
         aspect_class = classify_aspect(aspect)
         slope = int_or_none(self.imputed_slope)
         gnn = int_or_none(self.imputed_gnn)
+
+        try:
+            strata_uid = self.strata.uid
+        except:
+            strata_uid = None
+
         if self.acres:
             acres = round(self.acres, 1)
         else:
@@ -131,6 +137,7 @@ class Stand(PolygonFeature):
                 'acres': acres,
                 'domspp': '', #TODO rm, was self.domspp,
                 'elevation': elevation,
+                'strata_uid': strata_uid,
                 'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
                 'gnn': gnn,
