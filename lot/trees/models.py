@@ -643,7 +643,10 @@ class Scenario(Analysis):
             stand_dict = loads(stand.geojson())
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
-            stand_dict['properties']['results'] = res[str(stand.pk)]
+            try:
+                stand_dict['properties']['results'] = res[str(stand.pk)]
+            except KeyError:
+                continue #TODO this should never happen, probably stands added after scenario was created? or caching ?
 
             stand_data.append(stand_dict)
 
