@@ -1085,3 +1085,76 @@ class NearestPlotPyTest(TestCase):
         self.assertEquals(self.stand1.get_idb().pk, 1)
         self.assertEquals(self.stand1.cond_id, 1)
 
+class NearestPlotRestTest(TestCase):
+    fixtures = ['test_treelive_summary', 'test_idb_summary']
+
+    def setUp(self):
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        enable_sharing()
+
+    def test_standstrata_workflow(self):
+        self.client.login(username='featuretest', password='pword')
+
+        ##### Step 1. Create the property
+        old_count = ForestProperty.objects.count()
+        url = "/features/forestproperty/form/"
+        response = self.client.post( url,
+            {   
+                'name': 'test property', 
+                'geometry_final': p1.wkt,  # multipolygon required
+            }
+        )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertTrue(old_count < ForestProperty.objects.count())
+        prop1 = ForestProperty.objects.get(name="test property")
+
+        #### Step 2. Create the stand
+        old_count = Stand.objects.count()
+        url = "/features/stand/form/"
+        response = self.client.post( url, 
+            {   
+                'name': 'test stand', 
+                'geometry_orig': g1.wkt, 
+            }
+        )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertTrue(old_count < Stand.objects.count())
+        stand1 = Stand.objects.get(name="test stand")
+
+        #### Step 2b. Associate the stand with the property
+        url = "/features/forestproperty/%s/add/%s" % (prop1.uid, stand1.uid)
+        response = self.client.post( url, {} )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        #### Step 3. Create the strata
+        old_count = Strata.objects.count()
+        url = "/features/strata/form/"
+        response = self.client.post( url, 
+            {   
+                'name': 'test strata', 
+                'search_tpa': 160,
+                'search_age': 40,
+                'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 31], ] })
+            }
+        )
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertTrue(old_count < Strata.objects.count())
+        strata1 = Strata.objects.get(name="test strata")
+
+        #### Step 3b. Associate the strata with the property
+        url = "/features/forestproperty/%s/add/%s" % (prop1.uid, strata1.uid)
+        response = self.client.post( url,
+            {}   
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+
+        #### Step 4. Add the stand to a strata
+        url = "/features/strata/links/add-stands/%s/" % strata1.uid
+        response = self.client.post( url, 
+            { 'stands': ",".join([stand1.uid]) }   
+        )
+        self.assertEqual(response.status_code, 200, response.content)
+        stand1b = Stand.objects.get(name="test stand")
+        self.assertEqual(stand1b.strata, strata1)

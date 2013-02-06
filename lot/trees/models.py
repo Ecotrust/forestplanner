@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import math
+import json
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -226,7 +227,8 @@ class Stand(PolygonFeature):
         ''' 
         Site charachteristics according to the chosen plot
         '''
-        if not self.plot:
+        return None # TODO adjust for IdbSummary
+        if not self.cond_id:
             return None
 
         ps = self.plot
@@ -306,7 +308,7 @@ class ForestProperty(FeatureCollection):
         Do all the stands have associated plots?
         '''
         for stand in self.feature_set(feature_classes=[Stand]):
-            if not stand.plot:
+            if not stand.cond_id:
                 return False
         return True
 
@@ -319,7 +321,7 @@ class ForestProperty(FeatureCollection):
         n_without_plot = 0
         stands = self.feature_set(feature_classes=[Stand])
         for stand in stands:
-            if not stand.plot:
+            if not stand.cond_id:
                 n_without_plot += 1
             else:
                 n_with_plot += 1
@@ -451,9 +453,8 @@ class ForestProperty(FeatureCollection):
         )
         return calculate_adjacency(stands, threshold)
 
-
     class Options:
-        valid_children = ('trees.models.Stand',)
+        valid_children = ('trees.models.Stand', 'trees.models.Strata',)
         form = "trees.forms.PropertyForm"
         links = (
             # Link to grab ALL *stands* associated with a property
@@ -1145,9 +1146,8 @@ class PlotLookup(models.Model):
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)
 
-#TODO @register
+@register
 class Strata(Feature):
-    # stand will have a FK to Strata
     search_age = models.FloatField()
     search_tpa = models.FloatField()
     additional_desc = models.TextField(blank=True, null=True)
@@ -1161,11 +1161,21 @@ class Strata(Feature):
     def desc(self):
         return "description created from stand list attrs"
 
-    # TODO form
     class Options:
-        pass
+        form = "trees.forms.StrataForm"
+        links = (
+            alternate('Add Stands',
+                'trees.views.add_stands_to_strata',  
+                type="application/json",
+                select='single'),
+        )
 
     def save(self, *args, **kwargs):
+        try:
+            self.stand_list = json.loads(self.stand_list)
+        except ValueError:
+            pass # already 
+
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")
         for c in self.stand_list['classes']:

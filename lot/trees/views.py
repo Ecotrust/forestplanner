@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
 from geopy import geocoders  
 from geopy.point import Point
+from trees.models import Stand
 import json
 import simplejson
 import os
@@ -432,4 +433,17 @@ def stand_list_nn(request):
         out.append("%s\t%d%% certainty\t%s basal area\tspecified species/sizes account for %d %% of the total basal area\t%d years" % (pseries.name, 
                 pseries['_certainty'] * 100, pseries['PLOT_BA'], pseries['TOTAL_PCTBA'], pseries['age_dom']))
     return render_to_response("trees/stand_list_nn.html", locals())
+
+def add_stands_to_strata(request, instance):
+    from madrona.features.views import get_object_for_editing
+    in_stands = request.POST.get("stands", None)
+    stands = in_stands.split(",")
+    for uid in stands:
+        stand = get_object_for_editing(request, uid, target_klass=Stand)
+        if isinstance(stand, HttpResponse):
+            return stand
+        stand.strata = instance
+        stand.save()
+    instance.save()
+    return HttpResponse("Stands %r added to %s" % (stands, instance.uid), mimetype='text/html', status=200)
 
