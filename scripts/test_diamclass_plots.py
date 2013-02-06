@@ -122,7 +122,7 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
         tpa_dict[key] = ssc[3]
                 
         ## est_ba = tpa * (0.005454 * dbh^2)
-        est_ba = ssc[2] * (0.005454 * (((ssc[1] + ssc[2])/2)**2)) # assume middle of class
+        est_ba = ssc[3] * (0.005454 * (((ssc[1] + ssc[2])/2)**2)) # assume middle of class
         total_ba += est_ba
         ba_dict[key] = est_ba
 

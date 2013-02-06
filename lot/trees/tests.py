@@ -1040,7 +1040,7 @@ class NearestPlotPyTest(TestCase):
     def _create_strata(self):
         stand_list = {
             'classes': [
-                ('Douglas-fir', 10, 31),
+                ('Douglas-fir', 10, 14, 31),
             ]
         }
         strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
@@ -1048,7 +1048,7 @@ class NearestPlotPyTest(TestCase):
         return strata
 
     def test_bad_stand_list(self):
-        stand_list = [ ('Douglas-fir', 10, 31), ] 
+        stand_list = [ ('Douglas-fir', 10, 14, 31), ] 
         strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
         with self.assertRaises(Exception):
             strata.save()
@@ -1136,7 +1136,7 @@ class NearestPlotRestTest(TestCase):
                 'name': 'test strata', 
                 'search_tpa': 160,
                 'search_age': 40,
-                'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 31], ] })
+                'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 14, 31], ] })
             }
         )
         self.assertEqual(response.status_code, 201, response.content)

@@ -1173,13 +1173,13 @@ class Strata(Feature):
     def save(self, *args, **kwargs):
         try:
             self.stand_list = json.loads(self.stand_list)
-        except ValueError:
-            pass # already 
+        except (TypeError, ValueError):
+            pass # already good? 
 
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")
         for c in self.stand_list['classes']:
-            if len(c) != 3:
+            if len(c) != 4:
                 raise Exception("Not a valid stand list")
             # TODO c[0] is valid species?
             # TODO c[1] is valid diam class

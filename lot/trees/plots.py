@@ -22,18 +22,16 @@ def get_candidates(stand_list, min_candidates=1):
     dfs = []
     for sc in stand_list:
         # This could potentially be used to dynamically expand the size range
-        # class_clause = 'AND calc_dbh_class >= %d AND calc_dbh_class <= %d' % (sc[1] - 2, sc[1] + 2) 
-
-        class_clause = 'AND calc_dbh_class = %d' % (sc[1],) 
+        class_clause = 'AND calc_dbh_class >= %d AND calc_dbh_class < %d' % (sc[1], sc[2]) 
 
         sql = """
             SELECT 
                 COND_ID, 
-                SUM(SumOfTPA) as "TPA_%(species)s_%(size)d",
-                SUM(SumOfBA_FT2_AC) as "BAA_%(species)s_%(size)d", 
-                SUM(pct_of_totalba) as "PCTBA_%(species)s_%(size)d",
-                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT_%(species)s_%(size)d", 
-                AVG(TOTAL_BA_FT2_AC) as "PLOTBA_%(species)s_%(size)d" 
+                SUM(SumOfTPA) as "TPA_%(species)s_%(lowsize)d_%(highsize)d",
+                SUM(SumOfBA_FT2_AC) as "BAA_%(species)s_%(lowsize)d_%(highsize)d", 
+                SUM(pct_of_totalba) as "PCTBA_%(species)s_%(lowsize)d_%(highsize)d",
+                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT_%(species)s_%(lowsize)d_%(highsize)d", 
+                AVG(TOTAL_BA_FT2_AC) as "PLOTBA_%(species)s_%(lowsize)d_%(highsize)d" 
             FROM treelive_summary 
             WHERE fia_forest_type_name = '%(species)s' 
             %(class_clause)s
@@ -41,13 +39,15 @@ def get_candidates(stand_list, min_candidates=1):
             GROUP BY COND_ID
         """ % { 'class_clause': class_clause, 
                 'species': sc[0], 
-                'size': sc[1], }
+                'lowsize': sc[1], 
+                'highsize': sc[2]
+                }
 
         cursor.execute(sql)
         rows = dictfetchall(cursor)
 
         if not rows:
-            raise Exception("No matches for %s, %s in" % (sc[0], sc[1]))
+            raise Exception("No matches for %s, %s to %s in" % (sc[0], sc[1], sc[2]))
 
         df = pd.DataFrame(rows)
         df.index = df['cond_id']
@@ -112,12 +112,12 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
     total_tpa = 0
     total_ba = 0
     for ssc in stand_list:
-        key = '_'.join([str(x) for x in ssc[0:2]])
-        total_tpa += ssc[2]
-        tpa_dict[key] = ssc[2]
+        key = '_'.join([str(x) for x in ssc[0:3]])
+        total_tpa += ssc[3]
+        tpa_dict[key] = ssc[3]
                 
         ## est_ba = tpa * (0.005454 * dbh^2)
-        est_ba = ssc[2] * (0.005454 * ((ssc[1] + 2)**2)) # TODO assumption of 4" classes
+        est_ba = ssc[3] * (0.005454 * (((ssc[1] + ssc[2])/2)**2)) # assume middle of class
         total_ba += est_ba
         ba_dict[key] = est_ba
 
