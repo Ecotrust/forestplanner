@@ -18,3 +18,4 @@ trees_test/work*
 lot/.coverage
 .vagrant
 .DS_Store
+.*.swp

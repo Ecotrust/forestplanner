@@ -4,7 +4,7 @@ selenium
 scipy
 python-memcached>=1.48
 pandas>=0.10.1
-git+http://github.com/django/django.git@stable/1.4.x#egg=django
+django<1.5
 madrona
 simplejson
 django-pdb
