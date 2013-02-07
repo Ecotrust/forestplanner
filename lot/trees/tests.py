@@ -410,7 +410,7 @@ class ImputeTest(TestCase):
     Can also be called directly using feature._impute() though this should 
       probably be considered a semi-private method
     '''
-    fixtures = ['test_plotsummary', 'fvs_species_western', ]
+    fixtures = ['fvs_species_western', ]
 
     def setUp(self):
         g2 = GEOSGeometry(
@@ -494,11 +494,6 @@ class ImputeTest(TestCase):
         kys = ['elevation','aspect','slope','gnn']
         for rast in kys:
             self.assertTrue(hasattr(self.stand1, "imputed_" + rast))
-
-    def test_plotsummary(self):
-        s = self.stand1.plot_summaries
-        s1 = s[0]
-        self.assertEqual(s1['fortypiv'], ['Douglas Fir'], s1)
 
 
 class StandImportTest(TestCase):

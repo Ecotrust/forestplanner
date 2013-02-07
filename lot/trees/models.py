@@ -209,8 +209,9 @@ class Stand(PolygonFeature):
         '''
         fcids = self.imputed_fcids  # ((fcid, pct), ..)
         summaries = []
+        return summaries #TODO fix or drop the GNN imputation
         for fcid, prop in fcids:
-            ps = PlotSummary.objects.get(fcid=fcid)
+            ps = IdbSummary.objects.get(cond_id=fcid)
             summary = ps.summary
             summary['fcid_coverage'] = prop * 100
             # Unit conversions
