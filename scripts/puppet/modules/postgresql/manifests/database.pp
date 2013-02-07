@@ -8,7 +8,7 @@ define postgresql::database($owner, $ensure=present) {
 
   if $ensure == 'present' {
 
-    exec { "createdb $name":
+    exec { "createdb":
       command => "/usr/bin/createdb -O $owner $name",
       user => "postgres",
       unless => $dbexists,
@@ -20,6 +20,7 @@ define postgresql::database($owner, $ensure=present) {
       user => $owner,
       onlyif => $dbexists,
       require => Postgresql::User[$owner],
+      subscribe => Exec['createdb']
     }
 
     exec { "load spatialrefs $name":
@@ -27,6 +28,7 @@ define postgresql::database($owner, $ensure=present) {
       user => $owner,
       onlyif => $dbexists,
       require => Postgresql::User[$owner],
+      subscribe => Exec['createdb']
     }
 
   } elsif $ensure == 'absent' {
