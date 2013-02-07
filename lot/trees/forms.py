@@ -1,16 +1,20 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, ForestProperty, Scenario
+from trees.models import Stand, Strata, ForestProperty, Scenario
 from madrona.analysistools.widgets import SliderWidget
 
 class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
         model = Stand
-        exclude = ('sharing_groups','content_type','object_id', 'domspp', 'rx', 'plot')
+        exclude = ('sharing_groups','content_type','object_id', 'domspp', 'cond_id', 'strata')
 
 class PropertyForm(FeatureForm):
     class Meta(FeatureForm.Meta):
         model = ForestProperty
+
+class StrataForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = Strata
 
 class ScenarioForm(FeatureForm):
     input_rxs = forms.CharField(widget=forms.HiddenInput(), initial="{}")

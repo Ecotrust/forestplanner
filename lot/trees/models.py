@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import math
+import json
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -9,7 +10,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
-from madrona.features.models import PolygonFeature, FeatureCollection
+from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
 from madrona.raster_stats.models import RasterDataset, zonal_stats
@@ -39,7 +40,6 @@ def cachemethod(cache_key, timeout=60*60*24*7):
         return decorated 
     return paramed_decorator
 
-# TODO: make this a model?
 RX_CHOICES = (
     ('--', '--'),
     ('RE', 'Reserve; No Action'),
@@ -52,22 +52,40 @@ RX_CHOICES = (
 
 @register
 class Stand(PolygonFeature):
-    SPP_CHOICES = (
-        ('--', '--'),
-        ('DF', 'Douglas Fir'),
-        ('MH', 'Mountain Hemlock'),
-    )
-    rx = models.CharField(max_length=2, choices=RX_CHOICES, 
-            verbose_name="Default Presciption", default="--")
-    domspp = models.CharField(max_length=2, choices=SPP_CHOICES, 
-            verbose_name="Dominant Species", default="--")
-    plot = models.ForeignKey("PlotSummary", verbose_name="Matched FIA Plot", 
-            null=True, blank=True, default=None)
-
+    strata = models.ForeignKey("Strata", blank=True, default=None, null=True)
+    cond_id = models.BigIntegerField(blank=True, null=True, default=None)
 
     class Options:
         form = "trees.forms.StandForm"
         manipulators = []
+
+    def get_idb(self):
+        from trees.plots import get_nearest_neighbors
+        if not self.cond_id:
+            stand_list = self.strata.stand_list 
+            site_cond = {
+                'latitude_fuzz': self.geometry_final.centroid[0],
+                'longitude_fuzz': self.geometry_final.centroid[1],
+            }
+            # include terrain variables
+            if self.imputed_aspect:
+                site_cond['calc_aspect'] = self.imputed_aspect
+            if self.imputed_elevation:
+                site_cond['elev_ft'] = self.imputed_elevation
+            if self.imputed_slope:
+                site_cond['calc_slope'] = self.imputed_slope
+            weight_dict = self.default_weighting
+            ps, num_candidates = get_nearest_neighbors(site_cond, stand_list['classes'], weight_dict, k=5)
+            self.cond_id = ps[0].name
+            self.save()
+        idb = IdbSummary.objects.get(cond_id=self.cond_id)
+        return idb
+
+    @property
+    def default_weighting(self):
+        return {
+            'TOTAL_PCTBA': 5,
+        }
 
     @property
     def acres(self):
@@ -101,6 +119,12 @@ class Stand(PolygonFeature):
         aspect_class = classify_aspect(aspect)
         slope = int_or_none(self.imputed_slope)
         gnn = int_or_none(self.imputed_gnn)
+
+        try:
+            strata_uid = self.strata.uid
+        except:
+            strata_uid = None
+
         if self.acres:
             acres = round(self.acres, 1)
         else:
@@ -109,15 +133,17 @@ class Stand(PolygonFeature):
         d = {
                 'uid': self.uid,
                 'name': self.name,
-                'rx': self.get_rx_display(),
+                'rx': '', #TODO rm ; was self.get_rx_display(),
                 'acres': acres,
-                'domspp': self.domspp,
+                'domspp': '', #TODO rm, was self.domspp,
                 'elevation': elevation,
+                'strata_uid': strata_uid,
                 'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
                 'gnn': gnn,
                 'plot_summary': self.plot_summary,
-                'plot_summaries': self.plot_summaries, #TODO rm
+                'plot_summaries': self.plot_summaries, #TODO include idb data
+                #TODO include strata info 
                 'user_id': self.user.pk,
                 'date_modified': str(self.date_modified),
                 'date_created': str(self.date_created),
@@ -138,22 +164,6 @@ class Stand(PolygonFeature):
             raise Exception("Raster is not valid: %s" % raster )
         stats = zonal_stats(g2, raster)
         return stats
-
-    def autofill_plot(self):
-        ''' 
-        Automatically populate the plot using GNN's best guest if available
-        '''
-        try:
-            fcid = self.imputed_fcids[0]
-        except IndexError:
-            return False
-        try:
-            ps = PlotSummary.objects.get(fcid=fcid[0]) 
-        except PlotSummary.DoesNotExist:
-            return False
-        self.plot = ps
-        self.save()
-        return True
 
     @property
     def imputed_elevation(self):
@@ -228,7 +238,8 @@ class Stand(PolygonFeature):
         ''' 
         Site charachteristics according to the chosen plot
         '''
-        if not self.plot:
+        return None # TODO adjust for IdbSummary
+        if not self.cond_id:
             return None
 
         ps = self.plot
@@ -308,7 +319,7 @@ class ForestProperty(FeatureCollection):
         Do all the stands have associated plots?
         '''
         for stand in self.feature_set(feature_classes=[Stand]):
-            if not stand.plot:
+            if not stand.cond_id:
                 return False
         return True
 
@@ -321,7 +332,7 @@ class ForestProperty(FeatureCollection):
         n_without_plot = 0
         stands = self.feature_set(feature_classes=[Stand])
         for stand in stands:
-            if not stand.plot:
+            if not stand.cond_id:
                 n_without_plot += 1
             else:
                 n_with_plot += 1
@@ -453,9 +464,8 @@ class ForestProperty(FeatureCollection):
         )
         return calculate_adjacency(stands, threshold)
 
-
     class Options:
-        valid_children = ('trees.models.Stand',)
+        valid_children = ('trees.models.Stand', 'trees.models.Strata',)
         form = "trees.forms.PropertyForm"
         links = (
             # Link to grab ALL *stands* associated with a property
@@ -644,7 +654,10 @@ class Scenario(Analysis):
             stand_dict = loads(stand.geojson())
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
-            stand_dict['properties']['results'] = res[str(stand.pk)]
+            try:
+                stand_dict['properties']['results'] = res[str(stand.pk)]
+            except KeyError:
+                continue #TODO this should never happen, probably stands added after scenario was created? or caching ?
 
             stand_data.append(stand_dict)
 
@@ -1040,10 +1053,10 @@ class IdbSummary(models.Model):
     state_name = models.CharField(max_length=40, blank=True)
     county_name = models.CharField(max_length=100, blank=True)
     halfstate_name = models.CharField(max_length=100, blank=True)
-    forest_name = models.CharField(max_length=510, blank=True)
+    forest_name = models.CharField(max_length=510, blank=True, null=True)
     acres = models.FloatField(null=True, blank=True)
     acres_vol = models.FloatField(null=True, blank=True)
-    fia_forest_type_name = models.CharField(max_length=60, blank=True)
+    fia_forest_type_name = models.CharField(max_length=60, blank=True, null=True)
     latitude_fuzz = models.FloatField(null=True, blank=True)
     longitude_fuzz = models.FloatField(null=True, blank=True)
     aspect_deg = models.IntegerField(null=True, blank=True)
@@ -1069,8 +1082,8 @@ class IdbSummary(models.Model):
     stand_age = models.IntegerField(null=True, blank=True)
     for_type = models.IntegerField(null=True, blank=True)
     for_type_secdry = models.IntegerField(null=True, blank=True)
-    for_type_name = models.CharField(max_length=60, blank=True)
-    for_type_secdry_name = models.CharField(max_length=60, blank=True)
+    for_type_name = models.CharField(max_length=60, blank=True, null=True)
+    for_type_secdry_name = models.CharField(max_length=60, blank=True, null=True)
     qmdc_dom = models.FloatField(null=True, blank=True)
     qmdh_dom = models.FloatField(null=True, blank=True)
     qmda_dom = models.FloatField(null=True, blank=True)
@@ -1147,6 +1160,49 @@ class PlotLookup(models.Model):
     def __unicode__(self):
         return u"%s (%s)" % (self.attr, self.name)
 
+@register
+class Strata(Feature):
+    search_age = models.FloatField()
+    search_tpa = models.FloatField()
+    additional_desc = models.TextField(blank=True, null=True)
+    stand_list = JSONField() # {'classes': [(species, age class, tpa), ...]}
+    
+    def candidates(self, min_candidates=5):
+        from plots import get_candidates
+        return get_candidates(self.stand_list['classes'], min_candidates=min_candidates) 
+
+    @property
+    def desc(self):
+        return "description created from stand list attrs"
+
+    class Options:
+        form = "trees.forms.StrataForm"
+        links = (
+            alternate('Add Stands',
+                'trees.views.add_stands_to_strata',  
+                type="application/json",
+                select='single'),
+        )
+
+    def save(self, *args, **kwargs):
+        try:
+            self.stand_list = json.loads(self.stand_list)
+        except (TypeError, ValueError):
+            pass # already good? 
+
+        if 'classes' not in self.stand_list:
+            raise Exception("Not a valid stand list")
+        for c in self.stand_list['classes']:
+            if len(c) != 4:
+                raise Exception("Not a valid stand list")
+            # c[0] is valid species?
+            assert(TreeliveSummary.objects.filter(fia_forest_type_name=c[0]).count() > 0)
+            # c[1] thru c[2] is valid diam class ?
+            assert(c[1] < c[2])
+            # c[3] is a valid tpa?
+            assert(c[3] > 0 and c[3] < 10000)
+        super(Strata, self).save(*args, **kwargs)
+
 
 fvsvariant_mapping = {
     'code' : 'FVSVARIANT',
@@ -1200,3 +1256,25 @@ def load_shp(path, feature_class):
     print "Saving", path, "to", feature_class, "using", mapping
     map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
+class TreeliveSummary(models.Model):
+    class_id = models.BigIntegerField(primary_key=True)
+    plot_id = models.BigIntegerField(null=True, blank=True)
+    cond_id = models.BigIntegerField(null=True, blank=True)
+    varname = models.CharField(max_length=60, blank=True)
+    fia_forest_type_name = models.CharField(max_length=60, blank=True)
+    calc_dbh_class = models.FloatField(null=True, blank=True)
+    calc_tree_count = models.IntegerField(null=True, blank=True)
+    sumoftpa = models.FloatField(null=True, blank=True)
+    avgoftpa = models.FloatField(null=True, blank=True)
+    sumofba_ft2_ac = models.FloatField(null=True, blank=True)
+    avgofba_ft2_ac = models.FloatField(null=True, blank=True)
+    avgofht_ft = models.FloatField(null=True, blank=True)
+    avgofdbh_in = models.FloatField(null=True, blank=True)
+    avgofage_bh = models.FloatField(null=True, blank=True)
+    total_ba_ft2_ac = models.FloatField(null=True, blank=True)
+    count_speciessizeclasses = models.IntegerField(null=True, blank=True)
+    pct_of_totalba = models.FloatField(null=True, blank=True)
+    class Meta:
+        db_table = u'treelive_summary'
+

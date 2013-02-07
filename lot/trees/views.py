@@ -1,4 +1,3 @@
-# Create your views here.
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponsePermanentRedirect
@@ -7,6 +6,7 @@ from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
 from geopy import geocoders  
 from geopy.point import Point
+from trees.models import Stand
 import json
 import simplejson
 import os
@@ -348,4 +348,102 @@ def svs_image(request, gnn):
     imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1,7)]
     idx = int(gnn) % len(imgs)
     return HttpResponsePermanentRedirect(imgs[idx])
+
+def stand_list_nn(request):
+    from plots import get_nearest_neighbors
+
+    stand_list = {
+        'classes': [
+            ('Douglas-fir', 6, 10, 160),
+            ('Douglas-fir', 10, 14, 31),
+            ('Douglas-fir', 14, 18, 7),
+            ('Western hemlock', 14, 18, 5),
+            ('Western redcedar', 14, 18, 5),
+            #('Red alder', 6, 20),
+        ]
+    }
+
+    """
+    stand_list = {
+        'classes': [
+            ('Douglas-fir', 10, 69),
+            ('Western hemlock', 10, 20),
+            ('Douglas-fir', 14, 5),
+            ('Red alder', 10, 7),
+            #('Tanoak', 2, 105),
+            ('Western redcedar', 14, 2),
+            #('Black cottonwood', 2, 67),
+            ('Sitka spruce', 0, 60),
+            ('Sitka spruce', 2, 3),
+            #('Black cottonwood', 0, 97),
+            #('Tanoak', 0, 200),
+        ]
+    }
+    """
+
+    site_cond = {
+        "age_dom": 40,
+        "calc_aspect": 360,
+        "elev_ft": 1100,
+        "latitude_fuzz": 45.58,
+        "longitude_fuzz": -123.83,
+        "calc_slope": 5
+    }
+
+    weight_dict = {
+        'TOTAL_PCTBA': 1, 
+        'PLOT_BA': 5,
+        'age_dom': 5,
+        "calc_aspect": 1,
+        "elev_ft": 0.6,
+        "latitude_fuzz": 0.3,
+        "longitude_fuzz": 0.6,
+        "calc_slope": 0.6,
+    }
+
+    in_stand_list = request.GET.get("stand_list", None)
+    if in_stand_list:
+        stand_list = json.loads(in_stand_list)
+    in_site_cond = request.GET.get("site_cond", None)
+    if in_site_cond:
+        site_cond = json.loads(in_site_cond)
+    in_weight_dict = request.GET.get("weight_dict", None)
+    if in_weight_dict:
+        weight_dict = json.loads(in_weight_dict)
+
+    mod_stand_list = [tuple(s) + (s[2] * (0.005454 * ((s[1] + 2)**2)),) for s in stand_list['classes']]
+    total_ba = sum(s[3] for s in mod_stand_list)
+
+    out = []
+    out.append("Searching for:\n  ")
+    out.extend("%s, %s to %s in, %s tpa, %d ba est" % s for s in mod_stand_list)
+    out.append("   (Total basal area: %d ft2/ac)" % total_ba)
+    out.append("\n")
+
+
+    ps, num_candidates = get_nearest_neighbors(site_cond, mod_stand_list, weight_dict, k=5)
+
+    stand_list_json = json.dumps(stand_list)
+    site_cond_json = json.dumps(site_cond)
+    weight_dict_json = json.dumps(weight_dict)
+
+    out.append("Candidates: %d" % num_candidates)
+    out.append("\n")
+    for pseries in ps:
+        out.append("%s\t%d%% certainty\t%s basal area\tspecified species/sizes account for %d %% of the total basal area\t%d years" % (pseries.name, 
+                pseries['_certainty'] * 100, pseries['PLOT_BA'], pseries['TOTAL_PCTBA'], pseries['age_dom']))
+    return render_to_response("trees/stand_list_nn.html", locals())
+
+def add_stands_to_strata(request, instance):
+    from madrona.features.views import get_object_for_editing
+    in_stands = request.POST.get("stands", None)
+    stands = in_stands.split(",")
+    for uid in stands:
+        stand = get_object_for_editing(request, uid, target_klass=Stand)
+        if isinstance(stand, HttpResponse):
+            return stand
+        stand.strata = instance
+        stand.save()
+    instance.save()
+    return HttpResponse("Stands %r added to %s" % (stands, instance.uid), mimetype='text/html', status=200)
 

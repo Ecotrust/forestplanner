@@ -68,3 +68,8 @@ try:
     from settings_local import *
 except ImportError:
     pass
+
+if DEBUG:
+    INSTALLED_APPS += ('django_pdb',)
+    MIDDLEWARE_CLASSES += ('django_pdb.middleware.PdbMiddleware',)
+

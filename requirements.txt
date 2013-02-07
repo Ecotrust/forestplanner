@@ -6,3 +6,5 @@ python-memcached>=1.48
 pandas>=0.10.1
 madrona
 simplejson
+django-pdb
+
