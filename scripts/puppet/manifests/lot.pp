@@ -18,6 +18,22 @@ exec { "add-apt":
   subscribe => Package["python-software-properties"]
 }
 
+package { "libmapnik":
+    ensure => "installed",
+    subscribe => Exec['add-apt']
+}
+
+
+package { "mapnik-utils":
+    ensure => "installed",
+    subscribe => Exec['add-apt']
+}
+
+
+package { "python-mapnik":
+    ensure => "latest",
+    subscribe => Exec['add-apt']
+}
 
 package { "build-essential":
     ensure => "installed"
@@ -61,6 +77,35 @@ package { "python-dev":
     ensure => "latest"
 }
 
+package { "python-numpy":
+    ensure => "latest"
+}
+
+package { "python-scipy":
+    ensure => "latest"
+}
+
+
+package { "python-gdal":
+    ensure => "latest"
+}
+
+package { "gfortran":
+    ensure => "latest"
+}
+
+
+package { "libopenblas-dev":
+    ensure => "latest"
+}
+
+
+package { "liblapack-dev":
+    ensure => "latest"
+}
+
+
+
 class { "postgresql::server": version => "9.1",
     listen_addresses => 'localhost',
     max_connections => 100,
@@ -71,18 +116,24 @@ postgresql::database { "lot":
   owner => "vagrant",
 }
 
+exec { "load postgis":
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql -d lot",
+  user => "vagrant",
+  require => Postgresql::Database['lot']
+}
+
+exec { "load spatialrefs":
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql -d lot",
+  user => "vagrant",
+  require => Postgresql::Database['lot']
+}
+
 python::venv::isolate { "/usr/local/venv/lot":
-  requirements => "/vagrant/requirements.txt",
   subscribe => [Package['python-mapnik'], Package['build-essential']]
 }
 
-#exec { "Django Syncdb":
-#  path => "/bin:/usr/bin",
-#  command => "/usr/local/venv/digitaldeck/bin/python /vagrant/digitaldeck/manage.py --noinput syncdb"
-#}
+file { "settings_local.py":
+  path => "/vagrant/lot/settings_local.py",
+  content => template("settings_vagrant.py")
 
-#exec { "Django Migrate":
-#  path => "/bin:/usr/bin",
-#  command => "/usr/local/venv/digitaldeck/bin/python /vagrant/digitaldeck/manage.py migrate",
-#  subscribe => Exec['Django Syncdb']
-#}
+}

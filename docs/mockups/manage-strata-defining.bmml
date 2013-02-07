@@ -30,11 +30,11 @@
         <text>Select%20Species</text>
       </controlProperties>
     </control>
-    <control controlID="107" controlTypeID="com.balsamiq.mockups::DataGrid" x="729" y="146" w="611" h="456" measuredW="516" measuredH="80" zOrder="5" locked="false" isInGroup="-1">
+    <control controlID="107" controlTypeID="com.balsamiq.mockups::DataGrid" x="794" y="146" w="544" h="456" measuredW="561" measuredH="80" zOrder="5" locked="false" isInGroup="-1">
       <controlProperties>
         <hLines>true</hLines>
         <size>18</size>
-        <text>Species%2C%20Size%20Class%2C%20Density%5Cr%28trees%20per%20acre%29%2C%20Height%2C%20Basal%20Area%0ADouglas%20Fir%2C%205%22-10%22%2C%20%2C%2C</text>
+        <text>Species%2C%20Size%20Class%2C%20Percentage%2C%20Density%5Cr%28trees%20per%20acre%29%2C%20Basal%20Area%0ADouglas%20Fir%2C%205%22-10%22%2C%20%2C%2C</text>
       </controlProperties>
     </control>
     <control controlID="108" controlTypeID="com.balsamiq.mockups::TextInput" x="332" y="302" w="199" h="-1" measuredW="57" measuredH="30" zOrder="6" locked="false" isInGroup="-1">
@@ -49,7 +49,7 @@
         <text>big%20leaf%20*maple*%0ARocky%20Mountain%20*maple*%0Avine%20*maple*</text>
       </controlProperties>
     </control>
-    <control controlID="112" controlTypeID="com.balsamiq.mockups::Button" x="490" y="541" w="188" h="58" measuredW="177" measuredH="34" zOrder="9" locked="false" isInGroup="-1">
+    <control controlID="112" controlTypeID="com.balsamiq.mockups::Button" x="558" y="544" w="188" h="58" measuredW="177" measuredH="34" zOrder="9" locked="false" isInGroup="-1">
       <controlProperties>
         <icon>PlusIcon%7Cxsmall</icon>
         <size>24</size>
@@ -62,7 +62,7 @@
         <text>New%20Stratum%20Wizard</text>
       </controlProperties>
     </control>
-    <control controlID="114" controlTypeID="com.balsamiq.mockups::Button" x="1206" y="632" w="-1" h="-1" measuredW="131" measuredH="54" zOrder="11" locked="false" isInGroup="-1">
+    <control controlID="114" controlTypeID="com.balsamiq.mockups::Button" x="1206" y="632" w="-1" h="-1" measuredW="132" measuredH="54" zOrder="11" locked="false" isInGroup="-1">
       <controlProperties>
         <icon>CheckMarkIcon%7Clarge</icon>
         <size>24</size>
@@ -75,8 +75,9 @@
         <text>Cancel</text>
       </controlProperties>
     </control>
-    <control controlID="116" controlTypeID="com.balsamiq.mockups::RadioButtonGroup" x="332" y="445" w="-1" h="-1" measuredW="71" measuredH="63" zOrder="13" locked="false" isInGroup="-1">
+    <control controlID="116" controlTypeID="com.balsamiq.mockups::RadioButtonGroup" x="332" y="445" w="-1" h="-1" measuredW="82" measuredH="72" zOrder="13" locked="false" isInGroup="-1">
       <controlProperties>
+        <size>16</size>
         <text>%28o%29%201%22-5%22%0A%28%20%29%205%22-10%22%0A%28%20%29%2010%22-15%22</text>
       </controlProperties>
     </control>
@@ -90,6 +91,19 @@
       <controlProperties>
         <size>24</size>
         <text>Advanced%20Mode</text>
+      </controlProperties>
+    </control>
+    <control controlID="120" controlTypeID="com.balsamiq.mockups::TextInput" x="541" y="445" w="149" h="-1" measuredW="50" measuredH="30" zOrder="16" locked="false" isInGroup="-1">
+      <controlProperties>
+        <align>right</align>
+        <size>16</size>
+        <text>20%25</text>
+      </controlProperties>
+    </control>
+    <control controlID="121" controlTypeID="com.balsamiq.mockups::SubTitle" x="541" y="412" w="-1" h="-1" measuredW="223" measuredH="33" zOrder="17" locked="false" isInGroup="-1">
+      <controlProperties>
+        <size>24</size>
+        <text>Percentage%20of%20Stand</text>
       </controlProperties>
     </control>
   </controls>
