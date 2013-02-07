@@ -209,8 +209,9 @@ class Stand(PolygonFeature):
         '''
         fcids = self.imputed_fcids  # ((fcid, pct), ..)
         summaries = []
+        return summaries #TODO fix or drop the GNN imputation
         for fcid, prop in fcids:
-            ps = PlotSummary.objects.get(fcid=fcid)
+            ps = IdbSummary.objects.get(cond_id=fcid)
             summary = ps.summary
             summary['fcid_coverage'] = prop * 100
             # Unit conversions
@@ -686,36 +687,6 @@ class Scenario(Analysis):
         verbose_name = 'Forest Scenario' 
         form_context = { } 
 
-class Parcel(models.Model):
-    apn = models.CharField(max_length=40)
-    geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
-
-class StreamBuffer(models.Model):
-    area = models.FloatField()
-    perimeter = models.FloatField()
-    str_buf_field = models.IntegerField()
-    str_buf_id = models.IntegerField()
-    inside = models.IntegerField()
-    geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
-
-class County(models.Model):
-    fips = models.IntegerField()
-    cntyname = models.CharField(max_length=23)
-    polytype = models.IntegerField()
-    stname = models.CharField(max_length=2)
-    soc_cnty = models.IntegerField()
-    cnty_fips= models.IntegerField()
-    st_fips = models.IntegerField()
-    geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
-
-class FVSVariant(models.Model):
-    code = models.CharField(max_length=3)
-    fvsvariant = models.CharField(max_length=100)
-    geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
 
 class FVSSpecies(models.Model):
     usda = models.CharField(max_length=8, null=True, blank=True)
@@ -740,306 +711,6 @@ class FVSSpecies(models.Model):
     UT = models.CharField(max_length=2)
     WC = models.CharField(max_length=2)
     WS = models.CharField(max_length=2)
-
-class TreeLive(models.Model):
-    live_id = models.BigIntegerField(primary_key=True)
-    pntid = models.BigIntegerField(null=True, blank=True)
-    ccid = models.BigIntegerField(null=True, blank=True)
-    fcid = models.BigIntegerField(null=True, blank=True)
-    pltid = models.BigIntegerField(null=True, blank=True)
-    loc_id = models.BigIntegerField(null=True, blank=True)
-    pnt_num = models.IntegerField(null=True, blank=True)
-    plot_type = models.CharField(max_length=40, blank=True)
-    data_source = models.CharField(max_length=30, blank=True)
-    source_db = models.CharField(max_length=30, blank=True)
-    state = models.CharField(max_length=4, blank=True)
-    plot = models.BigIntegerField(null=True, blank=True)
-    assessment_date = models.DateTimeField(null=True, blank=True)
-    spp_symbol = models.CharField(max_length=20, blank=True)
-    scientific_name = models.CharField(max_length=200, blank=True)
-    con = models.CharField(max_length=2, blank=True)
-    dbh_cm = models.FloatField(null=True, blank=True)
-    dbh_class = models.FloatField(null=True, blank=True)
-    dbh_est_method = models.FloatField(null=True, blank=True)
-    ba_m2 = models.FloatField(null=True, blank=True)
-    ht_m = models.FloatField(null=True, blank=True)
-    ht_est_method = models.IntegerField(null=True, blank=True)
-    mod_htm_fvs = models.IntegerField(null=True, blank=True)
-    for_spec = models.BigIntegerField(null=True, blank=True)
-    age_bh = models.IntegerField(null=True, blank=True)
-    crown_class = models.IntegerField(null=True, blank=True)
-    crown_ratio = models.IntegerField(null=True, blank=True)
-    hcb = models.FloatField(null=True, blank=True)
-    ucc = models.FloatField(null=True, blank=True)
-    vol_m3 = models.FloatField(null=True, blank=True)
-    cull_cubic = models.FloatField(null=True, blank=True)
-    plot_size = models.IntegerField(null=True, blank=True)
-    tree_count = models.IntegerField(null=True, blank=True)
-    source_id = models.BigIntegerField(null=True, blank=True)
-    baph_pnt = models.FloatField(null=True, blank=True)
-    baph_cc = models.FloatField(null=True, blank=True)
-    baph_fc = models.FloatField(null=True, blank=True)
-    baph_plt = models.FloatField(null=True, blank=True)
-    tph_pnt = models.FloatField(null=True, blank=True)
-    tph_cc = models.FloatField(null=True, blank=True)
-    tph_fc = models.FloatField(null=True, blank=True)
-    tph_plt = models.FloatField(null=True, blank=True)
-    pctcov_pnt = models.FloatField(null=True, blank=True)
-    pctcov_cc = models.FloatField(null=True, blank=True)
-    pctcov_fc = models.FloatField(null=True, blank=True)
-    pctcov_plt = models.FloatField(null=True, blank=True)
-    rem_pnt = models.CharField(max_length=2, blank=True)
-    rem_cc = models.CharField(max_length=2, blank=True)
-    rem_fc = models.CharField(max_length=2, blank=True)
-    rem_plt = models.CharField(max_length=2, blank=True)
-    volph_pnt = models.FloatField(null=True, blank=True)
-    volph_cc = models.FloatField(null=True, blank=True)
-    volph_fc = models.FloatField(null=True, blank=True)
-    volph_plt = models.FloatField(null=True, blank=True)
-    iv_pnt = models.FloatField(null=True, blank=True)
-    iv_cc = models.FloatField(null=True, blank=True)
-    iv_fc = models.FloatField(null=True, blank=True)
-    iv_plt = models.FloatField(null=True, blank=True)
-    biomph_pnt = models.FloatField(null=True, blank=True)
-    biomph_cc = models.FloatField(null=True, blank=True)
-    biomph_fc = models.FloatField(null=True, blank=True)
-    biomph_plt = models.FloatField(null=True, blank=True)
-    class Meta:
-        db_table = u'tree_live'
-
-class PlotSummary(models.Model):
-    fcid = models.BigIntegerField(primary_key=True, unique=True)
-    value = models.BigIntegerField(null=True, blank=True)
-    map_source = models.CharField(null=True, max_length=8, blank=True)
-    eslf_code = models.IntegerField(null=True, blank=True)
-    eslf_name = models.CharField(null=True, max_length=300, blank=True)
-    data_source = models.CharField(null=True, max_length=40, blank=True)
-    assessment_year = models.IntegerField(null=True, blank=True)
-    state = models.CharField(null=True, max_length=4, blank=True)
-    half_state = models.CharField(null=True, max_length=6, blank=True)
-    cnty = models.SmallIntegerField(null=True, blank=True)
-    plot = models.BigIntegerField(null=True, blank=True)
-    occasion_num = models.SmallIntegerField(null=True, blank=True)
-    idb_plot_id = models.BigIntegerField(null=True, blank=True)
-    bac_ge_3 = models.FloatField(null=True, blank=True)
-    bac_prop = models.FloatField(null=True, blank=True)
-    bac_3_25 = models.FloatField(null=True, blank=True)
-    bac_25_50 = models.FloatField(null=True, blank=True)
-    bac_50_75 = models.FloatField(null=True, blank=True)
-    bac_75_100 = models.FloatField(null=True, blank=True)
-    bac_ge_100 = models.FloatField(null=True, blank=True)
-    bah_ge_3 = models.FloatField(null=True, blank=True)
-    bah_prop = models.FloatField(null=True, blank=True)
-    bah_3_25 = models.FloatField(null=True, blank=True)
-    bah_25_50 = models.FloatField(null=True, blank=True)
-    bah_50_75 = models.FloatField(null=True, blank=True)
-    bah_75_100 = models.FloatField(null=True, blank=True)
-    bah_ge_100 = models.FloatField(null=True, blank=True)
-    baa_ge_3 = models.FloatField(null=True, blank=True)
-    baa_3_25 = models.FloatField(null=True, blank=True)
-    baa_25_50 = models.FloatField(null=True, blank=True)
-    baa_50_75 = models.FloatField(null=True, blank=True)
-    baa_75_100 = models.FloatField(null=True, blank=True)
-    baa_ge_100 = models.FloatField(null=True, blank=True)
-    bph_ge_3 = models.FloatField(null=True, blank=True)
-    tph_ge_3 = models.FloatField(null=True, blank=True)
-    tph_3_25 = models.FloatField(null=True, blank=True)
-    tph_25_50 = models.FloatField(null=True, blank=True)
-    tph_50_75 = models.FloatField(null=True, blank=True)
-    tph_75_100 = models.FloatField(null=True, blank=True)
-    tph_ge_100 = models.FloatField(null=True, blank=True)
-    tphc_ge_3 = models.FloatField(null=True, blank=True)
-    tphc_ge_50 = models.FloatField(null=True, blank=True)
-    tphc_ge_75 = models.FloatField(null=True, blank=True)
-    tphc_ge_100 = models.FloatField(null=True, blank=True)
-    tphh_ge_3 = models.FloatField(null=True, blank=True)
-    tphtol_ge_3 = models.FloatField(null=True, blank=True)
-    tphintol_ge_3 = models.FloatField(null=True, blank=True)
-    vph_ge_3 = models.FloatField(null=True, blank=True)
-    vph_3_25 = models.FloatField(null=True, blank=True)
-    vph_25_50 = models.FloatField(null=True, blank=True)
-    vph_50_75 = models.FloatField(null=True, blank=True)
-    vph_75_100 = models.FloatField(null=True, blank=True)
-    vph_ge_100 = models.FloatField(null=True, blank=True)
-    vphc_ge_3 = models.FloatField(null=True, blank=True)
-    vphh_ge_3 = models.FloatField(null=True, blank=True)
-    qmdc_dom = models.FloatField(null=True, blank=True)
-    qmdh_dom = models.FloatField(null=True, blank=True)
-    qmda_dom = models.FloatField(null=True, blank=True)
-    qmdc_ge_3 = models.FloatField(null=True, blank=True)
-    qmdh_ge_3 = models.FloatField(null=True, blank=True)
-    qmda_ge_3 = models.FloatField(null=True, blank=True)
-    qmdc_75pct = models.FloatField(null=True, blank=True)
-    mndbhba_all = models.FloatField(null=True, blank=True)
-    mndbhba_con = models.FloatField(null=True, blank=True)
-    mndbhba_hdw = models.FloatField(null=True, blank=True)
-    stph_12_25 = models.FloatField(null=True, blank=True)
-    stph_25_50 = models.FloatField(null=True, blank=True)
-    stph_50_75 = models.FloatField(null=True, blank=True)
-    stph_75_100 = models.FloatField(null=True, blank=True)
-    stph_ge_12 = models.FloatField(null=True, blank=True)
-    stph_ge_25 = models.FloatField(null=True, blank=True)
-    stph_ge_50 = models.FloatField(null=True, blank=True)
-    stph_ge_75 = models.FloatField(null=True, blank=True)
-    stph_ge_100 = models.FloatField(null=True, blank=True)
-    svph_12_25 = models.FloatField(null=True, blank=True)
-    svph_25_50 = models.FloatField(null=True, blank=True)
-    svph_50_75 = models.FloatField(null=True, blank=True)
-    svph_75_100 = models.FloatField(null=True, blank=True)
-    svph_ge_12 = models.FloatField(null=True, blank=True)
-    svph_ge_25 = models.FloatField(null=True, blank=True)
-    svph_ge_50 = models.FloatField(null=True, blank=True)
-    svph_ge_75 = models.FloatField(null=True, blank=True)
-    svph_ge_100 = models.FloatField(null=True, blank=True)
-    sbph_5_9_in = models.FloatField(null=True, blank=True)
-    sbph_9_20_in = models.FloatField(null=True, blank=True)
-    sbph_ge_20_in = models.FloatField(null=True, blank=True)
-    sbph_ge_12 = models.FloatField(null=True, blank=True)
-    dvph_12_25 = models.FloatField(null=True, blank=True)
-    dvph_25_50 = models.FloatField(null=True, blank=True)
-    dvph_50_75 = models.FloatField(null=True, blank=True)
-    dvph_75_100 = models.FloatField(null=True, blank=True)
-    dvph_ge_12 = models.FloatField(null=True, blank=True)
-    dvph_ge_25 = models.FloatField(null=True, blank=True)
-    dvph_ge_50 = models.FloatField(null=True, blank=True)
-    dvph_ge_75 = models.FloatField(null=True, blank=True)
-    dvph_ge_100 = models.FloatField(null=True, blank=True)
-    dcov_12_25 = models.FloatField(null=True, blank=True)
-    dcov_25_50 = models.FloatField(null=True, blank=True)
-    dcov_50_75 = models.FloatField(null=True, blank=True)
-    dcov_75_100 = models.FloatField(null=True, blank=True)
-    dcov_ge_12 = models.FloatField(null=True, blank=True)
-    dcov_ge_25 = models.FloatField(null=True, blank=True)
-    dcov_ge_50 = models.FloatField(null=True, blank=True)
-    dcov_ge_75 = models.FloatField(null=True, blank=True)
-    dcov_ge_100 = models.FloatField(null=True, blank=True)
-    cancov = models.FloatField(null=True, blank=True)
-    cancov_con = models.FloatField(null=True, blank=True)
-    cancov_hdw = models.FloatField(null=True, blank=True)
-    cancov_dom = models.FloatField(null=True, blank=True)
-    stndhgt = models.FloatField(null=True, blank=True)
-    hcb = models.FloatField(null=True, blank=True)
-    sddbh = models.FloatField(null=True, blank=True)
-    sdba = models.FloatField(null=True, blank=True)
-    sdi = models.FloatField(null=True, blank=True)
-    sdi_reineke = models.FloatField(null=True, blank=True)
-    conr = models.SmallIntegerField(null=True, blank=True)
-    hdwr = models.SmallIntegerField(null=True, blank=True)
-    treer = models.SmallIntegerField(null=True, blank=True)
-    iv_con = models.FloatField(null=True, blank=True)
-    iv_hdw = models.FloatField(null=True, blank=True)
-    iv_vs = models.FloatField(null=True, blank=True)
-    iv_100 = models.FloatField(null=True, blank=True)
-    ddi = models.FloatField(null=True, blank=True)
-    age_dom = models.FloatField(null=True, blank=True)
-    age_dom_no_rem = models.FloatField(null=True, blank=True)
-    tph_reml = models.FloatField(null=True, blank=True)
-    vph_reml = models.FloatField(null=True, blank=True)
-    rem_pctl = models.FloatField(null=True, blank=True)
-    tph_rems = models.FloatField(null=True, blank=True)
-    vph_rems = models.FloatField(null=True, blank=True)
-    rem_pcts = models.FloatField(null=True, blank=True)
-    vph_remd = models.FloatField(null=True, blank=True)
-    rem_pctd = models.FloatField(null=True, blank=True)
-    struccond = models.SmallIntegerField(null=True, blank=True)
-    vegclass = models.SmallIntegerField(null=True, blank=True)
-    struccondr = models.SmallIntegerField(null=True, blank=True)
-    vegclassr = models.SmallIntegerField(null=True, blank=True)
-    conplba = models.CharField(null=True, max_length=20, blank=True)
-    conpliv = models.CharField(null=True, max_length=20, blank=True)
-    conplcov = models.CharField(null=True, max_length=20, blank=True)
-    hdwplba = models.CharField(null=True, max_length=20, blank=True)
-    hdwpliv = models.CharField(null=True, max_length=20, blank=True)
-    hdwplcov = models.CharField(null=True, max_length=20, blank=True)
-    uplcov = models.CharField(null=True, max_length=20, blank=True)
-    fortypba = models.CharField(null=True, max_length=42, blank=True)
-    fortypiv = models.CharField(null=True, max_length=42, blank=True)
-    fortypcov = models.CharField(null=True, max_length=42, blank=True)
-    sizecl = models.SmallIntegerField(null=True, blank=True)
-    covcl = models.SmallIntegerField(null=True, blank=True)
-    sc = models.SmallIntegerField(null=True, blank=True)
-    sc_decaid = models.CharField(null=True, max_length=2, blank=True)
-    imap_domspp = models.CharField(null=True, max_length=20, blank=True)
-    imap_layers = models.SmallIntegerField(null=True, blank=True)
-    imap_qmd = models.FloatField(null=True, blank=True)
-    vc_qmda = models.SmallIntegerField(null=True, blank=True)
-    vc_qmdc = models.SmallIntegerField(null=True, blank=True)
-    lsog = models.CharField(null=True, max_length=2, blank=True)
-    lsog_tphc_50 = models.CharField(null=True, max_length=2, blank=True)
-    ogsi = models.FloatField(null=True, blank=True)
-
-    class Meta:
-        db_table = u'sppsz_attr_all'
-
-    def __unicode__(self):
-        return "%s (%s)" % (self.fcid, self.imap_domspp)
-
-    def get_forest_types(self, fortype_str):
-        ''' 
-        Get forest types based on string, Returns list
-        '''
-        try:
-            fortypes = [FVSSpecies.objects.get(usda=x).common.title() for x in fortype_str.strip().split('/')]
-            fortypes = [x.replace('-',' ') for x in fortypes]
-        except (FVSSpecies.DoesNotExist, AttributeError):
-            fortypes = [fortype_str]
-        return fortypes
-
-    @property
-    def vegclass_decoded(self):
-        ''' 
-        Should this be in the database? Probably but this is quick and works for now
-        If we end up doing lots of field code lookups, then we can reassess
-        '''
-        vegclass = self.vegclass
-        if not vegclass:
-            return None
-
-        datadict = {
-            1 : "Sparse",
-            2 : "Open",
-            3 : "Broadleaf: sap/pole: mod/closed",
-            4 : "Broadleaf: sm/med/lg: mod/closed",
-            5 : "Mixed: sap/pole: mod/closed",
-            6 : "Mixed: sm/med: mod/closed",
-            7 : "Mixed: large+giant: mod/closed",
-            8 : "Conifer: sap/pole: mod/closed",
-            9 : "Conifer: sm/med: mod/closed",
-           10 : "Conifer: large: mod/closed",
-           11 : "Conifer: giant: mod/closed",
-        }
-        return datadict[vegclass]
-
-    @property
-    @cachemethod('plot_summary_fcid-%(fcid)s')
-    def summary(self):
-        ''' 
-        Plot characteristics according to the FCID
-        '''
-        fortype_str = self.fortypiv
-        fortypes = self.get_forest_types(fortype_str)
-
-        summary = {
-                'fcid': self.fcid,
-                'fortypiv': fortypes,
-                'vegclass': self.vegclass_decoded,
-                'cancov': self.cancov,
-                'stndhgt': self.stndhgt,
-                'sdi_reineke': self.sdi_reineke,
-                'qmda_dom': self.qmda_dom,
-                'baa_ge_3': self.baa_ge_3,
-                'tph_ge_3': self.tph_ge_3,
-                'bac_prop': self.bac_prop,
-            }
-        return summary
-
-class GNN_ORWA(models.Model):
-    """
-    GNN 'histogram' for our study region
-    value is the fcid, count is the number of pixels
-    """
-    value = models.IntegerField()
-    count = models.IntegerField()
 
 
 class IdbSummary(models.Model):
@@ -1121,44 +792,28 @@ class IdbSummary(models.Model):
         plot_centroid.transform(settings.EQD_SRID)
         return plot_centroid
 
-class PlotLookupManager(models.Manager):
-    def get_query_set(self):
-        from django.db.models import Q
-        return super(PlotLookupManager, self).get_query_set().filter(~Q(type="cat"), weight__gte=0)
+    @property
+    @cachemethod('IdbSummary-%(cond_id)s')
+    def summary(self):
+        ''' 
+        Plot characteristics according to the FCID
+        '''
+        fortype_str = self.fortypiv
+        fortypes = self.get_forest_types(fortype_str)
 
-class PlotLookup(models.Model):
-    attr = models.CharField(max_length=30, blank=True, null=True)
-    source = models.CharField(max_length=10, blank=True, null=True)
-    name = models.CharField(max_length=60, blank=True, null=True)
-    desc = models.TextField(blank=True, null=True)
-    weight = models.FloatField(blank=True, null=True)
-    type = models.CharField(max_length=20, blank=True, null=True)
-    units = models.CharField(max_length=30, blank=True, null=True)
-    notes = models.TextField(blank=True, null=True)
-    objects = models.Manager() # The default manager.
-    nn_objects = PlotLookupManager() # The filtered manager showing ONLY plot attrs used in the NN search.
-
-    @classmethod
-    def weight_dict(cls):
-        return dict([(x.attr, x.weight) for x in cls.nn_objects.all()])
-
-    @classmethod
-    def lookup(cls):
-        return dict([(x.attr, x.name) for x in cls.nn_objects.all()])
-
-    class Meta:
-        ordering = ['name']
-
-    @classmethod
-    def field_dict(cls):
-        return {
-            'cats': cls.objects.filter(type='cat'),
-            'numerics': cls.nn_objects.filter(type='num'),
-            'stands': cls.nn_objects.filter(type='stand'),
-        }
-
-    def __unicode__(self):
-        return u"%s (%s)" % (self.attr, self.name)
+        summary = {
+                'fcid': self.fcid,
+                'fortypiv': fortypes,
+                'vegclass': self.vegclass_decoded,
+                'cancov': self.cancov,
+                'stndhgt': self.stndhgt,
+                'sdi_reineke': self.sdi_reineke,
+                'qmda_dom': self.qmda_dom,
+                'baa_ge_3': self.baa_ge_3,
+                'tph_ge_3': self.tph_ge_3,
+                'bac_prop': self.bac_prop,
+            }
+        return summary
 
 @register
 class Strata(Feature):
@@ -1204,59 +859,6 @@ class Strata(Feature):
         super(Strata, self).save(*args, **kwargs)
 
 
-fvsvariant_mapping = {
-    'code' : 'FVSVARIANT',
-    'fvsvariant': 'FULLNAME',
-    'geom' : 'MULTIPOLYGON',
-}
-
-county_mapping = {
-        'fips': 'FIPS',
-        'cntyname': 'CNTYNAME',
-        'polytype': 'POLYTYPE', 
-        'stname': 'STNAME',
-        'soc_cnty': 'SOC_CNTY',
-        'cnty_fips': 'CNTY_FIPS',
-        'st_fips': 'ST_FIPS',
-        'geom': 'MULTIPOLYGON'
-    }
-
-stand_mapping = {
-    'name': 'STAND_TEXT',
-    'geometry_final': 'POLYGON',
-    'geometry_original': 'POLYGON'
-}
-
-# Auto-generated `LayerMapping` dictionary for Parcel model
-parcel_mapping = {
-    'apn' : 'APN',
-    'geom' : 'MULTIPOLYGON',
-}
-
-# Auto-generated `LayerMapping` dictionary for StreamBuffer model
-streambuffer_mapping = {
-    'area' : 'AREA',
-    'perimeter' : 'PERIMETER',
-    'str_buf_field' : 'STR_BUF_',
-    'str_buf_id' : 'STR_BUF_ID',
-    'inside' : 'INSIDE',
-    'geom' : 'MULTIPOLYGON',
-}
-
-def load_shp(path, feature_class):
-    '''
-    First run ogrinspect to generate the class and mapping. 
-        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
-    Paste code into models.py and modify as necessary.
-    Finally, load the shapefile:
-        from trees import models
-        models.load_shp('../data/fvs_variants/lot_fvsvariant_3857.shp', models.FVSVariant)
-    '''
-    mapping = eval("%s_mapping" % feature_class.__name__.lower())
-    print "Saving", path, "to", feature_class, "using", mapping
-    map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
-    map1.save(strict=True, verbose=True)
-
 class TreeliveSummary(models.Model):
     class_id = models.BigIntegerField(primary_key=True)
     plot_id = models.BigIntegerField(null=True, blank=True)
@@ -1278,3 +880,53 @@ class TreeliveSummary(models.Model):
     class Meta:
         db_table = u'treelive_summary'
 
+# Shapefile-backed models 
+class County(models.Model):
+    fips = models.IntegerField()
+    cntyname = models.CharField(max_length=23)
+    polytype = models.IntegerField()
+    stname = models.CharField(max_length=2)
+    soc_cnty = models.IntegerField()
+    cnty_fips= models.IntegerField()
+    st_fips = models.IntegerField()
+    geom = models.MultiPolygonField(srid=3857)
+    objects = models.GeoManager()
+
+class FVSVariant(models.Model):
+    code = models.CharField(max_length=3)
+    fvsvariant = models.CharField(max_length=100)
+    geom = models.MultiPolygonField(srid=3857)
+    objects = models.GeoManager()
+
+# Auto-generated `LayerMapping` dictionaries for shapefile-backed models
+county_mapping = {
+    'fips': 'FIPS',
+    'cntyname': 'CNTYNAME',
+    'polytype': 'POLYTYPE', 
+    'stname': 'STNAME',
+    'soc_cnty': 'SOC_CNTY',
+    'cnty_fips': 'CNTY_FIPS',
+    'st_fips': 'ST_FIPS',
+    'geom': 'MULTIPOLYGON'
+}
+
+fvsvariant_mapping = {
+    'code' : 'FVSVARIANT',
+    'fvsvariant': 'FULLNAME',
+    'geom' : 'MULTIPOLYGON',
+}
+
+
+def load_shp(path, feature_class):
+    '''
+    First run ogrinspect to generate the class and mapping. 
+        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
+    Paste code into models.py and modify as necessary.
+    Finally, load the shapefile:
+        from trees import models
+        models.load_shp('../data/fvs_variants/lot_fvsvariant_3857.shp', models.FVSVariant)
+    '''
+    mapping = eval("%s_mapping" % feature_class.__name__.lower())
+    print "Saving", path, "to", feature_class, "using", mapping
+    map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
+    map1.save(strict=True, verbose=True)
