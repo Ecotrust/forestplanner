@@ -112,20 +112,20 @@ class { "postgresql::server": version => "9.1",
     shared_buffers => '24MB',
 }
 
-postgresql::database { "lot":
+postgresql::database { "forestplanner":
   owner => "vagrant",
 }
 
 exec { "load postgis":
-  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql -d lot",
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql -d forestplanner",
   user => "vagrant",
-  require => Postgresql::Database['lot']
+  require => Postgresql::Database['forestplanner']
 }
 
 exec { "load spatialrefs":
-  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql -d lot",
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql -d forestplanner",
   user => "vagrant",
-  require => Postgresql::Database['lot']
+  require => Postgresql::Database['forestplanner']
 }
 
 python::venv::isolate { "/usr/local/venv/lot":

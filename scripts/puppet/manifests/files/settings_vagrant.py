@@ -3,7 +3,7 @@ SECRET_KEY = 'secret'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'lot',
+        'NAME': 'forestplanner',
         'USER': 'vagrant',
     }
 }

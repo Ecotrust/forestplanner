@@ -1,9 +1,10 @@
 Shapely>=1.2.14
 geopy>=0.94.2
 selenium
-scipy>=0.10.1
+scipy
 python-memcached>=1.48
 pandas>=0.10.1
+git+http://github.com/django/django.git@stable/1.4.x#egg=django
 madrona
 simplejson
 django-pdb

@@ -32,5 +32,6 @@ def install_media():
 
 def run_server():
 	run('cd /usr/local/apps/land_owner_tools/lot && /usr/local/venv/lot/bin/python manage.py runserver 0.0.0.0:8000')
+
 # def update(): 
-#    run('cd /usr/local/apps/marco/marco-portal/ && git fetch && git merge origin/master')
+#    run('cd /usr/local/apps/land_owner_tools/lot/ && git fetch && git merge origin/master')
