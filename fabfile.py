@@ -25,6 +25,8 @@ def install_requirements():
 
 def install_django():
 	run('cd /usr/local/apps/land_owner_tools/lot && /usr/local/venv/lot/bin/python manage.py syncdb && /usr/local/venv/lot/bin/python manage.py migrate && /usr/local/venv/lot/bin/python manage.py install_media')	
+	run('cd /usr/local/apps/land_owner_tools/lot && /usr/local/venv/lot/bin/python manage.py enable_sharing --all')	
+	run('cd /usr/local/apps/land_owner_tools/lot && /usr/local/venv/lot/bin/python manage.py install_cleangeometry')	
 
 def install_media():
 	run('cd /usr/local/apps/land_owner_tools/lot && /usr/local/venv/lot/bin/python manage.py install_media')	
