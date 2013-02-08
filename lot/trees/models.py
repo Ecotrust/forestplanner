@@ -156,7 +156,10 @@ class Stand(PolygonFeature):
         return gj
 
     def get_raster_stats(self, rastername):
-        raster = RasterDataset.objects.get(name=rastername)
+        try:
+            raster = RasterDataset.objects.get(name=rastername)
+        except RasterDataset.DoesNotExist:
+            return None
         rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
         g1 = self.geometry_final
         g2 = g1.transform(rproj, clone=True)
@@ -168,38 +171,43 @@ class Stand(PolygonFeature):
     @property
     def imputed_elevation(self):
         data = self.get_raster_stats('elevation')
-        return data.avg
+        if data:
+            return data.avg
 
     @property
     def imputed_aspect(self):
         cos = self.get_raster_stats('cos_aspect')
         sin = self.get_raster_stats('sin_aspect')
-        result = None
-        if cos and sin and cos.sum and sin.sum:
-            avg_aspect_rad = math.atan2(sin.sum, cos.sum)
-            result = math.degrees(avg_aspect_rad) % 360
-        return result
+        if cos and sin:
+            result = None
+            if cos and sin and cos.sum and sin.sum:
+                avg_aspect_rad = math.atan2(sin.sum, cos.sum)
+                result = math.degrees(avg_aspect_rad) % 360
+            return result
 
     @property
     def imputed_slope(self):
         data = self.get_raster_stats('slope')
-        return data.avg
+        if data:
+            return data.avg
 
     @property
     def imputed_gnn(self):
         data = self.get_raster_stats('gnn')
-        return data.mode
+        if data:
+            return data.mode
 
     @property
     def imputed_fcids(self):
         stats = self.get_raster_stats('gnn')
-        total_pixels = stats.pixels
-        fcid_dict = {}
-        for cat in stats.categories.all():
-            fcid_dict[cat.category] = cat.count / total_pixels
+        if stats:
+            total_pixels = stats.pixels
+            fcid_dict = {}
+            for cat in stats.categories.all():
+                fcid_dict[cat.category] = cat.count / total_pixels
 
-        fsorted = sorted(fcid_dict.iteritems(), key=itemgetter(1), reverse=True)
-        return fsorted[:4]  # return 4 most common GNN pixels
+            fsorted = sorted(fcid_dict.iteritems(), key=itemgetter(1), reverse=True)
+            return fsorted[:4]  # return 4 most common GNN pixels
 
     @property
     def plot_summaries(self):
