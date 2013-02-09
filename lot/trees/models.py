@@ -842,7 +842,7 @@ class Strata(Feature):
         form = "trees.forms.StrataForm"
         links = (
             alternate('Add Stands',
-                'trees.views.add_stands_to_strata',  
+                'trees.views.add_stands_to_strata',
                 type="application/json",
                 select='single'),
         )
@@ -851,7 +851,7 @@ class Strata(Feature):
         try:
             self.stand_list = json.loads(self.stand_list)
         except (TypeError, ValueError):
-            pass # already good? 
+            pass  # already good?
 
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")
@@ -885,20 +885,23 @@ class TreeliveSummary(models.Model):
     total_ba_ft2_ac = models.FloatField(null=True, blank=True)
     count_speciessizeclasses = models.IntegerField(null=True, blank=True)
     pct_of_totalba = models.FloatField(null=True, blank=True)
+
     class Meta:
         db_table = u'treelive_summary'
 
-# Shapefile-backed models 
+
+# Shapefile-backed models
 class County(models.Model):
     fips = models.IntegerField()
     cntyname = models.CharField(max_length=23)
     polytype = models.IntegerField()
     stname = models.CharField(max_length=2)
     soc_cnty = models.IntegerField()
-    cnty_fips= models.IntegerField()
+    cnty_fips = models.IntegerField()
     st_fips = models.IntegerField()
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
+
 
 class FVSVariant(models.Model):
     code = models.CharField(max_length=3)
@@ -910,7 +913,7 @@ class FVSVariant(models.Model):
 county_mapping = {
     'fips': 'FIPS',
     'cntyname': 'CNTYNAME',
-    'polytype': 'POLYTYPE', 
+    'polytype': 'POLYTYPE',
     'stname': 'STNAME',
     'soc_cnty': 'SOC_CNTY',
     'cnty_fips': 'CNTY_FIPS',
@@ -919,9 +922,9 @@ county_mapping = {
 }
 
 fvsvariant_mapping = {
-    'code' : 'FVSVARIANT',
+    'code': 'FVSVARIANT',
     'fvsvariant': 'FULLNAME',
-    'geom' : 'MULTIPOLYGON',
+    'geom': 'MULTIPOLYGON',
 }
 
 

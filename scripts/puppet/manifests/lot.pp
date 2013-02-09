@@ -29,7 +29,6 @@ package { "mapnik-utils":
     subscribe => Exec['add-apt']
 }
 
-
 package { "python-mapnik":
     ensure => "latest",
     subscribe => Exec['add-apt']
@@ -42,7 +41,6 @@ package { "build-essential":
 
 package { "python-software-properties":
     ensure => "installed"
-
 }
 
 package { "git-core":
@@ -94,17 +92,13 @@ package { "gfortran":
     ensure => "latest"
 }
 
-
 package { "libopenblas-dev":
     ensure => "latest"
 }
 
-
 package { "liblapack-dev":
     ensure => "latest"
 }
-
-
 
 class { "postgresql::server": version => "9.1",
     listen_addresses => 'localhost',

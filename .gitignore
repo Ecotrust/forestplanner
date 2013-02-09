@@ -8,6 +8,7 @@ data/*
 env/*
 *_import/*.mdb
 *_import/*.tsv
+lot/fixtures/downloads/*
 idb_import/treelive_summary/*/*.tsv
 idb_import/treelive_summary/*/*.csv
 idb_import/treelive_summary/*/*.sqlite
