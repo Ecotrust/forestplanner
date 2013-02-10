@@ -35,27 +35,39 @@ def all():
     env.hosts = dev() + prod() + test()
 
 
-def install_requirements():
+def _install_requirements():
     run('cd %(app_dir)s && %(venv)s/bin/pip install -r ../requirements.txt' % vars)
 
 
-def install_django():
-    run('cd %(app_dir)s && %(venv)s/bin/python manage.py syncdb && %(venv)s/bin/python manage.py migrate && %(venv)s/bin/python manage.py install_media' % vars)
-    run('cd %(app_dir)s && %(venv)s/bin/python manage.py enable_sharing --all' % vars)
-    run('cd %(app_dir)s && %(venv)s/bin/python manage.py install_cleangeometry' % vars)
+def _install_django():
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py syncdb --noinput && \
+                           %(venv)s/bin/python manage.py migrate --noinput && \
+                           %(venv)s/bin/python manage.py install_media -a && \
+                           %(venv)s/bin/python manage.py enable_sharing --all && \
+                           %(venv)s/bin/python manage.py install_cleangeometry')
 
 
-def install_media():
-    run('cd %(app_dir)s && %(venv)s/bin/python manage.py install_media' % vars)
+def create_superuser():
+    """ Create the django superuser (interactive!) """
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py createsuperuser' % vars)
 
 
-def install_data():
+def import_data():
+    """ Fetches and installs data fixtures (WARNING: 5+GB of data; hence not checking fixtures into the repo) """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py import_data' % vars)
 
 
-def run_server():
+def init():
+    """ Initialize the forest planner application """
+    _install_requirements()
+    _install_django()
+
+
+def runserver():
+    """ Run the django dev server on port 8000 """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py runserver 0.0.0.0:8000' % vars)
 
 
-# def update():
-#     run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
+def update():
+    """ Sync with master git repo """
+    run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
