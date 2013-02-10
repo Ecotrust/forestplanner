@@ -44,7 +44,7 @@ def _install_django():
                            %(venv)s/bin/python manage.py migrate --noinput && \
                            %(venv)s/bin/python manage.py install_media -a && \
                            %(venv)s/bin/python manage.py enable_sharing --all && \
-                           %(venv)s/bin/python manage.py install_cleangeometry')
+                           %(venv)s/bin/python manage.py install_cleangeometry' % vars)
 
 
 def create_superuser():
@@ -71,3 +71,11 @@ def runserver():
 def update():
     """ Sync with master git repo """
     run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
+    init()
+
+# TODO
+# figure out line b/t puppet and fabric duties
+# run test suite
+# run selenium
+# a "bootstrap_puppet" command to ssh into an arbitrary box, transfer files, set things up and run puppet
+#  .. basically a vagrant up for non virtualbox servers
