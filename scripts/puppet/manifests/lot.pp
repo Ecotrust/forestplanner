@@ -1,4 +1,3 @@
-
 # ensure that apt update is run before any packages are installed
 class apt {
   exec { "apt-update":
@@ -9,7 +8,6 @@ class apt {
   Exec["apt-update"] -> Package <| |>
 
 }
-
 
 include apt
 
@@ -23,7 +21,6 @@ package { "libmapnik":
     subscribe => Exec['add-apt']
 }
 
-
 package { "mapnik-utils":
     ensure => "installed",
     subscribe => Exec['add-apt']
@@ -36,7 +33,6 @@ package { "python-mapnik":
 
 package { "build-essential":
     ensure => "installed"
-
 }
 
 package { "python-software-properties":
@@ -83,7 +79,6 @@ package { "python-scipy":
     ensure => "latest"
 }
 
-
 package { "python-gdal":
     ensure => "latest"
 }
@@ -97,6 +92,22 @@ package { "libopenblas-dev":
 }
 
 package { "liblapack-dev":
+    ensure => "latest"
+}
+
+package { "redis-server":
+    ensure => "latest"
+}
+
+package {'libgeos-dev':
+    ensure => "latest"
+}
+
+package {'libgdal1-dev':
+    ensure => "latest"
+}
+
+package {'supervisor':
     ensure => "latest"
 }
 
@@ -129,5 +140,4 @@ python::venv::isolate { "/usr/local/venv/lot":
 file { "settings_local.py":
   path => "/vagrant/lot/settings_local.py",
   content => template("settings_vagrant.py")
-
 }

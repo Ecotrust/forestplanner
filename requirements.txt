@@ -8,3 +8,6 @@ django<1.5
 -e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
 simplejson
 django-pdb
+celery-with-redis
+django-redis
+django-redis-sessions
