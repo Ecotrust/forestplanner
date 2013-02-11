@@ -5,6 +5,6 @@ scipy
 python-memcached>=1.48
 pandas>=0.10.1
 django<1.5
-madrona
+-e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
 simplejson
 django-pdb
