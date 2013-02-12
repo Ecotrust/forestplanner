@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
-import math
 import json
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
@@ -13,17 +12,18 @@ from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
-from madrona.raster_stats.models import RasterDataset, zonal_stats
 from madrona.common.utils import get_logger
 from operator import itemgetter
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
+from trees.tasks import impute_rasters
 
 logger = get_logger()
 
-def cachemethod(cache_key, timeout=60*60*24*7):
+
+def cachemethod(cache_key, timeout=60 * 60 * 24 * 7):
     '''
-    http://djangosnippets.org/snippets/1130/    
+    http://djangosnippets.org/snippets/1130/
     default timeout = 1 week
 
     @property
@@ -37,7 +37,7 @@ def cachemethod(cache_key, timeout=60*60*24*7):
                 res = func(self, *args)
                 cache.set(key, res, timeout)
             return res
-        return decorated 
+        return decorated
     return paramed_decorator
 
 RX_CHOICES = (
@@ -54,6 +54,9 @@ RX_CHOICES = (
 class Stand(PolygonFeature):
     strata = models.ForeignKey("Strata", blank=True, default=None, null=True)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
+    elevation = models.FloatField(null=True, blank=True)
+    slope = models.FloatField(null=True, blank=True)
+    aspect = models.FloatField(null=True, blank=True)
 
     class Options:
         form = "trees.forms.StandForm"
@@ -68,12 +71,12 @@ class Stand(PolygonFeature):
                 'longitude_fuzz': self.geometry_final.centroid[1],
             }
             # include terrain variables
-            if self.imputed_aspect:
-                site_cond['calc_aspect'] = self.imputed_aspect
-            if self.imputed_elevation:
-                site_cond['elev_ft'] = self.imputed_elevation
-            if self.imputed_slope:
-                site_cond['calc_slope'] = self.imputed_slope
+            if self.aspect:
+                site_cond['calc_aspect'] = self.aspect
+            if self.elevation:
+                site_cond['elev_ft'] = self.elevation
+            if self.slope:
+                site_cond['calc_slope'] = self.slope
             weight_dict = self.default_weighting
             ps, num_candidates = get_nearest_neighbors(site_cond, stand_list['classes'], weight_dict, k=5)
             self.cond_id = ps[0].name
@@ -111,14 +114,13 @@ class Stand(PolygonFeature):
                 newval = None
             return newval
 
-        elevation = int_or_none(self.imputed_elevation)
+        elevation = int_or_none(self.elevation)
         # Unit conversion
         if elevation:
             elevation = int(elevation * 3.28084)
-        aspect = int_or_none(self.imputed_aspect)
+        aspect = int_or_none(self.aspect)
         aspect_class = classify_aspect(aspect)
-        slope = int_or_none(self.imputed_slope)
-        gnn = int_or_none(self.imputed_gnn)
+        slope = int_or_none(self.slope)
 
         try:
             strata_uid = self.strata.uid
@@ -140,7 +142,6 @@ class Stand(PolygonFeature):
                 'strata_uid': strata_uid,
                 'aspect': "%s" % aspect_class,
                 'slope': '%s %%' % slope,
-                'gnn': gnn,
                 'plot_summary': self.plot_summary,
                 'plot_summaries': self.plot_summaries, #TODO include idb data
                 #TODO include strata info 
@@ -155,59 +156,6 @@ class Stand(PolygonFeature):
         }""" % (self.geometry_final.json, dumps(d))
         return gj
 
-    def get_raster_stats(self, rastername):
-        try:
-            raster = RasterDataset.objects.get(name=rastername)
-        except RasterDataset.DoesNotExist:
-            return None
-        rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
-        g1 = self.geometry_final
-        g2 = g1.transform(rproj, clone=True)
-        if not raster.is_valid:
-            raise Exception("Raster is not valid: %s" % raster )
-        stats = zonal_stats(g2, raster)
-        return stats
-
-    @property
-    def imputed_elevation(self):
-        data = self.get_raster_stats('elevation')
-        if data:
-            return data.avg
-
-    @property
-    def imputed_aspect(self):
-        cos = self.get_raster_stats('cos_aspect')
-        sin = self.get_raster_stats('sin_aspect')
-        if cos and sin:
-            result = None
-            if cos and sin and cos.sum and sin.sum:
-                avg_aspect_rad = math.atan2(sin.sum, cos.sum)
-                result = math.degrees(avg_aspect_rad) % 360
-            return result
-
-    @property
-    def imputed_slope(self):
-        data = self.get_raster_stats('slope')
-        if data:
-            return data.avg
-
-    @property
-    def imputed_gnn(self):
-        data = self.get_raster_stats('gnn')
-        if data:
-            return data.mode
-
-    @property
-    def imputed_fcids(self):
-        stats = self.get_raster_stats('gnn')
-        if stats:
-            total_pixels = stats.pixels
-            fcid_dict = {}
-            for cat in stats.categories.all():
-                fcid_dict[cat.category] = cat.count / total_pixels
-
-            fsorted = sorted(fcid_dict.iteritems(), key=itemgetter(1), reverse=True)
-            return fsorted[:4]  # return 4 most common GNN pixels
 
     @property
     def plot_summaries(self):
@@ -215,7 +163,6 @@ class Stand(PolygonFeature):
         Site charachteristics according to the most common FCID GNN pixels 
         These will mainly be used to confirm with the user that the GNN data is accurate.
         '''
-        fcids = self.imputed_fcids  # ((fcid, pct), ..)
         summaries = []
         return summaries #TODO fix or drop the GNN imputation
         for fcid, prop in fcids:
@@ -279,6 +226,7 @@ class Stand(PolygonFeature):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
+        impute_rasters.delay(self.id)
 
 @register
 class ForestProperty(FeatureCollection):
@@ -425,7 +373,7 @@ class ForestProperty(FeatureCollection):
 
     def feature_set_geojson(self):
         # We'll use the bbox for the property geom itself
-        # Instead of using the overall bbox of the stands  
+        # Instead of using the overall bbox of the stands
         # Assumption is that property boundary SHOULD contain all stands
         # and, if not, they should expand the property boundary
         bb = self.bbox  

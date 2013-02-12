@@ -6,7 +6,7 @@ from madrona.analysistools.widgets import SliderWidget
 class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
         model = Stand
-        exclude = ('sharing_groups','content_type','object_id', 'domspp', 'cond_id', 'strata')
+        exclude = ('sharing_groups','content_type','object_id', 'elevation', 'imputed', 'aspect', 'slope', 'cond_id', 'strata')
 
 class PropertyForm(FeatureForm):
     class Meta(FeatureForm.Meta):

@@ -113,8 +113,12 @@ stopwaitsecs = 600
 ; if rabbitmq is supervised, set its priority higher
 ; so it starts first
 ; priority=998
+
 (lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl reload
 Restarted supervisord
 (lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl status
 celeryd                          STARTING
+(lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl restart celeryd
+celeryd: stopped
+celeryd: started
 """

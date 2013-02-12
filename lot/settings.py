@@ -95,13 +95,17 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (('Ecotrust', 'ksdev@ecotrust.org'))
 
-logging.getLogger('django.db.backends').setLevel(logging.ERROR)
+logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
 LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'trees.log')
 
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # ? or use django ?
+CELERY_ALWAYS_EAGER = False
 # see http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html
+
+import djcelery
+djcelery.setup_loader()
 
 try:
     from settings_local import *

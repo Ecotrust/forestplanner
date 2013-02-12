@@ -11,3 +11,4 @@ django-pdb
 celery-with-redis
 django-redis
 django-redis-sessions
+ipdb
