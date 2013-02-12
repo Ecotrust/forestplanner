@@ -141,3 +141,16 @@ file { "settings_local.py":
   path => "/vagrant/lot/settings_local.py",
   content => template("settings_vagrant.py")
 }
+
+file { "go":
+  path => "/home/vagrant/go",
+  content => template("go"),
+  owner => "vagrant",
+  group => "vagrant",
+  mode => 0775
+}
+
+file { "celeryd.conf":
+  path => "/etc/supervisor/conf.d/celeryd.conf",
+  content => template("celeryd.conf")
+}

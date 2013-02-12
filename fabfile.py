@@ -90,30 +90,6 @@ def _install_starspan():
 
 # TODO celeryd under supervisor control
 """
-(lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ cat /etc/supervisor/conf.d/celeryd.conf
-; ==============================================
-;  celery worker supervisor example for Django
-; ==============================================
-
-[program:celeryd]
-command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celery worker --loglevel=INFO
-directory=/usr/local/apps/land_owner_tools/lot
-user=vagrant
-numprocs=1
-stdout_logfile=/usr/local/apps/land_owner_tools/celeryd.log
-stderr_logfile=/usr/local/apps/land_owner_tools/celeryd.log
-autostart=true
-autorestart=true
-startsecs=10
-
-; Need to wait for currently executing tasks to finish at shutdown.
-; Increase this if you have very long running tasks.
-stopwaitsecs = 600
-
-; if rabbitmq is supervised, set its priority higher
-; so it starts first
-; priority=998
-
 (lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl reload
 Restarted supervisord
 (lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl status
