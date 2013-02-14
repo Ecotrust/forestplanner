@@ -36,8 +36,6 @@ def import_rasters():
             filepath=os.path.join(rast_path,'cos_aspect.tif'), type='continuous')
     sin_aspect = RasterDataset.objects.create(name="sin_aspect",
             filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
-    gnn = RasterDataset.objects.create(name="gnn",
-            filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
     slope = RasterDataset.objects.create(name="slope",
             filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
 
@@ -405,14 +403,11 @@ class SpatialTest(TestCase):
 
 
 class ImputeTest(TestCase):
-    '''
-    Occurs automatically on model save() UNLESS you pass impute=False.
-    Can also be called directly using feature._impute() though this should 
-      probably be considered a semi-private method
-    '''
     fixtures = ['fvs_species_western', ]
 
     def setUp(self):
+        settings.CELERY_ALWAYS_EAGER = True  # force syncronous execution of celery tasks
+        import_rasters()
         g2 = GEOSGeometry(
             'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
             {'x1': -13841975, 'y1': 5308646, 'x2': -13841703, 'y2': 5308927})
@@ -423,55 +418,46 @@ class ImputeTest(TestCase):
         self.stand1.save()
         self.pk1 = self.stand1.pk
 
-        d = os.path.dirname(__file__)
-        rast_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
-            'testdata'))
-        # Here we'll need to create dummy rasterdatasets for everything 
-        # in the IMPUTE_RASTERS setting
-        self.elev = RasterDataset.objects.create(name="elevation",
-                filepath=os.path.join(rast_path,'elevation.tif'), type='continuous')
-        self.aspect = RasterDataset.objects.create(name="aspect",
-                filepath=os.path.join(rast_path,'aspect.tif'), type='continuous')
-        self.cos_aspect = RasterDataset.objects.create(name="cos_aspect",
-                filepath=os.path.join(rast_path,'cos_aspect.tif'), type='continuous')
-        self.sin_aspect = RasterDataset.objects.create(name="sin_aspect",
-                filepath=os.path.join(rast_path,'sin_aspect.tif'), type='continuous')
-        self.gnn = RasterDataset.objects.create(name="gnn",
-                filepath=os.path.join(rast_path,'gnn.tif'), type='categorical')
-        self.slope = RasterDataset.objects.create(name="slope",
-                filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
+        self.elev = RasterDataset.objects.get(name="elevation")
+        self.aspect = RasterDataset.objects.get(name="aspect")
+        self.cos_aspect = RasterDataset.objects.get(name="cos_aspect")
+        self.sin_aspect = RasterDataset.objects.get(name="sin_aspect")
+        self.slope = RasterDataset.objects.get(name="slope")
         self.avg_elev = 145.05799999
 
     def test_impute_onsave(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+        self.assertNotEqual(s1.elevation, None)
+        self.assertAlmostEqual(s1.elevation, self.avg_elev)
 
     def test_impute_smart_save(self):
         d = os.path.dirname(__file__)
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev)
+        self.assertNotEqual(s1.elevation, None)
+        self.assertAlmostEqual(s1.elevation, self.avg_elev)
         elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'elevationx2.tif')) # swap raster to elevation x 2
         self.elev.filepath = elev_path
-        self.elev.save()  # saving should wipe zonal stats cache
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev * 2, places=5) # now we should get a new elevation value  
+        self.elev.save() 
+        s1.save()  # saving stand should trigger re-imputing
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertNotEqual(s1.elevation, None)
+        self.assertAlmostEqual(s1.elevation, self.avg_elev * 2, places=5) # now we should get a new elevation value  
         elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
             'testdata', 'elevation.tif')) # swap rasters back to normal elevation
         self.elev.filepath = elev_path
         self.elev.save()
-        geom = s1.geometry_final
-        s1.geometry_final = geom.buffer(0.0001) # alter geom very slightly
-        s1.save()
-        self.assertNotEqual(s1.imputed_elevation, None)
-        self.assertAlmostEqual(s1.imputed_elevation, self.avg_elev) # back to the original elevation value
+        s1.save()  # saving stand should trigger re-imputing
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertNotEqual(s1.elevation, None)
+        self.assertAlmostEqual(s1.elevation, self.avg_elev) # back to the original elevation value
 
     def test_raster_not_found(self):
         self.elev.delete()
         s1 = Stand.objects.get(pk=self.pk1)
-        self.assertRaises(RasterDataset.DoesNotExist, getattr, s1, 'imputed_elevation')
+        s1.save()
+        s1 = Stand.objects.get(pk=self.pk1)
+        self.assertEquals(s1.elevation, None)
 
     def test_zonal_null(self):
         s1 = Stand.objects.get(pk=self.pk1)
@@ -479,21 +465,8 @@ class ImputeTest(TestCase):
             'SRID=3857;POLYGON((-120.42 34.37, -119.64 34.32, -119.63 34.12, -120.44 34.15, -120.42 34.37))')
         s1.geometry_final = offgeom # this geom should be off the elevation map
         s1.save()
-        self.assertEqual(s1.imputed_elevation, None)
-
-    def test_all_rasters(self):
         s1 = Stand.objects.get(pk=self.pk1)
-        keys = ['elevation','aspect','slope','gnn']
-        vals = [self.avg_elev, 1.56339412, 35.375365000, 529.0]
-        kvs = zip(keys,vals)
-        for rast,val in kvs:
-            self.assertNotEqual(getattr(s1,"imputed_" + rast), None)
-            self.assertAlmostEqual(getattr(self.stand1, "imputed_" + rast), val)
-
-    def test_settings_fields(self):
-        kys = ['elevation','aspect','slope','gnn']
-        for rast in kys:
-            self.assertTrue(hasattr(self.stand1, "imputed_" + rast))
+        self.assertEqual(s1.elevation, None)
 
 
 class StandImportTest(TestCase):
@@ -1144,5 +1117,8 @@ class NearestPlotRestTest(TestCase):
         #### Step 5. Get the list of strata for the property
         url = "/trees/strata_list/%s/" % prop1.uid
         response = self.client.get(url)
-        # TODO print response.content
         self.assertEqual(response.status_code, 200, response.content)
+        rd = json.loads(response.content)
+        self.assertEqual(len(rd),1)
+        self.assertEqual(rd[0]['name'], 'test strata')
+        self.assertEqual(rd[0]['search_tpa'], 160.0)
