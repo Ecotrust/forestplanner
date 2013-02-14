@@ -1140,3 +1140,9 @@ class NearestPlotRestTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         stand1b = Stand.objects.get(name="test stand")
         self.assertEqual(stand1b.strata, strata1)
+
+        #### Step 5. Get the list of strata for the property
+        url = "/trees/strata_list/%s/" % prop1.uid
+        response = self.client.get(url)
+        # TODO print response.content
+        self.assertEqual(response.status_code, 200, response.content)
