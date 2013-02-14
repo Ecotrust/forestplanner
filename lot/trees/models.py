@@ -788,6 +788,20 @@ class Strata(Feature):
     additional_desc = models.TextField(blank=True, null=True)
     stand_list = JSONField() # {'classes': [(species, age class, tpa), ...]}
     
+    @property
+    def _dict(self):
+        """ Make sure obj._dict is json-serializable """
+        dct = self.__dict__
+        dct['uid'] = self.uid
+        dct['pk'] = self.pk
+        rmfields = ['_state', 'object_id', 'content_type_id', 'date_modified', 'date_created']
+        for fld in rmfields:
+            try:
+                del dct[fld]
+            except KeyError:
+                pass
+        return dct
+
     def candidates(self, min_candidates=5):
         from plots import get_candidates
         return get_candidates(self.stand_list['classes'], min_candidates=min_candidates) 
