@@ -146,7 +146,7 @@ exec { "load spatialrefs template1":
 }
 
 exec { "load cleangeometry template1":
-  command => "/usr/bin/psql -d template1 -f /usr/local/venv/lot/src/madrona/madrona/common/sql/cleangeometry.sql",
+  command => "/usr/bin/psql -d template1 -f /tmp/vagrant-puppet/manifests/files/cleangeometry.sql",
   user => "postgres",
   require => Postgresql::Database['forestplanner']
 }
