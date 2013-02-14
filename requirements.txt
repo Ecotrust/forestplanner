@@ -12,3 +12,4 @@ celery-with-redis
 django-redis
 django-redis-sessions
 ipdb
+coverage

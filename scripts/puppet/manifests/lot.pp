@@ -133,6 +133,24 @@ exec { "load spatialrefs":
   require => Postgresql::Database['forestplanner']
 }
 
+exec { "load postgis template1":
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql -d template1",
+  user => "postgres",
+  require => Postgresql::Database['forestplanner']
+}
+
+exec { "load spatialrefs template1":
+  command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql -d template1",
+  user => "postgres",
+  require => Postgresql::Database['forestplanner']
+}
+
+exec { "load cleangeometry template1":
+  command => "/usr/bin/psql -d template1 -f /usr/local/venv/lot/src/madrona/madrona/common/sql/cleangeometry.sql",
+  user => "postgres",
+  require => Postgresql::Database['forestplanner']
+}
+
 python::venv::isolate { "/usr/local/venv/lot":
   subscribe => [Package['python-mapnik'], Package['build-essential']]
 }

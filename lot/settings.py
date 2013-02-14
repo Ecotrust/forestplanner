@@ -95,7 +95,10 @@ TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (('Ecotrust', 'ksdev@ecotrust.org'))
 
-logging.getLogger('django.db.backends').setLevel(logging.DEBUG)
+logging.getLogger('django.db.backends').setLevel(logging.INFO)
+logging.getLogger('madrona.features.models').setLevel(logging.INFO)
+logging.getLogger('madrona.common.utils').setLevel(logging.INFO)
+
 LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'trees.log')
 
 BROKER_URL = 'redis://localhost:6379/0'
