@@ -1,11 +1,5 @@
 from celery import task
 
-
-@task()
-def add(x, y):
-    return x + y
-
-
 @task()
 def impute_rasters(stand_id):
     # import here to avoid circular dependencies
@@ -15,7 +9,7 @@ def impute_rasters(stand_id):
     import math
 
     stand = Stand.objects.get(id=stand_id)
-    print "imputing raster stats for %d" % stand_id
+    #print "imputing raster stats for %d" % stand_id
 
     def get_raster_stats(stand, rastername):
         try:
@@ -30,7 +24,7 @@ def impute_rasters(stand_id):
         stats = zonal_stats(g2, raster)
         return stats
 
-    elevation = aspect = slope = -999
+    elevation = aspect = slope = None
 
     # elevation
     data = get_raster_stats(stand, 'elevation')
