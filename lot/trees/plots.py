@@ -8,13 +8,23 @@ from madrona.common.utils import get_logger
 logger = get_logger()
 
 
-def dictfetchall(cursor):
-    "Returns all rows from a cursor as a dict"
+def dictfetchall(cursor, classname=None):
+    """Returns all rows from a cursor as a dict
+     optionally replaces all __ with the specified classname
+     ex: TPA__ becomes TPA_Douglas-Fir_14_18"""
     desc = cursor.description
-    return [
-        dict(zip([col[0] for col in desc], row))
-        for row in cursor.fetchall()
-    ]
+    if not classname:
+        res = [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+        ]
+    else:
+        cname = "_%s" % classname
+        res = [
+            dict(zip([col[0].replace("__", cname) for col in desc], row))
+            for row in cursor.fetchall()
+        ]
+    return res
 
 
 def get_candidates(stand_list, min_candidates=1):
@@ -24,31 +34,31 @@ def get_candidates(stand_list, min_candidates=1):
     specified_species = []
 
     for sc in stand_list:
-        # This could potentially be used to dynamically expand the size range
-        class_clause = 'AND calc_dbh_class >= %d AND calc_dbh_class < %d' % (
-            sc[1], sc[2])
 
         sql = """
             SELECT
                 COND_ID,
-                SUM(SumOfTPA) as "TPA_%(species)s_%(lowsize)d_%(highsize)d",
-                SUM(SumOfBA_FT2_AC) as "BAA_%(species)s_%(lowsize)d_%(highsize)d",
-                SUM(pct_of_totalba) as "PCTBA_%(species)s_%(lowsize)d_%(highsize)d",
-                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT_%(species)s_%(lowsize)d_%(highsize)d",
-                AVG(TOTAL_BA_FT2_AC) as "PLOTBA_%(species)s_%(lowsize)d_%(highsize)d"
+                SUM(SumOfTPA) as "TPA__",
+                SUM(SumOfBA_FT2_AC) as "BAA__",
+                SUM(pct_of_totalba) as "PCTBA__",
+                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
+                AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
             FROM treelive_summary
-            WHERE fia_forest_type_name = '%(species)s'
-            %(class_clause)s
+            WHERE fia_forest_type_name = %(species)s
+            AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
             AND pct_of_totalba is not null
             GROUP BY COND_ID
-        """ % {'class_clause': class_clause,
-               'species': sc[0],
-               'lowsize': sc[1],
-               'highsize': sc[2]
-              }
+        """
+        inputs = {
+            'species': sc[0],
+            'lowsize': int(sc[1]),
+            'highsize': int(sc[2])
+        }
 
-        cursor.execute(sql)
-        rows = dictfetchall(cursor)
+        classname = "%(species)s_%(lowsize)s_%(highsize)s" % inputs
+
+        cursor.execute(sql, inputs)
+        rows = dictfetchall(cursor, classname)
 
         if not rows:
             raise Exception(
@@ -108,7 +118,8 @@ def get_candidates(stand_list, min_candidates=1):
             if x.startswith('PLOTCLASSCOUNT_') or x.startswith("PLOTBA_"):
                 del candidates[x]
 
-    import ipdb; ipdb.set_trace()
+    import ipdb
+    #ipdb.set_trace()
     return candidates
 
 
@@ -120,7 +131,7 @@ def get_sites(candidates):
             -- COND_ID, calc_aspect, calc_slope
         FROM idb_summary
         WHERE COND_ID IN (%s)
-    """ % (",".join([str(x) for x in candidates.index.tolist()]))
+    """ % (",".join([str(int(x)) for x in candidates.index.tolist()]))
 
     cursor.execute(sql)
     rows = dictfetchall(cursor)
