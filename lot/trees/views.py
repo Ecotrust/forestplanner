@@ -430,8 +430,8 @@ def stand_list_nn(request):
     out.append("Candidates: %d" % num_candidates)
     out.append("\n")
     for pseries in ps:
-        out.append("%s\t%d%% certainty\t%s basal area\tspecified species/sizes account for %d %% of the total basal area\t%d years\t%s basal area from specified species" % (pseries.name, 
-                pseries['_certainty'] * 100, pseries['PLOT_BA'], pseries['TOTAL_PCTBA'], pseries['age_dom'], pseries['TOTAL_BA']))
+        out.append("%s\t%d%% certainty\t%s basal area\tspecified species/sizes account for %d %% of the total basal area\t%d years\t%s basal area from new species" % (pseries.name, 
+                pseries['_certainty'] * 100, pseries['PLOT_BA'], pseries['TOTAL_PCTBA'], pseries['age_dom'], pseries['NONSPEC_BA']))
     return render_to_response("trees/stand_list_nn.html", locals())
 
 def add_stands_to_strata(request, instance):

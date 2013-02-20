@@ -31,7 +31,6 @@ def get_candidates(stand_list, min_candidates=1):
     cursor = connection.cursor()
 
     dfs = []
-    specified_species = []
 
     for sc in stand_list:
 
@@ -68,8 +67,6 @@ def get_candidates(stand_list, min_candidates=1):
         df.index = df['cond_id']
         del df['cond_id']
         dfs.append(df)
-        if sc[0] not in specified_species:
-            specified_species.append(sc[0])
 
     if len(dfs) == 0:
         raise Exception(
@@ -118,8 +115,29 @@ def get_candidates(stand_list, min_candidates=1):
             if x.startswith('PLOTCLASSCOUNT_') or x.startswith("PLOTBA_"):
                 del candidates[x]
 
-    import ipdb
-    #ipdb.set_trace()
+        sql = """
+            SELECT
+                COND_ID,
+                SUM(SumOfTPA) as "NONSPEC_TPA",
+                SUM(SumOfBA_FT2_AC) as "NONSPEC_BA"
+            FROM treelive_summary
+            WHERE fia_forest_type_name NOT IN (%s)
+            AND pct_of_totalba is not null
+            GROUP BY COND_ID
+        """
+        species_list = [sc[0] for sc in stand_list]
+        in_p = ', '.join(['%s'] * len(stand_list))
+        sql = sql % in_p
+        cursor.execute(sql, species_list)
+        rows = dictfetchall(cursor, classname)
+
+        df = pd.DataFrame(rows)
+        df.index = df['cond_id']
+        del df['cond_id']
+
+        candidates = candidates.join(df)
+        candidates.fillna(0)  # if nonspec basal area is nan, make it zero
+
     return candidates
 
 
