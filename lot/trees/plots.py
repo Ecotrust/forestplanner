@@ -45,7 +45,7 @@ def get_candidates(stand_list, min_candidates=1):
                'species': sc[0],
                'lowsize': sc[1],
                'highsize': sc[2]
-               }
+              }
 
         cursor.execute(sql)
         rows = dictfetchall(cursor)
@@ -80,28 +80,35 @@ def get_candidates(stand_list, min_candidates=1):
         else:
             enough = True
 
+        # Percentage of the plot basal area comprised of the specified species/size classes
+        # Note that this should be ~= TOTAL_BA / PLOT_BA
         candidates['TOTAL_PCTBA'] = candidates[[
             x for x in candidates.columns if x.startswith('PCTBA')]].sum(axis=1)
+        # Total basal area of the specified species/size classes
         candidates['TOTAL_BA'] = candidates[[
             x for x in candidates.columns if x.startswith('BAA')]].sum(axis=1)
+        # Total trees per acre of the specified species/size classes
         candidates['TOTAL_TPA'] = candidates[[
             x for x in candidates.columns if x.startswith('TPA')]].sum(axis=1)
+        # Number of unique 2" species/size classes in the plot
         candidates['PLOT_CLASS_COUNT'] = candidates[[
             x for x in candidates.columns if x.startswith('PLOTCLASSCOUNT')]].mean(axis=1)
+        # Number of specified species/size classes
+        candidates['SEARCH_CLASS_COUNT'] = len(stand_list)
+        # Basal area of the entire plot
         candidates['PLOT_BA'] = candidates[[
             x for x in candidates.columns if x.startswith('PLOTBA')]].mean(axis=1)
 
         # Find BA from non-specified species
-        # import ipdb; ipdb.set_trace()
         # candidates['NONSPEC_BA'] = candidates[[x for x in candidates.columns
         # if x.startswith('BAA') and x.split("_")[1] not in
         # specified_species]].sum(axis=1)
 
-        candidates['SEARCH_CLASS_COUNT'] = len(stand_list)
         for x in candidates.columns:
             if x.startswith('PLOTCLASSCOUNT_') or x.startswith("PLOTBA_"):
                 del candidates[x]
 
+    import ipdb; ipdb.set_trace()
     return candidates
 
 
@@ -191,8 +198,7 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
     # assert that we have some candidates
     num_candidates = len(plotsummaries)
     if num_candidates == 0:
-        raise NoPlotMatchError(
-            "There are no candidate plots matching the categorical variables: %s" % categories)
+        raise NoPlotMatchError("There are no candidate plots")
 
     ps_attr_list = []
     for cond_id in plotsummaries.index.tolist():
