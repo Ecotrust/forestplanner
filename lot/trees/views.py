@@ -363,24 +363,6 @@ def stand_list_nn(request):
         ]
     }
 
-    """
-    stand_list = {
-        'classes': [
-            ('Douglas-fir', 10, 69),
-            ('Western hemlock', 10, 20),
-            ('Douglas-fir', 14, 5),
-            ('Red alder', 10, 7),
-            #('Tanoak', 2, 105),
-            ('Western redcedar', 14, 2),
-            #('Black cottonwood', 2, 67),
-            ('Sitka spruce', 0, 60),
-            ('Sitka spruce', 2, 3),
-            #('Black cottonwood', 0, 97),
-            #('Tanoak', 0, 200),
-        ]
-    }
-    """
-
     site_cond = {
         "age_dom": 40,
         "calc_aspect": 360,
@@ -391,9 +373,9 @@ def stand_list_nn(request):
     }
 
     weight_dict = {
-        'TOTAL_PCTBA': 1, 
         'PLOT_BA': 5,
-        'age_dom': 5,
+        'NONSPEC_BA': 5,
+        'age_dom': 1,
         "calc_aspect": 1,
         "elev_ft": 0.6,
         "latitude_fuzz": 0.3,
@@ -411,8 +393,10 @@ def stand_list_nn(request):
     if in_weight_dict:
         weight_dict = json.loads(in_weight_dict)
 
-    mod_stand_list = [tuple(s) + (s[2] * (0.005454 * ((s[1] + 2)**2)),) for s in stand_list['classes']]
-    total_ba = sum(s[3] for s in mod_stand_list)
+    # Calculate basal area based on the media of the size class and TPA
+    mod_stand_list = [tuple(s) + (s[3] * (0.005454 * (
+        ((s[1] + s[2]) / 2.0) ** 2)),) for s in stand_list['classes']]
+    total_ba = sum(s[4] for s in mod_stand_list)
 
     out = []
     out.append("Searching for:\n  ")
@@ -421,7 +405,7 @@ def stand_list_nn(request):
     out.append("\n")
 
 
-    ps, num_candidates = get_nearest_neighbors(site_cond, mod_stand_list, weight_dict, k=5)
+    ps, num_candidates = get_nearest_neighbors(site_cond, mod_stand_list, weight_dict, k=10)
 
     stand_list_json = json.dumps(stand_list)
     site_cond_json = json.dumps(site_cond)
@@ -429,9 +413,36 @@ def stand_list_nn(request):
 
     out.append("Candidates: %d" % num_candidates)
     out.append("\n")
+    out.append("<table border='1' width='100%'>")
+    out.append("<tr>\
+        <th>Condition ID</th>\
+        <th>Certainty</th>\
+        <th>Plot Basal Area</th>\
+        <th>Basal area from specified stand list classes</th>\
+        <th>Basal area from same species but different diam classes</th>\
+        <th>Basal area from entirely new species</th>\
+        <th>Age</th>\
+        </tr>")
     for pseries in ps:
-        out.append("%s\t%d%% certainty\t%s basal area\tspecified species/sizes account for %d %% of the total basal area\t%d years\t%s basal area from new species" % (pseries.name, 
-                pseries['_certainty'] * 100, pseries['PLOT_BA'], pseries['TOTAL_PCTBA'], pseries['age_dom'], pseries['NONSPEC_BA']))
+        out.append(
+            "<tr>\
+            <td>%s</td>\
+            <td>%d%%</td>\
+            <td>%s</td>\
+            <td><div style='background-color:green; margin:0px; color: green; display: inline-block; width:%dpx;'>_</div>%s</td>\
+            <td><div style='background-color:yellow; margin:0px; color: yellow; display: inline-block; width:%dpx;'>_</div>%s</td>\
+            <td><div style='background-color:red; margin:0px; color:red; display: inline-block; width:%dpx;'>_</div>%s</td>\
+            <td>%s</td>\
+            </tr>" % (pseries.name,
+                pseries['_certainty'] * 100,
+                pseries['PLOT_BA'],
+                pseries['TOTAL_BA'], pseries['TOTAL_BA'],
+                pseries['PLOT_BA'] - (pseries['TOTAL_BA'] + pseries['NONSPEC_BA']), pseries['PLOT_BA'] - (pseries['TOTAL_BA'] + pseries['NONSPEC_BA']),
+                pseries['NONSPEC_BA'], pseries['NONSPEC_BA'],
+                pseries['age_dom'],
+                )
+            )
+    out.append("</table>")
     return render_to_response("trees/stand_list_nn.html", locals())
 
 def add_stands_to_strata(request, instance):

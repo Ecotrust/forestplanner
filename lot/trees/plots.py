@@ -106,11 +106,6 @@ def get_candidates(stand_list, min_candidates=1):
         candidates['PLOT_BA'] = candidates[[
             x for x in candidates.columns if x.startswith('PLOTBA')]].mean(axis=1)
 
-        # Find BA from non-specified species
-        # candidates['NONSPEC_BA'] = candidates[[x for x in candidates.columns
-        # if x.startswith('BAA') and x.split("_")[1] not in
-        # specified_species]].sum(axis=1)
-
         for x in candidates.columns:
             if x.startswith('PLOTCLASSCOUNT_') or x.startswith("PLOTBA_"):
                 del candidates[x]
@@ -136,7 +131,7 @@ def get_candidates(stand_list, min_candidates=1):
         del df['cond_id']
 
         candidates = candidates.join(df)
-        candidates.fillna(0)  # if nonspec basal area is nan, make it zero
+        candidates = candidates.fillna(0)  # if nonspec basal area is nan, make it zero
 
     return candidates
 
@@ -176,7 +171,7 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
         tpa_dict[key] = ssc[3]
 
         ## est_ba = tpa * (0.005454 * dbh^2)
-        est_ba = ssc[3] * (0.005454 * (((ssc[1] + ssc[2]) / 2) ** 2))
+        est_ba = ssc[3] * (0.005454 * (((ssc[1] + ssc[2]) / 2.0) ** 2.0))
                            # assume middle of class
         total_ba += est_ba
         ba_dict[key] = est_ba
@@ -200,6 +195,8 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
             input_params[attr] = 100.0  # TODO don't assume 100%
         elif attr == "PLOT_BA":
             input_params[attr] = total_ba
+        elif attr == "NONSPEC_BA":
+            input_params[attr] = 0  # shoot for 0 ba from non-specified species
 
     # Add site conditions
     input_params.update(site_cond)
