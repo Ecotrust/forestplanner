@@ -1,0 +1,22 @@
+{ "name": "FVS Key files",
+  "scopeName": "source.key",
+  "fileTypes": ["key"],
+  "patterns": [
+    { "name": "comment.block.source.key",
+       "begin": "^Comment$",
+       "end": "^End$"
+    },
+    { "name": "comment.line.source.key",
+        "begin": "^\\!\\!",
+        "end": "\\n"
+    },
+    {  "name": "constant.numeric.source.key",
+       "match": "(0x|0o)?[0-9]+(\\.([0-9]+)?)?"
+    },
+    {
+      "name": "string.unquoted.source.key",
+      "match": "^(\\S+)\\b"
+    }
+  ],
+  "uuid": "7766ed86-cf33-46cf-8796-53fb4f90ba11"
+}
