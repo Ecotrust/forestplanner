@@ -7,10 +7,22 @@ from madrona.common.utils import get_logger
 from geopy import geocoders
 from geopy.point import Point
 from trees.models import Stand
+from django.views.decorators.cache import cache_page
 import json
 import os
 
 logger = get_logger()
+
+
+@cache_page(60 * 60 * 24)
+def list_species(request):
+    '''
+    Provide a json list of all species names
+    '''
+    from trees.models import TreeliveSummary
+    ts = TreeliveSummary.objects.order_by(
+        'fia_forest_type_name').distinct('fia_forest_type_name')
+    return HttpResponse(json.dumps(list([x.fia_forest_type_name for x in ts])), mimetype='application/json', status=200)
 
 
 def manage_stands(request):
