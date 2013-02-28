@@ -101,17 +101,23 @@
           </div>
           <div class="span7">
             <div class="well">
-                <h1 data-bind="visible: !newStratum().speciesList().length">Species haven't been defined, yet.</h1>
-                <table class="table table-striped table-bordered" data-bind="visible: newStratum().speciesList().length">
+                <h2 data-bind="visible: !newStratum().standList().length" style="display: none">Stand group species have not been defined, yet.</h2>
+                <table class="table table-striped table-bordered" data-bind="visible: newStratum().standList().length"  style="display: none">
                     <thead>
                         <tr><th>Species</th><th>Size Class</th><th>Percentage</th></tr>
                     </thead>
-                    <tbody data-bind="foreach: newStratum().speciesList">
-                        <tr><td data-bind="text: species"></td><td data-bind="text: sizeClass"></td><td data-bind="text: percentage"></td></tr>
+                    <tbody data-bind="foreach: newStratum().standList">
+                        <tr><td data-bind="text: species"></td><td data-bind="text: sizeClass"></td><td><span data-bind="text: percentage"></span>%</td></tr>
                     </tbody>
                     
                 </table>
+                <div class="btn-group pull-right">
+                    <button class="btn btn-large">cancel</button>
+                    <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
+                </div>
+                <div class="clearfix"></div>
             </div>
+
           </div>
         </div>
         
@@ -174,14 +180,31 @@
         $.get('/features/workspace-public.json', function (data) {
             app.workspace = data;
         });
+
+
+        
+
         {% endif %}
+
+        /// to go into strata.js
+        app.strata = {
+            viewModel: new strataViewModel()
+        }
+
+        $.get("/trees/strata_list/" + "trees_forestproperty_1", function (data) {
+            app.strata.data = data;
+        });
+
+
 
         var treeSpecies = [
             {name: ""},
-            {name: "Doug-fir"},
+            {name: "Douglas-fir"},
             {name: "Big Leaf Maple"}
         ];
 
+
+        // individual stand list member
         function speciesViewModel (options) {
             var self = this;
 
@@ -190,7 +213,7 @@
             self.percentage = options.percentage;
         };
 
-        
+        // viewmodel for a single stratum
         function stratumViewModel () {
             var self = this;
 
@@ -202,12 +225,12 @@
             self.newSizeClass = ko.observable();
             self.newPercentage = ko.observable();
             
-            self.speciesList = ko.observableArray();
+            self.standList = ko.observableArray();
 
             self.addSpecies = function () {
                 var self = this;
                 if (self.newSpecies() && self.newSizeClass() && self.newPercentage()) {
-                    self.speciesList.push(new speciesViewModel({
+                    self.standList.push(new speciesViewModel({
                         species: self.newSpecies(),
                         sizeClass: self.newSizeClass(),
                         percentage: self.newPercentage()
@@ -245,18 +268,35 @@
 
           self.treeSpecies = treeSpecies;
 
+          self.addStrata = function () {
+            var self = this,
+                stratum = self.newStratum(),
+                standList = $.map(stratum.standList(), function (stand) {
+                    var sizes = stand.sizeClass.replace(/\"/g, "") .split("-");
+                    return [stand.species, sizes[0], sizes[1], stand.percentage];
+                });
+
+            $.ajax({
+                url: "/features/strata/form/",
+                type: "POST",
+                traditional: true,
+                data: {   
+                    'name': stratum.name,
+                    'search_tpa': stratum.tpa(),
+                    'search_age': stratum.age(),
+                    'stand_list': ko.toJSON({
+                        'classes': standList
+                    })
+                },
+                success: function (response) { debugger; },
+                error: function (response) { debugger; }
+            });
+          };
+
         };
-        /// to go into strata.js
-        app.strata = {
-            viewModel: new strataViewModel()
-        }
-
-
-
-
+    
         $(document).ready(function () {
             ko.applyBindings(app.strata.viewModel);
-
         });
 
     </script>
