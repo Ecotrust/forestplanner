@@ -20,6 +20,14 @@ def manage_stands(request):
     return render_to_response('common/manage_stands.html', {},
                               context_instance=RequestContext(request))
 
+def manage_strata(request):
+    '''
+    Strata management view
+    '''
+    return render_to_response('common/manage_strata.html', {},
+                              context_instance=RequestContext(request))
+
+
 
 def user_property_list(request):
     '''

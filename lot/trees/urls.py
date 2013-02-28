@@ -4,6 +4,8 @@ from trees.views import *
 urlpatterns = patterns('',
     url(r'^stands/$',
         manage_stands, name='trees-manage_stands'),
+    url(r'^strata/$',
+        manage_strata, name='trees-manage_stands'),
     url(r'^user_property_list/$', 
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$', 
@@ -19,3 +21,4 @@ urlpatterns = patterns('',
     url(r'^gnn2svs/(\d+)/$', 
         svs_image, name='trees-svs'),
 )
+
