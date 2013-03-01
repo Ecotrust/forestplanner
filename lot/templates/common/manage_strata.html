@@ -210,7 +210,7 @@
 
         /// to go into strata.js
         app.strata = {
-            
+            property_id: "{{ property_id }}",
             treeSpecies: ["Ailanthus", "Alaska cedar", "Apple", "Bigcone Douglas-fir", "Bigleaf maple", "Bishop pine", "Black cottonwood", "Black locust", "Blue oak", "Boxelder", "Brewer spruce", "Bristlecone pine", "California black oak", "California buckeye", "California juniper", "California nutmeg", "California red fir", "California sycamore", "California-laurel", "Canyon live oak", "Cherry", "Coast live oak", "Coulter pine", "Curlleaf mountain-mahogany", "Cypress", "Douglas-fir", "Engelmann spruce", "Englemann oak", "Eucalyptus", "Foxtail pine", "Fremont poplar", "Giant Sequoia", "Golden chinkapin", "Grand fir", "Gray pine", "Holly", "Incense cedar", "Interior live oak", "Jeffrey pine", "Knobcone pine", "Limber pine", "Lodgepole pine", "McNab cypress", "Monterey pine", "Mountain hemlock", "Noble fir", "Oak-unclassified", "Oregon ash", "Oregon white oak", "Pacific dogwood", "Pacific madrone", "Pacific silver fir", "Pacific yew", "Ponderosa pine", "Port-Orford-cedar", "Quaking aspen", "Red alder", "Redwood", "Santa Lucia fir", "Scotch pine", "Shasta red fir", "Singleleaf pinyon", "Sitka spruce", "Subablpine larch", "Subalpine fir", "Sugar pine", "Tanoak", "Unknown hardwood", "Unknown softwood", "Unknown type", "Utah juniper", "Valley (California) white oak", "Walnut", "Water birch", "Western hemlock", "Western juniper", "Western larch", "Western paper birch", "Western redcedar", "Western white pine", "White alder", "White fir", "Whitebark pine", "Willow"]
         };
 
@@ -334,7 +334,7 @@
         
 
         $.when(
-            $.get("/trees/strata_list/" + "trees_forestproperty_1", function (data) {
+            $.get("/trees/strata_list/" + app.strata.property_id, function (data) {
                 app.strata.data = data;
             }),
 

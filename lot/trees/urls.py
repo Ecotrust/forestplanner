@@ -4,7 +4,7 @@ from trees.views import *
 urlpatterns = patterns('',
     url(r'^stands/$',
         manage_stands, name='trees-manage_stands'),
-    url(r'^strata/$',
+    url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
     url(r'^list/species.json$',
         list_species, name='trees-list_species'),
