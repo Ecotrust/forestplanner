@@ -19,12 +19,14 @@
                 <h1>Manage Stand Groups</h1>
 
                 <!-- strata list -->
-                <div data-bind="visible: strata().length && ! newStratum()">
-                    You have stand groups.
+                <div data-bind="visible: strataList().length && ! newStratum()">
+                    <ul class="nav nav-tabs nav-stacked" data-bind="foreach: strataList()">
+                        <li><a><span data-bind="text: name"></span></a></li>
+                    </ul>
                 </div>
 
                 <!-- property has no strata -->
-                <div data-bind="visible: !strata().length && ! newStratum()">
+                <div data-bind="visible: !strataList().length && ! newStratum()">
                     You have no stand groups.
                 </div>
 
@@ -83,7 +85,7 @@
                                     <div class="row-fluid">
                                         <div class="btn-group pull-right">
                                            <!--<button class="btn btn-large"><i class="icon-white icon-plus"></i> Cancel</button>-->
-                                           <button class="btn btn-large" data-bind="click: $parent.prev"><i class="icon-white icon-arrow-left"></i> Back</button>
+                                           <button class="btn btn-large" data-bind="click: $parent.prev, enable: index() !== 0"><i class="icon-white icon-arrow-left"></i> Back</button>
                                            <button class="btn btn-large btn-success" data-bind="click: $parent.addSpecies, enable: species() && sizeClass() && percentage()">
                                                 
                                                 <span data-bind="visible: index() === $parent.standList().length-1"><i class="icon-white icon-plus"></i> Add Species</span>
@@ -104,34 +106,39 @@
           </div>
           <div class="span7">
             <div class="well">
-                <h2 data-bind="visible: !newStratum().standList().length" style="display: none">Stand group species have not been defined, yet.</h2>
-                <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
-                    <thead>
-                        <tr><th>Species</th><th>Size Class</th><th>Percentage</th></tr>
-                    </thead>
-                    <tbody data-bind="foreach: newStratum().standList">
-                        <tr data-bind="click: $parent.newStratum().selectRow, css: { active: $data === $parent.newStratum().currentStand() }">
-                            <td>
-                                <span data-bind="visible: species, text: species"></span>
-                                <span data-bind="visible: ! species()">enter a species</span>
-                            </td>
-                            <td>
-                                <span data-bind="visible: sizeClass, text: sizeClass"></span>
-                                <span data-bind="visible: ! sizeClass()">enter a sizeClass</span>
-                            </td>
-                            <td>
-                                <span data-bind="visible: percentage, text: percentage() + '%'"></span>
-                                <span data-bind="visible: ! percentage()">enter a percentage</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                    
-                </table>
-                <div class="btn-group pull-right">
-                    <button class="btn btn-large">cancel</button>
-                    <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
-                </div>
-                <div class="clearfix"></div>
+                <div data-bind="if: newStratum">
+                    <h2 data-bind="visible: !newStratum().standList().length" style="display: none">Stand group species have not been defined, yet.</h2>
+                                 <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
+                                     <thead>
+                                         <tr><th>Species</th><th>Size Class</th><th>Percentage</th><th>Density (trees per acre)</th></tr>
+                                     </thead>
+                                     <tbody data-bind="foreach: newStratum().standList">
+                                         <tr data-bind="click: $parent.newStratum().selectRow, css: { active: $data === $parent.newStratum().currentStand() }">
+                                             <td>
+                                                 <span data-bind="visible: species, text: species"></span>
+                                                 <span data-bind="visible: ! species()">enter a species</span>
+                                             </td>
+                                             <td>
+                                                 <span data-bind="visible: sizeClass, text: sizeClass"></span>
+                                                 <span data-bind="visible: ! sizeClass()">enter a size class</span>
+                                             </td>
+                                             <td>
+                                                 <span data-bind="visible: percentage, text: percentage() + '%'"></span>
+                                                 <span data-bind="visible: ! percentage()">enter a percentage</span>
+                                             </td>
+                                             <td>
+                                                 <span data-bind="visible: percentage, text: (percentage()/100*$parent.newStratum().tpa()).toFixed(0)"></span>
+                                                 <span data-bind="visible: ! percentage()">enter a percentage</span>
+                                             </td>
+                                         </tr>
+                                     </tbody>
+                                     
+                                 </table>
+                                 <div class="btn-group pull-right">
+                                     <button class="btn btn-large">cancel</button>
+                                     <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
+                                 </div>
+                                 <div class="clearfix"></div></div>
             </div>
 
           </div>
@@ -176,6 +183,10 @@
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
             background-color: #E4AF87 !important;
+            
+        }
+        .stand-table tr.active {
+            font-weight: bold;
         }
     </style>
     <script type="text/javascript">
@@ -246,22 +257,31 @@
             self.currentStand = ko.observable();
 
             self.addSpecies = function () {
-                var stand, newIndex;
+                var stand;
                 
-                if (self.standList.indexOf(self.currentStand()) === self.standList().length -1) {
+                if (self.currentStand().index() === self.standList().length -1) {
                     stand = new speciesViewModel(self);
                     self.standList.push(stand);
                     self.currentStand(stand);
 
                 } else {
-                    newIndex = self.standList.indexOf(self.currentStand()) + 1;
-                    self.currentStand(self.standList()[newIndex]);
+                    self.currentStand(self.standList()[self.currentStand().index() + 1]);
                 }
                 
-                $('#myCarousel').carousel('next') 
+                $('#myCarousel').carousel('next');
 
             }
 
+            self.prev = function () {
+                var self = this, 
+                    stratum = self.stratum;
+                
+                stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
+                $('#myCarousel').carousel('prev')
+
+            };
+
+            // launch into species list creation
             self.next = function () {
                 var self = this,
                     stand = new speciesViewModel(self);
@@ -271,15 +291,7 @@
 
             };
 
-            self.prev = function () {
-                var self = this, 
-                    stratum = self.stratum,
-                    newIndex = stratum.standList.indexOf(stratum.currentStand()) - 1;
-                
-                stratum.currentStand(stratum.standList()[newIndex]);
-                $('#myCarousel').carousel('prev')
-
-            };
+       
 
             self.selectRow = function () {
                 var self = this;
@@ -292,11 +304,15 @@
         function strataViewModel () {
           var self = this;
 
-          self.strata = ko.observableArray();
+          self.strataList = ko.observableArray([
+                {'name': "Test Stand Group 1"},
+                {'name': "Test Stand Group 2"},
+                {'name': "Test Stand Group 3"}
+            ]);
 
           // either false, or holds a stratumViewModel
           //self.newStratum = ko.observable(false);
-          self.newStratum = ko.observable(new stratumViewModel());
+          self.newStratum = ko.observable();
 
           // the species lists needs an empty string at the beggining
           self.treeSpecies = app.strata.treeSpecies;
@@ -306,8 +322,11 @@
             var self = this,
                 stratum = self.newStratum(),
                 standList = $.map(stratum.standList(), function (stand) {
-                    var sizes = stand.sizeClass.replace(/\"/g, "") .split("-");
-                    return [[stand.species, sizes[0], sizes[1], stand.percentage]];
+                    var sizes = [];
+                    if (stand.species() && stand.sizeClass() && stand.percentage()) {
+                        sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
+                        return [[stand.species(), sizes[0], sizes[1], stand.percentage()]];
+                    }
                 });
 
             $.ajax({
@@ -322,8 +341,8 @@
                         'classes': standList
                     })
                 },
-                success: function (response) { debugger; },
-                error: function (response) { debugger; }
+                success: function (response) { self.newStratum(null) },
+                error: function (response) { self.newStratum(null) }
             });
           };
 
