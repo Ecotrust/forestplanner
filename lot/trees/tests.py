@@ -1091,7 +1091,7 @@ class NearestPlotRestTest(TestCase):
                 'search_tpa': 160,
                 'search_age': 40,
                 #'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 14, 31], ] })
-                'stand_list': '{"classes":["Douglas-fir","5","10","5"]}'
+                'stand_list': u'{"classes":[["Bigcone Douglas-fir","5","10","5"],["Black cottonwood","10","15","50"],["California nutmeg","5","10","40"]]}'q
                 # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-Lists
             }
         )
