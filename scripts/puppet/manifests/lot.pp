@@ -111,6 +111,23 @@ package {'supervisor':
     ensure => "latest"
 }
 
+
+# TODO nginx-full uwsgi uwsgi-plugin-python
+# http://voorloopnul.com/blog/setting-up-django-with-nginx-and-uwsgi-ubuntu-12-04/
+# package {'nginx-full': ensure => "latest"}
+# package {'uwsgi': ensure => "latest"}
+# package {'uwsgi-plugin-python': ensure => "latest"}
+
+# file { "lot.ini":
+#   path => "/etc/uwsgi/apps-available/lot.ini",
+#   content => template("lot.uwsgi.ini")
+# }
+
+# file {"forestplanner":
+#   path => "/etc/ngnix/sites-available/forestplanner",
+#   content => template("lot.uwsgi.ini")
+# }
+
 class { "postgresql::server": version => "9.1",
     listen_addresses => 'localhost',
     max_connections => 100,
