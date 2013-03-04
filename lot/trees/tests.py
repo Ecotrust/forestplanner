@@ -1090,7 +1090,7 @@ class NearestPlotRestTest(TestCase):
                 'name': 'test strata', 
                 'search_tpa': 160,
                 'search_age': 40,
-                'stand_list': u'{"classes":[["Douglas-fir","5","10",5],["Douglas-fir",10,15,50]]}'
+                'stand_list': u'{"classes":[["Douglas-fir",5,10,5],["Douglas-fir",10,15,50]]}'
                 # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
             }
         )
