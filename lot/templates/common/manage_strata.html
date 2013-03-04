@@ -26,7 +26,7 @@
 
                 <div class="row-fluid">
                     
-                    <div class="span6">
+                    <div class="span6" data-bind="visible: appliedStrataTotal > 0">
                         <p>You have applied stand groups to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
                         <div class="progress">
                           <div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal/strataList().length)/100+'%' }"></div>
@@ -37,8 +37,11 @@
                 <div class="row-fluid">
                     <div class="span12">
                         <div data-bind="visible: strataList().length && ! newStratum()">
-                            <ul class="nav nav-tabs nav-stacked strata-list" data-bind="foreach: strataList()">
-                                <li data-bind="attr: { 'data-sid': uid }"><a><span data-bind="text: name"></span></a></li>
+                            <ul class="nav nav-tabs strata-list" data-bind="foreach: strataList()">
+                                <li data-bind="attr: { 'data-color': color() }, style: { 'background': color() }"><a><span data-bind="text: name"></span></a>
+                                  <button class="btn btn-inverse">edit</button>
+                                </li>
+                                
                             </ul>
                         </div>
                     </div>
@@ -105,6 +108,7 @@
                                     <div class="row-fluid">
                                         <div class="btn-group pull-right">
                                            <!--<button class="btn btn-large"><i class="icon-white icon-plus"></i> Cancel</button>-->
+                                           
                                            <button class="btn btn-large" data-bind="click: $parent.prev, enable: index() !== 0"><i class="icon-white icon-arrow-left"></i> Back</button>
                                            <button class="btn btn-large btn-success" data-bind="click: $parent.addSpecies, enable: species() && sizeClass() && percentage()">
                                                 
@@ -126,40 +130,55 @@
           </div>
           <div class="span7">
             <div class="well">
-                <div data-bind="if: newStratum()">
-                    <h2 data-bind="visible: !newStratum().standList().length">Stand group species have not been defined, yet.</h2>
-                        <p>We should have some help text here.</p>
-                         <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
-                             <thead>
-                                 <tr><th>Species</th><th>Size Class</th><th>Percentage</th><th>Density (trees per acre)</th></tr>
-                             </thead>
-                             <tbody data-bind="foreach: newStratum().standList">
-                                 <tr data-bind="click: $parent.newStratum().selectRow, css: { active: $data === $parent.newStratum().currentStand() }">
-                                     <td>
-                                         <span data-bind="visible: species, text: species"></span>
-                                         <span data-bind="visible: ! species()">enter a species</span>
-                                     </td>
-                                     <td>
-                                         <span data-bind="visible: sizeClass, text: sizeClass"></span>
-                                         <span data-bind="visible: ! sizeClass()">enter a size class</span>
-                                     </td>
-                                     <td>
-                                         <span data-bind="visible: percentage, text: percentage() + '%'"></span>
-                                         <span data-bind="visible: ! percentage()">enter a percentage</span>
-                                     </td>
-                                     <td>
-                                         <span data-bind="visible: percentage, text: (percentage()/100*$parent.newStratum().tpa()).toFixed(0)"></span>
-                                         <span data-bind="visible: ! percentage()">enter a percentage</span>
-                                     </td>
-                                 </tr>
-                             </tbody>
-                             
-                         </table>
-                         <div class="btn-group pull-right">
-                             <button class="btn btn-large" data-bind="click: cancel">cancel</button>
-                             <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
-                         </div>
-                         <div class="clearfix"></div>
+                <div data-bind="if: newStratum()" >
+                  <div data-bind="visible: newStratum()" style="display: none">
+                      <div  data-bind="visible: !newStratum().standList().length"  style="display: none">
+                        <h2>Enter Stand Group Information</h2>
+                          <p>We should have some help text here.</p>
+                      </div>
+                      <div  data-bind="visible: newStratum().standList().length" style="display: none">
+                        <h2>Stand Group</h2>
+                        <dl class="dl-horizontal">
+                          <dt>Name</dt>
+                          <dd><span data-bind="text: newStratum().name()"></span></dd>
+                          <dt>Trees per Acre</dt>
+                          <dd><span data-bind="text: newStratum().tpa()"></span></dd>
+                          <dt>Stand Age</dt>
+                          <dd><span data-bind="text: newStratum().age()"></span></dd>
+                        </dl>
+                      </div>
+                           <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
+                               <thead>
+                                   <tr><th>Species</th><th>Size Class</th><th>Percentage</th><th>Density (trees per acre)</th></tr>
+                               </thead>
+                               <tbody data-bind="foreach: newStratum().standList">
+                                   <tr data-bind="click: $parent.newStratum().selectRow, css: { active: $data === $parent.newStratum().currentStand() }">
+                                       <td>
+                                           <span data-bind="visible: species, text: species"></span>
+                                           <span data-bind="visible: ! species()">enter a species</span>
+                                       </td>
+                                       <td>
+                                           <span data-bind="visible: sizeClass, text: sizeClass"></span>
+                                           <span data-bind="visible: ! sizeClass()">enter a size class</span>
+                                       </td>
+                                       <td>
+                                           <span data-bind="visible: percentage, text: percentage() + '%'"></span>
+                                           <span data-bind="visible: ! percentage()">enter a percentage</span>
+                                       </td>
+                                       <td>
+                                           <span data-bind="visible: percentage, text: (percentage()/100*$parent.newStratum().tpa()).toFixed(0)"></span>
+                                           <span data-bind="visible: ! percentage()">enter a percentage</span>
+                                       </td>
+                                   </tr>
+                               </tbody>
+                               
+                           </table>
+                           <div class="btn-group pull-right">
+                               <button class="btn btn-large" data-bind="click: cancel">cancel</button>
+                               <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
+                           </div>
+                           <div class="clearfix"></div>
+                      </div>
                     </div>
                 <div data-bind="visible: ! newStratum()">
                     <div id="map"></div>
@@ -206,6 +225,9 @@
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
     {% load compressed %}
     <style>
+      h1 {
+        margin-bottom: 10px;
+      }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
             background-color: #E4AF87 !important;
@@ -217,6 +239,42 @@
         #map {
             height: 500px;
         }
+        
+        .strata-list {
+          z-index: 2000;
+          margin-top: 10px;
+
+        }
+          .strata-list li {
+            z-index: 2000;
+            display: inline;
+            list-style-type: none;
+            margin: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+          }
+          .strata-list a {
+            color: #333;
+            font-weight: bold;
+            width: 80px;
+            height: 80px;
+           
+          }
+          .strata-list a:hover {
+            background-color: inherit !important;
+            border: 0px;
+            width: 82px;
+            height: 82px;
+          }
+          
+          .strata-list li .btn {
+            opacity: 0;
+            position: absolute;
+            right: 5px;
+            bottom: 5px;
+          }
+          .strata-list li:hover .btn {
+            opacity: 1;
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -251,11 +309,19 @@
         /// to go into strata.js
         app.strata = {
             property_id: "{{ property_id }}",
+            color: ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'],
             treeSpecies: ["Ailanthus", "Alaska cedar", "Apple", "Bigcone Douglas-fir", "Bigleaf maple", "Bishop pine", "Black cottonwood", "Black locust", "Blue oak", "Boxelder", "Brewer spruce", "Bristlecone pine", "California black oak", "California buckeye", "California juniper", "California nutmeg", "California red fir", "California sycamore", "California-laurel", "Canyon live oak", "Cherry", "Coast live oak", "Coulter pine", "Curlleaf mountain-mahogany", "Cypress", "Douglas-fir", "Engelmann spruce", "Englemann oak", "Eucalyptus", "Foxtail pine", "Fremont poplar", "Giant Sequoia", "Golden chinkapin", "Grand fir", "Gray pine", "Holly", "Incense cedar", "Interior live oak", "Jeffrey pine", "Knobcone pine", "Limber pine", "Lodgepole pine", "McNab cypress", "Monterey pine", "Mountain hemlock", "Noble fir", "Oak-unclassified", "Oregon ash", "Oregon white oak", "Pacific dogwood", "Pacific madrone", "Pacific silver fir", "Pacific yew", "Ponderosa pine", "Port-Orford-cedar", "Quaking aspen", "Red alder", "Redwood", "Santa Lucia fir", "Scotch pine", "Shasta red fir", "Singleleaf pinyon", "Sitka spruce", "Subablpine larch", "Subalpine fir", "Sugar pine", "Tanoak", "Unknown hardwood", "Unknown softwood", "Unknown type", "Utah juniper", "Valley (California) white oak", "Walnut", "Water birch", "Western hemlock", "Western juniper", "Western larch", "Western paper birch", "Western redcedar", "Western white pine", "White alder", "White fir", "Whitebark pine", "Willow"]
         };
 
+
+
         app.strata.init = function () {
             app.strata.viewModel = new strataViewModel();
+
+            $.each(app.strata.viewModel.strataList(), function (i, strata) {
+              strata.color('#'+app.strata.color.reverse().pop());
+            });
+
             ko.applyBindings(app.strata.viewModel);
             $('.strata-list').find('li').draggable({
                 revert: true
@@ -299,13 +365,19 @@
         };
 
         // viewmodel for a single stratum
-        function stratumViewModel () {
-            var self = this;
+        function stratumViewModel (options) {
+            var self = {};
 
-            self.name = ko.observable();
-            self.tpa = ko.observable();
-            self.age = ko.observable();
+            if (! options) {
+              options = {}
+            }
+
+            self.name = ko.observable(options.name);
+            self.tpa = ko.observable(options.tpa);
+            self.age = ko.observable(options.age);
             
+            self.color = ko.observable();
+
             self.standList = ko.observableArray();
             self.currentStand = ko.observable();
 
@@ -351,16 +423,16 @@
                 self.stratum.currentStand(self);
                 $('#myCarousel').carousel(self.index());
             };
-
+            return self;
         };
 
         function strataViewModel () {
-          var self = this;
+          var self = {};
 
           self.strataList = ko.observableArray([
-                {'name': "Test Stand Group 1", uid: "001" },
-                {'name': "Test Stand Group 2", uid: "002" },
-                {'name': "Test Stand Group 3", uid: "003" }
+                stratumViewModel({'name': "Test Stand Group 1", uid: "001" }),
+                stratumViewModel({'name': "Test Stand Group 2", uid: "002" }),
+                stratumViewModel({'name': "Test Stand Group 3", uid: "003" })
             ]);
 
           self.standTotal = app.stand_layer.features.length;
@@ -386,13 +458,16 @@
           self.dropStrata = function( event, ui ) {
                 var strataID;
                 // get strata id
-                strataID = ui.draggable.data('sid');
+                strataID = ui.draggable.data('sid'),
+                color = ui.draggable.data('color');
                 
                 // apply strata to selected stands
                 $.each(app.stand_layer.selectedFeatures, function (i, feature) {
                     // apply strata
                     var currentTotal = self.appliedStrataTotal();
                     self.appliedStrataTotal(currentTotal+1);
+                    feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
+                    app.stand_layer.drawFeature(feature);
                 });
                 app.selectFeature.unselectAll();
             }
@@ -430,7 +505,7 @@
                 }
             });
           };
-
+          return self;
         };
     
 
@@ -440,12 +515,13 @@
                 app.strata.data = data;
             }),
 
-            $.get('/trees/list/species.json', function (data) {
-                if (data.length) {
-                    app.strata.treeSpecies = data;    
-                }
+            // back to 1.4.3, this is erroring out
+            // $.get('/trees/list/species.json', function (data) {
+            //     if (data.length) {
+            //         app.strata.treeSpecies = data;    
+            //     }
                 
-            }),
+            // }),
             $.get('/features/generic-links/links/geojson/{uid}/'.replace('{uid}', app.strata.property_id), function (data) {
                 map.render('map');
                 map.updateSize();    
