@@ -827,15 +827,15 @@ class Strata(Feature):
 
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")
-        for c in self.stand_list['classes']:
-            if len(c) != 4:
+        for cls in self.stand_list['classes']:
+            if len(cls) != 4:
                 raise Exception("Not a valid stand list")
             # c[0] is valid species?
-            assert(TreeliveSummary.objects.filter(fia_forest_type_name=c[0]).count() > 0)
+            assert(TreeliveSummary.objects.filter(fia_forest_type_name=cls[0]).count() > 0)
             # c[1] thru c[2] is valid diam class ?
-            assert(c[1] < c[2])
+            assert(cls[1] < cls[2])
             # c[3] is a valid tpa?
-            assert(c[3] > 0 and c[3] < 10000)
+            assert(cls[3] > 0 and cls[3] < 10000)
         super(Strata, self).save(*args, **kwargs)
 
 

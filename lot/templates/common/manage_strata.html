@@ -19,7 +19,7 @@
                 <h1>
                   Manage Stand Groups
                   <div class="btn-group pull-right">
-                    <button class="btn btn-large" data-bind="disable: newStratum(), click: createStratum"><i class="icon-arrow-left"></i> properties</button>
+                    <a class="btn btn-large" data-bind="disable: newStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
                     <button class="btn btn-large" data-bind="disable: newStratum(), click: createStratum"><i class="icon-plus"></i> new stand group</button>
                   </div>
                 </h1>
@@ -256,15 +256,14 @@
           .strata-list a {
             color: #333;
             font-weight: bold;
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
            
           }
           .strata-list a:hover {
             background-color: inherit !important;
             border: 0px;
-            width: 82px;
-            height: 82px;
+            
           }
           
           .strata-list li .btn {
@@ -275,6 +274,7 @@
           }
           .strata-list li:hover .btn {
             opacity: 1;
+          }
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -306,7 +306,7 @@
 
         {% endif %}
 
-        /// to go into strata.js
+        // to go into strata.js
         app.strata = {
             property_id: "{{ property_id }}",
             color: ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'],
@@ -314,12 +314,22 @@
         };
 
 
-
+        app.strata.colorMap = {};
         app.strata.init = function () {
             app.strata.viewModel = new strataViewModel();
 
+            $.each(app.strata.data, function (i, strata) {
+              //app.strata.viewModel.strataList.push(new stratumViewModel(strata));
+            });
+
             $.each(app.strata.viewModel.strataList(), function (i, strata) {
-              strata.color('#'+app.strata.color.reverse().pop());
+              var color = app.strata.color.reverse().pop();
+              app.strata.colorMap[strata.uid] = color;
+              strata.color('#' + color);
+              $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', 'trees_strata_1'), function (i, stand) {
+                stand.style = { fillColor: '#'+color, fillOpacity: '.6', strokeColor: '#fff' };
+                app.stand_layer.drawFeature(stand);
+              });
             });
 
             ko.applyBindings(app.strata.viewModel);
@@ -375,7 +385,8 @@
             self.name = ko.observable(options.name);
             self.tpa = ko.observable(options.tpa);
             self.age = ko.observable(options.age);
-            
+            self.uid = options.uid;
+
             self.color = ko.observable();
 
             self.standList = ko.observableArray();
@@ -479,7 +490,12 @@
                     var sizes = [];
                     if (stand.species() && stand.sizeClass() && stand.percentage()) {
                         sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
-                        return [[stand.species(), sizes[0], sizes[1], stand.percentage()]];
+                        return [[
+                          stand.species(), 
+                          parseInt(sizes[0], 10), 
+                          parseInt(sizes[1], 10), 
+                          parseInt(stand.percentage(), 10)
+                        ]];
                     }
                 });
 
@@ -487,6 +503,7 @@
                 url: "/features/strata/form/",
                 type: "POST",
                 traditional: true,
+                dataType: 'json',
                 data: {   
                     'name': stratum.name,
                     'search_tpa': stratum.tpa(),
@@ -496,8 +513,12 @@
                     })
                 },
                 success: function (response) { 
+                    debugger;
+                    var strata_uid = response["X-Madrona-Select"];
+                    app.strata.associateStand(app.strata.property_uid, strata_uid);
                     self.strataList.push(self.newStratum());
                     self.newStratum(null);
+                    
                 },
                 error: function (response) { 
                     self.strataList.push(self.newStratum());
@@ -508,10 +529,27 @@
           return self;
         };
     
+        app.strata.associateStand = function (property_uid, strata_uid) {
+          var url = "/features/forestproperty/{property_uid}/add/{strata_uid}";
+          
+          url = url.replace('{property_uid}', app.strata.property_id);
+          url = url.replace('{strata_uid}', strata_uid);
 
+          return $.ajax({
+              url: url,
+              type: "POST",
+              traditional: true,
+              success: function (response) { 
+                  
+              },
+              error: function (response) { 
+                  
+              }
+          });
+        }
 
         $.when(
-            $.get("/trees/strata_list/" + app.strata.property_id, function (data) {
+            $.get("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
                 app.strata.data = data;
             }),
 

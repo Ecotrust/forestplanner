@@ -6,7 +6,7 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.conf import settings
-from simplejson import loads, dumps
+from json import loads, dumps
 from madrona.features import *
 from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
 from madrona.features.forms import FeatureForm
@@ -1086,13 +1086,12 @@ class NearestPlotRestTest(TestCase):
         old_count = Strata.objects.count()
         url = "/features/strata/form/"
         response = self.client.post( url, 
-            {   
+            {
                 'name': 'test strata', 
                 'search_tpa': 160,
                 'search_age': 40,
-                'stand_list': json.dumps({'classes': [ ['Douglas-fir', 10, 14, 31] ] })
-                #'stand_list': '{"classes":[["Bigcone Douglas-fir","5","10","5"],["Black cottonwood","10","15","50"],["California nutmeg","5","10","40"]]}'
-                # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-Lists
+                'stand_list': u'{"classes":[["Douglas-fir",5,10,5],["Douglas-fir",10,15,50]]}'
+                # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
             }
         )
         self.assertEqual(response.status_code, 201, response.content)

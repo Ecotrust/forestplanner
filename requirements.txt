@@ -4,7 +4,11 @@ selenium
 scipy
 python-memcached>=1.48
 pandas>=0.10.1
+<<<<<<< HEAD
 django==1.4.3  # we *should* be ready for 1.5
+=======
+django<=1.5  # not quite ready for 1.5; see https://github.com/simplejson/simplejson/issues/37
+>>>>>>> 24766e4c1b8773be1c6f979ee17a124bc4c661c0
 -e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
 simplejson
 django-pdb
