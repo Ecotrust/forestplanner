@@ -319,24 +319,12 @@
             app.strata.viewModel = new strataViewModel();
 
             $.each(app.strata.data, function (i, strata) {
-              //app.strata.viewModel.strataList.push(new stratumViewModel(strata));
+              app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
-
-            $.each(app.strata.viewModel.strataList(), function (i, strata) {
-              var color = app.strata.color.reverse().pop();
-              app.strata.colorMap[strata.uid] = color;
-              strata.color('#' + color);
-              $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', 'trees_strata_1'), function (i, stand) {
-                stand.style = { fillColor: '#'+color, fillOpacity: '.6', strokeColor: '#fff' };
-                app.stand_layer.drawFeature(stand);
-              });
-            });
+;
 
             ko.applyBindings(app.strata.viewModel);
-            $('.strata-list').find('li').draggable({
-                revert: true
-            });
-
+            
             $( "#map" ).droppable({
               drop: app.strata.viewModel.dropStrata
             });
@@ -434,17 +422,24 @@
                 self.stratum.currentStand(self);
                 $('#myCarousel').carousel(self.index());
             };
+
+            // set the color and store a reference
+            self.color('#' + app.strata.color.reverse().pop());
+            app.strata.colorMap[self.uid] = self.color();
+
+            $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', self.uid), function (i, stand) {
+              stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
+              app.stand_layer.drawFeature(stand);
+            });
+
+
             return self;
         };
 
         function strataViewModel () {
           var self = {};
 
-          self.strataList = ko.observableArray([
-                stratumViewModel({'name': "Test Stand Group 1", uid: "001" }),
-                stratumViewModel({'name': "Test Stand Group 2", uid: "002" }),
-                stratumViewModel({'name': "Test Stand Group 3", uid: "003" })
-            ]);
+          self.strataList = ko.observableArray();
 
           self.standTotal = app.stand_layer.features.length;
 
@@ -457,6 +452,18 @@
           // the species lists needs an empty string at the beggining
           self.treeSpecies = app.strata.treeSpecies;
           self.treeSpecies.unshift('');
+
+
+          self.strataList.subscribe(function (newStrata) {            
+            setTimeout(function () {
+              $('.strata-list').find('li').not('.ui-draggable').draggable({
+                  revert: true
+              });
+
+            }, 300);
+              
+
+          });
 
           self.cancel = function () {
             self.newStratum(null);
@@ -548,7 +555,7 @@
         }
 
         $.when(
-            $.get("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
+            $.getJSON("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
                 app.strata.data = data;
             }),
 
