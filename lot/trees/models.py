@@ -376,8 +376,8 @@ class ForestProperty(FeatureCollection):
         # Instead of using the overall bbox of the stands
         # Assumption is that property boundary SHOULD contain all stands
         # and, if not, they should expand the property boundary
-        bb = self.bbox  
-        featxt = ', '.join([i.geojson() for i in self.feature_set()])
+        bb = self.bbox
+        featxt = ', '.join([i.geojson() for i in self.feature_set(feature_classes=[Stand])])
         return """{ "type": "FeatureCollection",
         "bbox": [%f, %f, %f, %f],
         "features": [
