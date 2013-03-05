@@ -57,16 +57,28 @@
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="{% url 'user_profile-form' user.username %}">Profile</a></li>
+                <li><a href="{% url 'auth_profile' %}">User Profile</a></li> 
                 <li class="divider"></li>
                 <li><a href="{% url 'user_signout' %}">Sign Out</a></li>
+                <li><a href="{% url 'account_change_password' %}">Change Password</a></li>
+                <li><a href="{% url 'socialaccount_connections' %}">Manage External Accounts</a></li>
               </ul>
             </div>
             {% else %}
-            <ul class="nav secondary-nav pull-right">
-              <li><a href="{% url 'registration_register' %}" id="register">Register</a></li>
-              <li><a href="{% url 'user_signin' %}" id="signin"> Sign In</a></li>
-            </ul>
+                {% load socialaccount %}
+            <div class="btn-group pull-right">
+              <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
+                <i class="icon-user"></i> 
+                <span>Log In</span>
+                <span class="caret"></span>
+              </a>
+              <ul class="dropdown-menu">
+                <li><a href="{% provider_login_url "google" %}" id="signin">... with Google</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url "account_signup" %}" id="signup">Register (direct)</a></li>
+                <li><a href="{% url "account_login" %}" id="signup">... with username and password</a></li>
+              </ul>
+            </div>
             {% endif %}                
           </div><!--/.nav-collapse -->
         </div>
