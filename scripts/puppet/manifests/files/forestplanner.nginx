@@ -1,0 +1,12 @@
+server {
+    server_name localhost  # www.voorloopnul.com;
+    access_log /var/log/nginx/forestplanner.access.log;
+    error_log /var/log/nginx/forestplanner.error.log;
+    location / {
+        uwsgi_pass unix:///var/run/uwsgi/app/forestplanner/socket;
+        include uwsgi_params;
+    }
+    location /media/  {
+        alias /usr/local/apps/land_owner_tools/mediaroot/;
+    }
+}

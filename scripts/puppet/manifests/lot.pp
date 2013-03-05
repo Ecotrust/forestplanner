@@ -111,22 +111,34 @@ package {'supervisor':
     ensure => "latest"
 }
 
+package {'uwsgi': ensure => "latest"}
+package {'uwsgi-plugin-python': ensure => "latest"}
+file { "forestplanner.ini":
+  path => "/etc/uwsgi/apps-available/forestplanner.ini",
+  content => template("forestplanner.uwsgi.ini"),
+  require => [Package['uwsgi'], Package['uwsgi-plugin-python']]
+}
+file { "/etc/uwsgi/apps-enabled/forestplanner.ini":
+   ensure => 'link',
+   target => '/etc/uwsgi/apps-available/forestplanner.ini',
+   require => File['forestplanner.ini']
+}
 
-# TODO nginx-full uwsgi uwsgi-plugin-python
-# http://voorloopnul.com/blog/setting-up-django-with-nginx-and-uwsgi-ubuntu-12-04/
-# package {'nginx-full': ensure => "latest"}
-# package {'uwsgi': ensure => "latest"}
-# package {'uwsgi-plugin-python': ensure => "latest"}
-
-# file { "lot.ini":
-#   path => "/etc/uwsgi/apps-available/lot.ini",
-#   content => template("lot.uwsgi.ini")
-# }
-
-# file {"forestplanner":
-#   path => "/etc/ngnix/sites-available/forestplanner",
-#   content => template("lot.uwsgi.ini")
-# }
+package {'nginx-full': ensure => "latest"}
+file {"forestplanner":
+  path => "/etc/nginx/sites-available/forestplanner",
+  content => template("forestplanner.nginx"),
+  require => Package['nginx-full']
+}
+file { "/etc/nginx/sites-enabled/forestplanner":
+   ensure => 'link',
+   target => '/etc/nginx/sites-available/forestplanner',
+   require => File['forestplanner']
+}
+file { "/etc/nginx/sites-enabled/default":
+   ensure => 'absent',
+   require => Package['nginx-full']
+}
 
 class { "postgresql::server": version => "9.1",
     listen_addresses => 'localhost',
