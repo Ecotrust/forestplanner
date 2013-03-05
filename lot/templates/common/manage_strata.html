@@ -513,7 +513,6 @@
                     })
                 },
                 success: function (response) { 
-                    debugger;
                     var strata_uid = response["X-Madrona-Select"];
                     app.strata.associateStand(app.strata.property_uid, strata_uid);
                     self.strataList.push(self.newStratum());
@@ -535,17 +534,17 @@
           url = url.replace('{property_uid}', app.strata.property_id);
           url = url.replace('{strata_uid}', strata_uid);
 
-          return $.ajax({
-              url: url,
-              type: "POST",
-              traditional: true,
-              success: function (response) { 
+          // return $.ajax({
+          //     url: url,
+          //     type: "POST",
+          //     traditional: true,
+          //     success: function (response) { 
                   
-              },
-              error: function (response) { 
+          //     },
+          //     error: function (response) { 
                   
-              }
-          });
+          //     }
+          // });
         }
 
         $.when(
