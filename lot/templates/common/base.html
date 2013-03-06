@@ -58,26 +58,32 @@
               </a>
               <ul class="dropdown-menu">
                 <li><a href="{% url 'auth_profile' %}">User Profile</a></li> 
-                <li class="divider"></li>
-                <li><a href="{% url 'user_signout' %}">Sign Out</a></li>
                 <li><a href="{% url 'account_change_password' %}">Change Password</a></li>
                 <li><a href="{% url 'socialaccount_connections' %}">Manage External Accounts</a></li>
+                <li class="divider"></li>
+                <li><a href="{% url 'user_signout' %}">Log Out</a></li>
               </ul>
             </div>
             {% else %}
                 {% load socialaccount %}
             <div class="btn-group pull-right">
+              <a href="{% url 'account_login' %}" class="btn dropdown-toggle">
+                <i class="icon-user"></i> 
+                <span>Log In</span>
+              </a>
+                <!--
               <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
                 <i class="icon-user"></i> 
                 <span>Log In</span>
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="{% provider_login_url "google" %}" id="signin">... with Google</a></li>
+                <li><a href="{% provider_login_url "google" %}" id="signin">Google</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url "account_signup" %}" id="signup">Register (direct)</a></li>
-                <li><a href="{% url "account_login" %}" id="signup">... with username and password</a></li>
+                <li><a href="{% url "account_login" %}" id="signup">With username and password</a></li>
               </ul>
+               -->
             </div>
             {% endif %}                
           </div><!--/.nav-collapse -->

@@ -51,8 +51,8 @@
                     <p>
                     {% if not user.is_authenticated %}
                     <div class="btn-group pull-right">
-                        <a class="btn btn-large" href="{% url 'registration_register' %}" id="register">Register</a>
-                        <a class="btn btn-large" href="{% url 'user_signin' %}" id="signin">Sign In</a>
+                        <!-- <a class="btn btn-large" href="{% url 'registration_register' %}" id="register">Register</a> -->
+                        <a class="btn btn-large" href="{% url 'account_login' %}" id="signin">Log In</a>
                     </div>
                     {% else %}
                     <a class="btn btn-large btn-success pull-right" id="manage-your-properties" href="#">Manage Your Properties</a>
