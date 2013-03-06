@@ -7,6 +7,9 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
+<div class="row-fluid">
+  <div class="span4"></div>
+  <div class="span4">
     <h2>{% trans "Log In" %}</h2>
 
     {% if socialaccount.providers  %}
@@ -26,20 +29,43 @@
     {% endif %}
 
     <div class="well">
+        <h4>Option 2</h4>
         <p>
-            <h4>Option 2</h4> If you have already <a href="{{ signup_url }}">registered</a> for a ForestPlanner account, you can sign in below:
+             If you have already <a href="/auth/signup/">registered</a> for a ForestPlanner account, sign in here.
         </p>
-        <form class="login" method="POST" action="{% url 'account_login' %}">
-        {% csrf_token %}
-        {{ form.as_p }}
-        {% if redirect_field_value %}
-        <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
-        {% endif %}
-        <a class="button secondaryAction" href="{% url 'account_reset_password' %}">{% trans "Forgot Password?" %}</a>
-        <button class="primaryAction" type="submit">{% trans "Sign In" %}</button>
+        <form class="form-horizontal login" method="POST" action="{% url 'account_login' %}">
+            {% for field in form %}
+              <div class="control-group">
+                <label class="control-label" for="{{field.html_name}}">{{field.label}}</label>
+                <div class="controls">
+                    {{field}}
+                </div>
+              </div>
+            {% endfor %}
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn">Sign in</button>
+            </div>
+          </div>
         </form>
+            <!--
+          <div class="control-group">
+            <label class="control-label" for="inputEmail">Email</label>
+            <div class="controls">
+              <input type="text" id="inputEmail" placeholder="Email">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="inputPassword">Password</label>
+            <div class="controls">
+              <input type="password" id="inputPassword" placeholder="Password">
+            </div>
+          </div>
+        </form>
+          -->
     </div>
+  </div>
+  <div class="span4"></div>
 </div>
-
 {% endblock %}
 

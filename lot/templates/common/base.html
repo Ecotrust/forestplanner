@@ -10,11 +10,9 @@
 
     <!-- Styles -->
     <link href="{{MEDIA_URL}}common/bootstrap.spacelab.css" rel="stylesheet"> 
-    <!-- <link href="{{MEDIA_URL}}bootstrap/css/bootstrap.css" rel="stylesheet"> -->
     <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
     <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/trees.css">
-
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
     <!--[if lt IE 9]>
@@ -38,10 +36,10 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </a>
-          <a class="brand" href="#"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo.png"/>Forest Scenario Planner</a>
+          <a class="brand" href="/"><img style="height:20px; padding-right: 12px;" src="/media/common/img/ecotrust_logo.png"/>Forest Scenario Planner</a>
           <div class="nav-collapse">
             <ul class="nav">
-              <li class="active"><a href="#">Home</a></li>
+              <li class="active"><a href="/">Home</a></li>
               <li><a id="navlink-about" href="#about">About</a></li>
               <li><a id="navlink-help" href="#help">Help</a></li>
             </ul>
@@ -57,8 +55,8 @@
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="{% url 'auth_profile' %}">User Profile</a></li> 
-                <li><a href="{% url 'account_change_password' %}">Change Password</a></li>
+                <li><a href="{% url 'auth_profile' %}">My Profile</a></li> 
+                <li><a href="{% url 'account_change_password' %}">Manage Password</a></li>
                 <li><a href="{% url 'socialaccount_connections' %}">Manage External Accounts</a></li>
                 <li class="divider"></li>
                 <li><a href="{% url 'user_signout' %}">Log Out</a></li>
@@ -145,6 +143,18 @@
 
 
     <!-- Scripts -->
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/jquery.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/json2.js"></script> <!-- for the benefit of older IEs -->
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tab.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tooltip.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-carousel.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-button.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-popover.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-modal.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
     {% block scripts %}{% endblock scripts %}
     <script>
         $('#navlink-about').click( function() {
