@@ -1122,3 +1122,11 @@ class NearestPlotRestTest(TestCase):
         self.assertEqual(len(rd),1)
         self.assertEqual(rd[0]['name'], 'test strata')
         self.assertEqual(rd[0]['search_tpa'], 160.0)
+
+        #### Step 6. Delete the strata, not the stand
+        url = "/features/generic-links/links/delete/%s/" % strata1.uid
+        response = self.client.delete(url)
+        self.assertEqual(response.status_code, 200, response.content)
+        stand1b = Stand.objects.get(name="test stand")
+        self.assertEqual(stand1b.strata, None)
+
