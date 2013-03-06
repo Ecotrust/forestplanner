@@ -24,25 +24,32 @@
                   </div>
                 </h1>
 
-                <div class="row-fluid">
-                    
-                    <div class="span6" data-bind="visible: appliedStrataTotal > 0">
-                        <p>You have applied stand groups to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
-                        <div class="progress">
-                          <div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal/strataList().length)/100+'%' }"></div>
-                        </div>
-                    </div>
-                </div>
                 <!-- strata list -->
                 <div class="row-fluid">
-                    <div class="span12">
-                        <div data-bind="visible: strataList().length && ! newStratum()">
-                            <ul class="nav nav-tabs strata-list" data-bind="foreach: strataList()">
-                                <li data-bind="attr: { 'data-color': color() }, style: { 'background': color() }"><a><span data-bind="text: name"></span></a>
-                                  <button class="btn btn-inverse">edit</button>
-                                </li>
-                                
-                            </ul>
+                    <div class="span12" data-bind="visible: strataList().length && ! newStratum()">
+                        <div class="row-fluid">
+                          <div class="span6">
+                            <p>You have applied stand groups to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
+                            <div class="progress">
+                              <div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal()/standTotal)*100+'%' }"></div>
+                            </div>
+                          </div>
+                          <div class="span6">
+                            
+                              <label>Filter Stand Groups</label>
+                              <input type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
+                            
+                          </div>
+
+                        </div>
+                        <div class="row-fluid  strata-list" data-bind="foreach: filteredStrataList()">
+                            <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': uid }, style: { 'background': color() }">
+                              <h4><span data-bind="text: name"></span></h4>
+                                <div class="btn-group">
+                                  <button class="btn"><i class="icon-remove-circle"></i></button>
+                                  <button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -245,34 +252,37 @@
           margin-top: 10px;
 
         }
-          .strata-list li {
-            z-index: 2000;
-            display: inline;
-            list-style-type: none;
+          .strata-list .stratum-box {
+            padding: 10px 20px 20px;
+            border-radius: 10px;
+            border: 1px solid #777;
             margin: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-          }
-          .strata-list a {
-            color: #333;
-            font-weight: bold;
-            width: 100px;
             height: 100px;
-           
-          }
-          .strata-list a:hover {
-            background-color: inherit !important;
-            border: 0px;
+            width: 40%;
+            float: left;
+            z-index: 2000;
             
           }
+          .strata-list .stratum-box h4 {
+              text-overflow: ellipsis;
+              overflow: hidden;
+              white-space: nowrap;
+          }
+        
           
-          .strata-list li .btn {
+          .strata-list .stratum-box:hover {
+            border: 1px solid #444;
+          }
+          .strata-list .stratum-box.ui-draggable-dragging .btn {
+            opacity: 0;
+          }
+          .strata-list .stratum-box .btn-group {
             opacity: 0;
             position: absolute;
-            right: 5px;
-            bottom: 5px;
+            right: 10px;
+            bottom: 10px;
           }
-          .strata-list li:hover .btn {
+          .strata-list .stratum-box:hover .btn-group {
             opacity: 1;
           }
     </style>
@@ -319,24 +329,11 @@
             app.strata.viewModel = new strataViewModel();
 
             $.each(app.strata.data, function (i, strata) {
-              //app.strata.viewModel.strataList.push(new stratumViewModel(strata));
-            });
-
-            $.each(app.strata.viewModel.strataList(), function (i, strata) {
-              var color = app.strata.color.reverse().pop();
-              app.strata.colorMap[strata.uid] = color;
-              strata.color('#' + color);
-              $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', 'trees_strata_1'), function (i, stand) {
-                stand.style = { fillColor: '#'+color, fillOpacity: '.6', strokeColor: '#fff' };
-                app.stand_layer.drawFeature(stand);
-              });
+              app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
 
             ko.applyBindings(app.strata.viewModel);
-            $('.strata-list').find('li').draggable({
-                revert: true
-            });
-
+            
             $( "#map" ).droppable({
               drop: app.strata.viewModel.dropStrata
             });
@@ -357,9 +354,13 @@
         }
 
         // individual stand list member
-        function speciesViewModel (stratum) {
+        function speciesViewModel (stratum, options) {
             var self = this;
             
+            if (! options) {
+              options = {}
+            }
+
             // reference to the parent stratum
             self.stratum = stratum;
 
@@ -391,6 +392,13 @@
 
             self.standList = ko.observableArray();
             self.currentStand = ko.observable();
+
+            if (options.stand_list) {
+              $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
+                self.standList.push(new speciesViewModel(self, stand));
+              });
+            }
+
 
             self.addSpecies = function () {
                 var stand;
@@ -434,17 +442,29 @@
                 self.stratum.currentStand(self);
                 $('#myCarousel').carousel(self.index());
             };
+
+            // set the color and store a reference
+            self.color('#' + app.strata.color.reverse().pop());
+            app.strata.colorMap[self.uid] = self.color();
+
+            $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', self.uid), function (i, stand) {
+              var total = app.strata.viewModel.appliedStrataTotal;
+              stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
+              app.stand_layer.drawFeature(stand);
+              total(total()+1);
+            });
+
+
             return self;
         };
 
         function strataViewModel () {
           var self = {};
 
-          self.strataList = ko.observableArray([
-                stratumViewModel({'name': "Test Stand Group 1", uid: "001" }),
-                stratumViewModel({'name': "Test Stand Group 2", uid: "002" }),
-                stratumViewModel({'name': "Test Stand Group 3", uid: "003" })
-            ]);
+          // filter term for strata
+          self.searchTerm = ko.observable();
+          // list of strata
+          self.strataList = ko.observableArray();
 
           self.standTotal = app.stand_layer.features.length;
 
@@ -458,6 +478,37 @@
           self.treeSpecies = app.strata.treeSpecies;
           self.treeSpecies.unshift('');
 
+          self.filteredStrataList = ko.computed(function () {
+            var strataList = this, filteredStrataList = [];
+            if (self.searchTerm()) {
+              // filter the strata list
+              $.each(strataList(), function (i, strata) {
+                if (strata.name().toLowerCase().indexOf(self.searchTerm().toLowerCase()) !== -1) {
+                  filteredStrataList.push(strata);
+                } 
+              });
+            } else {
+              filteredStrataList = strataList();
+            }
+            return filteredStrataList;
+          }, self.strataList);
+
+
+          self.strataList.subscribe(function (newStrata) {            
+            setTimeout(function () {
+              $('.stratum-box').not('.ui-draggable').draggable({
+                  revert: true
+              });
+
+            }, 300);
+              
+
+          });
+
+          self.editStratum = function (stratum) {
+            self.newStratum(stratum);
+          };
+
           self.cancel = function () {
             self.newStratum(null);
           }
@@ -467,19 +518,23 @@
           };
 
           self.dropStrata = function( event, ui ) {
-                var strataID;
+                var strataID, stand_uid_list = [];
                 // get strata id
                 strataID = ui.draggable.data('sid'),
                 color = ui.draggable.data('color');
                 
                 // apply strata to selected stands
+
                 $.each(app.stand_layer.selectedFeatures, function (i, feature) {
                     // apply strata
                     var currentTotal = self.appliedStrataTotal();
                     self.appliedStrataTotal(currentTotal+1);
                     feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
                     app.stand_layer.drawFeature(feature);
+                    stand_uid_list.push(feature.attributes.uid);
                 });
+
+                app.strata.applyStrataToStand(strataID, stand_uid_list);
                 app.selectFeature.unselectAll();
             }
 
@@ -514,7 +569,7 @@
                 },
                 success: function (response) { 
                     var strata_uid = response["X-Madrona-Select"];
-                    app.strata.associateStand(app.strata.property_uid, strata_uid);
+                    app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
                     self.strataList.push(self.newStratum());
                     self.newStratum(null);
                     
@@ -528,7 +583,24 @@
           return self;
         };
     
-        app.strata.associateStand = function (property_uid, strata_uid) {
+        app.strata.applyStrataToStand = function (strata_uid, stand_uid_list) {
+          var url = "/features/strata/links/add-stands/{strata_uid}/".replace('{strata_uid}', strata_uid);
+          
+          return $.ajax({
+              url: url,
+              type: "POST",
+              data: { 'stands': stand_uid_list },
+              traditional: true,
+              success: function (response) { 
+                //debugger;
+              },
+              error: function (response) { 
+                //debugger;
+              }
+          });
+        };
+
+        app.strata.associateStandWithProperty = function (property_uid, strata_uid) {
           var url = "/features/forestproperty/{property_uid}/add/{strata_uid}";
           
           url = url.replace('{property_uid}', app.strata.property_id);
@@ -547,8 +619,9 @@
           });
         }
 
+
         $.when(
-            $.get("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
+            $.getJSON("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
                 app.strata.data = data;
             }),
 
@@ -579,7 +652,7 @@
             app.strata.init();
         });
 
-        
+      
 
 
 

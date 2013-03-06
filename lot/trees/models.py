@@ -280,25 +280,30 @@ class ForestProperty(FeatureCollection):
                 return False
         return True
 
-    @property 
+    @property
     def stand_summary(self):
         '''
         Summarize the status of stands in this property
         '''
-        n_with_plot = 0
-        n_without_plot = 0
+        n_with_strata = 0
+        n_with_terrain = 0
+        n_with_condition = 0
         stands = self.feature_set(feature_classes=[Stand])
         for stand in stands:
-            if not stand.cond_id:
-                n_without_plot += 1
-            else:
-                n_with_plot += 1
-        assert(n_with_plot + n_without_plot == len(stands))
+            if stand.cond_id:
+                n_with_condition += 1
+            if stand.strata:
+                n_with_strata += 1
+            if stand.elevation and stand.slope and stand.aspect:
+                n_with_terrain += 1
+
         return {
-                'total': len(stands),
-                'with_plot': n_with_plot,
-                'without_plot': n_without_plot,
-               }
+            'total': len(stands),
+            'with_strata': n_with_strata,
+            'with_condition': n_with_condition,
+            'with_terrain': n_with_terrain,
+        }
+
 
     @property
     def acres(self):

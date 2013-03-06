@@ -434,5 +434,6 @@ def strata_list(request, property_uid):
         request, property_uid, target_klass=ForestProperty)
     if isinstance(fprop, HttpResponse):
         return fprop
-    slist = fprop.feature_set(feature_classes=[Strata])
+    slist = sorted(fprop.feature_set(feature_classes=[Strata]),
+                   key=lambda x: x.date_created, reverse=False)
     return HttpResponse(json.dumps([x._dict for x in slist]), mimetype="text/javascript")
