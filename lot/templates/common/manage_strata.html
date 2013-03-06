@@ -42,9 +42,18 @@
                           </div>
 
                         </div>
-                        <div class="row-fluid  strata-list" data-bind="foreach: filteredStrataList()">
-                            <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': uid }, style: { 'background': color() }">
-                              <h4><span data-bind="text: name"></span></h4>
+                        <div class="row-fluid strata-list" data-bind="foreach: filteredStrataList()">
+                            <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': attributes.uid }, style: { 'background': color() }">
+                              <h4><span data-bind="text: attributes.name"></span></h4>
+                                <div class="row-fluid">
+                                  <div class="span6">
+                                    <p><strong>trees per acre:</strong> <span data-bind="text: attributes.search_tpa"></span></p>
+                                    <p><strong>stand age:</strong> <span data-bind="text: attributes.age"></span></p>
+                                  </div>
+                                  <div class="span6">
+                                    
+                                  </div>
+                                </div>
                                 <div class="btn-group">
                                   <button class="btn"><i class="icon-remove-circle"></i></button>
                                   <button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
@@ -65,23 +74,23 @@
                     <h2>Create a New Stand Group</h2>
                     <div data-bind="with: newStratum">
                         
-                        <div data-bind="visible: ! standList().length">
+                        <div data-bind="visible: ! standList().length || editMode">
                             <h3>Stand Group Name</h3>
-                            <input type="text" class="span12" placeholder="Stand Group Name" autofocus data-bind="value: name, valueUpdate: 'keyup'"/>
+                            <input type="text" class="span12" placeholder="Stand Group Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
                             <div class="row-fluid">
                                 <div class="span6">
                                     <h3>Trees Per Acre</h3>
-                                    <input type="text" class="span12" data-bind="value: tpa, valueUpdate: 'keyup'">
+                                    <input type="text" class="span12" data-bind="value: attributes.search_tpa, valueUpdate: 'keyup'">
                                 </div>
                                 <div class="span6">
                                     <h3>Stand Age</h3>
-                                    <input type="text" class="span12" data-bind="value: age, valueUpdate: 'keyup'">
+                                    <input type="text" class="span12" data-bind="value: attributes.search_age, valueUpdate: 'keyup'">
                                 </div>
                             </div>
                             <div class="row-fluid">
                                 <div class="btn-group pull-right">
                                     <!--<button class="btn btn-large"><i class="icon-white icon-plus"></i> Cancel</button>-->
-                                    <button class="btn btn-large btn-success" data-bind="click: next, enable: name() && tpa() && age()">Next <i class="icon-white icon-arrow-right"></i></button>
+                                    <button class="btn btn-large btn-success" data-bind="click: next, enable: attributes.name() && attributes.search_tpa() && attributes.search_age()">Next <i class="icon-white icon-arrow-right"></i></button>
                                 </div>
                             </div>
                         </div>
@@ -147,11 +156,11 @@
                         <h2>Stand Group</h2>
                         <dl class="dl-horizontal">
                           <dt>Name</dt>
-                          <dd><span data-bind="text: newStratum().name()"></span></dd>
+                          <dd><span data-bind="text: newStratum().attributes.name()"></span></dd>
                           <dt>Trees per Acre</dt>
-                          <dd><span data-bind="text: newStratum().tpa()"></span></dd>
+                          <dd><span data-bind="text: newStratum().attributes.search_tpa()"></span></dd>
                           <dt>Stand Age</dt>
-                          <dd><span data-bind="text: newStratum().age()"></span></dd>
+                          <dd><span data-bind="text: newStratum().attributes.search_age()"></span></dd>
                         </dl>
                       </div>
                            <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
@@ -173,7 +182,7 @@
                                            <span data-bind="visible: ! percentage()">enter a percentage</span>
                                        </td>
                                        <td>
-                                           <span data-bind="visible: percentage, text: (percentage()/100*$parent.newStratum().tpa()).toFixed(0)"></span>
+                                           <span data-bind="visible: percentage, text: (percentage()/100*$parent.newStratum().attributes.search_tpa()).toFixed(0)"></span>
                                            <span data-bind="visible: ! percentage()">enter a percentage</span>
                                        </td>
                                    </tr>
@@ -182,7 +191,7 @@
                            </table>
                            <div class="btn-group pull-right">
                                <button class="btn btn-large" data-bind="click: cancel">cancel</button>
-                               <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: addStrata"><i class="icon-check icon-white"></i> Done</button>
+                               <button class="btn btn-large btn-success" data-bind="enable: newStratum().standList().length, click: saveStrata"><i class="icon-check icon-white"></i> Done</button>
                            </div>
                            <div class="clearfix"></div>
                       </div>
@@ -250,6 +259,8 @@
         .strata-list {
           z-index: 2000;
           margin-top: 10px;
+          height: 400px;
+          overflow-y: auto;
 
         }
           .strata-list .stratum-box {
@@ -264,11 +275,16 @@
             
           }
           .strata-list .stratum-box h4 {
+              font-size: 16px;
+              margin-left: -5px;
+              margin-bottom: 5px;
               text-overflow: ellipsis;
               overflow: hidden;
               white-space: nowrap;
           }
-        
+          .strata-list .stratum-box p {
+            line-height: 5px;
+          }
           
           .strata-list .stratum-box:hover {
             border: 1px solid #444;
@@ -283,7 +299,7 @@
             bottom: 10px;
           }
           .strata-list .stratum-box:hover .btn-group {
-            opacity: 1;
+            opacity: .6;
           }
     </style>
     <script type="text/javascript">
@@ -365,10 +381,10 @@
             self.stratum = stratum;
 
             // stand characteristics
-            self.species = ko.observable();
-            self.sizeClass = ko.observable();
-            self.percentage = ko.observable();
-
+            self.species = ko.observable(options[0]);
+            self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join('-'));
+            self.percentage = ko.observable(options[3]);
+            console.log(self.species());
             self.index = ko.computed(function () {
                 var self = this;
                 return stratum.standList.indexOf(this);
@@ -378,18 +394,23 @@
         // viewmodel for a single stratum
         function stratumViewModel (options) {
             var self = {};
-
+            
             if (! options) {
               options = {}
             }
 
-            self.name = ko.observable(options.name);
-            self.tpa = ko.observable(options.tpa);
-            self.age = ko.observable(options.age);
-            self.uid = options.uid;
-
+            self.attributes = {
+              // feature attributes from madrona
+              name: ko.observable(options.name),
+              search_tpa: ko.observable(options.search_tpa),
+              search_age: ko.observable(options.search_age),
+              additional_desc: ko.observable(options.additional_desc),
+              stand_list: ko.observable(options.stand_list),
+              uid: options.uid
+            }
+            
+            // viewmodel attributes
             self.color = ko.observable();
-
             self.standList = ko.observableArray();
             self.currentStand = ko.observable();
 
@@ -444,11 +465,17 @@
             };
 
             // set the color and store a reference
-            self.color('#' + app.strata.color.reverse().pop());
-            app.strata.colorMap[self.uid] = self.color();
+            if (app.strata.colorMap[self.attributes.uid]) {
+              self.color(app.strata.colorMap[self.attributes.uid]);
+            } else {
+              self.color('#' + app.strata.color.reverse().pop());
+              app.strata.colorMap[self.attributes.uid] = self.color();  
+            }
+            
 
-            $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', self.uid), function (i, stand) {
+            $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', self.attributes.uid), function (i, stand) {
               var total = app.strata.viewModel.appliedStrataTotal;
+
               stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
               app.stand_layer.drawFeature(stand);
               total(total()+1);
@@ -506,7 +533,10 @@
           });
 
           self.editStratum = function (stratum) {
-            self.newStratum(stratum);
+            var duplicateStratum = new stratumViewModel(ko.mapping.toJS(stratum.attributes));
+            app.strata.stratumBeingEdited = stratum;
+            duplicateStratum.editMode = true;
+            self.newStratum(duplicateStratum);
           };
 
           self.cancel = function () {
@@ -538,10 +568,23 @@
                 app.selectFeature.unselectAll();
             }
 
-          self.addStrata = function () {
-            var self = this,
+          self.updateStratum = function (oldStratum, newStratum) {
+            self.strataList.replace(oldStratum, new stratumViewModel(newStratum));
+          };
+
+
+          self.saveStrata = function () {
+            var self = this, postData,
                 stratum = self.newStratum(),
-                standList = $.map(stratum.standList(), function (stand) {
+                url = "/features/strata/form/";
+
+            if (stratum.editMode) {
+              url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
+            }
+            
+            postData = ko.mapping.toJS(stratum.attributes);
+            postData.stand_list = ko.toJSON({
+              'classes': $.map(stratum.standList(), function (stand) {
                     var sizes = [];
                     if (stand.species() && stand.sizeClass() && stand.percentage()) {
                         sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
@@ -552,29 +595,31 @@
                           parseInt(stand.percentage(), 10)
                         ]];
                     }
-                });
+                })
+            });
 
             $.ajax({
-                url: "/features/strata/form/",
+                url: url,
                 type: "POST",
                 traditional: true,
                 dataType: 'json',
-                data: {   
-                    'name': stratum.name,
-                    'search_tpa': stratum.tpa(),
-                    'search_age': stratum.age(),
-                    'stand_list': ko.toJSON({
-                        'classes': standList
-                    })
-                },
+                data: postData,
                 success: function (response) { 
                     var strata_uid = response["X-Madrona-Select"];
-                    app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
-                    self.strataList.push(self.newStratum());
+                    if (stratum.editMode) {
+                      // existing strata
+                      self.updateStratum(app.strata.stratumBeingEdited, postData);
+                    } else {
+                      // new strata
+                      app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
+                      self.strataList.push(self.newStratum());  
+                    }
+                    
                     self.newStratum(null);
                     
                 },
                 error: function (response) { 
+                  debugger;
                     self.strataList.push(self.newStratum());
                     self.newStratum(null);
                 }
@@ -583,6 +628,7 @@
           return self;
         };
     
+
         app.strata.applyStrataToStand = function (strata_uid, stand_uid_list) {
           var url = "/features/strata/links/add-stands/{strata_uid}/".replace('{strata_uid}', strata_uid);
           
@@ -644,6 +690,7 @@
                   styleMap: map_styles.stand,
                   renderers: app.renderer
                 });
+
                 map.addLayer(app.stand_layer);
                 app.stand_layer.addFeatures(app.geojson_format.read(data));  
             })
