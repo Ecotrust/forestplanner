@@ -152,8 +152,18 @@
                             <dt>Location</dt>
                             <dd><span data-bind="text: selectedProperty().location"></span></dd>
                             <dt>Number of Stands</dt>
-                            <dd><span data-bind="text: selectedProperty().stand_summary.total"></span> 
-                            (<em><span data-bind="text: selectedProperty().stand_summary.without_plot"></span> without vegetation data</em>)</dd>
+                            <dd>
+                                <span data-bind="text: selectedProperty().stand_summary.with_strata"></span> 
+                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with strata 
+                            </dd>
+                            <dd>
+                                <span data-bind="text: selectedProperty().stand_summary.with_condition"></span> 
+                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with condition 
+                            </dd>
+                            <dd>
+                                <span data-bind="text: selectedProperty().stand_summary.with_terrain"></span> 
+                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with terrain 
+                            </dd>
                         </dl>
 
                         <div class="row-fluid">
