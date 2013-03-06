@@ -45,7 +45,10 @@
                         <div class="row-fluid  strata-list" data-bind="foreach: filteredStrataList()">
                             <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': uid }, style: { 'background': color() }">
                               <h4><span data-bind="text: name"></span></h4>
-                                <button class="btn btn-inverse" data-bind="click: $parent.editStratum">edit</button>
+                                <div class="btn-group">
+                                  <button class="btn"><i class="icon-remove-circle"></i></button>
+                                  <button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -254,13 +257,18 @@
             border-radius: 10px;
             border: 1px solid #777;
             margin: 10px;
-            height: 80px;
-            width: 100px;
+            height: 100px;
+            width: 40%;
             float: left;
             z-index: 2000;
             
           }
-          
+          .strata-list .stratum-box h4 {
+              text-overflow: ellipsis;
+              overflow: hidden;
+              white-space: nowrap;
+          }
+        
           
           .strata-list .stratum-box:hover {
             border: 1px solid #444;
@@ -268,13 +276,13 @@
           .strata-list .stratum-box.ui-draggable-dragging .btn {
             opacity: 0;
           }
-          .strata-list .stratum-box .btn {
+          .strata-list .stratum-box .btn-group {
             opacity: 0;
             position: absolute;
             right: 10px;
             bottom: 10px;
           }
-          .strata-list .stratum-box:hover .btn {
+          .strata-list .stratum-box:hover .btn-group {
             opacity: 1;
           }
     </style>
@@ -346,9 +354,13 @@
         }
 
         // individual stand list member
-        function speciesViewModel (stratum) {
+        function speciesViewModel (stratum, options) {
             var self = this;
             
+            if (! options) {
+              options = {}
+            }
+
             // reference to the parent stratum
             self.stratum = stratum;
 
@@ -380,6 +392,13 @@
 
             self.standList = ko.observableArray();
             self.currentStand = ko.observable();
+
+            if (options.stand_list) {
+              $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
+                self.standList.push(new speciesViewModel(self, stand));
+              });
+            }
+
 
             self.addSpecies = function () {
                 var stand;
@@ -464,9 +483,9 @@
             if (self.searchTerm()) {
               // filter the strata list
               $.each(strataList(), function (i, strata) {
-                if (strata.name().indexOf(self.searchTerm()) !== -1) {
+                if (strata.name().toLowerCase().indexOf(self.searchTerm().toLowerCase()) !== -1) {
                   filteredStrataList.push(strata);
-                }
+                } 
               });
             } else {
               filteredStrataList = strataList();
@@ -573,10 +592,10 @@
               data: { 'stands': stand_uid_list },
               traditional: true,
               success: function (response) { 
-                debugger;
+                //debugger;
               },
               error: function (response) { 
-                debugger;
+                //debugger;
               }
           });
         };
