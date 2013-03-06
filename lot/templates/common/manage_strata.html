@@ -54,8 +54,12 @@
                                     
                                   </div>
                                 </div>
-                                <div class="btn-group">
-                                  <button class="btn"><i class="icon-remove-circle"></i></button>
+                                <div class="btn-group" data-bind="visible: confirmDelete">
+                                  <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                  <button class="btn" data-bind="click: deleteStratum">ok</button>
+                                </div>
+                                <div class="btn-group" data-bind="visible: confirmDelete() === false">
+                                  <button class="btn" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
                                   <button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
                                 </div>
                             </div>
@@ -369,6 +373,7 @@
             app.selectFeature.activate();
         }
 
+
         // individual stand list member
         function speciesViewModel (stratum, options) {
             var self = this;
@@ -413,13 +418,20 @@
             self.color = ko.observable();
             self.standList = ko.observableArray();
             self.currentStand = ko.observable();
-
+            self.confirmDelete = ko.observable(false);
+            self.editMode = false;
+            
             if (options.stand_list) {
               $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
                 self.standList.push(new speciesViewModel(self, stand));
               });
             }
 
+            self.deleteStratum = function (stratum) {
+              app.strata.deleteStratum(stratum.attributes.uid, function () {
+                app.strata.viewModel.strataList.remove(stratum);
+              });
+            };
 
             self.addSpecies = function () {
                 var stand;
@@ -628,6 +640,23 @@
           return self;
         };
     
+
+
+        app.strata.deleteStratum = function (strata_uid, cb) {
+          var url = "/features/generic-links/links/delete/{strata_uid}/".replace('{strata_uid}', strata_uid);
+          
+          return $.ajax({
+              url: url,
+              type: "DELETE",
+              traditional: true,
+              success: function (response) { 
+                cb();
+              },
+              error: function (response) { 
+                //debugger;
+              }
+          });
+        };
 
         app.strata.applyStrataToStand = function (strata_uid, stand_uid_list) {
           var url = "/features/strata/links/add-stands/{strata_uid}/".replace('{strata_uid}', strata_uid);
