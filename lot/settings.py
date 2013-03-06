@@ -110,6 +110,41 @@ CELERY_ALWAYS_EAGER = False
 import djcelery
 djcelery.setup_loader()
 
+################# BEGIN Auth
+TEMPLATE_CONTEXT_PROCESSORS += (
+    "allauth.account.context_processors.account",
+    "allauth.socialaccount.context_processors.socialaccount",
+    "django.core.context_processors.request",
+)
+
+AUTHENTICATION_BACKENDS = (
+    # Needed to login by username in Django admin, regardless of `allauth`
+    "django.contrib.auth.backends.ModelBackend",
+
+    # `allauth` specific authentication methods, such as login by e-mail
+    "allauth.account.auth_backends.AuthenticationBackend",
+)
+
+INSTALLED_APPS += (
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    #'allauth.socialaccount.providers.twitter',
+    #'allauth.socialaccount.providers.github',
+    #'allauth.socialaccount.providers.linkedin',
+)
+
+ACCOUNT_EMAIL_REQUIRED = True
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # user logs in by entering either his username or e-mail address
+
+# install postfix
+EMAIL_HOST = 'localhost'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+################# END Auth
+
 try:
     from settings_local import *
 except ImportError:

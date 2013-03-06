@@ -35,6 +35,10 @@ package { "build-essential":
     ensure => "installed"
 }
 
+package { "postfix":
+    ensure => "installed"
+}
+
 package { "python-software-properties":
     ensure => "installed"
 }

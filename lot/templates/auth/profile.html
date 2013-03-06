@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block content %}
+
+
+{% if user %}
+<div class="row-fluid">
+  <div class="span4"></div>
+  <div class="span4">
+    <h2>Welcome, {{user.username}}</h2>
+    <dl class="dl-horizontal">
+      <dt>
+        Username
+      </dt>
+      <dd>
+        {{user.username}}
+      </dd>
+      <dt>
+        First Name 
+      </dt>
+      <dd>
+        {{user.first_name}}
+      </dd>
+      <dt>
+        Last Name 
+      </dt>
+      <dd>
+        {{user.last_name}}
+      </dd>
+      <dt>
+        Email 
+      </dt>
+      <dd>
+        {{user.email}}
+      </dd>
+    </dl>
+    <br>
+    <div>
+    {% for account in user.socialaccount_set.all %}
+        <hr>
+        <p class="pull-right"><img width="50" height="50" src="{{ account.get_avatar_url }}" /></p>
+        <h3>Linked {{ account.provider }} account data</h3>
+        <dl class="dl-horizontal">
+          <dt>
+            UID 
+          </dt>
+          <dd>
+            <a href="{{account.extra_data.link }}">{{ account.uid }}</a>
+          </dd>
+          <dt>
+            Profile Link 
+          </dt>
+          <dd>
+            <a href="{{ account.extra_data.link }}">{{ account.extra_data.link }}</a>
+          </dd>
+          {% for k, v in account.extra_data.items %}
+          <dt> {{k}} </dt>
+          <dd> {{v}} </dd>
+          {% endfor %}
+        </dl>
+    {% endfor %}
+    </div>
+  </div>
+  <div class="span4"></div>
+</div>
+{% endif %}
+
+{% endblock content %}
