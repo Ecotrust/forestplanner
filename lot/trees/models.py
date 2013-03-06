@@ -52,7 +52,7 @@ RX_CHOICES = (
 
 @register
 class Stand(PolygonFeature):
-    strata = models.ForeignKey("Strata", blank=True, default=None, null=True)
+    strata = models.ForeignKey("Strata", blank=True, default=None, null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     elevation = models.FloatField(null=True, blank=True)
     slope = models.FloatField(null=True, blank=True)
