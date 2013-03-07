@@ -335,6 +335,9 @@
           .strata-list .stratum-box .tree-list li {
             margin-left: 5px;
           }
+          .dl-horizontal dt {
+            text-align: left;
+          }
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -435,7 +438,9 @@
 
             self.updateChart = function () {
               var standList = $.map(stratum.standList(), function (stand) {
-                return [[ stand.species() + ' ' + stand.sizeClass(), stand.percentage()]]
+                if (stand.percentage() > 0) {
+                  return [[ stand.species() + ' ' + stand.sizeClass(), parseInt(stand.percentage(),10)]]  
+                }
               });
               app.strata.chartStandList(standList);
             };
@@ -604,10 +609,16 @@
           }, self.strataList);
 
           self.newStratum.subscribe(function (newStratum) {
-            var standList = $.map(newStratum.standList(), function (stand) {
-              return [[ stand.species() + ' ' + stand.sizeClass(), stand.percentage()]]
-            });
-            app.strata.chartStandList(standList);
+            var standList;
+            if (newStratum && newStratum.standList().length) {
+              standList = $.map(newStratum.standList(), function (stand) {
+                if (stand.percentage() > 0) {
+                  return [[ stand.species() + ' ' + stand.sizeClass(), parseInt(stand.percentage(),10)]]  
+                }
+              });
+              app.strata.chartStandList(standList);  
+            }
+            
           });
           
 
@@ -801,46 +812,60 @@
         });
 
       // charting stuff
+      app.strata.chartData = null;
       app.strata.chartStandList = function (standList) {
-        var chart;
+        var chart, chartDataUpdated = true;
+        console.dir(standList);
+        if (! standList.length) {
+          standList = [[ 'unknown', 100]]
+        }
         
-        setTimeout(function () {
-          chart = new Highcharts.Chart({
-              chart: {
-                  renderTo: 'chart-container',
-                  plotBackgroundColor: null,
-                  plotBorderWidth: null,
-                  plotShadow: false
-              },
-              title: false,
-              credits: false,
-              tooltip: {
-                pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-                percentageDecimals: 1
-              },
-              plotOptions: {
-                  pie: {
-                      allowPointSelect: true,
-                      cursor: 'pointer',
-                      dataLabels: {
-                          enabled: true,
-                          color: '#000000',
-                          connectorColor: '#000000',
-                          formatter: function() {
-                              return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
-                          }
-                      }
-                  }
-              },
-              series: [{
-                  type: 'pie',
-                  name: 'Species/Size Class',
-                  data: standList
-              }]
-          
-          });  
-        }, 300); 
+        if (app.strata.chartData && ko.toJSON(standList) === ko.toJSON(app.strata.chartData)) {
+          chartDataUpdated = false;
+        }
+
+        if (chartDataUpdated) {
+          app.strata.chartData = standList;
         
+
+          setTimeout(function () {
+            chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'chart-container',
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false,
+                    backgroundColor:'rgba(255, 255, 255, 0.1)'
+                },
+                title: false,
+                credits: false,
+                tooltip: {
+                  pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+                  percentageDecimals: 1
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            formatter: function() {
+                                return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: 'Species/Size Class',
+                    data: standList
+                }]
+            
+            });  
+          }, 300); 
+        }
       };
 
 
