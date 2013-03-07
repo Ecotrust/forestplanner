@@ -171,16 +171,21 @@
                         <h2>Enter Stand Group Information</h2>
                           <p>We should have some help text here.</p>
                       </div>
-                      <div  data-bind="visible: newStratum().standList().length" style="display: none">
-                        <h2>Stand Group</h2>
-                        <dl class="dl-horizontal">
-                          <dt>Name</dt>
-                          <dd><span data-bind="text: newStratum().attributes.name()"></span></dd>
-                          <dt>Trees per Acre</dt>
-                          <dd><span data-bind="text: newStratum().attributes.search_tpa()"></span></dd>
-                          <dt>Stand Age</dt>
-                          <dd><span data-bind="text: newStratum().attributes.search_age()"></span></dd>
-                        </dl>
+                      <div  class="row-fluid" data-bind="visible: newStratum().standList().length" style="display: none">
+                        <div class="span4">
+                          <h2>Stand Group</h2>
+                          <dl class="dl-horizontal">
+                            <dt>Name</dt>
+                            <dd><span data-bind="text: newStratum().attributes.name()"></span></dd>
+                            <dt>Trees per Acre</dt>
+                            <dd><span data-bind="text: newStratum().attributes.search_tpa()"></span></dd>
+                            <dt>Stand Age</dt>
+                            <dd><span data-bind="text: newStratum().attributes.search_age()"></span></dd>
+                          </dl>
+                        </div>
+                        <div class="span8" id="chart-container">
+                          
+                        </div>
                       </div>
                            <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
                                <thead>
@@ -234,6 +239,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/knockout-custom-bindings.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/select2.js"></script>
+    
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-carousel.js"></script>
@@ -242,9 +248,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-modal.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-transition.js"></script>
-    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}jqplot/jquery.jqplot.min.css" />
-    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/jquery-widgets.css" />
-    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}support/select2.css" />
+    <script src="http://code.highcharts.com/highcharts.js"></script>
 
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
@@ -262,6 +266,10 @@
     <style>
       h1 {
         margin-bottom: 10px;
+      }
+
+      #chart-container {
+        height: auto;
       }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
@@ -400,8 +408,8 @@
 
         // individual stand list member
         function speciesViewModel (stratum, options) {
-            var self = this;
-            
+            var self = this
+
             if (! options) {
               options = {}
             }
@@ -457,6 +465,7 @@
                 self.standList.push(new speciesViewModel(self, stand));
               });
             }
+
 
             self.deleteStratum = function (stratum) {
               app.strata.deleteStratum(stratum.attributes.uid, function () {
@@ -580,16 +589,7 @@
           }, self.strataList);
 
 
-          self.strataList.subscribe(function (newStrata) {            
-            // setTimeout(function () {
-            //   $('.stratum-box').not('.ui-draggable').draggable({
-            //       revert: true
-            //   });
-
-            // }, 300);
-              
-
-          });
+          
 
           self.editStratum = function (stratum) {
             var duplicateStratum = new stratumViewModel(ko.mapping.toJS(stratum.attributes));
@@ -780,7 +780,48 @@
             app.strata.init();
         });
 
-      
+      // charting stuff
+      app.strata.chartStandList = function (standList) {
+        var chart;
+        debugger;
+        setTimeout(function () {
+          chart = new Highcharts.Chart({
+              chart: {
+                  renderTo: 'chart-container',
+                  plotBackgroundColor: null,
+                  plotBorderWidth: null,
+                  plotShadow: false
+              },
+              title: false,
+              credits: false,
+              tooltip: {
+                pointFormat: '{series.name}: <b>{point.percentage}%</b>',
+                percentageDecimals: 1
+              },
+              plotOptions: {
+                  pie: {
+                      allowPointSelect: true,
+                      cursor: 'pointer',
+                      dataLabels: {
+                          enabled: true,
+                          color: '#000000',
+                          connectorColor: '#000000',
+                          formatter: function() {
+                              return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+                          }
+                      }
+                  }
+              },
+              series: [{
+                  type: 'pie',
+                  name: 'Species/Size Class',
+                  data: standList
+              }]
+          
+          });  
+        }, 300); 
+        
+      };
 
 
 

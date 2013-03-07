@@ -25,7 +25,7 @@ def prod():
 
 def test():
     """ Use test server settings """
-    servers = []
+    servers = ['ninkasi']
     env.hosts = servers
     return servers
 
