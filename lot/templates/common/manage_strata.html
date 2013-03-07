@@ -296,7 +296,7 @@
             border-radius: 10px;
             border: 1px solid #777;
             margin: 10px;
-            height: 100px;
+            /*height: 100px;*/
             width: 40%;
             float: left;
             z-index: 2000;
@@ -411,7 +411,7 @@
 
 
         // individual stand list member
-        function speciesViewModel (stratum, options) {
+        function standViewModel (stratum, options) {
             var self = this;
 
             if (! options) {
@@ -482,7 +482,7 @@
 
             if (options.stand_list) {
               $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
-                self.standList.push(new speciesViewModel(self, stand));
+                self.standList.push(new standViewModel(self, stand));
               });
             }
 
@@ -498,7 +498,7 @@
                 var stand;
                 
                 if (self.currentStand().index() === self.standList().length -1) {
-                    stand = new speciesViewModel(self);
+                    stand = new standViewModel(self);
                     self.standList.push(stand);
                     self.currentStand(stand);
 
@@ -522,7 +522,7 @@
             // launch into species list creation
             self.next = function () {
                 var self = this,
-                    stand = new speciesViewModel(self);
+                    stand = new standViewModel(self);
                 
 
                 if (! self.editMode()) {
