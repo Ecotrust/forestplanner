@@ -50,9 +50,11 @@ RX_CHOICES = (
     ('CC', 'Even-aged Clearcut'),
 )
 
+
 @register
 class Stand(PolygonFeature):
-    strata = models.ForeignKey("Strata", blank=True, default=None, null=True, on_delete=models.SET_NULL)
+    strata = models.ForeignKey("Strata", blank=True, default=None,
+                               null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     elevation = models.FloatField(null=True, blank=True)
     slope = models.FloatField(null=True, blank=True)
@@ -65,7 +67,7 @@ class Stand(PolygonFeature):
     def get_idb(self):
         from trees.plots import get_nearest_neighbors
         if not self.cond_id:
-            stand_list = self.strata.stand_list 
+            stand_list = self.strata.stand_list
             site_cond = {
                 'latitude_fuzz': self.geometry_final.centroid[0],
                 'longitude_fuzz': self.geometry_final.centroid[1],
@@ -78,7 +80,8 @@ class Stand(PolygonFeature):
             if self.slope:
                 site_cond['calc_slope'] = self.slope
             weight_dict = self.default_weighting
-            ps, num_candidates = get_nearest_neighbors(site_cond, stand_list['classes'], weight_dict, k=5)
+            ps, num_candidates = get_nearest_neighbors(
+                site_cond, stand_list['classes'], weight_dict, k=5)
             self.cond_id = ps[0].name
             self.save()
         idb = IdbSummary.objects.get(cond_id=self.cond_id)
@@ -92,9 +95,10 @@ class Stand(PolygonFeature):
 
     @property
     def acres(self):
-        g2 = self.geometry_final.transform(settings.EQUAL_AREA_SRID, clone=True)
+        g2 = self.geometry_final.transform(
+            settings.EQUAL_AREA_SRID, clone=True)
         try:
-            area_m = g2.area 
+            area_m = g2.area
         except:
             return None
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
@@ -107,6 +111,7 @@ class Stand(PolygonFeature):
         So we do it the hard way.
         '''
         from trees.utils import classify_aspect  # avoid circular import
+
         def int_or_none(val):
             try:
                 newval = int(val)
@@ -133,57 +138,60 @@ class Stand(PolygonFeature):
             acres = None
 
         d = {
-                'uid': self.uid,
-                'name': self.name,
-                'rx': '', #TODO rm ; was self.get_rx_display(),
-                'acres': acres,
-                'domspp': '', #TODO rm, was self.domspp,
-                'elevation': elevation,
-                'strata_uid': strata_uid,
-                'aspect': "%s" % aspect_class,
-                'slope': '%s %%' % slope,
-                'plot_summary': self.plot_summary,
-                'plot_summaries': self.plot_summaries, #TODO include idb data
-                #TODO include strata info 
-                'user_id': self.user.pk,
-                'date_modified': str(self.date_modified),
-                'date_created': str(self.date_created),
-            }
-        gj = """{ 
+            'uid': self.uid,
+            'name': self.name,
+            'rx': '',  # TODO rm ; was self.get_rx_display(),
+            'acres': acres,
+            'domspp': '',  # TODO rm, was self.domspp,
+            'elevation': elevation,
+            'strata_uid': strata_uid,
+            'aspect': "%s" % aspect_class,
+            'slope': '%s %%' % slope,
+            'plot_summary': self.plot_summary,
+            'plot_summaries': self.plot_summaries,  # TODO include idb data
+            # TODO include strata info
+            'user_id': self.user.pk,
+            'date_modified': str(self.date_modified),
+            'date_created': str(self.date_created),
+        }
+        gj = """{
               "type": "Feature",
               "geometry": %s,
-              "properties": %s 
+              "properties": %s
         }""" % (self.geometry_final.json, dumps(d))
         return gj
 
-
     @property
     def plot_summaries(self):
-        ''' 
-        Site charachteristics according to the most common FCID GNN pixels 
+        '''
+        Site charachteristics according to the most common FCID GNN pixels
         These will mainly be used to confirm with the user that the GNN data is accurate.
         '''
         summaries = []
-        return summaries #TODO fix or drop the GNN imputation
+        return summaries  # TODO fix or drop the GNN imputation
         for fcid, prop in fcids:
             ps = IdbSummary.objects.get(cond_id=fcid)
             summary = ps.summary
             summary['fcid_coverage'] = prop * 100
             # Unit conversions
             try:
-                summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
+                summary['stndhgt_ft'] = int(
+                    summary['stndhgt'] * 3.28084)   # m to ft
             except TypeError:
                 summary['stndhgt_ft'] = None
             try:
-                summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
+                summary['baa_ge_3_sqft'] = int(
+                    summary['baa_ge_3'] * 10.7639)  # sqm to sqft
             except TypeError:
                 summary['baa_ge_3_sqft'] = None
             try:
-                summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) # h to acres
+                summary['tph_ge_3_tpa'] = int(
+                    summary['tph_ge_3'] * 0.404686)  # h to acres
             except TypeError:
                 summary['tph_ge_3_tpa'] = None
             try:
-                summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
+                summary['qmda_dom_in'] = int(
+                    summary['qmda_dom'] * 0.393701)  # cm to inches
             except TypeError:
                 summary['qmda_dom_in'] = None
             summaries.append(summary)
@@ -191,10 +199,10 @@ class Stand(PolygonFeature):
 
     @property
     def plot_summary(self):
-        ''' 
+        '''
         Site charachteristics according to the chosen plot
         '''
-        return None # TODO adjust for IdbSummary
+        return None  # TODO adjust for IdbSummary
         if not self.cond_id:
             return None
 
@@ -202,9 +210,12 @@ class Stand(PolygonFeature):
         summary = ps.summary
         # Unit conversions
         summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
-        summary['baa_ge_3_sqft'] = int(summary['baa_ge_3'] * 10.7639) # sqm to sqft
-        summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] * 0.404686) #h to acres
-        summary['qmda_dom_in'] = int(summary['qmda_dom'] * 0.393701) # cm to inches
+        summary['baa_ge_3_sqft'] = int(
+            summary['baa_ge_3'] * 10.7639)  # sqm to sqft
+        summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] *
+                                      0.404686)  # h to acres
+        summary['qmda_dom_in'] = int(
+            summary['qmda_dom'] * 0.393701)  # cm to inches
 
         return summary
 
@@ -228,10 +239,12 @@ class Stand(PolygonFeature):
         super(Stand, self).save(*args, **kwargs)
         impute_rasters.delay(self.id)
 
+
 @register
 class ForestProperty(FeatureCollection):
-    geometry_final = models.MultiPolygonField(srid=settings.GEOMETRY_DB_SRID, null=True,blank=True,
-            verbose_name="Forest Property MultiPolygon Geometry")
+    geometry_final = models.MultiPolygonField(
+        srid=settings.GEOMETRY_DB_SRID, null=True, blank=True,
+        verbose_name="Forest Property MultiPolygon Geometry")
 
     #@property
     def geojson(self, srid=None):
@@ -245,34 +258,34 @@ class ForestProperty(FeatureCollection):
             acres = None
 
         d = {
-                'uid': self.uid,
-                'id': self.id,
-                'name': self.name,
-                'user_id': self.user.pk,
-                'acres': acres,
-                'location': self.location,
-                'stand_summary': self.stand_summary,
-                'variant': self.variant,
-                'bbox': self.bbox,
-                'date_modified': str(self.date_modified),
-                'date_created': str(self.date_created),
-            }
+            'uid': self.uid,
+            'id': self.id,
+            'name': self.name,
+            'user_id': self.user.pk,
+            'acres': acres,
+            'location': self.location,
+            'stand_summary': self.stand_summary,
+            'variant': self.variant,
+            'bbox': self.bbox,
+            'date_modified': str(self.date_modified),
+            'date_created': str(self.date_created),
+        }
         try:
             geom_json = self.geometry_final.json
         except AttributeError:
             geom_json = 'null'
 
-        gj = """{ 
+        gj = """{
               "type": "Feature",
               "geometry": %s,
-              "properties": %s 
+              "properties": %s
         }""" % (geom_json, dumps(d))
         return gj
 
     @property
     def has_plots(self):
-        ''' 
-        Boolean. 
+        '''
+        Boolean.
         Do all the stands have associated plots?
         '''
         for stand in self.feature_set(feature_classes=[Stand]):
@@ -304,12 +317,12 @@ class ForestProperty(FeatureCollection):
             'with_terrain': n_with_terrain,
         }
 
-
     @property
     def acres(self):
         try:
-            g2 = self.geometry_final.transform(settings.EQUAL_AREA_SRID, clone=True)
-            area_m = g2.area 
+            g2 = self.geometry_final.transform(
+                settings.EQUAL_AREA_SRID, clone=True)
+            area_m = g2.area
         except:
             return None
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
@@ -382,7 +395,8 @@ class ForestProperty(FeatureCollection):
         # Assumption is that property boundary SHOULD contain all stands
         # and, if not, they should expand the property boundary
         bb = self.bbox
-        featxt = ', '.join([i.geojson() for i in self.feature_set(feature_classes=[Stand])])
+        featxt = ', '.join(
+            [i.geojson() for i in self.feature_set(feature_classes=[Stand])])
         return """{ "type": "FeatureCollection",
         "bbox": [%f, %f, %f, %f],
         "features": [
@@ -417,7 +431,6 @@ class ForestProperty(FeatureCollection):
 
         return path
 
-
     def adjacency(self, threshold=1.0):
         from trees.utils import calculate_adjacency
         stands = Stand.objects.filter(
@@ -432,15 +445,16 @@ class ForestProperty(FeatureCollection):
         links = (
             # Link to grab ALL *stands* associated with a property
             alternate('Property Stands GeoJSON',
-                'trees.views.geojson_forestproperty',  
-                type="application/json",
-                select='single'),
+                      'trees.views.geojson_forestproperty',
+                      type="application/json",
+                      select='single'),
             # Link to grab ALL *stands* associated with a property
             alternate('Property Scenarios',
-                'trees.views.forestproperty_scenarios',  
-                type="application/json",
-                select='single'),
+                      'trees.views.forestproperty_scenarios',
+                      type="application/json",
+                      select='single'),
         )
+
 
 class JSONField(models.TextField):
     """JSONField is a generic textfield that neatly serializes/unserializes
@@ -455,7 +469,8 @@ class JSONField(models.TextField):
         # Actually we'll just return the string
         # need to explicitly call json.loads(X) in your code
         # reason: converting to dict then repr that dict in a form is invalid json
-        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single quotes)
+        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single
+        # quotes)
         return value
 
     def get_db_prep_save(self, value, *args, **kwargs):
@@ -467,24 +482,31 @@ class JSONField(models.TextField):
 
         return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
 
-# http://south.readthedocs.org/en/latest/customfields.html#extending-introspection
+# http://south.readthedocs.org/en/latest/customfields.html#extending-
+# introspection
 from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^trees\.models\.JSONField"])
+
 
 @register
 class Scenario(Analysis):
     """
     NOTE: if no input Rx for a stand, use the default from stand model
     """
-    description = models.TextField(default="", null=True, blank=True, verbose_name="Description/Notes")
+    description = models.TextField(
+        default="", null=True, blank=True, verbose_name="Description/Notes")
     input_property = models.ForeignKey('ForestProperty')
-    input_target_boardfeet = models.FloatField(verbose_name='Target Boardfeet', null=True, blank=True, 
+    input_target_boardfeet = models.FloatField(
+        verbose_name='Target Boardfeet', null=True, blank=True,
         help_text="Target an even flow of timber")
-    input_age_class = models.FloatField(verbose_name='Target Mature Age Class', null=True, blank=True, 
+    input_age_class = models.FloatField(
+        verbose_name='Target Mature Age Class', null=True, blank=True,
         help_text="Optimize for target proportion of mature trees")
-    input_target_carbon = models.BooleanField(verbose_name='Target Carbon', default=False, 
-        help_text="Optimize harvest schedule for carbon sequestration") 
-    input_rxs = JSONField(verbose_name="Prescriptions associated with each stand")
+    input_target_carbon = models.BooleanField(
+        verbose_name='Target Carbon', default=False,
+        help_text="Optimize harvest schedule for carbon sequestration")
+    input_rxs = JSONField(
+        verbose_name="Prescriptions associated with each stand")
 
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
@@ -506,7 +528,7 @@ class Scenario(Analysis):
     @property
     def property_level_dict(self):
         d = {
-            'pk': self.pk, 
+            'pk': self.pk,
             'model': 'trees.scenario',
             'fields': {
                 'description': self.description,
@@ -516,12 +538,11 @@ class Scenario(Analysis):
                 'input_age_class': self.input_age_class,
                 'input_target_carbon': self.input_target_carbon,
                 'name': self.name,
-                'output_scheduler_results': self.output_property_results, # don't include stand-level results
+                'output_scheduler_results': self.output_property_results,  # don't include stand-level results
                 'user': self.user.username,
             }
         }
         return d
-
 
     def run(self):
         # TODO prep scheduler, run it, parse the outputs
@@ -530,31 +551,31 @@ class Scenario(Analysis):
         # TODO Randomness is random
         import math
         import random
-        a = range(0,100)
+        a = range(0, 100)
         rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
 
         # Stand-level outputs
         # Note the data structure for stands is different than properties
         # (stands are optimized for openlayers map while property-level works with jqplot)
         for stand in self.stand_set():
-            c = random.randint(0,90)
-            t = random.randint(0,90)
-            carbon = rsamp[c:c+6]
-            timber = rsamp[t:t+6]
+            c = random.randint(0, 90)
+            t = random.randint(0, 90)
+            carbon = rsamp[c:c + 6]
+            timber = rsamp[t:t + 6]
             d[stand.pk] = {
                 "years": range(2020, 2121, 20),
                 "carbon": [
-                    carbon[0], 
-                    carbon[1], 
-                    carbon[2], 
+                    carbon[0],
+                    carbon[1],
+                    carbon[2],
                     carbon[3],
                     carbon[4],
                     carbon[5],
                 ],
                 "timber": [
-                    timber[0], 
-                    timber[1], 
-                    timber[2], 
+                    timber[0],
+                    timber[1],
+                    timber[2],
                     timber[3],
                     timber[4],
                     timber[5],
@@ -565,14 +586,14 @@ class Scenario(Analysis):
         # note the '__all__' key
         def scale(data):
             # fake data for ~3500 acres, adjust for size
-            sf = 3500.0/self.input_property.acres
-            return [ x/sf for x in data ]
+            sf = 3500.0 / self.input_property.acres
+            return [x / sf for x in data]
 
-        carbon_alt =  scale([338243.812, 631721, 775308, 792018, 754616])
-        timber_alt = scale([1361780,1861789,2371139,2613845,3172212])
+        carbon_alt = scale([338243.812, 631721, 775308, 792018, 754616])
+        timber_alt = scale([1361780, 1861789, 2371139, 2613845, 3172212])
 
         carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
-        timber_biz = scale([2111800,2333800,2982600,2989000,2793700])
+        timber_biz = scale([2111800, 2333800, 2982600, 2989000, 2793700])
 
         if self.input_target_carbon:
             carbon = carbon_alt
@@ -585,22 +606,22 @@ class Scenario(Analysis):
             carbon[0] = carbon_alt[0]
             carbon[-2] = carbon_alt[-2] * 1.6
             carbon[-1] = carbon_alt[-1] * 1.7
-            timber = [1,1,1,1,1]
+            timber = [1, 1, 1, 1, 1]
 
         d['__all__'] = {
             "carbon": [
-                ['2010-08-12 4:00PM',carbon[0]], 
-                ['2035-09-12 4:00PM',carbon[1]], 
-                ['2060-10-12 4:00PM',carbon[2]], 
-                ['2085-12-12 4:00PM',carbon[3]],
-                ['2110-12-12 4:00PM',carbon[4]],
+                ['2010-08-12 4:00PM', carbon[0]],
+                ['2035-09-12 4:00PM', carbon[1]],
+                ['2060-10-12 4:00PM', carbon[2]],
+                ['2085-12-12 4:00PM', carbon[3]],
+                ['2110-12-12 4:00PM', carbon[4]],
             ],
             "timber": [
-                ['2010-08-12 4:00PM',timber[0]], 
-                ['2035-09-12 4:00PM',timber[1]], 
-                ['2060-10-12 4:00PM',timber[2]], 
-                ['2085-12-12 4:00PM',timber[3]],
-                ['2110-12-12 4:00PM',timber[4]],
+                ['2010-08-12 4:00PM', timber[0]],
+                ['2035-09-12 4:00PM', timber[1]],
+                ['2060-10-12 4:00PM', timber[2]],
+                ['2085-12-12 4:00PM', timber[3]],
+                ['2110-12-12 4:00PM', timber[4]],
             ]
         }
 
@@ -616,34 +637,35 @@ class Scenario(Analysis):
             try:
                 stand_dict['properties']['results'] = res[str(stand.pk)]
             except KeyError:
-                continue #TODO this should never happen, probably stands added after scenario was created? or caching ?
+                continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
 
             stand_data.append(stand_dict)
 
-        gj = dumps(stand_data) 
+        gj = dumps(stand_data)
         # madrona doesn't expect an array/list of features here
         # we have to hack it by removing the []
-        if gj.startswith("["): 
+        if gj.startswith("["):
             gj = gj[1:]
-        if gj.endswith("]"): 
+        if gj.endswith("]"):
             gj = gj[:-1]
         return gj
-        
+
     def clean(self):
         inrx = loads(self.input_rxs)
         valid_rx_keys = dict(RX_CHOICES).keys()
         valid_stand_ids = [x.pk for x in self.input_property.feature_set()]
         for stand, rx in inrx.iteritems():
             if int(stand) not in valid_stand_ids:
-                raise ValidationError('%s is not a valid stand id for this property' % stand)
+                raise ValidationError(
+                    '%s is not a valid stand id for this property' % stand)
             if rx not in valid_rx_keys:
                 raise ValidationError('%s is not a valid prescription' % rx)
 
     class Options:
         form = "trees.forms.ScenarioForm"
         form_template = "trees/scenario_form.html"
-        verbose_name = 'Forest Scenario' 
-        form_context = { } 
+        verbose_name = 'Forest Scenario'
+        form_context = {}
 
 
 class FVSSpecies(models.Model):
@@ -685,7 +707,8 @@ class IdbSummary(models.Model):
     forest_name = models.CharField(max_length=510, blank=True, null=True)
     acres = models.FloatField(null=True, blank=True)
     acres_vol = models.FloatField(null=True, blank=True)
-    fia_forest_type_name = models.CharField(max_length=60, blank=True, null=True)
+    fia_forest_type_name = models.CharField(
+        max_length=60, blank=True, null=True)
     latitude_fuzz = models.FloatField(null=True, blank=True)
     longitude_fuzz = models.FloatField(null=True, blank=True)
     aspect_deg = models.IntegerField(null=True, blank=True)
@@ -712,7 +735,8 @@ class IdbSummary(models.Model):
     for_type = models.IntegerField(null=True, blank=True)
     for_type_secdry = models.IntegerField(null=True, blank=True)
     for_type_name = models.CharField(max_length=60, blank=True, null=True)
-    for_type_secdry_name = models.CharField(max_length=60, blank=True, null=True)
+    for_type_secdry_name = models.CharField(
+        max_length=60, blank=True, null=True)
     qmdc_dom = models.FloatField(null=True, blank=True)
     qmdh_dom = models.FloatField(null=True, blank=True)
     qmda_dom = models.FloatField(null=True, blank=True)
@@ -740,45 +764,47 @@ class IdbSummary(models.Model):
     stndhgt_stunits = models.FloatField(null=True, blank=True)
     baa_ge_3_stunits = models.FloatField(null=True, blank=True)
     tph_ge_3_stunits = models.FloatField(null=True, blank=True)
+
     class Meta:
         db_table = u'idb_summary'
 
     @property
     @cachemethod("IdbSummary_eqd_point_%(cond_id)s")
     def eqd_point(self):
-        plot_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (self.longitude_fuzz, self.latitude_fuzz))
+        plot_centroid = GEOSGeometry('SRID=4326;POINT(%f %f)' % (
+            self.longitude_fuzz, self.latitude_fuzz))
         plot_centroid.transform(settings.EQD_SRID)
         return plot_centroid
 
     @property
     @cachemethod('IdbSummary-%(cond_id)s')
     def summary(self):
-        ''' 
+        '''
         Plot characteristics according to the FCID
         '''
         fortype_str = self.fortypiv
         fortypes = self.get_forest_types(fortype_str)
 
         summary = {
-                'fcid': self.fcid,
-                'fortypiv': fortypes,
-                'vegclass': self.vegclass_decoded,
-                'cancov': self.cancov,
-                'stndhgt': self.stndhgt,
-                'sdi_reineke': self.sdi_reineke,
-                'qmda_dom': self.qmda_dom,
-                'baa_ge_3': self.baa_ge_3,
-                'tph_ge_3': self.tph_ge_3,
-                'bac_prop': self.bac_prop,
-            }
+            'fcid': self.fcid,
+            'fortypiv': fortypes,
+            'vegclass': self.vegclass_decoded,
+            'cancov': self.cancov,
+            'stndhgt': self.stndhgt,
+            'sdi_reineke': self.sdi_reineke,
+            'qmda_dom': self.qmda_dom,
+            'baa_ge_3': self.baa_ge_3,
+            'tph_ge_3': self.tph_ge_3,
+            'bac_prop': self.bac_prop,
+        }
         return summary
 
 # based on the "Paired" color palette from ColorBrewer
 colors_rgb = [
-    (166,206,227), (31,120,180), (178,223,138), 
-    (51,160,44), (251,154,153), (227,26,28), 
-    (253,191,111), (255,127,0), (202,178,214), 
-    (106,61,154), (255,255,153), (177,89,40)
+    (166, 206, 227), (31, 120, 180), (178, 223, 138),
+    (51, 160, 44), (251, 154, 153), (227, 26, 28),
+    (253, 191, 111), (255, 127, 0), (202, 178, 214),
+    (106, 61, 154), (255, 255, 153), (177, 89, 40)
 ]
 color_hex = ['#%02x%02x%02x' % rgb_tuple for rgb_tuple in colors_rgb]
 
@@ -788,15 +814,16 @@ class Strata(Feature):
     search_age = models.FloatField()
     search_tpa = models.FloatField()
     additional_desc = models.TextField(blank=True, null=True)
-    stand_list = JSONField() # {'classes': [(species, age class, tpa), ...]}
-    
+    stand_list = JSONField()  # {'classes': [(species, age class, tpa), ...]}
+
     @property
     def _dict(self):
         """ Make sure obj._dict is json-serializable """
         dct = self.__dict__
         dct['uid'] = self.uid
         dct['pk'] = self.pk
-        rmfields = ['_state', 'object_id', 'content_type_id', 'date_modified', 'date_created']
+        rmfields = ['_state', 'object_id', 'content_type_id',
+                    'date_modified', 'date_created']
         for fld in rmfields:
             try:
                 del dct[fld]
@@ -806,7 +833,7 @@ class Strata(Feature):
 
     def candidates(self, min_candidates=5):
         from plots import get_candidates
-        return get_candidates(self.stand_list['classes'], min_candidates=min_candidates) 
+        return get_candidates(self.stand_list['classes'], min_candidates=min_candidates)
 
     @property
     def desc(self):
@@ -816,9 +843,9 @@ class Strata(Feature):
         form = "trees.forms.StrataForm"
         links = (
             alternate('Add Stands',
-                'trees.views.add_stands_to_strata',
-                type="application/json",
-                select='single'),
+                      'trees.views.add_stands_to_strata',
+                      type="application/json",
+                      select='single'),
         )
 
     def save(self, *args, **kwargs):
@@ -833,7 +860,8 @@ class Strata(Feature):
             if len(cls) != 4:
                 raise Exception("Not a valid stand list")
             # c[0] is valid species?
-            assert(TreeliveSummary.objects.filter(fia_forest_type_name=cls[0]).count() > 0)
+            assert(TreeliveSummary.objects.filter(
+                fia_forest_type_name=cls[0]).count() > 0)
             # c[1] thru c[2] is valid diam class ?
             assert(cls[1] < cls[2])
             # c[3] is a valid tpa?
@@ -904,7 +932,7 @@ fvsvariant_mapping = {
 
 def load_shp(path, feature_class):
     '''
-    First run ogrinspect to generate the class and mapping. 
+    First run ogrinspect to generate the class and mapping.
         python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
     Paste code into models.py and modify as necessary.
     Finally, load the shapefile:
@@ -913,5 +941,6 @@ def load_shp(path, feature_class):
     '''
     mapping = eval("%s_mapping" % feature_class.__name__.lower())
     print "Saving", path, "to", feature_class, "using", mapping
-    map1 = LayerMapping(feature_class, path, mapping, transform=False, encoding='iso-8859-1')
+    map1 = LayerMapping(
+        feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)

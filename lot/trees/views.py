@@ -32,13 +32,14 @@ def manage_stands(request):
     return render_to_response('common/manage_stands.html', {},
                               context_instance=RequestContext(request))
 
+
 def manage_strata(request, property_uid):
     '''
     Strata management view
     '''
-    return render_to_response('common/manage_strata.html', { 'property_id': property_uid },
-                              context_instance=RequestContext(request))
-
+    return render_to_response(
+        'common/manage_strata.html', {'property_id': property_uid},
+        context_instance=RequestContext(request))
 
 
 def user_property_list(request):
