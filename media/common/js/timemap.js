@@ -44,7 +44,8 @@ $(document).ready(function() {
             $.get( geojson_url, function(data) {
                 if (data.features.length) {
                     standScenario1.addFeatures(app.geojson_format.read(data));        
-                    bounds = standScenario1.getDataExtent();
+                    var bounds = standScenario1.getDataExtent();
+                    console.log("f1", bounds);
                     if (bounds) { 
                         timemap1.zoomToExtent(bounds);
                     }
@@ -52,10 +53,11 @@ $(document).ready(function() {
             });
             var f2 = app.scenarios.viewModel.scenarioList()[1];
             var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
-            $.get( geojson_url, function(data) {
+            $.get( geojson_url2, function(data) {
                 if (data.features.length) {
                     standScenario2.addFeatures(app.geojson_format.read(data));        
-                    bounds = standScenario2.getDataExtent();
+                    var bounds = standScenario2.getDataExtent();
+                    console.log("f2", bounds);
                     if (bounds) { 
                         timemap2.zoomToExtent(bounds);
                     }
@@ -70,7 +72,8 @@ $(document).ready(function() {
     var context = {
         getColour: function(feature) {
             var color;
-            var attr = feature.attributes.results.carbon[yearIndex]; 
+            //var attr = feature.attributes.results.carbon[yearIndex]; 
+            var attr = 6;
             // TODO assumes 0-20 range
             if (attr < 4) {
                 color = "#EDF8E9";
