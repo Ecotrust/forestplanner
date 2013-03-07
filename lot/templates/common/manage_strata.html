@@ -269,7 +269,7 @@
       }
 
       #chart-container {
-        height: auto;
+        height: 300px;
       }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
@@ -408,7 +408,7 @@
 
         // individual stand list member
         function speciesViewModel (stratum, options) {
-            var self = this
+            var self = this;
 
             if (! options) {
               options = {}
@@ -419,6 +419,7 @@
 
             // stand characteristics
             self.species = ko.observable(options[0]);
+
             if (options[1] && options[2]) {
               self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join('-'));  
             } else {
@@ -426,11 +427,24 @@
             }
             
             self.percentage = ko.observable(options[3]);
-            console.log(self.species());
+            
             self.index = ko.computed(function () {
                 var self = this;
                 return stratum.standList.indexOf(this);
             }, self);
+
+            self.updateChart = function () {
+              var standList = $.map(stratum.standList(), function (stand) {
+                return [[ stand.species() + ' ' + stand.sizeClass(), stand.percentage()]]
+              });
+              app.strata.chartStandList(standList);
+            };
+
+            self.percentage.subscribe(self.updateChart);
+            self.species.subscribe(self.updateChart);
+            self.sizeClass.subscribe(self.updateChart);
+
+            return self;
         };
 
         // viewmodel for a single stratum
@@ -465,6 +479,7 @@
                 self.standList.push(new speciesViewModel(self, stand));
               });
             }
+
 
 
             self.deleteStratum = function (stratum) {
@@ -588,7 +603,12 @@
             return filteredStrataList;
           }, self.strataList);
 
-
+          self.newStratum.subscribe(function (newStratum) {
+            var standList = $.map(newStratum.standList(), function (stand) {
+              return [[ stand.species() + ' ' + stand.sizeClass(), stand.percentage()]]
+            });
+            app.strata.chartStandList(standList);
+          });
           
 
           self.editStratum = function (stratum) {
@@ -783,7 +803,7 @@
       // charting stuff
       app.strata.chartStandList = function (standList) {
         var chart;
-        debugger;
+        
         setTimeout(function () {
           chart = new Highcharts.Chart({
               chart: {
