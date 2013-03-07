@@ -460,7 +460,7 @@
             if (! options) {
               options = {}
             }
-
+            console.dir(options);
             self.attributes = {
               // feature attributes from madrona
               name: ko.observable(options.name),
@@ -482,6 +482,7 @@
 
             if (options.stand_list) {
               $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
+                console.dir(stand);
                 self.standList.push(new standViewModel(self, stand));
               });
             }
@@ -628,7 +629,7 @@
           
 
           self.editStratum = function (stratum) {
-            var duplicateStratum = new stratumViewModel(ko.mapping.toJS(stratum.attributes));
+            var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
             app.strata.stratumBeingEdited = stratum;
             duplicateStratum.editMode(true);
             self.activeStratum(duplicateStratum);
@@ -712,6 +713,7 @@
                     } else {
                       // new strata
                       app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
+                      self.activeStratum().attributes.stand_list = postData.stand_list;
                       self.strataList.push(self.activeStratum());  
                     }
                     
