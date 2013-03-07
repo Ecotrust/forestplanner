@@ -183,8 +183,8 @@
                             <dd><span data-bind="text: newStratum().attributes.search_age()"></span></dd>
                           </dl>
                         </div>
-                        <div class="span8" id="chart-container">
-                          
+                        <div class="span8">
+                          <div id="chart-container"></div>
                         </div>
                       </div>
                            <table class="table table-bordered stand-table" data-bind="visible: newStratum().standList().length"  style="display: none">
@@ -270,6 +270,7 @@
 
       #chart-container {
         height: 300px;
+        width: 100%;
       }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
@@ -617,6 +618,8 @@
                 }
               });
               app.strata.chartStandList(standList);  
+            } else {
+              app.strata.chartData = null;
             }
             
           });
@@ -848,7 +851,7 @@
                         allowPointSelect: true,
                         cursor: 'pointer',
                         dataLabels: {
-                            enabled: true,
+                            enabled: false,
                             color: '#000000',
                             connectorColor: '#000000',
                             formatter: function() {
