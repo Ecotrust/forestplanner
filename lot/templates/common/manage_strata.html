@@ -56,8 +56,8 @@
                                   </div>
                                   <div class="span8">
                                     <p><strong>Trees</strong></p>
-                                    <ul data-bind="foreach: standList">
-                                      <li class="unstyled">
+                                    <ul class="unstyled tree-list" data-bind="foreach: standList">
+                                      <li data-bind="visible: species">
                                         <span data-bind="text: sizeClass"></span>
                                         <span data-bind="text: species"></span>
                                         (<span data-bind="text: percentage"></span>%)
@@ -324,6 +324,9 @@
           .strata-list .stratum-box dl {
             margin-top: -6px;
           }
+          .strata-list .stratum-box .tree-list li {
+            margin-left: 5px;
+          }
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -408,7 +411,12 @@
 
             // stand characteristics
             self.species = ko.observable(options[0]);
-            self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join('-'));
+            if (options[1] && options[2]) {
+              self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join('-'));  
+            } else {
+              self.sizeClass = ko.observable();
+            }
+            
             self.percentage = ko.observable(options[3]);
             console.log(self.species());
             self.index = ko.computed(function () {
@@ -485,15 +493,21 @@
             self.next = function () {
                 var self = this,
                     stand = new speciesViewModel(self);
-                if (! self.editMode) {
+                
+
+                if (! self.editMode()) {
+
                   self.standList.push(stand);
                   self.currentStand(stand);
+                  $('#myCarousel').find('.item:first-child').addClass('active');  
                 } else {
-                  $('.stand-table').find('tbody tr:first-child').addClass('active');
+                  self.currentStand(self.standList()[self.standList().length-1]);
+                  $('#myCarousel').find('.item:first-child').addClass('active');
+                  $('#myCarousel').carousel(self.standList().length-1);
                   self.editTrees(true);
                 }
                 
-                $('#myCarousel').find('.item:first-child').addClass('active');
+                
 
             };
 
@@ -635,6 +649,7 @@
             postData.stand_list = ko.toJSON({
               'classes': $.map(stratum.standList(), function (stand) {
                     var sizes = [];
+
                     if (stand.species() && stand.sizeClass() && stand.percentage()) {
                         sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
                         return [[
