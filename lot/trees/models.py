@@ -480,8 +480,6 @@ class Scenario(Analysis):
     input_property = models.ForeignKey('ForestProperty')
     input_target_boardfeet = models.FloatField(verbose_name='Target Boardfeet', null=True, blank=True, 
         help_text="Target an even flow of timber")
-    input_site_diversity = models.FloatField(verbose_name='Target Site Diversity Index', null=True, blank=True, 
-        help_text="Optimize for a target site diversity")
     input_age_class = models.FloatField(verbose_name='Target Mature Age Class', null=True, blank=True, 
         help_text="Optimize for target proportion of mature trees")
     input_target_carbon = models.BooleanField(verbose_name='Target Carbon', default=False, 
@@ -515,7 +513,6 @@ class Scenario(Analysis):
                 'input_property': self.input_property.pk,
                 'input_rxs': self.input_rxs,
                 'input_target_boardfeet': self.input_target_boardfeet,
-                'input_site_diversity': self.input_site_diversity,
                 'input_age_class': self.input_age_class,
                 'input_target_carbon': self.input_target_carbon,
                 'name': self.name,

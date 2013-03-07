@@ -23,10 +23,6 @@ class ScenarioForm(FeatureForm):
         help_text="Target an annual cut (in boardfeet) for an even flow of timber",
         label="Target Annual Cut", 
         widget=SliderWidget(min=0, max=100, step=1, show_number=True))
-    input_site_diversity = forms.FloatField(
-        help_text="Optimize for a target site diversity",
-        label='Target Site Diversity Index',
-        widget=SliderWidget(min=0, max=100, step=1, show_number=True))
     input_age_class = forms.FloatField(
         help_text="Optimize for target proportion of mature trees",
         label='Target Mature Age Class',

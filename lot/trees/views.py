@@ -177,7 +177,6 @@ def forestproperty_scenarios(request, instance):
                       input_target_boardfeet=0,
                       input_target_carbon=True,
                       input_rxs={},
-                      input_site_diversity=10,
                       input_age_class=10,
                       )
         s1.save()
@@ -188,7 +187,6 @@ def forestproperty_scenarios(request, instance):
                       input_target_boardfeet=2000,
                       input_target_carbon=False,
                       input_rxs={},
-                      input_site_diversity=1,
                       input_age_class=1,
                       )
         s2.save()
