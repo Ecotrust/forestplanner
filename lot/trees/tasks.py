@@ -1,5 +1,6 @@
 from celery import task
 
+
 @task()
 def impute_rasters(stand_id):
     # import here to avoid circular dependencies
@@ -9,14 +10,16 @@ def impute_rasters(stand_id):
     import math
 
     stand = Stand.objects.get(id=stand_id)
-    #print "imputing raster stats for %d" % stand_id
+    print "imputing raster stats for %d" % stand_id
 
     def get_raster_stats(stand, rastername):
         try:
             raster = RasterDataset.objects.get(name=rastername)
         except RasterDataset.DoesNotExist:
             return None
-        rproj = [rproj for rname, rproj in settings.IMPUTE_RASTERS if rname == rastername][0]
+        rproj = [rproj for rname, rproj
+                 in settings.IMPUTE_RASTERS
+                 if rname == rastername][0]
         g1 = stand.geometry_final
         g2 = g1.transform(rproj, clone=True)
         if not raster.is_valid:
@@ -24,7 +27,7 @@ def impute_rasters(stand_id):
         stats = zonal_stats(g2, raster)
         return stats
 
-    elevation = aspect = slope = None
+    elevation = aspect = slope = cost = None
 
     # elevation
     data = get_raster_stats(stand, 'elevation')
@@ -46,18 +49,24 @@ def impute_rasters(stand_id):
     if data:
         slope = data.avg
 
-    # stuff might have changed, we dont want a wholesale update of all fields! 
+    # cost
+    data = get_raster_stats(stand, 'cost')
+    if data:
+        cost = data.avg
+
+    # stuff might have changed, we dont want a wholesale update of all fields!
     from django.db import connection, transaction
     cursor = connection.cursor()
     cursor.execute("""UPDATE "trees_stand"
-        SET "elevation" = %s, "slope" = %s, "aspect" = %s
+        SET "elevation" = %s, "slope" = %s, "aspect" = %s, "cost" = %s
         WHERE "trees_stand"."id" = %s;
-    """, [elevation, slope, aspect, stand_id])
+    """, [elevation, slope, aspect, cost,
+          stand_id])
     transaction.commit_unless_managed()
-    # alternative with django 1.5
-    # save(update_fields=['elevation', 'slope', 'aspect'])  # update only the fields that we've calculated
+    # alternative with django 1.5:
+    # update only the fields that we've calculated
+    # save(update_fields=['elevation', 'slope', 'aspect'])
 
     stand.invalidate_cache()
 
     return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope}
-

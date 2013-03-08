@@ -63,13 +63,15 @@ class Command(BaseCommand):
             print "terrain already unpacked"
 
         # install
-        if RasterDataset.objects.all().count() == 0:
+        if RasterDataset.objects.all().count() < 6:
             print "Loading RasterDataset"
-            RasterDataset.objects.create(filepath=os.path.join(odirname, 'dem_swor2/hdr.adf'), type="continuous", name="elevation")
-            RasterDataset.objects.create(filepath=os.path.join(odirname, 'asp_swor/hdr.adf'), type="continuous", name="aspect")
-            RasterDataset.objects.create(filepath=os.path.join(odirname, 'cos_aspect.tif'), type="continuous", name="cos_aspect")
-            RasterDataset.objects.create(filepath=os.path.join(odirname, 'sin_aspect.tif'), type="continuous", name="sin_aspect")
-            RasterDataset.objects.create(filepath=os.path.join(odirname, 'slp_swor/hdr.adf'), type="continuous", name="slope")
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'dem_swor2/hdr.adf'), type="continuous", name="elevation")
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'asp_swor/hdr.adf'), type="continuous", name="aspect")
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'cos_aspect.tif'), type="continuous", name="cos_aspect")
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'sin_aspect.tif'), type="continuous", name="sin_aspect")
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'slp_swor/hdr.adf'), type="continuous", name="slope")
+            # TODO cost raster - for now just use slope
+            RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'slp_swor/hdr.adf'), type="continuous", name="cost")
         else:
             print "Skip loading RasterDataset data"
 

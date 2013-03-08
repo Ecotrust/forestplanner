@@ -58,6 +58,7 @@ class Stand(PolygonFeature):
     elevation = models.FloatField(null=True, blank=True)
     slope = models.FloatField(null=True, blank=True)
     aspect = models.FloatField(null=True, blank=True)
+    cost = models.FloatField(null=True, blank=True)
 
     class Options:
         form = "trees.forms.StandForm"
@@ -306,8 +307,10 @@ class ForestProperty(FeatureCollection):
                 n_with_condition += 1
             if stand.strata:
                 n_with_strata += 1
-            if stand.elevation and stand.slope and stand.aspect:
+            if stand.elevation and stand.slope and stand.aspect and stand.cost:
                 n_with_terrain += 1
+            else:
+                impute_rasters.delay(stand.id)
 
         return {
             'total': len(stands),
