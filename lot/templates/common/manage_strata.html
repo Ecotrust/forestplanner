@@ -754,7 +754,7 @@
           return $.ajax({
               url: url,
               type: "POST",
-              data: { 'stands': stand_uid_list },
+              data: { 'stands': stand_uid_list.join() },
               traditional: true,
               success: function (response) { 
                 //debugger;
