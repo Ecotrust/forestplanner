@@ -45,7 +45,6 @@ $(document).ready(function() {
                 if (data.features.length) {
                     standScenario1.addFeatures(app.geojson_format.read(data));        
                     var bounds = standScenario1.getDataExtent();
-                    console.log("f1", bounds);
                     if (bounds) { 
                         timemap1.zoomToExtent(bounds);
                     }
@@ -57,7 +56,6 @@ $(document).ready(function() {
                 if (data.features.length) {
                     standScenario2.addFeatures(app.geojson_format.read(data));        
                     var bounds = standScenario2.getDataExtent();
-                    console.log("f2", bounds);
                     if (bounds) { 
                         timemap2.zoomToExtent(bounds);
                     }
@@ -72,8 +70,7 @@ $(document).ready(function() {
     var context = {
         getColour: function(feature) {
             var color;
-            //var attr = feature.attributes.results.carbon[yearIndex]; 
-            var attr = 6;
+            var attr = feature.attributes.results.carbon[yearIndex]; 
             // TODO assumes 0-20 range
             if (attr < 4) {
                 color = "#EDF8E9";
@@ -104,6 +101,7 @@ $(document).ready(function() {
         key: apiKey,
         type: "Aerial"
     });
+
     timemap1.addLayer(aerial1);
     //timemap1.addControl(new OpenLayers.Control.LayerSwitcher());
     standScenario1 = new OpenLayers.Layer.Vector("Properties",  {

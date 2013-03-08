@@ -13,7 +13,6 @@ from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
 from madrona.common.utils import get_logger
-from operator import itemgetter
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
 from trees.tasks import impute_rasters
@@ -33,7 +32,7 @@ def cachemethod(cache_key, timeout=60 * 60 * 24 * 7):
         def decorated(self, *args):
             key = cache_key % self.__dict__
             res = cache.get(key)
-            if res == None:
+            if res is None:
                 res = func(self, *args)
                 cache.set(key, res, timeout)
             return res
@@ -230,7 +229,7 @@ class Stand(PolygonFeature):
         keys = [x % self.__dict__ for x in keys]
         cache.delete_many(keys)
         for key in keys:
-            assert cache.get(key) == None
+            assert cache.get(key) is None
         logger.debug("invalidated cache for %s" % str(keys))
         return True
 
@@ -448,7 +447,7 @@ class ForestProperty(FeatureCollection):
                       'trees.views.geojson_forestproperty',
                       type="application/json",
                       select='single'),
-            # Link to grab ALL *stands* associated with a property
+            # Link to grab ALL *scenarios* associated with a property
             alternate('Property Scenarios',
                       'trees.views.forestproperty_scenarios',
                       type="application/json",
@@ -512,7 +511,7 @@ class Scenario(Analysis):
     output_scheduler_results = JSONField(null=True, blank=True)
 
     def stand_set(self):
-        return self.input_property.feature_set()
+        return self.input_property.feature_set(feature_classes=[Stand,])
 
     @property
     def output_property_results(self):
@@ -638,10 +637,9 @@ class Scenario(Analysis):
                 stand_dict['properties']['results'] = res[str(stand.pk)]
             except KeyError:
                 continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
-
             stand_data.append(stand_dict)
 
-        gj = dumps(stand_data)
+        gj = dumps(stand_data, indent=2)
         # madrona doesn't expect an array/list of features here
         # we have to hack it by removing the []
         if gj.startswith("["):
