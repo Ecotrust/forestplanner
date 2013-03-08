@@ -714,6 +714,7 @@
                       // new strata
                       app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
                       self.activeStratum().attributes.stand_list = postData.stand_list;
+                      self.activeStratum().attributes.uid = strata_uid;
                       self.strataList.push(self.activeStratum());  
                     }
                     
