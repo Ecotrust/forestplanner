@@ -74,10 +74,16 @@ def impute_rasters(stand_id):
 
 
 @task()
-def impute_nearest_neighbor(stand_id):
+def impute_nearest_neighbor(stand_results):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
     from trees.plots import get_nearest_neighbors
+
+    # you can pass the output of impute_rasters OR a stand id
+    try:
+        stand_id = stand_results['stand_id']
+    except TypeError:
+        stand_id = int(stand_results)
 
     stand = Stand.objects.get(id=stand_id)
     print "imputing nearest neighbor for %d" % stand_id

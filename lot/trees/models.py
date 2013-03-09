@@ -64,28 +64,17 @@ class Stand(PolygonFeature):
         form = "trees.forms.StandForm"
         manipulators = []
 
-    def get_idb(self):
-        from trees.plots import get_nearest_neighbors
-        if not self.cond_id:
-            stand_list = self.strata.stand_list
-            site_cond = {
-                'latitude_fuzz': self.geometry_final.centroid[0],
-                'longitude_fuzz': self.geometry_final.centroid[1],
-            }
-            # include terrain variables
-            if self.aspect:
-                site_cond['calc_aspect'] = self.aspect
-            if self.elevation:
-                site_cond['elev_ft'] = self.elevation
-            if self.slope:
-                site_cond['calc_slope'] = self.slope
-            weight_dict = self.default_weighting
-            ps, num_candidates = get_nearest_neighbors(
-                site_cond, stand_list['classes'], weight_dict, k=5)
-            self.cond_id = ps[0].name
-            self.save()
-        idb = IdbSummary.objects.get(cond_id=self.cond_id)
-        return idb
+    def get_idb(self, force=False):
+        '''
+        Synchronous computation of nearest neighbor
+        Prefer instead:
+          impute_nearest_neighbor.delay(stand_id)
+        '''
+        if self.cond_id and not force:
+            return self.cond_id
+
+        res = impute_nearest_neighbor(self.id)
+        return res['cond_id']
 
     @property
     def default_weighting(self):
@@ -237,7 +226,7 @@ class Stand(PolygonFeature):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
-        impute_rasters.delay(self.id)
+        impute_rasters.apply_async(args=(self.id,), link=impute_nearest_neighbor.s())
 
 
 @register
