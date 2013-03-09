@@ -1,4 +1,5 @@
 from celery import task
+import json
 
 
 @task()
@@ -70,3 +71,48 @@ def impute_rasters(stand_id):
     stand.invalidate_cache()
 
     return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope}
+
+
+@task()
+def impute_nearest_neighbor(stand_id):
+    # import here to avoid circular dependencies
+    from trees.models import Stand, IdbSummary
+    from trees.plots import get_nearest_neighbors
+
+    stand = Stand.objects.get(id=stand_id)
+    print "imputing nearest neighbor for %d" % stand_id
+
+    stand_list = stand.strata.stand_list
+    # assume stand_list comes out as a string?? TODO JSONField acting strange?
+    stand_list = json.loads(stand_list)
+    site_cond = {
+        'latitude_fuzz': stand.geometry_final.centroid[0],
+        'longitude_fuzz': stand.geometry_final.centroid[1],
+    }
+    if stand.aspect:
+        site_cond['calc_aspect'] = stand.aspect
+    if stand.elevation:
+        site_cond['elev_ft'] = stand.elevation
+    if stand.slope:
+        site_cond['calc_slope'] = stand.slope
+    weight_dict = stand.default_weighting
+    ps, num_candidates = get_nearest_neighbors(
+        site_cond, stand_list['classes'], weight_dict, k=5)
+
+    cond_id = int(ps[0].name)
+
+    # just confirm that it exists
+    IdbSummary.objects.get(cond_id=cond_id)
+
+    # update the database
+    from django.db import connection, transaction
+    cursor = connection.cursor()
+    cursor.execute("""UPDATE "trees_stand"
+        SET "cond_id" = %s
+        WHERE "trees_stand"."id" = %s;
+    """, [cond_id, stand_id])
+    transaction.commit_unless_managed()
+
+    stand.invalidate_cache()
+
+    return {'stand_id': stand_id, 'cond_id': cond_id}

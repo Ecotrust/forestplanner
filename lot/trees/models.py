@@ -15,7 +15,7 @@ from madrona.features import register, alternate
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
-from trees.tasks import impute_rasters
+from trees.tasks import impute_rasters, impute_nearest_neighbor
 
 logger = get_logger()
 
@@ -303,14 +303,21 @@ class ForestProperty(FeatureCollection):
         n_with_condition = 0
         stands = self.feature_set(feature_classes=[Stand])
         for stand in stands:
+
             if stand.cond_id:
                 n_with_condition += 1
-            if stand.strata:
-                n_with_strata += 1
+            elif stand.strata and stand.elevation and stand.slope and stand.aspect:
+                # We've got enough info to calculate condition
+                impute_nearest_neighbor.delay(stand.id)
+
             if stand.elevation and stand.slope and stand.aspect and stand.cost:
                 n_with_terrain += 1
             else:
+                # No rasters imputed yet? .. let's try that again
                 impute_rasters.delay(stand.id)
+
+            if stand.strata:
+                n_with_strata += 1
 
         return {
             'total': len(stands),
