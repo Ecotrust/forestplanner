@@ -136,8 +136,6 @@ class Stand(PolygonFeature):
             'strata_uid': strata_uid,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
-            'plot_summary': self.plot_summary,
-            'plot_summaries': self.plot_summaries,  # TODO include idb data
             # TODO include strata info
             'user_id': self.user.pk,
             'date_modified': str(self.date_modified),
@@ -149,64 +147,6 @@ class Stand(PolygonFeature):
               "properties": %s
         }""" % (self.geometry_final.json, dumps(d))
         return gj
-
-    @property
-    def plot_summaries(self):
-        '''
-        Site charachteristics according to the most common FCID GNN pixels
-        These will mainly be used to confirm with the user that the GNN data is accurate.
-        '''
-        summaries = []
-        return summaries  # TODO fix or drop the GNN imputation
-        for fcid, prop in fcids:
-            ps = IdbSummary.objects.get(cond_id=fcid)
-            summary = ps.summary
-            summary['fcid_coverage'] = prop * 100
-            # Unit conversions
-            try:
-                summary['stndhgt_ft'] = int(
-                    summary['stndhgt'] * 3.28084)   # m to ft
-            except TypeError:
-                summary['stndhgt_ft'] = None
-            try:
-                summary['baa_ge_3_sqft'] = int(
-                    summary['baa_ge_3'] * 10.7639)  # sqm to sqft
-            except TypeError:
-                summary['baa_ge_3_sqft'] = None
-            try:
-                summary['tph_ge_3_tpa'] = int(
-                    summary['tph_ge_3'] * 0.404686)  # h to acres
-            except TypeError:
-                summary['tph_ge_3_tpa'] = None
-            try:
-                summary['qmda_dom_in'] = int(
-                    summary['qmda_dom'] * 0.393701)  # cm to inches
-            except TypeError:
-                summary['qmda_dom_in'] = None
-            summaries.append(summary)
-        return summaries
-
-    @property
-    def plot_summary(self):
-        '''
-        Site charachteristics according to the chosen plot
-        '''
-        return None  # TODO adjust for IdbSummary
-        if not self.cond_id:
-            return None
-
-        ps = self.plot
-        summary = ps.summary
-        # Unit conversions
-        summary['stndhgt_ft'] = int(summary['stndhgt'] * 3.28084)   # m to ft
-        summary['baa_ge_3_sqft'] = int(
-            summary['baa_ge_3'] * 10.7639)  # sqm to sqft
-        summary['tph_ge_3_tpa'] = int(summary['tph_ge_3'] *
-                                      0.404686)  # h to acres
-        summary['qmda_dom_in'] = int(
-            summary['qmda_dom'] * 0.393701)  # cm to inches
-
-        return summary
 
     def invalidate_cache(self):
         '''

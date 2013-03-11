@@ -387,8 +387,6 @@
                                 <ul class="unstyled" data-bind="foreach: standListPaginated">
                                     <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
                                         <span>
-                                            <span data-bind="ifnot: plot_summary"><i class="icon-exclamation-sign"></i></span>
-                                            <span data-bind="if: plot_summary"><i class="icon-ok"></i></span>
                                             <a href="#" data-bind="text: name"></a>
                                         </span>
                                     </li>
