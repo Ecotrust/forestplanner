@@ -15,17 +15,22 @@ def impute_rasters(stand_id):
     print "imputing raster stats for %d" % stand_id
 
     def get_raster_stats(stand, rastername):
-        try:
-            raster = RasterDataset.objects.get(name=rastername)
-        except RasterDataset.DoesNotExist:
-            return None
-        rproj = [rproj for rname, rproj
-                 in settings.IMPUTE_RASTERS
-                 if rname == rastername][0]
-        g1 = stand.geometry_final.transform(rproj, clone=True)
-        if not raster.is_valid:
-            raise Exception("Raster is not valid: %s" % raster)
-        stats = zonal_stats(g1, raster)
+        # yes we know zonal_stats has it's own internal caching but it uses the DB
+        key = "zonal_%s_%s" % (stand.geometry_final.wkt.__hash__(), rastername)
+        stats = cache.get(key)
+        if stats is None:
+            try:
+                raster = RasterDataset.objects.get(name=rastername)
+            except RasterDataset.DoesNotExist:
+                return None
+            rproj = [rproj for rname, rproj
+                     in settings.IMPUTE_RASTERS
+                     if rname == rastername][0]
+            g1 = stand.geometry_final.transform(rproj, clone=True)
+            if not raster.is_valid:
+                raise Exception("Raster is not valid: %s" % raster)
+            stats = zonal_stats(g1, raster)
+            cache.set(key, stats, 60 * 60 * 24 * 365)
         return stats
 
     elevation = aspect = slope = cost = None
@@ -70,7 +75,7 @@ def impute_rasters(stand_id):
 
     stand.invalidate_cache()
 
-    return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope}
+    return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
 
 
 @task()
@@ -110,6 +115,7 @@ def impute_nearest_neighbor(stand_results):
     ps, num_candidates = get_nearest_neighbors(
         site_cond, stand_list['classes'], weight_dict, k=5)
 
+    # Take the top match
     cond_id = int(ps[0].name)
 
     # just confirm that it exists

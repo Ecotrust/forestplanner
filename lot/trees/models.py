@@ -119,7 +119,11 @@ class Stand(PolygonFeature):
         try:
             strata_uid = self.strata.uid
         except:
-            strata_uid = None
+            strata_uid = "no strata"
+
+        cond_id = self.cond_id
+        if not cond_id:
+            cond_id = "no matching condition"
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -129,11 +133,10 @@ class Stand(PolygonFeature):
         d = {
             'uid': self.uid,
             'name': self.name,
-            'rx': '',  # TODO rm ; was self.get_rx_display(),
             'acres': acres,
-            'domspp': '',  # TODO rm, was self.domspp,
             'elevation': elevation,
             'strata_uid': strata_uid,
+            'cond_id': cond_id,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
             # TODO include strata info
@@ -165,8 +168,9 @@ class Stand(PolygonFeature):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
-        logger.debug("    Saving %s" % self.uid)
-        impute_rasters.apply_async(args=(self.id,), link=impute_nearest_neighbor.s())
+        impute_rasters.apply_async(args=(self.id,))
+        if self.strata:
+            impute_nearest_neighbor.apply_async(args=(self.id,))
 
 
 @register
@@ -235,15 +239,15 @@ class ForestProperty(FeatureCollection):
 
             if stand.cond_id:
                 n_with_condition += 1
-            elif stand.strata and stand.elevation and stand.slope and stand.aspect:
-                # We've got enough info to calculate condition
-                impute_nearest_neighbor.delay(stand.id)
+            # elif stand.strata and stand.elevation and stand.slope and stand.aspect:
+            #     # We've got enough info to calculate condition
+            #     impute_nearest_neighbor.delay(stand.id)
 
             if stand.elevation and stand.slope and stand.aspect and stand.cost:
                 n_with_terrain += 1
-            else:
-                # No rasters imputed yet? .. let's try that again
-                impute_rasters.delay(stand.id)
+            # else:
+            #     # No rasters imputed yet? .. let's try that again
+            #     impute_rasters.delay(stand.id)
 
             if stand.strata:
                 n_with_strata += 1
@@ -482,11 +486,17 @@ class Scenario(Analysis):
         }
         return d
 
-    def run(self):
+    @property
+    def is_runnable(self):
         total = self.input_property.stand_summary['total']
         assert(total == len(self.stand_set()))
         if self.input_property.stand_summary['with_condition'] < total:
-            logger.warn("%s does not have condition ID", self.uid)
+            return False
+        else:
+            return True
+
+    def run(self):
+        if not self.is_runnable:
             # setting output_scheduler_results to None implies that it must be rerun in the future !!
             self.output_scheduler_results = None
             return False

@@ -12,24 +12,33 @@ import time
 from trees.models import Stand, Scenario, Strata, ForestProperty
 from django.contrib.auth.models import User
 from django.test.client import Client
-from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+from django.contrib.gis.geos import GEOSGeometry
+from shapely.ops import cascaded_union
+from shapely.geometry import Polygon, MultiPolygon
+from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
-g1 = cntr.buffer(75)
-g1.transform(settings.GEOMETRY_DB_SRID)
 
-# cntr2 = cntr.clone()
-# cntr2.set_x(cntr.x + 150)
-# g2 = cntr2.buffer(75)
-# g2.transform(settings.GEOMETRY_DB_SRID)
+NUM_STANDS = 10
+geoms = []
+for i in range(NUM_STANDS):
+    cntr.set_x(cntr.x + 150)
+    g1 = cntr.buffer(75)
+    g1.transform(settings.GEOMETRY_DB_SRID)
+    geoms.append(wkt.loads(g1.wkt))
 
-# cntr3 = cntr.clone()
-# cntr3.set_x(cntr.x - 150)
-# g3 = cntr3.buffer(75)
-# g3.transform(settings.GEOMETRY_DB_SRID)
+casc_poly = cascaded_union(geoms)
 
-single_p1 = g1.buffer(1000)
-p1 = MultiPolygon(single_p1)
+if casc_poly.type == 'MultiPolygon':
+    polys = []
+    for c in casc_poly:
+        interiors = [x for x in c.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+        polys.append(Polygon(shell=c.exterior, holes=interiors))
+elif casc_poly.type == 'Polygon':
+    interiors = [x for x in casc_poly.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+    polys = [Polygon(shell=casc_poly.exterior, holes=interiors)]
+
+p1 = MultiPolygon(polys)
 
 client = Client()
 try:
@@ -74,32 +83,22 @@ assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 
-#### Step 2. Create the stand
+#### Step 2. Create the stands
 url = "/features/stand/form/"
-
-print "POST", url
-response = client.post(url, {'name': 'test stand', 'geometry_orig': g1.wkt})
-assert(response.status_code == 201)
-uid = json.loads(response.content)['X-Madrona-Select']
-stand1 = Stand.objects.get(id=uid.split("_")[2])
-
-# response = client.post(url, {'name': 'test stand', 'geometry_orig': g2.wkt})
-# assert(response.status_code == 201)
-# uid = json.loads(response.content)['X-Madrona-Select']
-# stand2 = Stand.objects.get(id=uid.split("_")[2])
-
-# response = client.post(url, {'name': 'test stand', 'geometry_orig': g3.wkt})
-# assert(response.status_code == 201)
-# uid = json.loads(response.content)['X-Madrona-Select']
-# stand3 = Stand.objects.get(id=uid.split("_")[2])
+stands = []
+for g in geoms:
+    response = client.post(url, {'name': 'test stand', 'geometry_orig': g.wkt})
+    assert(response.status_code == 201)
+    uid = json.loads(response.content)['X-Madrona-Select']
+    stands.append(Stand.objects.get(id=uid.split("_")[2]))
 
 #### Step 2b. Associate the stand with the property
-url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([stand1.uid])) #, stand2.uid, stand3.uid]))
+url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
 response = client.post(url, {})
 assert(response.status_code == 200)
 
-assert(prop1.stand_summary['total'] == 1)
-while prop1.stand_summary['with_terrain'] != 1:
+assert(prop1.stand_summary['total'] == NUM_STANDS)
+while prop1.stand_summary['with_terrain'] != NUM_STANDS:
     print "Waiting for terrain..."
     time.sleep(1)
 
@@ -119,7 +118,9 @@ response = client.post(url, {
 assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
-assert(scenario1.run() == False)
+assert(scenario1.is_runnable is False)
+assert(scenario1.run() is False)
+assert(scenario1.output_scheduler_results is None)
 
 #### Step 3. Create the strata
 old_count = Strata.objects.count()
@@ -148,11 +149,11 @@ assert(prop1.stand_summary['with_strata'] == 0)
 #### Step 4. Add the stands to a strata
 url = "/features/strata/links/add-stands/%s/" % strata1.uid
 response = client.post(url,
-                       {'stands': ",".join([stand1.uid])}  # , stand2.uid, stand3.uid])}
+                       {'stands': ",".join([x.uid for x in stands])}
                        )
 assert(response.status_code == 200)
-assert(prop1.stand_summary['with_strata'] == 1)
-while prop1.stand_summary['with_condition'] != 1:
+assert(prop1.stand_summary['with_strata'] == NUM_STANDS)
+while prop1.stand_summary['with_condition'] != NUM_STANDS:
     print "Waiting for nearest neighbor..."
     time.sleep(2)
 

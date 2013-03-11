@@ -37,11 +37,11 @@ class StandImporter:
             if fname not in field_mapping.keys():
                 # if not mapped, try the attribute name directly
                 field_mapping[fname] = fname
-            
+
         return field_mapping
 
-    def import_ogr(self, shp_path, field_mapping=None, layer_num=0, 
-            forest_property=None, new_property_name=None, pre_impute=False):
+    def import_ogr(self, shp_path, field_mapping=None, layer_num=0,
+                   forest_property=None, new_property_name=None, pre_impute=False):
         ds = DataSource(shp_path)
         layer = ds[0]
         num_features = len(layer)
