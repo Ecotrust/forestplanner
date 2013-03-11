@@ -210,22 +210,22 @@ class Stand(PolygonFeature):
 
     def invalidate_cache(self):
         '''
-        Remove any cached values associated with this scenario.
-        Warning: additional caches will need to be added to this method
+        Remove any cached values associated with this stand.
         '''
         if not self.id:
             return True
-        keys = ["Stand_%(id)s_geojson"]
-        keys = [x % self.__dict__ for x in keys]
-        cache.delete_many(keys)
-        for key in keys:
-            assert cache.get(key) is None
-        logger.debug("invalidated cache for %s" % str(keys))
+        # assume that all stand-related keys will start with Stand_<id>_*
+        # depends on django-redis as the cache backend!!!
+        key_pattern = "Stand_%d_*" % self.id
+        cache.delete_pattern(key_pattern)
+        assert cache.keys(key_pattern) == []
+        logger.debug("invalidated cache for Stand %d" % self.id)
         return True
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         super(Stand, self).save(*args, **kwargs)
+        logger.debug("    Saving %s" % self.uid)
         impute_rasters.apply_async(args=(self.id,), link=impute_nearest_neighbor.s())
 
 
@@ -510,7 +510,7 @@ class Scenario(Analysis):
     output_scheduler_results = JSONField(null=True, blank=True)
 
     def stand_set(self):
-        return self.input_property.feature_set(feature_classes=[Stand,])
+        return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
     def output_property_results(self):
@@ -543,6 +543,14 @@ class Scenario(Analysis):
         return d
 
     def run(self):
+        total = self.input_property.stand_summary['total']
+        assert(total == len(self.stand_set()))
+        if self.input_property.stand_summary['with_condition'] < total:
+            logger.warn("%s does not have condition ID", self.uid)
+            # setting output_scheduler_results to None implies that it must be rerun in the future !!
+            self.output_scheduler_results = None
+            return False
+
         # TODO prep scheduler, run it, parse the outputs
         d = {}
 

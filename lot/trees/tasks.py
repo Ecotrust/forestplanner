@@ -1,4 +1,5 @@
 from celery import task
+from django.core.cache import cache
 import json
 
 
@@ -21,11 +22,10 @@ def impute_rasters(stand_id):
         rproj = [rproj for rname, rproj
                  in settings.IMPUTE_RASTERS
                  if rname == rastername][0]
-        g1 = stand.geometry_final
-        g2 = g1.transform(rproj, clone=True)
+        g1 = stand.geometry_final.transform(rproj, clone=True)
         if not raster.is_valid:
             raise Exception("Raster is not valid: %s" % raster)
-        stats = zonal_stats(g2, raster)
+        stats = zonal_stats(g1, raster)
         return stats
 
     elevation = aspect = slope = cost = None
@@ -88,12 +88,17 @@ def impute_nearest_neighbor(stand_results):
     stand = Stand.objects.get(id=stand_id)
     print "imputing nearest neighbor for %d" % stand_id
 
+    if not stand.strata:
+        # No strata yet, bail silently
+        return False
+
     stand_list = stand.strata.stand_list
     # assume stand_list comes out as a string?? TODO JSONField acting strange?
     stand_list = json.loads(stand_list)
+    geom = stand.geometry_final.transform(4326, clone=True)
     site_cond = {
-        'latitude_fuzz': stand.geometry_final.centroid[0],
-        'longitude_fuzz': stand.geometry_final.centroid[1],
+        'latitude_fuzz': geom.centroid[1],
+        'longitude_fuzz': geom.centroid[0],
     }
     if stand.aspect:
         site_cond['calc_aspect'] = stand.aspect
