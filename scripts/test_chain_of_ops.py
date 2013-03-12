@@ -72,7 +72,8 @@ except Scenario.DoesNotExist:
 
 ##### Step 1. Create the property
 url = "/features/forestproperty/form/"
-print "POST", url
+print
+print url
 response = client.post(url,
                        {
                        'name': 'test property',
@@ -87,6 +88,8 @@ prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 url = "/features/stand/form/"
 stands = []
 for g in geoms:
+    print
+    print url
     response = client.post(url, {'name': 'test stand', 'geometry_orig': g.wkt})
     assert(response.status_code == 201)
     uid = json.loads(response.content)['X-Madrona-Select']
@@ -94,19 +97,28 @@ for g in geoms:
 
 #### Step 2b. Associate the stand with the property
 url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
+print
+print url
 response = client.post(url, {})
 assert(response.status_code == 200)
 
 assert(prop1.stand_summary['total'] == NUM_STANDS)
+steps = 0
 while prop1.stand_summary['with_terrain'] != NUM_STANDS:
+    steps += 1
     print "Waiting for terrain..."
+    print prop1.stand_summary
     time.sleep(1)
+    if steps > 5:
+      import ipdb; ipdb.set_trace()
 
 #### Step 2c. Create a scenario. Try to run it (should return False; not enough info)
 assert(prop1.stand_summary['with_strata'] == 0)
 assert(prop1.stand_summary['with_condition'] == 0)
 
 url = "/features/scenario/form/"
+print
+print url
 response = client.post(url, {
     'name': "My Scenario",
     'input_target_boardfeet': 100000,
@@ -121,6 +133,11 @@ scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 assert(scenario1.is_runnable is False)
 assert(scenario1.run() is False)
 assert(scenario1.output_scheduler_results is None)
+
+#### Step _. Change geometry
+st = Stand.objects.get(id=stands[0].id)
+st.geometry_final = geoms[0].buffer(10).wkt
+st.save()
 
 #### Step 3. Create the strata
 old_count = Strata.objects.count()
@@ -148,25 +165,19 @@ assert(prop1.stand_summary['with_strata'] == 0)
 
 #### Step 4. Add the stands to a strata
 url = "/features/strata/links/add-stands/%s/" % strata1.uid
+print 
+print url
 response = client.post(url,
                        {'stands': ",".join([x.uid for x in stands])}
                        )
 assert(response.status_code == 200)
+print prop1.stand_summary
 assert(prop1.stand_summary['with_strata'] == NUM_STANDS)
 while not scenario1.is_runnable:
     print "Waiting for nearest neighbor..."
-    print "    ", prop1.stand_summary
-    time.sleep(2)
+    print prop1.stand_summary
+    time.sleep(4)
 
-
-#### Step 5. Get the list of strata for the property
-# url = "/trees/strata_list/%s/" % prop1.uid
-# response = client.get(url)
-# assert(response.status_code == 200)
-# rd = json.loads(response.content)
-# assert(len(rd) == 1)
-# assert(rd[0]['name'] == 'test strata')
-# assert(rd[0]['search_tpa'] == 160.0)
 
 #### Step 6. Delete the strata
 assert(scenario1.is_runnable is True)
@@ -176,4 +187,4 @@ assert(response.status_code == 200)
 
 # should have no condition since strata was deleted
 assert(scenario1.is_runnable is False)
-assert(prop1.stand_summary['with_condition'] < NUM_STANDS)
+assert(prop1.stand_summary['with_condition'] == 0)

@@ -78,7 +78,7 @@ def impute_rasters(stand_id):
     return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
 
 
-@task()
+@task(max_retries=3, default_retry_delay=5)  # retry up to 3 times, 5 seconds apart
 def impute_nearest_neighbor(stand_results):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
@@ -91,11 +91,14 @@ def impute_nearest_neighbor(stand_results):
         stand_id = int(stand_results)
 
     stand = Stand.objects.get(id=stand_id)
-    print "imputing nearest neighbor for %d" % stand_id
 
-    if not stand.strata:
-        # No strata yet, bail silently
-        return False
+    # Do we have the required attributes yet?
+    if not (stand.strata and stand.elevation and stand.aspect and stand.slope and stand.geometry_final):
+        # if not, retry it
+        exc = Exception("Cant run nearest neighbor; missing required attributes.")
+        raise impute_nearest_neighbor.retry(exc=exc)
+
+    print "imputing nearest neighbor for %d" % stand_id
 
     stand_list = stand.strata.stand_list
     # assume stand_list comes out as a string?? TODO JSONField acting strange?

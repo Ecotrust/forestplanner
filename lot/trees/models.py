@@ -16,6 +16,8 @@ from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
 from trees.tasks import impute_rasters, impute_nearest_neighbor
+from django.db.models.signals import post_save, pre_save, pre_delete
+from django.dispatch import receiver
 
 logger = get_logger()
 
@@ -50,8 +52,29 @@ RX_CHOICES = (
 )
 
 
+class DirtyFieldsMixin(object):
+    """
+    http://stackoverflow.com/a/4676107/519385
+    """
+    def __init__(self, *args, **kwargs):
+        super(DirtyFieldsMixin, self).__init__(*args, **kwargs)
+        post_save.connect(self._reset_state, sender=self.__class__,
+                          dispatch_uid='%s-DirtyFieldsMixin-sweeper' % self.__class__.__name__)
+        self._reset_state()
+
+    def _reset_state(self, *args, **kwargs):
+        self._original_state = self._as_dict()
+
+    def _as_dict(self):
+        return dict([(f.attname, getattr(self, f.attname)) for f in self._meta.local_fields])
+
+    def get_dirty_fields(self):
+        new_state = self._as_dict()
+        return dict([(key, value) for key, value in self._original_state.iteritems() if value != new_state[key]])
+
+
 @register
-class Stand(PolygonFeature):
+class Stand(DirtyFieldsMixin, PolygonFeature):
     strata = models.ForeignKey("Strata", blank=True, default=None,
                                null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
@@ -167,10 +190,28 @@ class Stand(PolygonFeature):
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
+
+        # What changed?
+        geom_changed = False
+        strata_changed = False
+        if 'geometry_final' in self.get_dirty_fields().keys() or not self.id:
+            geom_changed = True
+        if 'strata_id' in self.get_dirty_fields().keys() or (not self.id and self.strata):
+            strata_changed = True
+
         super(Stand, self).save(*args, **kwargs)
-        impute_rasters.apply_async(args=(self.id,))
-        if self.strata:
+
+        if 'rerun' in kwargs.keys() and kwargs['rerun'] is False:
+            print "DONT RERUN ________________________________"
+            return None
+
+        if geom_changed and not strata_changed:
+            impute_rasters.apply_async(args=(self.id,))
+        elif not geom_changed and strata_changed:
             impute_nearest_neighbor.apply_async(args=(self.id,))
+        elif geom_changed and strata_changed:
+            impute_rasters.apply_async(args=(self.id,), link=impute_nearest_neighbor.s())
+
 
 
 @register
@@ -484,14 +525,13 @@ class Scenario(Analysis):
     def is_runnable(self):
         for stand in self.stand_set():
             if not stand.cond_id:
-                if stand.strata and stand.elevation and stand.slope and stand.aspect:
-                    # We've got enough info to calculate condition
-                    impute_nearest_neighbor.delay(stand.id)
+                # if stand.strata and stand.elevation and stand.slope and stand.aspect:
+                #     # We've got enough info to calculate condition
+                #     impute_nearest_neighbor.delay(stand.id)
 
-                if not (stand.elevation and stand.slope and stand.aspect and stand.cost):
-                    # No rasters imputed yet? .. let's try that again
-                    impute_rasters.delay(stand.id)
-
+                # if not (stand.elevation and stand.slope and stand.aspect and stand.cost):
+                #     # No rasters imputed yet? .. let's try that again
+                #     impute_rasters.delay(stand.id)
                 return False
 
         return True
@@ -901,17 +941,39 @@ def load_shp(path, feature_class):
         feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
 
+import time
+
+
 # Signals
-from django.db.models.signals import pre_delete
-from django.dispatch import receiver
+@receiver(pre_save, sender=Stand)
+def save_stand_handler(sender, **kwargs):
+    instance = kwargs['instance']
+    time.sleep(1)
+    print " @@@ Pre-save() Stand", instance
+
+
+@receiver(post_save, sender=Stand)
+def postsave_stand_handler(sender, **kwargs):
+    instance = kwargs['instance']
+    print " @@@ Post-save() Stand", instance
 
 
 @receiver(pre_delete, sender=Strata)
 def delete_strata_handler(sender, **kwargs):
     '''
-    When a strata is deleted, make sure to set the stand's cond_id to null
+    When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    for stand in instance.stand_set.all():
-        stand.cond_id = None
-        stand.save()
+    stands = instance.stand_set.all()
+    for stand in stands:
+        print "Deleting cond_id for ", stand.uid
+        # stuff might have changed, we dont want a wholesale update of all fields!
+        # just update the cond_id and do it with a cursor to avoid save()
+        from django.db import connection, transaction
+        cursor = connection.cursor()
+        cursor.execute("""UPDATE "trees_stand"
+            SET "cond_id" = %s
+            WHERE "trees_stand"."id" = %s;
+        """, [None, stand.id])
+        transaction.commit_unless_managed()
+        stand.invalidate_cache()
