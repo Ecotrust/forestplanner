@@ -54,6 +54,12 @@ RX_CHOICES = (
 )
 
 
+def datetime_to_unix(dt):
+    start = datetime.datetime(year=1970, month=1, day=1)
+    diff = dt - start
+    return diff.total_seconds()
+
+
 class DirtyFieldsMixin(object):
     """
     http://stackoverflow.com/a/4676107/519385
@@ -197,7 +203,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         # Depending on what changed, null out fields (post-save signal will pick them up)
         if 'geometry_final' in self.get_dirty_fields().keys() or not self.id:
             # got new geom - time to recalc terrain rasters!
-            self.elevation = self.slope = self.aspect = self.cost = None
+            self.elevation = self.slope = self.aspect = self.cost = self.cond_id = None
         if 'strata_id' in self.get_dirty_fields().keys() or (not self.id and self.strata):
             # got new strata - time to recalc nearest neighbor!
             self.cond_id = None
@@ -507,22 +513,46 @@ class Scenario(Analysis):
                 'input_target_carbon': self.input_target_carbon,
                 'name': self.name,
                 'output_scheduler_results': self.output_property_results,  # don't include stand-level results
+                'needs_rerun': self.needs_rerun,
                 'user': self.user.username,
             }
         }
         return d
 
     @property
+    def needs_rerun(self):
+        if not self.output_scheduler_results:
+            return True
+
+        # make sure we have exactly the same IDs
+        stand_ids = [int(x.id) for x in self.stand_set()]
+        stand_ids.sort()
+        result_ids = [int(x) for x in self.output_scheduler_results.keys() if x != '__all__']
+        result_ids.sort()
+        id_mismatch = (stand_ids != result_ids)
+
+        # make sure the scenario date modified is after the stands nn timestamp
+        time_mismatch = False
+        latest = max([x.nn_savetime for x in self.stand_set()])
+        scenario_mod = datetime_to_unix(self.date_modified)
+        # TODO HORRIBLE HACK
+        # buffer due to postgres timestamp being ~ 2.1 sec ahead
+        timebuffer = 3.0
+        if scenario_mod < (latest - timebuffer):
+            # at least one stand has been updated since last time scenario was run
+            time_mismatch = True
+
+        if id_mismatch or time_mismatch:
+            self.output_scheduler_results = None
+            self.save()
+            return True
+
+        return False
+
+    @property
     def is_runnable(self):
         for stand in self.stand_set():
             if not stand.cond_id:
-                # if stand.strata and stand.elevation and stand.slope and stand.aspect:
-                #     # We've got enough info to calculate condition
-                #     impute_nearest_neighbor.delay(stand.id)
-
-                # if not (stand.elevation and stand.slope and stand.aspect and stand.cost):
-                #     # No rasters imputed yet? .. let's try that again
-                #     impute_rasters.delay(stand.id)
                 return False
 
         return True
@@ -614,6 +644,7 @@ class Scenario(Analysis):
         }
 
         self.output_scheduler_results = d
+        return True
 
     def geojson(self, srid=None):
         res = self.output_stand_results
@@ -933,19 +964,13 @@ def load_shp(path, feature_class):
     map1.save(strict=True, verbose=True)
 
 
-def unixtime():
-    start = datetime.datetime(year=1970, month=1, day=1)
-    diff = datetime.datetime.now() - start
-    return diff.total_seconds()
-
-
 # Signals
 # Handle the triggering of asyncronous processes
 @receiver(post_save, sender=Stand)
 def postsave_stand_handler(sender, **kwargs):
     st = kwargs['instance']
 
-    savetime = unixtime()
+    savetime = datetime_to_unix(datetime.datetime.now())
 
     has_terrain = False
     if st.elevation and st.slope and st.aspect and st.cost:

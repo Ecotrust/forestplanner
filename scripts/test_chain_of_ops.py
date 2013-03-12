@@ -19,7 +19,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
-NUM_STANDS = 5
+NUM_STANDS = 2
 geoms = []
 for i in range(NUM_STANDS):
     cntr.set_x(cntr.x + 150)
@@ -175,7 +175,7 @@ assert(prop1.stand_summary['with_strata'] == 0)
 
 #### Step 4. Add the stands to a strata
 url = "/features/strata/links/add-stands/%s/" % strata1.uid
-print 
+print
 print url
 response = client.post(url,
                        {'stands': ",".join([x.uid for x in stands])}
@@ -188,13 +188,60 @@ while not scenario1.is_runnable:
     print prop1.stand_summary
     time.sleep(4)
 
+print "We should be able to run() the scenario here."
+assert(scenario1.is_runnable is True)
+print scenario1.run()
+assert(scenario1.output_scheduler_results)
+
+#### Step 6. Delete a stand
+assert(scenario1.needs_rerun is False)
+url = "/features/generic-links/links/delete/%s/" % stands[0].uid
+print
+print url
+response = client.delete(url)
+
+scenario1 = Scenario.objects.get(id=scenario1.id)
+assert(scenario1.is_runnable is True)
+assert(scenario1.needs_rerun is True)
+assert(scenario1.output_scheduler_results is None)
+scenario1.run()
+
+#### Change geometry
+time.sleep(3.1)
+assert(scenario1.needs_rerun is False)
+st = Stand.objects.get(id=stands[1].id)
+old = st.elevation
+st.geometry_final = geoms[1].buffer(2).wkt
+st.save()
+print prop1.stand_summary
+while prop1.stand_summary['with_terrain'] < NUM_STANDS - 1:
+    print "Waiting for terrain..."
+    print prop1.stand_summary
+    time.sleep(1)
+
+while prop1.stand_summary['with_condition'] < NUM_STANDS - 1:
+    print "Waiting for nearest..."
+    print prop1.stand_summary
+    time.sleep(1)
+
+st = Stand.objects.get(id=stands[1].id)
+assert(st.elevation != old)
+
+scenario1 = Scenario.objects.get(id=scenario1.id)
+assert(scenario1.is_runnable is True)
+assert(scenario1.needs_rerun is True)
+assert(scenario1.output_scheduler_results is None)
+
 
 #### Step 6. Delete the strata
-assert(scenario1.is_runnable is True)
 url = "/features/generic-links/links/delete/%s/" % strata1.uid
+print
+print url
 response = client.delete(url)
 assert(response.status_code == 200)
 
 # should have no condition since strata was deleted
 assert(scenario1.is_runnable is False)
 assert(prop1.stand_summary['with_condition'] == 0)
+
+print

@@ -10,6 +10,7 @@ from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
 from scipy.spatial import KDTree
 import math
+import datetime
 
 logger = get_logger()
 
@@ -272,3 +273,10 @@ def potential_minmax(categories, weight_dict, search_params):
     keys = [k for k in weight_dict.keys() if not k.startswith("_")]
     args = [Min(k) for k in keys] + [Max(k) for k in keys] + [Avg(k) for k in keys]
     return ps.aggregate(*args)
+
+
+def datetime_to_unix(dt):
+    start = datetime.datetime(year=1970, month=1, day=1)
+    diff = dt - start
+    return diff.total_seconds()
+
