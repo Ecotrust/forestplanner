@@ -19,7 +19,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
-NUM_STANDS = 10
+NUM_STANDS = 2
 geoms = []
 for i in range(NUM_STANDS):
     cntr.set_x(cntr.x + 150)
@@ -130,7 +130,7 @@ response = client.post(url,
                        'name': 'test strata',
                        'search_tpa': 160,
                        'search_age': 40,
-                       'stand_list': u'{"classes":[["Douglas-fir",5,10,5],["Douglas-fir",10,15,50]]}'
+                       'stand_list': u'{"classes":[["Red alder",5,10,50],["Douglas-fir",10,15,10]]}'
                        # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
                        }
                        )
@@ -153,9 +153,11 @@ response = client.post(url,
                        )
 assert(response.status_code == 200)
 assert(prop1.stand_summary['with_strata'] == NUM_STANDS)
-while prop1.stand_summary['with_condition'] != NUM_STANDS:
+while not scenario1.is_runnable:
     print "Waiting for nearest neighbor..."
+    print "    ", prop1.stand_summary
     time.sleep(2)
+
 
 #### Step 5. Get the list of strata for the property
 # url = "/trees/strata_list/%s/" % prop1.uid
@@ -167,8 +169,11 @@ while prop1.stand_summary['with_condition'] != NUM_STANDS:
 # assert(rd[0]['search_tpa'] == 160.0)
 
 #### Step 6. Delete the strata
-#url = "/features/generic-links/links/delete/%s/" % strata1.uid
-#response = client.delete(url)
-#assert(response.status_code == 200)
+assert(scenario1.is_runnable is True)
+url = "/features/generic-links/links/delete/%s/" % strata1.uid
+response = client.delete(url)
+assert(response.status_code == 200)
 
-# should have no condition
+# should have no condition since strata was deleted
+assert(scenario1.is_runnable is False)
+assert(prop1.stand_summary['with_condition'] < NUM_STANDS)

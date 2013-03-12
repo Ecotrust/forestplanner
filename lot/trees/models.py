@@ -239,15 +239,9 @@ class ForestProperty(FeatureCollection):
 
             if stand.cond_id:
                 n_with_condition += 1
-            # elif stand.strata and stand.elevation and stand.slope and stand.aspect:
-            #     # We've got enough info to calculate condition
-            #     impute_nearest_neighbor.delay(stand.id)
 
             if stand.elevation and stand.slope and stand.aspect and stand.cost:
                 n_with_terrain += 1
-            # else:
-            #     # No rasters imputed yet? .. let's try that again
-            #     impute_rasters.delay(stand.id)
 
             if stand.strata:
                 n_with_strata += 1
@@ -488,12 +482,19 @@ class Scenario(Analysis):
 
     @property
     def is_runnable(self):
-        total = self.input_property.stand_summary['total']
-        assert(total == len(self.stand_set()))
-        if self.input_property.stand_summary['with_condition'] < total:
-            return False
-        else:
-            return True
+        for stand in self.stand_set():
+            if not stand.cond_id:
+                if stand.strata and stand.elevation and stand.slope and stand.aspect:
+                    # We've got enough info to calculate condition
+                    impute_nearest_neighbor.delay(stand.id)
+
+                if not (stand.elevation and stand.slope and stand.aspect and stand.cost):
+                    # No rasters imputed yet? .. let's try that again
+                    impute_rasters.delay(stand.id)
+
+                return False
+
+        return True
 
     def run(self):
         if not self.is_runnable:
@@ -899,3 +900,18 @@ def load_shp(path, feature_class):
     map1 = LayerMapping(
         feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
+# Signals
+from django.db.models.signals import pre_delete
+from django.dispatch import receiver
+
+
+@receiver(pre_delete, sender=Strata)
+def delete_strata_handler(sender, **kwargs):
+    '''
+    When a strata is deleted, make sure to set the stand's cond_id to null
+    '''
+    instance = kwargs['instance']
+    for stand in instance.stand_set.all():
+        stand.cond_id = None
+        stand.save()
