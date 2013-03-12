@@ -4,7 +4,7 @@ import json
 
 
 @task()
-def impute_rasters(stand_id):
+def impute_rasters(stand_id, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand
     from django.conf import settings
@@ -61,17 +61,18 @@ def impute_rasters(stand_id):
         cost = data.avg
 
     # stuff might have changed, we dont want a wholesale update of all fields!
+    # use the timestamp to make sure we don't clobber a more recent request
     from django.db import connection, transaction
     cursor = connection.cursor()
-    cursor.execute("""UPDATE "trees_stand"
-        SET "elevation" = %s, "slope" = %s, "aspect" = %s, "cost" = %s
-        WHERE "trees_stand"."id" = %s;
-    """, [elevation, slope, aspect, cost,
-          stand_id])
+    cursor.execute("""
+        UPDATE "trees_stand"
+        SET "elevation" = %s, "slope" = %s, "aspect" = %s, "cost" = %s, "rast_savetime" = %s
+        WHERE "trees_stand"."id" = %s
+        AND "trees_stand"."rast_savetime" < %s;
+    """, [elevation, slope, aspect, cost, savetime,
+          stand_id,
+          savetime])
     transaction.commit_unless_managed()
-    # alternative with django 1.5:
-    # update only the fields that we've calculated
-    # save(update_fields=['elevation', 'slope', 'aspect'])
 
     stand.invalidate_cache()
 
@@ -79,7 +80,7 @@ def impute_rasters(stand_id):
 
 
 @task(max_retries=3, default_retry_delay=5)  # retry up to 3 times, 5 seconds apart
-def impute_nearest_neighbor(stand_results):
+def impute_nearest_neighbor(stand_results, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
     from trees.plots import get_nearest_neighbors
@@ -125,12 +126,18 @@ def impute_nearest_neighbor(stand_results):
     IdbSummary.objects.get(cond_id=cond_id)
 
     # update the database
+    # stuff might have changed, we dont want a wholesale update of all fields!
+    # use the timestamp to make sure we don't clobber a more recent request
     from django.db import connection, transaction
     cursor = connection.cursor()
-    cursor.execute("""UPDATE "trees_stand"
-        SET "cond_id" = %s
-        WHERE "trees_stand"."id" = %s;
-    """, [cond_id, stand_id])
+    cursor.execute("""
+        UPDATE "trees_stand"
+        SET "cond_id" = %s, "nn_savetime" = %s
+        WHERE "trees_stand"."id" = %s
+        AND "trees_stand"."nn_savetime" < %s;
+    """, [cond_id, savetime,
+          stand_id,
+          savetime])
     transaction.commit_unless_managed()
 
     stand.invalidate_cache()

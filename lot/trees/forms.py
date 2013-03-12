@@ -8,7 +8,7 @@ class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
         model = Stand
         exclude = ('sharing_groups', 'content_type', 'object_id', 'elevation',
-                   'imputed', 'aspect', 'slope', 'cond_id', 'strata', 'cost')
+                   'imputed', 'aspect', 'slope', 'cond_id', 'strata', 'cost', 'nn_savetime', 'rast_savetime')
 
 
 class PropertyForm(FeatureForm):

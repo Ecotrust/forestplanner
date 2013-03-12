@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import os
 import json
+import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -16,8 +17,9 @@ from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
 from trees.tasks import impute_rasters, impute_nearest_neighbor
-from django.db.models.signals import post_save, pre_save, pre_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
+from django.db import connection, transaction
 
 logger = get_logger()
 
@@ -82,6 +84,8 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     slope = models.FloatField(null=True, blank=True)
     aspect = models.FloatField(null=True, blank=True)
     cost = models.FloatField(null=True, blank=True)
+    nn_savetime = models.FloatField(default=0.0)
+    rast_savetime = models.FloatField(default=0.0)
 
     class Options:
         form = "trees.forms.StandForm"
@@ -185,33 +189,20 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         key_pattern = "Stand_%d_*" % self.id
         cache.delete_pattern(key_pattern)
         assert cache.keys(key_pattern) == []
-        logger.debug("invalidated cache for Stand %d" % self.id)
         return True
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
 
-        # What changed?
-        geom_changed = False
-        strata_changed = False
+        # Depending on what changed, null out fields (post-save signal will pick them up)
         if 'geometry_final' in self.get_dirty_fields().keys() or not self.id:
-            geom_changed = True
+            # got new geom - time to recalc terrain rasters!
+            self.elevation = self.slope = self.aspect = self.cost = None
         if 'strata_id' in self.get_dirty_fields().keys() or (not self.id and self.strata):
-            strata_changed = True
+            # got new strata - time to recalc nearest neighbor!
+            self.cond_id = None
 
         super(Stand, self).save(*args, **kwargs)
-
-        if 'rerun' in kwargs.keys() and kwargs['rerun'] is False:
-            print "DONT RERUN ________________________________"
-            return None
-
-        if geom_changed and not strata_changed:
-            impute_rasters.apply_async(args=(self.id,))
-        elif not geom_changed and strata_changed:
-            impute_nearest_neighbor.apply_async(args=(self.id,))
-        elif geom_changed and strata_changed:
-            impute_rasters.apply_async(args=(self.id,), link=impute_nearest_neighbor.s())
-
 
 
 @register
@@ -941,21 +932,38 @@ def load_shp(path, feature_class):
         feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
 
-import time
+
+def unixtime():
+    start = datetime.datetime(year=1970, month=1, day=1)
+    diff = datetime.datetime.now() - start
+    return diff.total_seconds()
 
 
 # Signals
-@receiver(pre_save, sender=Stand)
-def save_stand_handler(sender, **kwargs):
-    instance = kwargs['instance']
-    time.sleep(1)
-    print " @@@ Pre-save() Stand", instance
-
-
+# Handle the triggering of asyncronous processes
 @receiver(post_save, sender=Stand)
 def postsave_stand_handler(sender, **kwargs):
-    instance = kwargs['instance']
-    print " @@@ Post-save() Stand", instance
+    st = kwargs['instance']
+
+    savetime = unixtime()
+
+    has_terrain = False
+    if st.elevation and st.slope and st.aspect and st.cost:
+        has_terrain = True
+
+    if not has_terrain and not st.strata:
+        # just impute terrain rasters"
+        impute_rasters.apply_async(args=(st.id, savetime))
+    elif not st.cond_id and not has_terrain and st.strata:
+        # impute terrain rasters THEN calculate nearest neighbor"
+        impute_rasters.apply_async(args=(st.id, savetime), link=impute_nearest_neighbor.s(savetime))
+    elif has_terrain and not st.cond_id and st.strata:
+        # just calculate nearest neighbors"
+        impute_nearest_neighbor.apply_async(args=(st.id, savetime))
+    else:
+        # we already have all aux data; no need to call any async processes
+        # (assuming the model save has nulled out the appropos fields)
+        pass
 
 
 @receiver(pre_delete, sender=Strata)
@@ -966,14 +974,11 @@ def delete_strata_handler(sender, **kwargs):
     instance = kwargs['instance']
     stands = instance.stand_set.all()
     for stand in stands:
-        print "Deleting cond_id for ", stand.uid
-        # stuff might have changed, we dont want a wholesale update of all fields!
         # just update the cond_id and do it with a cursor to avoid save()
-        from django.db import connection, transaction
         cursor = connection.cursor()
-        cursor.execute("""UPDATE "trees_stand"
+        cursor.execute("""
+            UPDATE "trees_stand"
             SET "cond_id" = %s
             WHERE "trees_stand"."id" = %s;
         """, [None, stand.id])
         transaction.commit_unless_managed()
-        stand.invalidate_cache()

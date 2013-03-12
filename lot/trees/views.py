@@ -417,7 +417,6 @@ def add_stands_to_strata(request, instance):
     in_stands = request.POST.get("stands", None)
     stands = in_stands.split(",")
     for uid in stands:
-        print " ^^ UPDATING", uid
         stand = get_object_for_editing(request, uid, target_klass=Stand)
         if isinstance(stand, HttpResponse):
             return stand

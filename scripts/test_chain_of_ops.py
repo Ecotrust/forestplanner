@@ -19,7 +19,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
-NUM_STANDS = 2
+NUM_STANDS = 5
 geoms = []
 for i in range(NUM_STANDS):
     cntr.set_x(cntr.x + 150)
@@ -70,7 +70,7 @@ try:
 except Scenario.DoesNotExist:
     pass
 
-##### Step 1. Create the property
+##### Create the property
 url = "/features/forestproperty/form/"
 print
 print url
@@ -84,7 +84,7 @@ assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 
-#### Step 2. Create the stands
+#### Create the stands
 url = "/features/stand/form/"
 stands = []
 for g in geoms:
@@ -95,7 +95,7 @@ for g in geoms:
     uid = json.loads(response.content)['X-Madrona-Select']
     stands.append(Stand.objects.get(id=uid.split("_")[2]))
 
-#### Step 2b. Associate the stand with the property
+#### Associate the stand with the property
 url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
 print
 print url
@@ -109,10 +109,8 @@ while prop1.stand_summary['with_terrain'] != NUM_STANDS:
     print "Waiting for terrain..."
     print prop1.stand_summary
     time.sleep(1)
-    if steps > 5:
-      import ipdb; ipdb.set_trace()
 
-#### Step 2c. Create a scenario. Try to run it (should return False; not enough info)
+#### Create a scenario. Try to run it (should return False; not enough info)
 assert(prop1.stand_summary['with_strata'] == 0)
 assert(prop1.stand_summary['with_condition'] == 0)
 
@@ -134,10 +132,22 @@ assert(scenario1.is_runnable is False)
 assert(scenario1.run() is False)
 assert(scenario1.output_scheduler_results is None)
 
-#### Step _. Change geometry
+#### Change geometry
 st = Stand.objects.get(id=stands[0].id)
+old = st.elevation
 st.geometry_final = geoms[0].buffer(10).wkt
 st.save()
+assert(prop1.stand_summary['with_terrain'] == NUM_STANDS - 1)
+while prop1.stand_summary['with_terrain'] < NUM_STANDS:
+    print "Waiting for terrain..."
+    print prop1.stand_summary
+    time.sleep(1)
+
+st = Stand.objects.get(id=stands[0].id)
+print st.elevation, "vs old", old
+assert(st.elevation != old)
+
+
 
 #### Step 3. Create the strata
 old_count = Strata.objects.count()
