@@ -221,6 +221,11 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
         super(Stand, self).save(*args, **kwargs)
 
+        # if there are any scenarios, make sure they get marked as stale
+        if self.collection:
+            for scenario in self.collection.scenario_set.all():
+                scenario.output_scheduler_results = None
+                scenario.save(rerun=False)
 
 @register
 class ForestProperty(FeatureCollection):
@@ -499,8 +504,9 @@ class Scenario(Analysis):
     input_target_carbon = models.BooleanField(
         verbose_name='Target Carbon', default=False,
         help_text="Optimize harvest schedule for carbon sequestration")
-    input_rxs = JSONField( null=True, blank=True,
-        default="{}", verbose_name="Prescriptions associated with each stand")
+    input_rxs = JSONField(
+        null=True, blank=True, default="{}",
+        verbose_name="Prescriptions associated with each stand")
 
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
@@ -544,9 +550,6 @@ class Scenario(Analysis):
         if not self.output_scheduler_results:
             return True
         results = self.output_scheduler_results
-        # if isinstance(results, basestring):
-        #     #TODO BAD
-        #     results = loads(results)
 
         # make sure we have exactly the same IDs
         stand_ids = [int(x.id) for x in self.stand_set()]
@@ -903,13 +906,6 @@ class Strata(DirtyFieldsMixin, Feature):
         )
 
     def save(self, *args, **kwargs):
-        # TODO JSONField wierdness???
-        # try:
-        #     self.stand_list = json.loads(self.stand_list)
-        # except (TypeError, ValueError):
-        #     pass  # already good?
-        # self.stand_list = self.stand_list
-
         # Depending on what changed, trigger recalc of stand info
         recalc_required = False
         dirty = self.get_dirty_fields()
@@ -937,6 +933,12 @@ class Strata(DirtyFieldsMixin, Feature):
             for stand in self.stand_set.all():
                 stand.cond_id = None
                 stand.save()
+
+            # Mark all scenarios as stale
+            if self.collection:
+                for scenario in self.collection.scenario_set():
+                    scenario.output_scheduler_results = None
+                    scenario.save()
 
 
 class TreeliveSummary(models.Model):
@@ -1041,6 +1043,21 @@ def postsave_stand_handler(sender, **kwargs):
         # we already have all aux data; no need to call any async processes
         # (assuming the model save has nulled out the appropos fields)
         pass
+
+
+@receiver(pre_delete, sender=Stand)
+def delete_stand_handler(sender, **kwargs):
+    '''
+    When a stand is deleted, make sure to set all forestproperty's scenarios to stale
+    '''
+    stand = kwargs['instance']
+    if stand.collection:
+        for scenario in stand.collection.scenario_set.all():
+            scenario.output_scheduler_results = None
+            scenario.save(rerun=False)
+
+        for scenario in stand.collection.scenario_set.all():
+            assert(scenario.output_scheduler_results == None)
 
 
 @receiver(pre_delete, sender=Strata)

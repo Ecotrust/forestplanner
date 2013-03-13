@@ -202,10 +202,13 @@ url = "/features/generic-links/links/delete/%s/" % stands[0].uid
 print
 print url
 response = client.delete(url)
+assert(response.status_code == 200)
 
 scenario1 = Scenario.objects.get(id=scenario1.id)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
+print scenario1.uid
+print scenario1.scheduler_results
 assert(scenario1.scheduler_results is None)
 scenario1.run()
 
