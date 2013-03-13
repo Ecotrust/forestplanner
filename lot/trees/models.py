@@ -309,6 +309,16 @@ class ForestProperty(FeatureCollection):
             'with_terrain': n_with_terrain,
         }
 
+    def reset_stands(self):
+        """
+        Strips all imputed data from stands and attempts to recalculate it
+        The 'reset' button for seriously screwed up data
+        """
+        stands = self.feature_set(feature_classes=[Stand])
+        for stand in stands:
+            stand.elevation = stand.slope = stand.aspect = stand.cost = stand.cond_id = None
+            stand.save()
+
     @property
     def acres(self):
         try:
