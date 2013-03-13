@@ -37,9 +37,6 @@ class ScenarioForm(FeatureForm):
     class Meta(FeatureForm.Meta):
         model = Scenario
         exclude = list(FeatureForm.Meta.exclude)
-        # exclude.extend(['input_property',])
-        for f in model.output_fields():
-            exclude.append(f.attname)
 
 
 class UploadStandsForm(forms.Form):

@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
-import json
 import datetime
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
@@ -11,15 +10,14 @@ from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
-from madrona.analysistools.models import Analysis
 from madrona.features import register, alternate
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
-from trees.tasks import impute_rasters, impute_nearest_neighbor
-from django.db.models.signals import post_save, pre_save, pre_delete
+from trees.tasks import impute_rasters, impute_nearest_neighbor, schedule_harvest
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
-from django.db import connection, transaction
+from django.db import connection
 
 logger = get_logger()
 
@@ -225,7 +223,11 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         if self.collection:
             for scenario in self.collection.scenario_set.all():
                 scenario.output_scheduler_results = None
-                scenario.save(rerun=False)
+                scenario.save()
+
+            for scenario in self.collection.scenario_set.all():
+                assert(scenario.output_scheduler_results is None)
+
 
 @register
 class ForestProperty(FeatureCollection):
@@ -457,20 +459,12 @@ class JSONField(models.TextField):
         if value == "" or value is None:
             return None
 
-        #print "----------------", value
         if isinstance(value, basestring):
             # if it's a string
             return loads(value)
         else:
             # if it's not yet saved and is still a python data structure
             return value
-
-        # Actually we'll just return the string
-        # need to explicitly call json.loads(X) in your code
-        # reason: converting to dict then repr that dict in a form is invalid json
-        # i.e. {"test": 0.5} becomes {u'test': 0.5} (not unicode and single
-        # quotes)
-        return value
 
     def get_db_prep_save(self, value, *args, **kwargs):
         """Convert our JSON object to a string before we save"""
@@ -487,8 +481,12 @@ from south.modelsinspector import add_introspection_rules
 add_introspection_rules([], ["^trees\.models\.JSONField"])
 
 
+class ScenarioNotRunnable(Exception):
+    pass
+
+
 @register
-class Scenario(Analysis):
+class Scenario(Feature):
     """
     NOTE: if no input Rx for a stand, use the default from stand model
     """
@@ -549,6 +547,7 @@ class Scenario(Analysis):
     def needs_rerun(self):
         if not self.output_scheduler_results:
             return True
+
         results = self.output_scheduler_results
 
         # make sure we have exactly the same IDs
@@ -587,101 +586,18 @@ class Scenario(Analysis):
         '''
         Use in API instead of self.output_scheduler_results
         '''
-        if self.output_scheduler_results and not self.needs_rerun:
-            return self.output_scheduler_results
-        #elif self.is_runnable:
-        else:
-            return None
+        # if not self.needs_rerun ?
+        return self.output_scheduler_results
 
     def run(self):
         if not self.is_runnable:
             # setting output_scheduler_results to None implies that it must be rerun in the future !!
             self.output_scheduler_results = None
-            return False
+            self.save()
+            raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
-        # TODO prep scheduler, run it, parse the outputs
-        d = {}
-
-        # TODO Randomness is random
-        import math
-        import random
-        a = range(0, 100)
-        rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
-
-        # Stand-level outputs
-        # Note the data structure for stands is different than properties
-        # (stands are optimized for openlayers map while property-level works with jqplot)
-        for stand in self.stand_set():
-            c = random.randint(0, 90)
-            t = random.randint(0, 90)
-            carbon = rsamp[c:c + 6]
-            timber = rsamp[t:t + 6]
-            d[stand.pk] = {
-                "years": range(2020, 2121, 20),
-                "carbon": [
-                    carbon[0],
-                    carbon[1],
-                    carbon[2],
-                    carbon[3],
-                    carbon[4],
-                    carbon[5],
-                ],
-                "timber": [
-                    timber[0],
-                    timber[1],
-                    timber[2],
-                    timber[3],
-                    timber[4],
-                    timber[5],
-                ]
-            }
-
-        # Property-level outputs
-        # note the '__all__' key
-        def scale(data):
-            # fake data for ~3500 acres, adjust for size
-            sf = 3500.0 / self.input_property.acres
-            return [x / sf for x in data]
-
-        carbon_alt = scale([338243.812, 631721, 775308, 792018, 754616])
-        timber_alt = scale([1361780, 1861789, 2371139, 2613845, 3172212])
-
-        carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
-        timber_biz = scale([2111800, 2333800, 2982600, 2989000, 2793700])
-
-        if self.input_target_carbon:
-            carbon = carbon_alt
-            timber = timber_alt
-        else:
-            carbon = carbon_biz
-            timber = timber_biz
-        if self.name.startswith("Grow"):
-            carbon = [c * 1.5 for c in carbon_alt]
-            carbon[0] = carbon_alt[0]
-            carbon[-2] = carbon_alt[-2] * 1.6
-            carbon[-1] = carbon_alt[-1] * 1.7
-            timber = [1, 1, 1, 1, 1]
-
-        d['__all__'] = {
-            "carbon": [
-                ['2010-08-12 4:00PM', carbon[0]],
-                ['2035-09-12 4:00PM', carbon[1]],
-                ['2060-10-12 4:00PM', carbon[2]],
-                ['2085-12-12 4:00PM', carbon[3]],
-                ['2110-12-12 4:00PM', carbon[4]],
-            ],
-            "timber": [
-                ['2010-08-12 4:00PM', timber[0]],
-                ['2035-09-12 4:00PM', timber[1]],
-                ['2060-10-12 4:00PM', timber[2]],
-                ['2085-12-12 4:00PM', timber[3]],
-                ['2110-12-12 4:00PM', timber[4]],
-            ]
-        }
-
-        self.date_modified = postgres_now()
-        self.output_scheduler_results = d
-        return d
+        schedule_harvest.delay(self.id)
+        return True
 
     def geojson(self, srid=None):
         res = self.output_stand_results
@@ -1057,7 +973,7 @@ def delete_stand_handler(sender, **kwargs):
             scenario.save(rerun=False)
 
         for scenario in stand.collection.scenario_set.all():
-            assert(scenario.output_scheduler_results == None)
+            assert(scenario.output_scheduler_results is None)
 
 
 @receiver(pre_delete, sender=Strata)

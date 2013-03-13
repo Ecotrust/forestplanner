@@ -9,7 +9,7 @@ setup_environ(settings)
 ##############################
 import json
 import time
-from trees.models import Stand, Scenario, Strata, ForestProperty
+from trees.models import Stand, Scenario, Strata, ForestProperty, ScenarioNotRunnable
 from django.contrib.auth.models import User
 from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry
@@ -132,7 +132,13 @@ assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 assert(scenario1.is_runnable is False)
-assert(scenario1.run() is False)
+gotit = False
+try:
+    scenario1.run()
+except ScenarioNotRunnable:
+    gotit = True
+assert gotit
+
 assert(scenario1.scheduler_results is None)
 
 #### Change geometry
@@ -149,8 +155,6 @@ while prop1.stand_summary['with_terrain'] < NUM_STANDS:
 st = Stand.objects.get(id=stands[0].id)
 print st.elevation, "vs old", old
 assert(st.elevation != old)
-
-
 
 #### Step 3. Create the strata
 old_count = Strata.objects.count()
@@ -187,17 +191,20 @@ assert(response.status_code == 200)
 print prop1.stand_summary
 assert(prop1.stand_summary['with_strata'] == NUM_STANDS)
 while not scenario1.is_runnable:
-    print "Waiting for nearest neighbor..."
-    print prop1.stand_summary
+    print "Waiting for scenario to become runnable..."
     time.sleep(4)
 
 print "We should be able to run() the scenario here."
 assert(scenario1.is_runnable is True)
 scenario1.run()
-assert(scenario1.scheduler_results)
+while not scenario1.scheduler_results:
+    print "Waiting for scenario results..."
+    # need to requery !
+    scenario1 = Scenario.objects.get(id=scenario1.id)
+    time.sleep(2)
+print scenario1.uid, scenario1.scheduler_results
 
 #### Step 6. Delete a stand
-assert(scenario1.needs_rerun is False)
 url = "/features/generic-links/links/delete/%s/" % stands[0].uid
 print
 print url
@@ -211,14 +218,16 @@ print scenario1.uid
 print scenario1.scheduler_results
 assert(scenario1.scheduler_results is None)
 scenario1.run()
+while not scenario1.scheduler_results:
+    print "Waiting for scheduler results..."
+    scenario1 = Scenario.objects.get(id=scenario1.id)
+    time.sleep(2)
 
 #### Change geometry
-time.sleep(3.1)
-assert(scenario1.needs_rerun is False)
 st = Stand.objects.get(id=stands[1].id)
 old = st.elevation
 st.geometry_final = geoms[1].buffer(2).wkt
-st.save()
+st.save()  # WARNING: This may set the scenario to stale but a previously-started scenario.run() could clobber it
 print prop1.stand_summary
 while prop1.stand_summary['with_terrain'] < NUM_STANDS - 1:
     print "Waiting for terrain..."
@@ -233,13 +242,19 @@ while prop1.stand_summary['with_condition'] < NUM_STANDS - 1:
 st = Stand.objects.get(id=stands[1].id)
 assert(st.elevation != old)
 
-scenario1 = Scenario.objects.get(id=scenario1.id)
 assert(scenario1.is_runnable is True)
-assert(scenario1.needs_rerun is True)
+while scenario1.scheduler_results:
+    print "Waiting for stale scheduler_results to clear..."
+    scenario1 = Scenario.objects.get(id=scenario1.id)
+    time.sleep(2)
+
 assert(scenario1.scheduler_results is None)
 scenario1.run()
-time.sleep(2)
-assert(scenario1.needs_rerun is False)
+while not scenario1.scheduler_results:
+    print "Waiting for scenario results..."
+    # need to requery !
+    scenario1 = Scenario.objects.get(id=scenario1.id)
+    time.sleep(2)
 
 #### Create the stands
 url = "/features/stand/form/"
@@ -275,6 +290,11 @@ assert(prop1.stand_summary['total'] == NUM_STANDS)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
 scenario1.run()
+while not scenario1.scheduler_results:
+    print "Waiting for scenario results..."
+    # need to requery !
+    scenario1 = Scenario.objects.get(id=scenario1.id)
+    time.sleep(2)
 
 #### Edit the strata
 print

@@ -1,6 +1,7 @@
 from celery import task
 from django.core.cache import cache
 import json
+import datetime
 
 
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
@@ -107,7 +108,7 @@ def impute_nearest_neighbor(stand_results, savetime):
 
     stand_list = stand.strata.stand_list
     # assume stand_list comes out as a string?? TODO JSONField acting strange?
-    stand_list = json.loads(stand_list)
+    # stand_list = json.loads(stand_list)
     geom = stand.geometry_final.transform(4326, clone=True)
     site_cond = {
         'latitude_fuzz': geom.centroid[1],
@@ -147,3 +148,117 @@ def impute_nearest_neighbor(stand_results, savetime):
     stand.invalidate_cache()
 
     return {'stand_id': stand_id, 'cond_id': cond_id}
+
+
+@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+def schedule_harvest(scenario_id):
+    # import here to avoid circular dependencies
+    from trees.models import Scenario
+
+    print "###############CALCULATING SCHEDULE###################"
+    import time
+    time.sleep(5.5)
+
+    try:
+        scenario = Scenario.objects.get(id=scenario_id)
+    except:
+        raise impute_rasters.retry()
+
+    # TODO prep scheduler, run it, parse the outputs
+    d = {}
+
+    # TODO Randomness is random
+    import math
+    import random
+    a = range(0, 100)
+    rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
+
+    # Stand-level outputs
+    # Note the data structure for stands is different than properties
+    # (stands are optimized for openlayers map while property-level works with jqplot)
+    for stand in scenario.stand_set():
+        c = random.randint(0, 90)
+        t = random.randint(0, 90)
+        carbon = rsamp[c:c + 6]
+        timber = rsamp[t:t + 6]
+        d[stand.pk] = {
+            "years": range(2020, 2121, 20),
+            "carbon": [
+                carbon[0],
+                carbon[1],
+                carbon[2],
+                carbon[3],
+                carbon[4],
+                carbon[5],
+            ],
+            "timber": [
+                timber[0],
+                timber[1],
+                timber[2],
+                timber[3],
+                timber[4],
+                timber[5],
+            ]
+        }
+
+    # Property-level outputs
+    # note the '__all__' key
+    def scale(data):
+        # fake data for ~3500 acres, adjust for size
+        sf = 3500.0 / scenario.input_property.acres
+        return [x / sf for x in data]
+
+    carbon_alt = scale([338243.812, 631721, 775308, 792018, 754616])
+    timber_alt = scale([1361780, 1861789, 2371139, 2613845, 3172212])
+
+    carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
+    timber_biz = scale([2111800, 2333800, 2982600, 2989000, 2793700])
+
+    if scenario.input_target_carbon:
+        carbon = carbon_alt
+        timber = timber_alt
+    else:
+        carbon = carbon_biz
+        timber = timber_biz
+    if scenario.name.startswith("Grow"):
+        carbon = [c * 1.5 for c in carbon_alt]
+        carbon[0] = carbon_alt[0]
+        carbon[-2] = carbon_alt[-2] * 1.6
+        carbon[-1] = carbon_alt[-1] * 1.7
+        timber = [1, 1, 1, 1, 1]
+
+    d['__all__'] = {
+        "carbon": [
+            ['2010-08-12 4:00PM', carbon[0]],
+            ['2035-09-12 4:00PM', carbon[1]],
+            ['2060-10-12 4:00PM', carbon[2]],
+            ['2085-12-12 4:00PM', carbon[3]],
+            ['2110-12-12 4:00PM', carbon[4]],
+        ],
+        "timber": [
+            ['2010-08-12 4:00PM', timber[0]],
+            ['2035-09-12 4:00PM', timber[1]],
+            ['2060-10-12 4:00PM', timber[2]],
+            ['2085-12-12 4:00PM', timber[3]],
+            ['2110-12-12 4:00PM', timber[4]],
+        ]
+    }
+
+    datemod = datetime.datetime.now()
+
+    # update the database
+    # stuff might have changed, we dont want a wholesale update of all fields!
+    # use the timestamp to make sure we don't clobber a more recent request
+    from django.db import connection, transaction
+    cursor = connection.cursor()
+    cursor.execute("""
+        UPDATE "trees_scenario"
+        SET "output_scheduler_results" = %s, "date_modified" = %s
+        WHERE "trees_scenario"."id" = %s
+    """, [json.dumps(d), datemod,
+          scenario_id])
+    transaction.commit_unless_managed()
+
+    stand.invalidate_cache()
+
+    return {'scenario_id': scenario_id, 'output_scheduler_results': d}
