@@ -60,6 +60,17 @@ def datetime_to_unix(dt):
     return diff.total_seconds()
 
 
+def postgres_now():
+    '''
+    Alternative to datetime.datetime.now()
+    for comparison with model instances having a field = date_modified(auto_now=True)
+    '''
+    cursor = connection.cursor()
+    cursor.execute("SELECT now();")
+    now = cursor.fetchone()[0]
+    return now
+
+
 class DirtyFieldsMixin(object):
     """
     http://stackoverflow.com/a/4676107/519385
@@ -438,8 +449,17 @@ class JSONField(models.TextField):
 
     def to_python(self, value):
         """Convert our string value to JSON after we load it from the DB"""
-        if value == "":
+        if value == "" or value is None:
             return None
+
+        # print "----------------", value
+        # if isinstance(value, basestring):
+        #     # if it's a string
+        #     return loads(value)
+        # else:
+        #     # if it's not yet saved and is still a python data structure
+        #     return value
+
         # Actually we'll just return the string
         # need to explicitly call json.loads(X) in your code
         # reason: converting to dict then repr that dict in a form is invalid json
@@ -523,11 +543,15 @@ class Scenario(Analysis):
     def needs_rerun(self):
         if not self.output_scheduler_results:
             return True
+        results = self.output_scheduler_results
+        if isinstance(results, basestring):
+            #TODO BAD
+            results = loads(results)
 
         # make sure we have exactly the same IDs
         stand_ids = [int(x.id) for x in self.stand_set()]
         stand_ids.sort()
-        result_ids = [int(x) for x in self.output_scheduler_results.keys() if x != '__all__']
+        result_ids = [int(x) for x in results.keys() if x != '__all__']
         result_ids.sort()
         id_mismatch = (stand_ids != result_ids)
 
@@ -535,11 +559,9 @@ class Scenario(Analysis):
         time_mismatch = False
         latest = max([x.nn_savetime for x in self.stand_set()])
         scenario_mod = datetime_to_unix(self.date_modified)
-        # TODO HORRIBLE HACK
-        # buffer due to postgres timestamp being ~ 2.1 sec ahead
-        timebuffer = 3.0
-        if scenario_mod < (latest - timebuffer):
-            # at least one stand has been updated since last time scenario was run
+        timebuffer = 5.0
+        if latest - scenario_mod > timebuffer:
+            # at least one stand has been updated since last time scenario was run + timebuffer
             time_mismatch = True
 
         if id_mismatch or time_mismatch:
@@ -556,6 +578,17 @@ class Scenario(Analysis):
                 return False
 
         return True
+
+    @property
+    def scheduler_results(self):
+        '''
+        Use in API instead of self.output_scheduler_results
+        '''
+        if self.output_scheduler_results and not self.needs_rerun:
+            return self.output_scheduler_results
+        #elif self.is_runnable:
+        else:
+            return None
 
     def run(self):
         if not self.is_runnable:
@@ -643,8 +676,9 @@ class Scenario(Analysis):
             ]
         }
 
+        self.date_modified = postgres_now()
         self.output_scheduler_results = d
-        return True
+        return d
 
     def geojson(self, srid=None):
         res = self.output_stand_results
@@ -970,7 +1004,7 @@ def load_shp(path, feature_class):
 def postsave_stand_handler(sender, **kwargs):
     st = kwargs['instance']
 
-    savetime = datetime_to_unix(datetime.datetime.now())
+    savetime = datetime_to_unix(postgres_now())
 
     has_terrain = False
     if st.elevation and st.slope and st.aspect and st.cost:

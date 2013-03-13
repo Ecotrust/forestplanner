@@ -130,7 +130,7 @@ uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 assert(scenario1.is_runnable is False)
 assert(scenario1.run() is False)
-assert(scenario1.output_scheduler_results is None)
+assert(scenario1.scheduler_results is None)
 
 #### Change geometry
 st = Stand.objects.get(id=stands[0].id)
@@ -190,8 +190,8 @@ while not scenario1.is_runnable:
 
 print "We should be able to run() the scenario here."
 assert(scenario1.is_runnable is True)
-print scenario1.run()
-assert(scenario1.output_scheduler_results)
+scenario1.run()
+assert(scenario1.scheduler_results)
 
 #### Step 6. Delete a stand
 assert(scenario1.needs_rerun is False)
@@ -203,7 +203,7 @@ response = client.delete(url)
 scenario1 = Scenario.objects.get(id=scenario1.id)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
-assert(scenario1.output_scheduler_results is None)
+assert(scenario1.scheduler_results is None)
 scenario1.run()
 
 #### Change geometry
@@ -230,8 +230,45 @@ assert(st.elevation != old)
 scenario1 = Scenario.objects.get(id=scenario1.id)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
-assert(scenario1.output_scheduler_results is None)
+assert(scenario1.scheduler_results is None)
+scenario1.run()
+time.sleep(2)
+assert(scenario1.needs_rerun is False)
 
+#### Create the stands
+url = "/features/stand/form/"
+print
+print url
+response = client.post(url, {'name': 'test stand', 'geometry_orig': geoms[0].wkt})
+assert(response.status_code == 201)
+uid = json.loads(response.content)['X-Madrona-Select']
+stands[0] = Stand.objects.get(id=uid.split("_")[2])
+
+url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
+print
+print url
+response = client.post(url, {})
+assert(response.status_code == 200)
+
+url = "/features/strata/links/add-stands/%s/" % strata1.uid
+print
+print url
+response = client.post(url,
+                       {'stands': ",".join([x.uid for x in stands])}
+                       )
+assert(response.status_code == 200)
+
+print prop1.stand_summary
+print NUM_STANDS
+while prop1.stand_summary['with_condition'] < NUM_STANDS:
+    print "Waiting for nearest..."
+    print prop1.stand_summary
+    time.sleep(2.5)
+
+assert(prop1.stand_summary['total'] == NUM_STANDS)
+assert(scenario1.is_runnable is True)
+assert(scenario1.needs_rerun is True)
+scenario1.run()
 
 #### Step 6. Delete the strata
 url = "/features/generic-links/links/delete/%s/" % strata1.uid
