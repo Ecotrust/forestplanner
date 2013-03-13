@@ -481,7 +481,7 @@
 
 
             if (options.stand_list) {
-              $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
+              $.each(options.stand_list.classes, function (i, stand) {
                 console.dir(stand);
                 self.standList.push(new standViewModel(self, stand));
               });
