@@ -516,11 +516,15 @@ class Scenario(Feature):
     @property
     def output_property_results(self):
         res = self.output_scheduler_results
+        if not res:
+            return None
         return {'__all__': res['__all__']}
 
     @property
     def output_stand_results(self):
         res = self.output_scheduler_results
+        if not res:
+            return None
         del res['__all__']
         return res
 
@@ -597,7 +601,8 @@ class Scenario(Feature):
             self.save(rerun=False)  # avoid infinite recursion
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
-        schedule_harvest.delay(self.id)
+        taskid = schedule_harvest.delay(self.id)
+        cache.set("Task_%s" % self.uid, taskid)
         return True
 
     def geojson(self, srid=None):
@@ -807,7 +812,7 @@ class Strata(DirtyFieldsMixin, Feature):
         dct['uid'] = self.uid
         dct['pk'] = self.pk
         rmfields = ['_state', 'object_id', 'content_type_id',
-                    'date_modified', 'date_created']
+                    'date_modified', 'date_created', '_original_state']
         for fld in rmfields:
             try:
                 del dct[fld]
@@ -948,7 +953,7 @@ def load_shp(path, feature_class):
 # Signals
 # Handle the triggering of asyncronous processes
 @receiver(post_save, sender=Stand)
-def postsave_stand_handler(sender, **kwargs):
+def postsave_stand_handler(sender, *args, **kwargs):
     st = kwargs['instance']
 
     savetime = datetime_to_unix(postgres_now())
@@ -963,7 +968,7 @@ def postsave_stand_handler(sender, **kwargs):
     elif not st.cond_id and not has_terrain and st.strata:
         # impute terrain rasters THEN calculate nearest neighbor"
         impute_rasters.apply_async(args=(st.id, savetime), link=impute_nearest_neighbor.s(savetime))
-    elif has_terrain and not st.cond_id and st.strata:
+    elif has_terrain and st.strata and not st.cond_id:
         # just calculate nearest neighbors"
         impute_nearest_neighbor.apply_async(args=(st.id, savetime))
     else:
@@ -973,7 +978,7 @@ def postsave_stand_handler(sender, **kwargs):
 
 
 @receiver(pre_delete, sender=Stand)
-def delete_stand_handler(sender, **kwargs):
+def delete_stand_handler(sender, *args, **kwargs):
     '''
     When a stand is deleted, make sure to set all forestproperty's scenarios to stale
     '''
@@ -988,7 +993,7 @@ def delete_stand_handler(sender, **kwargs):
 
 
 @receiver(pre_delete, sender=Strata)
-def delete_strata_handler(sender, **kwargs):
+def delete_strata_handler(sender, *args, **kwargs):
     '''
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
@@ -996,4 +1001,9 @@ def delete_strata_handler(sender, **kwargs):
     stands = instance.stand_set.all()
     for stand in stands:
         stand.cond_id = None
+        stand.strata = None
         stand.save()
+
+    for stand in stands:
+        print "###############################", stand.cond_id, stand.strata
+
