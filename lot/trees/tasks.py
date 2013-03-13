@@ -3,7 +3,7 @@ from django.core.cache import cache
 import json
 
 
-@task()
+@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
 def impute_rasters(stand_id, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand
@@ -11,7 +11,11 @@ def impute_rasters(stand_id, savetime):
     from madrona.raster_stats.models import RasterDataset, zonal_stats
     import math
 
-    stand = Stand.objects.get(id=stand_id)
+    try:
+        stand = Stand.objects.get(id=stand_id)
+    except:
+        raise impute_rasters.retry()
+
     print "imputing raster stats for %d" % stand_id
 
     def get_raster_stats(stand, rastername):
@@ -79,7 +83,7 @@ def impute_rasters(stand_id, savetime):
     return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
 
 
-@task(max_retries=3, default_retry_delay=5)  # retry up to 3 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
 def impute_nearest_neighbor(stand_results, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
