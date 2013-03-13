@@ -1001,9 +1001,5 @@ def delete_strata_handler(sender, *args, **kwargs):
     stands = instance.stand_set.all()
     for stand in stands:
         stand.cond_id = None
-        stand.strata = None
+        stand.strata = None  # otherwise it will just re-impute
         stand.save()
-
-    for stand in stands:
-        print "###############################", stand.cond_id, stand.strata
-
