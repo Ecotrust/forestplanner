@@ -205,3 +205,11 @@ file { "celeryd.conf":
   path => "/etc/supervisor/conf.d/celeryd.conf",
   content => template("celeryd.conf")
 }
+file { "celerymon.conf":
+  path => "/etc/supervisor/conf.d/celerymon.conf",
+  content => template("celerymon.conf")
+}
+file { "celeryflower.conf":
+  path => "/etc/supervisor/conf.d/celeryflower.conf",
+  content => template("celeryflower.conf")
+}

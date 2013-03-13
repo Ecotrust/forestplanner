@@ -44,6 +44,7 @@ def _install_django():
                            %(venv)s/bin/python manage.py migrate --noinput && \
                            %(venv)s/bin/python manage.py install_media -a && \
                            %(venv)s/bin/python manage.py enable_sharing --all && \
+                           %(venv)s/bin/python manage.py site localhost:8080 && \
                            %(venv)s/bin/python manage.py install_cleangeometry' % vars)
 
 
