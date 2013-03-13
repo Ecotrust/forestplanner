@@ -452,13 +452,13 @@ class JSONField(models.TextField):
         if value == "" or value is None:
             return None
 
-        # print "----------------", value
-        # if isinstance(value, basestring):
-        #     # if it's a string
-        #     return loads(value)
-        # else:
-        #     # if it's not yet saved and is still a python data structure
-        #     return value
+        #print "----------------", value
+        if isinstance(value, basestring):
+            # if it's a string
+            return loads(value)
+        else:
+            # if it's not yet saved and is still a python data structure
+            return value
 
         # Actually we'll just return the string
         # need to explicitly call json.loads(X) in your code
@@ -499,8 +499,8 @@ class Scenario(Analysis):
     input_target_carbon = models.BooleanField(
         verbose_name='Target Carbon', default=False,
         help_text="Optimize harvest schedule for carbon sequestration")
-    input_rxs = JSONField(
-        verbose_name="Prescriptions associated with each stand")
+    input_rxs = JSONField( null=True, blank=True,
+        default="{}", verbose_name="Prescriptions associated with each stand")
 
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
@@ -510,12 +510,12 @@ class Scenario(Analysis):
 
     @property
     def output_property_results(self):
-        res = loads(self.output_scheduler_results)
+        res = self.output_scheduler_results
         return {'__all__': res['__all__']}
 
     @property
     def output_stand_results(self):
-        res = loads(self.output_scheduler_results)
+        res = self.output_scheduler_results
         del res['__all__']
         return res
 
@@ -544,9 +544,9 @@ class Scenario(Analysis):
         if not self.output_scheduler_results:
             return True
         results = self.output_scheduler_results
-        if isinstance(results, basestring):
-            #TODO BAD
-            results = loads(results)
+        # if isinstance(results, basestring):
+        #     #TODO BAD
+        #     results = loads(results)
 
         # make sure we have exactly the same IDs
         stand_ids = [int(x.id) for x in self.stand_set()]
@@ -703,10 +703,12 @@ class Scenario(Analysis):
         return gj
 
     def clean(self):
-        inrx = loads(self.input_rxs)
+        return True
+        #TODO Validate
+        inrx = self.input_rxs
         valid_rx_keys = dict(RX_CHOICES).keys()
         valid_stand_ids = [x.pk for x in self.input_property.feature_set()]
-        for stand, rx in inrx.iteritems():
+        for stand, rx in inrx.items():
             if int(stand) not in valid_stand_ids:
                 raise ValidationError(
                     '%s is not a valid stand id for this property' % stand)
@@ -901,10 +903,11 @@ class Strata(Feature):
         )
 
     def save(self, *args, **kwargs):
-        try:
-            self.stand_list = json.loads(self.stand_list)
-        except (TypeError, ValueError):
-            pass  # already good?
+        # try:
+        #     self.stand_list = json.loads(self.stand_list)
+        # except (TypeError, ValueError):
+        #     pass  # already good?
+        self.stand_list = self.stand_list
 
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")

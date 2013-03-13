@@ -22,7 +22,7 @@ class StrataForm(FeatureForm):
 
 
 class ScenarioForm(FeatureForm):
-    input_rxs = forms.CharField(widget=forms.HiddenInput(), initial="{}")
+    input_rxs = forms.CharField(widget=forms.HiddenInput(), required=False)
     input_property = forms.ModelChoiceField(
         label="", queryset=ForestProperty.objects.all(), widget=forms.HiddenInput())
     input_target_boardfeet = forms.FloatField(

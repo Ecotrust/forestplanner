@@ -17,6 +17,7 @@ from shapely.ops import cascaded_union
 from shapely.geometry import Polygon, MultiPolygon
 from shapely import wkt
 
+
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
 NUM_STANDS = 2
@@ -123,8 +124,10 @@ response = client.post(url, {
     'input_target_carbon': 1,
     'input_age_class': 1,
     'input_property': prop1.pk,
-    'input_rxs': json.dumps({}),
+    'input_rxs': {1: 'CC'},
 })
+#import ipdb; ipdb.set_trace()
+print response.content
 assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
