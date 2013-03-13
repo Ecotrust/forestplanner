@@ -21,3 +21,4 @@ lot/.coverage
 .DS_Store
 .*.swp
 secret*
+celerymon.pid
