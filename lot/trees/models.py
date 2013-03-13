@@ -512,6 +512,7 @@ class Scenario(Feature):
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
+    
     @property
     def output_property_results(self):
         res = self.output_scheduler_results
@@ -593,7 +594,7 @@ class Scenario(Feature):
         if not self.is_runnable:
             # setting output_scheduler_results to None implies that it must be rerun in the future !!
             self.output_scheduler_results = None
-            self.save()
+            self.save(rerun=False)  # avoid infinite recursion
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
         schedule_harvest.delay(self.id)
@@ -633,6 +634,16 @@ class Scenario(Feature):
                     '%s is not a valid stand id for this property' % stand)
             if rx not in valid_rx_keys:
                 raise ValidationError('%s is not a valid prescription' % rx)
+
+    def save(self, *args, **kwargs):
+        super(Scenario, self).save(*args, **kwargs)
+        if 'rerun' in kwargs and kwargs['rerun'] is False:
+            pass  # don't rerun
+        else:
+            try:
+                self.run()
+            except ScenarioNotRunnable:
+                pass  # don't have enough info to run()
 
     class Options:
         form = "trees.forms.ScenarioForm"
