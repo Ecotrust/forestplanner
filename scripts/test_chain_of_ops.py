@@ -273,7 +273,18 @@ assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
 scenario1.run()
 
-#### Step 6. Delete the strata
+#### Edit the strata
+print
+print "Edit the strata, should force re-calc of nearest neighbor"
+strata1.search_tpa += 50
+strata1.save()
+assert(prop1.stand_summary['with_condition'] == 0)
+while prop1.stand_summary['with_condition'] < NUM_STANDS:
+    print "Waiting for nearest..."
+    print prop1.stand_summary
+    time.sleep(3)
+
+#### Delete the strata
 url = "/features/generic-links/links/delete/%s/" % strata1.uid
 print
 print url

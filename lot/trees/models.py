@@ -17,7 +17,7 @@ from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
 from trees.tasks import impute_rasters, impute_nearest_neighbor
-from django.db.models.signals import post_save, pre_delete
+from django.db.models.signals import post_save, pre_save, pre_delete
 from django.dispatch import receiver
 from django.db import connection, transaction
 
@@ -864,7 +864,7 @@ color_hex = ['#%02x%02x%02x' % rgb_tuple for rgb_tuple in colors_rgb]
 
 
 @register
-class Strata(Feature):
+class Strata(DirtyFieldsMixin, Feature):
     search_age = models.FloatField()
     search_tpa = models.FloatField()
     additional_desc = models.TextField(blank=True, null=True)
@@ -903,11 +903,20 @@ class Strata(Feature):
         )
 
     def save(self, *args, **kwargs):
+        # TODO JSONField wierdness???
         # try:
         #     self.stand_list = json.loads(self.stand_list)
         # except (TypeError, ValueError):
         #     pass  # already good?
-        self.stand_list = self.stand_list
+        # self.stand_list = self.stand_list
+
+        # Depending on what changed, trigger recalc of stand info
+        recalc_required = False
+        dirty = self.get_dirty_fields()
+        if 'stand_list' in dirty.keys() or 'search_age' in dirty.keys() or \
+           'search_tpa' in dirty.keys() or not self.id:
+             # got new strata info - time to recalc terrain rasters for each stand!
+                recalc_required = True
 
         if 'classes' not in self.stand_list:
             raise Exception("Not a valid stand list")
@@ -922,6 +931,12 @@ class Strata(Feature):
             # c[3] is a valid tpa?
             assert(cls[3] > 0 and cls[3] < 10000)
         super(Strata, self).save(*args, **kwargs)
+
+        if recalc_required:
+            #null out nearest neighbor fields (post-save signal will pick them up)
+            for stand in self.stand_set.all():
+                stand.cond_id = None
+                stand.save()
 
 
 class TreeliveSummary(models.Model):
@@ -1036,11 +1051,5 @@ def delete_strata_handler(sender, **kwargs):
     instance = kwargs['instance']
     stands = instance.stand_set.all()
     for stand in stands:
-        # just update the cond_id and do it with a cursor to avoid save()
-        cursor = connection.cursor()
-        cursor.execute("""
-            UPDATE "trees_stand"
-            SET "cond_id" = %s
-            WHERE "trees_stand"."id" = %s;
-        """, [None, stand.id])
-        transaction.commit_unless_managed()
+        stand.cond_id = None
+        stand.save()
