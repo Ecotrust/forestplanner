@@ -20,7 +20,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
-NUM_STANDS = 2
+NUM_STANDS = 10
 geoms = []
 for i in range(NUM_STANDS):
     cntr.set_x(cntr.x + 150)
