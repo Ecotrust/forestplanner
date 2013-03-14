@@ -1,6 +1,7 @@
 *.pyc
 lot/settings_local.py
 *.log
+*.pid
 *.orig
 mediaroot/*
 wsgi.py
