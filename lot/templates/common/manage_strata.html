@@ -430,7 +430,7 @@
               self.sizeClass = ko.observable();
             }
             
-            self.percentage = ko.observable(options[3]);
+            self.percentage = ko.observable(parseInt(options[3], 10));
             
             self.index = ko.computed(function () {
                 var self = this;
@@ -483,17 +483,20 @@
                 totalPercentage += parseInt(stand.percentage(), 10);
                 displayStandList.push(stand);
               });
-
-              displayStandList.push(new standViewModel(self,
-                // species name, sizeclass lower bound, upper bound, percentage
-                [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
+              if (totalPercentage < 100) {
+                displayStandList.push(new standViewModel(self,
+                  // species name, sizeclass lower bound, upper bound, percentage
+                  [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
+              }
+              
               
               return displayStandList;
             });
 
 
             if (options.stand_list) {
-              $.each(JSON.parse(options.stand_list).classes, function (i, stand) {
+
+              $.each(options.stand_list.classes, function (i, stand) {
                 self.standList.push(new standViewModel(self, stand));
               });
             }
