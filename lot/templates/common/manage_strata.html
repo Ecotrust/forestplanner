@@ -191,7 +191,7 @@
                                <thead>
                                    <tr><th>Species</th><th>Size Class</th><th>Percentage</th><th>Density (trees per acre)</th></tr>
                                </thead>
-                               <tbody data-bind="foreach: activeStratum().standList">
+                               <tbody data-bind="foreach: activeStratum().displayStandList">
                                    <tr data-bind="click: $parent.activeStratum().selectRow, css: { active: $data === $parent.activeStratum().currentStand() }">
                                        <td>
                                            <span data-bind="visible: species, text: species"></span>
@@ -430,7 +430,7 @@
               self.sizeClass = ko.observable();
             }
             
-            self.percentage = ko.observable(options[3]);
+            self.percentage = ko.observable(parseInt(options[3], 10));
             
             self.index = ko.computed(function () {
                 var self = this;
@@ -438,12 +438,7 @@
             }, self);
 
             self.updateChart = function () {
-              var standList = $.map(stratum.standList(), function (stand) {
-                if (stand.percentage() > 0) {
-                  return [[ stand.species() + ' ' + stand.sizeClass(), parseInt(stand.percentage(),10)]]  
-                }
-              });
-              app.strata.chartStandList(standList);
+              app.strata.chartStandList(self.stratum.displayStandList());
             };
 
             self.percentage.subscribe(self.updateChart);
@@ -460,7 +455,6 @@
             if (! options) {
               options = {}
             }
-            console.dir(options);
             self.attributes = {
               // feature attributes from madrona
               name: ko.observable(options.name),
@@ -473,16 +467,36 @@
             
             // viewmodel attributes
             self.color = ko.observable();
-            self.standList = ko.observableArray();
             self.currentStand = ko.observable();
             self.confirmDelete = ko.observable(false);
             self.editMode = ko.observable(false);
             self.editTrees = ko.observable(false);
 
+            self.standList = ko.observableArray();
+            // display a computed standlist with a dummy last item
+            // to show the remaining percentage
+
+            self.displayStandList = ko.computed(function () {
+              var displayStandList = [], totalPercentage = 0;
+
+              $.each(self.standList(), function (i, stand) {
+                totalPercentage += parseInt(stand.percentage(), 10);
+                displayStandList.push(stand);
+              });
+              if (totalPercentage < 100) {
+                displayStandList.push(new standViewModel(self,
+                  // species name, sizeclass lower bound, upper bound, percentage
+                  [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
+              }
+              
+              
+              return displayStandList;
+            });
+
 
             if (options.stand_list) {
+
               $.each(options.stand_list.classes, function (i, stand) {
-                console.dir(stand);
                 self.standList.push(new standViewModel(self, stand));
               });
             }
@@ -497,7 +511,6 @@
 
             self.addSpecies = function () {
                 var stand;
-                
                 if (self.currentStand().index() === self.standList().length -1) {
                     stand = new standViewModel(self);
                     self.standList.push(stand);
@@ -511,20 +524,11 @@
 
             }
 
-            self.prev = function () {
-                var self = this, 
-                    stratum = self.stratum;
-                
-                stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
-                $('#myCarousel').carousel('prev')
-
-            };
 
             // launch into species list creation
             self.next = function () {
                 var self = this,
                     stand = new standViewModel(self);
-                
 
                 if (! self.editMode()) {
 
@@ -542,12 +546,24 @@
 
             };
 
+            self.prev = function () {
+                var self = this, 
+                    stratum = self.stratum;
+                
+                stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
+                $('#myCarousel').carousel('prev')
+
+            };
+
           
 
             self.selectRow = function () {
                 var self = this;
-                self.stratum.currentStand(self);
-                $('#myCarousel').carousel(self.index());
+                if (self.stratum.currentStand().species !== 'unknown') {
+                  self.stratum.currentStand(self);
+                  $('#myCarousel').carousel(self.index());  
+                }
+                
             };
 
             // set the color and store a reference
@@ -613,15 +629,11 @@
           }, self.strataList);
 
           self.activeStratum.subscribe(function (activeStratum) {
-            var standList;
+            
             if (activeStratum && activeStratum.standList().length) {
-              standList = $.map(activeStratum.standList(), function (stand) {
-                if (stand.percentage() > 0) {
-                  return [[ stand.species() + ' ' + stand.sizeClass(), parseInt(stand.percentage(),10)]]  
-                }
-              });
-              app.strata.chartStandList(standList);  
+              app.strata.chartStandList(activeStratum.displayStandList());  
             } else {
+              // no active stratum, so set cached chart data to null
               app.strata.chartData = null;
             }
             
@@ -822,19 +834,26 @@
       // charting stuff
       app.strata.chartData = null;
       app.strata.chartStandList = function (standList) {
-        var chart, chartDataUpdated = true;
-        console.dir(standList);
-        if (! standList.length) {
-          standList = [[ 'unknown', 100]]
-        }
+        var chart, chartData, chartDataUpdated = true;
         
-        if (app.strata.chartData && ko.toJSON(standList) === ko.toJSON(app.strata.chartData)) {
+        chartData = $.map(standList, function (stand) {
+          var name = stand.sizeClass() ? (' ' + stand.sizeClass()): null;
+          if (stand.percentage()) {
+            return [
+              [ 
+                stand.species() +  ' ' + name,
+                parseInt(stand.percentage(),10)
+              ]
+            ];
+          }
+        });
+
+        // check to see if data has been udpated
+        if (app.strata.chartData && ko.toJSON(chartData) === ko.toJSON(app.strata.chartData)) {
           chartDataUpdated = false;
         }
-
         if (chartDataUpdated) {
-          app.strata.chartData = standList;
-        
+          app.strata.chartData = chartData;
 
           setTimeout(function () {
             chart = new Highcharts.Chart({
@@ -868,7 +887,7 @@
                 series: [{
                     type: 'pie',
                     name: 'Species/Size Class',
-                    data: standList
+                    data: app.strata.chartData
                 }]
             
             });  
