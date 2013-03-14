@@ -178,7 +178,8 @@
                                 <i class="icon-repeat icon-white"></i> Define Stand Groups</a>
                             </div>
                             <div class="span4">
-                                <button class="btn pull-right btn-success" href="#" data-bind="click: manageScenarios">
+                                <button class="btn pull-right btn-success" href="#" data-bind="click: manageScenarios, 
+                                  css: {disabled: selectedProperty().stand_summary.with_condition() < selectedProperty().stand_summary.total()}">
                                 <i class="icon-repeat icon-white"></i> Evalutate Future Scenarios</button>
                             </div>
                         </div>
@@ -387,8 +388,6 @@
                                 <ul class="unstyled" data-bind="foreach: standListPaginated">
                                     <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
                                         <span>
-                                            <span data-bind="ifnot: plot_summary"><i class="icon-exclamation-sign"></i></span>
-                                            <span data-bind="if: plot_summary"><i class="icon-ok"></i></span>
                                             <a href="#" data-bind="text: name"></a>
                                         </span>
                                     </li>
@@ -423,6 +422,11 @@
                                     <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
                                     <dt>Slope</dt><dd data-bind="text: slope"></dd>
                                     <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
+                                </dl>
+
+                                <dl class="dl-horizontal">
+                                    <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
+                                    <dt>Strata</dt><dd><span data-bind="text: strata_uid"></span></dd>
                                 </dl>
 
                             </p>

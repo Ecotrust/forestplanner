@@ -2,21 +2,29 @@
 <form class="form-horizontal" id="scenario-form" method="POST">
 <div class="well">
     <ul class="nav nav-tabs" id="myTab">
-        <li class="active">
-            <a href="#scenario-edit-objectives-content" id="scenario-edit-objectives-tab" data-toggle="tab">Objectives</a>
-        </li>
+        <!--
         <li>
             <a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab">Spatial Contraints</a>
         </li>
+        -->
+        <li class="active">
+            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Step 1: Silvicultural Prescriptions</a>
+        </li>
         <li>
-            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Silvicultural Prescriptions</a>
+            <a href="#scenario-edit-objectives-content" id="scenario-edit-objectives-tab" data-toggle="tab">Step 2: Objectives</a>
         </li>
     </ul>
     
     <div class="tab-content">
 
-        <div class="tab-pane active" id="scenario-edit-objectives-content">
+        <div class="tab-pane active" id="scenario-edit-rx-content">
+            <p> <strong>Apply Silvicultural Prescriptions</strong> </p>
+            <p> <img src="/media/img/temp_rx.jpg" class="img-polaroid"/> </p>
+        </div>
+
+        <div class="tab-pane fade" id="scenario-edit-objectives-content">
             {% for hidden in form.hidden_fields %}
+                {{hidden.errors}} 
                 {{hidden}}
             {% endfor %}
 
@@ -32,6 +40,7 @@
             {% endfor %}
         </div>
 
+        <!-- 
         <div class="tab-pane fade" id="scenario-edit-spatial-content">
             <div class="control-group">
                 <label for="id_buffer" class="control-label"> 
@@ -58,17 +67,12 @@
                 <a href="#" class="btn">Adjust Stand Boundaries for this Scenario</a>
             </div>
         </div>
-
-        <div class="tab-pane fade" id="scenario-edit-rx-content">
-            <p> <strong>Apply Silvicultural Prescriptions</strong> </p>
-            <p> <img src="/media/img/temp_rx.jpg" class="img-polaroid"/> </p>
-        </div>
-
+        -->
     </div>
 
     <div class="control-group pull-right">
         <div class="controls">
-            <button class="btn btn-primary submit">Submit</button>
+            <button class="btn btn-primary submit">Submit Scenario</button>
             <button class="btn cancel">Cancel</button>
         </div>
     </div>

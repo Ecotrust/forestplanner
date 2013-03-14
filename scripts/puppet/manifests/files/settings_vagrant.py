@@ -10,8 +10,8 @@ DATABASES = {
 
 # This should be a local folder created for use with the install_media command 
 MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
-MEDIA_URL = 'http://localhost:8000/media/'
-STATIC_URL = 'http://localhost:8000/media/'
+MEDIA_URL = 'http://localhost:8080/media/'
+STATIC_URL = 'http://localhost:8080/media/'
 
 POSTGIS_TEMPLATE='template1'
 DEBUG = True

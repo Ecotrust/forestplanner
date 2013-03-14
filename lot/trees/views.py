@@ -8,6 +8,7 @@ from geopy import geocoders
 from geopy.point import Point
 from trees.models import Stand
 from django.views.decorators.cache import cache_page
+from django.core.cache import cache
 import json
 import os
 
@@ -32,13 +33,14 @@ def manage_stands(request):
     return render_to_response('common/manage_stands.html', {},
                               context_instance=RequestContext(request))
 
+
 def manage_strata(request, property_uid):
     '''
     Strata management view
     '''
-    return render_to_response('common/manage_strata.html', { 'property_id': property_uid },
-                              context_instance=RequestContext(request))
-
+    return render_to_response(
+        'common/manage_strata.html', {'property_id': property_uid},
+        context_instance=RequestContext(request))
 
 
 def user_property_list(request):
@@ -177,7 +179,6 @@ def forestproperty_scenarios(request, instance):
                       input_target_boardfeet=0,
                       input_target_carbon=True,
                       input_rxs={},
-                      input_site_diversity=10,
                       input_age_class=10,
                       )
         s1.save()
@@ -188,7 +189,6 @@ def forestproperty_scenarios(request, instance):
                       input_target_boardfeet=2000,
                       input_target_carbon=False,
                       input_rxs={},
-                      input_site_diversity=1,
                       input_age_class=1,
                       )
         s2.save()
@@ -437,3 +437,34 @@ def strata_list(request, property_uid):
     slist = sorted(fprop.feature_set(feature_classes=[Strata]),
                    key=lambda x: x.date_created, reverse=False)
     return HttpResponse(json.dumps([x._dict for x in slist]), mimetype="text/javascript")
+
+
+def run_scenario(request, scenario_uid):
+    from madrona.features.views import get_object_for_editing
+    from trees.models import Scenario, ScenarioNotRunnable  # , ForestProperty, Strata
+    force_rerun = request.REQUEST.get("force", False)
+    sc = get_object_for_editing(request, scenario_uid, target_klass=Scenario)
+    status = ''
+    if isinstance(sc, HttpResponse):
+        return sc
+
+    rerun = sc.needs_rerun
+
+    # determine if there is already a process running using the redis cache
+    task = cache.get('Task_%s' % scenario_uid)
+    if task:
+        # if task is still running, don't rerun
+        rerun = False
+        status = task.status
+        if status == "SUCCESS" and sc.needs_rerun:
+            # it's already been run but needs a refresher
+            rerun = True
+
+    if rerun or force_rerun:
+        try:
+            sc.run()
+            status = "Running"
+        except ScenarioNotRunnable:
+            status = "Not-runnable"
+
+    return HttpResponse(status, mimetype="text/javascript")

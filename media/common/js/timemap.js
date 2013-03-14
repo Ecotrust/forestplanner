@@ -44,7 +44,7 @@ $(document).ready(function() {
             $.get( geojson_url, function(data) {
                 if (data.features.length) {
                     standScenario1.addFeatures(app.geojson_format.read(data));        
-                    bounds = standScenario1.getDataExtent();
+                    var bounds = standScenario1.getDataExtent();
                     if (bounds) { 
                         timemap1.zoomToExtent(bounds);
                     }
@@ -52,10 +52,10 @@ $(document).ready(function() {
             });
             var f2 = app.scenarios.viewModel.scenarioList()[1];
             var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
-            $.get( geojson_url, function(data) {
+            $.get( geojson_url2, function(data) {
                 if (data.features.length) {
                     standScenario2.addFeatures(app.geojson_format.read(data));        
-                    bounds = standScenario2.getDataExtent();
+                    var bounds = standScenario2.getDataExtent();
                     if (bounds) { 
                         timemap2.zoomToExtent(bounds);
                     }
@@ -101,6 +101,7 @@ $(document).ready(function() {
         key: apiKey,
         type: "Aerial"
     });
+
     timemap1.addLayer(aerial1);
     //timemap1.addControl(new OpenLayers.Control.LayerSwitcher());
     standScenario1 = new OpenLayers.Layer.Vector("Properties",  {

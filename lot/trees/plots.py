@@ -28,6 +28,7 @@ def dictfetchall(cursor, classname=None):
 
 
 def get_candidates(stand_list, min_candidates=1):
+    # TODO cache get_candidates
     cursor = connection.cursor()
 
     dfs = []

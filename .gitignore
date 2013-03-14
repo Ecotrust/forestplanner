@@ -20,3 +20,5 @@ lot/.coverage
 .vagrant
 .DS_Store
 .*.swp
+secret*
+celerymon.pid
