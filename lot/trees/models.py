@@ -623,9 +623,12 @@ class Scenario(Feature):
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
             try:
-                stand_dict['properties']['results'] = res[str(stand.pk)]
+                stand_dict['properties']['results'] = res[stand.pk]
             except KeyError:
-                continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
+                try:
+                    stand_dict['properties']['results'] = res[str(stand.pk)]  # just in case it's a string
+                except KeyError:
+                    continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
             stand_data.append(stand_dict)
 
         gj = dumps(stand_data, indent=2)
