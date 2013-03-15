@@ -154,15 +154,17 @@ def impute_nearest_neighbor(stand_results, savetime):
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
     from trees.models import Scenario
-
-    print "###############CALCULATING SCHEDULE###################"
     import time
-    time.sleep(5.5)
+    from celery import current_task
 
     try:
         scenario = Scenario.objects.get(id=scenario_id)
     except:
-        raise impute_rasters.retry()
+        raise schedule_harvest.retry()
+
+    print "Calculating schedule for %s" % scenario_id
+    current_task.update_state(state='PROGRESS', meta={'current': 50})
+    time.sleep(2)
 
     # TODO prep scheduler, run it, parse the outputs
     d = {}

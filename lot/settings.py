@@ -106,6 +106,9 @@ BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # ? or use django ?
 CELERY_ALWAYS_EAGER = False
+CELERY_DISABLE_RATE_LIMITS = True
+#CELERY_IGNORE_RESULT = True  # set on per-task basis
+
 # see http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html
 
 import djcelery

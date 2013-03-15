@@ -442,6 +442,8 @@ def strata_list(request, property_uid):
 def run_scenario(request, scenario_uid):
     from madrona.features.views import get_object_for_editing
     from trees.models import Scenario, ScenarioNotRunnable  # , ForestProperty, Strata
+    from celery.result import AsyncResult
+
     force_rerun = request.REQUEST.get("force", False)
     sc = get_object_for_editing(request, scenario_uid, target_klass=Scenario)
     status = ''
@@ -451,11 +453,17 @@ def run_scenario(request, scenario_uid):
     rerun = sc.needs_rerun
 
     # determine if there is already a process running using the redis cache
-    task = cache.get('Task_%s' % scenario_uid)
-    if task:
-        # if task is still running, don't rerun
-        rerun = False
-        status = task.status
+    taskid = cache.get('Taskid_%s' % scenario_uid)
+    if taskid:
+        status = 'unknown'
+        try:
+            task = AsyncResult(taskid)
+            status = task.status
+            # if task is still running, don't rerun
+            rerun = False
+        except:
+            pass
+
         if status == "SUCCESS" and sc.needs_rerun:
             # it's already been run but needs a refresher
             rerun = True

@@ -611,8 +611,8 @@ class Scenario(Feature):
             self.save(rerun=False)  # avoid infinite recursion
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
-        taskid = schedule_harvest.delay(self.id)
-        cache.set("Task_%s" % self.uid, taskid)
+        task = schedule_harvest.delay(self.id)
+        cache.set("Taskid_%s" % self.uid, task.task_id)
         return True
 
     def geojson(self, srid=None):
