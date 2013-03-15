@@ -80,7 +80,8 @@ def impute_rasters(stand_id, savetime):
     transaction.commit_unless_managed()
 
     stand.invalidate_cache()
-
+     
+    print {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
     return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
 
 
@@ -260,8 +261,6 @@ def schedule_harvest(scenario_id):
     """, [json.dumps(d), datemod,
           scenario_id])
     transaction.commit_unless_managed()
-
-    stand.invalidate_cache()
 
     return {'scenario_id': scenario_id, 'output_scheduler_results': d}
 
