@@ -107,6 +107,15 @@ BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
 CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # ? or use django ?
 CELERY_ALWAYS_EAGER = False
 CELERY_DISABLE_RATE_LIMITS = True
+from datetime import timedelta
+CELERYBEAT_SCHEDULE = {
+    'sweep_for_errors': {
+        'task': 'sweep_for_errors',
+        'schedule': timedelta(seconds=600),
+        'args': None
+    },
+}
+CELERY_TIMEZONE = 'UTC'
 #CELERY_IGNORE_RESULT = True  # set on per-task basis
 
 # see http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html

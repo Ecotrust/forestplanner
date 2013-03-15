@@ -264,3 +264,16 @@ def schedule_harvest(scenario_id):
     stand.invalidate_cache()
 
     return {'scenario_id': scenario_id, 'output_scheduler_results': d}
+
+
+@task()
+def sweep_for_errors():
+    print "Here we go..."
+    from trees.models import Stand
+    wierdos = []
+    for stand in Stand.objects.all():
+        if not stand.collection:
+            wierdos.append((stand.uid, "Does not have a collection"))
+            continue
+    print wierdos
+    return wierdos
