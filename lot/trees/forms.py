@@ -36,7 +36,7 @@ class ScenarioForm(FeatureForm):
 
     class Meta(FeatureForm.Meta):
         model = Scenario
-        exclude = list(FeatureForm.Meta.exclude)
+        exclude = list(FeatureForm.Meta.exclude) + ['output_scheduler_results']
 
 
 class UploadStandsForm(forms.Form):
