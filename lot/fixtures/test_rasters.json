@@ -45,6 +45,15 @@
   }
   ,
   {
+    "pk": 7, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "cost", "full_name": "cost", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/slope.tif"
+    }
+  }
+  ,
+  {
     "pk": 6, 
     "model": "raster_stats.rasterdataset", 
     "fields": {

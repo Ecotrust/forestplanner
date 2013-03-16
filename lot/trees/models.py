@@ -55,7 +55,12 @@ RX_CHOICES = (
 def datetime_to_unix(dt):
     start = datetime.datetime(year=1970, month=1, day=1)
     diff = dt - start
-    return diff.total_seconds()
+    try:
+        total = diff.total_seconds()
+    except AttributeError: 
+        # for the benefit of python 2.6
+        total = (diff.microseconds + (diff.seconds + diff.days * 24 * 3600) * 1e6) / 1e6
+    return total
 
 
 def postgres_now():
