@@ -63,6 +63,13 @@ def init():
     _install_requirements()
     _install_django()
     _install_starspan()
+    #restart_services()
+
+
+def restart_services():
+    run('sudo service uwsgi restart && sudo service nginx restart')
+    run('sudo service supervisor stop && sudo service supervisor start && sudo service supervisor status')
+    run('sudo supervisorctl restart all')
 
 
 def runserver():
