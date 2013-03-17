@@ -12,7 +12,7 @@ urlpatterns = patterns('',
 
     # TODO Page urls:
     # /   (intro and property list)
-    # /{property_uid}   
+    # /{property_uid}
     # /{property_uid}/stands
     # /{property_uid}/strata
     # /{property_uid}/scenario
