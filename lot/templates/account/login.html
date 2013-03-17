@@ -7,8 +7,6 @@
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="span6 offset3">
     <h2>{% trans "Log In" %}</h2>
 
     {% if socialaccount.providers  %}
@@ -60,10 +58,8 @@
         </form>
         <div class="pull-right">
 	    <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
-	    <a href="/accounts/password/reset">Forget your info?</a> 
+	    <a href="/auth/password/reset">Forget your info?</a> 
         </div>
     </div>
-  </div>
-</div>
 {% endblock %}
 

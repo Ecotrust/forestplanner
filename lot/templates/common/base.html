@@ -70,19 +70,6 @@
                 <i class="icon-user"></i> 
                 <span>Log In</span>
               </a>
-                <!--
-              <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
-                <i class="icon-user"></i> 
-                <span>Log In</span>
-                <span class="caret"></span>
-              </a>
-              <ul class="dropdown-menu">
-                <li><a href="{% provider_login_url "google" %}" id="signin">Google</a></li>
-                <li class="divider"></li>
-                <li><a href="{% url "account_signup" %}" id="signup">Register (direct)</a></li>
-                <li><a href="{% url "account_login" %}" id="signup">With username and password</a></li>
-              </ul>
-               -->
             </div>
             {% endif %}                
           </div><!--/.nav-collapse -->
@@ -91,7 +78,10 @@
     </div>
 
     <div class="container-fluid">
+
+      {% block pre-content %}{% endblock pre-content %}
       {% block content %}{% endblock content %}
+      {% block post-content %}{% endblock post-content %}
 
         <div class="modal" id="about-dialog" style="display:none">
             <div class="modal-header">

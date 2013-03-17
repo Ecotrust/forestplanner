@@ -1,12 +1,8 @@
-{% extends 'base.html' %}
+{% extends 'account/base.html' %}
 {% block content %}
 
-
 {% if user %}
-<div class="row-fluid">
-  <div class="span4"></div>
-  <div class="span4">
-    <h2>Welcome, {{user.username}}</h2>
+    <h2>Account info for <em>{{user.username}}</em></h2>
     <dl class="dl-horizontal">
       <dt>
         Username
@@ -59,9 +55,6 @@
         </dl>
     {% endfor %}
     </div>
-  </div>
-  <div class="span4"></div>
-</div>
 {% endif %}
 
 {% endblock content %}
