@@ -214,6 +214,7 @@ def geojson_features(request, instances):
       ]}""" % featxt, mimetype='application/json', status=200)
 
 
+@cache_page(60 * 60 * 24 * 365)
 def geosearch(request):
     """
     Returns geocoded results in MERCATOR projection
@@ -237,32 +238,33 @@ def geosearch(request):
     except:
         pass  # not a point
 
-    currentloc = Point("45.0 N 122.0 W")
+    centerloc = Point("45.54 N 120.64 W")
+    max_dist = 315  # should be everything in WA and Oregon
 
-    if not searchtype or not lat or not lon:  # try a geocoder
-        g = geocoders.Google()
-        max_dist = 100000000
+    searches = [
+        geocoders.GeoNames(),
+        geocoders.OpenMapQuest(), 
+        geocoders.Yahoo(app_id=settings.APP_NAME), 
+        geocoders.Bing(api_key=settings.BING_API_KEY),
+        # these are tried in reverse order, fastest first
+        # TODO thread them and try them as they come in.
+    ]
+
+    while not (searchtype and lat and lon):  # try a geocoder
         try:
+            g = searches.pop()
             for p, loc in g.geocode(txt, exactly_one=False):
-                d = distance.distance(loc, currentloc).miles
+                d = distance.distance(loc, centerloc).miles
                 if d < max_dist:
+                    # TODO maybe compile these and return the closest to map center?
+                    # print g, p, loc 
                     place = p
                     lat = loc[0]
                     lon = loc[1]
                     max_dist = d
                 else:
                     pass
-            searchtype = 'geocoded_google'
-        except:
-            pass
-
-    if not searchtype or not lat or not lon:  # try another geocoder
-        g = geocoders.GeoNames()
-        try:
-            place, latlon = g.geocode(txt)
-            lat = latlon[0]
-            lon = latlon[1]
-            searchtype = 'geocoded_geonames'
+            searchtype = g.__class__.__name__
         except:
             pass
 
