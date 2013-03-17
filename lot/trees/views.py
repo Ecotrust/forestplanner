@@ -296,26 +296,6 @@ def geosearch(request):
         return HttpResponse(json_loc, mimetype='application/json', status=404)
 
 
-def potential_minmax(request):
-    from trees.utils import potential_minmax as _pmm
-    from trees.models import PlotLookup
-    categories = request.GET.get("categories", None)
-    if categories:
-        categories = json.loads(categories)
-    else:
-        categories = {}
-    pld = PlotLookup.weight_dict()
-    pmm = _pmm(categories, pld, {})
-    jpmm = json.dumps(pmm)
-    return HttpResponse(jpmm, mimetype='application/json', status=200)
-
-
-def svs_image(request, gnn):
-    imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1, 7)]
-    idx = int(gnn) % len(imgs)
-    return HttpResponsePermanentRedirect(imgs[idx])
-
-
 def stand_list_nn(request):
     from plots import get_nearest_neighbors
 
