@@ -68,7 +68,7 @@ def init():
 
 def restart_services():
     run('sudo service uwsgi restart && sudo service nginx restart')
-    run('sudo service supervisor stop && sudo service supervisor start && sudo service supervisor status')
+    run('sudo service supervisor stop && sleep 1 && sudo service supervisor start && sudo service supervisor status')
     run('sudo supervisorctl restart all')
 
 
