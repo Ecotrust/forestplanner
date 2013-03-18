@@ -81,9 +81,13 @@ def impute_rasters(stand_id, savetime):
     transaction.commit_unless_managed()
 
     stand.invalidate_cache()
+
+    res = {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
+
+    if None in [elevation, aspect, slope, cost]:
+        raise Exception("At least one raster is NULL for this geometry. %s" % res)
      
-    print {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
-    return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
+    return res
 
 
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
