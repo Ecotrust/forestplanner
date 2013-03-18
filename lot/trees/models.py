@@ -109,6 +109,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
     class Options:
         form = "trees.forms.StandForm"
+        form_template = "trees/stand_form.html"
         manipulators = []
 
     def get_idb(self, force=False):
@@ -213,6 +214,9 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
+
+        if not self.name or self.name.strip() == '':
+            self.name = str(datetime_to_unix(datetime.datetime.now()))
 
         # Depending on what changed, null out fields (post-save signal will pick them up)
         if 'geometry_final' in self.get_dirty_fields().keys() or not self.id:
@@ -467,7 +471,7 @@ class ForestProperty(FeatureCollection):
                       'trees.views.forestproperty_scenarios',
                       type="application/json",
                       select='single'),
-             # Link to grab ALL *strata* belonging to a property
+            # Link to grab ALL *strata* belonging to a property
             alternate('Property Strata List',
                       'trees.views.forestproperty_strata_list',
                       type="application/json",
