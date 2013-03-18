@@ -314,6 +314,13 @@ class ForestProperty(FeatureCollection):
             'with_terrain': n_with_terrain,
         }
 
+    def reset_scenarios(self):
+        """
+        The 'reset' button for all property's scenarios
+        """
+        for scenario in self.scenario_set.all():
+            scenario.run()
+
     def reset_stands(self):
         """
         Strips all imputed data from stands and attempts to recalculate it
@@ -680,8 +687,9 @@ class Scenario(Feature):
         form_context = {}
         links = (
             edit('Run Scenario',
-                  'trees.views.run_scenario',
-                  select='single'),
+                 'trees.views.run_scenario',
+                 edits_original=True,
+                 select='single'),
         )
 
 
