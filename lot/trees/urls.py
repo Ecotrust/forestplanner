@@ -17,20 +17,17 @@ urlpatterns = patterns('',
     # /{property_uid}/strata
     # /{property_uid}/scenario
 
-
     # Services
     url(r'^geosearch/$',
         geosearch, name='trees-geosearch'),
-
-    # TODO make part of the features API
-    url(r'^strata_list/(?P<property_uid>\w+)/$',
-        strata_list, name='trees-propertylist'),
-    url(r'^run_scenario/(?P<scenario_uid>\w+)/$',
-        run_scenario, name='trees-run_scenario'),
     url(r'^list/species.json$',
         list_species, name='trees-list_species'),
     url(r'^user_property_list/$',
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
+
+    # TODO make part of the features API
+    url(r'^run_scenario/(?P<scenario_uid>\w+)/$',
+        run_scenario, name='trees-run_scenario'),
 )

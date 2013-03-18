@@ -460,6 +460,11 @@ class ForestProperty(FeatureCollection):
                       'trees.views.forestproperty_scenarios',
                       type="application/json",
                       select='single'),
+             # Link to grab ALL *strata* belonging to a property
+            alternate('Property Strata List',
+                      'trees.views.forestproperty_strata_list',
+                      type="application/json",
+                      select='single'),
         )
 
 

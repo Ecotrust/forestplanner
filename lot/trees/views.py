@@ -409,14 +409,9 @@ def add_stands_to_strata(request, instance):
     return HttpResponse("Stands %r added to %s" % (stands, instance.uid), mimetype='text/html', status=200)
 
 
-def strata_list(request, property_uid):
-    from madrona.features.views import get_object_for_viewing
-    from trees.models import ForestProperty, Strata
-    fprop = get_object_for_viewing(
-        request, property_uid, target_klass=ForestProperty)
-    if isinstance(fprop, HttpResponse):
-        return fprop
-    slist = sorted(fprop.feature_set(feature_classes=[Strata]),
+def forestproperty_strata_list(request, instance):
+    from trees.models import Strata
+    slist = sorted(instance.feature_set(feature_classes=[Strata]),
                    key=lambda x: x.date_created, reverse=False)
     return HttpResponse(json.dumps([x._dict for x in slist]), mimetype="text/javascript")
 
