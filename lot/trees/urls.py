@@ -26,8 +26,4 @@ urlpatterns = patterns('',
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
-
-    # TODO make part of the features API
-    url(r'^run_scenario/(?P<scenario_uid>\w+)/$',
-        run_scenario, name='trees-run_scenario'),
 )

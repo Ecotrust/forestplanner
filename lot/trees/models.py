@@ -10,7 +10,7 @@ from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
-from madrona.features import register, alternate
+from madrona.features import register, alternate, edit
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
@@ -678,6 +678,11 @@ class Scenario(Feature):
         form_template = "trees/scenario_form.html"
         verbose_name = 'Forest Scenario'
         form_context = {}
+        links = (
+            edit('Run Scenario',
+                  'trees.views.run_scenario',
+                  select='single'),
+        )
 
 
 class FVSSpecies(models.Model):
