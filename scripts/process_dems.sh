@@ -4,9 +4,12 @@
 # author: perrygeo@gmail.com
 # Configuration:
 
-FULLDEM="../lot/fixtures/downloads/terrain/dem_swor2/"
+FULLDEM="/g/Basedata/PNW/terrain/dem_prjr6/hdr.adf"
 OUTDIR="resamp45"
-OUTRES="45"
+OUTRES="45.4133849338" 
+# x3 27.2480309603
+# x4 36.330707947
+# x5 45.4133849338
 
 #---------------------------------------------------------------#
 
