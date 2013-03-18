@@ -34,7 +34,8 @@ def impute_rasters(stand_id, savetime):
             g1 = stand.geometry_final.transform(rproj, clone=True)
             if not raster.is_valid:
                 raise Exception("Raster is not valid: %s" % raster)
-            stats = zonal_stats(g1, raster)
+            # only need 33% coverage to include pixel, helps with small stands
+            stats = zonal_stats(g1, raster, pixprop=0.33)  
             cache.set(key, stats, 60 * 60 * 24 * 365)
         return stats
 

@@ -154,6 +154,8 @@ INSTALLED_APPS += (
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # user logs in by entering either his username or e-mail address
 
+STARSPAN_REMOVE_TMP = True
+
 # install postfix
 EMAIL_HOST = 'localhost'
 #EMAIL_PORT = 587
