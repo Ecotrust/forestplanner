@@ -874,15 +874,13 @@ class Strata(DirtyFieldsMixin, Feature):
                 fia_forest_type_name=cls[0]).count() > 0)
             # c[1] thru c[2] is valid diam class ?
             assert(cls[1] < cls[2])
-            # c[3] is a valid tpa?
+            # c[3] is a valid tpa
             assert(cls[3] > 0 and cls[3] < 10000)
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor fields (post-save signal will pick them up)
-            for stand in self.stand_set.all():
-                stand.cond_id = None
-                stand.save()
+            #null out nearest neighbor field (post-save signal will pick them up)
+            self.stand_set.all().update(cond_id=None)
 
 
 class TreeliveSummary(models.Model):
@@ -995,8 +993,4 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    stands = instance.stand_set.all()
-    for stand in stands:
-        stand.cond_id = None
-        stand.strata = None  # otherwise it will just re-impute
-        stand.save()
+    instance.stand_set.all().update(cond_id=None, strata=None)

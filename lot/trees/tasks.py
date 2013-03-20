@@ -13,8 +13,9 @@ def impute_rasters(stand_id, savetime):
     import math
 
     try:
-        stand = Stand.objects.get(id=stand_id)
-    except:
+        stand_qs = Stand.objects.filter(id=stand_id)
+        stand = stand_qs[0]
+    except (Stand.DoesNotExist, IndexError):
         raise impute_rasters.retry()
 
     print "imputing raster stats for %d" % stand_id
@@ -68,17 +69,13 @@ def impute_rasters(stand_id, savetime):
 
     # stuff might have changed, we dont want a wholesale update of all fields!
     # use the timestamp to make sure we don't clobber a more recent request
-    from django.db import connection, transaction
-    cursor = connection.cursor()
-    cursor.execute("""
-        UPDATE "trees_stand"
-        SET "elevation" = %s, "slope" = %s, "aspect" = %s, "cost" = %s, "rast_savetime" = %s
-        WHERE "trees_stand"."id" = %s
-        AND "trees_stand"."rast_savetime" < %s;
-    """, [elevation, slope, aspect, cost, savetime,
-          stand_id,
-          savetime])
-    transaction.commit_unless_managed()
+    stand_qs.filter(rast_savetime__lt=savetime).update(
+        elevation=elevation,
+        slope=slope,
+        aspect=aspect,
+        cost=cost,
+        rast_savetime=savetime
+    )
 
     stand.invalidate_cache()
 
@@ -86,7 +83,6 @@ def impute_rasters(stand_id, savetime):
 
     if None in [elevation, aspect, slope, cost]:
         raise Exception("At least one raster is NULL for this geometry. %s" % res)
-     
     return res
 
 
@@ -97,12 +93,18 @@ def impute_nearest_neighbor(stand_results, savetime):
     from trees.plots import get_nearest_neighbors
 
     # you can pass the output of impute_rasters OR a stand id
+
     try:
         stand_id = stand_results['stand_id']
     except TypeError:
         stand_id = int(stand_results)
 
-    stand = Stand.objects.get(id=stand_id)
+    try:
+        stand_qs = Stand.objects.filter(id=stand_id)
+        stand = stand_qs[0]
+    except (Stand.DoesNotExist, IndexError):
+        exc = Exception("Cant run nearest neighbor; Stand %s does not exist." % stand_id)
+        raise impute_nearest_neighbor.retry(exc=exc)
 
     # Do we have the required attributes yet?
     if not (stand.strata and stand.elevation and stand.aspect and stand.slope and stand.geometry_final):
@@ -137,19 +139,9 @@ def impute_nearest_neighbor(stand_results, savetime):
     IdbSummary.objects.get(cond_id=cond_id)
 
     # update the database
-    # stuff might have changed, we dont want a wholesale update of all fields!
+    # stuff might have changed, we dont want a wholesale update of all fields like save()
     # use the timestamp to make sure we don't clobber a more recent request
-    from django.db import connection, transaction
-    cursor = connection.cursor()
-    cursor.execute("""
-        UPDATE "trees_stand"
-        SET "cond_id" = %s, "nn_savetime" = %s
-        WHERE "trees_stand"."id" = %s
-        AND "trees_stand"."nn_savetime" < %s;
-    """, [cond_id, savetime,
-          stand_id,
-          savetime])
-    transaction.commit_unless_managed()
+    stand_qs.filter(nn_savetime__lt=savetime).update(cond_id=cond_id, nn_savetime=savetime)
 
     stand.invalidate_cache()
 
@@ -164,7 +156,8 @@ def schedule_harvest(scenario_id):
     from celery import current_task
 
     try:
-        scenario = Scenario.objects.get(id=scenario_id)
+        scenario_qs = Scenario.objects.filter(id=scenario_id)
+        scenario = scenario_qs[0]
     except:
         raise schedule_harvest.retry()
 
@@ -257,15 +250,7 @@ def schedule_harvest(scenario_id):
     # update the database
     # stuff might have changed, we dont want a wholesale update of all fields!
     # use the timestamp to make sure we don't clobber a more recent request
-    from django.db import connection, transaction
-    cursor = connection.cursor()
-    cursor.execute("""
-        UPDATE "trees_scenario"
-        SET "output_scheduler_results" = %s, "date_modified" = %s
-        WHERE "trees_scenario"."id" = %s
-    """, [json.dumps(d), datemod,
-          scenario_id])
-    transaction.commit_unless_managed()
+    scenario_qs.update(output_scheduler_results=json.dumps(d), date_modified=datemod)
 
     return {'scenario_id': scenario_id, 'output_scheduler_results': d}
 
