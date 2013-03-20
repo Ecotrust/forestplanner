@@ -993,4 +993,4 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    instance.stand_set.all().update(cond_id=None, strata=None)
+    instance.stand_set.all().update(cond_id=None, strata=None, nn_savetime=datetime.datetime.now())
