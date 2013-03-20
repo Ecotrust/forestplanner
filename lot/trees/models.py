@@ -534,7 +534,6 @@ class Scenario(Feature):
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
-    
     @property
     def output_property_results(self):
         res = self.output_scheduler_results
@@ -588,9 +587,8 @@ class Scenario(Feature):
         time_mismatch = False
         latest = max([x.nn_savetime for x in self.stand_set()])
         scenario_mod = datetime_to_unix(self.date_modified)
-        timebuffer = 5.0
-        if latest - scenario_mod > timebuffer:
-            # at least one stand has been updated since last time scenario was run + timebuffer
+        if latest > scenario_mod:
+            # at least one stand has been updated since last time scenario was run
             time_mismatch = True
 
         if id_mismatch or time_mismatch:
@@ -879,8 +877,10 @@ class Strata(DirtyFieldsMixin, Feature):
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor field (post-save signal will pick them up)
-            self.stand_set.all().update(cond_id=None)
+            #null out nearest neighbor field (post-save signal must be triggered so no update)
+            for stand in self.stand_set.all():
+                stand.cond_id = None
+                stand.save()
 
 
 class TreeliveSummary(models.Model):

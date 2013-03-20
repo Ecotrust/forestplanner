@@ -20,7 +20,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 
-NUM_STANDS = 10
+NUM_STANDS = 2
 geoms = []
 for i in range(NUM_STANDS):
     cntr.set_x(cntr.x + 150)
@@ -139,7 +139,7 @@ except ScenarioNotRunnable:
     gotit = True
 assert gotit
 
-assert(scenario1.scheduler_results is None)
+assert(scenario1.needs_rerun is True)
 
 #### Change geometry
 st = Stand.objects.get(id=stands[0].id)
@@ -197,12 +197,12 @@ while not scenario1.is_runnable:
 print "We should be able to run() the scenario here."
 assert(scenario1.is_runnable is True)
 scenario1.run()
-while not scenario1.scheduler_results:
+while scenario1.needs_rerun:
     print "Waiting for scenario results..."
     # need to requery !
     scenario1 = Scenario.objects.get(id=scenario1.id)
     time.sleep(2)
-print scenario1.uid, scenario1.scheduler_results
+print scenario1.uid, scenario1.output_scheduler_results
 
 #### Step 6. Delete a stand
 url = "/features/generic-links/links/delete/%s/" % stands[0].uid
@@ -215,10 +215,8 @@ scenario1 = Scenario.objects.get(id=scenario1.id)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
 print scenario1.uid
-print scenario1.scheduler_results
-assert(scenario1.scheduler_results is None)
 scenario1.run()
-while not scenario1.scheduler_results:
+while scenario1.needs_rerun:
     print "Waiting for scheduler results..."
     scenario1 = Scenario.objects.get(id=scenario1.id)
     time.sleep(2)
@@ -226,7 +224,7 @@ while not scenario1.scheduler_results:
 #### Change geometry
 st = Stand.objects.get(id=stands[1].id)
 old = st.elevation
-st.geometry_final = geoms[1].buffer(2).wkt
+st.geometry_final = geoms[1].buffer(20).wkt
 st.save()  # WARNING: This may set the scenario to stale but a previously-started scenario.run() could clobber it
 print prop1.stand_summary
 while prop1.stand_summary['with_terrain'] < NUM_STANDS - 1:
@@ -243,14 +241,9 @@ st = Stand.objects.get(id=stands[1].id)
 assert(st.elevation != old)
 
 assert(scenario1.is_runnable is True)
-while scenario1.scheduler_results:
-    print "Waiting for stale scheduler_results to clear..."
-    scenario1 = Scenario.objects.get(id=scenario1.id)
-    time.sleep(2)
-
-assert(scenario1.scheduler_results is None)
+assert(scenario1.needs_rerun)
 scenario1.run()
-while not scenario1.scheduler_results:
+while scenario1.needs_rerun:
     print "Waiting for scenario results..."
     # need to requery !
     scenario1 = Scenario.objects.get(id=scenario1.id)
@@ -290,7 +283,7 @@ assert(prop1.stand_summary['total'] == NUM_STANDS)
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
 scenario1.run()
-while not scenario1.scheduler_results:
+while scenario1.needs_rerun:
     print "Waiting for scenario results..."
     # need to requery !
     scenario1 = Scenario.objects.get(id=scenario1.id)
