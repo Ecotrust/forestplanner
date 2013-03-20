@@ -228,15 +228,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
         super(Stand, self).save(*args, **kwargs)
 
-        # if there are any scenarios, make sure they get marked as stale
-        if self.collection:
-            for scenario in self.collection.scenario_set.all():
-                scenario.output_scheduler_results = None
-                scenario.save()
-
-            for scenario in self.collection.scenario_set.all():
-                assert(scenario.output_scheduler_results is None)
-
 
 @register
 class ForestProperty(FeatureCollection):
@@ -603,8 +594,6 @@ class Scenario(Feature):
             time_mismatch = True
 
         if id_mismatch or time_mismatch:
-            self.output_scheduler_results = None
-            self.save()
             return True
 
         return False
@@ -617,19 +606,8 @@ class Scenario(Feature):
 
         return True
 
-    @property
-    def scheduler_results(self):
-        '''
-        Use in API instead of self.output_scheduler_results
-        '''
-        # if not self.needs_rerun ?
-        return self.output_scheduler_results
-
     def run(self):
         if not self.is_runnable:
-            # setting output_scheduler_results to None implies that it must be rerun in the future !!
-            self.output_scheduler_results = None
-            self.save(rerun=False)  # avoid infinite recursion
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
         task = schedule_harvest.delay(self.id)
@@ -906,12 +884,6 @@ class Strata(DirtyFieldsMixin, Feature):
                 stand.cond_id = None
                 stand.save()
 
-            # Mark all scenarios as stale
-            if self.collection:
-                for scenario in self.collection.scenario_set():
-                    scenario.output_scheduler_results = None
-                    scenario.save()
-
 
 class TreeliveSummary(models.Model):
     class_id = models.BigIntegerField(primary_key=True)
@@ -1015,21 +987,6 @@ def postsave_stand_handler(sender, *args, **kwargs):
         # we already have all aux data; no need to call any async processes
         # (assuming the model save has nulled out the appropos fields)
         pass
-
-
-@receiver(pre_delete, sender=Stand)
-def delete_stand_handler(sender, *args, **kwargs):
-    '''
-    When a stand is deleted, make sure to set all forestproperty's scenarios to stale
-    '''
-    stand = kwargs['instance']
-    if stand.collection:
-        for scenario in stand.collection.scenario_set.all():
-            scenario.output_scheduler_results = None
-            scenario.save(rerun=False)
-
-        for scenario in stand.collection.scenario_set.all():
-            assert(scenario.output_scheduler_results is None)
 
 
 @receiver(pre_delete, sender=Strata)
