@@ -272,7 +272,7 @@ class ForestProperty(FeatureCollection):
         return gj
 
     @property
-    def has_plots(self):
+    def is_runnable(self):
         '''
         Boolean.
         Do all the stands have associated plots?
@@ -585,9 +585,10 @@ class Scenario(Feature):
 
         # make sure the scenario date modified is after the stands nn timestamp
         time_mismatch = False
-        latest = max([x.nn_savetime for x in self.stand_set()])
+        stand_nn_edit = max([x.nn_savetime for x in self.stand_set()])
+        stand_mod = max([x.date_modified for x in self.stand_set()])
         scenario_mod = datetime_to_unix(self.date_modified)
-        if latest > scenario_mod:
+        if stand_nn_edit > scenario_mod or stand_mod > scenario_mod:
             # at least one stand has been updated since last time scenario was run
             time_mismatch = True
 
@@ -863,21 +864,22 @@ class Strata(DirtyFieldsMixin, Feature):
                 recalc_required = True
 
         if 'classes' not in self.stand_list:
-            raise Exception("Not a valid stand list")
+            raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         for cls in self.stand_list['classes']:
-            if len(cls) != 4:
-                raise Exception("Not a valid stand list")
-            # c[0] is valid species?
-            assert(TreeliveSummary.objects.filter(
-                fia_forest_type_name=cls[0]).count() > 0)
-            # c[1] thru c[2] is valid diam class ?
-            assert(cls[1] < cls[2])
-            # c[3] is a valid tpa
-            assert(cls[3] > 0 and cls[3] < 10000)
+            try:
+                assert(len(cls) == 4)
+                # c[0] is valid species?
+                assert(TreeliveSummary.objects.filter(fia_forest_type_name=cls[0]).count() > 0)
+                # c[1] thru c[2] is valid diam class ? TODO actually query the database
+                assert(cls[1] < cls[2])
+                # c[3] is a valid tpa
+                assert(cls[3] > 0 and cls[3] < 5000)
+            except:
+                raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor field (post-save signal must be triggered so no update)
+            #null out nearest neighbor field (post-save signal must be triggered so can't use qs.update)
             for stand in self.stand_set.all():
                 stand.cond_id = None
                 stand.save()
