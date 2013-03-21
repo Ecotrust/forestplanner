@@ -8,7 +8,7 @@ var currentStep = 1;
 var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
-    app.map = new OpenLayers.Map(); 
+    map = new OpenLayers.Map(); 
     // 'map', {
     //     'controls': []
     // });
