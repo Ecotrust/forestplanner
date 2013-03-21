@@ -8,17 +8,21 @@ var currentStep = 1;
 var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
-    map = new OpenLayers.Map();
-    var switcher = new OpenLayers.Control.LayerSwitcher();
-    map.addControl(switcher);
+    app.map = new OpenLayers.Map(); 
+    // 'map', {
+    //     'controls': []
+    // });
+    //var switcher = new OpenLayers.Control.LayerSwitcher();
+    //map.addControl(switcher);
 
-    map.addControl(new OpenLayers.Control.Navigation({
-            dragPanOptions: {
-                enableKinetic: false
-            }
-        }));
+    // map.addControl(new OpenLayer.Control.Zoom());
+    // map.addControl(new OpenLayers.Control.Navigation({
+    //         dragPanOptions: {
+    //             enableKinetic: false
+    //         }
+    //     }));
 
-    map.addControl(new OpenLayers.Control.Attribution());
+    // map.addControl(new OpenLayers.Control.Attribution());
 
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
     var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 21});
@@ -65,6 +69,7 @@ function init() {
         "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
         {
             sphericalMercator: true,
+         opacity: 0.25,
             attribution: "ESRI, (c) 2011 National Geographic Society, I-Cubed"
         } 
     );
@@ -86,22 +91,22 @@ function init() {
         type: "Aerial"
     });
 
-    map.addLayers([hybrid, road]);
-    map.addLayer(baseOSM);
-    map.addLayers([ghyb, gphy]);
-    map.addLayer(baseAerial);
+    // map.addLayers([hybrid, road]);
+    // map.addLayer(baseOSM);
+    // map.addLayers([ghyb, gphy]);
+    // map.addLayer(baseAerial);
     map.addLayer(esri_base);
-    map.addLayer(nhd);
-    map.addLayer(huc);
-    map.addLayer(soils);
+    // map.addLayer(nhd);
+    // map.addLayer(huc);
+    // map.addLayer(soils);
 
-    soils.events.register('visibilitychanged', soils, function(evt) {
-        if (soils.visibility) {
-            $('.layersDiv').append('<div id="soil-legend" style="text-align:center;"><img src="/media/img/soil_legend.png"><br><a target="_blank" href="http://goto.arcgisonline.com/maps/Specialty/Soil_Survey_Map">more info</a></div>');
-        } else {
-            $('#soil-legend').remove();
-        }
-    });
+    // soils.events.register('visibilitychanged', soils, function(evt) {
+    //     if (soils.visibility) {
+    //         $('.layersDiv').append('<div id="soil-legend" style="text-align:center;"><img src="/media/img/soil_legend.png"><br><a target="_blank" href="http://goto.arcgisonline.com/maps/Specialty/Soil_Survey_Map">more info</a></div>');
+    //     } else {
+    //         $('#soil-legend').remove();
+    //     }
+    // });
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;

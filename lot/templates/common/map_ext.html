@@ -489,6 +489,48 @@
           </div>
           <div class="span7">
             <div class="outermap well">
+
+                <style>
+                    #layerswitcher-container {
+                        position: relative; 
+                        top: 12px; 
+                        left: -12px; 
+                        text-align:right; 
+                        float:right; 
+                        z-index: 1039;
+                        height: 0px;
+                    }
+                    #layerswitcher-list {
+                        width: 400px;
+                    }
+                </style>
+
+                <div id="layerswitcher-container">
+                    <button id="layerswitcher-button" class="btn btn-mini" 
+                        data-toggle="collapse" data-target="#layerswitcher-list">
+                        <p class="small">
+                            <i class="icon-align-justify"></i> Map Layers
+                        </p>
+                    </button>
+                    <div class="clearfix"></div>
+                    <div id="layerswitcher-list" class="collapse"> 
+                        <div class="well" id="layerswitcher">
+                            <h4> Data </h4>
+                            <!-- 
+                            <div>{% include "layer_manager/search.html" %}</div> 
+                            -->
+                            <div>{% include "layer_manager/data.html" %}</div>
+
+                            <h4> Legend </h4>
+                            <div>{% include "layer_manager/legend.html" %}</div>
+
+                            <h4> Active </h4>
+                            <div>{% include "layer_manager/active.html" %}</div>
+                        </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+
               {% if user.is_authenticated %}
               <!-- Not sure why but non authenticated requests cause failure in geoSearch knockout binding -->
               <div id="searchbox-container" class="pull-right">
@@ -615,9 +657,12 @@
         };
 
         var app = {
+            utils: {},
             stands: {},
             scenarios: {},
-            properties: {}
+            properties: {},
+            viewModel: {},
+            updateUrl: function() { /* change url hash */ }
         };
 
         {% if user.is_authenticated %}
@@ -630,16 +675,36 @@
         });
         {% endif %}
 
+         $(document).ready(function () {
+            init(); // Call here instead of in common/js/init.js
+            app.utils.initMap(map);
+            ko.applyBindings(app.viewModel, document.getElementById("layerswitcher"));
+            app.viewModel.layers.loadLayersFromServer().done( function() {
+                //app.utils.loadScenarioLayer();
+                console.log("DONE");
+            });
+        });
+
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
     {% compressed_js 'application' %}
 
-    <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
     <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
     <script src="{{ MEDIA_URL }}common/js/init.js"></script>
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
     <script src="{{ MEDIA_URL }}common/js/timemap.js"></script>
+    <!--
+    <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
+    -->
+
+     <!-- TODO document or put in include -->
+    <script src="/media/common/js/amplify.min.js"></script>
+    <script src="/media/support/bootstrap/js/bootstrap.min.js"></script>  
+    <script src="/media/layer_manager/js/map.js"></script>
+    <script src="/media/layer_manager/js/models.js"></script>
+    <script src="/media/layer_manager/js/load.js"></script>
+    <script src="/media/layer_manager/js/knockout-bindings.js"></script>  
 
 {% endblock scripts %}

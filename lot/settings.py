@@ -30,7 +30,11 @@ COMPRESS_JS['application']['source_filenames'] = (
     'common/scenario.js'
 )
 
-INSTALLED_APPS += ('trees', 'madrona.raster_stats')
+INSTALLED_APPS += (
+    'trees',
+    'madrona.raster_stats',
+    'madrona.layer_manager',
+)
 
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857  # for mercator
