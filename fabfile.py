@@ -64,6 +64,9 @@ def init():
     _install_django()
     _install_starspan()
 
+def install_media():
+    """ Run the django install_media command """
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py install_media' % vars)
 
 def runserver():
     """ Run the django dev server on port 8000 """

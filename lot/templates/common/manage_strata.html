@@ -386,6 +386,10 @@
               app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
 
+             // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
+             // app.updateUrl();
+   
+
             ko.applyBindings(app.strata.viewModel);
             
             // $( "#map" ).droppable({
@@ -398,8 +402,8 @@
             app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
                 { 
                     "clickout": false,
-                    "multiple": true
-
+                    "multiple": true,
+                    "toggle": true
                 });
             
             // reenable click and drag in vectors
@@ -818,9 +822,21 @@
                 
             }),
             $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', app.strata.property_id), function (data) {
+                var styleMap = map_styles.stand;
                 app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
                   styleMap: map_styles.stand,
                   renderers: app.renderer
+                });
+
+                app.stand_layer.styleMap.default = new OpenLayers.Style({
+                  fillColor: "blue",
+                  
+
+                }, {
+                  // Rules go here.
+                  context: {
+                    
+                  }
                 });
 
                 map.addLayer(app.stand_layer);
@@ -903,7 +919,8 @@
     {% compressed_js 'application' %}
 
     <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
-    
+        
+
     <script src="{{ MEDIA_URL }}common/js/strata.js"></script>
 
     <!--
