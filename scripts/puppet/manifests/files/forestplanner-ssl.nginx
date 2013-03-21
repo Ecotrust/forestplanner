@@ -1,0 +1,49 @@
+#  requires that MEDIA_URL be relative && LOGIN_REDIRECT_URL go to http://domain/
+
+server {
+    server_name localhost;
+    listen 80;
+
+    access_log /var/log/nginx/forestplanner.access.log;
+    error_log /var/log/nginx/forestplanner.error.log;
+
+    location / {
+        uwsgi_pass unix:///var/run/uwsgi/app/forestplanner/socket;
+        include uwsgi_params;
+    }
+    location /auth {
+        rewrite  ^/(.*)$  https://localhost:8443/$1 permanent;
+    }
+    location /media/  {
+        alias /usr/local/apps/land_owner_tools/mediaroot/;
+    }
+}
+
+server {
+    server_name localhost;
+    listen  443 ssl;
+
+    ssl on;
+    ssl_certificate /usr/local/keys/dummy-cert.pem;
+    ssl_certificate_key /usr/local/keys/dummy-key.pem;
+    # Create the private key:
+    #   openssl genrsa -out dummy-key.pem 1024
+    # Create the CSR - Certificate Signing Request file(sent to CAs to sign our certificate)
+    #   openssl req -new -key dummy-key.pem -out dummy-csr.pem
+    # We’re not sending this CSR over to a CA now. Instead, we’ll “self-sign” it:
+    #   openssl x509 -req -in dummy-csr.pem -signkey dummy-key.pem -out dummy-cert.pem
+
+    ssl_protocols        SSLv3 TLSv1 TLSv1.1 TLSv1.2;
+    ssl_ciphers          HIGH:!aNULL:!MD5;
+
+    access_log /var/log/nginx/forestplanner-ssl.access.log;
+    error_log /var/log/nginx/forestplanner-ssl.error.log;
+
+    location / {
+        uwsgi_pass unix:///var/run/uwsgi/app/forestplanner/socket;
+        include uwsgi_params;
+    }
+    location /media/  {
+        alias /usr/local/apps/land_owner_tools/mediaroot/;
+    }
+}

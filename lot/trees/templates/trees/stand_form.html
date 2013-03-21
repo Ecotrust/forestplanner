@@ -1,0 +1,69 @@
+{% extends "common/panel.html" %}
+{% block title %}{{title}}{% endblock %}
+
+{% block panel %}
+
+{% if form.media %} {{ form.media }} {% endif %}
+<h1>{{title}}</h1>
+
+{% if is_spatial %} 
+
+    <div class="step" id="step1" style="padding-bottom: 40px;">
+        <p class="step-text"><i>Step 1 of 2 </i>
+        <div id="PanelGeometry"></div>
+    </div>
+     
+    <div class="step" id="step2">
+        <p class="step-text"><i>Step 2 of 2 </i> 
+        <div id="PanelAttributes">
+            
+{% endif %}
+
+<form id="featureform" action="{{action}}" method="post"> 
+{% if json %}
+    <div style="display:none;" class="json">{{json}}</div>
+{% endif %}
+
+    <!-- <p class="instructions">Provide a name to identify your feature: </p> -->
+{% for field in form.visible_fields %}
+    <div class="field{% if field.field.required %} required{% endif %}">
+        {# Include the hidden fields in the form #}
+        {% if forloop.first %}
+            {% for hidden in form.hidden_fields %}
+            <div style="display:none;">
+                {{ hidden.errors }}
+                {{ hidden }}
+            </div>
+            {% endfor %}
+        {% endif %}
+
+        {{ field.label_tag }}
+        {{ field.errors }}
+        {% if field.help_text %}
+            <p class="help_text">
+                {{ field.help_text|safe }}            
+            </p>            
+        {% endif %}
+        {{ field }}            
+    </div>
+{% endfor %}
+  <p><input type="submit" value="submit"></p>
+</form>
+
+{% if is_spatial %}
+        </div>
+    </div>
+{% endif %}
+
+        
+<div class="wizard_nav" style="width:100%">
+    <a href="#" class="button" style="float:left;" onclick="this.blur(); return false;" id="button_prev"><span>&lt; Previous</span></a>
+    <a href="#" class="button" style="float:right;" onclick="this.blur(); return false;" id="button_next"><span>Next &gt;</span></a>
+</div>
+
+<div>
+    <a href="#" class="cancel_button button red" onclick="this.blur(); return false;"><span>Cancel</span></a>
+    <a href="#" class="submit_button button" onclick="this.blur(); return false;" id="button_submit"><span>Submit</span></a>
+</div>
+
+{% endblock %}

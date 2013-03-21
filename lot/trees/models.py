@@ -10,7 +10,7 @@ from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
-from madrona.features import register, alternate
+from madrona.features import register, alternate, edit
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
@@ -55,7 +55,12 @@ RX_CHOICES = (
 def datetime_to_unix(dt):
     start = datetime.datetime(year=1970, month=1, day=1)
     diff = dt - start
-    return diff.total_seconds()
+    try:
+        total = diff.total_seconds()
+    except AttributeError: 
+        # for the benefit of python 2.6
+        total = (diff.microseconds + (diff.seconds + diff.days * 24 * 3600) * 1e6) / 1e6
+    return total
 
 
 def postgres_now():
@@ -104,6 +109,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
     class Options:
         form = "trees.forms.StandForm"
+        form_template = "trees/stand_form.html"
         manipulators = []
 
     def get_idb(self, force=False):
@@ -209,6 +215,9 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     def save(self, *args, **kwargs):
         self.invalidate_cache()
 
+        if not self.name or self.name.strip() == '':
+            self.name = str(datetime_to_unix(datetime.datetime.now()))
+
         # Depending on what changed, null out fields (post-save signal will pick them up)
         if 'geometry_final' in self.get_dirty_fields().keys() or not self.id:
             # got new geom - time to recalc terrain rasters!
@@ -308,6 +317,13 @@ class ForestProperty(FeatureCollection):
             'with_condition': n_with_condition,
             'with_terrain': n_with_terrain,
         }
+
+    def reset_scenarios(self):
+        """
+        The 'reset' button for all property's scenarios
+        """
+        for scenario in self.scenario_set.all():
+            scenario.run()
 
     def reset_stands(self):
         """
@@ -453,6 +469,11 @@ class ForestProperty(FeatureCollection):
             # Link to grab ALL *scenarios* associated with a property
             alternate('Property Scenarios',
                       'trees.views.forestproperty_scenarios',
+                      type="application/json",
+                      select='single'),
+            # Link to grab ALL *strata* belonging to a property
+            alternate('Property Strata List',
+                      'trees.views.forestproperty_strata_list',
                       type="application/json",
                       select='single'),
         )
@@ -623,9 +644,12 @@ class Scenario(Feature):
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
             try:
-                stand_dict['properties']['results'] = res[str(stand.pk)]
+                stand_dict['properties']['results'] = res[stand.pk]
             except KeyError:
-                continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
+                try:
+                    stand_dict['properties']['results'] = res[str(stand.pk)]  # just in case it's a string
+                except KeyError:
+                    continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
             stand_data.append(stand_dict)
 
         gj = dumps(stand_data, indent=2)
@@ -665,6 +689,12 @@ class Scenario(Feature):
         form_template = "trees/scenario_form.html"
         verbose_name = 'Forest Scenario'
         form_context = {}
+        links = (
+            edit('Run Scenario',
+                 'trees.views.run_scenario',
+                 edits_original=True,
+                 select='single'),
+        )
 
 
 class FVSSpecies(models.Model):

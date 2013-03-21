@@ -214,6 +214,7 @@ def geojson_features(request, instances):
       ]}""" % featxt, mimetype='application/json', status=200)
 
 
+@cache_page(60 * 60 * 24 * 365)
 def geosearch(request):
     """
     Returns geocoded results in MERCATOR projection
@@ -237,32 +238,33 @@ def geosearch(request):
     except:
         pass  # not a point
 
-    currentloc = Point("45.0 N 122.0 W")
+    centerloc = Point("45.54 N 120.64 W")
+    max_dist = 315  # should be everything in WA and Oregon
 
-    if not searchtype or not lat or not lon:  # try a geocoder
-        g = geocoders.Google()
-        max_dist = 100000000
+    searches = [
+        geocoders.GeoNames(),
+        geocoders.OpenMapQuest(), 
+        geocoders.Yahoo(app_id=settings.APP_NAME), 
+        geocoders.Bing(api_key=settings.BING_API_KEY),
+        # these are tried in reverse order, fastest first
+        # TODO thread them and try them as they come in.
+    ]
+
+    while not (searchtype and lat and lon):  # try a geocoder
         try:
+            g = searches.pop()
             for p, loc in g.geocode(txt, exactly_one=False):
-                d = distance.distance(loc, currentloc).miles
+                d = distance.distance(loc, centerloc).miles
                 if d < max_dist:
+                    # TODO maybe compile these and return the closest to map center?
+                    # print g, p, loc 
                     place = p
                     lat = loc[0]
                     lon = loc[1]
                     max_dist = d
                 else:
                     pass
-            searchtype = 'geocoded_google'
-        except:
-            pass
-
-    if not searchtype or not lat or not lon:  # try another geocoder
-        g = geocoders.GeoNames()
-        try:
-            place, latlon = g.geocode(txt)
-            lat = latlon[0]
-            lon = latlon[1]
-            searchtype = 'geocoded_geonames'
+            searchtype = g.__class__.__name__
         except:
             pass
 
@@ -292,26 +294,6 @@ def geosearch(request):
         }
         json_loc = json.dumps(loc)
         return HttpResponse(json_loc, mimetype='application/json', status=404)
-
-
-def potential_minmax(request):
-    from trees.utils import potential_minmax as _pmm
-    from trees.models import PlotLookup
-    categories = request.GET.get("categories", None)
-    if categories:
-        categories = json.loads(categories)
-    else:
-        categories = {}
-    pld = PlotLookup.weight_dict()
-    pmm = _pmm(categories, pld, {})
-    jpmm = json.dumps(pmm)
-    return HttpResponse(jpmm, mimetype='application/json', status=200)
-
-
-def svs_image(request, gnn):
-    imgs = ["/media/img/svs_sample/svs%d.png" % x for x in range(1, 7)]
-    idx = int(gnn) % len(imgs)
-    return HttpResponsePermanentRedirect(imgs[idx])
 
 
 def stand_list_nn(request):
@@ -427,33 +409,23 @@ def add_stands_to_strata(request, instance):
     return HttpResponse("Stands %r added to %s" % (stands, instance.uid), mimetype='text/html', status=200)
 
 
-def strata_list(request, property_uid):
-    from madrona.features.views import get_object_for_viewing
-    from trees.models import ForestProperty, Strata
-    fprop = get_object_for_viewing(
-        request, property_uid, target_klass=ForestProperty)
-    if isinstance(fprop, HttpResponse):
-        return fprop
-    slist = sorted(fprop.feature_set(feature_classes=[Strata]),
+def forestproperty_strata_list(request, instance):
+    from trees.models import Strata
+    slist = sorted(instance.feature_set(feature_classes=[Strata]),
                    key=lambda x: x.date_created, reverse=False)
     return HttpResponse(json.dumps([x._dict for x in slist]), mimetype="text/javascript")
 
 
-def run_scenario(request, scenario_uid):
-    from madrona.features.views import get_object_for_editing
+def run_scenario(request, instance):
     from trees.models import Scenario, ScenarioNotRunnable  # , ForestProperty, Strata
     from celery.result import AsyncResult
 
     force_rerun = request.REQUEST.get("force", False)
-    sc = get_object_for_editing(request, scenario_uid, target_klass=Scenario)
     status = ''
-    if isinstance(sc, HttpResponse):
-        return sc
-
-    rerun = sc.needs_rerun
+    rerun = instance.needs_rerun
 
     # determine if there is already a process running using the redis cache
-    taskid = cache.get('Taskid_%s' % scenario_uid)
+    taskid = cache.get('Taskid_%s' % instance.uid)
     if taskid:
         status = 'unknown'
         try:
@@ -464,13 +436,13 @@ def run_scenario(request, scenario_uid):
         except:
             pass
 
-        if status == "SUCCESS" and sc.needs_rerun:
+        if status == "SUCCESS" and instance.needs_rerun:
             # it's already been run but needs a refresher
             rerun = True
 
     if rerun or force_rerun:
         try:
-            sc.run()
+            instance.run()
             status = "Running"
         except ScenarioNotRunnable:
             status = "Not-runnable"

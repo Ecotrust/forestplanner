@@ -3,7 +3,7 @@ from madrona.common.default_settings import *
 import logging
 import os
 
-APP_NAME = "Forestry Planner"
+APP_NAME = "ForestPlanner"
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
@@ -65,6 +65,8 @@ ENFORCE_SUPPORTED_BROWSER = False
 EQUAL_AREA_SRID = 26910  # NAD83 UTM Zone 10 N meters
 EQUAL_AREA_ACRES_CONVERSION = 0.000247105381  # sq m to acres
 SLIVER_THRESHOLD = 100.0  # square meters
+
+BING_API_KEY = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70"
 
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'localhost'
@@ -151,6 +153,8 @@ INSTALLED_APPS += (
 
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # user logs in by entering either his username or e-mail address
+
+STARSPAN_REMOVE_TMP = True
 
 # install postfix
 EMAIL_HOST = 'localhost'

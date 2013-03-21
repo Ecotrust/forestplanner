@@ -803,7 +803,7 @@
 
 
         $.when(
-            $.getJSON("/trees/strata_list/" + app.strata.property_id + '/', function (data) {
+            $.getJSON("/features/forestproperty/links/property-strata-list/" + app.strata.property_id + '/', function (data) {
                 app.strata.data = data;
             }),
 

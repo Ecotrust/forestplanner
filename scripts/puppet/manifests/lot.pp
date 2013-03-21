@@ -203,13 +203,16 @@ file { "go":
 
 file { "celeryd.conf":
   path => "/etc/supervisor/conf.d/celeryd.conf",
-  content => template("celeryd.conf")
+  content => template("celeryd.conf"),
+  require => Package['supervisor']
 }
 file { "celerymon.conf":
   path => "/etc/supervisor/conf.d/celerymon.conf",
-  content => template("celerymon.conf")
+  content => template("celerymon.conf"),
+  require => Package['supervisor']
 }
 file { "celeryflower.conf":
   path => "/etc/supervisor/conf.d/celeryflower.conf",
-  content => template("celeryflower.conf")
+  content => template("celeryflower.conf"),
+  require => Package['supervisor']
 }

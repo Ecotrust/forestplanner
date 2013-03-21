@@ -34,7 +34,8 @@ def impute_rasters(stand_id, savetime):
             g1 = stand.geometry_final.transform(rproj, clone=True)
             if not raster.is_valid:
                 raise Exception("Raster is not valid: %s" % raster)
-            stats = zonal_stats(g1, raster)
+            # only need 33% coverage to include pixel, helps with small stands
+            stats = zonal_stats(g1, raster, pixprop=0.33)
             cache.set(key, stats, 60 * 60 * 24 * 365)
         return stats
 
@@ -81,7 +82,12 @@ def impute_rasters(stand_id, savetime):
 
     stand.invalidate_cache()
 
-    return {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
+    res = {'stand_id': stand_id, 'elevation': elevation, 'aspect': aspect, 'slope': slope, 'cost': cost}
+
+    if None in [elevation, aspect, slope, cost]:
+        raise Exception("At least one raster is NULL for this geometry. %s" % res)
+     
+    return res
 
 
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
@@ -260,8 +266,6 @@ def schedule_harvest(scenario_id):
     """, [json.dumps(d), datemod,
           scenario_id])
     transaction.commit_unless_managed()
-
-    stand.invalidate_cache()
 
     return {'scenario_id': scenario_id, 'output_scheduler_results': d}
 

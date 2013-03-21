@@ -143,7 +143,7 @@ function standsViewModel() {
       success: function(data) {
         self.updateStand(JSON.parse(data)["X-Madrona-Select"], true);
         app.stands.viewModel.showStandFormPanel(false);
-        app.stands.viewModel.showStandList(true);
+        //app.stands.viewModel.showStandList(true);
         app.new_features.removeAllFeatures();
       }
     });
@@ -186,6 +186,7 @@ function standsViewModel() {
         var stand_uid = JSON.parse(data)["X-Madrona-Select"];
         if (isNew) {
           self.associateStand(stand_uid, self.property.uid());
+          self.addStandStart();  // automatically go back to digitizing mode
         } else {
           self.updateStand(stand_uid, false);
         }
