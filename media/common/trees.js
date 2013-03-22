@@ -1,6 +1,3 @@
-$(document).ready(function() {
-    init();
-});
 
 var map, controls;
 var stands;
@@ -9,21 +6,8 @@ var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
     map = new OpenLayers.Map(); 
-    // 'map', {
-    //     'controls': []
-    // });
-    //var switcher = new OpenLayers.Control.LayerSwitcher();
-    //map.addControl(switcher);
 
-    // map.addControl(new OpenLayer.Control.Zoom());
-    // map.addControl(new OpenLayers.Control.Navigation({
-    //         dragPanOptions: {
-    //             enableKinetic: false
-    //         }
-    //     }));
-
-    // map.addControl(new OpenLayers.Control.Attribution());
-
+    /*  TODO bring into layer manager
     var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
     var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 21});
     var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
@@ -39,13 +23,11 @@ function init() {
         "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
         "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
 
-    /* Mapquest OSM
     var arrayOSM = [
         "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    */
 
     var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial, {attribution:"MapQuest"});
     var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain, {attribution:"Mapbox"});
@@ -65,15 +47,6 @@ function init() {
          opacity: 0.75,
          attribution: "ESRI, USDA Natural Resources Conservation Service"} 
     );
-    var esri_base = new OpenLayers.Layer.XYZ( "ESRI Topo Maps",
-        "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
-        {
-            sphericalMercator: true,
-         opacity: 0.25,
-            attribution: "ESRI, (c) 2011 National Geographic Society, I-Cubed"
-        } 
-    );
-
     var bingApiKey = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70";
     var road = new OpenLayers.Layer.Bing({
         name: "Bing Road",
@@ -95,7 +68,6 @@ function init() {
     // map.addLayer(baseOSM);
     // map.addLayers([ghyb, gphy]);
     // map.addLayer(baseAerial);
-    map.addLayer(esri_base);
     // map.addLayer(nhd);
     // map.addLayer(huc);
     // map.addLayer(soils);
@@ -107,10 +79,22 @@ function init() {
     //         $('#soil-legend').remove();
     //     }
     // });
+*/
 
-    for (var i=map.layers.length-1; i>=0; --i) {
-        map.layers[i].animationEnabled = true;
-    }
+    var esri_base = new OpenLayers.Layer.XYZ( "ESRI Topo Maps",
+        //"http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
+        "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/${z}/${y}/${x}",
+        {
+            sphericalMercator: true,
+            opacity: 0.35,
+            attribution: "ESRI, (c) 2011 National Geographic Society, I-Cubed"
+        } 
+    );
+    map.addLayer(esri_base);
+
+    // for (var i=map.layers.length-1; i>=0; --i) {
+    //     map.layers[i].animationEnabled = true;
+    // }
 
     app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});               
     map.addLayer(app.markers);

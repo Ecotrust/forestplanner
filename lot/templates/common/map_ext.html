@@ -515,17 +515,27 @@
                     <div class="clearfix"></div>
                     <div id="layerswitcher-list" class="collapse"> 
                         <div class="well" id="layerswitcher">
-                            <h4> Data </h4>
-                            <!-- 
-                            <div>{% include "layer_manager/search.html" %}</div> 
-                            -->
-                            <div>{% include "layer_manager/data.html" %}</div>
-
-                            <h4> Legend </h4>
-                            <div>{% include "layer_manager/legend.html" %}</div>
-
-                            <h4> Active </h4>
-                            <div>{% include "layer_manager/active.html" %}</div>
+                            <ul class="nav nav-tabs">
+                              <li><a href="#data" data-toggle="tab" class="active">Data</a></li>
+                              <li><a href="#active" data-toggle="tab">Active</a></li>
+                              <li><a href="#legend" data-toggle="tab">Legend</a></li>
+                            </ul>
+                            <div class="tab-content">
+                              <div class="tab-pane active" id="data">
+                                <!-- 
+                                <div>{% include "layer_manager/search.html" %}</div> 
+                                -->
+                                <div>{% include "layer_manager/data.html" %}</div>
+                              </div>
+                              <div class="tab-pane" id="legend">
+                                <div>{% include "layer_manager/legend.html" %}</div>
+                              </div>
+                              <div class="tab-pane" id="active">
+                                <div>{% include "layer_manager/active.html" %}</div>
+                              </div>
+                            </div>
+                            <hr>
+                            {% include "layer_manager/description.html" %}
                         </div>
                     </div>
                     <div class="clearfix"></div>
