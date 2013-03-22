@@ -10,6 +10,9 @@ urlpatterns = patterns('',
     url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
 
+    url(r'^scenario/(?P<property_uid>\w+)$',
+        manage_scenario, name='trees-manage_scenario'),
+
     # TODO Page urls:
     # /   (intro and property list)
     # /{property_uid}

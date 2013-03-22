@@ -43,6 +43,16 @@ def manage_strata(request, property_uid):
         context_instance=RequestContext(request))
 
 
+def manage_scenario(request, property_uid):
+    '''
+    Scenario management view
+    '''
+    return render_to_response(
+        'common/manage_scenario.html', {'property_id': property_uid},
+        context_instance=RequestContext(request))
+
+
+
 def user_property_list(request):
     '''
     Present list of properties for a given user
