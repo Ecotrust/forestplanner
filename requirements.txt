@@ -4,7 +4,11 @@ selenium
 scipy
 python-memcached>=1.48
 pandas>=0.10.1
--e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
+
+# Don't use git master; see Vagrantfile for example of how to use a local dev madrona 
+# -e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
+madrona
+
 simplejson
 django-pdb
 celery-with-redis
@@ -15,8 +19,8 @@ coverage
 django-allauth
 celerymon
 flower
+
 django>1.4,<1.5  
 # not quite ready for 1.5; see:
 #  https://github.com/simplejson/simplejson/issues/37
 #  http://stackoverflow.com/questions/11428427/no-module-named-simple-error-in-django
-

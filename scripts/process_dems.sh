@@ -36,7 +36,7 @@ gdal_calc.py -A $NEWASPECT.float.tif --calc "sin(radians(A))" --format "GTiff" -
 # Convert slope and aspect to Int16
 for rast in $OUTDIR/*.float.tif; do
     BASE=`echo "$rast" | cut -d'.' -f1`
-    gdal_translate -ot Int16 $rast $BASE.tif
+    gdal_translate -ot Int16 $rast $BASE.tif -co "TILED=YES" -co "BLOCKYSIZE=512" -co "BLOCKXSIZE=512"
     rm $rast
 done
 

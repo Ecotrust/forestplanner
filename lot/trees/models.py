@@ -228,15 +228,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
         super(Stand, self).save(*args, **kwargs)
 
-        # if there are any scenarios, make sure they get marked as stale
-        if self.collection:
-            for scenario in self.collection.scenario_set.all():
-                scenario.output_scheduler_results = None
-                scenario.save()
-
-            for scenario in self.collection.scenario_set.all():
-                assert(scenario.output_scheduler_results is None)
-
 
 @register
 class ForestProperty(FeatureCollection):
@@ -281,7 +272,7 @@ class ForestProperty(FeatureCollection):
         return gj
 
     @property
-    def has_plots(self):
+    def is_runnable(self):
         '''
         Boolean.
         Do all the stands have associated plots?
@@ -543,7 +534,6 @@ class Scenario(Feature):
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
-    
     @property
     def output_property_results(self):
         res = self.output_scheduler_results
@@ -595,16 +585,14 @@ class Scenario(Feature):
 
         # make sure the scenario date modified is after the stands nn timestamp
         time_mismatch = False
-        latest = max([x.nn_savetime for x in self.stand_set()])
+        stand_nn_edit = max([x.nn_savetime for x in self.stand_set()])
+        stand_mod = max([x.date_modified for x in self.stand_set()])
         scenario_mod = datetime_to_unix(self.date_modified)
-        timebuffer = 5.0
-        if latest - scenario_mod > timebuffer:
-            # at least one stand has been updated since last time scenario was run + timebuffer
+        if stand_nn_edit > scenario_mod or stand_mod > scenario_mod:
+            # at least one stand has been updated since last time scenario was run
             time_mismatch = True
 
         if id_mismatch or time_mismatch:
-            self.output_scheduler_results = None
-            self.save()
             return True
 
         return False
@@ -617,19 +605,8 @@ class Scenario(Feature):
 
         return True
 
-    @property
-    def scheduler_results(self):
-        '''
-        Use in API instead of self.output_scheduler_results
-        '''
-        # if not self.needs_rerun ?
-        return self.output_scheduler_results
-
     def run(self):
         if not self.is_runnable:
-            # setting output_scheduler_results to None implies that it must be rerun in the future !!
-            self.output_scheduler_results = None
-            self.save(rerun=False)  # avoid infinite recursion
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
 
         task = schedule_harvest.delay(self.id)
@@ -887,30 +864,25 @@ class Strata(DirtyFieldsMixin, Feature):
                 recalc_required = True
 
         if 'classes' not in self.stand_list:
-            raise Exception("Not a valid stand list")
+            raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         for cls in self.stand_list['classes']:
-            if len(cls) != 4:
-                raise Exception("Not a valid stand list")
-            # c[0] is valid species?
-            assert(TreeliveSummary.objects.filter(
-                fia_forest_type_name=cls[0]).count() > 0)
-            # c[1] thru c[2] is valid diam class ?
-            assert(cls[1] < cls[2])
-            # c[3] is a valid tpa?
-            assert(cls[3] > 0 and cls[3] < 10000)
+            try:
+                assert(len(cls) == 4)
+                # c[0] is valid species?
+                assert(TreeliveSummary.objects.filter(fia_forest_type_name=cls[0]).count() > 0)
+                # c[1] thru c[2] is valid diam class ? TODO actually query the database
+                assert(cls[1] < cls[2])
+                # c[3] is a valid tpa
+                assert(cls[3] > 0 and cls[3] < 5000)
+            except:
+                raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor fields (post-save signal will pick them up)
+            #null out nearest neighbor field (post-save signal must be triggered so can't use qs.update)
             for stand in self.stand_set.all():
                 stand.cond_id = None
                 stand.save()
-
-            # Mark all scenarios as stale
-            if self.collection:
-                for scenario in self.collection.scenario_set():
-                    scenario.output_scheduler_results = None
-                    scenario.save()
 
 
 class TreeliveSummary(models.Model):
@@ -1017,29 +989,10 @@ def postsave_stand_handler(sender, *args, **kwargs):
         pass
 
 
-@receiver(pre_delete, sender=Stand)
-def delete_stand_handler(sender, *args, **kwargs):
-    '''
-    When a stand is deleted, make sure to set all forestproperty's scenarios to stale
-    '''
-    stand = kwargs['instance']
-    if stand.collection:
-        for scenario in stand.collection.scenario_set.all():
-            scenario.output_scheduler_results = None
-            scenario.save(rerun=False)
-
-        for scenario in stand.collection.scenario_set.all():
-            assert(scenario.output_scheduler_results is None)
-
-
 @receiver(pre_delete, sender=Strata)
 def delete_strata_handler(sender, *args, **kwargs):
     '''
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    stands = instance.stand_set.all()
-    for stand in stands:
-        stand.cond_id = None
-        stand.strata = None  # otherwise it will just re-impute
-        stand.save()
+    instance.stand_set.all().update(cond_id=None, strata=None, nn_savetime=datetime.datetime.now())
