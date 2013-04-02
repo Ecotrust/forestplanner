@@ -277,6 +277,10 @@
             background-color: #E4AF87 !important;
             
         }
+		.table tbody tr:hover td, .table tbody tr:hover th {
+			cursor: pointer;
+        }
+
         .stand-table tr.active {
             font-weight: bold;
         }
@@ -339,6 +343,18 @@
           .dl-horizontal dt {
             text-align: left;
           }
+		  #flash{
+			  border-width: 0 0 5px 0;
+			  margin: 0 auto 18px auto;
+			  padding: 10px;
+			  position: relative;
+			  width: 90%;
+		  }
+			#flash .close{
+				position: absolute;
+				right: 5px;
+				top: 3px;
+			}
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -355,6 +371,9 @@
             scenarios: {},
             properties: {}
         };
+
+
+		
 
         {% if user.is_authenticated %}
         $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
@@ -389,6 +408,7 @@
              // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
              // app.updateUrl();
    
+			app.strata.errorHandling();
 
             ko.applyBindings(app.strata.viewModel);
             
@@ -412,6 +432,27 @@
             map.addControl(app.selectFeature);
             app.selectFeature.activate();
         }
+
+		app.strata.errorHandling = function(){
+			$( document ).ajaxError(function(event, request, settings, exception) {
+				console.log('event, request, settings, exception');
+				console.log( event );
+				console.log( request );
+				console.log(settings  );
+				console.log(exception  );
+				$('#flash').show().find('div').text('Error handling for all XHR').show();	
+			})
+			$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><div></div><a class="close" data-dismiss="alert" href="#">&times;</a>');
+			
+			$('.brand').click(function(e){
+				$.get('/features/generic-links/links/geojson/derp', function (data) {
+					console.log('get');
+					console.log(data);
+				});
+				e.preventDefault();
+
+			});
+		};
 
 
         // individual stand list member
