@@ -434,15 +434,18 @@
         }
 
 		app.strata.errorHandling = function(){
+			$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');
+			app.$flash = $('#flash');
+
 			$( document ).ajaxError(function(event, request, settings, exception) {
-				console.log('event, request, settings, exception');
-				console.log( event );
-				console.log( request );
-				console.log(settings  );
-				console.log(exception  );
-				$('#flash').show().find('div').text('Error handling for all XHR').show();	
-			})
-			$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><div></div><a class="close" data-dismiss="alert" href="#">&times;</a>');
+				app.flash(request.responseText);
+			});
+
+			app.$flash.find('.close').bind('click', function () {
+				app.$flash.hide().removeClass('alert-error alert-warning alert-success');
+				app.$flash.find('div, h4').text('');
+			});
+			
 			
 			$('.brand').click(function(e){
 				$.get('/features/generic-links/links/geojson/derp', function (data) {
@@ -452,6 +455,16 @@
 				e.preventDefault();
 
 			});
+		};
+
+		app.flash = function(message, header, flashType){
+			// bs: alert-error, alert-warning, 
+			var type = flashType || 'alert-error',
+				hdr = header || 'Oops',
+				msg = message || '';
+			app.$flash.addClass( type ).slideDown(200)
+				.find('div').text( msg ).end()
+				.find('h4').text( hdr );
 		};
 
 
