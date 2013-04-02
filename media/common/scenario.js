@@ -97,10 +97,12 @@ function scenarioViewModel() {
       // self.showScenarioForm(stat);
       if (stat) {
           $("div#scenario-form-metacontainer").show();
-          $("div.outermap").hide();
+          $("#scenario-outputs").hide();
+          $("#map").show();
+          //$("div.outermap").hide();
       } else {
           $("div#scenario-form-metacontainer").hide();
-          $("div.outermap").show();
+          //$("div.outermap").show();
       }
   };
 
