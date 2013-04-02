@@ -48,7 +48,7 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
-    $('#scenario-outputs').hide();
+    $('#scenario-form-metacontainer').hide();
     $('#searchbox-container').show();
     $('#map').fadeIn();
   };
