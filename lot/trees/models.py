@@ -924,8 +924,11 @@ class County(models.Model):
 class FVSVariant(models.Model):
     code = models.CharField(max_length=3)
     fvsvariant = models.CharField(max_length=100)
+    decision_tree_xml = models.TextField()
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
+
+    #TODO validate decision_tree_xml, make sure endpoints match with Rxs
 
 # Auto-generated `LayerMapping` dictionaries for shapefile-backed models
 county_mapping = {
@@ -960,6 +963,61 @@ def load_shp(path, feature_class):
     map1 = LayerMapping(
         feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
+
+class Rx(models.model):
+    variant = models.ForeignKey(FVSVariant)
+    internal_name = models.TextField()
+    internal_desc = models.TextField()
+
+
+class MyRx(Feature):
+    # name  (inherited)
+    rx = models.ForeignKey(Rx)
+
+
+SpatialConstraintTables = [
+    # each of these is a vector *tablename*
+    # each table must contain a polygon `geom` field in 3857
+    ('R1', 'RiparianBuffers1'),
+    ('R2', 'RiparianBuffers2'),
+]
+
+
+class SpatialConstraints(models.model):
+    # name  (inherited)
+    # pointer to a vector *tablename*
+    polygon_table = models.CharField(max_length=2, choices=SpatialConstraintTables)
+    default_rx = models.ForeignKey(Rx)
+
+
+class ScenarioStandRx(Feature):
+    # This is populated during scenario creation when the MyRxs are applied to the stands
+    scenario = models.ForeignKey(Scenario)
+    stand = models.ForeignKey(Stand)
+    myrx = models.ForeignKey(MyRx)
+
+    # TODO autopopulate name
+
+
+class ScenarioStand():
+    # Populated after the scenario is created and is a result of a
+    # spatial intersection between
+    #  1. SpatialStandRxs for this scenario
+    #  2. All SpatialConstraints chosen for this scenario
+    # The Rx from #2 takes precedence over the Rx from #1.
+    geom = models.PolygonField()
+    cond_id = models.BigIntegerField()
+    rx = models.ForeignKey(Rx)
+
+    # TODO
+    # Populate after the scenario is created
+    # spatial intersection between
+    #  1. SpatialStandRxs for this scenario
+    #  2. All SpatialConstraints chosen for this scenario
+    # The Rx from #2 takes precedence over the Rx from #1.
+
+    # assert that all cond_ids are present or make FK?
 
 
 # Signals
