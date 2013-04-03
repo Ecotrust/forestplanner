@@ -1,3 +1,23 @@
+
+function scenarioFormViewModel() {
+  var self = this;
+  
+  self.prescriptionList = ko.observableArray([
+    {
+      name: "Precommercial Thinning",
+      description: "Even-aged management for timber. 40-year rotation clear cut."
+    },
+    {
+      name: "Commercial Thinning",
+      description: "Even-aged management for timber. 40-year rotation clear cut."
+    }
+
+  ]);
+
+
+  return self;
+};
+
 function scenarioViewModel() {
   var self = this;
 
@@ -6,6 +26,8 @@ function scenarioViewModel() {
   self.scenarioList = ko.observableArray();
   self.selectedFeatures = ko.observableArray();
   self.activeScenario = ko.observable();
+
+  
 
   self.reloadScenarios = function(property) {
     // why is this here? 
@@ -48,7 +70,7 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
-    $('#scenario-outputs').hide();
+    $('#scenario-form-metacontainer').hide();
     $('#searchbox-container').show();
     $('#map').fadeIn();
   };
@@ -93,14 +115,20 @@ function scenarioViewModel() {
       self.addScenarioStart(false);
   };
 
+
   self.toggleScenarioForm = function(stat) {
       // self.showScenarioForm(stat);
       if (stat) {
           $("div#scenario-form-metacontainer").show();
-          $("div.outermap").hide();
+          $("#scenario-outputs").hide();
+          $("#map").show();
+
+         
+          //$("div.outermap").hide();
       } else {
           $("div#scenario-form-metacontainer").hide();
-          $("div.outermap").show();
+          
+          //$("div.outermap").show();
       }
   };
 
@@ -124,6 +152,8 @@ function scenarioViewModel() {
         type: "GET",
         success: function(data, textStatus, jqXHR) {
             $('#scenario-form-container').html(data);
+
+            ko.applyBindings(new scenarioFormViewModel(), document.getElementById('scenario-form-container'));
             $('#scenario-form-container').find('button.cancel').click( function(e) {
                 e.preventDefault();
                 self.showScenarioList(true);

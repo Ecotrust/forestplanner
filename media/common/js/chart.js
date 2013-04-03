@@ -57,9 +57,13 @@ var refreshCharts = function(){
   $.each(app.scenarios.viewModel.selectedFeatures(), function() {
     var newTimberData;
     var newCarbonData;
-
+    var resall;
     var res = this.fields.output_scheduler_results;
-    var resall = res['__all__'];
+    
+    if (res) {
+      resall = res['__all__'];  
+    }
+    
 
     if (resall) {
         newTimberData = resall.timber; 
