@@ -4,11 +4,11 @@ function scenarioFormViewModel() {
   
   self.prescriptionList = ko.observableArray([
     {
-      name: "Precommercial Thinning",
+      name: "Mixed-species, 75 year rotation, commercial thin",
       description: "Even-aged management for timber. 40-year rotation clear cut."
     },
     {
-      name: "Commercial Thinning",
+      name: "Monoculture, 40 year rotation, pre-commercial",
       description: "Even-aged management for timber. 40-year rotation clear cut."
     }
 
@@ -70,6 +70,7 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
+
     $('#scenario-form-metacontainer').hide();
     $('#searchbox-container').show();
     $('#map').fadeIn();
@@ -127,7 +128,13 @@ function scenarioViewModel() {
           //$("div.outermap").hide();
       } else {
           $("div#scenario-form-metacontainer").hide();
+          if (app.stand_layer) {
+            app.stand_layer.selectFeature.unselectAll();
+            app.stand_layer.removeAllFeatures();
+            app.selectFeature.activate();  
+          }
           
+    
           //$("div.outermap").show();
       }
   };
@@ -147,6 +154,58 @@ function scenarioViewModel() {
         formUrl = "/features/scenario/form/"; 
         postUrl = formUrl;
     }
+
+    $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), function (data) {
+        var styleMap = map_styles.stand;
+
+        if (app.stand_layer) {
+          app.stand_layer.removeAllFeatures();
+
+        } else {
+          app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
+            styleMap: map_styles.stand,
+            renderers: app.renderer
+          });
+
+          app.stand_layer.styleMap.default = new OpenLayers.Style({
+            fillColor: "blue",
+            
+
+          }, {
+            // Rules go here.
+            context: {
+              
+            }
+          });
+
+          map.addLayer(app.stand_layer);
+          
+          app.stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+              { 
+                  "clickout": false,
+                  "multiple": true,
+                  "toggle": true
+              });
+          
+          // reenable click and drag in vectors
+          app.stand_layer.selectFeature.handlers.feature.stopDown = false; 
+          
+          map.addControl(app.stand_layer.selectFeature);
+                    
+        }
+
+        
+
+        app.stand_layer.addFeatures(app.geojson_format.read(data));  
+        
+        // deactivate the property control
+        app.selectFeature.deactivate();
+        app.stand_layer.selectFeature.activate();
+        
+
+        
+    });
+
     $.ajax({
         url: formUrl,
         type: "GET",
