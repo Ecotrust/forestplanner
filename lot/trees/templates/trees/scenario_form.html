@@ -64,17 +64,17 @@
             
             <h3>Silvicultural Prescriptions</h3>
             
-            <table class="table table-condensed table-striped table-hover table-bordered">
+            <table class="table table-condensed table-bordered">
                 <tbody data-bind="foreach: prescriptionList">
-                    <tr class="scenario-row" rel="popover">
+                    <tr class="scenario-row" rel="popover" data-bind="style: { 'background-color': color }">
                         <td> 
                             <h5><span data-bind="text: name">RX Name</span></h5>
                             <span data-bind="text: description">RX Description</span>
                             <div class="pull-right">
-                                <button href="#" id="delete-button" class="btn btn-mini">
-                                    <i class="icon-remove"></i></button>
                                 <button class="btn btn-mini" href="#">
                                     <i class="icon-edit"></i></button>
+                                <button href="#" class="btn btn-mini" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
+                                    <i class="icon-share"></i></button>
                             </div>
                             <p>
                             </p><div class="scenario-details hide">
