@@ -60,11 +60,14 @@ var refreshCharts = function(){
     var resall;
     var res = this.fields.output_scheduler_results;
     
-    // resall = res['__all__'];  
-  
-    // newTimberData = resall.timber; 
-    // newCarbonData = resall.carbon; 
-  
+    if (res) {
+        resall = res['__all__'];
+    }
+
+    if (resall) {
+        newTimberData = resall.timber;
+        newCarbonData = resall.carbon;
+    }
 
     if (newTimberData) {
         timberData.push(newTimberData); 
