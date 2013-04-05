@@ -77,6 +77,47 @@
                                 </div>
                             </div>
                         </div>
+
+                        <table class="table table-condensed table-bordered">
+                            <tbody data-bind="foreach: filteredStrataList()">
+                                <tr class="scenario-row" rel="popover" data-bind="style: { 'background-color': color() }">
+                                    <td> 
+                                        <div class="pull-right">
+                                            <div class="btn-group" data-bind="visible: confirmDelete">
+                                              <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                              <button class="btn" data-bind="click: deleteStratum">ok</button>
+                                            </div>
+                                            <div class="btn-group" data-bind="visible: confirmDelete() === false">
+                                              <button class="btn" data-bind="click: $parent.dropStrata">apply</button>
+                                              <button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
+                                              <button class="btn" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
+                                            </div>
+                                        </div>
+                                        <h3><span data-bind="text: attributes.name">RX Name</span></h3>
+                                        <div class="row-fluid">
+                                          <div class="span6">
+                                            <dl>
+                                              <dt>Trees Per Acre</dt>
+                                              <dd data-bind="text: attributes.search_tpa"></dd>
+                                              <dt>Stand Age:</dt>
+                                              <dd data-bind="text: attributes.search_age"></dd>
+                                            </dl>
+                                          </div>                                 
+                                        <div class="span6">
+                                          <ul class="unstyled tree-list" data-bind="foreach: standList">
+                                            <li data-bind="visible: species">
+                                              <span data-bind="text: sizeClass"></span>
+                                              <span data-bind="text: species"></span>
+                                              (<span data-bind="text: percentage"></span>%)
+                                            </li>
+                                          </ul>
+                                        </div>
+                                      </div>
+                                    </td>
+                                    
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
@@ -265,7 +306,7 @@
       }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
-            background-color: #E4AF87 !important;
+          background-color: inherit;            
             
         }
 		.table tbody tr:hover td, .table tbody tr:hover th {
@@ -363,6 +404,9 @@
 				right: 5px;
 				top: 3px;
 			}
+          .scenario-row dl {
+            margin-top: 0px;
+          }
     </style>
     <script type="text/javascript">
         var madrona = {

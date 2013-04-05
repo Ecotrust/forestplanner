@@ -55,6 +55,7 @@
                     </div>
                     {% else %}
                     <a class="btn btn-large btn-success pull-right" id="manage-your-properties" href="#">Manage Your Properties</a>
+                    <div class="clearfix"></div>
                     {% endif %}
                     </p>                
                 </div>
@@ -592,6 +593,7 @@
 {% block scripts %}
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}jqplot/jquery.jqplot.min.css" />
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/jquery-widgets.css" />
+    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/decisiontree.css" />
 
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
@@ -601,6 +603,9 @@
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/chart.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.scrollTo-1.3.3-min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/decisiontree.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
 

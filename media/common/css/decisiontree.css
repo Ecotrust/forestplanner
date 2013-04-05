@@ -1,0 +1,61 @@
+
+a{
+ cursor: pointer;
+ color: #666;
+}
+a:hover{
+	text-decoration: underline;
+}
+.decision-links a{
+ margin-right: 1em;
+ padding-right: 1em;
+ 
+}
+.decision-links a.last-child{
+	border: none;
+}
+
+#debug{
+	position: absolute;
+	right: 0;
+	width: 300px;
+	font-size: small;
+	background: #EEE;
+	color: #000;
+	padding: 1em;
+	/*
+	display: none;
+	*/
+}
+
+#tree-window{
+	margin: 0;
+	padding: 0;
+	width: 750px;
+	height: 300px;
+	overflow: hidden;
+}
+#tree-slider{
+	margin: 0;
+	padding: 0;
+	width: 600px;
+}
+.tree-content-box{
+	margin: 0;
+	padding: 15px;
+	float: left;
+	width: 720px;
+	font-size: 2em;
+}
+.decision-links{
+	margin-top: 1em;
+	padding-top: 1em;
+	text-align: left;
+	font-size: 0.5em;
+}
+.back-link{
+	display: block;
+	margin-top: 2em;
+	font-size: 0.5em;
+	border: none;
+}

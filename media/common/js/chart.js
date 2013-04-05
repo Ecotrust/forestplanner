@@ -61,13 +61,12 @@ var refreshCharts = function(){
     var res = this.fields.output_scheduler_results;
     
     if (res) {
-      resall = res['__all__'];  
+        resall = res['__all__'];
     }
-    
 
     if (resall) {
-        newTimberData = resall.timber; 
-        newCarbonData = resall.carbon; 
+        newTimberData = resall.timber;
+        newCarbonData = resall.carbon;
     }
 
     if (newTimberData) {

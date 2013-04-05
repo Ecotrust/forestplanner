@@ -194,10 +194,10 @@ a {
     width: 436px !important;
 }
 .dl-horizontal dd {
-    margin-left: 180px;
+    margin-left: 110px;
 }
 .dl-horizontal dt {
-    width: 168px;
+    width: 98px;
 }
 textarea#id_description {
     width: 80%;
