@@ -79,7 +79,6 @@ def runserver():
     """ Run the django dev server on port 8000 """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py runserver 0.0.0.0:8000' % vars)
 
-
 def update():
     """ Sync with master git repo """
     run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
