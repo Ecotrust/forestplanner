@@ -57,7 +57,7 @@ def datetime_to_unix(dt):
     diff = dt - start
     try:
         total = diff.total_seconds()
-    except AttributeError: 
+    except AttributeError:
         # for the benefit of python 2.6
         total = (diff.microseconds + (diff.seconds + diff.days * 24 * 3600) * 1e6) / 1e6
     return total
@@ -92,7 +92,8 @@ class DirtyFieldsMixin(object):
 
     def get_dirty_fields(self):
         new_state = self._as_dict()
-        return dict([(key, value) for key, value in self._original_state.iteritems() if value != new_state[key]])
+        return dict([(key, value) for key, value in self._original_state.iteritems()
+                     if value != new_state[key]])
 
 
 @register
@@ -254,7 +255,7 @@ class ForestProperty(FeatureCollection):
             'acres': acres,
             'location': self.location,
             'stand_summary': self.stand_summary,
-            'variant': self.variant,
+            'variant': self.variant.fvsvariant.strip(),
             'bbox': self.bbox,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
@@ -339,7 +340,7 @@ class ForestProperty(FeatureCollection):
     @property
     def variant(self):
         '''
-        Returns: FVS variant name (string)
+        Returns: FVS variant instance
         '''
         geom = self.geometry_final
         if geom:
@@ -364,7 +365,8 @@ class ForestProperty(FeatureCollection):
                 area = overlap.area
                 if area > the_size:
                     the_size = area
-                    the_variant = variant.fvsvariant.strip()
+                    #the_variant = variant.fvsvariant.strip()
+                    the_variant = variant
         return the_variant
 
     @property
@@ -527,12 +529,38 @@ class Scenario(Feature):
     input_rxs = JSONField(
         null=True, blank=True, default="{}",
         verbose_name="Prescriptions associated with each stand")
+    # 2 char code from SpatialConstraint.category (see SpatialConstraintCategories)
+    spatial_constraints = models.TextField(
+        default="", verbose_name='CSV List of spatial constraints to apply')
 
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
 
+    def constraint_set(self):
+        scs = self.spatial_constraints.split(",")
+        return SpatialConstraint.objects.filter(
+            category__in=scs,
+            geom__bboverlaps=self.input_property.geometry_final
+        )
+        # TODO order by??
+
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
+
+    @property
+    def standgeoms_rxs(self):
+        """
+        returns [(stand_geometry, rx_id), ...]
+        """
+        input_rxs = self.input_rxs
+        return [(stand.geometry_final, input_rxs[str(stand.id)]) for stand in self.stand_set()]
+
+    @property
+    def constraintgeoms_rxs(self):
+        """
+        returns [(constraint_geometry, rx_id), ...]
+        """
+        return [(c.geom, c.default_rx.id) for c in self.constraint_set()]
 
     @property
     def output_property_results(self):
@@ -607,7 +635,7 @@ class Scenario(Feature):
 
     def run(self):
         if not self.is_runnable:
-            raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
+            raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
 
         task = schedule_harvest.delay(self.id)
         cache.set("Taskid_%s" % self.uid, task.task_id)
@@ -624,9 +652,11 @@ class Scenario(Feature):
                 stand_dict['properties']['results'] = res[stand.pk]
             except KeyError:
                 try:
-                    stand_dict['properties']['results'] = res[str(stand.pk)]  # just in case it's a string
+                    stand_dict['properties']['results'] = res[str(stand.pk)]  # if it's a string
                 except KeyError:
-                    continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
+                    # TODO this should never happen,
+                    # probably stands added after scenario was created? or caching ?
+                    continue
             stand_data.append(stand_dict)
 
         gj = dumps(stand_data, indent=2)
@@ -638,18 +668,20 @@ class Scenario(Feature):
             gj = gj[:-1]
         return gj
 
+    def valid_rx_ids(self):
+        return [x.id for x in Rx.objects.filter(variant=self.input_property.variant)]
+
     def clean(self):
         return True
-        #TODO Validate
         inrx = self.input_rxs
-        valid_rx_keys = dict(RX_CHOICES).keys()
-        valid_stand_ids = [x.pk for x in self.input_property.feature_set()]
+        valid_stand_ids = [x.pk for x in self.input_property.feature_set(feature_classes=[Stand])]
         for stand, rx in inrx.items():
             if int(stand) not in valid_stand_ids:
                 raise ValidationError(
                     '%s is not a valid stand id for this property' % stand)
-            if rx not in valid_rx_keys:
+            if rx not in self.valid_rx_ids:
                 raise ValidationError('%s is not a valid prescription' % rx)
+        return True
 
     def save(self, *args, **kwargs):
         super(Scenario, self).save(*args, **kwargs)
@@ -864,7 +896,8 @@ class Strata(DirtyFieldsMixin, Feature):
                 recalc_required = True
 
         if 'classes' not in self.stand_list:
-            raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
+            raise Exception("Not a valid stand list. " +
+                            "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         for cls in self.stand_list['classes']:
             try:
                 assert(len(cls) == 4)
@@ -875,11 +908,13 @@ class Strata(DirtyFieldsMixin, Feature):
                 # c[3] is a valid tpa
                 assert(cls[3] > 0 and cls[3] < 5000)
             except:
-                raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
+                raise Exception("Not a valid stand list. " +
+                                "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor field (post-save signal must be triggered so can't use qs.update)
+            # null out nearest neighbor field
+            # (post-save signal must be triggered so can't use qs.update)
             for stand in self.stand_set.all():
                 stand.cond_id = None
                 stand.save()
@@ -924,7 +959,7 @@ class County(models.Model):
 class FVSVariant(models.Model):
     code = models.CharField(max_length=3)
     fvsvariant = models.CharField(max_length=100)
-    decision_tree_xml = models.TextField()
+    decision_tree_xml = models.TextField(default="")
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
@@ -952,7 +987,8 @@ fvsvariant_mapping = {
 def load_shp(path, feature_class):
     '''
     First run ogrinspect to generate the class and mapping.
-        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
+        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp \
+            FVSVariant --mapping --srid=3857 --multi
     Paste code into models.py and modify as necessary.
     Finally, load the shapefile:
         from trees import models
@@ -965,7 +1001,7 @@ def load_shp(path, feature_class):
     map1.save(strict=True, verbose=True)
 
 
-class Rx(models.model):
+class Rx(models.Model):
     variant = models.ForeignKey(FVSVariant)
     internal_name = models.TextField()
     internal_desc = models.TextField()
@@ -976,47 +1012,36 @@ class MyRx(Feature):
     rx = models.ForeignKey(Rx)
 
 
-SpatialConstraintTables = [
-    # each of these is a vector *tablename*
-    # each table must contain a polygon `geom` field in 3857
+SpatialConstraintCategories = [
     ('R1', 'RiparianBuffers1'),
     ('R2', 'RiparianBuffers2'),
 ]
 
 
-class SpatialConstraints(models.model):
-    # name  (inherited)
-    # pointer to a vector *tablename*
-    polygon_table = models.CharField(max_length=2, choices=SpatialConstraintTables)
+class SpatialConstraint(models.Model):
+    geom = models.PolygonField(srid=3857)
     default_rx = models.ForeignKey(Rx)
+    category = models.CharField(max_length=2, choices=SpatialConstraintCategories)
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u"SpatialConstraint %s %s" % (self.category, self.geom.wkt[:80])
 
 
-class ScenarioStandRx(Feature):
-    # This is populated during scenario creation when the MyRxs are applied to the stands
+class ScenarioStand(PolygonFeature):
+    """
+    Populated as the scenario is created (tasks.schedule_harvest)
+    The result of a spatial intersection between
+      1. Stands for this scenario
+      2. All SpatialConstraints chosen for this scenario
+    The Rx from #2 takes precedence over the Rx from #1.
+    """
+    # geometry_final = inherited from PolygonFeature
+    cond_id = models.BigIntegerField()
+    rx = models.ForeignKey(Rx, null=True)
     scenario = models.ForeignKey(Scenario)
     stand = models.ForeignKey(Stand)
-    myrx = models.ForeignKey(MyRx)
-
-    # TODO autopopulate name
-
-
-class ScenarioStand():
-    # Populated after the scenario is created and is a result of a
-    # spatial intersection between
-    #  1. SpatialStandRxs for this scenario
-    #  2. All SpatialConstraints chosen for this scenario
-    # The Rx from #2 takes precedence over the Rx from #1.
-    geom = models.PolygonField()
-    cond_id = models.BigIntegerField()
-    rx = models.ForeignKey(Rx)
-
-    # TODO
-    # Populate after the scenario is created
-    # spatial intersection between
-    #  1. SpatialStandRxs for this scenario
-    #  2. All SpatialConstraints chosen for this scenario
-    # The Rx from #2 takes precedence over the Rx from #1.
-
+    constraint = models.ForeignKey(SpatialConstraint)
     # assert that all cond_ids are present or make FK?
 
 
@@ -1037,7 +1062,8 @@ def postsave_stand_handler(sender, *args, **kwargs):
         impute_rasters.apply_async(args=(st.id, savetime))
     elif not st.cond_id and not has_terrain and st.strata:
         # impute terrain rasters THEN calculate nearest neighbor"
-        impute_rasters.apply_async(args=(st.id, savetime), link=impute_nearest_neighbor.s(savetime))
+        impute_rasters.apply_async(args=(st.id, savetime),
+                                   link=impute_nearest_neighbor.s(savetime))
     elif has_terrain and st.strata and not st.cond_id:
         # just calculate nearest neighbors"
         impute_nearest_neighbor.apply_async(args=(st.id, savetime))
@@ -1053,4 +1079,5 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    instance.stand_set.all().update(cond_id=None, strata=None, nn_savetime=datetime.datetime.now())
+    instance.stand_set.all().update(cond_id=None, strata=None,
+                                    nn_savetime=datetime.datetime.now())
