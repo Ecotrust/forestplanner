@@ -5,7 +5,7 @@
     background-color: white;
     padding: 12px;
 }
-.controls {
+.btn-controls {
     padding: 5px;
 }
 .content {
@@ -66,8 +66,31 @@
         </div>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
-            <div data-bind="visible: ! newRx()">
-                <div class="btn-group pull-right controls">
+            <div data-bind="visible: selectedRx, with: selectedRx">
+                <form>
+                  <fieldset>
+                    <legend data-bind="text: id">New Prescription</legend>
+                    <div class="control-group">
+                      <label class="control-label">Name</label>
+                      <div class="controls">
+                        <input type="text" class="input-xlarge" data-bind="value: name">
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <div class="control-group">
+                      <label class="control-label">Description</label>
+                      <div class="controls">
+                        <input type="text" class="input-xlarge" data-bind="value: description">
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <button class="btn" data-bind="click: $parent.saveRx">save</button>
+                  </fieldset>
+                </form>
+                
+            </div>
+            <div data-bind="visible: ! (newRx() || selectedRx())">
+                <div class="btn-group pull-right btn-controls">
                     <a class="btn" data-bind="click: addNewRx">add new prescription</a>
                 </div>
                 <h3>Silvicultural Prescriptions</h3>

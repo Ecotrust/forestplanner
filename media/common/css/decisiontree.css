@@ -1,9 +1,3 @@
-body{
-	background: #FFF;
-	color: #333;
-	font-family: Geneva, Arial, Helvetica, sans-serif;
-	font-size: medium;
-}
 
 a{
  cursor: pointer;
@@ -15,7 +9,7 @@ a:hover{
 .decision-links a{
  margin-right: 1em;
  padding-right: 1em;
- border-right: 1px solid #666;
+ 
 }
 .decision-links a.last-child{
 	border: none;
@@ -37,16 +31,14 @@ a:hover{
 #tree-window{
 	margin: 0;
 	padding: 0;
-	background: #FFA;
 	width: 750px;
-	height: 500px;
+	height: 300px;
 	overflow: hidden;
 }
 #tree-slider{
 	margin: 0;
 	padding: 0;
-	height: 600px;
-	width: 2000px;
+	width: 600px;
 }
 .tree-content-box{
 	margin: 0;
@@ -58,13 +50,12 @@ a:hover{
 .decision-links{
 	margin-top: 1em;
 	padding-top: 1em;
-	border-top: 1px solid #666;
 	text-align: left;
 	font-size: 0.5em;
 }
 .back-link{
 	display: block;
 	margin-top: 2em;
-	font-size: 0.4em;
+	font-size: 0.5em;
 	border: none;
 }

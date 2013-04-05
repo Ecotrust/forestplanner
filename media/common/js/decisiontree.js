@@ -1,6 +1,8 @@
 var treeData;
-var decision = function(){
-	
+var tree = {};
+var decision = function(cb){
+	$('#tree-slider').empty();
+	tree.cb = cb;
 	windowWidth = $('#tree-window').outerWidth( false );
 	sliderWidth = 0;
 	slideTime = 300;
@@ -63,6 +65,7 @@ function buildNodes( xmlData ){
 	$('#tree-slider').width( sliderWidth );
 	var resetText = $(xmlData).find('resetText').text();
 	$('#tree-reset').html( resetText );
+
 	showBranch( 1 );
 }
 
@@ -90,21 +93,26 @@ function showBranch( id ){
 			break;
 		}
 	}
-	var decisionLinksHTML = '<div class="decision-links">';
+	if (! currentBranch.forkIDs.length) {
+		tree.cb(currentBranch.content);
+	}
+	var decisionLinksHTML = '<ul class="unstyled decision-links">';
+
 	for( d = 0; d < currentBranch.forkIDs.length; d++ ){
 		var link = '';
 		var forkContent = $(treeData).find('branch[id="' + currentBranch.forkIDs[d] + '"]').find('content').text();
 		if( forkContent.indexOf('http://') == 0 || forkContent.indexOf('https://') == 0 ){
 			link = 'href="' + forkContent + '"'
 		}
-		decisionLinksHTML += '<a ' + link + ' id="' + currentBranch.forkIDs[d] + '">' + currentBranch.forkLabels[d] + '</a>';
+		decisionLinksHTML += '<li><a' + link + ' id="' + currentBranch.forkIDs[d] + '">' + currentBranch.forkLabels[d] + '</a></li>';
 	}
-	decisionLinksHTML += '</div>';
+	decisionLinksHTML += '</ul>';
 	var branchHTML = '<div id="branch-' + currentBranch.id + '" class="tree-content-box"><div class="content">' + currentBranch.content + '</div>' + decisionLinksHTML;
 	if( currentBranch.id != 1 ){
 		branchHTML += '<a class="back-link">&laquo; Back</a>';
 	}
 	branchHTML += '</div>';
+
 	$('#tree-slider').append( branchHTML );
 	resetActionLinks();
 	if( currentBranch.id != 1 ){

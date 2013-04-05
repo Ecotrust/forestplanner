@@ -1,4 +1,4 @@
-app.scenarios.colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
+
 
 
 app.scenarios.styleMap = new OpenLayers.StyleMap({
@@ -26,26 +26,41 @@ app.scenarios.styleMap = new OpenLayers.StyleMap({
 
 function scenarioFormViewModel() {
   var self = this;
+  var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
 
   self.prescriptionList = ko.observableArray([{
     name: "Mixed-species, 75 year rotation, commercial thin",
     description: "75-year rotation with commercial thinning.",
-    color: app.scenarios.colors.pop()
+    color: colors.pop()
   }, {
     name: "Monoculture, 40 year rotation, pre-commercial",
     description: "Even-aged management for timber. 40-year rotation clear cut.",
-    color: app.scenarios.colors.pop()
+    color: colors.pop()
   }
 
 
   ]);
 
   self.newRx = ko.observable(false);
+  self.selectedRx = ko.observable();
 
   self.addNewRx = function () {
     self.newRx(true);
-    decision();
+    decision(function (rx) {
+      self.newRx(false);
+      self.selectedRx({
+        name: ko.observable(),
+        description: ko.observable(),
+        id: rx,
+        color: colors.pop()
+      });
+    });
   }
+
+  self.saveRx = function () {
+    self.prescriptionList.unshift(self.selectedRx());
+    self.selectedRx(false);
+  };
 
   self.applyRx = function() {
     var rx = this;
@@ -59,18 +74,22 @@ function scenarioFormViewModel() {
 
   self.selectedFeatures = ko.observable(false);
 
-  app.stand_layer.selectFeature.onSelect = function(feature) {
-    if (app.stand_layer.selectedFeatures.length > 0) {
-      self.selectedFeatures(true);
-    }
-  };
-  app.stand_layer.selectFeature.onUnselect = function(feature) {
+  // sometimes this happens too fast :()
+  setTimeout(function () {
+    app.stand_layer.selectFeature.onSelect = function(feature) {
+      if (app.stand_layer.selectedFeatures.length > 0) {
+        self.selectedFeatures(true);
+      }
+    };
+    app.stand_layer.selectFeature.onUnselect = function(feature) {
 
-    if (app.stand_layer.selectedFeatures.length === 0) {
-      self.selectedFeatures(false);
-    }
-  };
-
+      if (app.stand_layer.selectedFeatures.length === 0) {
+        self.selectedFeatures(false);
+      }
+    };
+  
+  }, 300);
+  
 
   return self;
 };
@@ -135,7 +154,7 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
-
+    app.stand_layer.removeAllFeatures();
     $('#scenario-form-metacontainer').hide();
     $('#searchbox-container').show();
     $('#map').fadeIn();
@@ -267,7 +286,7 @@ function scenarioViewModel() {
       success: function(data, textStatus, jqXHR) {
         $('#scenario-form-container').html(data);
 
-        ko.applyBindings(new scenarioFormViewModel(), document.getElementById('scenario-form-container'));
+        
         $('#scenario-form-container').find('button.cancel').click(function(e) {
           e.preventDefault();
           self.showScenarioList(true);
@@ -298,6 +317,8 @@ function scenarioViewModel() {
       error: function(jqXHR, textStatus, errorThrown) {
         alert(errorThrown);
       }
+    }).done(function () {
+      ko.applyBindings(new scenarioFormViewModel(), document.getElementById('scenario-form-container'));
     });
   };
 
