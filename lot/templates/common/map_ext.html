@@ -379,10 +379,10 @@
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
                     <div class="span5 well">
-                        <div class="btn-group">
-                            <button class="btn" href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i>Draw Stand</button>
+                        <!--<div class="btn-group">-->
+                            <button class="btn" href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Draw Stand</button>
                             <button class="btn" href="#"><i class="icon-upload"></i> Upload Stands</button>
-                        </div>
+                        <!--</div>-->
                             <div style="margin-top:22px; margin-bottom: 20px;">
                                 <ul class="unstyled" data-bind="foreach: standListPaginated">
                                     <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">

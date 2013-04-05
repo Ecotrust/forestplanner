@@ -19,8 +19,8 @@
                 <h1>
                   Manage Stand Groups
                   <div class="btn-group pull-right">
-                    <a class="btn btn-large" data-bind="disable: activeStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
-                    <button class="btn btn-large" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus"></i> new stand group</button>
+                    <a class="btn btn-mini" data-bind="disable: activeStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
+                    <button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
                   </div>
                 </h1>
 
@@ -46,15 +46,15 @@
                             <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': attributes.uid }, style: { 'background': color() }, event: { mouseleave: function () { confirmDelete(false) } }">
                               <h4><span data-bind="text: attributes.name"></span></h4>
                                 <div class="row-fluid">
-                                  <div class="span4">
-                                    <dl>
+                                  <div class="span6">
+									<dl class="dl-horizontal">
                                       <dt>Trees Per Acre</dt>
                                       <dd data-bind="text: attributes.search_tpa"></dd>
                                       <dt>Stand Age:</dt>
                                       <dd data-bind="text: attributes.search_age"></dd>
                                     </dl>
                                   </div>
-                                  <div class="span8">
+                                  <div class="span6">
                                     <p><strong>Trees</strong></p>
                                     <ul class="unstyled tree-list" data-bind="foreach: standList">
                                       <li data-bind="visible: species">
@@ -92,15 +92,15 @@
                     <div data-bind="with: activeStratum">
                         
                         <div data-bind="visible: ! standList().length || (editMode() && ! editTrees())">
-                            <h3>Stand Group Name</h3>
+                            <label>Stand Group Name</label>
                             <input type="text" class="span12" placeholder="Stand Group Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
                             <div class="row-fluid">
                                 <div class="span6">
-                                    <h3>Trees Per Acre</h3>
+                                    <label>Trees Per Acre</label>
                                     <input type="text" class="span12" data-bind="value: attributes.search_tpa, valueUpdate: 'keyup'">
                                 </div>
                                 <div class="span6">
-                                    <h3>Stand Age</h3>
+                                    <label>Stand Age</label>
                                     <input type="text" class="span12" data-bind="value: attributes.search_age, valueUpdate: 'keyup'">
                                 </div>
                             </div>
@@ -117,11 +117,11 @@
                         <div id="myCarousel" class="carousel slide">
                             <div class="carousel-inner" data-bind="foreach: standList">
                                 <div class="item">
-                                    <h3>Select a Species</h3>
+                                    <label>Select a Species</label>
                                     <select name="species" class="span8" data-bind="options: $root.treeSpecies, value: species, select2: { placeholder: 'Select a species'}" class="span12" style="width: 95%"></select>
                                     <div class="row-fluid">
                                         <div class="span6">
-                                            <h3>Select a Size Class</h3>
+                                            <label>Select a Size Class</label>
                                             <label class="radio">
                                               <input type="radio" value='1"-5"' data-bind="attr: { name: 'size-class_' + index() }, checked: sizeClass">
                                               1"-5"
@@ -136,7 +136,7 @@
                                             </label>
                                         </div>
                                         <div class="span6">
-                                            <h3>Percentage of Stand</h3>
+                                            <label>Percentage of Stand</label>
                                             <input name="percentage" data-bind="value: percentage, valueUpdate: 'keyup'"/>
                                         </div>
                                     </div>
@@ -287,32 +287,49 @@
 
         }
           .strata-list .stratum-box {
-            padding: 10px 20px 20px;
-            border-radius: 10px;
-            border: 1px solid #777;
-            margin: 10px;
-            /*height: 100px;*/
-            width: 40%;
-            float: left;
-            z-index: 2000;
+            border: 1px solid #aaa;
+            padding: 5px 5% 0;
             position: relative;
+			width: 86%;
+
+            /*border-radius: 10px;
+            margin: 10px;
+            width: 40%;
+            /*height: 100px;
+            float: left;
+            z-index: 2000;*/
             
           }
+			  .strata-list .stratum-box:hover {
+				border: 1px solid #444;
+			  }
           .strata-list .stratum-box h4 {
+			  /*
               font-size: 16px;
               margin-left: -5px;
               margin-bottom: 10px;
               text-overflow: ellipsis;
               overflow: hidden;
               white-space: nowrap;
+			  */
           }
+		  .strata-list .stratum-box .row-fluid{
+			  font-size: 80%;
+		  }
           .strata-list .stratum-box p {
             line-height: 5px;
           }
+		  .strata-list .stratum-box .dl-horizontal dd, .strata-list .stratum-box .dl-horizontal dt{
+				float: left;
+				width: auto;
+				margin-left: 5px;
+		  }
+		  .strata-list .stratum-box .dl-horizontal dt{
+			  clear: both;
+		  }
+
           
-          .strata-list .stratum-box:hover {
-            border: 1px solid #444;
-          }
+
           .strata-list .stratum-box.ui-draggable-dragging .btn {
             opacity: 0;
           }
@@ -320,7 +337,7 @@
             opacity: 0;
             position: absolute;
             right: 10px;
-            bottom: 10px;
+            top: 10px;
           }
           .strata-list .stratum-box:hover .btn-group {
             opacity: .7;
