@@ -154,7 +154,8 @@ function scenarioViewModel() {
     self.showScenarioPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
     app.property_layer.setOpacity(1);
-    app.stand_layer.removeAllFeatures();
+    if (app.stand_layer)
+        app.stand_layer.removeAllFeatures();
     $('#scenario-form-metacontainer').hide();
     $('#searchbox-container').show();
     $('#map').fadeIn();
@@ -212,6 +213,8 @@ function scenarioViewModel() {
       //$("div.outermap").hide();
     } else {
       $("div#scenario-form-metacontainer").hide();
+      $("#scenario-outputs").show();
+      $("#map").hide();
       if (app.stand_layer) {
         app.stand_layer.selectFeature.unselectAll();
         app.stand_layer.removeAllFeatures();
