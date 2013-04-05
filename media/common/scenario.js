@@ -5,15 +5,14 @@ app.scenarios.styleMap = new OpenLayers.StyleMap({
   "default": new OpenLayers.Style({
     fillColor: "${getColor}",
     fillOpacity: 0.8,
-    strokeWidth: 2,
-    strokeOpacity: 0.8,
+    strokeWidth: 1,
+    strokeOpacity: 0.6,
     
   }, {
     // Rules go here.
     context: {
       
       getColor: function(feature) {
-        console.log(feature.attributes.color);
         return feature.attributes.color? feature.attributes.color: "#ccc";
       }
     }
@@ -40,6 +39,13 @@ function scenarioFormViewModel() {
 
 
   ]);
+
+  self.newRx = ko.observable(false);
+
+  self.addNewRx = function () {
+    self.newRx(true);
+    decision();
+  }
 
   self.applyRx = function() {
     var rx = this;

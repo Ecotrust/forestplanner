@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<tree>
+	<title>Management Prescriptions for the West-side Cascades</title>
+	<description>Select which activities you want to include in your forest management prescriptions.</description>
+	<branch id="1">
+		<content>Management Style</content>
+		<fork target="1.1">40-year rotation</fork>
+		<fork target="1.2">60-year rotation</fork>
+		<fork target="1.3">75-year rotation</fork>
+		<fork target="1.4">Repeated thinning</fork>
+		</branch>
+		<branch id="1.1">
+			<content>Would you like to include pre-commercial thinning in your 40-year rotation?</content>
+			<fork target="1.1.1">Yes</fork>
+			<fork target="1.1.2">No</fork>
+			</branch>
+			<branch id="1.1.1">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.1.1.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.1.1.2">Mixed-species with higher retention at final harvest</fork>
+				<fork target="1.1.1.3">Douglas-fir and hemlock mix suitable for riparian zones</fork>
+				</branch>
+				<branch id="1.1.1.1">
+					<content>You have chosen RX#5 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.1.1.2">
+					<content>You have chosen RX#6 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.1.1.3">
+					<content>You have chosen RX#7 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.1.2">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.1.2.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.1.2.2">Mixed-species with higher retention at final harvest</fork>
+				<fork target="1.1.2.3">Douglas-fir and hemlock mix suitable for riparian zones</fork>
+				</branch>
+				<branch id="1.1.2.1">
+					<content>You have chosen RX#2 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.1.2.2">
+					<content>You have chosen RX#3 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.1.2.3">
+					<content>You have chosen RX#4 for West-side Cascades.</content>
+					</branch>
+		<branch id="1.2">
+			<content>Would you like to include pre-commercial and/or commercial thinning in your 60-year rotation?</content>
+			<fork target="1.2.1">Pre-commercial and commercial thinning</fork>
+			<fork target="1.2.2">Commercial thinning only</fork>
+			<fork target="1.2.3">Pre-commercial thinning only</fork>
+			<fork target="1.2.4">No thinning, final harvest only</fork>
+			</branch>
+			<branch id="1.2.1">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.2.1.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.2.1.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.2.1.1">
+					<content>You have chosen RX#12 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.2.1.2">
+					<content>You have chosen RX#13 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.2.2">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.2.2.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.2.2.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.2.2.1">
+					<content>You have chosen RX#10 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.2.1.2">
+					<content>You have chosen RX#11 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.2.3">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.2.3.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.2.3.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.2.3.1">
+					<content>You have chosen RX#14 for West-side Cascades.</content>
+					</branch>
+					<branch id="1.2.3.2">
+						<content>You have chosen RX#15 for West-side Cascades.</content>
+						</branch>
+			<branch id="1.2.4">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.2.4.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.2.4.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.2.4.1">
+					<content>You have chosen RX#8 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.2.4.2">
+					<content>You have chosen RX#9 for West-side Cascades.</content>
+					</branch>
+		<branch id="1.3">
+			<content>Would you like to include pre-commercial and/or commercial thinning in your 75-year rotation?</content>
+			<fork target="1.3.1">Pre-commercial and commercial thinning</fork>
+			<fork target="1.3.2">Commercial thinning only</fork>
+			<fork target="1.3.3">Pre-commercial thinning only</fork>
+			<fork target="1.3.4">No thinning, final harvest only</fork>
+			</branch>
+			<branch id="1.3.1">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.3.1.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.3.1.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.3.1.1">
+					<content>You have chosen RX#20 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.3.1.2">
+					<content>You have chosen RX#21 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.3.2">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.3.2.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.3.2.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.3.2.1">
+					<content>You have chosen RX#18 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.3.2.2">
+					<content>You have chosen RX#19 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.3.3">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.3.3.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.3.3.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.3.3.1">
+					<content>You have chosen RX#22 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.3.3.2">
+					<content>You have chosen RX#23 for West-side Cascades.</content>
+					</branch>
+			<branch id="1.3.4">
+				<content>Choose your species and retention targets</content>
+				<fork target="1.3.4.1">Douglas-fir monoculture with minimum retention at final harvest</fork>
+				<fork target="1.3.4.2">Mixed-species with higher retention at final harvest</fork>
+				</branch>
+				<branch id="1.3.4.1">
+					<content>You have chosen RX#16 for West-side Cascades.</content>
+					</branch>
+				<branch id="1.3.4.2">
+					<content>You have chosen RX#17 for West-side Cascades.</content>
+					</branch>
+		<branch id="1.4">
+			<content>You have chosen RX#24 for West-side Cascades.</content>
+			</branch>
+	
+	<revision>xml/tree0001.xml.1335301802</revision>
+	<revision>xml/tree0001.xml.1339634488</revision>
+	<revision>xml/tree0001.xml.1340730948</revision>
+	<revision>xml/tree0001.xml.1340730963</revision>
+	<revision>xml/tree0001.xml.1340731012</revision>
+	<revision>xml/tree0001.xml.1354121263</revision>
+	<revision>xml/tree0001.xml.1362026624</revision>
+	<revision>xml/tree0001.xml.1362026648</revision>
+</tree>
