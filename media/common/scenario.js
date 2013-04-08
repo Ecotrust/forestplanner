@@ -31,7 +31,7 @@ function scenarioFormViewModel() {
   self.prescriptionList = ko.observableArray([
     {
         name: "Grow Only",
-        description: "No logging activity.",
+        description: "No active management.",
         color: colors.pop()
     },
     {
