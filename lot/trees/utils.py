@@ -13,12 +13,13 @@ import math
 
 logger = get_logger()
 
+
 class StandImporter:
 
     def __init__(self, user):
         self.user = user
         self.required_fields = ['name']
-        self.optional_fields = ['domspp','rx'] # model must provide defaults!
+        self.optional_fields = ['domspp', 'rx']  # model must provide defaults!
 
     def _validate_field_mapping(self, layer, field_mapping):
         fields = layer.fields
@@ -31,7 +32,8 @@ class StandImporter:
                 field_mapping[fname] = fname
 
             if field_mapping[fname] not in fields:
-                raise Exception("Dataset does not have a required field called '%s'" % field_mapping[fname])
+                raise Exception(
+                    "Dataset does not have a required field called '%s'" % field_mapping[fname])
 
         for fname in self.optional_fields:
             if fname not in field_mapping.keys():
@@ -48,7 +50,8 @@ class StandImporter:
         field_mapping = self._validate_field_mapping(layer, field_mapping)
 
         if not forest_property and not new_property_name:
-            raise Exception("Must provide either existing forest_property OR new_property_name")
+            raise Exception(
+                "Must provide either existing forest_property OR new_property_name")
 
         if new_property_name:
             # Calculating property outline from stands
@@ -62,33 +65,38 @@ class StandImporter:
                 for c in casc_poly:
                     # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
                     # If they're smaller than the threshold, remove them
-                    interiors = [x for x in c.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+                    interiors = [x for x in c.interiors if Polygon(
+                        x).area > settings.SLIVER_THRESHOLD]
                     polys.append(Polygon(shell=c.exterior, holes=interiors))
             elif casc_poly.type == 'Polygon':
                 # Identify small 'slivers' or areas of empty space b/t polygons that are unintentional
                 # If they're smaller than the threshold, remove them
-                interiors = [x for x in casc_poly.interiors if Polygon(x).area > settings.SLIVER_THRESHOLD]
+                interiors = [x for x in casc_poly.interiors if Polygon(
+                    x).area > settings.SLIVER_THRESHOLD]
                 polys = [Polygon(shell=casc_poly.exterior, holes=interiors)]
 
             casc = MultiPolygon(polys)
-            
+
             # Creating Property
-            self.forest_property = ForestProperty.objects.create(user=self.user, name=new_property_name, geometry_final=casc.wkt)
-        else: 
+            self.forest_property = ForestProperty.objects.create(
+                user=self.user, name=new_property_name, geometry_final=casc.wkt)
+        else:
             self.forest_property = forest_property
 
         stands = []
         for feature in layer:
-            stand = Stand(user=self.user, 
-                    name=feature.get(field_mapping['name']), 
-                    geometry_orig=feature.geom.geos)
-                    #geometry_final=feature.geom.geos) 
+            stand = Stand(
+                user=self.user,
+                name=feature.get(field_mapping['name']),
+                geometry_orig=feature.geom.geos)
+                # geometry_final=feature.geom.geos)
 
             for fname in self.optional_fields:
                 if fname in field_mapping.keys():
                     try:
-                        stand.__dict__[fname] = feature.get(field_mapping[fname])
-                    except OGRIndexError: 
+                        stand.__dict__[fname] = feature.get(
+                            field_mapping[fname])
+                    except OGRIndexError:
                         pass
 
             stand.full_clean()
@@ -99,7 +107,8 @@ class StandImporter:
             stand.save()
             self.forest_property.add(stand)
             if pre_impute:
-                tmp = stand.geojson()
+                stand.geojson()
+
 
 def calculate_adjacency(qs, threshold):
     """
@@ -117,7 +126,8 @@ def calculate_adjacency(qs, threshold):
         geom_orig = feat.geometry_final
         geom_buf = feat.geometry_final.buffer(threshold)
 
-        filterqs = qs.filter(geometry_final__bboverlaps = geom_buf, geometry_final__intersects = geom_buf)
+        filterqs = qs.filter(
+            geometry_final__bboverlaps=geom_buf, geometry_final__intersects=geom_buf)
         for feat2 in filterqs:
             fid2 = feat2.pk
             if fid == fid2:
@@ -135,10 +145,11 @@ def calculate_adjacency(qs, threshold):
 class NoPlotMatchError(Exception):
     pass
 
+
 def process_categories(categories, search_params):
     keys = search_params.keys()
     for sp in keys:
-        categories[sp+"__isnull"] = False
+        categories[sp + "__isnull"] = False
 
     if 'for_type_name' not in categories:
         raise NoPlotMatchError("Must provide a primary Forest Type")
@@ -148,6 +159,7 @@ def process_categories(categories, search_params):
         categories['for_type_secdry_name__isnull'] = True
 
     return categories
+
 
 def nearest_plots(categories, input_params, weight_dict, k=10):
     search_params = input_params.copy()
@@ -164,21 +176,22 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
         if 'calc_aspect' in origkeys:
             angle = angular_diff(ps.calc_aspect, input_params['calc_aspect'])
             vals.append(angle)
-            search_params['_aspect'] = 0 # anglular difference to self is 0
+            search_params['_aspect'] = 0  # anglular difference to self is 0
 
         return vals
 
     plotsum_qs = IdbSummary.objects.filter(**categories)
     plotsummaries = list(plotsum_qs)
-    ps_attr_list= [plot_attrs(ps, keys) for ps in plotsummaries]
+    ps_attr_list = [plot_attrs(ps, keys) for ps in plotsummaries]
 
     # include our special case
     if 'calc_aspect' in origkeys:
-        keys.append('_aspect') 
+        keys.append('_aspect')
 
     num_candidates = len(plotsummaries)
     if num_candidates == 0:
-        raise NoPlotMatchError("There are no candidate plots matching the categorical variables: %s" % categories)
+        raise NoPlotMatchError(
+            "There are no candidate plots matching the categorical variables: %s" % categories)
 
     weights = np.ones(len(keys))
     for i in range(len(keys)):
@@ -188,7 +201,7 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
 
     querypoint = np.array([float(search_params[attr]) for attr in keys])
 
-    rawpoints = np.array(ps_attr_list) 
+    rawpoints = np.array(ps_attr_list)
 
     # Normalize to max of 100; linear scale
     high = 100.0
@@ -198,11 +211,12 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
     rng = maxs - mins
     scaled_points = high - (((high - low) * (maxs - rawpoints)) / rng)
     scaled_querypoint = high - (((high - low) * (maxs - querypoint)) / rng)
-    scaled_querypoint[np.isinf(scaled_querypoint)] = high  # replace all infinite values with high val
+    scaled_querypoint[np.isinf(
+        scaled_querypoint)] = high  # replace all infinite values with high val
 
     # Apply weights
     # and guard against any nans due to zero range or other
-    scaled_points = np.nan_to_num(scaled_points * weights) 
+    scaled_points = np.nan_to_num(scaled_points * weights)
     scaled_querypoint = np.nan_to_num(scaled_querypoint * weights)
 
     # Create tree and query it for nearest plot
@@ -217,7 +231,7 @@ def nearest_plots(categories, input_params, weight_dict, k=10):
 
     xs = [100 * x for x in weights if x > 0]
     squares = [x * x for x in xs]
-    max_dist = math.sqrt(sum(squares)) # the real max 
+    max_dist = math.sqrt(sum(squares))  # the real max
     for t in top:
         if np.isinf(t[1]):
             continue
@@ -247,16 +261,18 @@ def classify_aspect(angle):
 
     if angle < 0:
         return "unknown"
-        
+
     while angle > 360.0:
         angle = angle - 360.0
     angle += 22.5
-    angle = int(angle/45.0)
+    angle = int(angle / 45.0)
 
-    words=["North", "North-East", "East", "South-East", "South", "South-West", "West", "North-West", "North"]
+    words = ["North", "North-East", "East", "South-East",
+             "South", "South-West", "West", "North-West", "North"]
     return words[angle]
 
-def angular_diff(x,y):
+
+def angular_diff(x, y):
     '''
     input: two angles in degrees
     output: absolute value of the angular difference in degrees
@@ -264,13 +280,15 @@ def angular_diff(x,y):
     import math
     x = math.radians(x)
     y = math.radians(y)
-    return math.fabs(math.degrees(min(y-x, y-x+2*math.pi, y-x-2*math.pi, key=abs)))
+    return math.fabs(math.degrees(min(y - x, y - x + 2 * math.pi, y - x - 2 * math.pi, key=abs)))
+
 
 def potential_minmax(categories, weight_dict, search_params):
     categories = process_categories(categories, search_params)
     ps = IdbSummary.objects.filter(**categories)
     keys = [k for k in weight_dict.keys() if not k.startswith("_")]
-    args = [Min(k) for k in keys] + [Max(k) for k in keys] + [Avg(k) for k in keys]
+    args = [Min(k) for k in keys] + [Max(
+        k) for k in keys] + [Avg(k) for k in keys]
     return ps.aggregate(*args)
 
 
@@ -305,86 +323,62 @@ def create_scenariostands(the_scenario):
     -- 5. Join with the original tables to pull in attributes
     -- 6. query on attributes to create an Identity
 
+
     SELECT
-           geometry_final,
-           cond_id,
-           default_rx_id as rx_id,
-           stand_id,
-           constraint_id
+       geometry_final,
+       cond_id,
+       default_rx_id as rx_id,
+       stand_id,
+       constraint_id
     FROM
-      (SELECT z.geom AS geometry_final,
-              stand_id,
-              constraint_id,
-              default_rx_id,
-              cond_id
-       FROM
-         (SELECT new.geom AS geom,
-                 Max(orig.stand_id) AS stand_id,
-                 Max(orig.constraint_id) AS constraint_id
-          FROM
-            (SELECT id AS stand_id,
-                    NULL AS constraint_id,
-                    geometry_final AS geom
-             FROM trees_stand
-             UNION ALL SELECT NULL AS stand_id,
-                              id AS constraint_id,
-                              geom
-             FROM trees_spatialconstraint) AS orig,
+    (SELECT z.geom AS geometry_final,
+          stand_id,
+          constraint_id,
+          default_rx_id,
+          cond_id
+    FROM
+     (SELECT proc.geom AS geom,
+             Max(orig.stand_id) AS stand_id,
+             Max(orig.constraint_id) AS constraint_id
+      FROM
+        (SELECT id AS stand_id,
+                NULL AS constraint_id,
+                geometry_final AS geom
+         FROM trees_stand
+         UNION ALL SELECT NULL AS stand_id,
+                          id AS constraint_id,
+                          geom
+         FROM trees_spatialconstraint) AS orig,
 
-            (SELECT St_pointonsurface(geom) AS geom
+        (SELECT geom, St_pointonsurface(geom) as ptgeom
+         FROM St_dump(
+            (SELECT St_polygonize(the_geom) AS the_geom
              FROM
-               (SELECT geom
-                FROM St_dump(
-                               (SELECT St_polygonize(the_geom) AS the_geom
-                                FROM
-                                  (SELECT St_union(the_geom ) AS the_geom
-                                   FROM
-                                     (SELECT St_exteriorring( geom) AS the_geom
-                                      FROM
-                                        (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
-                                         FROM trees_stand
-                                         --  ## warning , query clauses are repeated below.
-                                         WHERE id IN (%(stand_ids)s)
-                                         --
-                                         UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
-                                         FROM trees_spatialconstraint
-                                         --
-                                         WHERE id in (%(category_ids)s)
-                                         --
-                                         ) AS _test2_combo ) AS lines) AS noded_lines))) AS _test2_overlay) AS pt,
-
-            (SELECT geom
-             FROM St_dump(
-                            (SELECT St_polygonize(the_geom) AS the_geom
-                             FROM
-                               (SELECT St_union(the_geom) AS the_geom
-                                FROM
-                                  (SELECT St_exteriorring(geom) AS the_geom
-                                   FROM
-                                     (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
-                                      FROM trees_stand
-                                     --  ## warning , query clauses are repeated above.
-                                      WHERE id IN (%(stand_ids)s)
-                                      --
-                                      UNION ALL SELECT NULL AS stand_id, id AS constraint_id, geom
-                                      FROM trees_spatialconstraint
-                                      --
-                                      WHERE id in (%(category_ids)s)
-                                      --
-                                      ) AS _test2_combo ) AS lines) AS noded_lines))) AS new
-          WHERE orig.geom && pt.geom
-            AND new.geom && pt.geom
-            AND Intersects(orig.geom, pt.geom)
-            AND Intersects(new.geom, pt.geom)
-          GROUP BY new.geom) AS z
-       LEFT JOIN trees_stand s ON s.id = z.stand_id
-       LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
+               (SELECT St_union(the_geom) AS the_geom
+                FROM
+                  (SELECT St_exteriorring(geom) AS the_geom
+                   FROM
+                     (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+                      FROM trees_stand
+                      WHERE id IN (%(stand_ids)s)
+                      UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
+                      FROM trees_spatialconstraint
+                      WHERE id in (%(category_ids)s)
+                     ) AS _test2_combo ) AS lines) AS noded_lines))) AS proc
+      WHERE orig.geom && proc.ptgeom
+        AND proc.geom && proc.ptgeom
+        AND Intersects(orig.geom, proc.ptgeom)
+        AND Intersects(proc.geom, proc.ptgeom)
+      GROUP BY proc.geom) AS z
+    LEFT JOIN trees_stand s ON s.id = z.stand_id
+    LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
     WHERE stand_id IS NOT NULL ;
     """ % {
         # in case there are no constraints involved, fake a -1 id
         'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()] + ['-1']),
         'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
     }
+    print sql
 
     # pre-clean
     ScenarioStand.objects.filter(scenario=the_scenario).delete()
@@ -404,7 +398,8 @@ def create_scenariostands(the_scenario):
 
         the_cond_id = row[1]
         if not the_cond_id:
-            raise ScenarioNotRunnable("%s - not all ScenarioStands have cond_id" % the_scenario.uid)
+            raise ScenarioNotRunnable(
+                "%s - not all ScenarioStands have cond_id" % the_scenario.uid)
 
         rx_id = row[2]
         the_rx = None
@@ -427,7 +422,8 @@ def create_scenariostands(the_scenario):
         if stand_id:
             the_stand = Stand.objects.get(id=stand_id)
         else:
-            raise ScenarioNotRunnable("%s - not all ScenarioStands have stand_id" % the_scenario.uid)
+            raise ScenarioNotRunnable(
+                "%s - not all ScenarioStands have stand_id" % the_scenario.uid)
 
         if constraint_id:
             the_constraint = SpatialConstraint.objects.get(id=constraint_id)

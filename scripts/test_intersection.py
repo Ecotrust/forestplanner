@@ -123,7 +123,6 @@ rx2, created = Rx.objects.get_or_create(internal_name="testrx3", internal_desc="
 
 #### Create spatial constraints
 import random
-"""
 for g in geoms:
     centroid = g.centroid
     cntr = GEOSGeometry(centroid.to_wkt())
@@ -136,6 +135,7 @@ for g in geoms:
         default_rx=random.choice([rx1, rx2]),
         category="R1"
     )
+
 """
 for i in range(5):
     pt1 = random.choice(geoms)
@@ -150,7 +150,6 @@ for i in range(5):
         category=random.choice(["R1", "R2"])
     )
 
-"""
 cntr.set_y(cntr.y - 75)
 cg1 = cntr.buffer(30)  #.envelope
 cg1.transform(settings.GEOMETRY_DB_SRID)
