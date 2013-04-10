@@ -294,13 +294,15 @@ def potential_minmax(categories, weight_dict, search_params):
 
 def create_scenariostands(the_scenario):
     """
-    Given a scenario,
-    do a spatial identity and populate the ScenarioStands
+    Given a scenario, do a spatial identity between
+      * Stands for this scenario
+      * All SpatialConstraints chosen for this scenario
+    and populate the ScenarioStands with the results
+
     input: scenario instance
     output: ScenarioStands queryset
     side effects: removes old ScenarioStands and populates with new shapes
-    dependencies:
-        - state of stands (need cond_id)
+    dependencies: scenario must be runnable
     """
     from trees.models import ScenarioStand, Stand, Rx, SpatialConstraint, ScenarioNotRunnable
     from django.db import connection
@@ -397,7 +399,7 @@ def create_scenariostands(the_scenario):
       AND ST_Contains(orig.geom, proc.ptgeom)
       GROUP BY proc.geom) AS z
     LEFT JOIN trees_stand s ON s.id = z.stand_id
-    LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
+    LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _unionjoin
     WHERE stand_id IS NOT NULL ;
     """ % {
         'orig_combo_sql': orig_combo_sql

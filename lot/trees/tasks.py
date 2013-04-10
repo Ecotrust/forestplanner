@@ -165,29 +165,10 @@ def schedule_harvest(scenario_id):
     current_task.update_state(state='PROGRESS', meta={'current': 50})
     time.sleep(2)
 
-    # TODO
     # Populate ScenarioStands before the scenario is created
-    # spatial intersection between
-    #  1. Stands for this scenario
-    #  2. All SpatialConstraints chosen for this scenario
-    # The Rx from #2 takes precedence over the Rx from #1.
-    # from madrona.utils import get_class
-    # if not scenario.spatial_constraints or scenario.spatial_constraints == []:
-    #     # No spatial contstraints, stands get copied verbatim
-    #     for stand in scenario.input_property.feature_set(feature_classes=[Stand]):
-    #         rx = Rx.objects.get(id=scenario.input_rxs[stand.id])
-    #         ScenarioStand.objects.create(
-    #             geometry_final=stand.geometry_final, name=stand.name, cond_id=stand.cond_id, rx=rx)
-    # else:
-    #     # we have spatial constraints - lets intersect them with stands
-    #     constraint_querysets = []
-    #     for sccode in scenario.spatial_constraints:
-    #         sc = SpatialConstraint.objects.get(polygon_table=sccode)
-    #         modelname = sc.get_polygon_table_display()
-    #         klass = get_class(modelname)
-    #         qs = klass.objects.filter(geom__bboverlaps=scenario.input_property.geometry_final)
-    #         constraint_querysets.append(qs)
-    #     stands = scenario.input_property.feature_set(feature_classes=[Stand])
+    from trees.utils import create_scenariostands
+    # might raise ScenarioNotRunnable, don't bother retrying
+    scenariostands = create_scenariostands(scenario)
 
     # TODO prep scheduler, run it, parse the outputs
     d = {}
@@ -201,12 +182,12 @@ def schedule_harvest(scenario_id):
     # Stand-level outputs
     # Note the data structure for stands is different than properties
     # (stands are optimized for openlayers map while property-level works with jqplot)
-    for stand in scenario.stand_set():
+    for sstand in scenariostands:  # scenario.stand_set():
         c = random.randint(0, 90)
         t = random.randint(0, 90)
         carbon = rsamp[c:c + 6]
         timber = rsamp[t:t + 6]
-        d[stand.pk] = {
+        d[sstand.pk] = {
             "years": range(2020, 2121, 20),
             "carbon": [
                 carbon[0],
