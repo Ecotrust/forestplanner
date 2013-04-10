@@ -52,11 +52,11 @@ client.login(username='test', password='test')
 
 ##### Step 0. Delete all test properties and related objects
 
-try:
-    old = SpatialConstraint.objects.all()
-    old.delete()
-except ForestProperty.DoesNotExist:
-     pass
+# try:
+#     old = SpatialConstraint.objects.all()
+#     old.delete()
+# except ForestProperty.DoesNotExist:
+#      pass
 
 # try:
 #     old = Rx.objects.all()
@@ -123,6 +123,7 @@ rx2, created = Rx.objects.get_or_create(internal_name="testrx3", internal_desc="
 
 #### Create spatial constraints
 import random
+"""
 for g in geoms:
     centroid = g.centroid
     cntr = GEOSGeometry(centroid.to_wkt())
@@ -136,7 +137,6 @@ for g in geoms:
         category="R1"
     )
 
-"""
 for i in range(5):
     pt1 = random.choice(geoms)
     pt2 = random.choice(geoms)

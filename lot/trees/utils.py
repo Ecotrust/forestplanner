@@ -341,14 +341,14 @@ def create_scenariostands(the_scenario):
              Max(orig.stand_id) AS stand_id,
              Max(orig.constraint_id) AS constraint_id
       FROM
-        (SELECT id AS stand_id,
-                NULL AS constraint_id,
-                geometry_final AS geom
+        (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
          FROM trees_stand
-         UNION ALL SELECT NULL AS stand_id,
-                          id AS constraint_id,
-                          geom
-         FROM trees_spatialconstraint) AS orig,
+         --WHERE id IN (%(stand_ids)s)
+         UNION ALL
+         SELECT NULL AS stand_id, id AS constraint_id, geom
+         FROM trees_spatialconstraint
+         --WHERE id in (%(category_ids)s)
+         ) AS orig,
 
         (SELECT geom, St_pointonsurface(geom) as ptgeom
          FROM St_dump(
@@ -360,15 +360,17 @@ def create_scenariostands(the_scenario):
                    FROM
                      (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
                       FROM trees_stand
-                      WHERE id IN (%(stand_ids)s)
+                      --WHERE id IN (%(stand_ids)s)
                       UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
                       FROM trees_spatialconstraint
-                      WHERE id in (%(category_ids)s)
-                     ) AS _test2_combo ) AS lines) AS noded_lines))) AS proc
-      WHERE orig.geom && proc.ptgeom
-        AND proc.geom && proc.ptgeom
-        AND Intersects(orig.geom, proc.ptgeom)
-        AND Intersects(proc.geom, proc.ptgeom)
+                      --WHERE id in (%(category_ids)s)
+                     ) AS combo
+                  ) AS lines 
+               ) AS noded_lines
+            )
+        )) AS proc
+      WHERE proc.ptgeom && orig.geom
+      AND ST_Contains(orig.geom, proc.ptgeom)
       GROUP BY proc.geom) AS z
     LEFT JOIN trees_stand s ON s.id = z.stand_id
     LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
