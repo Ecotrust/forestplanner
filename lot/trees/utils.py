@@ -309,6 +309,40 @@ def create_scenariostands(the_scenario):
         raise ScenarioNotRunnable(
             "%s has stands without cond_id or is otherwise unrunnable" % the_scenario.uid)
 
+    # Avoid use of IN? 
+    # Doesn't seem to improve performance much
+    # orig_combo_sql = """
+    #      SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+    #      FROM trees_stand
+    #      WHERE content_type_id = 47 and object_id = 80
+
+    #      UNION ALL
+
+    #      SELECT NULL AS stand_id, sc.id AS constraint_id, geom
+    #      --from trees_spatialconstraint sc
+    #      FROM trees_spatialconstraint sc, trees_forestproperty fp
+    #      WHERE fp.id = 80 AND fp.geometry_final && sc.geom AND category IN ('R2')
+    #     """
+
+    orig_combo_sql = """
+         SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+         FROM trees_stand
+         WHERE id IN (%(stand_ids)s)
+
+         UNION ALL
+
+         SELECT NULL AS stand_id, sc.id AS constraint_id, geom
+         FROM trees_spatialconstraint sc
+         WHERE sc.id IN (%(constraint_ids)s)
+    """ % {
+        # in case there are no constraints involved, fake a -1 id
+        'constraint_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()] + ['-1']),
+        'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
+    }
+
+    # testing, above query assumed to reside in _temp_orig
+    #orig_combo_sql = "SELECT * FROM _temp_orig"
+
     sql = """
     -- ArcGIS-style Identity
     -- similar to a global arcgis-style union but "clipped" to one of the input layers
@@ -322,7 +356,6 @@ def create_scenariostands(the_scenario):
     -- 4. group by geom and aggregate original ids by point overlap
     -- 5. Join with the original tables to pull in attributes
     -- 6. query on attributes to create an Identity
-
 
     SELECT
        geometry_final,
@@ -341,14 +374,9 @@ def create_scenariostands(the_scenario):
              Max(orig.stand_id) AS stand_id,
              Max(orig.constraint_id) AS constraint_id
       FROM
-        (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
-         FROM trees_stand
-         --WHERE id IN (%(stand_ids)s)
-         UNION ALL
-         SELECT NULL AS stand_id, id AS constraint_id, geom
-         FROM trees_spatialconstraint
-         --WHERE id in (%(category_ids)s)
-         ) AS orig,
+        (
+        %(orig_combo_sql)s
+        ) AS orig,
 
         (SELECT geom, St_pointonsurface(geom) as ptgeom
          FROM St_dump(
@@ -358,14 +386,10 @@ def create_scenariostands(the_scenario):
                 FROM
                   (SELECT St_exteriorring(geom) AS the_geom
                    FROM
-                     (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
-                      FROM trees_stand
-                      --WHERE id IN (%(stand_ids)s)
-                      UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
-                      FROM trees_spatialconstraint
-                      --WHERE id in (%(category_ids)s)
+                     (
+                     %(orig_combo_sql)s
                      ) AS combo
-                  ) AS lines 
+                  ) AS lines
                ) AS noded_lines
             )
         )) AS proc
@@ -376,9 +400,7 @@ def create_scenariostands(the_scenario):
     LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
     WHERE stand_id IS NOT NULL ;
     """ % {
-        # in case there are no constraints involved, fake a -1 id
-        'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()] + ['-1']),
-        'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
+        'orig_combo_sql': orig_combo_sql
     }
     print sql
 
@@ -393,6 +415,7 @@ def create_scenariostands(the_scenario):
 
     # loop through output identity polygons and
     # and create corresponding ScenarioStands
+    print "Looping through results..."
     for row in cursor.fetchall():
 
         # [x[0] for x in cursor.description]
