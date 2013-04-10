@@ -273,3 +273,174 @@ def potential_minmax(categories, weight_dict, search_params):
     args = [Min(k) for k in keys] + [Max(k) for k in keys] + [Avg(k) for k in keys]
     return ps.aggregate(*args)
 
+
+def create_scenariostands(the_scenario):
+    """
+    Given a scenario,
+    do a spatial identity and populate the ScenarioStands
+    input: scenario instance
+    output: ScenarioStands queryset
+    side effects: removes old ScenarioStands and populates with new shapes
+    dependencies:
+        - state of stands (need cond_id)
+    """
+    from trees.models import ScenarioStand, Stand, Rx, SpatialConstraint, ScenarioNotRunnable
+    from django.db import connection
+
+    if not the_scenario.is_runnable:
+        raise ScenarioNotRunnable(
+            "%s has stands without cond_id or is otherwise unrunnable" % the_scenario.uid)
+
+    sql = """
+    -- ArcGIS-style Identity
+    -- similar to a global arcgis-style union but "clipped" to one of the input layers
+    -- advantage to this method is that you can include polygons from multiple input tables
+    -- and overlapping polygons are handled gracefuly by taking the max/min(id)
+    -- see https://gist.github.com/perrygeo/5320964
+    --
+    -- 1. put all polygons into one table, maintaining ids for each input layer
+    -- 2. deconstruct into lines and rebuild polygons
+    -- 3. take points on surface
+    -- 4. group by geom and aggregate original ids by point overlap
+    -- 5. Join with the original tables to pull in attributes
+    -- 6. query on attributes to create an Identity
+
+    SELECT
+           geometry_final,
+           cond_id,
+           default_rx_id as rx_id,
+           stand_id,
+           constraint_id
+    FROM
+      (SELECT z.geom AS geometry_final,
+              stand_id,
+              constraint_id,
+              default_rx_id,
+              cond_id
+       FROM
+         (SELECT new.geom AS geom,
+                 Max(orig.stand_id) AS stand_id,
+                 Max(orig.constraint_id) AS constraint_id
+          FROM
+            (SELECT id AS stand_id,
+                    NULL AS constraint_id,
+                    geometry_final AS geom
+             FROM trees_stand
+             UNION ALL SELECT NULL AS stand_id,
+                              id AS constraint_id,
+                              geom
+             FROM trees_spatialconstraint) AS orig,
+
+            (SELECT St_pointonsurface(geom) AS geom
+             FROM
+               (SELECT geom
+                FROM St_dump(
+                               (SELECT St_polygonize(the_geom) AS the_geom
+                                FROM
+                                  (SELECT St_union(the_geom ) AS the_geom
+                                   FROM
+                                     (SELECT St_exteriorring( geom) AS the_geom
+                                      FROM
+                                        (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+                                         FROM trees_stand
+                                         --  ## warning , query clauses are repeated below.
+                                         WHERE id IN (%(stand_ids)s)
+                                         --
+                                         UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
+                                         FROM trees_spatialconstraint
+                                         --
+                                         WHERE id in (%(category_ids)s)
+                                         --
+                                         ) AS _test2_combo ) AS lines) AS noded_lines))) AS _test2_overlay) AS pt,
+
+            (SELECT geom
+             FROM St_dump(
+                            (SELECT St_polygonize(the_geom) AS the_geom
+                             FROM
+                               (SELECT St_union(the_geom) AS the_geom
+                                FROM
+                                  (SELECT St_exteriorring(geom) AS the_geom
+                                   FROM
+                                     (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+                                      FROM trees_stand
+                                     --  ## warning , query clauses are repeated above.
+                                      WHERE id IN (%(stand_ids)s)
+                                      --
+                                      UNION ALL SELECT NULL AS stand_id, id AS constraint_id, geom
+                                      FROM trees_spatialconstraint
+                                      --
+                                      WHERE id in (%(category_ids)s)
+                                      --
+                                      ) AS _test2_combo ) AS lines) AS noded_lines))) AS new
+          WHERE orig.geom && pt.geom
+            AND new.geom && pt.geom
+            AND Intersects(orig.geom, pt.geom)
+            AND Intersects(new.geom, pt.geom)
+          GROUP BY new.geom) AS z
+       LEFT JOIN trees_stand s ON s.id = z.stand_id
+       LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
+    WHERE stand_id IS NOT NULL ;
+    """ % {
+        # in case there are no constraints involved, fake a -1 id
+        'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()] + ['-1']),
+        'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
+    }
+
+    # pre-clean
+    ScenarioStand.objects.filter(scenario=the_scenario).delete()
+
+    input_rxs = the_scenario.input_rxs
+
+    # exec query
+    cursor = connection.cursor()
+    cursor.execute(sql)
+
+    # loop through output identity polygons and
+    # and create corresponding ScenarioStands
+    for row in cursor.fetchall():
+
+        # [x[0] for x in cursor.description]
+        # ['geometry_final', 'cond_id', 'rx_id', 'stand_id', 'constraint_id']
+
+        the_cond_id = row[1]
+        if not the_cond_id:
+            raise ScenarioNotRunnable("%s - not all ScenarioStands have cond_id" % the_scenario.uid)
+
+        rx_id = row[2]
+        the_rx = None
+        stand_id = row[3]
+        the_stand = None
+        constraint_id = row[4]
+        the_constraint = None
+
+        if rx_id:
+            # comes from a spatial constraint
+            the_rx = Rx.objects.get(id=rx_id)
+        elif stand_id:
+            # comes from the scenario Rx user input
+            try:
+                rx_id = input_rxs[stand_id]
+            except KeyError:
+                rx_id = input_rxs[unicode(stand_id)]
+            the_rx = Rx.objects.get(id=rx_id)
+
+        if stand_id:
+            the_stand = Stand.objects.get(id=stand_id)
+        else:
+            raise ScenarioNotRunnable("%s - not all ScenarioStands have stand_id" % the_scenario.uid)
+
+        if constraint_id:
+            the_constraint = SpatialConstraint.objects.get(id=constraint_id)
+
+        ScenarioStand.objects.create(
+            user=the_scenario.user,
+            geometry_final=row[0],
+            geometry_orig=row[0],
+            cond_id=the_cond_id,
+            scenario=the_scenario,
+            rx=the_rx,
+            stand=the_stand,
+            constraint=the_constraint
+        )
+
+    return ScenarioStand.objects.filter(scenario=the_scenario)

@@ -614,7 +614,6 @@ class Scenario(Feature):
         for stand in self.stand_set():
             if not stand.cond_id:
                 return False
-
         return True
 
     def run(self):
