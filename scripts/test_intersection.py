@@ -17,7 +17,7 @@ from shapely.geometry import Polygon, MultiPolygon
 from shapely import wkt
 from django.db import connection
 
-cntr = GEOSGeometry('SRID=3857;POINT(-13842400.0 5280100.0)')
+cntr = GEOSGeometry('SRID=3857;POINT(-13842500.0 5280100.0)')
 
 NUM_STANDS = 3
 geoms = []
@@ -50,11 +50,12 @@ client.login(username='test', password='test')
 
 ##### Step 0. Delete all test properties and related objects
 
-# try:
-#     old = SpatialConstraint.objects.all()
-#     old.delete()
-# except ForestProperty.DoesNotExist:
-#     pass
+try:
+    old = SpatialConstraint.objects.all()
+    old.delete()
+except ForestProperty.DoesNotExist:
+     pass
+
 # try:
 #     old = Rx.objects.all()
 #     old.delete()
@@ -120,9 +121,9 @@ rx1, created = Rx.objects.get_or_create(internal_name="testrx2", internal_desc="
 rx2, created = Rx.objects.get_or_create(internal_name="testrx3", internal_desc="another test Rx for spatial constraints", variant=prop1.variant)
 
 #### Create spatial constraints
-cntr.set_x(cntr.x - 75)
+cntr.set_x(cntr.x - 55)
 cntr.set_y(cntr.y - 75)
-cg1 = cntr.buffer(30).envelope
+cg1 = cntr.buffer(30)  #.envelope
 cg1.transform(settings.GEOMETRY_DB_SRID)
 sc1 = SpatialConstraint.objects.get_or_create(
     geom=cg1,
@@ -130,8 +131,9 @@ sc1 = SpatialConstraint.objects.get_or_create(
     category="R1"
 )
 
+"""
 cntr.set_y(cntr.y - 75)
-cg1 = cntr.buffer(30).envelope
+cg1 = cntr.buffer(30)  #.envelope
 cg1.transform(settings.GEOMETRY_DB_SRID)
 sc1 = SpatialConstraint.objects.get_or_create(
     geom=cg1,
@@ -140,7 +142,7 @@ sc1 = SpatialConstraint.objects.get_or_create(
 )
 
 cntr.set_y(cntr.y + 225)
-cg1 = cntr.buffer(30).envelope
+cg1 = cntr.buffer(90)  #.envelope
 cg1.transform(settings.GEOMETRY_DB_SRID)
 sc1 = SpatialConstraint.objects.get_or_create(
     geom=cg1,
@@ -149,13 +151,14 @@ sc1 = SpatialConstraint.objects.get_or_create(
 )
 
 cntr.set_y(cntr.y - 15)
-cg1 = cntr.buffer(30).envelope
+cg1 = cntr.buffer(20)  #.envelope
 cg1.transform(settings.GEOMETRY_DB_SRID)
 sc1 = SpatialConstraint.objects.get_or_create(
     geom=cg1,
     default_rx=rx2,
     category="R2"
 )
+"""
 ######################################## END
 
 #### Create a scenario. Try to run it (should return False; not enough info)
@@ -187,10 +190,6 @@ scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 
 
 def get_scenariostands_old(scenario):
-    print
-    print "DO Intersection ========================="
-    print
-
     working = []
     for standgr in scenario.standgeoms_rxs:
         intersects = False
@@ -207,10 +206,8 @@ def get_scenariostands_old(scenario):
     for w in working:
         print w[0].wkt, w[1]
 
-            #import ipdb; ipdb.set_trace()
 
-
-def get_scenariostands(the_scenario):
+def create_scenariostands(the_scenario):
 
     sql = """
 SELECT
@@ -289,26 +286,22 @@ FROM
    LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
 WHERE stand_id IS NOT NULL ;
 """ % {
-        'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()]),
+        # in case there are no constraints involved, fake a -1 id
+        'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()] + ['-1']),
         'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
     }
 
     # pre-clean
     ScenarioStand.objects.filter(scenario=the_scenario).delete()
 
+    input_rxs = the_scenario.input_rxs
+
     # exec query
     cursor = connection.cursor()
     cursor.execute(sql)
-    print [x[0] for x in cursor.description]
+    # [x[0] for x in cursor.description]
     # ['geometry_final', 'cond_id', 'rx_id', 'stand_id', 'constraint_id']
-    input_rxs = the_scenario.input_rxs
-    print
-    print input_rxs
-    print
     for row in cursor.fetchall():
-
-        print row
-
         the_cond_id = row[1]
         ###### TODO TOTALLY NOT COOL TO DO THIS.. NEED A COND_ID AT THIS POINT!!
         if not the_cond_id:
@@ -349,4 +342,4 @@ WHERE stand_id IS NOT NULL ;
             constraint=the_constraint
         )
 
-get_scenariostands(scenario1)
+create_scenariostands(scenario1)

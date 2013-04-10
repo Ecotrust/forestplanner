@@ -542,25 +542,9 @@ class Scenario(Feature):
             category__in=scs,
             geom__bboverlaps=self.input_property.geometry_final
         )
-        # TODO order by??
 
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
-
-    @property
-    def standgeoms_rxs(self):
-        """
-        returns [(stand_geometry, rx_id), ...]
-        """
-        input_rxs = self.input_rxs
-        return [(stand.geometry_final, input_rxs[str(stand.id)]) for stand in self.stand_set()]
-
-    @property
-    def constraintgeoms_rxs(self):
-        """
-        returns [(constraint_geometry, rx_id), ...]
-        """
-        return [(c.geom, c.default_rx.id) for c in self.constraint_set()]
 
     @property
     def output_property_results(self):
