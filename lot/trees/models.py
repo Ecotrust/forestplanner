@@ -1038,10 +1038,10 @@ class ScenarioStand(PolygonFeature):
     """
     # geometry_final = inherited from PolygonFeature
     cond_id = models.BigIntegerField()
-    rx = models.ForeignKey(Rx, null=True)
+    rx = models.ForeignKey(Rx)
     scenario = models.ForeignKey(Scenario)
     stand = models.ForeignKey(Stand)
-    constraint = models.ForeignKey(SpatialConstraint)
+    constraint = models.ForeignKey(SpatialConstraint, null=True)
     # assert that all cond_ids are present or make FK?
 
 

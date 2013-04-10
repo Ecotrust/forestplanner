@@ -8,13 +8,14 @@ import settings
 setup_environ(settings)
 ##############################
 import json
-from trees.models import Stand, Scenario, Strata, ForestProperty, SpatialConstraint, Rx
+from trees.models import Stand, Scenario, Strata, ForestProperty, SpatialConstraint, Rx, ScenarioStand
 from django.contrib.auth.models import User
 from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry
 from shapely.ops import cascaded_union
 from shapely.geometry import Polygon, MultiPolygon
 from shapely import wkt
+from django.db import connection
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842400.0 5280100.0)')
 
@@ -185,7 +186,7 @@ uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 
 
-def get_scenariostands(scenario):
+def get_scenariostands_old(scenario):
     print
     print "DO Intersection ========================="
     print
@@ -207,5 +208,145 @@ def get_scenariostands(scenario):
         print w[0].wkt, w[1]
 
             #import ipdb; ipdb.set_trace()
+
+
+def get_scenariostands(the_scenario):
+
+    sql = """
+SELECT
+       geometry_final,
+       cond_id,
+       default_rx_id as rx_id,
+       stand_id,
+       constraint_id
+FROM
+  (SELECT z.geom AS geometry_final,
+          stand_id,
+          constraint_id,
+          default_rx_id,
+          cond_id
+   FROM
+     (SELECT new.geom AS geom,
+             Max(orig.stand_id) AS stand_id,
+             Max(orig.constraint_id) AS constraint_id
+      FROM
+        (SELECT id AS stand_id,
+                NULL AS constraint_id,
+                geometry_final AS geom
+         FROM trees_stand
+         UNION ALL SELECT NULL AS stand_id,
+                          id AS constraint_id,
+                          geom
+         FROM trees_spatialconstraint) AS orig,
+
+        (SELECT St_pointonsurface(geom) AS geom
+         FROM
+           (SELECT geom
+            FROM St_dump(
+                           (SELECT St_polygonize(the_geom) AS the_geom
+                            FROM
+                              (SELECT St_union(the_geom ) AS the_geom
+                               FROM
+                                 (SELECT St_exteriorring( geom) AS the_geom
+                                  FROM
+                                    (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+                                     FROM trees_stand
+                                     --
+                                     WHERE id IN (%(stand_ids)s)
+                                     --
+                                     UNION ALL SELECT NULL AS stand_id , id AS constraint_id, geom
+                                     FROM trees_spatialconstraint
+                                     --
+                                     WHERE id in (%(category_ids)s)
+                                     --
+                                     ) AS _test2_combo ) AS lines) AS noded_lines))) AS _test2_overlay) AS pt,
+
+        (SELECT geom
+         FROM St_dump(
+                        (SELECT St_polygonize(the_geom) AS the_geom
+                         FROM
+                           (SELECT St_union(the_geom) AS the_geom
+                            FROM
+                              (SELECT St_exteriorring(geom) AS the_geom
+                               FROM
+                                 (SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
+                                  FROM trees_stand
+                                  --
+                                  WHERE id IN (%(stand_ids)s)
+                                  --
+                                  UNION ALL SELECT NULL AS stand_id, id AS constraint_id, geom
+                                  FROM trees_spatialconstraint
+                                  --
+                                  WHERE id in (%(category_ids)s)
+                                  --
+                                  ) AS _test2_combo ) AS lines) AS noded_lines))) AS new
+      WHERE orig.geom && pt.geom
+        AND new.geom && pt.geom
+        AND Intersects(orig.geom, pt.geom)
+        AND Intersects(new.geom, pt.geom)
+      GROUP BY new.geom) AS z
+   LEFT JOIN trees_stand s ON s.id = z.stand_id
+   LEFT JOIN trees_spatialconstraint c ON c.id = z.constraint_id) AS _test2_unionjoin
+WHERE stand_id IS NOT NULL ;
+""" % {
+        'category_ids': ",".join([str(int(x.id)) for x in the_scenario.constraint_set()]),
+        'stand_ids': ",".join([str(int(x.id)) for x in the_scenario.stand_set()]),
+    }
+
+    # pre-clean
+    ScenarioStand.objects.filter(scenario=the_scenario).delete()
+
+    # exec query
+    cursor = connection.cursor()
+    cursor.execute(sql)
+    print [x[0] for x in cursor.description]
+    # ['geometry_final', 'cond_id', 'rx_id', 'stand_id', 'constraint_id']
+    input_rxs = the_scenario.input_rxs
+    print
+    print input_rxs
+    print
+    for row in cursor.fetchall():
+
+        print row
+
+        the_cond_id = row[1]
+        ###### TODO TOTALLY NOT COOL TO DO THIS.. NEED A COND_ID AT THIS POINT!!
+        if not the_cond_id:
+            the_cond_id = 432
+
+        rx_id = row[2]
+        the_rx = None
+        stand_id = row[3]
+        the_stand = None
+        constraint_id = row[4]
+        the_constraint = None
+
+        if rx_id:
+            # comes from a spatial constraint
+            the_rx = Rx.objects.get(id=rx_id)
+        elif stand_id:
+            # comes from the scenario Rx user input
+            try:
+                rx_id = input_rxs[stand_id]
+            except KeyError:
+                rx_id = input_rxs[unicode(stand_id)]
+            the_rx = Rx.objects.get(id=rx_id)
+
+        if stand_id:
+            the_stand = Stand.objects.get(id=stand_id)
+
+        if constraint_id:
+            the_constraint = SpatialConstraint.objects.get(id=constraint_id)
+
+        ScenarioStand.objects.create(
+            user=the_scenario.user,
+            geometry_final=row[0],
+            geometry_orig=row[0],
+            cond_id=the_cond_id,
+            scenario=the_scenario,
+            rx=the_rx,
+            stand=the_stand,
+            constraint=the_constraint
+        )
 
 get_scenariostands(scenario1)
