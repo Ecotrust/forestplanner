@@ -145,7 +145,7 @@ file { "/etc/nginx/sites-enabled/default":
 }
 
 class { "postgresql::server": version => "9.1",
-    listen_addresses => 'localhost',
+    listen_addresses => "'*'",  # TODO localhost',
     max_connections => 100,
     shared_buffers => '24MB',
 }
