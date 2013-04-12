@@ -947,10 +947,13 @@ class FVSVariant(models.Model):
     code = models.CharField(max_length=3)
     fvsvariant = models.CharField(max_length=100)
     decision_tree_xml = models.TextField(default="")
+    #decision_tree_xml is validated in the admin.py form
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
 
-    #TODO validate decision_tree_xml, make sure endpoints match with Rxs
+    def __unicode__(self):
+        return u'%s (%s)' % (self.fvsvariant, self.code)
+
 
 # Auto-generated `LayerMapping` dictionaries for shapefile-backed models
 county_mapping = {
