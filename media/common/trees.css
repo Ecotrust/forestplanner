@@ -194,10 +194,10 @@ a {
     width: 436px !important;
 }
 .dl-horizontal dd {
-    margin-left: 180px;
+    margin-left: 110px;
 }
 .dl-horizontal dt {
-    width: 168px;
+    width: 98px;
 }
 textarea#id_description {
     width: 80%;
@@ -236,4 +236,33 @@ select.timemap-type {
 }
 label#year-label {
     display: inline;
+}
+.well h3 {
+	clear: both;
+}
+.modal {
+	font-size: 85%;
+}
+.modal .modal-body h3 {
+	font-size: 22px;
+}
+.carousel-inner .row-fluid .span6{
+	margin-top: 21px; /* so. cheap. */
+}
+
+
+/* Bootstrap SpaceLab Overrides */
+
+[class^="icon-"], [class*=" icon-"] {
+    margin-top: 4px;
+}
+
+.btn-mini [class^="icon-"], .btn-mini [class*=" icon-"] {
+    margin-top: 1px;
+}
+.carousel-control {
+	line-height: 25px;
+}
+.navbar .nav > li > a {
+	line-height: 24px;
 }

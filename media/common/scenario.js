@@ -28,15 +28,21 @@ function scenarioFormViewModel() {
   var self = this;
   var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
 
-  self.prescriptionList = ko.observableArray([{
-    name: "Mixed-species, 75 year rotation, commercial thin",
-    description: "75-year rotation with commercial thinning.",
-    color: colors.pop()
-  }, {
-    name: "Monoculture, 40 year rotation, pre-commercial",
-    description: "Even-aged management for timber. 40-year rotation clear cut.",
-    color: colors.pop()
-  }
+  self.prescriptionList = ko.observableArray([
+    {
+        name: "Grow Only",
+        description: "No active management.",
+        color: colors.pop()
+    },
+    {
+      name: "Mixed-species, 75 year rotation, commercial thin",
+      description: "75-year rotation with commercial thinning.",
+      color: colors.pop()
+    }, {
+      name: "Monoculture, 40 year rotation, pre-commercial",
+      description: "Even-aged management for timber. 40-year rotation clear cut.",
+      color: colors.pop()
+    }
 
 
   ]);
