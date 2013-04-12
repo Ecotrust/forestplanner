@@ -4,6 +4,7 @@ from scipy.spatial import KDTree
 import math
 import pandas as pd
 from django.db import connection
+from django.core.cache import cache
 from madrona.common.utils import get_logger
 logger = get_logger()
 
@@ -32,10 +33,16 @@ def get_candidates(stand_list, variant, min_candidates=1):
     Given a stand list and a variant code,
     return a list of IdbSummary instances that are potential candidate matches
     """
-    # TODO cache get_candidates
     cursor = connection.cursor()
 
     dfs = []
+
+    key = "Candidates_" + "_".join([str(item) for sublist in stand_list
+                                    for item in sublist] +
+                                   [variant, str(min_candidates)])
+    res = cache.get(key)
+    if res is not None:
+        return res
 
     for sc in stand_list:
 
@@ -141,6 +148,7 @@ def get_candidates(stand_list, variant, min_candidates=1):
         candidates = candidates.join(df)
         candidates = candidates.fillna(0)  # if nonspec basal area is nan, make it zero
 
+    cache.set(key, candidates, timeout=0)
     return candidates
 
 
