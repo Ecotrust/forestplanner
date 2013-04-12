@@ -981,7 +981,7 @@ class SVSTest(TestCase):
         self.assertEqual(response.status_code, 301)
 
 class NearestPlotPyTest(TestCase):
-    fixtures = ['test_treelive_summary', 'test_idb_summary']
+    fixtures = ['test_treelive_summary', 'test_idb_summary']  #TODO test_conditionvariantlookup
 
     def setUp(self):
         self.client = Client()
@@ -1038,6 +1038,13 @@ class NearestPlotPyTest(TestCase):
         self.assertTrue(2 in [x[0] for x in strata.candidates(1).iterrows()])
         self.assertEquals(self.stand1.get_idb().pk, 1)
         self.assertEquals(self.stand1.cond_id, 1)
+
+    def test_candidates(self):
+        from trees.plots import get_candidates
+        stand_list = {'classes': [('Douglas-fir', 10, 14, 31), ]}
+        variant = "WS"
+        cs = get_candidates(stand_list['classes'], variant)
+
 
 class NearestPlotRestTest(TestCase):
     fixtures = ['test_treelive_summary', 'test_idb_summary']

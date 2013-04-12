@@ -338,6 +338,7 @@ class ForestProperty(FeatureCollection):
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
+    @cachemethod("ForestProperty_%(id)s_variant")
     def variant(self):
         '''
         Returns: Closest FVS variant instance
@@ -362,6 +363,7 @@ class ForestProperty(FeatureCollection):
         return the_variant
 
     @property
+    @cachemethod("ForestProperty_%(id)s_location")
     def location(self):
         '''
         Returns: (CountyName, State)
@@ -441,6 +443,19 @@ class ForestProperty(FeatureCollection):
             object_id=self.pk
         )
         return calculate_adjacency(stands, threshold)
+
+    def invalidate_cache(self):
+        if not self.id:
+            return True
+        # depends on django-redis as the cache backend!!!
+        key_pattern = "ForestProperty_%d_*" % self.id
+        cache.delete_pattern(key_pattern)
+        assert cache.keys(key_pattern) == []
+        return True
+
+    def save(self, *args, **kwargs):
+        self.invalidate_cache()
+        super(ForestProperty, self).save(*args, **kwargs)
 
     class Options:
         valid_children = ('trees.models.Stand', 'trees.models.Strata',)

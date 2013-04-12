@@ -162,9 +162,23 @@ def process_categories(categories, search_params):
 
 
 def nearest_plots(categories, input_params, weight_dict, k=10):
+    """
+    !!!!!! DEPRECATED; DO NOT USE !!!!!!!
+    ~~~~~~ use trees.plots.get_nearest_neighbors instead ~~~~~~~~
+    Utility function to determine the k nearest plots in attribute space
+
+    inputs:
+      - categories: dict of categorical variables for exact filter
+      - input_params: dict of numeric variables for kdtree matching
+      - weight_dict: dict, weighting for each input_param. assumes 1 if not in dict.
+
+    outputs:
+      - list of k IdbSummary instances
+      - total number of potential candidates
+    """
     search_params = input_params.copy()
     origkeys = search_params.keys()
-    keys = [x for x in origkeys if x not in ['calc_aspect',]] # special case
+    keys = [x for x in origkeys if x not in ['calc_aspect', ]]  # special case
     categories = process_categories(categories, search_params)
 
     def plot_attrs(ps, keys):

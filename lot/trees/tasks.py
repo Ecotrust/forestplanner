@@ -112,6 +112,9 @@ def impute_nearest_neighbor(stand_results, savetime):
         exc = Exception("Cant run nearest neighbor; missing required attributes.")
         raise impute_nearest_neighbor.retry(exc=exc)
 
+    # get variant code
+    variant = stand.collection.variant.code
+
     print "imputing nearest neighbor for %d" % stand_id
 
     stand_list = stand.strata.stand_list
@@ -130,7 +133,7 @@ def impute_nearest_neighbor(stand_results, savetime):
         site_cond['calc_slope'] = stand.slope
     weight_dict = stand.default_weighting
     ps, num_candidates = get_nearest_neighbors(
-        site_cond, stand_list['classes'], weight_dict, k=5)
+        site_cond, stand_list['classes'], variant=variant, weight_dict=weight_dict, k=5)
 
     # Take the top match
     cond_id = int(ps[0].name)
