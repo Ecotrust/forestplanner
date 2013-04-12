@@ -922,6 +922,41 @@ class TreeliveSummary(models.Model):
         db_table = u'treelive_summary'
 
 
+class ConditionVariantLookup(models.Model):
+    """
+    Instead of making a M2M relationship on IdbSummary, we will maintain this table
+    (which is easier to generate in ArcGIS based on variant buffers)
+
+    However, it is more difficult to maintain referential integrity so the
+       ConditionVariantLookup.check_integrity()
+    classmethod should be used whenever FVSVariant, IdbSummary or this table is updated
+    """
+    cond_id = models.BigIntegerField(db_index=True)
+    variant_code = models.CharField(max_length=2)
+
+    @classmethod
+    def check_integrity(cls):
+        cond_ids = [x.cond_id for x in IdbSummary.objects.all()]
+        variant_codes = [x.code for x in FVSVariant.objects.all()]
+
+        # check that all lookups have valid references
+        for cvl in cls.objects.all():
+            if cvl.cond_id not in cond_ids:
+                raise Exception("ConditionVariantLookup table referen in the lookup tableces cond_id " +
+                                "%s which doesn't exist in IdbSummary" % cvl.cond_id)
+            if cvl.variant_code not in variant_codes:
+                raise Exception("ConditionVariantLookup table references variant code " +
+                                "%s which doesn't exist in FVSVariant" % cvl.variant_code)
+
+        # check that all IdbSummaries are present in the lookup table
+        lookup_cond_ids = [x.cond_id for x in cls.objects.all()]
+        for cond_id in cond_ids:
+            if cond_id not in lookup_cond_ids:
+                raise Exception("Missing cond_id %s from ConditionVariantLookup table" % cond_id)
+
+        return True
+
+
 # Shapefile-backed models
 class County(models.Model):
     fips = models.IntegerField()

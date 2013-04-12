@@ -1,0 +1,2 @@
+COPY trees_conditionvariantlookup (cond_id, variant_code) FROM '/usr/local/apps/land_owner_tools/lot/fixtures/condition_variant_lookup.tab';
+
