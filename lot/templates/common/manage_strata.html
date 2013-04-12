@@ -36,9 +36,10 @@
                         </div>
 
                         <div class="row-fluid">
-                          <div class="span6">
-                              <label>Filter Stand Groups</label>
-                              <input type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
+                          <div class="form-inline">
+                              <label for="filter-stand-group">Filter Stand Groups</label>
+                              <input id="filter-stand-groups" type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
+							  <button class="btn btn-mini" data-bind="visible: searchTerm, click: clearStandFilter ">Clear Filter</button>
                           </div>
                         </div>
 
@@ -366,6 +367,9 @@
           .scenario-row dl {
             margin-top: 0px;
           }
+		  #filter-stand-group {
+			  width: 40%;
+		  }
     </style>
     <script type="text/javascript">
         var madrona = {
@@ -700,7 +704,9 @@
 					
               // filter the strata list
               $.each(strataList(), function (i, strata) {
-                if (strata.attributes.name().toLowerCase().indexOf(searchTerm) !== -1 || strata.attributes.stand_list().toLowerCase().indexOf(searchTerm) !== -1) {
+
+                // if (strata.attributes.name().toLowerCase().indexOf(searchTerm) !== -1 || strata.attributes.stand_list().toLowerCase().indexOf(searchTerm) !== -1) {
+                if (strata.attributes.name().toLowerCase().indexOf(searchTerm) !== -1) {
                   filteredStrataList.push(strata);
                 } 
               });
@@ -709,6 +715,10 @@
             }
             return filteredStrataList;
           }, self.strataList);
+
+		  self.clearStandFilter = function(){
+			  self.searchTerm("");
+		  }
 
           self.activeStratum.subscribe(function (activeStratum) {
             
