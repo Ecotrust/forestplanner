@@ -15,6 +15,7 @@ scenario1 = Scenario.objects.get(name="My Scenario")
 print "Creating identity"
 import time
 x = time.time()
-scenariostands = create_scenariostands(scenario1)
+#scenariostands = create_scenariostands(scenario1)
+import ipdb; ipdb.set_trace()
 print time.time() - x
 print "%d scenariostands created" % scenariostands.count()

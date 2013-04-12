@@ -598,7 +598,7 @@ class Scenario(Feature):
         # make sure the scenario date modified is after the stands nn timestamp
         time_mismatch = False
         stand_nn_edit = max([x.nn_savetime for x in self.stand_set()])
-        stand_mod = max([x.date_modified for x in self.stand_set()])
+        stand_mod = datetime_to_unix(max([x.date_modified for x in self.stand_set()]))
         scenario_mod = datetime_to_unix(self.date_modified)
         if stand_nn_edit > scenario_mod or stand_mod > scenario_mod:
             # at least one stand has been updated since last time scenario was run
@@ -627,19 +627,23 @@ class Scenario(Feature):
     def geojson(self, srid=None):
         res = self.output_stand_results
         stand_data = []
-        for stand in self.stand_set():
-            stand_dict = loads(stand.geojson())
+        for stand in self.scenariostand_set.all():
+            try:
+                stand_dict = loads(stand.geojson())
+            except:
+                import ipdb; ipdb.set_trace()
+                continue
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
-            try:
-                stand_dict['properties']['results'] = res[stand.pk]
-            except KeyError:
+
+            stand_results = None
+            if res:
                 try:
-                    stand_dict['properties']['results'] = res[str(stand.pk)]  # if it's a string
+                    stand_results = res[stand.pk]
                 except KeyError:
-                    # TODO this should never happen,
-                    # probably stands added after scenario was created? or caching ?
-                    continue
+                    stand_results = res[str(stand.pk)]  # if it's a string
+
+            stand_dict['properties']['results'] = stand_results
             stand_data.append(stand_dict)
 
         gj = dumps(stand_data, indent=2)
@@ -1011,6 +1015,7 @@ class SpatialConstraint(models.Model):
         return u"SpatialConstraint %s %s" % (self.category, self.geom.wkt[:80])
 
 
+@register
 class ScenarioStand(PolygonFeature):
     """
     Populated as the scenario is created (tasks.schedule_harvest)
@@ -1026,6 +1031,32 @@ class ScenarioStand(PolygonFeature):
     stand = models.ForeignKey(Stand)
     constraint = models.ForeignKey(SpatialConstraint, null=True)
     # assert that all cond_ids are present or make FK?
+
+    class Options:
+        form = "trees.forms.ScenarioStandForm"
+        form_template = "trees/scenariostand_form.html"
+        manipulators = []
+
+    @cachemethod("ScenarioStand_%(id)s_geojson")
+    def geojson(self, srid=None):
+        # start with the stand geojson
+        gj = self.stand.geojson()
+        gjf = loads(gj)
+
+        # swap for new attr
+        gjf['geometry'] = loads(self.geometry_final.json)
+        gjf['properties']['uid'] = self.uid
+        gjf['date_modified'] = str(self.date_modified)
+        gjf['date_created'] = str(self.date_created)
+        #TODO add new scenariostand-specific attrs
+        gjf['properties']['rx'] = self.rx.internal_name
+        try:
+            gjf['properties']['constraint'] = self.constraint.category
+        except AttributeError:
+            gjf['properties']['constraint'] = None
+        gjf['properties']['scenario_uid'] = self.scenario.uid
+        gjf['properties']['stand_uid'] = self.stand.uid
+        return dumps(gjf)
 
 
 # Signals
