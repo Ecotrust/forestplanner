@@ -340,33 +340,25 @@ class ForestProperty(FeatureCollection):
     @property
     def variant(self):
         '''
-        Returns: FVS variant instance
+        Returns: Closest FVS variant instance
         '''
-        geom = self.geometry_final
-        if geom:
-            variants = FVSVariant.objects.filter(geom__bboverlaps=geom)
-        else:
-            return None
+        geom = self.geometry_final.point_on_surface
 
-        if not geom.valid:
-            geom = geom.buffer(0)
-        the_size = 0
+        variants = FVSVariant.objects.all()
+
+        min_distance = 99999999999999.0
         the_variant = None
         for variant in variants:
             variant_geom = variant.geom
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
-            if variant_geom.intersects(geom):
-                try:
-                    overlap = variant_geom.intersection(geom)
-                except Exception as e:
-                    logger.error(self.uid + ": " + str(e))
-                    continue
-                area = overlap.area
-                if area > the_size:
-                    the_size = area
-                    #the_variant = variant.fvsvariant.strip()
-                    the_variant = variant
+            dst = variant_geom.distance(geom)
+            print variant, dst
+            if dst == 0.0:
+                return variant
+            if dst < min_distance:
+                min_distance = dst
+                the_variant = variant
         return the_variant
 
     @property
