@@ -87,10 +87,11 @@
                     You have no stand groups.
                 </div>
 
-                <!-- creating a new stratum -->
+                <!-- creating/editing a new stratum -->
                 <div data-bind="if: activeStratum()">
-                    <h2>Create a New Stand Group</h2>
                     <div data-bind="with: activeStratum">
+                      <h2 data-bind="visible: !editMode()">Create a New Stand Group</h2>
+                      <h2 data-bind="visible: editMode()">Edit Stand Group <i data-bind="text: attributes.name"></i></h2>
                         
                         <div data-bind="visible: ! standList().length || (editMode() && ! editTrees())">
                             <label>Stand Group Name</label>
@@ -291,7 +292,7 @@
             border: 1px solid #aaa;
             padding: 5px 5% 0;
             position: relative;
-			width: 86%;
+			      width: 86%;
 
             /*border-radius: 10px;
             margin: 10px;
@@ -304,16 +305,25 @@
 			  .stratum-box + .stratum-box		{ border-top: none; }
 			  .strata-list .stratum-box:hover	{ border: 1px solid #444; }
 			  .stratum-box + .stratum-box:hover { margin-top: -1px; }
-
+        .stratum-box .alert-error{
+          background-color: #f2f2f2;
+          border: 1px solid #DD5240;
+          color: #DD5240;
+          border-radius: 3px;
+          padding: 2px 5px 5px 6px;     
+          max-width: 60%;
+          text-align: center;
+        }
           .strata-list .stratum-box h4 {
-			  /*
+			       max-width: 65%;
+			       /*
               font-size: 16px;
               margin-left: -5px;
               margin-bottom: 10px;
               text-overflow: ellipsis;
               overflow: hidden;
               white-space: nowrap;
-			  */
+    			  */
           }
 		  .strata-list .stratum-box .row-fluid{
 			  font-size: 80%;
@@ -329,9 +339,6 @@
 		  .strata-list .stratum-box .dl-horizontal dt{
 			  clear: both;
 		  }
-
-          
-
           .strata-list .stratum-box.ui-draggable-dragging .btn {
             opacity: 0;
           }
@@ -350,6 +357,9 @@
           .strata-list .stratum-box .tree-list li {
             margin-left: 5px;
           }
+		  h2 i{
+			  color: #444;
+		  }
           .dl-horizontal dt {
             text-align: left;
           }
@@ -360,14 +370,22 @@
 			  position: relative;
 			  width: 90%;
 		  }
-			#flash .close{
-				position: absolute;
-				right: 5px;
-				top: 3px;
-			}
-          .scenario-row dl {
-            margin-top: 0px;
-          }
+  			#flash .close{
+  				position: absolute;
+  				right: 5px;
+  				top: 3px;
+  			}
+    			#flash.alert-error .close{
+    				color: #fff;
+    				font-family: Tahoma, Times, "Times New Roman", serif;
+    				font-size: 26px;
+    				opacity: 1;
+    				text-shadow: 0 0;
+    			}
+
+      .scenario-row dl {
+        margin-top: 0px;
+      }
 		  #filter-stand-group {
 			  width: 40%;
 		  }
@@ -421,8 +439,8 @@
               app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
 
-             // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
-             // app.updateUrl();
+            // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
+            // app.updateUrl();
    
 			app.strata.errorHandling();
 
@@ -463,24 +481,22 @@
 			});
 			
 			
-			$('.brand').click(function(e){
-				$.get('/features/generic-links/links/geojson/derp', function (data) {
-					console.log('get');
-					console.log(data);
-				});
-				e.preventDefault();
-
-			});
 		};
 
+		//@TODO way to dismiss programatically once someone corrects the error -wm
+		//@TODO should pass an object. it's 2013. -wm
 		app.flash = function(message, header, flashType){
 			// bs: alert-error, alert-warning, 
 			var type = flashType || 'alert-error',
 				hdr = header || 'Oops',
 				msg = message || '';
+
 			app.$flash.addClass( type ).slideDown(200)
 				.find('div').text( msg ).end()
 				.find('h4').text( hdr );
+
+			// $(window).scrollTop(0);
+      $("html, body").animate({ scrollTop: 0 }, 300);
 		};
 
 
@@ -750,28 +766,51 @@
 
 
           self.dropStrata = function( stratum ) {
-                // can be called from the draggable/droppable
-                // switching to the knockout binding
-                // for now
-                var stand_uid_list = [],
-                  color = stratum.color(),
-                  stratum_id = stratum.attributes.uid;
-                // get strata id, if knockout stratum will be this
-                
-                // apply strata to selected stands
+            // can be called from the draggable/droppable
+            // switching to the knockout binding
+            // for now
+            var stand_uid_list = [],
+                color = stratum.color(),
+                stratum_id = stratum.attributes.uid;
+            // get strata id, if knockout stratum will be this
 
-                $.each(app.stand_layer.selectedFeatures, function (i, feature) {
-                    // apply strata
-                    var currentTotal = self.appliedStrataTotal();
-                    self.appliedStrataTotal(currentTotal+1);
-                    feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
-                    app.stand_layer.drawFeature(feature);
-                    stand_uid_list.push(feature.attributes.uid);
-                });
+			      // Do we have a strata selected?
+  				  if( !app.stand_layer.selectedFeatures.length ){
 
-                app.strata.applyStrataToStand(stratum_id, stand_uid_list);
-                app.selectFeature.unselectAll();
-            }
+    					var msg = "Please select an area on your map to apply this stand group.",
+                  $t;
+
+              // little clean up because DOM stuff is silly
+              $('.stratum-box .alert-error').remove();
+
+              // add and remove a temporary warning
+              $('[data-sid="'+stratum_id+'"]').prepend('<div class="alert-error">'+msg+'</div>')
+                .find('.alert-error').each(function(){ 
+                  $t = $(this);
+                  window.setTimeout(function(){
+                    $t.fadeOut(1300, function(){
+                      $t.remove();
+                    }); 
+                  }, 5000);
+              });
+
+  					  return;
+  				  }
+				
+              // apply strata to selected stands
+              $.each(app.stand_layer.selectedFeatures, function (i, feature) {
+                  // apply strata
+                  var currentTotal = self.appliedStrataTotal();
+                  self.appliedStrataTotal(currentTotal+1);
+                  feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
+                  app.stand_layer.drawFeature(feature);
+                  stand_uid_list.push(feature.attributes.uid);
+              });
+
+
+              app.strata.applyStrataToStand(stratum_id, stand_uid_list);
+              app.selectFeature.unselectAll();
+          }
 
           self.updateStratum = function (oldStratum, activeStratum) {
             self.strataList.replace(oldStratum, new stratumViewModel(activeStratum));
@@ -1022,7 +1061,7 @@
     <!--
     <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
     <script src="{{ MEDIA_URL }}common/js/init.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
     <script src="{{ MEDIA_URL }}common/js/timemap.js"></script>
     -->
+    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
 {% endblock scripts %}
