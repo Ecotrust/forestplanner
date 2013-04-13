@@ -2,7 +2,7 @@ import os
 import sys
 from django.core.management import setup_environ
 thisdir = os.path.dirname(os.path.abspath(__file__))
-appdir = os.path.realpath(os.path.join(thisdir, '..', 'lot'))
+appdir = os.path.realpath(os.path.join(thisdir, '..', '..'))
 sys.path.append(appdir)
 import settings
 setup_environ(settings)
