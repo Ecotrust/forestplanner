@@ -457,7 +457,14 @@ def create_scenariostands(the_scenario):
             try:
                 rx_id = input_rxs[stand_id]
             except KeyError:
-                rx_id = input_rxs[unicode(stand_id)]
+                try:
+                    rx_id = input_rxs[unicode(stand_id)]
+                except:
+                    # do we raise Exception or apply a default Rx silently?
+                    err = "%s not in input_rxs!" % stand_id
+                    logger.error(err)
+                    raise ScenarioNotRunnable(err)
+
             the_rx = Rx.objects.get(id=rx_id)
 
         if stand_id:

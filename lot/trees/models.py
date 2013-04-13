@@ -596,11 +596,17 @@ class Scenario(Feature):
         results = self.output_scheduler_results
 
         # make sure we have exactly the same IDs
-        stand_ids = [int(x.id) for x in self.stand_set()]
-        stand_ids.sort()
+        sstand_ids = [int(x.id) for x in self.scenariostand_set.all()]
+        sstand_ids.sort()
         result_ids = [int(x) for x in results.keys() if x != '__all__']
         result_ids.sort()
-        id_mismatch = (stand_ids != result_ids)
+        sstand_id_mismatch = (sstand_ids != result_ids)
+
+        sstand_stand_ids = list(set([int(x.stand_id) for x in self.scenariostand_set.all()]))
+        sstand_stand_ids.sort()
+        stand_ids = [int(x.id) for x in self.stand_set()]
+        stand_ids.sort()
+        stand_id_mismatch = (sstand_stand_ids != stand_ids)
 
         # make sure the scenario date modified is after the stands nn timestamp
         time_mismatch = False
@@ -611,15 +617,19 @@ class Scenario(Feature):
             # at least one stand has been updated since last time scenario was run
             time_mismatch = True
 
-        if id_mismatch or time_mismatch:
+        if sstand_id_mismatch or stand_id_mismatch or time_mismatch:
             return True
 
         return False
 
     @property
     def is_runnable(self):
+        stands_w_rx = [x for x in self.input_rxs.keys()]
         for stand in self.stand_set():
             if not stand.cond_id:
+                return False
+            if not (stand.id in stands_w_rx or str(stand.id) in stands_w_rx):
+                logger.debug("%s not in input_rxs" % stand.id)
                 return False
         return True
 
@@ -662,11 +672,14 @@ class Scenario(Feature):
             gj = gj[:-1]
         return gj
 
+    @property
     def valid_rx_ids(self):
         return [x.id for x in Rx.objects.filter(variant=self.input_property.variant)]
 
     def clean(self):
-        return True
+        """
+        this shows up in the form as form.non_field_errors
+        """
         inrx = self.input_rxs
         valid_stand_ids = [x.pk for x in self.input_property.feature_set(feature_classes=[Stand])]
         for stand, rx in inrx.items():
@@ -674,7 +687,7 @@ class Scenario(Feature):
                 raise ValidationError(
                     '%s is not a valid stand id for this property' % stand)
             if rx not in self.valid_rx_ids:
-                raise ValidationError('%s is not a valid prescription' % rx)
+                raise ValidationError('%s is not a valid Rx id' % rx)
         return True
 
     def save(self, *args, **kwargs):
@@ -1138,5 +1151,7 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    instance.stand_set.all().update(cond_id=None, strata=None,
-                                    nn_savetime=datetime.datetime.now())
+    instance.stand_set.all().update(
+        cond_id=None, strata=None,
+        nn_savetime=datetime_to_unix(datetime.datetime.now())
+    )
