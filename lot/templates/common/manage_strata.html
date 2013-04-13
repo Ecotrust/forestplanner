@@ -91,7 +91,7 @@
                 <div data-bind="if: activeStratum()">
                     <div data-bind="with: activeStratum">
                       <h2 data-bind="visible: !editMode()">Create a New Stand Group</h2>
-                      <h2 data-bind="visible: editMode()">Edit Stand Group <i data-bind="text: attributes.name"></i></h2>
+                      <h2 data-bind="visible: editMode()">Edit Stand Group: <i data-bind="text: attributes.name"></i></h2>
                         
                         <div data-bind="visible: ! standList().length || (editMode() && ! editTrees())">
                             <label>Stand Group Name</label>
@@ -357,9 +357,6 @@
           .strata-list .stratum-box .tree-list li {
             margin-left: 5px;
           }
-		  h2 i{
-			  color: #444;
-		  }
           .dl-horizontal dt {
             text-align: left;
           }

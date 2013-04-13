@@ -194,10 +194,10 @@ a {
     width: 436px !important;
 }
 .dl-horizontal dd {
-    margin-left: 110px;
+    margin-left: 41%;
 }
 .dl-horizontal dt {
-    width: 98px;
+    width: 39%;
 }
 textarea#id_description {
     width: 80%;
@@ -249,7 +249,9 @@ label#year-label {
 .carousel-inner .row-fluid .span6{
 	margin-top: 21px; /* so. cheap. */
 }
-
+h2 i, h3 i, h4 i{
+	color: #888;
+}
 
 /* Bootstrap SpaceLab Overrides */
 
