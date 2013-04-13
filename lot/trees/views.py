@@ -458,3 +458,11 @@ def run_scenario(request, instance):
             status = "Not-runnable"
 
     return HttpResponse(status, mimetype="text/javascript")
+
+
+def forestproperty_status(request, instance):
+    """
+    /features/forestproperty/links/property-status/trees_forestproperty_<id>/
+    """
+    res_json = json.dumps(instance.status)
+    return HttpResponse(res_json, mimetype='application/json', status=200)

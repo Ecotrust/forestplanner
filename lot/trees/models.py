@@ -310,6 +310,21 @@ class ForestProperty(FeatureCollection):
             'with_terrain': n_with_terrain,
         }
 
+    @property
+    def status(self):
+        d = self.stand_summary
+        d['is_runnable'] = self.is_runnable
+        d['scenarios'] = 0
+        d['scenarios_need_rerun'] = 0
+        d['scenarios_runnable'] = 0
+        for scenario in self.scenario_set.all():
+            d['scenarios'] += 1
+            if scenario.needs_rerun:
+                d['scenarios_need_rerun'] += 1
+            if scenario.is_runnable:
+                d['scenarios_runnable'] += 1
+        return d
+
     def reset_scenarios(self):
         """
         The 'reset' button for all property's scenarios
@@ -474,6 +489,10 @@ class ForestProperty(FeatureCollection):
             # Link to grab ALL *strata* belonging to a property
             alternate('Property Strata List',
                       'trees.views.forestproperty_strata_list',
+                      type="application/json",
+                      select='single'),
+            alternate('Property status',
+                      'trees.views.forestproperty_status',
                       type="application/json",
                       select='single'),
         )
