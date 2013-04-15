@@ -140,7 +140,9 @@
 								<dt>Area</dt>
 								<dd><span data-bind="text: selectedProperty().acres()"></span> acres</dd>
 								<dt>Location</dt>
-								<dd><span data-bind="text: selectedProperty().location"></span></dd>
+								<dd data-bind="foreach: selectedProperty().location">
+									<span data-bind="text: $data"></span><!-- ko if: $index() == 0 -->, <!-- /ko -->
+								</dd>
 								<dt>Number of Stands</dt>
 								<dd>
 									<span data-bind="text: selectedProperty().stand_summary.with_strata"></span> 
@@ -372,15 +374,6 @@
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
                     <div class="span5 well">
-                            <button class="btn" href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i> Draw Stand</button>
-                            <button class="btn" href="#"><i class="icon-upload"></i> Upload Stands</button>
-                            <p>
-                                <button class="btn btn-mini" data-bind="click: cancelManageStands">
-                                    <i class="icon-backward"></i> Back to Properties 
-                                </button>
-                            </p>
-                    </div>
-                    <div class="span7 well"  data-bind="if: selectedFeature">
                         <div class="pull-right btn-group">
                             <button href="#" id="delete-button" class="btn btn-mini" 
                                 data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete</button>
