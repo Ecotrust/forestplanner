@@ -1041,9 +1041,11 @@ county_mapping = {
     'geom': 'MULTIPOLYGON'
 }
 
+
+# Auto-generated `LayerMapping` dictionary for FVSVariant model
 fvsvariant_mapping = {
     'code': 'FVSVARIANT',
-    'fvsvariant': 'FULLNAME',
+    'fvsvariant': 'VariantNm',
     'geom': 'MULTIPOLYGON',
 }
 
@@ -1070,6 +1072,8 @@ class Rx(models.Model):
     internal_name = models.TextField()
     internal_desc = models.TextField()
 
+    def __unicode__(self):
+        return u"Rx %s" % (self.internal_name)
 
 class MyRx(Feature):
     # name  (inherited)
