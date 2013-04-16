@@ -79,21 +79,29 @@ class DirtyFieldsMixin(object):
     http://stackoverflow.com/a/4676107/519385
     """
     def __init__(self, *args, **kwargs):
+        self._original_state = None
         super(DirtyFieldsMixin, self).__init__(*args, **kwargs)
         post_save.connect(self._reset_state, sender=self.__class__,
                           dispatch_uid='%s-DirtyFieldsMixin-sweeper' % self.__class__.__name__)
         self._reset_state()
 
     def _reset_state(self, *args, **kwargs):
-        self._original_state = self._as_dict()
+        if self.id:
+            print "resetting state on %s" % self.uid
+            self._original_state = self._as_dict()
+        else:
+            print "not saved yet! NOT resetting state on %s" % self
 
     def _as_dict(self):
         return dict([(f.attname, getattr(self, f.attname)) for f in self._meta.local_fields])
 
     def get_dirty_fields(self):
         new_state = self._as_dict()
-        return dict([(key, value) for key, value in self._original_state.iteritems()
-                     if value != new_state[key]])
+        if self._original_state:
+            return dict([(key, value) for key, value in self._original_state.iteritems()
+                         if value != new_state[key]])
+        else:
+            return {} 
 
 
 @register
@@ -166,13 +174,15 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         slope = int_or_none(self.slope)
 
         try:
-            strata_uid = self.strata.uid
+            strata = self.strata._dict
         except:
-            strata_uid = "no strata"
+            strata = None
 
-        cond_id = self.cond_id
-        if not cond_id:
-            cond_id = "no matching condition"
+        if self.cond_id:
+            cond_inst = IdbSummary.objects.get(cond_id=self.cond_id)
+            cond = cond_inst._dict
+        else:
+            cond = None
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -184,11 +194,10 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             'name': self.name,
             'acres': acres,
             'elevation': elevation,
-            'strata_uid': strata_uid,
-            'cond_id': cond_id,
+            'strata': strata,
+            'condition': cond,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
-            # TODO include strata info
             'user_id': self.user.pk,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
@@ -842,23 +851,21 @@ class IdbSummary(models.Model):
 
     @property
     @cachemethod('IdbSummary-%(cond_id)s')
-    def summary(self):
+    def _dict(self):
         '''
         Plot characteristics according to the FCID
         '''
-        fortype_str = self.fortypiv
-        fortypes = self.get_forest_types(fortype_str)
-
         summary = {
-            'fcid': self.fcid,
-            'fortypiv': fortypes,
-            'vegclass': self.vegclass_decoded,
+            'cond_id': self.cond_id,
+            'for_type_name': self.for_type_name,
+            'for_type_secdry_name': self.for_type_secdry_name,
             'cancov': self.cancov,
-            'stndhgt': self.stndhgt,
-            'sdi_reineke': self.sdi_reineke,
-            'qmda_dom': self.qmda_dom,
-            'baa_ge_3': self.baa_ge_3,
-            'tph_ge_3': self.tph_ge_3,
+            'stndhgt_stunits': self.stndhgt,
+            'sdi': self.sdi,
+            'age_dom': self.age_dom,
+            'qmda_dom_stunits': self.qmda_dom_stunits,
+            'baa_ge_3_stunits': self.baa_ge_3_stunits,
+            'tph_ge_3_stunits': self.tph_ge_3_stunits,
             'bac_prop': self.bac_prop,
         }
         return summary
