@@ -87,13 +87,10 @@ class DirtyFieldsMixin(object):
 
     def _reset_state(self, *args, **kwargs):
         if self.id:
-            print "resetting state on %s" % self.uid
             self._original_state = self._as_dict()
-        else:
-            print "not saved yet! NOT resetting state on %s" % self
 
     def _as_dict(self):
-        return dict([(f.attname, getattr(self, f.attname)) for f in self._meta.local_fields])
+        return dict([(f.attname, getattr(self, f.attname, None)) for f in self._meta.local_fields])
 
     def get_dirty_fields(self):
         new_state = self._as_dict()
@@ -101,7 +98,7 @@ class DirtyFieldsMixin(object):
             return dict([(key, value) for key, value in self._original_state.iteritems()
                          if value != new_state[key]])
         else:
-            return {} 
+            return {}
 
 
 @register
