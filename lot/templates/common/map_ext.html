@@ -431,6 +431,12 @@
                                     <dt>Strata UID</dt><dd><span data-bind="text: uid"></span></dd>
                                     <dt>Age</dt><dd><span data-bind="text: search_age"></span></dd>
                                     <dt>TPA</dt><dd><span data-bind="text: search_tpa"></span></dd>
+                                    <dt>Stand List</dt><dd>
+                                        <ul data-bind="foreach: stand_list.classes">
+                                            <li data-bind="text: $data"></li>
+                                        </ul>
+                                    </dd>
+
                                 </dl>
 
                                 <h4> Nearest Neighbor IDB Plot</h4>
