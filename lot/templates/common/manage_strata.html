@@ -140,6 +140,7 @@
                                         <div class="span6">
                                             <label>Percentage of Stand</label>
                                             <input name="percentage" class="input-mini" data-bind="value: percentage, valueUpdate: 'keyup'"/>
+                                            <div class="help-inline alert-error" data-bind="visible: !percentageIsValid(), text: percentageIsValidMsg "></div>
                                         </div>
                                     </div>
                                     <div class="row-fluid">
@@ -147,7 +148,7 @@
                                            <!--<button class="btn btn-large"><i class="icon-white icon-plus"></i> Cancel</button>-->
                                            
                                            <button class="btn btn-large" data-bind="click: $parent.prev, enable: index() !== 0"><i class="icon-white icon-arrow-left"></i> Back</button>
-                                           <button class="btn btn-large btn-success" data-bind="click: $parent.addSpecies, enable: species() && sizeClass() && percentage()">
+                                           <button class="btn btn-large btn-success" data-bind="click: $parent.addSpecies, enable: species() && sizeClass() && percentage() && percentageIsValid() ">
                                                 
                                                 <span data-bind="visible: index() === $parent.standList().length-1"><i class="icon-white icon-plus"></i> Add Species</span>
                                                 <span data-bind="visible: index() !== $parent.standList().length-1"><i class="icon-white icon-arrow-right"></i> Next Species</span>
@@ -360,25 +361,10 @@
           .dl-horizontal dt {
             text-align: left;
           }
-		  #flash{
-			  border-width: 0 0 5px 0;
-			  margin: 0 auto 18px auto;
-			  padding: 10px;
-			  position: relative;
-			  width: 90%;
-		  }
-  			#flash .close{
-  				position: absolute;
-  				right: 5px;
-  				top: 3px;
-  			}
-    			#flash.alert-error .close{
-    				color: #fff;
-    				font-family: Tahoma, Times, "Times New Roman", serif;
-    				font-size: 26px;
-    				opacity: 1;
-    				text-shadow: 0 0;
-    			}
+          .span6 .alert-error{
+            margin-bottom: 10px;
+            padding: 5px;
+          }   
 
       .scenario-row dl {
         margin-top: 0px;
@@ -500,7 +486,6 @@
         // individual stand list member
         function standViewModel (stratum, options) {
             var self = this, chartTimer = null;
-
             if (! options) {
               options = []
             }
@@ -522,6 +507,8 @@
               self.percentage = ko.observable();
             }
             
+            self.percentageIsValid = ko.observable(true);
+            self.percentageIsValidMsg = ko.observable('');
             
             self.index = ko.computed(function () {
                 var self = this;
@@ -550,7 +537,7 @@
         // viewmodel for a single stratum
         function stratumViewModel (options) {
             var self = {};
-            
+
             if (! options) {
               options = {}
             }
@@ -570,17 +557,31 @@
             self.confirmDelete = ko.observable(false);
             self.editMode = ko.observable(false);
             self.editTrees = ko.observable(false);
-
+            self.percentageIsValid = ko.observable(true);
+  
             self.standList = ko.observableArray();
             // display a computed standlist with a dummy last item
             // to show the remaining percentage
             self.displayStandList = ko.computed(function () {
-              var displayStandList = [], totalPercentage = 0;
+              var displayStandList = [], totalPercentage = 0, msg;
 
               $.each(self.standList(), function (i, stand) {
                 if (stand.percentage()) {
                   totalPercentage += parseInt(stand.percentage(), 10);
+
+                  // no no
+                  if (totalPercentage > 100) {
+                    msg = "You've entered a percentage over 100 (" + totalPercentage +") for this stand group. Please enter a percentage of ";
+                    msg += 100 - (totalPercentage-stand.percentage() ) + " or less for this species."
+
+                    stand.percentageIsValid(false);                   
+                    stand.percentageIsValidMsg(msg);
+
+                    return;
+
+                  }
                 }
+                stand.percentageIsValid(true);                   
                 displayStandList.push(stand);  
               });
               
@@ -589,8 +590,7 @@
                   // species name, sizeclass lower bound, upper bound, percentage
                   [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
               }
-              
-              
+
               return displayStandList;
             });
 

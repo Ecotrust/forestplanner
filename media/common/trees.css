@@ -259,7 +259,25 @@ h2 i, h3 i, h4 i{
 .nav-collapse .manage-your-properties{
 	margin-right: 10px;
 }
-
+#flash{
+  border-width: 0 0 5px 0;
+  margin: 0 auto 18px auto;
+  padding: 10px;
+  position: relative;
+  width: 90%;
+}
+    #flash .close{
+        position: absolute;
+        right: 5px;
+        top: 3px;
+    }
+    #flash.alert-error .close{
+        color: #fff;
+        font-family: Tahoma, Times, "Times New Roman", serif;
+        font-size: 26px;
+        opacity: 1;
+        text-shadow: 0 0;
+    }
 /* Bootstrap SpaceLab Overrides */
 
 [class^="icon-"], [class*=" icon-"] {
