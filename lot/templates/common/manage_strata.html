@@ -425,8 +425,6 @@
             // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
             // app.updateUrl();
    
-			app.strata.errorHandling();
-
             ko.applyBindings(app.strata.viewModel);
             
             // $( "#map" ).droppable({
@@ -450,37 +448,7 @@
             app.selectFeature.activate();
         }
 
-		app.strata.errorHandling = function(){
-			$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');
-			app.$flash = $('#flash');
 
-			$( document ).ajaxError(function(event, request, settings, exception) {
-				app.flash(request.responseText);
-			});
-
-			app.$flash.find('.close').bind('click', function () {
-				app.$flash.hide().removeClass('alert-error alert-warning alert-success');
-				app.$flash.find('div, h4').text('');
-			});
-			
-			
-		};
-
-		//@TODO way to dismiss programatically once someone corrects the error -wm
-		//@TODO should pass an object. it's 2013. -wm
-		app.flash = function(message, header, flashType){
-			// bs: alert-error, alert-warning, 
-			var type = flashType || 'alert-error',
-				hdr = header || 'Oops',
-				msg = message || '';
-
-			app.$flash.addClass( type ).slideDown(200)
-				.find('div').text( msg ).end()
-				.find('h4').text( hdr );
-
-			// $(window).scrollTop(0);
-      $("html, body").animate({ scrollTop: 0 }, 300);
-		};
 
 
         // individual stand list member
