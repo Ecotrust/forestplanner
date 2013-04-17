@@ -487,3 +487,19 @@ def forestproperty_status(request, instance):
     """
     res_json = json.dumps(instance.status)
     return HttpResponse(res_json, mimetype='application/json', status=200)
+
+
+def variant_decision_xml(request, variant_id):
+    '''
+    Provide the xml for decision tree
+    in the specified variant
+    '''
+    from trees.models import FVSVariant
+
+    try:
+        variant = FVSVariant.objects.get(id=int(variant_id))
+    except FVSVariant.DoesNotExist:
+        return HttpResponse('<?xml version="1.0"?>' +
+                            '<error>Variant %s does not exist</error>' % variant_id, status=404)
+
+    return HttpResponse(variant.decision_tree_xml, mimetype='application/xml', status=200)
