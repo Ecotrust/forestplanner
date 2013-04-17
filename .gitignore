@@ -10,6 +10,7 @@ env/*
 *_import/*.mdb
 *_import/*.tsv
 lot/fixtures/downloads/*
+lot/fixtures/raw/*
 idb_import/treelive_summary/*/*.tsv
 idb_import/treelive_summary/*/*.csv
 idb_import/treelive_summary/*/*.sqlite

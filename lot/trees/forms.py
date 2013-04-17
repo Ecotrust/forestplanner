@@ -1,6 +1,6 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, Strata, ForestProperty, Scenario
+from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand
 from madrona.analysistools.widgets import SliderWidget
 
 
@@ -9,6 +9,11 @@ class StandForm(SpatialFeatureForm):
         model = Stand
         exclude = ('sharing_groups', 'content_type', 'object_id', 'elevation', 'name',
                    'imputed', 'aspect', 'slope', 'cond_id', 'strata', 'cost', 'nn_savetime', 'rast_savetime')
+
+
+class ScenarioStandForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = ScenarioStand
 
 
 class PropertyForm(FeatureForm):
@@ -23,6 +28,7 @@ class StrataForm(FeatureForm):
 
 class ScenarioForm(FeatureForm):
     input_rxs = forms.CharField(widget=forms.HiddenInput(), required=False)
+    spatial_constraints = forms.CharField(widget=forms.HiddenInput(), required=False)
     input_property = forms.ModelChoiceField(
         label="", queryset=ForestProperty.objects.all(), widget=forms.HiddenInput())
     input_target_boardfeet = forms.FloatField(

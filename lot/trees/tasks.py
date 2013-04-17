@@ -112,6 +112,9 @@ def impute_nearest_neighbor(stand_results, savetime):
         exc = Exception("Cant run nearest neighbor; missing required attributes.")
         raise impute_nearest_neighbor.retry(exc=exc)
 
+    # get variant code
+    variant = stand.collection.variant.code
+
     print "imputing nearest neighbor for %d" % stand_id
 
     stand_list = stand.strata.stand_list
@@ -130,7 +133,7 @@ def impute_nearest_neighbor(stand_results, savetime):
         site_cond['calc_slope'] = stand.slope
     weight_dict = stand.default_weighting
     ps, num_candidates = get_nearest_neighbors(
-        site_cond, stand_list['classes'], weight_dict, k=5)
+        site_cond, stand_list['classes'], variant=variant, weight_dict=weight_dict, k=5)
 
     # Take the top match
     cond_id = int(ps[0].name)
@@ -151,7 +154,7 @@ def impute_nearest_neighbor(stand_results, savetime):
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
-    from trees.models import Scenario
+    from trees.models import Scenario  # Stand, ScenarioStand, Rx, SpatialConstraint
     import time
     from celery import current_task
 
@@ -165,6 +168,11 @@ def schedule_harvest(scenario_id):
     current_task.update_state(state='PROGRESS', meta={'current': 50})
     time.sleep(2)
 
+    # Populate ScenarioStands before the scenario is created
+    from trees.utils import create_scenariostands
+    # might raise ScenarioNotRunnable, don't bother retrying
+    scenariostands = create_scenariostands(scenario)
+
     # TODO prep scheduler, run it, parse the outputs
     d = {}
 
@@ -177,12 +185,12 @@ def schedule_harvest(scenario_id):
     # Stand-level outputs
     # Note the data structure for stands is different than properties
     # (stands are optimized for openlayers map while property-level works with jqplot)
-    for stand in scenario.stand_set():
+    for sstand in scenariostands:  # scenario.stand_set():
         c = random.randint(0, 90)
         t = random.randint(0, 90)
         carbon = rsamp[c:c + 6]
         timber = rsamp[t:t + 6]
-        d[stand.pk] = {
+        d[sstand.pk] = {
             "years": range(2020, 2121, 20),
             "carbon": [
                 carbon[0],
