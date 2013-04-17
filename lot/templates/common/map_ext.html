@@ -54,7 +54,8 @@
                         <a class="btn btn-large" href="{% url 'account_login' %}" id="signin">Log In</a>
                     </div>
                     {% else %}
-                    <a class="btn btn-large btn-success pull-right" id="manage-your-properties" href="#">Manage Your Properties</a>
+                    <a class="btn btn-large btn-success pull-right manage-your-properties" href="#">Manage Your Properties</a>
+                    <div class="clearfix"></div>
                     {% endif %}
                     </p>                
                 </div>
@@ -91,99 +92,93 @@
                         </div>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
-                <div class="row-fluid">
-                    <div class="span4">
-                        <div id="properties-list" style="display: none;" class="well"
-                            data-bind="visible: propertyList().length > 0">
-                            <p>
-                                <div class="btn-group">
-                                    <a class="btn" href="#">Property List</a>
-                                    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
-                                    <ul class="dropdown-menu">
-                                        <li>
-                                            <a href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
-                                                <i class="icon-plus-sign"></i> Draw New Property
-                                            </a>
-                                        </li>
-                                        <li>
-                                            <a href="#" data-bind="click: startUpload, disable: preventUpdates">
-                                                <i class="icon-upload"></i> Upload GIS Data
-                                            </a>
-                                        </li>
-                                        <li class="divider"></li>
-                                        <li>
-                                            <a href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
-                                                <i class="icon-resize-full"></i> Show All
-                                            </a>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </p>
+				<div id="properties-list" style="display: none;" class="row-fluid" data-bind="visible: propertyList().length > 0">
+					<div class="btn-group">
+						<a class="btn" href="#">Property List</a>
+						<a class="btn dropdown-toggle" data-toggle="dropdown" href="#"><span class="caret"></span></a>
+						<ul class="dropdown-menu">
+							<!-- ko foreach: propertyList -->
+							<li data-bind="click: $parent.selectProperty, css: { active: $data === $parent.selectedProperty() }">
+								<a data-bind="text: name"></a>
+							</li>
+							<!-- /ko -->
+							<li class="divider" data-bind="visible: propertyList().length"></li>
+							<li>
+								<a href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+									<i class="icon-plus-sign"></i> Draw New Property
+								</a>
+							</li>
+							<li>
+								<a href="#" data-bind="click: startUpload, disable: preventUpdates">
+									<i class="icon-upload"></i> Upload GIS Data
+								</a>
+							</li>
+							<li class="divider"></li>
+							<li>
+								<a href="#" data-bind="click: zoomToExtent, disable: preventUpdates">
+									<i class="icon-resize-full"></i> Show All
+								</a>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="row-fluid property-details">
+						<div data-bind="if: selectedProperty()">
+							<h3>Property Details: <i data-bind="text: selectedProperty().name"></i></h3>
+					<div style="display: none;" class=" well" 
+						data-bind="if: showDetailPanel, visible: showDetailPanel">
+						<div class="pull-right btn-group">
+						  <button href="#" id="delete-button" class="btn btn-mini" 
+							  data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete </button>
+						  <button class="btn btn-mini" href="#" 
+							  data-bind="click: showEditForm, disable: preventUpdates">
+							  <i class="icon-edit"></i> Edit </button>
+						</div>
 
 
-                            <div style="display:none"  data-bind="visible: propertyList().length">
-                                <table class="table table-condensed table-bordered table-hover">
-                                <tbody data-bind="foreach: propertyList">
-                                    <tr data-bind="click: $parent.selectProperty, css: { active: $data === $parent.selectedProperty() }">
-                                    <td><a data-bind="text: name"></a></td>
-                                    </tr>
-                                </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div style="display: none;" class="span8 well property-details" 
-                        data-bind="if: showDetailPanel, visible: showDetailPanel">
-                        <div class="pull-right btn-group">
-                          <button href="#" id="delete-button" class="btn btn-mini" 
-                              data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete </button>
-                          <button class="btn btn-mini" href="#" 
-                              data-bind="click: showEditForm, disable: preventUpdates">
-                              <i class="icon-edit"></i> Edit </button>
-                        </div>
-                        <h3>Property Details</h3>
+							<dl class="dl-horizontal">
+								<dt>Area</dt>
+								<dd><span data-bind="text: selectedProperty().acres()"></span> acres</dd>
+								<dt>Location</dt>
+								<dd data-bind="foreach: selectedProperty().location">
+									<span data-bind="text: $data"></span><!-- ko if: $index() == 0 -->, <!-- /ko -->
+								</dd>
+								<dt>Number of Stands</dt>
+								<dd>
+									<span data-bind="text: selectedProperty().stand_summary.with_strata"></span> 
+									of <span data-bind="text: selectedProperty().stand_summary.total"></span> with strata 
+								</dd>
+								<dd>
+									<span data-bind="text: selectedProperty().stand_summary.with_condition"></span> 
+									of <span data-bind="text: selectedProperty().stand_summary.total"></span> with condition 
+								</dd>
+								<dd>
+									<span data-bind="text: selectedProperty().stand_summary.with_terrain"></span> 
+									of <span data-bind="text: selectedProperty().stand_summary.total"></span> with terrain 
+								</dd>
+							</dl>
 
-                        <dl class="dl-horizontal" data-bind="if: selectedProperty()">
-                            <dt>Property Name</dt>
-                            <dd><em><span data-bind="text: selectedProperty().name"><span></em></dd>
-                            <dt>Area</dt>
-                            <dd><span data-bind="text: selectedProperty().acres()"></span> acres</dd>
-                            <dt>Location</dt>
-                            <dd><span data-bind="text: selectedProperty().location"></span></dd>
-                            <dt>Number of Stands</dt>
-                            <dd>
-                                <span data-bind="text: selectedProperty().stand_summary.with_strata"></span> 
-                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with strata 
-                            </dd>
-                            <dd>
-                                <span data-bind="text: selectedProperty().stand_summary.with_condition"></span> 
-                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with condition 
-                            </dd>
-                            <dd>
-                                <span data-bind="text: selectedProperty().stand_summary.with_terrain"></span> 
-                                of <span data-bind="text: selectedProperty().stand_summary.total"></span> with terrain 
-                            </dd>
-                        </dl>
+							<div class="row-fluid">
+								<div class="span4">
+									<button class="btn pull-right btn-success" href="#" 
+										data-bind="click: manageStands">
+									<i class="icon-adjust icon-white"></i> Define Stand Boundaries</button>
+								</div>
+								<div class="span4">
+									<a class="btn pull-right btn-success"  
+										data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }">
+									<i class="icon-repeat icon-white"></i> Define Stand Groups</a>
+								</div>
+								<div class="span4">
+									<button class="btn pull-right btn-success" href="#" data-bind="click: manageScenarios, 
+									  css: {disabled: selectedProperty().stand_summary.with_condition() < selectedProperty().stand_summary.total()}">
+									<i class="icon-repeat icon-white"></i> Evalutate Future Scenarios</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
 
-                        <div class="row-fluid">
-                            <div class="span4">
-                                <button class="btn pull-right btn-success" href="#" 
-                                    data-bind="click: manageStands">
-                                <i class="icon-adjust icon-white"></i> Define Stand Boundaries</button>
-                            </div>
-                            <div class="span4">
-                                <a class="btn pull-right btn-success"  
-                                    data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }">
-                                <i class="icon-repeat icon-white"></i> Define Stand Groups</a>
-                            </div>
-                            <div class="span4">
-                                <button class="btn pull-right btn-success" href="#" data-bind="click: manageScenarios, 
-                                  css: {disabled: selectedProperty().stand_summary.with_condition() < selectedProperty().stand_summary.total()}">
-                                <i class="icon-repeat icon-white"></i> Evalutate Future Scenarios</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <div class="row-fluid"><!-- panels -->
                   <div>
                     <div style="display:none" data-bind="visible: showUploadPanel">
@@ -372,33 +367,16 @@
             <div id="stand-html" style="display: none" data-bind="visible: showStandPanels, if: showStandPanels">
               <div class="row-fluid">
                 <div data-bind="visible: showStandList">
+					<p class="info text-info well well-small">
+						<i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
+					</p>
                   <div class="progress progress-striped active" data-bind="visible: showProgressBar">
                     <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
                   </div>
                   <p data-bind="visible: ! standList().length"></p>
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
-                    <div class="span5 well">
-                        <div class="btn-group">
-                            <button class="btn" href="#" data-bind="click: addStandStart"><i class="icon-plus-sign"></i>Draw Stand</button>
-                            <button class="btn" href="#"><i class="icon-upload"></i> Upload Stands</button>
-                        </div>
-                            <div style="margin-top:22px; margin-bottom: 20px;">
-                                <ul class="unstyled" data-bind="foreach: standListPaginated">
-                                    <li data-bind="click: $parent.selectFeature, css: { active: $data === $parent.selectedFeature() }">
-                                        <span>
-                                            <a href="#" data-bind="text: name"></a>
-                                        </span>
-                                    </li>
-                                </ul>
-                            </div>
-                            <p>
-                                <button class="btn btn-mini" data-bind="click: cancelManageStands">
-                                    <i class="icon-backward"></i> Back to Properties 
-                                </button>
-                            </p>
-                    </div>
-                    <div class="span7 well"  data-bind="if: selectedFeature">
+                    <div class="well">
                         <div class="pull-right btn-group">
                             <button href="#" id="delete-button" class="btn btn-mini" 
                                 data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete</button>
@@ -410,27 +388,54 @@
                         <div class="stand-detail" data-bind="with: selectedFeature">
                             <p>
                                 <dl class="dl-horizontal">
-                                    <dt>Stand ID</dt>
-                                    <dd><span data-bind="text: name"></span></dd>
                                     <dt>Area</dt>
                                     <dd><span data-bind="text: acres"></span> acres</dd>
+									<dt>Aspect</dt><dd><span data-bind="text: aspect"></span>&nbsp;</dd>
+									<dt>Slope</dt><dd data-bind="text: slope">&nbsp;</dd>
+									<dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
                                 </dl>
 
-                                <!--<h4>Terrain</h4>-->
-                                <dl class="dl-horizontal">
-                                    <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
-                                    <dt>Slope</dt><dd data-bind="text: slope"></dd>
-                                    <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
+                                <hr>
+
+                                <h4> Strata </h4>
+                                <dl class="dl-horizontal" data-bind="with: strata">
+                                    <dt>Strata UID</dt><dd><span data-bind="text: uid"></span></dd>
+                                    <dt>Age</dt><dd><span data-bind="text: search_age"></span></dd>
+                                    <dt>TPA</dt><dd><span data-bind="text: search_tpa"></span></dd>
+                                    <dt>Stand List</dt><dd>
+                                        <ul data-bind="foreach: stand_list.classes">
+                                            <li data-bind="text: $data"></li>
+                                        </ul>
+                                    </dd>
+
                                 </dl>
 
-                                <dl class="dl-horizontal">
+                                <h4> Nearest Neighbor IDB Plot</h4>
+                                <dl class="dl-horizontal" data-bind="with: condition">
                                     <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
-                                    <dt>Strata</dt><dd><span data-bind="text: strata_uid"></span></dd>
+                                    <dt>Age</dt><dd><span data-bind="text: age_dom"></span></dd>
+                                    <dt>Forest Type</dt><dd><span data-bind="text: for_type_name"></span></dd>
+                                    <dt>Forest Type (secndry)</dt><dd><span data-bind="text: for_type_secdry_name"></span></dd>
+                                    <dt>Canopy Cover %</dt><dd><span data-bind="text: cancov"></span></dd>
+                                    <dt>Stand height</dt><dd><span data-bind="text: stndhgt_stunits"></span></dd>
+                                    <dt>Stand density index</dt><dd><span data-bind="text: sdi"></span></dd>
+                                    <dt>quadratic mean diameter</dt><dd><span data-bind="text: qmda_dom_stunits"></span></dd>
+                                    <dt>basal area</dt><dd><span data-bind="text: baa_ge_3_stunits"></span></dd>
+                                    <dt>tph</dt><dd><span data-bind="text: tph_ge_3_stunits"></span></dd>
+                                    <dt>proportion of conifer</dt><dd><span data-bind="text: bac_prop"></span></dd>
                                 </dl>
 
                             </p>
                       </div>
                     </div>
+					<div class="pull-right btn-group">
+						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
+						<!-- @TODO - properties aren't global <a class="btn" data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }"> -->
+						<a class="btn tool-tip" href="/trees/strata/4" data-toggle="tooltip" title="Stand groups are ...">
+							<i class="icon-repeat"></i> Define Stand Groups</a>
+						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
+							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
+					</div>
                   </div>
                   </div>
                   <div data-bind="if: standList().length, visible: standList().length > 10">
@@ -442,7 +447,7 @@
                       </ul>
                     </div>
                   </div>
-                  <div id="stands-none" class="well" data-bind="visible: ! standList().length">
+                  <div id="stands-none" class="well clearfix" data-bind="visible: ! standList().length">
                     <h3>Define New Stand Boundaries</h3>
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
                     <div class="pull-right">
@@ -485,6 +490,13 @@
               </div>
             </div>
             <!-- end of stand pages -->
+            <!-- scenario pages -->
+            <div class="row-fluid hide" id="scenario-form-metacontainer">
+                <div class="well">
+                    <h3>Define your scenario</h3>
+                    <div id="scenario-form-container"></div>
+                </div>
+            </div>
           {% endif %}
           </div>
           <div class="span7">
@@ -630,12 +642,6 @@
             </div>
           </div>
         </div>
-        <div class="row-fluid hide" id="scenario-form-metacontainer">
-            <div class="well">
-                <h3>Define your scenario</h3>
-                <div id="scenario-form-container"></div>
-            </div>
-        </div>
       </div>
       <!-- end partial -->
 
@@ -643,6 +649,7 @@
 {% block scripts %}
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}jqplot/jquery.jqplot.min.css" />
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/jquery-widgets.css" />
+    <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/decisiontree.css" />
 
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
@@ -652,6 +659,9 @@
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/chart.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.scrollTo-1.3.3-min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/decisiontree.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
 

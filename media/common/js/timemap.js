@@ -40,27 +40,32 @@ $(document).ready(function() {
             // TODO AGGGGG this is hideous !!! hook to app.scenario.viewModel 
             // or better yet make this whole function part of the viewmodel and bindings
             var f1 = app.scenarios.viewModel.scenarioList()[0];
-            var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + f1.pk +"/";
-            $.get( geojson_url, function(data) {
-                if (data.features.length) {
-                    standScenario1.addFeatures(app.geojson_format.read(data));        
-                    var bounds = standScenario1.getDataExtent();
-                    if (bounds) { 
-                        timemap1.zoomToExtent(bounds);
-                    }
-                } 
-            });
+            if (f1) {
+                var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + f1.pk +"/";
+                $.get( geojson_url, function(data) {
+                    if (data.features.length) {
+                        standScenario1.addFeatures(app.geojson_format.read(data));        
+                        var bounds = standScenario1.getDataExtent();
+                        if (bounds) { 
+                            timemap1.zoomToExtent(bounds);
+                        }
+                    } 
+                });
+            }
+
             var f2 = app.scenarios.viewModel.scenarioList()[1];
-            var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
-            $.get( geojson_url2, function(data) {
-                if (data.features.length) {
-                    standScenario2.addFeatures(app.geojson_format.read(data));        
-                    var bounds = standScenario2.getDataExtent();
-                    if (bounds) { 
-                        timemap2.zoomToExtent(bounds);
-                    }
-                } 
-            });
+            if (f2) {
+                var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + f2.pk +"/";
+                $.get( geojson_url2, function(data) {
+                    if (data.features.length) {
+                        standScenario2.addFeatures(app.geojson_format.read(data));        
+                        var bounds = standScenario2.getDataExtent();
+                        if (bounds) { 
+                            timemap2.zoomToExtent(bounds);
+                        }
+                    } 
+                });
+            }
 
             timemapInitialized = true;
         }

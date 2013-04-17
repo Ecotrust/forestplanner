@@ -15,15 +15,36 @@ import os
 logger = get_logger()
 
 
-@cache_page(60 * 60 * 24)
-def list_species(request):
+@cache_page(60 * 60 * 24 * 365)
+def list_species_sizecls(request, variant_id):
     '''
-    Provide a json list of all species names
+    Provide a json list of all species and available size classes
+    in the specified variant
     '''
-    from trees.models import TreeliveSummary
-    ts = TreeliveSummary.objects.order_by(
-        'fia_forest_type_name').distinct('fia_forest_type_name')
-    return HttpResponse(json.dumps(list([x.fia_forest_type_name for x in ts])), mimetype='application/json', status=200)
+    from trees.models import FVSVariant
+    from django.db import connection
+
+    try:
+        variant = FVSVariant.objects.get(id=int(variant_id))
+    except FVSVariant.DoesNotExist:
+        return HttpResponse(json.dumps({'error': 'Variant %s does not exist' % variant_id}), status=404)
+
+    sql = """
+    SELECT fia_forest_type_name,
+           --variant_code,
+           MIN(calc_dbh_class) AS min_dbh,
+           MAX(calc_dbh_class) AS max_dbh
+           --avg(calc_dbh_class) as avg_dbh,
+           --count(calc_dbh_class) as count_trees,
+           --stddev(calc_dbh_class) as sdev_dbh
+    FROM treelive_summary summary, trees_conditionvariantlookup cvl
+    WHERE cvl.cond_id = summary.cond_id
+    AND cvl.variant_code = %s
+    GROUP BY fia_forest_type_name, variant_code
+    """
+    cursor = connection.cursor()
+    cursor.execute(sql, (variant.code,))
+    return HttpResponse(json.dumps(list(cursor.fetchall())), mimetype='application/json', status=200)
 
 
 def manage_stands(request):
@@ -41,6 +62,16 @@ def manage_strata(request, property_uid):
     return render_to_response(
         'common/manage_strata.html', {'property_id': property_uid},
         context_instance=RequestContext(request))
+
+
+def manage_scenario(request, property_uid):
+    '''
+    Scenario management view
+    '''
+    return render_to_response(
+        'common/manage_scenario.html', {'property_id': property_uid},
+        context_instance=RequestContext(request))
+
 
 
 def user_property_list(request):
@@ -448,3 +479,11 @@ def run_scenario(request, instance):
             status = "Not-runnable"
 
     return HttpResponse(status, mimetype="text/javascript")
+
+
+def forestproperty_status(request, instance):
+    """
+    /features/forestproperty/links/property-status/trees_forestproperty_<id>/
+    """
+    res_json = json.dumps(instance.status)
+    return HttpResponse(res_json, mimetype='application/json', status=200)

@@ -84,7 +84,7 @@ $(document).ready(function () {
         $(this).ajaxSubmit(options); 
         return false; 
     });
-    $('#manage-your-properties').click( function(e) {
+    $('.manage-your-properties').click( function(e) {
         e.preventDefault();
         $('div#home-html').hide();
         app.properties.viewModel.init();

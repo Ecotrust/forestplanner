@@ -10,6 +10,9 @@ urlpatterns = patterns('',
     url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
 
+    url(r'^scenario/(?P<property_uid>\w+)$',
+        manage_scenario, name='trees-manage_scenario'),
+
     # TODO Page urls:
     # /   (intro and property list)
     # /{property_uid}
@@ -20,8 +23,8 @@ urlpatterns = patterns('',
     # Services
     url(r'^geosearch/$',
         geosearch, name='trees-geosearch'),
-    url(r'^list/species.json$',
-        list_species, name='trees-list_species'),
+    url(r'^variant/(?P<variant_id>\d+)/species_sizecls.json$',
+        list_species_sizecls, name='trees-list_species_sizecls'),
     url(r'^user_property_list/$',
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$',

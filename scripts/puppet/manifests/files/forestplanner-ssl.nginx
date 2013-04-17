@@ -1,6 +1,7 @@
 #  requires that MEDIA_URL be relative && LOGIN_REDIRECT_URL go to http://domain/
 
 server {
+    client_max_body_size 20M;
     server_name localhost;
     listen 80;
 
@@ -20,6 +21,7 @@ server {
 }
 
 server {
+    client_max_body_size 20M;
     server_name localhost;
     listen  443 ssl;
 

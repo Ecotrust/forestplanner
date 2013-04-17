@@ -71,11 +71,13 @@ def restart_services():
     run('sudo service supervisor stop && sleep 1 && sudo service supervisor start && sudo service supervisor status')
     run('sudo supervisorctl restart all')
 
+def install_media():
+    """ Run the django install_media command """
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py install_media' % vars)
 
 def runserver():
     """ Run the django dev server on port 8000 """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py runserver 0.0.0.0:8000' % vars)
-
 
 def update():
     """ Sync with master git repo """

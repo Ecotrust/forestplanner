@@ -4,6 +4,7 @@ from scipy.spatial import KDTree
 import math
 import pandas as pd
 from django.db import connection
+from django.core.cache import cache
 from madrona.common.utils import get_logger
 logger = get_logger()
 
@@ -27,32 +28,45 @@ def dictfetchall(cursor, classname=None):
     return res
 
 
-def get_candidates(stand_list, min_candidates=1):
-    # TODO cache get_candidates
+def get_candidates(stand_list, variant, min_candidates=1):
+    """
+    Given a stand list and a variant code,
+    return a list of IdbSummary instances that are potential candidate matches
+    """
     cursor = connection.cursor()
 
     dfs = []
+
+    key = "Candidates_" + "_".join([str(item) for sublist in stand_list
+                                    for item in sublist] +
+                                   [variant, str(min_candidates)])
+    res = cache.get(key)
+    if res is not None:
+        return res
 
     for sc in stand_list:
 
         sql = """
             SELECT
-                COND_ID,
+                treelive_summary.COND_ID,
                 SUM(SumOfTPA) as "TPA__",
                 SUM(SumOfBA_FT2_AC) as "BAA__",
                 SUM(pct_of_totalba) as "PCTBA__",
                 AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
                 AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
-            FROM treelive_summary
+            FROM treelive_summary, trees_conditionvariantlookup as cvl
             WHERE fia_forest_type_name = %(species)s
+            AND cvl.cond_id = treelive_summary.cond_id  --join
+            AND cvl.variant_code = %(variant_code)s
             AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
             AND pct_of_totalba is not null
-            GROUP BY COND_ID
+            GROUP BY treelive_summary.COND_ID
         """
         inputs = {
             'species': sc[0],
             'lowsize': int(sc[1]),
-            'highsize': int(sc[2])
+            'highsize': int(sc[2]),
+            'variant_code': variant
         }
 
         classname = "%(species)s_%(lowsize)s_%(highsize)s" % inputs
@@ -134,6 +148,7 @@ def get_candidates(stand_list, min_candidates=1):
         candidates = candidates.join(df)
         candidates = candidates.fillna(0)  # if nonspec basal area is nan, make it zero
 
+    cache.set(key, candidates, timeout=0)
     return candidates
 
 
@@ -159,7 +174,21 @@ def get_sites(candidates):
         raise Exception("No sites returned")
 
 
-def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
+def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10):
+    """
+    Primary entry point to nearest neighbor matching
+    Function to determine the k nearest plots in attribute space
+
+    inputs:
+      - site_cond: dict of site conditions (elevation, aspect, slope, lat, lon)
+      - stand_list: list of tuples; [("speciesname", min_dbh, max_dbh, tpa),...] 
+      - variant: 2-letter variant code to filter by
+      - weight_dict: dict, weighting for each input_param. assumes 1 if not in dict.
+
+    outputs:
+      - list of k IdbSummary instances
+      - total number of potential candidates
+    """
 
     # process stand_list into dict
     tpa_dict = {}
@@ -178,7 +207,7 @@ def get_nearest_neighbors(site_cond, stand_list, weight_dict=None, k=10):
         ba_dict[key] = est_ba
 
     # query for candidates
-    candidates = get_candidates(stand_list)
+    candidates = get_candidates(stand_list, variant)
 
     # query for site variables and create dataframe
     sites = get_sites(candidates)
@@ -215,6 +244,18 @@ class NoPlotMatchError:
 
 
 def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
+    """
+    Utility function to determine the k nearest plots in attribute space
+
+    inputs:
+      - input_params: dict of numeric variables for kdtree matching
+      - plotsummaries: list of candidate IdbSummary instances
+      - weight_dict: dict, weighting for each input_param. assumes 1 if not in dict.
+
+    outputs:
+      - list of k IdbSummary instances
+      - total number of potential candidates
+    """
     if not weight_dict:
         weight_dict = {}
 
