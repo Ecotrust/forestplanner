@@ -48,6 +48,10 @@ def _install_django():
                            %(venv)s/bin/python manage.py install_cleangeometry' % vars)
 
 
+def _recache():
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py clear_cache && \
+                           %(venv)s/bin/python manage.py precache' % vars)
+
 def create_superuser():
     """ Create the django superuser (interactive!) """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py createsuperuser' % vars)
@@ -63,6 +67,7 @@ def init():
     _install_requirements()
     _install_django()
     _install_starspan()
+    _recache()
     #restart_services()
 
 
