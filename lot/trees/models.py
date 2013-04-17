@@ -320,15 +320,14 @@ class ForestProperty(FeatureCollection):
     def status(self):
         d = self.stand_summary
         d['is_runnable'] = self.is_runnable
-        d['scenarios'] = 0
-        d['scenarios_need_rerun'] = 0
-        d['scenarios_runnable'] = 0
+        d['scenarios'] = []
         for scenario in self.scenario_set.all():
-            d['scenarios'] += 1
-            if scenario.needs_rerun:
-                d['scenarios_need_rerun'] += 1
-            if scenario.is_runnable:
-                d['scenarios_runnable'] += 1
+            sd = {
+                'uid': scenario.uid,
+                'needs_rerun': scenario.needs_rerun,
+                'runnable': scenario.is_runnable,
+            }
+            d['scenarios'].append(sd)
         return d
 
     def reset_scenarios(self):
@@ -652,9 +651,10 @@ class Scenario(Feature):
         stands_w_rx = [x for x in self.input_rxs.keys()]
         for stand in self.stand_set():
             if not stand.cond_id:
+                logger.debug("%s not runnable; %s does not have .cond_id" % (self.uid, stand.uid))
                 return False
             if not (stand.id in stands_w_rx or str(stand.id) in stands_w_rx):
-                logger.debug("%s not in input_rxs" % stand.id)
+                logger.debug("%s not runnable; %s not in self.input_rxs" % (self.uid, stand.uid))
                 return False
         return True
 
