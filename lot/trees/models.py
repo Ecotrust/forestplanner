@@ -57,7 +57,7 @@ def datetime_to_unix(dt):
     diff = dt - start
     try:
         total = diff.total_seconds()
-    except AttributeError: 
+    except AttributeError:
         # for the benefit of python 2.6
         total = (diff.microseconds + (diff.seconds + diff.days * 24 * 3600) * 1e6) / 1e6
     return total
@@ -79,20 +79,26 @@ class DirtyFieldsMixin(object):
     http://stackoverflow.com/a/4676107/519385
     """
     def __init__(self, *args, **kwargs):
+        self._original_state = None
         super(DirtyFieldsMixin, self).__init__(*args, **kwargs)
         post_save.connect(self._reset_state, sender=self.__class__,
                           dispatch_uid='%s-DirtyFieldsMixin-sweeper' % self.__class__.__name__)
         self._reset_state()
 
     def _reset_state(self, *args, **kwargs):
-        self._original_state = self._as_dict()
+        if self.id:
+            self._original_state = self._as_dict()
 
     def _as_dict(self):
-        return dict([(f.attname, getattr(self, f.attname)) for f in self._meta.local_fields])
+        return dict([(f.attname, getattr(self, f.attname, None)) for f in self._meta.local_fields])
 
     def get_dirty_fields(self):
         new_state = self._as_dict()
-        return dict([(key, value) for key, value in self._original_state.iteritems() if value != new_state[key]])
+        if self._original_state:
+            return dict([(key, value) for key, value in self._original_state.iteritems()
+                         if value != new_state[key]])
+        else:
+            return {}
 
 
 @register
@@ -165,13 +171,15 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         slope = int_or_none(self.slope)
 
         try:
-            strata_uid = self.strata.uid
+            strata = self.strata._dict
         except:
-            strata_uid = "no strata"
+            strata = None
 
-        cond_id = self.cond_id
-        if not cond_id:
-            cond_id = "no matching condition"
+        if self.cond_id:
+            cond_inst = IdbSummary.objects.get(cond_id=self.cond_id)
+            cond = cond_inst._dict
+        else:
+            cond = None
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -183,11 +191,10 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             'name': self.name,
             'acres': acres,
             'elevation': elevation,
-            'strata_uid': strata_uid,
-            'cond_id': cond_id,
+            'strata': strata,
+            'condition': cond,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
-            # TODO include strata info
             'user_id': self.user.pk,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
@@ -254,7 +261,7 @@ class ForestProperty(FeatureCollection):
             'acres': acres,
             'location': self.location,
             'stand_summary': self.stand_summary,
-            'variant': self.variant,
+            'variant': self.variant.fvsvariant.strip(),
             'bbox': self.bbox,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
@@ -309,6 +316,20 @@ class ForestProperty(FeatureCollection):
             'with_terrain': n_with_terrain,
         }
 
+    @property
+    def status(self):
+        d = self.stand_summary
+        d['is_runnable'] = self.is_runnable
+        d['scenarios'] = []
+        for scenario in self.scenario_set.all():
+            sd = {
+                'uid': scenario.uid,
+                'needs_rerun': scenario.needs_rerun,
+                'runnable': scenario.is_runnable,
+            }
+            d['scenarios'].append(sd)
+        return d
+
     def reset_scenarios(self):
         """
         The 'reset' button for all property's scenarios
@@ -337,37 +358,32 @@ class ForestProperty(FeatureCollection):
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
+    @cachemethod("ForestProperty_%(id)s_variant")
     def variant(self):
         '''
-        Returns: FVS variant name (string)
+        Returns: Closest FVS variant instance
         '''
-        geom = self.geometry_final
-        if geom:
-            variants = FVSVariant.objects.filter(geom__bboverlaps=geom)
-        else:
-            return None
+        geom = self.geometry_final.point_on_surface
 
-        if not geom.valid:
-            geom = geom.buffer(0)
-        the_size = 0
+        variants = FVSVariant.objects.all()
+
+        min_distance = 99999999999999.0
         the_variant = None
         for variant in variants:
             variant_geom = variant.geom
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
-            if variant_geom.intersects(geom):
-                try:
-                    overlap = variant_geom.intersection(geom)
-                except Exception as e:
-                    logger.error(self.uid + ": " + str(e))
-                    continue
-                area = overlap.area
-                if area > the_size:
-                    the_size = area
-                    the_variant = variant.fvsvariant.strip()
+            dst = variant_geom.distance(geom)
+            print variant, dst
+            if dst == 0.0:
+                return variant
+            if dst < min_distance:
+                min_distance = dst
+                the_variant = variant
         return the_variant
 
     @property
+    @cachemethod("ForestProperty_%(id)s_location")
     def location(self):
         '''
         Returns: (CountyName, State)
@@ -448,6 +464,19 @@ class ForestProperty(FeatureCollection):
         )
         return calculate_adjacency(stands, threshold)
 
+    def invalidate_cache(self):
+        if not self.id:
+            return True
+        # depends on django-redis as the cache backend!!!
+        key_pattern = "ForestProperty_%d_*" % self.id
+        cache.delete_pattern(key_pattern)
+        assert cache.keys(key_pattern) == []
+        return True
+
+    def save(self, *args, **kwargs):
+        self.invalidate_cache()
+        super(ForestProperty, self).save(*args, **kwargs)
+
     class Options:
         valid_children = ('trees.models.Stand', 'trees.models.Strata',)
         form = "trees.forms.PropertyForm"
@@ -465,6 +494,10 @@ class ForestProperty(FeatureCollection):
             # Link to grab ALL *strata* belonging to a property
             alternate('Property Strata List',
                       'trees.views.forestproperty_strata_list',
+                      type="application/json",
+                      select='single'),
+            alternate('Property status',
+                      'trees.views.forestproperty_status',
                       type="application/json",
                       select='single'),
         )
@@ -527,9 +560,19 @@ class Scenario(Feature):
     input_rxs = JSONField(
         null=True, blank=True, default="{}",
         verbose_name="Prescriptions associated with each stand")
+    # 2 char code from SpatialConstraint.category (see SpatialConstraintCategories)
+    spatial_constraints = models.TextField(
+        default="", verbose_name='CSV List of spatial constraints to apply')
 
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
+
+    def constraint_set(self):
+        scs = self.spatial_constraints.split(",")
+        return SpatialConstraint.objects.filter(
+            category__in=scs,
+            geom__bboverlaps=self.input_property.geometry_final
+        )
 
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
@@ -577,37 +620,47 @@ class Scenario(Feature):
         results = self.output_scheduler_results
 
         # make sure we have exactly the same IDs
-        stand_ids = [int(x.id) for x in self.stand_set()]
-        stand_ids.sort()
+        sstand_ids = [int(x.id) for x in self.scenariostand_set.all()]
+        sstand_ids.sort()
         result_ids = [int(x) for x in results.keys() if x != '__all__']
         result_ids.sort()
-        id_mismatch = (stand_ids != result_ids)
+        sstand_id_mismatch = (sstand_ids != result_ids)
+
+        sstand_stand_ids = list(set([int(x.stand_id) for x in self.scenariostand_set.all()]))
+        sstand_stand_ids.sort()
+        stand_ids = [int(x.id) for x in self.stand_set()]
+        stand_ids.sort()
+        stand_id_mismatch = (sstand_stand_ids != stand_ids)
 
         # make sure the scenario date modified is after the stands nn timestamp
         time_mismatch = False
         stand_nn_edit = max([x.nn_savetime for x in self.stand_set()])
-        stand_mod = max([x.date_modified for x in self.stand_set()])
+        stand_mod = datetime_to_unix(max([x.date_modified for x in self.stand_set()]))
         scenario_mod = datetime_to_unix(self.date_modified)
         if stand_nn_edit > scenario_mod or stand_mod > scenario_mod:
             # at least one stand has been updated since last time scenario was run
             time_mismatch = True
 
-        if id_mismatch or time_mismatch:
+        if sstand_id_mismatch or stand_id_mismatch or time_mismatch:
             return True
 
         return False
 
     @property
     def is_runnable(self):
+        stands_w_rx = [x for x in self.input_rxs.keys()]
         for stand in self.stand_set():
             if not stand.cond_id:
+                logger.debug("%s not runnable; %s does not have .cond_id" % (self.uid, stand.uid))
                 return False
-
+            if not (stand.id in stands_w_rx or str(stand.id) in stands_w_rx):
+                logger.debug("%s not runnable; %s not in self.input_rxs" % (self.uid, stand.uid))
+                return False
         return True
 
     def run(self):
         if not self.is_runnable:
-            raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID (derived from the strata and terrain data)" % self.uid)
+            raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
 
         task = schedule_harvest.delay(self.id)
         cache.set("Taskid_%s" % self.uid, task.task_id)
@@ -616,17 +669,23 @@ class Scenario(Feature):
     def geojson(self, srid=None):
         res = self.output_stand_results
         stand_data = []
-        for stand in self.stand_set():
-            stand_dict = loads(stand.geojson())
+        for stand in self.scenariostand_set.all():
+            try:
+                stand_dict = loads(stand.geojson())
+            except:
+                import ipdb; ipdb.set_trace()
+                continue
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
-            try:
-                stand_dict['properties']['results'] = res[stand.pk]
-            except KeyError:
+
+            stand_results = None
+            if res:
                 try:
-                    stand_dict['properties']['results'] = res[str(stand.pk)]  # just in case it's a string
+                    stand_results = res[stand.pk]
                 except KeyError:
-                    continue  # TODO this should never happen, probably stands added after scenario was created? or caching ?
+                    stand_results = res[str(stand.pk)]  # if it's a string
+
+            stand_dict['properties']['results'] = stand_results
             stand_data.append(stand_dict)
 
         gj = dumps(stand_data, indent=2)
@@ -638,18 +697,23 @@ class Scenario(Feature):
             gj = gj[:-1]
         return gj
 
+    @property
+    def valid_rx_ids(self):
+        return [x.id for x in Rx.objects.filter(variant=self.input_property.variant)]
+
     def clean(self):
-        return True
-        #TODO Validate
+        """
+        this shows up in the form as form.non_field_errors
+        """
         inrx = self.input_rxs
-        valid_rx_keys = dict(RX_CHOICES).keys()
-        valid_stand_ids = [x.pk for x in self.input_property.feature_set()]
+        valid_stand_ids = [x.pk for x in self.input_property.feature_set(feature_classes=[Stand])]
         for stand, rx in inrx.items():
             if int(stand) not in valid_stand_ids:
                 raise ValidationError(
                     '%s is not a valid stand id for this property' % stand)
-            if rx not in valid_rx_keys:
-                raise ValidationError('%s is not a valid prescription' % rx)
+            if rx not in self.valid_rx_ids:
+                raise ValidationError('%s is not a valid Rx id' % rx)
+        return True
 
     def save(self, *args, **kwargs):
         super(Scenario, self).save(*args, **kwargs)
@@ -784,23 +848,21 @@ class IdbSummary(models.Model):
 
     @property
     @cachemethod('IdbSummary-%(cond_id)s')
-    def summary(self):
+    def _dict(self):
         '''
         Plot characteristics according to the FCID
         '''
-        fortype_str = self.fortypiv
-        fortypes = self.get_forest_types(fortype_str)
-
         summary = {
-            'fcid': self.fcid,
-            'fortypiv': fortypes,
-            'vegclass': self.vegclass_decoded,
+            'cond_id': self.cond_id,
+            'for_type_name': self.for_type_name,
+            'for_type_secdry_name': self.for_type_secdry_name,
             'cancov': self.cancov,
-            'stndhgt': self.stndhgt,
-            'sdi_reineke': self.sdi_reineke,
-            'qmda_dom': self.qmda_dom,
-            'baa_ge_3': self.baa_ge_3,
-            'tph_ge_3': self.tph_ge_3,
+            'stndhgt_stunits': self.stndhgt,
+            'sdi': self.sdi,
+            'age_dom': self.age_dom,
+            'qmda_dom_stunits': self.qmda_dom_stunits,
+            'baa_ge_3_stunits': self.baa_ge_3_stunits,
+            'tph_ge_3_stunits': self.tph_ge_3_stunits,
             'bac_prop': self.bac_prop,
         }
         return summary
@@ -864,7 +926,8 @@ class Strata(DirtyFieldsMixin, Feature):
                 recalc_required = True
 
         if 'classes' not in self.stand_list:
-            raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
+            raise Exception("Not a valid stand list. " +
+                            "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         for cls in self.stand_list['classes']:
             try:
                 assert(len(cls) == 4)
@@ -875,11 +938,13 @@ class Strata(DirtyFieldsMixin, Feature):
                 # c[3] is a valid tpa
                 assert(cls[3] > 0 and cls[3] < 5000)
             except:
-                raise Exception("Not a valid stand list. Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
+                raise Exception("Not a valid stand list. " +
+                                "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:
-            #null out nearest neighbor field (post-save signal must be triggered so can't use qs.update)
+            # null out nearest neighbor field
+            # (post-save signal must be triggered so can't use qs.update)
             for stand in self.stand_set.all():
                 stand.cond_id = None
                 stand.save()
@@ -908,6 +973,41 @@ class TreeliveSummary(models.Model):
         db_table = u'treelive_summary'
 
 
+class ConditionVariantLookup(models.Model):
+    """
+    Instead of making a M2M relationship on IdbSummary, we will maintain this table
+    (which is easier to generate in ArcGIS based on variant buffers)
+
+    However, it is more difficult to maintain referential integrity so the
+       ConditionVariantLookup.check_integrity()
+    classmethod should be used whenever FVSVariant, IdbSummary or this table is updated
+    """
+    cond_id = models.BigIntegerField(db_index=True)
+    variant_code = models.CharField(max_length=2)
+
+    @classmethod
+    def check_integrity(cls):
+        cond_ids = [x.cond_id for x in IdbSummary.objects.all()]
+        variant_codes = [x.code for x in FVSVariant.objects.all()]
+
+        # check that all lookups have valid references
+        for cvl in cls.objects.all():
+            if cvl.cond_id not in cond_ids:
+                raise Exception("ConditionVariantLookup table referen in the lookup tableces cond_id " +
+                                "%s which doesn't exist in IdbSummary" % cvl.cond_id)
+            if cvl.variant_code not in variant_codes:
+                raise Exception("ConditionVariantLookup table references variant code " +
+                                "%s which doesn't exist in FVSVariant" % cvl.variant_code)
+
+        # check that all IdbSummaries are present in the lookup table
+        lookup_cond_ids = [x.cond_id for x in cls.objects.all()]
+        for cond_id in cond_ids:
+            if cond_id not in lookup_cond_ids:
+                raise Exception("Missing cond_id %s from ConditionVariantLookup table" % cond_id)
+
+        return True
+
+
 # Shapefile-backed models
 class County(models.Model):
     fips = models.IntegerField()
@@ -924,8 +1024,14 @@ class County(models.Model):
 class FVSVariant(models.Model):
     code = models.CharField(max_length=3)
     fvsvariant = models.CharField(max_length=100)
+    decision_tree_xml = models.TextField(default="")
+    #decision_tree_xml is validated in the admin.py form
     geom = models.MultiPolygonField(srid=3857)
     objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u'%s (%s)' % (self.fvsvariant, self.code)
+
 
 # Auto-generated `LayerMapping` dictionaries for shapefile-backed models
 county_mapping = {
@@ -939,9 +1045,11 @@ county_mapping = {
     'geom': 'MULTIPOLYGON'
 }
 
+
+# Auto-generated `LayerMapping` dictionary for FVSVariant model
 fvsvariant_mapping = {
     'code': 'FVSVARIANT',
-    'fvsvariant': 'FULLNAME',
+    'fvsvariant': 'VariantNm',
     'geom': 'MULTIPOLYGON',
 }
 
@@ -949,7 +1057,8 @@ fvsvariant_mapping = {
 def load_shp(path, feature_class):
     '''
     First run ogrinspect to generate the class and mapping.
-        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp FVSVariant --mapping --srid=3857 --multi
+        python manage.py ogrinspect ../data/fvs_variant/lot_fvsvariant_3857.shp \
+            FVSVariant --mapping --srid=3857 --multi
     Paste code into models.py and modify as necessary.
     Finally, load the shapefile:
         from trees import models
@@ -960,6 +1069,79 @@ def load_shp(path, feature_class):
     map1 = LayerMapping(
         feature_class, path, mapping, transform=False, encoding='iso-8859-1')
     map1.save(strict=True, verbose=True)
+
+
+class Rx(models.Model):
+    variant = models.ForeignKey(FVSVariant)
+    internal_name = models.TextField()
+    internal_desc = models.TextField()
+
+    def __unicode__(self):
+        return u"Rx %s" % (self.internal_name)
+
+class MyRx(Feature):
+    # name  (inherited)
+    rx = models.ForeignKey(Rx)
+
+
+SpatialConstraintCategories = [
+    ('R1', 'RiparianBuffers1'),
+    ('R2', 'RiparianBuffers2'),
+]
+
+
+class SpatialConstraint(models.Model):
+    geom = models.PolygonField(srid=3857)
+    default_rx = models.ForeignKey(Rx)
+    category = models.CharField(max_length=2, choices=SpatialConstraintCategories)
+    objects = models.GeoManager()
+
+    def __unicode__(self):
+        return u"SpatialConstraint %s %s" % (self.category, self.geom.wkt[:80])
+
+
+@register
+class ScenarioStand(PolygonFeature):
+    """
+    Populated as the scenario is created (tasks.schedule_harvest)
+    The result of a spatial intersection between
+      1. Stands for this scenario
+      2. All SpatialConstraints chosen for this scenario
+    The Rx from #2 takes precedence over the Rx from #1.
+    """
+    # geometry_final = inherited from PolygonFeature
+    cond_id = models.BigIntegerField()
+    rx = models.ForeignKey(Rx)
+    scenario = models.ForeignKey(Scenario)
+    stand = models.ForeignKey(Stand)
+    constraint = models.ForeignKey(SpatialConstraint, null=True)
+    # assert that all cond_ids are present or make FK?
+
+    class Options:
+        form = "trees.forms.ScenarioStandForm"
+        form_template = "trees/scenariostand_form.html"
+        manipulators = []
+
+    @cachemethod("ScenarioStand_%(id)s_geojson")
+    def geojson(self, srid=None):
+        # start with the stand geojson
+        gj = self.stand.geojson()
+        gjf = loads(gj)
+
+        # swap for new attr
+        gjf['geometry'] = loads(self.geometry_final.json)
+        gjf['properties']['uid'] = self.uid
+        gjf['date_modified'] = str(self.date_modified)
+        gjf['date_created'] = str(self.date_created)
+        #TODO add new scenariostand-specific attrs
+        gjf['properties']['rx'] = self.rx.internal_name
+        try:
+            gjf['properties']['constraint'] = self.constraint.category
+        except AttributeError:
+            gjf['properties']['constraint'] = None
+        gjf['properties']['scenario_uid'] = self.scenario.uid
+        gjf['properties']['stand_uid'] = self.stand.uid
+        return dumps(gjf)
 
 
 # Signals
@@ -979,7 +1161,8 @@ def postsave_stand_handler(sender, *args, **kwargs):
         impute_rasters.apply_async(args=(st.id, savetime))
     elif not st.cond_id and not has_terrain and st.strata:
         # impute terrain rasters THEN calculate nearest neighbor"
-        impute_rasters.apply_async(args=(st.id, savetime), link=impute_nearest_neighbor.s(savetime))
+        impute_rasters.apply_async(args=(st.id, savetime),
+                                   link=impute_nearest_neighbor.s(savetime))
     elif has_terrain and st.strata and not st.cond_id:
         # just calculate nearest neighbors"
         impute_nearest_neighbor.apply_async(args=(st.id, savetime))
@@ -995,4 +1178,7 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     '''
     instance = kwargs['instance']
-    instance.stand_set.all().update(cond_id=None, strata=None, nn_savetime=datetime.datetime.now())
+    instance.stand_set.all().update(
+        cond_id=None, strata=None,
+        nn_savetime=datetime_to_unix(datetime.datetime.now())
+    )

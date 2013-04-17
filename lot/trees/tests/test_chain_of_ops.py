@@ -2,11 +2,12 @@ import os
 import sys
 from django.core.management import setup_environ
 thisdir = os.path.dirname(os.path.abspath(__file__))
-appdir = os.path.realpath(os.path.join(thisdir, '..', 'lot'))
+appdir = os.path.realpath(os.path.join(thisdir, '..', '..'))
 sys.path.append(appdir)
 import settings
 setup_environ(settings)
 ##############################
+import ipdb
 import json
 import time
 from trees.models import Stand, Scenario, Strata, ForestProperty, ScenarioNotRunnable
@@ -124,7 +125,7 @@ response = client.post(url, {
     'input_target_carbon': 1,
     'input_age_class': 1,
     'input_property': prop1.pk,
-    'input_rxs': {1: 'CC'},
+    'input_rxs': json.dumps(dict([(stand.id, 1) for stand in stands])),
 })
 #import ipdb; ipdb.set_trace()
 print response.content
@@ -197,11 +198,16 @@ while not scenario1.is_runnable:
 print "We should be able to run() the scenario here."
 assert(scenario1.is_runnable is True)
 scenario1.run()
+i = 0
 while scenario1.needs_rerun:
-    print "Waiting for scenario results..."
+    if i > 5:
+        print "Waiting too damn long. What's up?"
+        ipdb.set_trace()
+    print "Waiting for %s results..." % scenario1.uid
     # need to requery !
     scenario1 = Scenario.objects.get(id=scenario1.id)
     time.sleep(2)
+    i += 1
 print scenario1.uid, scenario1.output_scheduler_results
 
 #### Step 6. Delete a stand
@@ -280,14 +286,24 @@ while prop1.stand_summary['with_condition'] < NUM_STANDS:
     time.sleep(2.5)
 
 assert(prop1.stand_summary['total'] == NUM_STANDS)
+assert(scenario1.is_runnable is False)
+#  need to add a rx to the scenario.input_rx
+scenario1.input_rxs = dict([(stand.id, 1) for stand in stands])
+scenario1.save(rerun=False)
+
 assert(scenario1.is_runnable is True)
 assert(scenario1.needs_rerun is True)
 scenario1.run()
+i = 0
 while scenario1.needs_rerun:
+    if i > 5:
+        print "Waiting too long."
+        ipdb.set_trace()
     print "Waiting for scenario results..."
     # need to requery !
     scenario1 = Scenario.objects.get(id=scenario1.id)
     time.sleep(2)
+    i += 1
 
 #### Edit the strata
 print

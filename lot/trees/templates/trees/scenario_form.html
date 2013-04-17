@@ -13,6 +13,13 @@
 }
 </style>
 
+{% if form.non_field_errors %}
+<div class="alert alert-error"> 
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    {{form.non_field_errors}}
+</div>
+{% endif %}
+
 <form class="form-horizontal" id="scenario-form" method="POST">
     <ul class="nav nav-tabs" id="myTab">
         <li class="active">
