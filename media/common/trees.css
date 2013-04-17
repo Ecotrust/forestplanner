@@ -15,6 +15,10 @@
 .stand-detail .vegetation {
     padding-bottom: 20px;
 }
+#stand-html .well h3{
+    clear: none;
+    margin-top: -0.3em;
+}
 .hidden {
     display: none;
 }
@@ -252,6 +256,9 @@ label#year-label {
 h2 i, h3 i, h4 i{
 	color: #888;
 }
+.nav-collapse .manage-your-properties{
+	margin-right: 10px;
+}
 
 /* Bootstrap SpaceLab Overrides */
 
@@ -267,4 +274,7 @@ h2 i, h3 i, h4 i{
 }
 .navbar .nav > li > a {
 	line-height: 24px;
+}
+.text-info {
+    color: #3A87AD;
 }

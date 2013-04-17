@@ -54,7 +54,7 @@
                         <a class="btn btn-large" href="{% url 'account_login' %}" id="signin">Log In</a>
                     </div>
                     {% else %}
-                    <a class="btn btn-large btn-success pull-right" id="manage-your-properties" href="#">Manage Your Properties</a>
+                    <a class="btn btn-large btn-success pull-right manage-your-properties" href="#">Manage Your Properties</a>
                     <div class="clearfix"></div>
                     {% endif %}
                     </p>                
@@ -367,13 +367,16 @@
             <div id="stand-html" style="display: none" data-bind="visible: showStandPanels, if: showStandPanels">
               <div class="row-fluid">
                 <div data-bind="visible: showStandList">
+					<p class="info text-info well well-small">
+						<i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
+					</p>
                   <div class="progress progress-striped active" data-bind="visible: showProgressBar">
                     <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
                   </div>
                   <p data-bind="visible: ! standList().length"></p>
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
-                    <div class="span5 well">
+                    <div class="well">
                         <div class="pull-right btn-group">
                             <button href="#" id="delete-button" class="btn btn-mini" 
                                 data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete</button>
@@ -385,17 +388,11 @@
                         <div class="stand-detail" data-bind="with: selectedFeature">
                             <p>
                                 <dl class="dl-horizontal">
-                                    <dt>Stand ID</dt>
-                                    <dd><span data-bind="text: name"></span></dd>
                                     <dt>Area</dt>
                                     <dd><span data-bind="text: acres"></span> acres</dd>
-                                </dl>
-
-                                <!--<h4>Terrain</h4>-->
-                                <dl class="dl-horizontal">
-                                    <dt>Aspect</dt><dd data-bind="text: aspect"></dd>
-                                    <dt>Slope</dt><dd data-bind="text: slope"></dd>
-                                    <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
+									<dt>Aspect</dt><dd><span data-bind="text: aspect"></span>&nbsp;</dd>
+									<dt>Slope</dt><dd data-bind="text: slope">&nbsp;</dd>
+									<dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
                                 </dl>
 
                                 <dl class="dl-horizontal">
@@ -406,6 +403,14 @@
                             </p>
                       </div>
                     </div>
+					<div class="pull-right btn-group">
+						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
+						<!-- @TODO - properties aren't global <a class="btn" data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }"> -->
+						<a class="btn tool-tip" href="/trees/strata/4" data-toggle="tooltip" title="Stand groups are ...">
+							<i class="icon-repeat"></i> Define Stand Groups</a>
+						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
+							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
+					</div>
                   </div>
                   </div>
                   <div data-bind="if: standList().length, visible: standList().length > 10">
