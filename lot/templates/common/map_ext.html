@@ -430,8 +430,8 @@
                     </div>
 					<div class="pull-right btn-group">
 						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
-						<!-- @TODO - properties aren't global <a class="btn" data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }"> -->
-						<a class="btn tool-tip" href="/trees/strata/4" data-toggle="tooltip" title="Stand groups are ...">
+						<a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
+							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID }" >
 							<i class="icon-repeat"></i> Define Stand Groups</a>
 						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
 							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>

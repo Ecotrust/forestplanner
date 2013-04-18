@@ -41,6 +41,8 @@ function propertiesViewModel () {
         self.selectProperty(property, null, zoomTo);
       }
     });
+	// learning knockout fail - wm
+	app.selectedPropertyUID = uid;
   };
 
   self.zoomToExtent = function () {

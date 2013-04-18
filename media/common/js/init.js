@@ -105,7 +105,6 @@ app.globalErrorHandling = function () {
 	
 };
 
-//@TODO way to dismiss programatically once someone corrects the error -wm
 //@TODO should pass an object. it's 2013. -wm
 app.flash = function(message, header, flashType){
 	// bs: alert-error, alert-warning, 
