@@ -1078,10 +1078,15 @@ class Rx(models.Model):
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
 
+@register
 class MyRx(Feature):
     # name  (inherited)
     rx = models.ForeignKey(Rx)
 
+    class Options:
+        form = "trees.forms.MyRxForm"
+        form_template = "trees/myrx_form.html"
+        manipulators = []
 
 SpatialConstraintCategories = [
     ('R1', 'RiparianBuffers1'),
