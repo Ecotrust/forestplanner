@@ -1,6 +1,6 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand
+from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx
 from madrona.analysistools.widgets import SliderWidget
 
 
@@ -49,3 +49,8 @@ class UploadStandsForm(forms.Form):
     property_pk = forms.IntegerField(required=False)
     new_property_name = forms.CharField(required=False)
     ogrfile = forms.FileField()
+
+
+class MyRxForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = MyRx

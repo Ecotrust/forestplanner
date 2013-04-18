@@ -262,6 +262,7 @@ class ForestProperty(FeatureCollection):
             'location': self.location,
             'stand_summary': self.stand_summary,
             'variant': self.variant.fvsvariant.strip(),
+            'variant_id': self.variant.id,
             'bbox': self.bbox,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
@@ -374,7 +375,6 @@ class ForestProperty(FeatureCollection):
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
             dst = variant_geom.distance(geom)
-            print variant, dst
             if dst == 0.0:
                 return variant
             if dst < min_distance:
@@ -1079,10 +1079,15 @@ class Rx(models.Model):
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
 
+@register
 class MyRx(Feature):
     # name  (inherited)
     rx = models.ForeignKey(Rx)
 
+    class Options:
+        form = "trees.forms.MyRxForm"
+        form_template = "trees/myrx_form.html"
+        manipulators = []
 
 SpatialConstraintCategories = [
     ('R1', 'RiparianBuffers1'),
