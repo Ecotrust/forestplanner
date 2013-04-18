@@ -262,6 +262,7 @@ class ForestProperty(FeatureCollection):
             'location': self.location,
             'stand_summary': self.stand_summary,
             'variant': self.variant.fvsvariant.strip(),
+            'variant_id': self.variant.id,
             'bbox': self.bbox,
             'date_modified': str(self.date_modified),
             'date_created': str(self.date_created),
