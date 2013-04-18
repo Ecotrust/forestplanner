@@ -374,7 +374,6 @@ class ForestProperty(FeatureCollection):
             if not variant_geom.valid:
                 variant_geom = variant_geom.buffer(0)
             dst = variant_geom.distance(geom)
-            print variant, dst
             if dst == 0.0:
                 return variant
             if dst < min_distance:
