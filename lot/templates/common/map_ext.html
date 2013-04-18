@@ -370,9 +370,16 @@
 					<p class="info text-info well well-small">
 						<i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
 					</p>
-                  <div class="progress progress-striped active" data-bind="visible: showProgressBar">
-                    <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
-                  </div>
+					<div class="loading" data-bind="visible: showProgressBar">
+						<h3>Loading...</h3>
+					</div>
+					<!-- 
+					<div class="progress progress-striped active" data-bind="visible: showProgressBar">
+					  <div class="bar" style="width: 100%"></div> 
+					  <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
+					</div>
+					-->
+
                   <p data-bind="visible: ! standList().length"></p>
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
