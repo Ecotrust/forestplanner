@@ -148,13 +148,13 @@ function init() {
   
     new_snap = new OpenLayers.Control.Snapping({
                 layer: app.new_features,
-                targets: [app.property_layer],
+                targets: [app.property_layer, app.stand_layer],
                 greedy: false
             });
     new_snap.activate();
     existing_snap = new OpenLayers.Control.Snapping({
                 layer: app.property_layer,
-                targets: [app.property_layer],
+                targets: [app.property_layer, app.stand_layer],
                 greedy: false
             });
     existing_snap.activate();

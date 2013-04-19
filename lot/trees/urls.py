@@ -28,8 +28,3 @@ urlpatterns = patterns(
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
 )
-
-if settings.DEBUG:
-    urlpatterns += patterns('',
-        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/vagrant/media/'}),
-    )
