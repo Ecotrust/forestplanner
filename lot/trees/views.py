@@ -503,3 +503,14 @@ def variant_decision_xml(request, variant_id):
                             '<error>Variant %s does not exist</error>' % variant_id, status=404)
 
     return HttpResponse(variant.decision_tree_xml, mimetype='application/xml', status=200)
+
+
+def forestproperty_myrx(request, instance):
+    """
+    Return json array of MyRx objects belonging to this users's property
+    /features/forestproperty/links/property-myrx-json/trees_forestproperty_<id>/
+    """
+    from trees.models import MyRx
+    myrxs = instance.feature_set(feature_classes=[MyRx,])
+    res_json = json.dumps([x._dict for x in myrxs])
+    return HttpResponse(res_json, mimetype='application/json', status=200)
