@@ -79,10 +79,11 @@
         </div>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
-            <div data-bind="visible: selectedRx, with: selectedRx">
+            <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
                 <form>
                   <fieldset>
-                    <legend>New Prescription</legend>
+                    <legend data-bind="visible: ! myrx_id">New Prescription</legend>
+                    <legend data-bind="visible: myrx_id">Update <span data-bind="text: name"></span></legend>
                     <div class="control-group">
                       <label class="control-label">Name</label>
                       <div class="controls">
@@ -97,6 +98,14 @@
                         <!--<p class="help-block">Supporting help text</p>-->
                       </div>
                     </div>
+                    <div class="control-group" data-bind="visible: myrx_id">
+                      <label class="control-label">Update Management Style</label>
+                      <div class="controls">
+                        <button class="btn btn-block" data-bind="click: $parent.updateManagementStyle">Update</button>
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <a class="btn" data-bind="click: $parent.cancel">cancel</a>
                     <button class="btn" data-bind="click: $parent.saveRx">save</button>
                   </fieldset>
                 </form>
@@ -121,7 +130,7 @@
                                 <div class="pull-right btn-group" data-bind="visible: ! confirmDelete()">
                                     <button class="btn" data-bind="enable: editable, click: function () { confirmDelete(true) }">
                                         <i class="icon-remove"></i></button>
-                                    <button class="btn" data-bind="enable: editable">
+                                    <button class="btn" data-bind="enable: editable, click: $parent.updateRx">
                                         <i class="icon-edit"></i></button>
                                     <button href="#" class="btn" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
                                         <i class="icon-share"></i></button>

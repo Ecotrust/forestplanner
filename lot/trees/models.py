@@ -1098,7 +1098,7 @@ class MyRx(Feature):
             'myrx_id': self.uid,
             'name': self.name,
             'description': self.description,
-            'internal_name': self.rx.internal_name,
+            'rx_internal_name': self.rx.internal_name,
             'internal_desc': self.rx.internal_desc,
         } 
 
