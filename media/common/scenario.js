@@ -21,7 +21,7 @@ app.scenarios.styleMap = new OpenLayers.StyleMap({
 });
 
 
-function scenarioFormViewModel() {
+function scenarioFormViewModel(options) {
     var self = this;
     var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
 
@@ -41,6 +41,17 @@ function scenarioFormViewModel() {
 
 
     ]);
+
+    if (options && options.myrxList) {
+        $.each(options.myrxList, function (i, myrx) {
+            self.prescriptionList.unshift({
+                name: myrx.name,
+                description: myrx.description,
+                rx_id: myrx.rx_id,
+                color: colors.pop()
+            });
+        });
+    }
 
     self.newRx = ko.observable(false);
     self.selectedRx = ko.observable();
@@ -122,7 +133,7 @@ function scenarioFormViewModel() {
     return self;
 }
 
-function scenarioViewModel() {
+function scenarioViewModel(options) {
     var self = this;
 
     self.showScenarioPanels = ko.observable(true);
@@ -309,46 +320,58 @@ function scenarioViewModel() {
 
 
         });
+        $.when(
+            $.ajax({
+                url: formUrl,
+                type: "GET",
+                success: function(data, textStatus, jqXHR) {
+                    $('#scenario-form-container').html(data);
 
-        $.ajax({
-            url: formUrl,
-            type: "GET",
-            success: function(data, textStatus, jqXHR) {
-                $('#scenario-form-container').html(data);
 
-
-                $('#scenario-form-container').find('button.cancel').click(function(e) {
-                    e.preventDefault();
-                    self.showScenarioList(true);
-                    self.toggleScenarioForm(false);
-                    $("form#scenario-form").empty();
-                });
-                $('#scenario-form-container').find('button.submit').click(function(e) {
-                    e.preventDefault();
-                    $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
-                    var postData = $("form#scenario-form").serialize();
-                    $.ajax({
-                        url: postUrl,
-                        type: "POST",
-                        data: postData,
-                        dataType: "json",
-                        success: function(data, textStatus, jqXHR) {
-                            var uid = data["X-Madrona-Select"];
-                            self.selectedFeatures.removeAll();
-                            self.loadScenarios(self.property);
-                            self.toggleScenarioForm(false);
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            alert(errorThrown);
-                        }
+                    $('#scenario-form-container').find('button.cancel').click(function(e) {
+                        e.preventDefault();
+                        self.showScenarioList(true);
+                        self.toggleScenarioForm(false);
+                        $("form#scenario-form").empty();
                     });
-                });
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
-            }
-        }).done(function() {
-            ko.applyBindings(new scenarioFormViewModel(), document.getElementById('scenario-form-container'));
+                    $('#scenario-form-container').find('button.submit').click(function(e) {
+                        e.preventDefault();
+                        $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
+                        var postData = $("form#scenario-form").serialize();
+                        $.ajax({
+                            url: postUrl,
+                            type: "POST",
+                            data: postData,
+                            dataType: "json",
+                            success: function(data, textStatus, jqXHR) {
+                                var uid = data["X-Madrona-Select"];
+                                self.selectedFeatures.removeAll();
+                                self.loadScenarios(self.property);
+                                self.toggleScenarioForm(false);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                alert(errorThrown);
+                            }
+                        });
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            }),
+            $.ajax({
+                url: '/features/forestproperty/links/property-myrx-json/trees_forestproperty_1/',
+                type: "GET",
+                dataType: "JSON",
+                success: function (res) {
+                    app.scenarios.data = {
+                        myrxList: res
+                    };
+                }
+            })
+        ).then(function() {
+
+            ko.applyBindings(new scenarioFormViewModel(app.scenarios.data), document.getElementById('scenario-form-container'));
         });
     };
 
