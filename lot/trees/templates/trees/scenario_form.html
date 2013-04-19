@@ -110,9 +110,11 @@
                             <td> 
                                 <h5><span data-bind="text: name">RX Name</span></h5>
                                 <span data-bind="text: description">RX Description</span>
-                                <div class="pull-right">
-                                    <!--<button class="btn btn-mini" href="#">
-                                        <i class="icon-edit"></i></button>-->
+                                <div class="pull-right btn-group">
+                                    <button class="btn btn-mini" href="#">
+                                        <i class="icon-remove" data-bind="enabled: editable"></i></button>
+                                    <button class="btn btn-mini" href="#">
+                                        <i class="icon-edit"></i></button>
                                     <button href="#" class="btn btn-mini" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
                                         <i class="icon-share"></i></button>
                                 </div>

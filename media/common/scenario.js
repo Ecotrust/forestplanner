@@ -28,15 +28,18 @@ function scenarioFormViewModel(options) {
     self.prescriptionList = ko.observableArray([{
         name: "Grow Only",
         description: "No active management.",
-        color: colors.pop()
+        color: colors.pop(),
+        editable: false
     }, {
         name: "Mixed-species, 75 year rotation, commercial thin",
         description: "75-year rotation with commercial thinning.",
-        color: colors.pop()
+        color: colors.pop(),
+        editable: false
     }, {
         name: "Monoculture, 40 year rotation, pre-commercial",
         description: "Even-aged management for timber. 40-year rotation clear cut.",
-        color: colors.pop()
+        color: colors.pop(),
+        editable: false
     }
 
 
@@ -48,7 +51,8 @@ function scenarioFormViewModel(options) {
                 name: myrx.name,
                 description: myrx.description,
                 rx_id: myrx.rx_id,
-                color: colors.pop()
+                color: colors.pop(),
+                editable: true
             });
         });
     }
