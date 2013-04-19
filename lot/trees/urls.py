@@ -1,5 +1,10 @@
 from django.conf.urls.defaults import *
+from tastypie.api import Api
 from trees.views import *
+from trees.api import *
+
+v1_api = Api(api_name='v1')
+v1_api.register(myRxResource())
 
 urlpatterns = patterns(
     '',
@@ -14,6 +19,7 @@ urlpatterns = patterns(
     url(r'^scenario/(?P<property_uid>\w+)$',
         manage_scenario, name='trees-manage_scenario'),
 
+
     # Services
     url(r'^geosearch/$',
         geosearch, name='trees-geosearch'),
@@ -25,4 +31,5 @@ urlpatterns = patterns(
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
+    (r'^api/', include(v1_api.urls)),
 )
