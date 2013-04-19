@@ -1,6 +1,6 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx
+from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx
 from madrona.analysistools.widgets import SliderWidget
 
 
@@ -52,5 +52,26 @@ class UploadStandsForm(forms.Form):
 
 
 class MyRxForm(FeatureForm):
+    rx_internal_name = forms.CharField(required=True)
+    rx = forms.CharField(widget=forms.HiddenInput(), required=False) # calculated from internal name
+
+    def clean(self):
+        """
+        We POST the rx's internal_name but need to make a FK reference to the Rx itself
+        """
+        cleaned_data = self.cleaned_data
+        rx_internal_name = cleaned_data.get("rx_internal_name")
+
+        try:
+            rx = Rx.objects.get(internal_name=rx_internal_name)
+        except Rx.DoesNotExist:
+            del cleaned_data['rx']
+            raise forms.ValidationError("Rx with name '%s' not found" % rx_internal_name)
+
+        cleaned_data['rx'] = rx
+        del cleaned_data['rx_internal_name']
+        return cleaned_data
+
     class Meta(FeatureForm.Meta):
         model = MyRx
+        exclude = ('content_type', 'object_id')
