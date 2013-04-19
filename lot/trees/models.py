@@ -1088,6 +1088,7 @@ class Rx(models.Model):
 class MyRx(Feature):
     # name  (inherited)
     rx = models.ForeignKey(Rx)
+    description = models.TextField(default="")
 
     @property
     def _dict(self):
@@ -1095,6 +1096,7 @@ class MyRx(Feature):
             'user_id': self.user_id,
             'rx_id': self.rx.id,
             'name': self.name,
+            'description': self.description,
             'internal_name': self.rx.internal_name,
             'internal_desc': self.rx.internal_desc,
         } 
