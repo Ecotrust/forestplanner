@@ -20,57 +20,80 @@ app.scenarios.styleMap = new OpenLayers.StyleMap({
     }
 });
 
+function rxViewModel(options) {
+    var self = this;
+
+    self.myrx_id = options.myrx_id;
+    self.name = ko.observable(options.name);
+    self.description = ko.observable(options.description);
+    self.color = options.color;
+    self.editable = options.editable;
+    self.rx_internal_name = options.rx_internal_name;
+    self.confirmDelete = ko.observable(false);
+
+    return self;
+}
 
 function scenarioFormViewModel(options) {
     var self = this;
     var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
 
-    self.prescriptionList = ko.observableArray([{
+    self.prescriptionList = ko.observableArray([
+    new rxViewModel({
         name: "Grow Only",
         description: "No active management.",
         color: colors.pop(),
         editable: false
-    }, {
+    }),
+    new rxViewModel({
         name: "Mixed-species, 75 year rotation, commercial thin",
         description: "75-year rotation with commercial thinning.",
         color: colors.pop(),
         editable: false
-    }, {
+    }),
+    new rxViewModel({
         name: "Monoculture, 40 year rotation, pre-commercial",
         description: "Even-aged management for timber. 40-year rotation clear cut.",
         color: colors.pop(),
         editable: false
-    }
-
-
-    ]);
+    })]);
 
     if (options && options.myrxList) {
-        $.each(options.myrxList, function (i, myrx) {
-            self.prescriptionList.unshift({
+        $.each(options.myrxList, function(i, myrx) {
+            self.prescriptionList.unshift(new rxViewModel({
                 name: myrx.name,
                 description: myrx.description,
-                rx_id: myrx.rx_id,
+                myrx_id: myrx.myrx_id,
                 color: colors.pop(),
                 editable: true
-            });
+            }));
         });
     }
 
     self.newRx = ko.observable(false);
     self.selectedRx = ko.observable();
 
+    self.deleteRx = function() {
+        var rx = this;
+
+        $.ajax({
+            url: "/features/generic-links/links/delete/{uid+}/".replace('{uid+}', rx.myrx_id),
+            type: "DELETE",
+            success: function(result) {
+                self.prescriptionList.remove(rx);
+            }
+        });
+    };
+
     self.addNewRx = function() {
         self.newRx(true);
         decision(app.properties.viewModel.selectedProperty().variant_id(), function(rx) {
             self.newRx(false);
-            self.selectedRx({
-                name: ko.observable(),
-                description: ko.observable(),
-                id: rx,
+            self.selectedRx(new rxViewModel({
                 rx_internal_name: rx,
-                color: colors.pop()
-            });
+                color: colors.pop(),
+                editable: true
+            }));
         });
     };
 
@@ -86,7 +109,7 @@ function scenarioFormViewModel(options) {
                 name: self.selectedRx().name(),
                 description: self.selectedRx().description()
             },
-            success: function (result) {
+            success: function(result) {
                 var rx_id = result["X-Madrona-Select"],
                     url = _.string.sprintf('/features/forestproperty/%s/add/%s', app.properties.viewModel.selectedProperty().uid(), rx_id);
                 $.ajax({
@@ -98,11 +121,12 @@ function scenarioFormViewModel(options) {
                         name: self.selectedRx().name(),
                         description: self.selectedRx().description()
                     },
-                    success: function () {
+                    success: function() {
                         self.selectedRx(false);
                     }
                 });
-            }});
+            }
+        });
     };
 
     self.applyRx = function() {
@@ -325,55 +349,54 @@ function scenarioViewModel(options) {
 
         });
         $.when(
-            $.ajax({
-                url: formUrl,
-                type: "GET",
-                success: function(data, textStatus, jqXHR) {
-                    $('#scenario-form-container').html(data);
+        $.ajax({
+            url: formUrl,
+            type: "GET",
+            success: function(data, textStatus, jqXHR) {
+                $('#scenario-form-container').html(data);
 
 
-                    $('#scenario-form-container').find('button.cancel').click(function(e) {
-                        e.preventDefault();
-                        self.showScenarioList(true);
-                        self.toggleScenarioForm(false);
-                        $("form#scenario-form").empty();
+                $('#scenario-form-container').find('button.cancel').click(function(e) {
+                    e.preventDefault();
+                    self.showScenarioList(true);
+                    self.toggleScenarioForm(false);
+                    $("form#scenario-form").empty();
+                });
+                $('#scenario-form-container').find('button.submit').click(function(e) {
+                    e.preventDefault();
+                    $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
+                    var postData = $("form#scenario-form").serialize();
+                    $.ajax({
+                        url: postUrl,
+                        type: "POST",
+                        data: postData,
+                        dataType: "json",
+                        success: function(data, textStatus, jqXHR) {
+                            var uid = data["X-Madrona-Select"];
+                            self.selectedFeatures.removeAll();
+                            self.loadScenarios(self.property);
+                            self.toggleScenarioForm(false);
+                        },
+                        error: function(jqXHR, textStatus, errorThrown) {
+                            alert(errorThrown);
+                        }
                     });
-                    $('#scenario-form-container').find('button.submit').click(function(e) {
-                        e.preventDefault();
-                        $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
-                        var postData = $("form#scenario-form").serialize();
-                        $.ajax({
-                            url: postUrl,
-                            type: "POST",
-                            data: postData,
-                            dataType: "json",
-                            success: function(data, textStatus, jqXHR) {
-                                var uid = data["X-Madrona-Select"];
-                                self.selectedFeatures.removeAll();
-                                self.loadScenarios(self.property);
-                                self.toggleScenarioForm(false);
-                            },
-                            error: function(jqXHR, textStatus, errorThrown) {
-                                alert(errorThrown);
-                            }
-                        });
-                    });
-                },
-                error: function(jqXHR, textStatus, errorThrown) {
-                    alert(errorThrown);
-                }
-            }),
-            $.ajax({
-                url: '/features/forestproperty/links/property-myrx-json/trees_forestproperty_1/',
-                type: "GET",
-                dataType: "JSON",
-                success: function (res) {
-                    app.scenarios.data = {
-                        myrxList: res
-                    };
-                }
-            })
-        ).then(function() {
+                });
+            },
+            error: function(jqXHR, textStatus, errorThrown) {
+                alert(errorThrown);
+            }
+        }),
+        $.ajax({
+            url: '/features/forestproperty/links/property-myrx-json/trees_forestproperty_1/',
+            type: "GET",
+            dataType: "JSON",
+            success: function(res) {
+                app.scenarios.data = {
+                    myrxList: res
+                };
+            }
+        })).then(function() {
 
             ko.applyBindings(new scenarioFormViewModel(app.scenarios.data), document.getElementById('scenario-form-container'));
         });

@@ -11,6 +11,10 @@
 .content {
     line-height: 1;
 }
+.btn-group {
+    margin: 5px;
+
+}
 </style>
 
 {% if form.non_field_errors %}
@@ -78,7 +82,7 @@
             <div data-bind="visible: selectedRx, with: selectedRx">
                 <form>
                   <fieldset>
-                    <legend data-bind="text: id">New Prescription</legend>
+                    <legend>New Prescription</legend>
                     <div class="control-group">
                       <label class="control-label">Name</label>
                       <div class="controls">
@@ -106,16 +110,20 @@
                 
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
-                        <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }">
+                        <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
                             <td> 
                                 <h5><span data-bind="text: name">RX Name</span></h5>
                                 <span data-bind="text: description">RX Description</span>
-                                <div class="pull-right btn-group">
-                                    <button class="btn btn-mini" href="#">
-                                        <i class="icon-remove" data-bind="enabled: editable"></i></button>
-                                    <button class="btn btn-mini" href="#">
+                                <div class="pull-right btn-group" data-bind="visible: confirmDelete">
+                                  <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                  <button class="btn" data-bind="click: $parent.deleteRx">ok</button>
+                                </div>
+                                <div class="pull-right btn-group" data-bind="visible: ! confirmDelete()">
+                                    <button class="btn" data-bind="enable: editable, click: function () { confirmDelete(true) }">
+                                        <i class="icon-remove"></i></button>
+                                    <button class="btn" data-bind="enable: editable">
                                         <i class="icon-edit"></i></button>
-                                    <button href="#" class="btn btn-mini" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
+                                    <button href="#" class="btn" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
                                         <i class="icon-share"></i></button>
                                 </div>
                                 <p>
