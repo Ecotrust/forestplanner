@@ -6,6 +6,8 @@
 {% if form.media %} {{ form.media }} {% endif %}
 <h1>{{title}}</h1>
 
+{% if form.errors %}<div> {{form.errors}} </div> {% endif %}
+
 <form id="featureform" action="{{action}}" method="post"> 
     <!-- <p class="instructions">Provide a name to identify your feature: </p> -->
 {% for field in form.visible_fields %}

@@ -370,9 +370,16 @@
 					<p class="info text-info well well-small">
 						<i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
 					</p>
-                  <div class="progress progress-striped active" data-bind="visible: showProgressBar">
-                    <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
-                  </div>
+					<div class="loading" data-bind="visible: showProgressBar">
+						<h3>Loading...</h3>
+					</div>
+					<!-- 
+					<div class="progress progress-striped active" data-bind="visible: showProgressBar">
+					  <div class="bar" style="width: 100%"></div> 
+					  <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
+					</div>
+					-->
+
                   <p data-bind="visible: ! standList().length"></p>
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
@@ -430,8 +437,8 @@
                     </div>
 					<div class="pull-right btn-group">
 						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
-						<!-- @TODO - properties aren't global <a class="btn" data-bind="attr: { href: '/trees/strata/' + selectedProperty().uid() }"> -->
-						<a class="btn tool-tip" href="/trees/strata/4" data-toggle="tooltip" title="Stand groups are ...">
+						<a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
+							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID }" >
 							<i class="icon-repeat"></i> Define Stand Groups</a>
 						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
 							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>

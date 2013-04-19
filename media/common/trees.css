@@ -278,6 +278,19 @@ h2 i, h3 i, h4 i{
         opacity: 1;
         text-shadow: 0 0;
     }
+
+.loading{
+	background: transparent url('/media/img/ajax-loader.gif') 0 50% no-repeat;
+	padding-left: 20px;
+	display: inline-block;
+	width: auto;
+}
+	.loading h3{
+		color: #606050;
+		font-size: 19px;
+		line-height: 1.5;
+		margin: 0;
+	}
 /* Bootstrap SpaceLab Overrides */
 
 [class^="icon-"], [class*=" icon-"] {

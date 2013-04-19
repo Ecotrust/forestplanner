@@ -478,7 +478,7 @@ class ForestProperty(FeatureCollection):
         super(ForestProperty, self).save(*args, **kwargs)
 
     class Options:
-        valid_children = ('trees.models.Stand', 'trees.models.Strata',)
+        valid_children = ('trees.models.Stand', 'trees.models.Strata', 'trees.models.MyRx')
         form = "trees.forms.PropertyForm"
         links = (
             # Link to grab ALL *stands* associated with a property
@@ -498,6 +498,11 @@ class ForestProperty(FeatureCollection):
                       select='single'),
             alternate('Property status',
                       'trees.views.forestproperty_status',
+                      type="application/json",
+                      select='single'),
+            # Link to grab ALL MyRx associated with a property
+            alternate('Property MyRx JSON',
+                      'trees.views.forestproperty_myrx',
                       type="application/json",
                       select='single'),
         )
@@ -1083,6 +1088,18 @@ class Rx(models.Model):
 class MyRx(Feature):
     # name  (inherited)
     rx = models.ForeignKey(Rx)
+    description = models.TextField(default="")
+
+    @property
+    def _dict(self):
+        return {
+            'user_id': self.user_id,
+            'rx_id': self.rx.id,
+            'name': self.name,
+            'description': self.description,
+            'internal_name': self.rx.internal_name,
+            'internal_desc': self.rx.internal_desc,
+        } 
 
     class Options:
         form = "trees.forms.MyRxForm"
