@@ -1,1 +1,0 @@
-gcc -lm -g -o schedule_out schedule.c schedule.h
