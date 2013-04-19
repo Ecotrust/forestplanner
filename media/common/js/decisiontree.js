@@ -1,6 +1,6 @@
 var treeData;
 var tree = {};
-var decision = function(cb){
+var decision = function(variant_id, cb){
 	$('#tree-slider').empty();
 	tree.cb = cb;
 	windowWidth = $('#tree-window').outerWidth( false );
@@ -10,7 +10,7 @@ var decision = function(cb){
 	options = {};
 	var thisURL = new String(document.location);
 	var urlParts = thisURL.split('?');
-	loadData( urlParts[1] );
+	loadData(urlParts[1], variant_id);
 	
 		
 };
@@ -19,10 +19,11 @@ function debug( str ){
 	$('#debug').append( str + '<br />' );
 }
 
-function loadData( id ){
+function loadData( id, variant_id ){
+    var url = "http://localhost:8000/trees/variant/" + variant_id + "_decision.xml";
 	$.ajax({
 		type: "GET", 
-		url: "/media/WestSideCascades_RXTree.xml", 
+		url: url, 
 		dataType: "xml", 
 		success: function( xml ){
 			buildNodes( xml );

@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
 from trees.views import *
+from django.conf import settings
+
 
 urlpatterns = patterns(
     '',
@@ -26,3 +28,8 @@ urlpatterns = patterns(
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
 )
+
+if settings.DEBUG:
+    urlpatterns += patterns('',
+        (r'^media/(?P<path>.*)$', 'django.views.static.serve', {'document_root': '/vagrant/media/'}),
+    )
