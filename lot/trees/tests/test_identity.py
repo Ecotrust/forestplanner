@@ -18,7 +18,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842500.0 5280100.0)')
 
-NUM_STANDS = 400 
+NUM_STANDS = 10 * 10 
 geoms = []
 for i in range(int(NUM_STANDS**0.5)):
     cntr.set_y(cntr.y - 150)
@@ -44,25 +44,14 @@ p1 = MultiPolygon(polys)
 
 client = Client()
 try:
-    user = User.objects.get(username='test')
+    user = User.objects.get(username='test_identity')
 except User.DoesNotExist:
-    user = User.objects.create_user('test', 'test@ecotrust.org', password='test')
+    user = User.objects.create_user('test_identity', 'test@ecotrust.org', password='test')
 
-client.login(username='test', password='test')
+client.login(username='test_identity', password='test')
 
 ##### Step 0. Delete all test properties and related objects
 
-# try:
-#     old = SpatialConstraint.objects.all()
-#     old.delete()
-# except ForestProperty.DoesNotExist:
-#      pass
-
-# try:
-#     old = Rx.objects.all()
-#     old.delete()
-# except ForestProperty.DoesNotExist:
-#     pass
 try:
     old = ForestProperty.objects.filter(user=user)
     old.delete()
@@ -86,6 +75,7 @@ except Scenario.DoesNotExist:
 
 ##### Create the property
 url = "/features/forestproperty/form/"
+print url
 response = client.post(url,
                        {
                        'name': 'test property',
@@ -98,6 +88,7 @@ prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 
 #### Create the stands
 url = "/features/stand/form/"
+print url
 stands = []
 for g in geoms:
     response = client.post(url, {'name': 'test stand', 'geometry_orig': g.wkt})
@@ -112,77 +103,37 @@ for stand in stands:
 
 #### Associate the stand with the property
 url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
+print url
 response = client.post(url, {})
 assert(response.status_code == 200)
 
 ######################################## THESE WILL ALL GET CREATED BY US WITH FIXTURES !!!!!
-#### Create Rx
-rx0, created = Rx.objects.get_or_create(internal_name="testrx", internal_desc="test Rx", variant=prop1.variant)
-rx1, created = Rx.objects.get_or_create(internal_name="testrx2", internal_desc="test Rx for spatial constraints", variant=prop1.variant)
-rx2, created = Rx.objects.get_or_create(internal_name="testrx3", internal_desc="another test Rx for spatial constraints", variant=prop1.variant)
+rx0 = Rx.objects.get(internal_name="PN13")
+rx1 = Rx.objects.get(internal_name="PN12")
+rx2 = Rx.objects.get(internal_name="PN14")
 
 #### Create spatial constraints
 import random
-"""
-for g in geoms:
-    centroid = g.centroid
-    cntr = GEOSGeometry(centroid.to_wkt())
-    cntr.set_x(cntr.x + random.randint(-100, 100))
-    cntr.set_y(cntr.y + random.randint(-100, 100))
-    cg1 = cntr.buffer(random.randint(2, 100))  # .envelope
-    cg1.transform(settings.GEOMETRY_DB_SRID)
-    sc1 = SpatialConstraint.objects.get_or_create(
-        geom=cg1,
-        default_rx=random.choice([rx1, rx2]),
-        category="R1"
-    )
+if SpatialConstraint.objects.all().count() < 1:
+    for i in range(4):
+        pt1 = random.choice(geoms)
+        pt2 = random.choice(geoms)
+        from shapely.geometry import LineString
+        line = LineString([(pt1.centroid.x, pt1.centroid.y), (pt2.centroid.x, pt2.centroid.y)])
+        # create line, buffer it
+        cg1 = line.buffer(random.randint(50, 200))
+        sc1 = SpatialConstraint.objects.get_or_create(
+            geom=cg1.wkt,
+            default_rx=random.choice([rx1, rx2]),
+            category=random.choice(["R1", "R2"])
+        )
 
-for i in range(5):
-    pt1 = random.choice(geoms)
-    pt2 = random.choice(geoms)
-    from shapely.geometry import LineString
-    line = LineString([(pt1.centroid.x, pt1.centroid.y), (pt2.centroid.x, pt2.centroid.y)])
-    # create line, buffer it
-    cg1 = line.buffer(random.randint(0, 200))
-    sc1 = SpatialConstraint.objects.get_or_create(
-        geom=cg1.wkt,
-        default_rx=random.choice([rx1, rx2]),
-        category=random.choice(["R1", "R2"])
-    )
 
-cntr.set_y(cntr.y - 75)
-cg1 = cntr.buffer(30)  #.envelope
-cg1.transform(settings.GEOMETRY_DB_SRID)
-sc1 = SpatialConstraint.objects.get_or_create(
-    geom=cg1,
-    default_rx=rx1,
-    category="R1"
-)
-
-cntr.set_y(cntr.y + 225)
-cg1 = cntr.buffer(90)  #.envelope
-cg1.transform(settings.GEOMETRY_DB_SRID)
-sc1 = SpatialConstraint.objects.get_or_create(
-    geom=cg1,
-    default_rx=rx1,
-    category="R1"
-)
-
-cntr.set_y(cntr.y - 15)
-cg1 = cntr.buffer(20)  #.envelope
-cg1.transform(settings.GEOMETRY_DB_SRID)
-sc1 = SpatialConstraint.objects.get_or_create(
-    geom=cg1,
-    default_rx=rx2,
-    category="R2"
-)
-"""
 ######################################## END fixtures
 
 #### Create a scenario.
 
 url = "/features/scenario/form/"
-print
 print url
 rxs = {}
 for stand in stands:
