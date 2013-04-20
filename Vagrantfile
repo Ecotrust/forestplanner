@@ -32,8 +32,8 @@ Vagrant::Config.run do |config|
   config.vm.forward_port 80, 8080
   config.vm.forward_port 443, 8443
   config.vm.forward_port 8000, 8000
-  config.vm.forward_port 5555, 5555 
-  config.vm.forward_port 5432, 5432  # TODO remove postgres port; testing purposes only 
+  config.vm.forward_port 5555, 5555  # TODO remove celery flower port or secure it
+  config.vm.forward_port 5432, 5433  # TODO remove postgres port or secure it
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
