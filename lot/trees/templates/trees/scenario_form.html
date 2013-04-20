@@ -11,6 +11,10 @@
 .content {
     line-height: 1;
 }
+.btn-group {
+    margin: 5px;
+
+}
 </style>
 
 {% if form.non_field_errors %}
@@ -75,10 +79,11 @@
         </div>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
-            <div data-bind="visible: selectedRx, with: selectedRx">
+            <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
                 <form>
                   <fieldset>
-                    <legend data-bind="text: id">New Prescription</legend>
+                    <legend data-bind="visible: ! myrx_id">New Prescription</legend>
+                    <legend data-bind="visible: myrx_id">Update <span data-bind="text: name"></span></legend>
                     <div class="control-group">
                       <label class="control-label">Name</label>
                       <div class="controls">
@@ -93,6 +98,14 @@
                         <!--<p class="help-block">Supporting help text</p>-->
                       </div>
                     </div>
+                    <div class="control-group" data-bind="visible: myrx_id">
+                      <label class="control-label">Update Management Style</label>
+                      <div class="controls">
+                        <button class="btn btn-block" data-bind="click: $parent.updateManagementStyle">Update</button>
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <a class="btn" data-bind="click: $parent.cancel">cancel</a>
                     <button class="btn" data-bind="click: $parent.saveRx">save</button>
                   </fieldset>
                 </form>
@@ -106,14 +119,20 @@
                 
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
-                        <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }">
+                        <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
                             <td> 
                                 <h5><span data-bind="text: name">RX Name</span></h5>
                                 <span data-bind="text: description">RX Description</span>
-                                <div class="pull-right">
-                                    <!--<button class="btn btn-mini" href="#">
-                                        <i class="icon-edit"></i></button>-->
-                                    <button href="#" class="btn btn-mini" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
+                                <div class="pull-right btn-group" data-bind="visible: confirmDelete">
+                                  <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                  <button class="btn" data-bind="click: $parent.deleteRx">ok</button>
+                                </div>
+                                <div class="pull-right btn-group" data-bind="visible: ! confirmDelete()">
+                                    <button class="btn" data-bind="enable: editable, click: function () { confirmDelete(true) }">
+                                        <i class="icon-remove"></i></button>
+                                    <button class="btn" data-bind="enable: editable, click: $parent.updateRx">
+                                        <i class="icon-edit"></i></button>
+                                    <button href="#" class="btn" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
                                         <i class="icon-share"></i></button>
                                 </div>
                                 <p>

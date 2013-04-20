@@ -276,6 +276,13 @@ function standsViewModel() {
     self.modifyFeature = new OpenLayers.Control.ModifyFeature(self.stand_layer);
     map.addControl(self.modifyFeature);
 
+
+    var stand_snap = new OpenLayers.Control.Snapping({
+                layer: self.stand_layer,
+                targets: [app.property_layer, self.stand_layer],
+                greedy: false
+            });
+    stand_snap.activate();
  
 
     self.stand_layer.events.on({

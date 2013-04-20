@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
 from trees.views import *
+from django.conf import settings
+
 
 urlpatterns = patterns(
     '',

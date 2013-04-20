@@ -1095,9 +1095,10 @@ class MyRx(Feature):
         return {
             'user_id': self.user_id,
             'rx_id': self.rx.id,
+            'myrx_id': self.uid,
             'name': self.name,
             'description': self.description,
-            'internal_name': self.rx.internal_name,
+            'rx_internal_name': self.rx.internal_name,
             'internal_desc': self.rx.internal_desc,
         } 
 
