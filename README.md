@@ -24,6 +24,7 @@ Ecotrust is developing online software that will give all Oregon and Washington 
 * OpenLayers
 * GeoDjango
 * PostGIS
+* Madrona
 * Tilemill
 * Mapnik
 * [Forest Vegetation Simulator](http://www.fs.fed.us/fmsc/fvs/)
@@ -35,3 +36,4 @@ Ecotrust is developing online software that will give all Oregon and Washington 
 * Mike Mertens (mmertens)
 * Ryan Hodges (rhodges)
 * Ken Vollmer (kvollmer)
+* Will Moore (willthemoor)
