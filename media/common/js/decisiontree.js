@@ -20,7 +20,7 @@ function debug( str ){
 }
 
 function loadData( id, variant_id ){
-    var url = "http://localhost:8000/trees/variant/" + variant_id + "_decision.xml";
+    var url = "/trees/variant/" + variant_id + "_decision.xml";
 	$.ajax({
 		type: "GET", 
 		url: url, 

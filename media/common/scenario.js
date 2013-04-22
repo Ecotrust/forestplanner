@@ -416,7 +416,7 @@ function scenarioViewModel(options) {
             }
         }),
         $.ajax({
-            url: '/features/forestproperty/links/property-myrx-json/trees_forestproperty_1/',
+            url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
             type: "GET",
             dataType: "JSON",
             success: function(res) {
