@@ -117,7 +117,6 @@ function scenarioFormViewModel(options) {
             } else {
                 self.decisionOutput.pop();
             }
-            
         });
     };
 
