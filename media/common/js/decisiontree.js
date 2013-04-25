@@ -1,8 +1,9 @@
 var treeData;
 var tree = {};
-var decision = function(variant_id, cb){
+var decision = function(variant_id, cb, progress){
 	$('#tree-slider').empty();
 	tree.cb = cb;
+    tree.progress = progress;
 	windowWidth = $('#tree-window').outerWidth( false );
 	sliderWidth = 0;
 	slideTime = 300;
@@ -75,11 +76,15 @@ function resetActionLinks(){
 	$('a.back-link').unbind( 'click' );
 	
 	$('.decision-links a').click( function(e){
+        var question = $(this).closest('.tree-content-box').find('.content').text(),
+            answer = $(this).text();
 		if( !$(this).attr('href') ){
 			showBranch( $(this).attr('id') );
+            tree.progress([question, answer].join(': '));
 		}
 	});
 	$('a.back-link').click( function(){
+        tree.progress(null);
 		$('#tree-window').scrollTo( '-=' + windowWidth + 'px', { axis:'x', duration:slideTime, easing:'easeInOutExpo' } );
 		$(this).parent().fadeOut( slideTime, function(){
 			$(this).remove();
@@ -87,6 +92,17 @@ function resetActionLinks(){
 	});
 }
 
+function getBranchById(id) {
+    var currentBranch;
+    for(i = 0; i < branches.length; i++ ){
+        if( branches[i].id == id ){
+            currentBranch = branches[i];
+            break;
+        }
+    }
+    return currentBranch;
+}
+var currentQuestion;
 function showBranch( id ){
 	for(i = 0; i < branches.length; i++ ){
 		if( branches[i].id == id ){
@@ -96,7 +112,9 @@ function showBranch( id ){
 	}
 	if (! currentBranch.forkIDs.length) {
 		tree.cb(currentBranch.content);
-	}
+	} 
+
+
 	var decisionLinksHTML = '<ul class="unstyled decision-links">';
 
 	for( d = 0; d < currentBranch.forkIDs.length; d++ ){

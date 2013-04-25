@@ -84,6 +84,14 @@
                   <fieldset>
                     <legend data-bind="visible: ! myrx_id">New Prescription</legend>
                     <legend data-bind="visible: myrx_id">Update <span data-bind="text: name"></span></legend>
+                    <p data-bind="visible: $parent.decisionOutput">
+                        <ul data-bind="foreach: $parent.decisionOutput">
+                            <li>
+                                <span data-bind="text: $data"></span>
+                            </li>
+                        </ul>
+                    </p>
+                    <br data-bind="visible: ! $parent.decisionOutput()"/>
                     <div class="control-group">
                       <label class="control-label">Name</label>
                       <div class="controls">
@@ -105,8 +113,10 @@
                         <!--<p class="help-block">Supporting help text</p>-->
                       </div>
                     </div>
-                    <a class="btn" data-bind="click: $parent.cancel">cancel</a>
-                    <button class="btn" data-bind="click: $parent.saveRx">save</button>
+                    <div>
+                        <a class="btn" data-bind="click: $parent.cancel">cancel</a>
+                        <button class="btn" data-bind="click: $parent.saveRx">save</button>
+                    </div>
                   </fieldset>
                 </form>
                 
@@ -161,6 +171,8 @@
                 <div id="tree-window">
                     <div id="tree-slider"></div>
                 </div>
+                <p data-bind="visible: decisionOutput"><span data-bind="text: decisionOutput"></span></p>
+                <br data-bind="visible: ! decisionOutput()"/>
                 <div class="pull-right">
                     <button class='btn btn-large' data-bind="click: function () { newRx(false) }" style="margin-top: 10px">done</button>
                 </div>

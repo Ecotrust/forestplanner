@@ -75,7 +75,12 @@ function scenarioFormViewModel(options) {
     self.selectedRx = ko.observable();
 
     self.rxBeingEdited = null;
-    self.updateRx = function () {
+
+    // deciscion tree breadcrumbs:
+    self.decisionOutput = ko.observableArray();
+
+
+    self.updateRx = function() {
         var rx = this;
         self.rxBeingEdited = rx;
         self.selectedRx(new rxViewModel(ko.toJS(rx)));
@@ -95,13 +100,24 @@ function scenarioFormViewModel(options) {
 
     self.addNewRx = function() {
         self.newRx(true);
-        decision(app.properties.viewModel.selectedProperty().variant_id(), function(rx) {
+        decision(app.properties.viewModel.selectedProperty().variant_id(),
+        // final callback for decision tree
+        function(rx) {
             self.newRx(false);
             self.selectedRx(new rxViewModel({
                 rx_internal_name: rx,
                 color: colors.pop(),
                 editable: true
             }));
+        },
+        // periodic updates for decision tree
+        function(update) {
+            if (update) {
+                self.decisionOutput.push(update);    
+            } else {
+                self.decisionOutput.pop();
+            }
+            
         });
     };
 
@@ -141,6 +157,8 @@ function scenarioFormViewModel(options) {
                         success: function() {
                             self.prescriptionList.unshift(rx);
                             self.selectedRx(false);
+                            self.decisionOutput([]);
+
                         }
                     });
                 }
@@ -148,7 +166,7 @@ function scenarioFormViewModel(options) {
         });
     };
 
-    self.updateManagementStyle = function () {
+    self.updateManagementStyle = function() {
         self.newRx(true);
         decision(app.properties.viewModel.selectedProperty().variant_id(), function(rx) {
             self.newRx(false);
@@ -156,8 +174,10 @@ function scenarioFormViewModel(options) {
         });
     };
 
-    self.cancel = function () {
+    self.cancel = function() {
         self.selectedRx(false);
+        self.decisionOutput([]);
+
     };
 
     self.applyRx = function() {
