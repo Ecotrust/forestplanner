@@ -225,7 +225,7 @@
                     </div>
                 <div data-bind="visible: ! activeStratum()">
                     <div class="map_wrapper">
-                      <button class="btn " data-bind="click: rubberBand, css: { 'btn-inverse': rubberBandActive }">select box</button>
+                     <!--  <button class="btn " data-bind="click: rubberBand, css: { 'btn-inverse': rubberBandActive }">select box</button> -->
                       <div id="map"></div>
                     </div>
                 </div>
@@ -727,6 +727,40 @@
           });
           
           self.rubberBandActive = ko.observable(false);
+
+          $(document).on('keyup keydown', function (e) {
+            if (e.shiftKey) {
+              console.log('enable');
+              self.rubberBandActive(true);
+              app.selectFeature.deactivate();
+              map.removeControl(app.selectFeature);
+              app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                { 
+                  "clickout": false,
+                  "multiple": true,
+                  "toggle": true,
+                  "box": true
+                }); 
+              map.addControl(app.selectFeature); 
+              app.selectFeature.activate();
+            } else {
+              if (self.rubberBandActive()) {
+                console.log('disable');
+                self.rubberBandActive(false);
+                app.selectFeature.deactivate();
+                map.removeControl(app.selectFeature);
+                app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                { 
+                  "clickout": false,
+                  "multiple": true,
+                  "toggle": true,
+                  "box": false
+                });
+                map.addControl(app.selectFeature); 
+                app.selectFeature.activate();
+              }
+            }
+          });
 
           self.rubberBand = function () {
             self.rubberBandActive(! self.rubberBandActive());
