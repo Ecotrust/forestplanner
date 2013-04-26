@@ -376,6 +376,41 @@ function scenarioViewModel(options) {
                     "multiple": true,
                     "toggle": true
                 });
+                app.scenarios.rubberBandActive = false;
+                $(document).on('keyup keydown', function (e) {
+                  if (e.shiftKey) {
+                    
+                    app.scenarios.rubberBandActive = true;
+                    app.selectFeature.deactivate();
+                    map.removeControl(app.selectFeature);
+                    app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                      { 
+                        "clickout": false,
+                        "multiple": true,
+                        "toggle": true,
+                        "box": true
+                      }); 
+                    map.addControl(app.selectFeature); 
+                    app.selectFeature.activate();
+                  } else {
+                    if (app.scenarios.rubberBandActive) {
+                    
+                      app.scenarios.rubberBandActive = true;
+                      app.selectFeature.deactivate();
+                      map.removeControl(app.selectFeature);
+                      app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                      { 
+                        "clickout": false,
+                        "multiple": true,
+                        "toggle": true,
+                        "box": false
+                      });
+                      map.addControl(app.selectFeature); 
+                      app.selectFeature.activate();
+                    }
+                  }
+                });
+
 
                 // reenable click and drag in vectors
                 app.stand_layer.selectFeature.handlers.feature.stopDown = false;

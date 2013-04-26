@@ -730,7 +730,7 @@
 
           $(document).on('keyup keydown', function (e) {
             if (e.shiftKey) {
-              console.log('enable');
+
               self.rubberBandActive(true);
               app.selectFeature.deactivate();
               map.removeControl(app.selectFeature);
@@ -745,7 +745,7 @@
               app.selectFeature.activate();
             } else {
               if (self.rubberBandActive()) {
-                console.log('disable');
+
                 self.rubberBandActive(false);
                 app.selectFeature.deactivate();
                 map.removeControl(app.selectFeature);
@@ -761,36 +761,6 @@
               }
             }
           });
-
-          self.rubberBand = function () {
-            self.rubberBandActive(! self.rubberBandActive());
-            app.selectFeature.deactivate();
-            map.removeControl(app.selectFeature); 
-            if (self.rubberBandActive()) {  
-              console.log('enable');
-              app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-                { 
-                  "clickout": false,
-                  "multiple": true,
-                  "toggle": true,
-                  "box": true
-                });
-              
-            } else {
-              console.log('disable');
-              app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-              { 
-                "clickout": false,
-                "multiple": true,
-                "toggle": true,
-                "box": false
-              });
-            }
-
-            // reenable click and drag in vectors
-            map.addControl(app.selectFeature); 
-            app.selectFeature.activate();
-          }
 
           self.editStratum = function (stratum) {
             var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
