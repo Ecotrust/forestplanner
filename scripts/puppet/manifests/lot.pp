@@ -1,7 +1,7 @@
 $user = 'vagrant'
 $group = 'vagrant'
 $project_dir = '/usr/local/apps/land_owner_tools'
-$settings_template = 'settings_vagrant.py'
+$settings_template = 'settings_template.py'
 
 # ensure that apt update is run before any packages are installed
 class apt {
