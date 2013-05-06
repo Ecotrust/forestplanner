@@ -1,3 +1,8 @@
+$user = 'vagrant'
+$group = 'vagrant'
+$project_dir = '/usr/local/apps/land_owner_tools'
+$settings_template = 'settings_vagrant.py'
+
 # ensure that apt update is run before any packages are installed
 class apt {
   exec { "apt-update":
@@ -151,18 +156,18 @@ class { "postgresql::server": version => "9.1",
 }
 
 postgresql::database { "forestplanner":
-  owner => "vagrant",
+  owner => $user,
 }
 
 exec { "load postgis":
   command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/postgis.sql -d forestplanner",
-  user => "vagrant",
+  user => $user,
   require => Postgresql::Database['forestplanner']
 }
 
 exec { "load spatialrefs":
   command => "/usr/bin/psql -f /usr/share/postgresql/9.1/contrib/postgis-1.5/spatial_ref_sys.sql -d forestplanner",
-  user => "vagrant",
+  user => $user,
   require => Postgresql::Database['forestplanner']
 }
 
@@ -179,7 +184,7 @@ exec { "load spatialrefs template1":
 }
 
 exec { "load cleangeometry template1":
-  command => "/usr/bin/psql -d template1 -f /tmp/vagrant-puppet/manifests/files/cleangeometry.sql",
+  command => "/usr/bin/psql -d template1 -f $project_dir/scripts/puppet/manifests/files/cleangeometry.sql",
   user => "postgres",
   require => Postgresql::Database['forestplanner']
 }
@@ -189,30 +194,30 @@ python::venv::isolate { "/usr/local/venv/lot":
 }
 
 file { "settings_local.py":
-  path => "/vagrant/lot/settings_local.py",
-  content => template("settings_vagrant.py")
+  path => "$project_dir/lot/settings_local.py",
+  content => template($settings_template)
 }
 
 file { "go":
-  path => "/home/vagrant/go",
+  path => "/home/$user/go",
   content => template("go"),
-  owner => "vagrant",
-  group => "vagrant",
+  owner => $user,
+  group => $group,
   mode => 0775
 }
 
 file { "celeryd.conf":
   path => "/etc/supervisor/conf.d/celeryd.conf",
-  content => template("celeryd.conf"),
+  content => template("celeryd.erb"),
   require => Package['supervisor']
 }
 file { "celerymon.conf":
   path => "/etc/supervisor/conf.d/celerymon.conf",
-  content => template("celerymon.conf"),
+  content => template("celerymon.erb"),
   require => Package['supervisor']
 }
 file { "celeryflower.conf":
   path => "/etc/supervisor/conf.d/celeryflower.conf",
-  content => template("celeryflower.conf"),
+  content => template("celeryflower.erb"),
   require => Package['supervisor']
 }

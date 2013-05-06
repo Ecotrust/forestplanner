@@ -2,8 +2,8 @@ define python::venv::isolate($ensure=present,
                              $version=latest,
                              $requirements=undef) {
   $root = $name
-  $owner = 'vagrant'
-  $group = 'vagrant'
+  $owner = $user
+  #$group = 'vagrant'
   #$python = $python::dev::python
 
   if $ensure == 'present' {
