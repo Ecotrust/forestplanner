@@ -1,7 +1,7 @@
 $user = 'vagrant'
 $group = 'vagrant'
 $project_dir = '/usr/local/apps/land_owner_tools'
-$settings_template = 'settings_template.py'
+$settings_template = 'settings_template.py.erb'
 $url_base = 'http://localhost:8080'
 
 # ensure that apt update is run before any packages are installed
