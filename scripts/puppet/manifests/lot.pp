@@ -1,9 +1,21 @@
-$user = 'vagrant'
-$group = 'vagrant'
-$project_dir = '/usr/local/apps/land_owner_tools'
-$settings_template = "settings_template.py.erb"
-$url_base = 'http://localhost:8080'
-$pgsql_base = '/var/lib/postgresql/'
+if $user == undef {
+    $user = 'vagrant'
+}
+if $group == undef {
+    $group = 'vagrant'
+}
+if $project_dir == undef {
+    $project_dir = '/usr/local/apps/land_owner_tools'
+}
+if $settings_template == undef {
+    $settings_template = "settings_template.py.erb"
+}
+if $url_base == undef {
+    $url_base = 'http://localhost:8080'
+}
+if $pgsql_base == undef {
+    $pgsql_base = '/var/lib/postgresql/'
+}
 
 # ensure that apt update is run before any packages are installed
 class apt {
