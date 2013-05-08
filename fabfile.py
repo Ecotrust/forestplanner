@@ -8,6 +8,12 @@ vars = {
 env.forward_agent = True
 env.key_filename = '~/.vagrant.d/insecure_private_key'
 
+try:
+    from fab_vars import *
+    fab_vars_exists = True
+except ImportError:
+    fab_vars_exists = False
+
 
 def dev():
     """ Use development server settings """
@@ -15,12 +21,34 @@ def dev():
     env.hosts = servers
     return servers
 
+def stage():
+    """ Use production server settings """
+    try:
+        if fab_vars_exists:
+            env.key_filename = AWS_KEY_FILENAME_STAGE
+            servers = [AWS_PUBLIC_DNS_DEV]
+            env.hosts = servers
+            return servers
+        else:
+            raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
+    except Exception as inst:
+        print inst
+    
+
 
 def prod():
     """ Use production server settings """
-    servers = []
-    env.hosts = servers
-    return servers
+    try:
+        if fab_vars_exists:
+            env.key_filename = AWS_KEY_FILENAME_PROD
+            servers = [AWS_PUBLIC_DNS_PROD]
+            env.hosts = servers
+            return servers
+        else:
+            raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
+    except Exception as inst:
+        print inst
+
 
 
 def test():

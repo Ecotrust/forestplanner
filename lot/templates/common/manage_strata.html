@@ -224,7 +224,10 @@
                       </div>
                     </div>
                 <div data-bind="visible: ! activeStratum()">
-                    <div id="map"></div>
+                    <div class="map_wrapper">
+                     <!--  <button class="btn " data-bind="click: rubberBand, css: { 'btn-inverse': rubberBandActive }">select box</button> -->
+                      <div id="map"></div>
+                    </div>
                 </div>
             </div>
 
@@ -280,6 +283,15 @@
         }
         #map {
             height: 500px;
+        }
+        .map_wrapper {
+          position: relative;
+        }
+        .map_wrapper .btn {
+          position: absolute;
+          left: 15px;
+          bottom: 15px;
+          z-index: 2000;
         }
         
         .strata-list {
@@ -438,14 +450,15 @@
                 { 
                     "clickout": false,
                     "multiple": true,
-                    "toggle": true
+                    "toggle": true,
+            
                 });
             
             // reenable click and drag in vectors
-            app.selectFeature.handlers.feature.stopDown = false; 
-            
-            map.addControl(app.selectFeature);
+            map.addControl(app.selectFeature); 
             app.selectFeature.activate();
+           
+
         }
 
 
@@ -713,6 +726,41 @@
             
           });
           
+          self.rubberBandActive = ko.observable(false);
+
+          $(document).on('keyup keydown', function (e) {
+            if (e.shiftKey) {
+
+              self.rubberBandActive(true);
+              app.selectFeature.deactivate();
+              map.removeControl(app.selectFeature);
+              app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                { 
+                  "clickout": false,
+                  "multiple": true,
+                  "toggle": true,
+                  "box": true
+                }); 
+              map.addControl(app.selectFeature); 
+              app.selectFeature.activate();
+            } else {
+              if (self.rubberBandActive()) {
+
+                self.rubberBandActive(false);
+                app.selectFeature.deactivate();
+                map.removeControl(app.selectFeature);
+                app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                { 
+                  "clickout": false,
+                  "multiple": true,
+                  "toggle": true,
+                  "box": false
+                });
+                map.addControl(app.selectFeature); 
+                app.selectFeature.activate();
+              }
+            }
+          });
 
           self.editStratum = function (stratum) {
             var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));

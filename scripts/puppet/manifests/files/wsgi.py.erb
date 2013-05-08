@@ -2,8 +2,8 @@ import sys
 import site
 import os
 
-project = '/vagrant/digitaldeck'
-ve ='/usr/local/apps/digitaldeck/env'
+project = '<%= project_dir %>'
+ve ='<%= project_dir %>/env'
 vepath = os.path.join(ve, 'lib/python2.7/site-packages')
 local_path = os.path.join('/usr/local/lib/python2.7/site-packages')
 

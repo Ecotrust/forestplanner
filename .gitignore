@@ -24,3 +24,4 @@ lot/.coverage
 .*.swp
 secret*
 celerymon.pid
+fab_vars.py

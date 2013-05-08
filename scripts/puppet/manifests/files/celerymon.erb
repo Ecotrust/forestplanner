@@ -1,0 +1,22 @@
+; ==============================================
+;  celery monitor for Django
+; ==============================================
+
+[program:celerymon]
+command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celerymon
+directory=/usr/local/apps/land_owner_tools/lot
+user=<%= user %>
+numprocs=1
+stdout_logfile=/usr/local/apps/land_owner_tools/logs/celerymon.log
+stderr_logfile=/usr/local/apps/land_owner_tools/logs/celerymon.log
+autostart=true
+autorestart=true
+startsecs=10
+
+; Need to wait for currently executing tasks to finish at shutdown.
+; Increase this if you have very long running tasks.
+stopwaitsecs = 600
+
+; if rabbitmq is supervised, set its priority higher
+; so it starts first
+; priority=998
