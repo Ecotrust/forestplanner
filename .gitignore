@@ -25,3 +25,4 @@ lot/.coverage
 secret*
 celerymon.pid
 fab_vars.py
+celeryflower-passwords
