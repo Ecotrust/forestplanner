@@ -12,4 +12,12 @@ server {
     location /media/  {
         alias /usr/local/apps/land_owner_tools/mediaroot/;
     }
+    
+    location /flower/ {
+        proxy_set_header Host $http_host;
+        proxy_pass http://localhost:5555;
+        rewrite  ^/flower/(.*)  /$1 break;
+        auth_basic "Restricted";
+        auth_basic_user_file  /usr/local/apps/land_owner_tools/celeryflower-passwords;
+    }
 }
