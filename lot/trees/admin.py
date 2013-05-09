@@ -23,6 +23,22 @@ class FVSVariantAdminForm(forms.ModelForm):
         import xml.etree.ElementTree as ET
         try:
             root = ET.fromstring(self.cleaned_data["decision_tree_xml"])
+
+            # find all branches that don't have additional forks; ie terminal nodes == rx name
+            rx_names = [branch.findtext('content') for branch in root.findall('branch')
+                        if 'fork' not in [x.tag for x in branch.getchildren()]]
+
+            # these should match with one rx.internal_name
+            misses = []
+            for rx_name in rx_names:
+                try:
+                    Rx.objects.get(internal_name=rx_name)
+                except Rx.DoesNotExist:
+                    misses.append(rx_name)
+            if len(misses) > 0:
+                raise ValidationError("The following Rx names don't exist in the database: " +
+                                      "%s" % ',  '.join("'%s'" % m for m in misses))
+
         except Exception as e:
             raise ValidationError("XML error: %s" % e)
         return self.cleaned_data["decision_tree_xml"]

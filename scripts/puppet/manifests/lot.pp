@@ -134,6 +134,11 @@ package {'supervisor':
     ensure => "latest"
 }
 
+package {'atop': ensure => "latest"}
+package {'htop': ensure => "latest"}
+package {'sysstat': ensure => "latest"}
+package {'iotop': ensure => "latest"}
+
 package {'uwsgi': ensure => "latest"}
 package {'uwsgi-plugin-python': ensure => "latest"}
 file { "forestplanner.ini":

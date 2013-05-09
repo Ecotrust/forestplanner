@@ -45,22 +45,6 @@ function init() {
 
     var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial, {attribution:"MapQuest"});
     var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain, {attribution:"Mapbox"});
-    var nhd = new OpenLayers.Layer.XYZ( "Streams",
-        "http://watersgeo.epa.gov/ARCGIS/REST/services/OW/NHD_Med_Detailed_WMERC/MapServer/tile/${z}/${y}/${x}",
-        {sphericalMercator: true, isBaseLayer: false, visibility: false, opacity: 0.75, attribution:"US EPA Office of Water"} 
-    );
-    var huc = new OpenLayers.Layer.XYZ( "Watershed Boundaries",
-        "http://watersgeo.epa.gov/ArcGIS/rest/services/OW/WBD_WMERC/MapServer/tile/${z}/${y}/${x}",
-        {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:"US EPA Office of Water"} 
-    );
-    var soils = new OpenLayers.Layer.XYZ( "Soil Survey",
-        "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
-        {sphericalMercator: true, 
-         isBaseLayer: false, 
-         visibility: false, 
-         opacity: 0.75,
-         attribution: "ESRI, USDA Natural Resources Conservation Service"} 
-    );
     var esri_base = new OpenLayers.Layer.XYZ( "ESRI Topo Maps",
         "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
         {
@@ -86,15 +70,53 @@ function init() {
         type: "Aerial"
     });
 
+    tileServerLayers = [
+        [ "Streams", "LOT_streams"],
+        [ "Watersheds", "LOT_watersheds"],
+        [ "Conservation Easements", "LOT_natconseasedb"],
+        [ "Critical Stream Habitat", "Crithab_streams"], 
+        [ "Wetlands", "LOT_wetlands"],
+        [ "Protected Areas", "LOT_protareas"],
+        [ "PLSS", "LOT_plss"],
+        [ "USFS Mill Facilities", "USFSMillFacilities"],
+        [ "Critical Habitat", "Crithab"],
+        [ "Counties", "LOT_counties"]
+    ];
+
     map.addLayers([hybrid, road]);
     map.addLayer(baseOSM);
     map.addLayers([ghyb, gphy]);
     map.addLayer(baseAerial);
     map.addLayer(esri_base);
-    map.addLayer(nhd);
-    map.addLayer(huc);
-    map.addLayer(soils);
 
+    for (var i=tileServerLayers.length-1; i>=0; --i) {
+        var lyrLongName = tileServerLayers[i][0];
+        var lyrShortName = tileServerLayers[i][1];
+        var lyr = new OpenLayers.Layer.XYZ( lyrLongName, 
+            "http://54.214.12.22/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:"Ecotrust"} 
+        );
+        lyr.shortName = lyrShortName;
+        map.addLayer(lyr);
+        lyr.events.register('visibilitychanged', lyr, function(evt) {
+            if (this.visibility) {
+                $('.layersDiv').append('<div id="' + this.shortName + '-legend" style="text-align:center;">' + 
+                    '<img src="/media/img/legends/' + this.shortName + '.png">');
+            } else {
+                $('#' + this.shortName + '-legend').remove();
+            }
+        });
+    }
+
+    var soils = new OpenLayers.Layer.XYZ( "Soil Survey",
+        "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
+        {sphericalMercator: true, 
+         isBaseLayer: false, 
+         visibility: false, 
+         opacity: 0.75,
+         attribution: "ESRI, USDA Natural Resources Conservation Service"} 
+    );
+    map.addLayer(soils);
     soils.events.register('visibilitychanged', soils, function(evt) {
         if (soils.visibility) {
             $('.layersDiv').append('<div id="soil-legend" style="text-align:center;"><img src="/media/img/soil_legend.png"><br><a target="_blank" href="http://goto.arcgisonline.com/maps/Specialty/Soil_Survey_Map">more info</a></div>');
@@ -149,16 +171,13 @@ function init() {
     // draw is in tree.js TODO: move)
     // activate select now
     app.selectFeature.activate();
-  
-    new_snap = new OpenLayers.Control.Snapping({
-                layer: app.new_features,
-                targets: [app.property_layer, app.stand_layer],
-                greedy: false
-            });
-    new_snap.activate();
+
+    // 
+    // Snapping control for drawing properties
+    //
     existing_snap = new OpenLayers.Control.Snapping({
                 layer: app.property_layer,
-                targets: [app.property_layer, app.stand_layer],
+                targets: [app.property_layer],
                 greedy: false
             });
     existing_snap.activate();
