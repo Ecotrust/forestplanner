@@ -271,19 +271,28 @@ function standsViewModel() {
       styleMap: map_styles.stand,
       renderers: app.renderer
     });
-    
+
+    app.stand_layer = self.stand_layer;
+
+    //
+    //  Snapping controls for drawing/editing stands
+    //
+    new_snap = new OpenLayers.Control.Snapping({
+                layer: app.new_features,
+                targets: [app.property_layer, app.stand_layer],
+                greedy: false
+            });
+    new_snap.activate();
+    var stand_snap = new OpenLayers.Control.Snapping({
+            layer: self.stand_layer,
+            targets: [app.property_layer, app.stand_layer],
+            greedy: false
+        });
+    stand_snap.activate();
+
     map.addLayer(self.stand_layer);
     self.modifyFeature = new OpenLayers.Control.ModifyFeature(self.stand_layer);
     map.addControl(self.modifyFeature);
-
-
-    var stand_snap = new OpenLayers.Control.Snapping({
-                layer: self.stand_layer,
-                targets: [app.property_layer, self.stand_layer],
-                greedy: false
-            });
-    stand_snap.activate();
- 
 
     self.stand_layer.events.on({
       'featureselected': function(feature) {
@@ -297,8 +306,6 @@ function standsViewModel() {
         // featureViewModel.feature = feature.feature;
         // // add it to the viewmodel
         // self.standList.unshift(featureViewModel);
-
-
       },
       'featuresadded': function(data) {}
     });
@@ -316,12 +323,6 @@ function standsViewModel() {
     map.addControl(self.selectControl);
     self.selectControl.activate();
 
-    self.snapper = new OpenLayers.Control.Snapping({
-      layer: app.new_features,
-      targets: [self.property_layer, self.stand_layer],
-      greedy: false
-    });
-    self.snapper.activate();
     self.loadStands(property);
   };
 
