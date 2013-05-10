@@ -21,9 +21,9 @@ class Command(BaseCommand):
         fixtures = [
             ('http://labs.ecotrust.org/forestplanner/data/idbsummary.json.gz', IdbSummary),
             ('http://labs.ecotrust.org/forestplanner/data/county.json.gz', County),
-            ('http://labs.ecotrust.org/forestplanner/data/fvsvariant.json.gz', FVSVariant),
+            #('http://labs.ecotrust.org/forestplanner/data/fvsvariant.json.gz', FVSVariant),
             ('http://labs.ecotrust.org/forestplanner/data/fvsspecies.json.gz', FVSSpecies),
-            ('http://labs.ecotrust.org/forestplanner/data/rx.json', Rx),
+            #('http://labs.ecotrust.org/forestplanner/data/rx.json', Rx),
             ('http://labs.ecotrust.org/forestplanner/data/conditionvariantlookup.json.gz', ConditionVariantLookup),
         ]
 
