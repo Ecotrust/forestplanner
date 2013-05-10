@@ -24,6 +24,7 @@ function rxViewModel(options) {
     var self = this;
 
     self.myrx_id = options.myrx_id;
+    self.rx_id = options.rx_id;
     self.name = ko.observable(options.name);
     self.description = ko.observable(options.description);
     self.color = options.color;
@@ -36,27 +37,11 @@ function rxViewModel(options) {
 
 function scenarioFormViewModel(options) {
     var self = this;
-    var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
+    var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', 
+                  '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
 
-    self.prescriptionList = ko.observableArray([
-    new rxViewModel({
-        name: "Grow Only",
-        description: "No active management.",
-        color: colors.pop(),
-        editable: false
-    }),
-    new rxViewModel({
-        name: "Mixed-species, 75 year rotation, commercial thin",
-        description: "75-year rotation with commercial thinning.",
-        color: colors.pop(),
-        editable: false
-    }),
-    new rxViewModel({
-        name: "Monoculture, 40 year rotation, pre-commercial",
-        description: "Even-aged management for timber. 40-year rotation clear cut.",
-        color: colors.pop(),
-        editable: false
-    })]);
+    self.prescriptionList = ko.observableArray([]);
+    self.inputRxs = ko.observable({});
 
     if (options && options.myrxList) {
         $.each(options.myrxList, function(i, myrx) {
@@ -64,6 +49,7 @@ function scenarioFormViewModel(options) {
                 name: myrx.name,
                 description: myrx.description,
                 myrx_id: myrx.myrx_id,
+                rx_id: myrx.rx_id,
                 rx_internal_name: myrx.rx_internal_name,
                 color: colors.pop(),
                 editable: true
@@ -78,7 +64,6 @@ function scenarioFormViewModel(options) {
 
     // deciscion tree breadcrumbs:
     self.decisionOutput = ko.observableArray();
-
 
     self.updateRx = function() {
         var rx = this;
@@ -101,6 +86,7 @@ function scenarioFormViewModel(options) {
     self.addNewRx = function() {
         self.newRx(true);
         decision(app.properties.viewModel.selectedProperty().variant_id(),
+
         // final callback for decision tree
         function(rx) {
             self.newRx(false);
@@ -157,7 +143,6 @@ function scenarioFormViewModel(options) {
                             self.prescriptionList.unshift(rx);
                             self.selectedRx(false);
                             self.decisionOutput([]);
-
                         }
                     });
                 }
@@ -180,10 +165,18 @@ function scenarioFormViewModel(options) {
     };
 
     self.applyRx = function() {
-        var rx = this;
+        var myrx = this;
 
         $.each(app.stand_layer.selectedFeatures, function(i, feature) {
-            feature.attributes.color = rx.color;
+            feature.attributes.color = myrx.color;
+
+            var stand_id = feature.data.uid.split("_")[2];
+            var rx_id = myrx.rx_id;
+            if (stand_id && rx_id) {
+                self.inputRxs()[stand_id] = rx_id;
+            } else {
+                console.log("Can't add to inputRxs: stand_id and rx_id are ", feature.data, myrx)
+            }
         });
         app.stand_layer.selectFeature.unselectAll();
     };
@@ -205,7 +198,7 @@ function scenarioFormViewModel(options) {
             }
         };
 
-    }, 300);
+    }, 900);
 
 
     return self;
@@ -358,16 +351,15 @@ function scenarioViewModel(options) {
         $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), function(data) {
 
             if (app.stand_layer) {
+
                 app.stand_layer.removeAllFeatures();
 
             } else {
-
 
                 app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
                     styleMap: app.scenarios.styleMap,
                     renderers: app.renderer
                 });
-
 
                 map.addLayer(app.stand_layer);
 
@@ -411,7 +403,6 @@ function scenarioViewModel(options) {
                   }
                 });
 
-
                 // reenable click and drag in vectors
                 app.stand_layer.selectFeature.handlers.feature.stopDown = false;
 
@@ -419,15 +410,11 @@ function scenarioViewModel(options) {
 
             }
 
-
-
             app.stand_layer.addFeatures(app.geojson_format.read(data));
 
             // deactivate the property control
             app.selectFeature.deactivate();
             app.stand_layer.selectFeature.activate();
-
-
 
         });
         $.when(
@@ -447,10 +434,12 @@ function scenarioViewModel(options) {
                 $('#scenario-form-container').find('button.submit').click(function(e) {
                     e.preventDefault();
                     $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
+                    $("#id_input_rxs").val(JSON.stringify(app.scenarios.formViewModel.inputRxs()));
                     var postData = $("form#scenario-form").serialize();
                     $.ajax({
                         url: postUrl,
                         type: "POST",
+                        global: false, // prevent global ajaxError handler
                         data: postData,
                         dataType: "json",
                         success: function(data, textStatus, jqXHR) {
@@ -460,7 +449,17 @@ function scenarioViewModel(options) {
                             self.toggleScenarioForm(false);
                         },
                         error: function(jqXHR, textStatus, errorThrown) {
-                            alert(errorThrown);
+                            if (jqXHR.status >= 400 && jqXHR.status < 500) {
+                                // if there is a 4xx error
+                                // assume madrona returns a form with error msgs 
+                                data = $(jqXHR.responseText);
+                                errors = data.find(".errorlist > *");
+                                errorHtml = "";
+                                $.each(errors, function(k,v) { 
+                                    errorHtml += v.innerHTML + " . ";
+                                });
+                                app.flash(errorHtml, "Error saving scenario...");
+                            }
                         }
                     });
                 });
@@ -479,8 +478,8 @@ function scenarioViewModel(options) {
                 };
             }
         })).then(function() {
-
-            ko.applyBindings(new scenarioFormViewModel(app.scenarios.data), document.getElementById('scenario-form-container'));
+            app.scenarios.formViewModel = new scenarioFormViewModel(app.scenarios.data);
+            ko.applyBindings(app.scenarios.formViewModel, document.getElementById('scenario-form-container'));
         });
     };
 

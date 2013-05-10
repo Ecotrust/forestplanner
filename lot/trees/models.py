@@ -711,6 +711,10 @@ class Scenario(Feature):
         this shows up in the form as form.non_field_errors
         """
         inrx = self.input_rxs
+
+        if not inrx:
+            raise ValidationError('Must supply a input_rxs object')
+
         valid_stand_ids = [x.pk for x in self.input_property.feature_set(feature_classes=[Stand])]
         for stand, rx in inrx.items():
             if int(stand) not in valid_stand_ids:

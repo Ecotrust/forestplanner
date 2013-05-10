@@ -25,15 +25,16 @@
 {% endif %}
 
 <form class="form-horizontal" id="scenario-form" method="POST">
+
     <ul class="nav nav-tabs" id="myTab">
         <li class="active">
-            <a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab">Step 1: Spatial Contraints</a>
+            <a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab">Step 1<br> Spatial Contraints</a>
         </li>
         <li>
-            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Step 2: Silvicultural Prescriptions</a>
+            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Step 2<br> Silvicultural Prescriptions</a>
         </li>
         <li>
-            <a href="#scenario-edit-objectives-content" id="scenario-edit-objectives-tab" data-toggle="tab">Step 3: Objectives</a>
+            <a href="#scenario-review-content" id="scenario-review-tab" data-toggle="tab">Step 3<br> Review</a>
         </li>
     </ul>
     
@@ -42,41 +43,61 @@
         <div class="tab-pane active" id="scenario-edit-spatial-content">
 
             <div class="alert alert-info">
-                <strong>Spatial Constraints</strong> can be applied to your property to ensure certain geographic 
-                areas are managed properly. <br><br> For example, you could apply <em>Riparian Buffers</em> if you want 
-                to ensure that streams are managed according to state regulations. 
+                Use <strong>spatial constraints</strong> to visualize management restrictions. 
+                <br><br> 
+                For example, knowing where streams and conservation
+                easements exist can help you decide on appropriate management activities for 
+                a given stand. 
+                <br><br> 
+                Note: These spatial constraint maps are <em>not</em> legal boundaries and are presented
+                for reference only.
             </div>
 
-            <div class="control-group">
-                <label for="id_buffer" class="control-label"> 
-                    <strong>Riparian buffers</strong>
-                </label>
-                <div class="controls">
-                    <label class="radio">
-                      <input type="radio" name="optionsRadios" id="optionsRadios0" value="option0">
-                      None (Riparian boundaries are already defined in my stand boundaries)
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="optionsRadios" id="optionsRadios1" value="option1">
-                      Recommended by NWFP
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-                      Minimum Regulatory Buffers
-                    </label>
-                    <label class="radio">
-                      <input type="radio" name="optionsRadios" id="optionsRadios3" value="option3">
-                      Regulatory Buffers + 50%
-                    </label>
+            <div class="control-group" style="margin-left:40px;">
+                <div id="constraint-layers">
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Streams" name="Streams" type="checkbox" 
+                    value="Streams" class="constraint-input">Streams</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Critical Habitat" name="Critical Habitat" type="checkbox" 
+                    value="Critical Habitat" class="constraint-input">Critical Habitat</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Protected Areas" name="Protected Areas" type="checkbox" 
+                    value="Protected Areas" class="constraint-input">Protected Areas</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Wetlands" name="Wetlands" type="checkbox" 
+                    value="Wetlands" class="constraint-input">Wetlands</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Critical Stream Habitat" name="Critical Stream Habitat" type="checkbox" 
+                    value="Critical Stream Habitat" class="constraint-input">Critical Stream Habitat</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Conservation Easements" name="Conservation Easements" type="checkbox" 
+                    value="Conservation Easements" class="constraint-input">Conservation Easements</label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Soil Survey" name="Soil Survey" type="checkbox" 
+                    value="Soil Survey" class="constraint-input">Soil Survey</label>
                 </div>
             </div>
-            <!--
-            <div class="pull-right">
-                <button class="btn primary">Apply Spatial Constraints</button>
-                <button class="btn cancel">Cancel</button>
-            </div>
-            -->
         </div>
+
+        <script>
+            $("input.constraint-input").change(function() {
+                //$("div.dataLayersDiv > input[name='" + this.name + "']").toggle();
+                var layers = map.getLayersByName(this.name);
+                if (layers.length) { 
+                    var layer = layers[0];
+                    layer.setVisibility($(this).is(':checked'));
+                } else {
+                    console.log('Checkbox has no OL layer by this name (check this.name).', this);
+                }
+            });
+        </script>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
             <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
@@ -122,11 +143,6 @@
                 
             </div>
             <div data-bind="visible: ! (newRx() || selectedRx())">
-                <div class="btn-group pull-right btn-controls">
-                    <a class="btn" data-bind="click: addNewRx">add new prescription</a>
-                </div>
-                <h3>Silvicultural Prescriptions</h3>
-                
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
                         <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
@@ -145,27 +161,13 @@
                                     <button href="#" class="btn" data-bind="click: $parent.applyRx, enable: $parent.selectedFeatures">
                                         <i class="icon-share"></i></button>
                                 </div>
-                                <p>
-                                </p><div class="scenario-details hide">
-                                    <div>
-                                        <dl class="dl-horizontal">
-                                            <dt>Target Carbon?</dt>
-                                            <dd>false</dd>
-                                            <dt>Target Annual Cut</dt>
-                                            <dd>2000</dd>
-                                            <dt>Target Site Diversity</dt>
-                                            <dd></dd>
-                                            <dt>Target Mature Age Class</dt>
-                                            <dd>1</dd>
-                                        </dl>
-                                    </div>
-                                </div>
-                                <p></p>
                             </td>
-                            
                         </tr>
                     </tbody>
                 </table>
+                <div class="btn-group pull-right btn-controls">
+                    <a class="btn btn-primary" data-bind="click: addNewRx">add new prescription</a>
+                </div>
             </div>
             <div data-bind="visible: newRx">
                 <div id="tree-window">
@@ -179,29 +181,46 @@
             </div>
         </div>
 
-        <div class="tab-pane fade" id="scenario-edit-objectives-content">
-            {% for hidden in form.hidden_fields %}
-                {{hidden.errors}} 
-                {{hidden}}
-            {% endfor %}
+        <div class="tab-pane" id="scenario-review-content">
+            <div>
+                <!--
+                TODO: summarize scenario
 
-            {% for field in form.visible_fields %}
-            <div class="control-group">
-                {{field.errors}} 
-                <label for="{{field.auto_id}}" class="control-label"> 
-                    <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
-                <div class="controls">
-                {{ field }}
+                <li>X stands with the XX Prescription</li>
+                <li>Y stands with the YY Prescription</li>
+
+                <hr>
+                -->
+                <div class="">
+                    {% for hidden in form.hidden_fields %}
+                        {{hidden.errors}} 
+                        {{hidden}}
+                    {% endfor %}
+
+                    {% for field in form.visible_fields %}
+                    <div class="control-group">
+                        {{field.errors}} 
+                        <label for="{{field.auto_id}}" class="control-label"> 
+                            <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
+                        <div class="controls">
+                        {{ field }}
+                        </div>
+                    </div>
+                    {% endfor %}
                 </div>
             </div>
-            {% endfor %}
             <div class="control-group pull-right">
                 <div class="controls">
                     <button class="btn btn-primary submit">Submit Scenario</button>
-                    <button class="btn cancel">Cancel</button>
                 </div>
             </div>
         </div>
+
     </div>
 </form>
+            <div class="control-group pull-right">
+                <div class="controls">
+                    <button class="btn cancel">Cancel</button>
+                </div>
+            </div>
 {% endblock panel %}
