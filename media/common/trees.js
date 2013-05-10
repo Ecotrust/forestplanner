@@ -152,6 +152,10 @@ function init() {
                 renderers: app.renderer, 
                 styleMap: map_styles.forestProperty
             });
+    app.stand_layer = new OpenLayers.Layer.Vector("Stands",  {
+            renderers: app.renderer, 
+            styleMap: map_styles.forestProperty
+        });
     map.addLayer(app.property_layer);
 
     // add controls, save references
