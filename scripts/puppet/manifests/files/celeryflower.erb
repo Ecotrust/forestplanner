@@ -4,7 +4,7 @@
 ; ==============================================
 
 [program:celeryflower]
-command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celery flower
+command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celery flower --url_prefix=flower
 directory=/usr/local/apps/land_owner_tools/lot
 user=<%= user %>
 numprocs=1
