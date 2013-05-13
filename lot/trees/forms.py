@@ -64,9 +64,12 @@ class ScenarioForm(FeatureForm):
     #     help_text="Optimize for target proportion of mature trees",
     #     label='Target Mature Age Class',
     #     widget=SliderWidget(min=0, max=100, step=1, show_number=True))
-    input_target_boardfeet = forms.FloatField(widget=forms.HiddenInput(), label="Boardfeet", initial=0)
-    input_age_class = forms.FloatField(widget=forms.HiddenInput(), label="Age class", initial=0)
-    input_target_carbon = forms.BooleanField(widget=forms.HiddenInput(), label="Carbon", initial=True)
+    input_target_boardfeet = forms.FloatField(widget=forms.HiddenInput(), 
+        label="Boardfeet", initial=0, required=False)
+    input_age_class = forms.FloatField(widget=forms.HiddenInput(), 
+        label="Age class", initial=0, required=False)
+    input_target_carbon = forms.BooleanField(widget=forms.HiddenInput(), 
+        label="Carbon", initial=True, required=False)
     description = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 4}), 
         label="Description", required=False)
 

@@ -3,14 +3,14 @@ app.scenarios.styleMap = new OpenLayers.StyleMap({
         fillColor: "${getColor}",
         fillOpacity: 0.8,
         strokeWidth: 1,
-        strokeOpacity: 0.6
+        strokeOpacity: 0.5
 
     }, {
         // Rules go here.
         context: {
 
             getColor: function(feature) {
-                return feature.attributes.color ? feature.attributes.color : "#ccc";
+                return feature.attributes.color ? feature.attributes.color : "#fff";
             }
         }
     }),
@@ -351,138 +351,177 @@ function scenarioViewModel(options) {
             postUrl = formUrl;
         }
 
-        $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), function(data) {
-
-            if (app.rx_stand_layer) {
-
-                app.rx_stand_layer.removeAllFeatures();
-
-            } else {
-
-                app.rx_stand_layer = new OpenLayers.Layer.Vector("Stands", {
-                    styleMap: app.scenarios.styleMap,
-                    renderers: app.renderer
-                });
-
-                map.addLayer(app.rx_stand_layer);
-
-                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
-                    "clickout": false,
-                    "multiple": true,
-                    "toggle": true
-                });
-                app.scenarios.rubberBandActive = false;
-                $(document).on('keyup keydown', function (e) {
-                  if (e.shiftKey) {
-                    
-                    app.scenarios.rubberBandActive = true;
-                    app.selectFeature.deactivate();
-                    map.removeControl(app.selectFeature);
-                    app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                      { 
-                        "clickout": false,
-                        "multiple": true,
-                        "toggle": true,
-                        "box": true
-                      }); 
-                    map.addControl(app.selectFeature); 
-                    app.selectFeature.activate();
-                  } else {
-                    if (app.scenarios.rubberBandActive) {
-                    
-                      app.scenarios.rubberBandActive = true;
-                      app.selectFeature.deactivate();
-                      map.removeControl(app.selectFeature);
-                      app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                      { 
-                        "clickout": false,
-                        "multiple": true,
-                        "toggle": true,
-                        "box": false
-                      });
-                      map.addControl(app.selectFeature); 
-                      app.selectFeature.activate();
-                    }
-                  }
-                });
-
-                // reenable click and drag in vectors
-                app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
-
-                map.addControl(app.rx_stand_layer.selectFeature);
-
-            }
-
-            app.rx_stand_layer.addFeatures(app.geojson_format.read(data));
-
-            // deactivate the property control
-            app.selectFeature.deactivate();
-            app.rx_stand_layer.selectFeature.activate();
-
-        });
+        // Fire off 3 Async calls
         $.when(
-        $.ajax({
-            url: formUrl,
-            type: "GET",
-            success: function(data, textStatus, jqXHR) {
-                $('#scenario-form-container').html(data);
+            // #1 - load the stands geojson
+            $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), 
 
+                function(data) {
+                    if (app.rx_stand_layer) {
+                        app.rx_stand_layer.removeAllFeatures();
+                    } else {
 
-                $('#scenario-form-container').find('button.cancel').click(function(e) {
-                    e.preventDefault();
-                    self.showScenarioList(true);
-                    self.toggleScenarioForm(false);
-                    $("form#scenario-form").empty();
-                });
-                $('#scenario-form-container').find('button.submit').click(function(e) {
-                    e.preventDefault();
-                    $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
-                    $("#id_input_rxs").val(JSON.stringify(app.scenarios.formViewModel.inputRxs()));
-                    var postData = $("form#scenario-form").serialize();
-                    $.ajax({
-                        url: postUrl,
-                        type: "POST",
-                        global: false, // prevent global ajaxError handler
-                        data: postData,
-                        dataType: "json",
-                        success: function(data, textStatus, jqXHR) {
-                            var uid = data["X-Madrona-Select"];
-                            self.selectedFeatures.removeAll();
-                            self.loadScenarios(self.property);
-                            self.toggleScenarioForm(false);
-                        },
-                        error: function(jqXHR, textStatus, errorThrown) {
-                            if (jqXHR.status >= 400 && jqXHR.status < 500) {
-                                // if there is a 4xx error
-                                // assume madrona returns a form with error msgs 
-                                data = $(jqXHR.responseText);
-                                errors = data.find(".errorlist > *");
-                                errorHtml = "";
-                                $.each(errors, function(k,v) { 
-                                    errorHtml += v.innerHTML + " . ";
-                                });
-                                app.flash(errorHtml, "Error saving scenario...");
+                        app.rx_stand_layer = new OpenLayers.Layer.Vector("Stands", {
+                            styleMap: app.scenarios.styleMap,
+                            renderers: app.renderer
+                        });
+
+                        map.addLayer(app.rx_stand_layer);
+
+                        app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
+                            "clickout": false,
+                            "multiple": true,
+                            "toggle": true
+                        });
+                        app.scenarios.rubberBandActive = false;
+                        $(document).on('keyup keydown', function (e) {
+                          if (e.shiftKey) {
+                            
+                            app.scenarios.rubberBandActive = true;
+                            app.selectFeature.deactivate();
+                            map.removeControl(app.selectFeature);
+                            app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
+                              { 
+                                "clickout": false,
+                                "multiple": true,
+                                "toggle": true,
+                                "box": true
+                              }); 
+                            map.addControl(app.selectFeature); 
+                            app.selectFeature.activate();
+                          } else {
+                            if (app.scenarios.rubberBandActive) {
+                            
+                              app.scenarios.rubberBandActive = true;
+                              app.selectFeature.deactivate();
+                              map.removeControl(app.selectFeature);
+                              app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
+                              { 
+                                "clickout": false,
+                                "multiple": true,
+                                "toggle": true,
+                                "box": false
+                              });
+                              map.addControl(app.selectFeature); 
+                              app.selectFeature.activate();
                             }
-                        }
+                          }
+                        });
+
+                        // reenable click and drag in vectors
+                        app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
+
+                        map.addControl(app.rx_stand_layer.selectFeature);
+                    }
+
+                    app.rx_stand_layer.addFeatures(app.geojson_format.read(data));
+
+                    // deactivate the property control
+                    app.selectFeature.deactivate();
+                    app.rx_stand_layer.selectFeature.activate();
+                }
+            ),
+            // #2 - load the scenario form
+            $.ajax({
+                url: formUrl,
+                type: "GET",
+                success: function(data, textStatus, jqXHR) {
+                    // Setup the form
+                    $('#scenario-form-container').html(data);
+                    
+                    $('#scenario-form-container').find('button.cancel').click(function(e) {
+                        e.preventDefault();
+                        self.showScenarioList(true);
+                        self.toggleScenarioForm(false);
+                        $("form#scenario-form").empty();
                     });
-                });
-            },
-            error: function(jqXHR, textStatus, errorThrown) {
-                alert(errorThrown);
-            }
-        }),
-        $.ajax({
-            url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
-            type: "GET",
-            dataType: "JSON",
-            success: function(res) {
-                app.scenarios.data = {
-                    myrxList: res
-                };
-            }
-        })).then(function() {
+                    $('#scenario-form-container').find('button.submit').click(function(e) {
+                        // Submit handler
+                        e.preventDefault();
+                        $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
+                        $("#id_input_rxs").val(JSON.stringify(app.scenarios.formViewModel.inputRxs()));
+                        var postData = $("form#scenario-form").serialize();
+                        $.ajax({
+                            url: postUrl,
+                            type: "POST",
+                            global: false, // prevent global ajaxError handler
+                            data: postData,
+                            dataType: "json",
+                            success: function(data, textStatus, jqXHR) {
+                                var uid = data["X-Madrona-Select"];
+                                self.selectedFeatures.removeAll();
+                                self.loadScenarios(self.property);
+                                self.toggleScenarioForm(false);
+                            },
+                            error: function(jqXHR, textStatus, errorThrown) {
+                                if (jqXHR.status >= 400 && jqXHR.status < 500) {
+                                    // if there is a 4xx error
+                                    // assume madrona returns a form with error msgs 
+                                    data = $(jqXHR.responseText);
+                                    errors = data.find(".errorlist > *");
+                                    errorHtml = "";
+                                    $.each(errors, function(k,v) { 
+                                        errorHtml += v.innerHTML + " . ";
+                                    });
+                                    app.flash(errorHtml, "Error saving scenario...");
+                                }
+                            }
+                        });
+                    });
+                },
+                error: function(jqXHR, textStatus, errorThrown) {
+                    alert(errorThrown);
+                }
+            }),
+            // #3 - load the list of myrxs 
+            $.ajax({
+                url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
+                type: "GET",
+                dataType: "JSON",
+                success: function(res) {
+                    app.scenarios.data = {
+                        myrxList: res
+                    };
+                }
+            })
+        ).then(function() {
+
+            // NOW everything should be ready to roll
             app.scenarios.formViewModel = new scenarioFormViewModel(app.scenarios.data);
             ko.applyBindings(app.scenarios.formViewModel, document.getElementById('scenario-form-container'));
+
+            inrxs_val = $("#id_input_rxs").val();
+            if (inrxs_val && edit_mode) {
+                // we've got a previously-defined set of rxs
+                app.scenarios.formViewModel.inputRxs({});
+                var inrxs = JSON.parse(inrxs_val);
+                var stand_id;
+                var rx_id;
+                var myrx;
+                var color;
+                var stand_feature; 
+                var myrx_colors = {};
+
+                // loop through myrxs and transform to a {rx_id: myrx_color} hash
+                for (var i = app.scenarios.formViewModel.prescriptionList().length - 1; i >= 0; i--) {
+                     myrx = app.scenarios.formViewModel.prescriptionList()[i];
+                     myrx_colors[myrx.rx_id] = myrx.color;
+                }; 
+                // Apply to correct color for each polygon and add to inputRxs 
+                for (var i = app.rx_stand_layer.features.length - 1; i >= 0; i--) {
+                    stand_feature = app.rx_stand_layer.features[i];
+                    stand_id = stand_feature.data.uid.split("_")[2];
+                    rx_id = inrxs[stand_id];
+                    if (rx_id) {
+                        color = myrx_colors[rx_id];
+                        stand_feature.attributes.color = color;
+                        if (stand_id && rx_id) {
+                            app.scenarios.formViewModel.inputRxs()[stand_id] = rx_id;
+                        }
+                    }
+                };
+                app.rx_stand_layer.redraw()
+            }
         });
     };
 
