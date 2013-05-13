@@ -70,7 +70,7 @@ class ScenarioForm(FeatureForm):
         label="Age class", initial=0, required=False)
     input_target_carbon = forms.BooleanField(widget=forms.HiddenInput(), 
         label="Carbon", initial=True, required=False)
-    description = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 4}), 
+    description = forms.CharField(widget=forms.Textarea(attrs={'cols': 40, 'rows': 8}), 
         label="Description", required=False)
 
     class Meta(FeatureForm.Meta):
