@@ -678,7 +678,6 @@ class Scenario(Feature):
             try:
                 stand_dict = loads(stand.geojson())
             except:
-                import ipdb; ipdb.set_trace()
                 continue
             stand_dict['properties']['id'] = stand.pk
             stand_dict['properties']['scenario'] = self.pk
