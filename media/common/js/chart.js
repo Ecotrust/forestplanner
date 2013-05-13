@@ -66,7 +66,9 @@ var refreshCharts = function(){
   }
 
   var containerWidth = $("#scenario-charts-tab-content").width();
+  var containerHeight = $(window).height();
   $("#chart-scenario").width(containerWidth - 150);
+  $("#chart-scenario").height(containerHeight - 350);
 
   var scenarioData = [];
   var scenarioLabels = [];

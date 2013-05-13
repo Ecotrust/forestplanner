@@ -21,6 +21,9 @@ app.onResize = function () {
         $(".timemap-container").width('99%');
         $(".timemap").height((height - 284)/2.0);
     }
+    if (scenarioPlot) {
+        refreshCharts();
+    }
 };
 
 $(document).ready(function () {
