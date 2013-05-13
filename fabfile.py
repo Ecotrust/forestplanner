@@ -2,7 +2,8 @@ from fabric.api import *
 
 vars = {
     'app_dir': '/usr/local/apps/land_owner_tools/lot',
-    'venv': '/usr/local/venv/lot'
+    'venv': '/usr/local/venv/lot',
+    'sitename': 'localhost:8080'
 }
 
 env.forward_agent = True
@@ -21,13 +22,15 @@ def dev():
     env.hosts = servers
     return servers
 
+
 def stage():
     """ Use production server settings """
     try:
         if fab_vars_exists:
             env.key_filename = AWS_KEY_FILENAME_STAGE
-            servers = [AWS_PUBLIC_DNS_DEV]
+            servers = AWS_PUBLIC_DNS_STAGE
             env.hosts = servers
+            vars['sitename'] = AWS_SITENAME_STAGE
             return servers
         else:
             raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
@@ -41,8 +44,9 @@ def prod():
     try:
         if fab_vars_exists:
             env.key_filename = AWS_KEY_FILENAME_PROD
-            servers = [AWS_PUBLIC_DNS_PROD]
+            servers = AWS_PUBLIC_DNS_PROD
             env.hosts = servers
+            vars['sitename'] = AWS_SITENAME_PROD
             return servers
         else:
             raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
@@ -72,7 +76,7 @@ def _install_django():
                            %(venv)s/bin/python manage.py migrate --noinput && \
                            %(venv)s/bin/python manage.py install_media -a && \
                            %(venv)s/bin/python manage.py enable_sharing --all && \
-                           %(venv)s/bin/python manage.py site localhost:8080 && \
+                           %(venv)s/bin/python manage.py site %(sitename)s && \
                            %(venv)s/bin/python manage.py install_cleangeometry' % vars)
 
 
@@ -116,10 +120,10 @@ def runserver():
     """ Run the django dev server on port 8000 """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py runserver 0.0.0.0:8000' % vars)
 
+
 def update():
     """ Sync with master git repo """
     run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
-    init()
 
 
 def _install_starspan():
@@ -128,20 +132,14 @@ def _install_starspan():
         cd starspan && \
         if [ ! `which starspan` ]; then ./configure && make && sudo make install; fi')
 
-# TODO
-# figure out line b/t puppet and fabric duties
-# run test suite
-# run selenium
-# a "bootstrap_puppet" command to ssh into an arbitrary box, transfer files, set things up and run puppet
-#  .. basically a vagrant up for non virtualbox servers
 
-# TODO celeryd under supervisor control
-"""
-(lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl reload
-Restarted supervisord
-(lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl status
-celeryd                          STARTING
-(lot)vagrant@precise32:/usr/local/apps/land_owner_tools$ sudo supervisorctl restart celeryd
-celeryd: stopped
-celeryd: started
-"""
+def deploy():
+    """
+    Deploy to a staging/production environment
+    """
+    for s in env.hosts:
+        if 'vagrant' in s:
+            raise Exception("You can't deploy() to local dev, just use `init restart_services`")
+    update()
+    init()
+    restart_services()
