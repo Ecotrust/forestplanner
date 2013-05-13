@@ -84,7 +84,7 @@ var refreshCharts = function(){
     if (resall) {
         newData = resall[metric.variableName];
     } else {
-        newData = [[]];
+        newData = [[null]];
     }
 
     scenarioData.push(newData); 

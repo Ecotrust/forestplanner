@@ -127,6 +127,18 @@ $(document).ready(function() {
     });
     timemap2.addLayer(standScenario2);
 
+    $("#timemap-backward").click(function(){
+        var field = $('#field-year-slider');
+        var val = parseInt(field.val());
+        field.val(val - 5);  // assume 5 yr interval
+        field.change();
+    });
+    $("#timemap-forward").click(function(){
+        var field = $('#field-year-slider');
+        var val = parseInt(field.val());
+        field.val(val + 5);  // assume 5 yr interval
+        field.change();
+    });
 });
 
 var field = $('#field-year-slider');
@@ -146,9 +158,9 @@ onChange = function() {
 };
 slidy.slider({
     range: 'min',
-    min : 2020, 
+    min : 2010, 
     max : 2120,
-    step : 20,
+    step : 5,
     change : onChange,
     slide : onChange 
     //slide : function(event, ui) { field.val(slidy.slider('value')); }
