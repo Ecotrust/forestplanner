@@ -108,6 +108,7 @@ app.globalErrorHandling = function () {
 
 	$( document ).ajaxError(function (event, request, settings, exception) {
 		app.flash(request.responseText);
+        // TODO parse out human-readable text from html error responses?
 	});
 
 	app.$flash.find('.close').bind('click', app.flash.dismiss);

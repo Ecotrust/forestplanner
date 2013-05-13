@@ -167,7 +167,7 @@ function scenarioFormViewModel(options) {
     self.applyRx = function() {
         var myrx = this;
 
-        $.each(app.stand_layer.selectedFeatures, function(i, feature) {
+        $.each(app.rx_stand_layer.selectedFeatures, function(i, feature) {
             feature.attributes.color = myrx.color;
 
             var stand_id = feature.data.uid.split("_")[2];
@@ -178,7 +178,7 @@ function scenarioFormViewModel(options) {
                 console.log("Can't add to inputRxs: stand_id and rx_id are ", feature.data, myrx)
             }
         });
-        app.stand_layer.selectFeature.unselectAll();
+        app.rx_stand_layer.selectFeature.unselectAll();
     };
 
 
@@ -186,14 +186,14 @@ function scenarioFormViewModel(options) {
 
     // sometimes this happens too fast :()
     setTimeout(function() {
-        app.stand_layer.selectFeature.onSelect = function(feature) {
-            if (app.stand_layer.selectedFeatures.length > 0) {
+        app.rx_stand_layer.selectFeature.onSelect = function(feature) {
+            if (app.rx_stand_layer.selectedFeatures.length > 0) {
                 self.selectedFeatures(true);
             }
         };
-        app.stand_layer.selectFeature.onUnselect = function(feature) {
+        app.rx_stand_layer.selectFeature.onUnselect = function(feature) {
 
-            if (app.stand_layer.selectedFeatures.length === 0) {
+            if (app.rx_stand_layer.selectedFeatures.length === 0) {
                 self.selectedFeatures(false);
             }
         };
@@ -264,7 +264,8 @@ function scenarioViewModel(options) {
         self.showScenarioPanels(false);
         app.properties.viewModel.showPropertyPanels(true);
         app.property_layer.setOpacity(1);
-        if (app.stand_layer) app.stand_layer.removeAllFeatures();
+        if (app.rx_stand_layer)
+            app.rx_stand_layer.removeAllFeatures();
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
         $('#map').fadeIn();
@@ -324,11 +325,11 @@ function scenarioViewModel(options) {
             $("div#scenario-form-metacontainer").hide();
             $("#scenario-outputs").show();
             $("#map").hide();
-            if (app.stand_layer) {
-                if (app.stand_layer.selectFeature) {
-                    app.stand_layer.selectFeature.unselectAll();
+            if (app.rx_stand_layer) {
+                if (app.rx_stand_layer.selectFeature) {
+                    app.rx_stand_layer.selectFeature.unselectAll();
                 }
-                app.stand_layer.removeAllFeatures();
+                app.rx_stand_layer.removeAllFeatures();
                 app.selectFeature.activate();
             }
 
@@ -341,7 +342,7 @@ function scenarioViewModel(options) {
     self.addScenarioStart = function(edit_mode) {
         self.showScenarioList(false);
         self.toggleScenarioForm(true);
-        // TODO get formUrl from workspace
+
         if (self.activeScenario() && edit_mode) {
             formUrl = "/features/scenario/trees_scenario_{pk}/form/".replace('{pk}', self.activeScenario().pk);
             postUrl = formUrl.replace("/form", "");
@@ -352,25 +353,20 @@ function scenarioViewModel(options) {
 
         $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), function(data) {
 
-            if (app.stand_layer) {
+            if (app.rx_stand_layer) {
 
-                app.stand_layer.removeAllFeatures();
-                app.stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer, {
-                    "clickout": false,
-                    "multiple": true,
-                    "toggle": true
-                });
+                app.rx_stand_layer.removeAllFeatures();
 
             } else {
 
-                app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
+                app.rx_stand_layer = new OpenLayers.Layer.Vector("Stands", {
                     styleMap: app.scenarios.styleMap,
                     renderers: app.renderer
                 });
 
-                map.addLayer(app.stand_layer);
+                map.addLayer(app.rx_stand_layer);
 
-                app.stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer, {
+                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
                     "clickout": false,
                     "multiple": true,
                     "toggle": true
@@ -382,7 +378,7 @@ function scenarioViewModel(options) {
                     app.scenarios.rubberBandActive = true;
                     app.selectFeature.deactivate();
                     map.removeControl(app.selectFeature);
-                    app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                    app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
                       { 
                         "clickout": false,
                         "multiple": true,
@@ -397,7 +393,7 @@ function scenarioViewModel(options) {
                       app.scenarios.rubberBandActive = true;
                       app.selectFeature.deactivate();
                       map.removeControl(app.selectFeature);
-                      app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+                      app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
                       { 
                         "clickout": false,
                         "multiple": true,
@@ -411,17 +407,17 @@ function scenarioViewModel(options) {
                 });
 
                 // reenable click and drag in vectors
-                app.stand_layer.selectFeature.handlers.feature.stopDown = false;
+                app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
 
-                map.addControl(app.stand_layer.selectFeature);
+                map.addControl(app.rx_stand_layer.selectFeature);
 
             }
 
-            app.stand_layer.addFeatures(app.geojson_format.read(data));
+            app.rx_stand_layer.addFeatures(app.geojson_format.read(data));
 
             // deactivate the property control
             app.selectFeature.deactivate();
-            app.stand_layer.selectFeature.activate();
+            app.rx_stand_layer.selectFeature.activate();
 
         });
         $.when(
