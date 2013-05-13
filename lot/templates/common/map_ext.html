@@ -643,6 +643,10 @@
 
     {% load compressed %}
     <script type="text/javascript">
+
+        // if console is undefined, use an empty function so console.log wont break old browsers
+        if ( ! window.console ) console = { log: function(){} };
+
         var madrona = {
             onShow: function (callback) {
                 callback();
