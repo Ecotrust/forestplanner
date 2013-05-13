@@ -210,48 +210,9 @@ def schedule_harvest(scenario_id):
             ]
         }
 
-    # Property-level outputs
-    # note the '__all__' key
-    def scale(data):
-        # fake data for ~3500 acres, adjust for size
-        sf = 3500.0 / scenario.input_property.acres
-        return [x / sf for x in data]
-
-    carbon_alt = scale([338243.812, 631721, 775308, 792018, 754616])
-    timber_alt = scale([1361780, 1861789, 2371139, 2613845, 3172212])
-
-    carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
-    timber_biz = scale([2111800, 2333800, 2982600, 2989000, 2793700])
-
-    if scenario.input_target_carbon:
-        carbon = carbon_alt
-        timber = timber_alt
-    else:
-        carbon = carbon_biz
-        timber = timber_biz
-    if scenario.name.startswith("Grow"):
-        carbon = [c * 1.5 for c in carbon_alt]
-        carbon[0] = carbon_alt[0]
-        carbon[-2] = carbon_alt[-2] * 1.6
-        carbon[-1] = carbon_alt[-1] * 1.7
-        timber = [1, 1, 1, 1, 1]
-
-    d['__all__'] = {
-        "carbon": [
-            ['2010-08-12 4:00PM', carbon[0]],
-            ['2035-09-12 4:00PM', carbon[1]],
-            ['2060-10-12 4:00PM', carbon[2]],
-            ['2085-12-12 4:00PM', carbon[3]],
-            ['2110-12-12 4:00PM', carbon[4]],
-        ],
-        "timber": [
-            ['2010-08-12 4:00PM', timber[0]],
-            ['2035-09-12 4:00PM', timber[1]],
-            ['2060-10-12 4:00PM', timber[2]],
-            ['2085-12-12 4:00PM', timber[3]],
-            ['2110-12-12 4:00PM', timber[4]],
-        ]
-    }
+    # TODO move aggregate data metrics handling into a model method...
+    # this here task should just run the scenariostands and scheduling logic
+    # note: __all__ for charts is already moved
 
     datemod = datetime.datetime.now()
 
