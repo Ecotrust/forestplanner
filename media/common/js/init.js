@@ -100,6 +100,8 @@ $(document).ready(function () {
     }
     sel.change(refreshCharts)
     $('.selectpicker').selectpicker();
+
+    $('#scenario-charts-tab').on('shown', refreshCharts); 
 });
 
 app.globalErrorHandling = function () {
