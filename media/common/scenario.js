@@ -325,7 +325,9 @@ function scenarioViewModel(options) {
             $("#scenario-outputs").show();
             $("#map").hide();
             if (app.stand_layer) {
-                app.stand_layer.selectFeature.unselectAll();
+                if (app.stand_layer.selectFeature) {
+                    app.stand_layer.selectFeature.unselectAll();
+                }
                 app.stand_layer.removeAllFeatures();
                 app.selectFeature.activate();
             }
@@ -353,6 +355,11 @@ function scenarioViewModel(options) {
             if (app.stand_layer) {
 
                 app.stand_layer.removeAllFeatures();
+                app.stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer, {
+                    "clickout": false,
+                    "multiple": true,
+                    "toggle": true
+                });
 
             } else {
 

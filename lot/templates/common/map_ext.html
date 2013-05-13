@@ -521,15 +521,18 @@
                         <li>
                             <a href="#scenario-maps-tab-content" id="scenario-maps-tab" data-toggle="tab">Time-series Maps</a>
                         </li>
+                        <!--
                         <li>
                             <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Cash-flow Analysis</a>
                         </li>
                         <li>
                             <a href="#scenario-market-tab-content" id="scenario-market-tab" data-toggle="tab">Market Opportunities</a>
                         </li>
+                        -->
                     </ul>
                     
                     <div class="tab-content">
+                        <!--
                         <div class="tab-pane fade" id="scenario-cash-tab-content">
                             <h4> Cash Flow Analysis </h4>
                             <div style="height: 200px;"><p class="muted">Coming soon...</p></div>
@@ -539,17 +542,20 @@
                             <h4> Market Opportunities </h4>
                             <div style="height: 200px;"><p class="muted">Coming soon...</p></div>
                         </div>
+                        -->
 
                         <div class="tab-pane fade active in" id="scenario-charts-tab-content">
-                            <div id="chart-carbon" class="chart"></div>
-                            <div id="chart-timber" class="chart"></div>
+                            <div>
+                                <select id="chart-metrics-select" class="selectpicker"></select>
+                            </div>
+                            <div id="chart-scenario" class="chart"></div>
                         </div>
 
                         <div class="tab-pane fade" id="scenario-maps-tab-content">
                             <div>
                                 <div class="row-fluid">
                                     <div class="span3">
-                                        <select id="timemap-type">
+                                        <select id="timemap-type" class="selectpicker">
                                             <option>Standing Timber</option>
                                             <option>Age Class</option>
                                             <option>Carbon</option>
@@ -605,6 +611,8 @@
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}jqplot/jquery.jqplot.min.css" />
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/jquery-widgets.css" />
     <link class="include" rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/css/decisiontree.css" />
+    <link class="include" rel="stylesheet" type="text/css" 
+          href="{{MEDIA_URL}}support/bootstrap-select/bootstrap-select.min.css" />
 
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
     <script src="{{MEDIA_URL}}common/js/underscore.string.min.js"></script>
@@ -620,6 +628,8 @@
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/decisiontree.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
+    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap-select/bootstrap-select.min.js" />
+    ></script> 
 
     {% load compressed %}
     <script type="text/javascript">

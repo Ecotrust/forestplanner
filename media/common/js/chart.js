@@ -1,10 +1,3 @@
-var timberPlot, carbonPlot; 
-
-var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228", 
-                    "#579575", "#839557", "#958c12",
-                    "#953579", "#4b5de4", "#d8b83f", 
-                    "#ff5800", "#0085cc"];  // assumes max of 11 series will be shown
-
 var globalChartOptions = {
       seriesColors: chartColors,
       grid: {
@@ -36,27 +29,51 @@ var globalChartOptions = {
       }
 };
 
+var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228", 
+                    "#579575", "#839557", "#958c12",
+                    "#953579", "#4b5de4", "#d8b83f", 
+                    "#ff5800", "#0085cc"];  // assumes max of 11 series will be shown
+
+var scenarioPlot; 
+
+var chartMetrics = {
+  'carbon': {
+    'variableName': 'carbon',
+    'title': "Carbon Sequestration",
+    'axisLabel': "Carbon (tons)",
+    'axisFormat': '%d'
+  },
+  'timber': {
+    'variableName': 'timber',
+    'title': "Timber Harvested",
+    'axisLabel': "Harvest (mbdft)",
+    'axisFormat': '%d'
+  }
+}
+
 var refreshCharts = function(){
 
+  var selectedMetric = $("#chart-metrics-select").find(":selected").val();
+  if (!selectedMetric || !selectedMetric in chartMetrics) {
+      alert("WARNING: no metric selected. Defaulting to 'carbon'");
+      selectedMetric = 'carbon';
+  }
+
   // destroy then replot to prevent memory leaks
-  if (carbonPlot) {
-    $('chart-carbon *').unbind(); // iexplorer
-    carbonPlot.destroy();
+  if (scenarioPlot) {
+    $('#chart-scenario *').unbind(); // iexplorer
+    scenarioPlot.destroy();
   }
 
-  if (timberPlot) {
-    $('chart-timber *').unbind(); // iexplorer
-    timberPlot.destroy();
-  }
+  var containerWidth = $("#scenario-charts-tab-content").width();
+  $("#chart-scenario").width(containerWidth - 150);
 
-  var carbonData = [];
-  var timberData = [];
-  var carbonLabels = [];
-  var timberLabels = [];
+  var scenarioData = [];
+  var scenarioLabels = [];
+  var metric = chartMetrics[selectedMetric];
 
   $.each(app.scenarios.viewModel.selectedFeatures(), function() {
-    var newTimberData;
-    var newCarbonData;
+    var newData;
     var resall;
     var res = this.fields.output_scheduler_results;
     
@@ -65,68 +82,39 @@ var refreshCharts = function(){
     }
 
     if (resall) {
-        newTimberData = resall.timber;
-        newCarbonData = resall.carbon;
+        newData = resall[metric.variableName];
+    } else {
+        newData = [[]];
     }
 
-    if (newTimberData) {
-        timberData.push(newTimberData); 
-        timberLabels.push({'label': this.fields.name}); 
-    }
-
-    if (newCarbonData) {
-        carbonData.push(newCarbonData); 
-        carbonLabels.push({'label': this.fields.name}); 
-    }
+    scenarioData.push(newData); 
+    scenarioLabels.push({'label': this.fields.name}); 
 
   });
 
-  if (carbonData.length > 0) {
-    carbonPlot = $.jqplot('chart-carbon', carbonData, $.extend(globalChartOptions, {
-        title: 'Carbon Sequestration',
-        series: carbonLabels, 
+  if (scenarioData.length > 0) {
+    scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
+        title: metric.title,
+        series: scenarioLabels, 
         axes: {
             xaxis: {
-            label: "Year",
-            renderer: $.jqplot.DateAxisRenderer,
-            tickOptions: {formatString:'%Y'},
-            min:'Jan 01, 2000 8:00AM', 
-            tickInterval:'10 years',
-            pad: 0
+              label: "Year",
+              renderer: $.jqplot.DateAxisRenderer,
+              tickOptions: {formatString:'%Y'},
+              min:'Jan 01, 2000 8:00AM', 
+              tickInterval:'10 years',
+              pad: 0
             },
             yaxis: {
-            label: "Carbon",
-            tickOptions: {formatString:'%.1f tons'}
+              label: metric.axisLabel,
+              tickOptions: {formatString: metric.axisFormat}
             }
         }
     }));
   }
 
-  if (timberData.length > 0) {
-    timberPlot = $.jqplot('chart-timber', timberData, $.extend(globalChartOptions, {
-        title: 'Annual Timber Harvest',
-        series: timberLabels, 
-        axes: {
-            xaxis: {
-            label: "Year",
-            renderer: $.jqplot.DateAxisRenderer,
-            tickOptions: {formatString:'%Y'},
-            min:'Jan 01, 2000 8:00AM', 
-            tickInterval:'10 years',
-            pad: 0
-            },
-            yaxis: {
-            min: 0, 
-            label: "Timber",
-            tickOptions: {formatString:'%.1f bft'}
-            }
-        }
-    }));
-  }
- 
   $("tr.scenario-row").click( function() {
       var row = $(this);
       row.find("div.scenario-details").fadeToggle();
   });
-
 };

@@ -91,6 +91,15 @@ $(document).ready(function () {
         app.properties.viewModel.init();
     });
 
+    // initialize chart metrics dropdown
+    var sel = $('#chart-metrics-select');
+    var metric;
+    for(var prop in chartMetrics){
+        metric = chartMetrics[prop];
+        sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+    }
+    sel.change(refreshCharts)
+    $('.selectpicker').selectpicker();
 });
 
 app.globalErrorHandling = function () {
