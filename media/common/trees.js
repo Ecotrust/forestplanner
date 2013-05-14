@@ -78,6 +78,7 @@ function init() {
         [ "Wetlands", "LOT_wetlands"],
         [ "Protected Areas", "LOT_protareas"],
         [ "PLSS", "LOT_plss"],
+        //[ "Parcels", "LOT_parcels"],
         [ "USFS Mill Facilities", "USFSMillFacilities"],
         [ "Critical Habitat", "Crithab"],
         [ "Counties", "LOT_counties"]
