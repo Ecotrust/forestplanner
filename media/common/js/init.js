@@ -94,14 +94,18 @@ $(document).ready(function () {
         app.properties.viewModel.init();
     });
 
-    // initialize chart metrics dropdown
-    var sel = $('#chart-metrics-select');
+    // initialize chart and timemap metrics dropdowns
+    var chart_sel = $('#chart-metrics-select');
+    var timemap_sel = $('#timemap-metrics-select');
     var metric;
     for(var prop in chartMetrics){
         metric = chartMetrics[prop];
-        sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        chart_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        timemap_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
     }
-    sel.change(refreshCharts)
+    chart_sel.change(refreshCharts);
+    timemap_sel.change( function () { refreshTimeMap(true, true); });
+
     $('.selectpicker').selectpicker();
 
     $('#scenario-charts-tab').on('shown', refreshCharts); 

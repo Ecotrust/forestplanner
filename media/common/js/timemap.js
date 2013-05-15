@@ -5,6 +5,7 @@ var standScenario2;
 var updatingMap1 = false;
 var updatingMap2 = false;
 var timemapInitialized = false;
+var selectedTimeMapMetric = 'carbon';
 
 var initTimeMap = function() {
     timemap1.render("timemap1");
@@ -41,6 +42,12 @@ var refreshTimeMap = function (f1, f2) {
 
     if (!timemapInitialized)
         initTimeMap();
+
+    var selectedTimeMapMetric = $("#chart-metrics-select").find(":selected").val();
+    if (!selectedTimeMapMetric || !selectedTimeMapMetric in chartMetrics) {
+        console.log("WARNING: no metric selected. Defaulting to 'carbon'");
+        selectedTimeMapMetric = 'carbon';
+    }
 
     if (f1) {
         standScenario1.removeAllFeatures();
@@ -91,7 +98,8 @@ $(document).ready(function() {
     var context = {
         getColour: function(feature) {
             var color;
-            var attr = feature.attributes.results.carbon[yearIndex]; 
+
+            var attr = feature.attributes.results[selectedTimeMapMetric][yearIndex]; 
             // TODO assumes 0-20 range
             if (attr < 4) {
                 color = "#EDF8E9";
