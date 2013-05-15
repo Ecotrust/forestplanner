@@ -199,7 +199,6 @@ def geojson_forestproperty(request, instance):
 def forestproperty_scenarios(request, instance):
     from trees.models import Scenario
 
-    # TODO secure this
     scenarios = Scenario.objects.filter(
         user=request.user, input_property=instance)
 
@@ -211,7 +210,7 @@ def forestproperty_scenarios(request, instance):
 
     if len(scenarios) == 0:
         # this should never happen
-        return HttpResponse([], mimetype='application/json', status=404)
+        return HttpResponse("[]", mimetype='application/json', status=200)
 
     res_json = json.dumps([x.property_level_dict for x in scenarios])
     return HttpResponse(res_json, mimetype='application/json', status=200)

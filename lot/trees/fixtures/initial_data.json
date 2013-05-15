@@ -65,7 +65,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 28,
-      "internal_name": "PN1"
+      "internal_name": "PN1",
+      "internal_type": "GO"
     }
   },
   {
@@ -236,7 +237,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 29,
-      "internal_name": "BM1"
+      "internal_name": "BM1",
+      "internal_type": "GO"
     }
   },
   {
@@ -407,7 +409,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 30,
-      "internal_name": "WC1"
+      "internal_name": "WC1",
+      "internal_type": "GO"
     }
   },
   {
@@ -578,7 +581,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 31,
-      "internal_name": "CA1"
+      "internal_name": "CA1",
+      "internal_type": "GO"
     }
   },
   {
@@ -749,7 +753,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 32,
-      "internal_name": "EC1"
+      "internal_name": "EC1",
+      "internal_type": "GO"
     }
   },
   {
@@ -920,7 +925,8 @@
     "fields": {
       "internal_desc": "TODO",
       "variant": 33,
-      "internal_name": "SO1"
+      "internal_name": "SO1",
+      "internal_type": "GO"
     }
   },
   {
