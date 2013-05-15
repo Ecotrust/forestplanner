@@ -10,8 +10,13 @@ var selectedTimeMapMetric = 'carbon';
 var initTimeMap = function() {
     timemap1.render("timemap1");
     timemap2.render("timemap2");
-    timemap1.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
-    timemap2.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
+
+    var bounds = app.properties.viewModel.selectedProperty().feature.geometry.bounds;
+    if (!bounds)
+        bounds = OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
+
+    timemap1.zoomToExtent(bounds);
+    timemap2.zoomToExtent(bounds);
 
     var c1, c2, z1, z2;
     timemap1.events.register("moveend", timemap1, function() {
@@ -57,10 +62,10 @@ var refreshTimeMap = function (f1, f2) {
         $.get( geojson_url, function(data) {
             if (data.features.length) {
                 standScenario1.addFeatures(app.geojson_format.read(data));        
-                var bounds = standScenario1.getDataExtent();
-                if (bounds) { 
-                    timemap1.zoomToExtent(bounds);
-                }
+                // var bounds = standScenario1.getDataExtent();
+                // if (bounds) { 
+                //     timemap1.zoomToExtent(bounds);
+                // }
             } else {
                 console.log("First scenario doesn't have any features! Check scenariostands...")
                 $("#error-timemap1").fadeIn();
@@ -76,10 +81,10 @@ var refreshTimeMap = function (f1, f2) {
         $.get( geojson_url2, function(data) {
             if (data.features.length) {
                 standScenario2.addFeatures(app.geojson_format.read(data));        
-                var bounds = standScenario2.getDataExtent();
-                if (bounds) { 
-                    timemap2.zoomToExtent(bounds);
-                }
+                // var bounds = standScenario2.getDataExtent();
+                // if (bounds) { 
+                //     timemap2.zoomToExtent(bounds);
+                // }
             } else {
                 console.log("Second scenario doesn't have any features! Check scenariostands...")
                 $("#error-timemap2").fadeIn();
