@@ -626,6 +626,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
+    @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         # Note the data structure for stands is different than properties
         # (stands are optimized for openlayers map while property-level works with jqplot)
@@ -679,6 +680,7 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
+    @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
         # Note the data structure for stands is different than properties
         # (stands are optimized for openlayers map while property-level works with jqplot)
@@ -843,6 +845,19 @@ class Scenario(Feature):
                     '%s is not a valid stand id for this property' % stand)
             if rx not in self.valid_rx_ids:
                 raise ValidationError('%s is not a valid Rx id' % rx)
+        return True
+
+    def invalidate_cache(self):
+        '''
+        Remove any cached values associated with this stand.
+        '''
+        if not self.id:
+            return True
+        # assume that all related keys will start with Scenario_<id>_*
+        # depends on django-redis as the cache backend!!!
+        key_pattern = "Scenario_%d_*" % self.id
+        cache.delete_pattern(key_pattern)
+        assert cache.keys(key_pattern) == []
         return True
 
     def save(self, *args, **kwargs):

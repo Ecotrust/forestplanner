@@ -54,7 +54,7 @@ var chartMetrics = {
 var refreshCharts = function(){
 
   var selectedMetric = $("#chart-metrics-select").find(":selected").val();
-  if (!selectedMetric || !selectedMetric in chartMetrics) {
+  if (!selectedMetric || !(selectedMetric in chartMetrics)) {
       alert("WARNING: no metric selected. Defaulting to 'carbon'");
       selectedMetric = 'carbon';
   }

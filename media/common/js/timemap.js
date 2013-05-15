@@ -6,6 +6,7 @@ var updatingMap1 = false;
 var updatingMap2 = false;
 var timemapInitialized = false;
 var selectedTimeMapMetric = 'carbon';
+var timemapScenarioData = {};
 
 var initTimeMap = function() {
     timemap1.render("timemap1");
@@ -48,8 +49,8 @@ var refreshTimeMap = function (f1, f2) {
     if (!timemapInitialized)
         initTimeMap();
 
-    var selectedTimeMapMetric = $("#chart-metrics-select").find(":selected").val();
-    if (!selectedTimeMapMetric || !selectedTimeMapMetric in chartMetrics) {
+    selectedTimeMapMetric = $("#timemap-metrics-select").find(":selected").val();
+    if (!selectedTimeMapMetric || !(selectedTimeMapMetric in chartMetrics)) {
         console.log("WARNING: no metric selected. Defaulting to 'carbon'");
         selectedTimeMapMetric = 'carbon';
     }
@@ -57,39 +58,48 @@ var refreshTimeMap = function (f1, f2) {
     if (f1) {
         standScenario1.removeAllFeatures();
         $("#error-timemap1").fadeOut();
-        var opt = $('#select-scenario1').find(":selected");
-        var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt.val() +"/";
-        $.get( geojson_url, function(data) {
-            if (data.features.length) {
-                standScenario1.addFeatures(app.geojson_format.read(data));        
-                // var bounds = standScenario1.getDataExtent();
-                // if (bounds) { 
-                //     timemap1.zoomToExtent(bounds);
-                // }
-            } else {
-                console.log("First scenario doesn't have any features! Check scenariostands...")
-                $("#error-timemap1").fadeIn();
-            }
-        });
+        var opt = $('#select-scenario1').find(":selected").val();
+        var data = timemapScenarioData[opt];
+        if (data) {
+            // we have it already
+            standScenario1.addFeatures(app.geojson_format.read(data));
+        } else {
+            // go fetch it 
+            var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
+            $.get( geojson_url, function(data) {
+                if (data.features.length) {
+                    standScenario1.addFeatures(app.geojson_format.read(data));
+                    timemapScenarioData[opt] = data;
+                } else {
+                    console.log("First scenario doesn't have any features! Check scenariostands...")
+                    $("#error-timemap1").fadeIn();
+                }
+            });
+        }
     }
 
     if (f2) {
         standScenario2.removeAllFeatures();
         $("#error-timemap2").fadeOut();
-        var opt2 = $('#select-scenario2').find(":selected");
-        var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2.val() +"/";
-        $.get( geojson_url2, function(data) {
-            if (data.features.length) {
-                standScenario2.addFeatures(app.geojson_format.read(data));        
-                // var bounds = standScenario2.getDataExtent();
-                // if (bounds) { 
-                //     timemap2.zoomToExtent(bounds);
-                // }
-            } else {
-                console.log("Second scenario doesn't have any features! Check scenariostands...")
-                $("#error-timemap2").fadeIn();
-            }
-        });
+        var opt2 = $('#select-scenario2').find(":selected").val();
+
+        var data = timemapScenarioData[opt2];
+        if (data) {
+            // we have it already
+            standScenario2.addFeatures(app.geojson_format.read(data));
+        } else {
+            // go fetch it 
+            var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
+            $.get( geojson_url2, function(data) {
+                if (data.features.length) {
+                    standScenario2.addFeatures(app.geojson_format.read(data));
+                    timemapScenarioData[opt2] = data;
+                } else {
+                    console.log("First scenario doesn't have any features! Check scenariostands...")
+                    $("#error-timemap2").fadeIn();
+                }
+            });
+        }
     }
 };
 
