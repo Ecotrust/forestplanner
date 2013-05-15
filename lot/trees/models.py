@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 import os
 import datetime
+import math
+import random
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -583,11 +585,14 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    def output_property_results(self):
+    def output_property_metrics(self):
+        # Note the data structure for stands is different than properties
+        # (stands are optimized for openlayers map while property-level works with jqplot)
 
         # TODO use real data
         # use the output_scheduler_results to query FVSAggregate table
         # and calculate these metrics
+        # (output_scheduler_results are only used to determine offsets)
 
         # Property-level outputs
         def scale(data):
@@ -633,12 +638,45 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    def output_stand_results(self):
-        res = self.output_scheduler_results
-        if not res:
-            return None
-        del res['__all__']
-        return res
+    def output_stand_metrics(self):
+        # Note the data structure for stands is different than properties
+        # (stands are optimized for openlayers map while property-level works with jqplot)
+
+        # TODO Randomness is random
+        # obviously we'll eventually use real data queries directly from the FVSAggregate table
+        # output_scheduler_results are only used to determine offsets
+        a = range(0, 100)
+        rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
+        d = {}
+
+        # Stand-level outputs
+        # TODO what if scenariostands are stale??
+        for sstand in self.scenariostand_set.all():
+            c = random.randint(0, 90)
+            t = random.randint(0, 90)
+            carbon = rsamp[c:c + 6]
+            timber = rsamp[t:t + 6]
+            d[sstand.pk] = {
+                "years": range(2020, 2121, 20),
+                "carbon": [
+                    carbon[0],
+                    carbon[1],
+                    carbon[2],
+                    carbon[3],
+                    carbon[4],
+                    carbon[5],
+                ],
+                "timber": [
+                    timber[0],
+                    timber[1],
+                    timber[2],
+                    timber[3],
+                    timber[4],
+                    timber[5],
+                ]
+            }
+
+        return d
 
     @property
     def property_level_dict(self):
@@ -653,7 +691,7 @@ class Scenario(Feature):
                 'input_age_class': self.input_age_class,
                 'input_target_carbon': self.input_target_carbon,
                 'name': self.name,
-                'output_scheduler_results': self.output_property_results,  # don't include stand-level results
+                'output_property_metrics': self.output_property_metrics,  # don't include stand-level results
                 'needs_rerun': self.needs_rerun,
                 'user': self.user.username,
             }
@@ -715,7 +753,7 @@ class Scenario(Feature):
         return True
 
     def geojson(self, srid=None):
-        res = self.output_stand_results
+        res = self.output_stand_metrics
         stand_data = []
         for stand in self.scenariostand_set.all():
             try:

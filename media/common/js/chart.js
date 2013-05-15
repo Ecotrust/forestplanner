@@ -77,7 +77,7 @@ var refreshCharts = function(){
   $.each(app.scenarios.viewModel.selectedFeatures(), function() {
     var newData;
     var resall;
-    var res = this.fields.output_scheduler_results;
+    var res = this.fields.output_property_metrics;
     
     if (res) {
         resall = res['__all__'];

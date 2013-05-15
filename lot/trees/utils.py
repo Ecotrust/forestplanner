@@ -488,3 +488,56 @@ def create_scenariostands(the_scenario):
         )
 
     return ScenarioStand.objects.filter(scenario=the_scenario)
+
+
+def fake_scenariostands(the_scenario):
+    """
+    fake the output of create_scenariostands with NO spatial constriaints
+    Basically just copy the Stands over to ScenarioStands
+
+    side effects: removes old ScenarioStands and populates with new shapes
+    dependencies: scenario must be runnable
+    """
+    from trees.models import ScenarioStand, Rx, ScenarioNotRunnable
+
+    if not the_scenario.is_runnable:
+        raise ScenarioNotRunnable(
+            "%s has stands without cond_id or is otherwise unrunnable" % the_scenario.uid)
+
+    # pre-clean
+    ScenarioStand.objects.filter(scenario=the_scenario).delete()
+
+    input_rxs = the_scenario.input_rxs
+
+    for stand in the_scenario.stand_set():
+        if not stand.cond_id:
+            raise ScenarioNotRunnable(
+                "%s - not all ScenarioStands have cond_id" % the_scenario.uid)
+
+        # comes from the scenario Rx user input
+        rx_id = None
+        try:
+            rx_id = input_rxs[stand.id]
+        except KeyError:
+            try:
+                rx_id = input_rxs[unicode(stand.id)]
+            except:
+                # TODO do we raise Exception or apply a default Rx silently?
+                err = "%s not in input_rxs!" % stand.id
+                logger.error(err)
+                raise ScenarioNotRunnable(err)
+
+        the_rx = Rx.objects.get(id=rx_id)
+
+        ScenarioStand.objects.create(
+            user=the_scenario.user,
+            geometry_final=stand.geometry_final,
+            geometry_orig=stand.geometry_orig,
+            cond_id=stand.cond_id,
+            scenario=the_scenario,
+            rx=the_rx,
+            stand=stand,
+            constraint=None
+        )
+
+    return ScenarioStand.objects.filter(scenario=the_scenario)

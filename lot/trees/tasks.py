@@ -168,60 +168,40 @@ def schedule_harvest(scenario_id):
     current_task.update_state(state='PROGRESS', meta={'current': 50})
     time.sleep(2)
 
-    # Populate ScenarioStands before the scenario is created
-    from trees.utils import create_scenariostands
-    # might raise ScenarioNotRunnable, don't bother retrying
-    scenariostands = create_scenariostands(scenario)
+    #
+    # Populate ScenarioStands
+    #
+    # TODO implement the actual spatial identity operation
+    #
+    # INSTEAD, just fake it by copying over the stands 1:1
 
+    # from trees.utils import create_scenariostands
+    # scenariostands = create_scenariostands(scenario)
+    # might raise ScenarioNotRunnable, don't retry
+
+    from trees.utils import fake_scenariostands
+    scenariostands = fake_scenariostands(scenario)
+
+    #
+    # Determine offsets
+    #
     # TODO prep scheduler, run it, parse the outputs
-    d = {}
+    #
+    # INSTEAD just assign offset 0 to every scenariostand
 
-    # TODO Randomness is random
-    import math
-    import random
-    a = range(0, 100)
-    rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
+    offsets = {}
+    for sstand in scenariostands:
+        offsets[sstand.id] = 0
 
-    # Stand-level outputs
-    # Note the data structure for stands is different than properties
-    # (stands are optimized for openlayers map while property-level works with jqplot)
-    for sstand in scenariostands:  # scenario.stand_set():
-        c = random.randint(0, 90)
-        t = random.randint(0, 90)
-        carbon = rsamp[c:c + 6]
-        timber = rsamp[t:t + 6]
-        d[sstand.pk] = {
-            "years": range(2020, 2121, 20),
-            "carbon": [
-                carbon[0],
-                carbon[1],
-                carbon[2],
-                carbon[3],
-                carbon[4],
-                carbon[5],
-            ],
-            "timber": [
-                timber[0],
-                timber[1],
-                timber[2],
-                timber[3],
-                timber[4],
-                timber[5],
-            ]
-        }
-
-    # TODO move aggregate data metrics handling into a model method...
-    # this here task should just run the scenariostands and scheduling logic
-    # note: __all__ for charts is already moved
-
-    datemod = datetime.datetime.now()
-
+    #
     # update the database
+    #
     # stuff might have changed, we dont want a wholesale update of all fields!
     # use the timestamp to make sure we don't clobber a more recent request
-    scenario_qs.update(output_scheduler_results=json.dumps(d), date_modified=datemod)
+    datemod = datetime.datetime.now()
+    scenario_qs.update(output_scheduler_results=json.dumps(offsets), date_modified=datemod)
 
-    return {'scenario_id': scenario_id, 'output_scheduler_results': d}
+    return {'scenario_id': scenario_id, 'output_scheduler_results': offsets}
 
 
 @task()

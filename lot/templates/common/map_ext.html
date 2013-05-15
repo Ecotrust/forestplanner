@@ -577,7 +577,7 @@
                                                     <i class="icon-backward"></i>
                                                 </button>
                                             </div>
-                                            <div class="span1"><p class="pull-right">2010</p></div>
+                                            <div class="span1"><p class="pull-right">2020</p></div>
                                             <div class="span8" style="padding: 3px;">
                                                 <div class="slider" id="slider-year-slider"></div> 
                                             </div>
@@ -592,18 +592,23 @@
                                 </div>
                             </div>
 
-                            <div>
+                            <div style="margin-top: 45px;">
                                 <div class="timemap-container">
                                     <div class="timemap" id="timemap1"></div>
-                                    <select id="scenario1" class="scenario-select">
-                                        <option>Scenario 1</option>
+                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
+                                        <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                 </div>
                                 <div class="timemap-container">
                                     <div class="timemap" id="timemap2"></div>
-                                    <select id="scenario2" class="scenario-select">
-                                        <option>Scenario 2</option>
+                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
+                                        <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
+                                    <!--
+                                    <select data-bind="options: selectedFeatures, 
+                                                       optionsText: 'fields.name', 
+                                                       optionsValue: 'pk'"></select>
+                                    -->
                                 </div>
                             </div>
                         </div>

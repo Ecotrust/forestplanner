@@ -277,6 +277,7 @@ function scenarioViewModel(options) {
             self.selectedFeatures.push(f);
         }
         refreshCharts();
+        //refreshTimeMap();
     };
 
     self.showDeleteDialog = function(f) {
