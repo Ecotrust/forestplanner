@@ -44,7 +44,7 @@ var refreshTimeMap = function (f1, f2) {
 
     if (f1) {
         standScenario1.removeAllFeatures();
-        $("#timemap1").fadeIn();
+        $("#error-timemap1").fadeOut();
         var opt = $('#select-scenario1').find(":selected");
         var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt.val() +"/";
         $.get( geojson_url, function(data) {
@@ -56,14 +56,14 @@ var refreshTimeMap = function (f1, f2) {
                 }
             } else {
                 console.log("First scenario doesn't have any features! Check scenariostands...")
-                $("#timemap1").fadeOut();
+                $("#error-timemap1").fadeIn();
             }
         });
     }
 
     if (f2) {
         standScenario2.removeAllFeatures();
-        $("#timemap2").fadeIn();
+        $("#error-timemap2").fadeOut();
         var opt2 = $('#select-scenario2').find(":selected");
         var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2.val() +"/";
         $.get( geojson_url2, function(data) {
@@ -75,7 +75,7 @@ var refreshTimeMap = function (f1, f2) {
                 }
             } else {
                 console.log("Second scenario doesn't have any features! Check scenariostands...")
-                $("#timemap2").fadeOut();
+                $("#error-timemap2").fadeIn();
             }
         });
     }

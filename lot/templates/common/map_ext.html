@@ -592,14 +592,21 @@
                                 </div>
                             </div>
 
-                            <div style="margin-top: 45px;">
-                                <div class="timemap-container">
+                            <div style="margin-top: 25px;">
+
+                                <div class="timemap-container" style="position:relative;">
+                                    <div class="well hide error-timemap alert alert-error" id="error-timemap1">
+                                        <p> This scenario doesn't have valid modeling results... </p>
+                                    </div>
                                     <div class="timemap" id="timemap1"></div>
                                     <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                 </div>
-                                <div class="timemap-container">
+                                <div class="timemap-container" style="position:relative;">
+                                    <div class="well hide error-timemap alert alert-error" id="error-timemap2">
+                                        <p> This scenario doesn't have valid modeling results... </p>
+                                    </div>
                                     <div class="timemap" id="timemap2"></div>
                                     <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>

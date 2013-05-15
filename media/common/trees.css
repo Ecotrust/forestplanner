@@ -213,6 +213,16 @@ textarea#id_description {
     width: 98%;
     border: 2px grey solid;
 }
+
+.error-timemap {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 99999;
+    opacity: 0.75;
+    font-size: 14pt;
+}
+
 #year-slider {
     padding: 12px;
 }
@@ -239,6 +249,10 @@ select.timemap-type {
     z-index: 99999;
     right: -12px;
     opacity: 0.8;
+    font-size: 14pt;
+    height: 36px;
+    line-height: 28px;
+    width: 280px;
 }
 label#year-label {
     display: inline;

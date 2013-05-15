@@ -8,7 +8,7 @@ app.onResize = function () {
     var height = $(window).height();
     var width = $(window).width();
 
-    $("#map").height(height - 114);
+    $("#map").height(height - 117);
     map.render('map');
 
     divWidth = width * (7/12); // span7
