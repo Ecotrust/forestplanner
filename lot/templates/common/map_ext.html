@@ -305,18 +305,22 @@
                                         -->
                                     </div>
                                     <p>
-                                    <div class="scenario-details hide">
-                                        <div>
-                                            <dl class="dl-horizontal">
-                                                <dt>Target Carbon?</dt>
-                                                <dd data-bind="text: fields.input_target_carbon"></dd>
-                                                <dt>Target Annual Cut</dt>
-                                                <dd data-bind="text: fields.input_target_boardfeet"></dd>
-                                                <dt>Target Site Diversity</dt>
-                                                <dd data-bind="text: fields.input_site_diversity"></dd>
-                                                <dt>Target Mature Age Class</dt>
-                                                <dd data-bind="text: fields.input_age_class"></dd>
-                                            </dl>
+                                    <div class="scenario-details">
+                                        <div style="font-size:9pt; margin:12px;" class="alert"
+                                              data-bind="css: { 'alert-info': fields.is_runnable && 
+                                              fields.property_is_runnable && !fields.needs_rerun }">
+                                            <p> 
+                                                Scenario is runnable? (each stand has a rx)
+                                                <em data-bind="text: fields.is_runnable"></em>
+                                            </p>
+                                            <p> 
+                                                Property is runnable? (each stand has a condition)
+                                                <em data-bind="text: fields.property_is_runnable"></em>
+                                            </p>
+                                            <p> 
+                                                Needs rerun? (stands or strata have changed)
+                                                <em data-bind="text: fields.needs_rerun"></em>
+                                            </p>
                                         </div>
                                         <!--
                                         <div>

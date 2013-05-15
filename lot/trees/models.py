@@ -736,6 +736,8 @@ class Scenario(Feature):
                 'name': self.name,
                 'output_property_metrics': self.output_property_metrics,  # don't include stand-level results
                 'needs_rerun': self.needs_rerun,
+                'property_is_runnable': self.input_property.is_runnable,
+                'is_runnable': self.is_runnable,
                 'user': self.user.username,
             }
         }
@@ -788,6 +790,7 @@ class Scenario(Feature):
         return True
 
     def run(self):
+        self.invalidate_cache()
         if not self.is_runnable:
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
 
