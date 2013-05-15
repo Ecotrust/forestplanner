@@ -43,16 +43,6 @@ def cachemethod(cache_key, timeout=60 * 60 * 24 * 7):
         return decorated
     return paramed_decorator
 
-RX_CHOICES = (
-    ('--', '--'),
-    ('RE', 'Reserve; No Action'),
-    ('RG', 'Riparian Grow Only'),
-    ('UG', 'Uneven-aged Group Selection'),
-    ('SW', 'Shelterwood'),
-    ('CT', 'Commercial Thinning'),
-    ('CC', 'Even-aged Clearcut'),
-)
-
 
 def datetime_to_unix(dt):
     start = datetime.datetime(year=1970, month=1, day=1)
@@ -290,6 +280,57 @@ class ForestProperty(FeatureCollection):
         for stand in self.feature_set(feature_classes=[Stand]):
             if not stand.cond_id:
                 return False
+        return True
+
+    def create_default_scenarios(self):
+        """
+        Create two scenarios for the property (should only be called if self.is_runnable)
+        """
+        if not self.is_runnable:
+            return
+
+        if Scenario.objects.filter(input_property=self, name="Grow Only").count() == 0:
+            rxs = Rx.objects.filter(internal_type='GO', variant=self.variant)
+            if not rxs.count() > 0:
+                return
+            rx = rxs[0]
+            in_rxs = {}
+            for stand in self.feature_set(feature_classes=[Stand]):
+                in_rxs[stand.id] = rx.id
+
+            s1 = Scenario(user=self.user,
+                          input_property=self,
+                          name="Grow Only",
+                          description="No management activities; allow natural regeneration for entire time period.",
+                          input_target_boardfeet=0,
+                          input_target_carbon=True,
+                          input_rxs=in_rxs,
+                          input_age_class=10,
+                          )
+            s1.save()
+            s1.run()
+
+        if Scenario.objects.filter(input_property=self, name="Conventional Even-Aged").count() == 0:
+            rxs = Rx.objects.filter(internal_type='CI', variant=self.variant)
+            if not rxs.count() > 0:
+                return
+            rx = rxs[0]
+            in_rxs = {}
+            for stand in self.feature_set(feature_classes=[Stand]):
+                in_rxs[stand.id] = rx.id
+
+            s2 = Scenario(user=self.user,
+                          input_property=self,
+                          name="Conventional Even-Aged",
+                          description="Even-aged management for timber. 40-year rotation clear cut.",
+                          input_target_boardfeet=2000,
+                          input_target_carbon=False,
+                          input_rxs=in_rxs,
+                          input_age_class=1,
+                          )
+            s2.save()
+            s2.run()
+
         return True
 
     @property
@@ -1160,13 +1201,23 @@ def load_shp(path, feature_class):
     map1.save(strict=True, verbose=True)
 
 
+RX_CHOICES = (
+    ('NA', 'N/A'),
+    ('GO', 'Grow Only; No Action'),
+    ('CI', 'Conventional Industrial Forestry'),
+)
+
+
 class Rx(models.Model):
     variant = models.ForeignKey(FVSVariant)
     internal_name = models.TextField()
     internal_desc = models.TextField()
+    # type used to identify e.g. the industrial prescription for a variant
+    internal_type = models.CharField(max_length=2, choices=RX_CHOICES, default="NA")
 
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
+
 
 @register
 class MyRx(Feature):

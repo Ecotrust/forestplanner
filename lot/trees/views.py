@@ -202,27 +202,10 @@ def forestproperty_scenarios(request, instance):
     # TODO secure this
     scenarios = Scenario.objects.filter(
         user=request.user, input_property=instance)
-    if len(scenarios) == 0:
-        s1 = Scenario(user=request.user,
-                      input_property=instance,
-                      name="Grow Only",
-                      description="No management activities; allow natural regeneration for entire time period.",
-                      input_target_boardfeet=0,
-                      input_target_carbon=True,
-                      input_rxs={},
-                      input_age_class=10,
-                      )
-        s1.save()
-        s2 = Scenario(user=request.user,
-                      input_property=instance,
-                      name="Conventional Even-Aged",
-                      description="Even-aged management for timber. 40-year rotation clear cut.",
-                      input_target_boardfeet=2000,
-                      input_target_carbon=False,
-                      input_rxs={},
-                      input_age_class=1,
-                      )
-        s2.save()
+
+    if instance.is_runnable and len(scenarios) == 0:
+        instance.create_default_scenarios()
+
         scenarios = Scenario.objects.filter(
             user=request.user, input_property=instance)
 
