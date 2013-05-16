@@ -1,22 +1,27 @@
 app.scenarios.styleMap = new OpenLayers.StyleMap({
     "default": new OpenLayers.Style({
         fillColor: "${getColor}",
-        fillOpacity: 0.8,
+        fillOpacity: "${getOpacity}", //0.7,
         strokeWidth: 1,
-        strokeOpacity: 0.5
+        strokeOpacity: 0.6
 
     }, {
         // Rules go here.
         context: {
-
             getColor: function(feature) {
                 return feature.attributes.color ? feature.attributes.color : "#fff";
+            },
+            getOpacity: function(feature) {
+                return feature.attributes.color ? 0.7 : 0.0;
             }
         }
     }),
     "select": {
-        fillColor: "#8aeeef",
-        strokeColor: "#32a8a9"
+        fillOpacity: 0.7,
+        fillColor: "#aaaa00",
+        strokeColor: "#ffff00",
+        strokeWidth: 2,
+        strokeOpacity: 1.0 
     }
 });
 
