@@ -282,6 +282,27 @@ class ForestProperty(FeatureCollection):
                 return False
         return True
 
+    def check_or_create_default_myrxs(self):
+        """
+        based on RX_TYPE_CHOICES, check for all default myrxs and create them if they don't exist
+        """
+        myrxs = self.feature_set(feature_classes=[MyRx, ])
+        for rx_choice in RX_TYPE_CHOICES:
+            if rx_choice[0] == "NA":
+                # don't create default myrx for NA rxs
+                continue
+            matching_myrxs = [x for x in myrxs if x.rx.internal_type == rx_choice[0]]
+            if len(matching_myrxs) == 0:
+                try:
+                    rx = Rx.objects.get(variant=self.variant, internal_type=rx_choice[0])
+                except Rx.DoesNotExist:
+                    logger.warning("Rx with type %s doesn't exist in %s" % (rx_choice[0], self.variant))
+                    continue
+                m1 = MyRx(name=rx_choice[1], rx=rx, user=self.user)
+                m1.save()
+                m1.add_to_collection(self)
+                m1.save()
+
     def create_default_scenarios(self):
         """
         Create two scenarios for the property (should only be called if self.is_runnable)
@@ -1219,10 +1240,13 @@ def load_shp(path, feature_class):
     map1.save(strict=True, verbose=True)
 
 
-RX_CHOICES = (
+# Used to determine
+# a) the grow-only Rx for a given variant
+# b) all non-NA Rx types get autopopulated as default myrxs
+RX_TYPE_CHOICES = (
     ('NA', 'N/A'),
-    ('GO', 'Grow Only; No Action'),
-    ('CI', 'Conventional Industrial Forestry'),
+    ('GO', 'Grow Only, No Management Actions'),
+    ('CI', 'Conventional, Even-aged, Short rotation'),
 )
 
 
@@ -1231,7 +1255,7 @@ class Rx(models.Model):
     internal_name = models.TextField()
     internal_desc = models.TextField()
     # type used to identify e.g. the industrial prescription for a variant
-    internal_type = models.CharField(max_length=2, choices=RX_CHOICES, default="NA")
+    internal_type = models.CharField(max_length=2, choices=RX_TYPE_CHOICES, default="NA")
 
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
@@ -1253,6 +1277,7 @@ class MyRx(Feature):
             'description': self.description,
             'rx_internal_name': self.rx.internal_name,
             'internal_desc': self.rx.internal_desc,
+            'internal_type': self.rx.internal_type,
         } 
 
     class Options:

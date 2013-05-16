@@ -493,6 +493,7 @@ def forestproperty_myrx(request, instance):
     /features/forestproperty/links/property-myrx-json/trees_forestproperty_<id>/
     """
     from trees.models import MyRx
-    myrxs = instance.feature_set(feature_classes=[MyRx,])
+    instance.check_or_create_default_myrxs()
+    myrxs = instance.feature_set(feature_classes=[MyRx, ])
     res_json = json.dumps([x._dict for x in myrxs])
     return HttpResponse(res_json, mimetype='application/json', status=200)
