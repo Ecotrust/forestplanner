@@ -4,6 +4,7 @@ import os
 import datetime
 import math
 import random
+import time
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -816,6 +817,8 @@ class Scenario(Feature):
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
 
         task = schedule_harvest.delay(self.id)
+        # total hack to slow the scenarios down to possibly allow the async task to complete
+        time.sleep(2)
         cache.set("Taskid_%s" % self.uid, task.task_id)
         return True
 
@@ -884,7 +887,24 @@ class Scenario(Feature):
         assert cache.keys(key_pattern) == []
         return True
 
+    def fill_with_default_rxs(self):
+        """
+        check self.input_rxs
+        if it's missing any stand keys,
+            add them with the default rx_id for the variant
+        """
+        default_rx = self.input_property.variant.default_rx
+        new_input_rxs = self.input_rxs.copy()
+        stands_w_rx = [x for x in self.input_rxs.keys()]
+        for stand in self.stand_set():
+            if not (stand.id in stands_w_rx or str(stand.id) in stands_w_rx):
+                #scenario not runnable; stand not in self.input_rxs
+                new_input_rxs[str(stand.id)] = default_rx.id
+        self.input_rxs = new_input_rxs
+
     def save(self, *args, **kwargs):
+        super(Scenario, self).save(*args, **kwargs)
+        self.fill_with_default_rxs()
         super(Scenario, self).save(*args, **kwargs)
         if 'rerun' in kwargs and kwargs['rerun'] is False:
             pass  # don't rerun
@@ -1200,6 +1220,14 @@ class FVSVariant(models.Model):
 
     def __unicode__(self):
         return u'%s (%s)' % (self.fvsvariant, self.code)
+
+    @property
+    def default_rx(self):
+        """
+        The default rx for the variant
+        currently defined as the first GO rx
+        """
+        return Rx.objects.filter(variant=self, internal_type="GO")[0]
 
 
 # Auto-generated `LayerMapping` dictionaries for shapefile-backed models

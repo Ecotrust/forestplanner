@@ -480,7 +480,7 @@ function scenarioViewModel(options) {
                             data: postData,
                             dataType: "json",
                             success: function(data, textStatus, jqXHR) {
-                                $('#scenario-form-container').html("<div class='alert alert-info'><h4>Loading...</h4></div>");
+                                $('#scenario-form-container').html("<h4>Loading...</h4>");
                                 var uid = data["X-Madrona-Select"];
                                 self.selectedFeatures.removeAll();
                                 self.loadScenarios(self.property);
