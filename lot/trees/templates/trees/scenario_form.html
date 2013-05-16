@@ -84,6 +84,12 @@
                     value="Soil Survey" class="constraint-input">Soil Survey</label>
                 </div>
             </div>
+            <div class="control-group pull-right">
+                <div class="controls">
+                    <button class="btn" data-bind="click: function() { $('#scenario-edit-rx-tab').click(); }"> Next step &gt;&gt; </button>
+                </div>
+            </div>
+
         </div>
 
         <script>
@@ -148,7 +154,6 @@
                     </div>
                   </fieldset>
                 </form>
-                
             </div>
             <div data-bind="visible: ! (newRx() || selectedRx())">
                 <table class="table table-condensed table-bordered">
@@ -173,9 +178,9 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="btn-group pull-right btn-controls">
-                    <a class="btn btn-primary" data-bind="click: addNewRx">add new prescription</a>
-                </div>
+                <div class="btn-group pull-left btn-controls">
+                    <a class="btn" data-bind="click: addNewRx">add new prescription</a>
+                </div>            
             </div>
             <div data-bind="visible: newRx">
                 <div id="tree-window">
@@ -183,8 +188,13 @@
                 </div>
                 <p data-bind="visible: decisionOutput"><span data-bind="text: decisionOutput"></span></p>
                 <br data-bind="visible: ! decisionOutput()"/>
-                <div class="pull-right">
-                    <button class='btn btn-large' data-bind="click: function () { newRx(false) }" style="margin-top: 10px">done</button>
+                <div class="pull-left">
+                    <button class='btn' data-bind="click: function () { newRx(false); decisionOutput.removeAll(); }" style="margin-top: 10px">Cancel</button>
+                </div>
+            </div>
+            <div class="control-group pull-right">
+                <div class="controls">
+                    <button class="btn" data-bind="click: function() { $('#scenario-review-tab').click(); }"> Next step &gt;&gt; </button>
                 </div>
             </div>
         </div>
