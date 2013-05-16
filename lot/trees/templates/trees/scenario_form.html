@@ -204,14 +204,12 @@
 
         <div class="tab-pane" id="scenario-review-content">
             <div>
-                <!--
-                TODO: summarize scenario
-
-                <li>X stands with the XX Prescription</li>
-                <li>Y stands with the YY Prescription</li>
-
-                <hr>
-                -->
+                <div class="well">
+                    <ul class="unstyled">
+                        <li><span data-bind="text: nWithRx"></span> stands with specified management prescriptions.</li>
+                        <li><span data-bind="text: total"></span> total stands (the remainder will use a default prescription)</li>
+                    </ul>
+                </div>
                 <div class="">
                     {% for hidden in form.hidden_fields %}
                         {{hidden.errors}} 

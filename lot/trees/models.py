@@ -863,7 +863,8 @@ class Scenario(Feature):
         inrx = self.input_rxs
 
         if not inrx:
-            raise ValidationError('Must supply a input_rxs object')
+            inrx = {}
+            # don't raise validation error, just proceed with empty dict
 
         valid_stand_ids = [x.pk for x in self.input_property.feature_set(feature_classes=[Stand])]
         for stand, rx in inrx.items():

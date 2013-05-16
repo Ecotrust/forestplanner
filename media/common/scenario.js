@@ -72,6 +72,17 @@ function scenarioFormViewModel(options) {
     // deciscion tree breadcrumbs:
     self.decisionOutput = ko.observableArray();
 
+    self.nWithRx = ko.observable(0);
+    self.total = app.rx_stand_layer.features.length;
+
+    self.updateWithRx = function() {
+         var with_rx = 0; 
+         $.each(self.inputRxs(), function(k,f) { 
+            with_rx++; 
+         }); 
+         self.nWithRx(with_rx++);
+    };
+
     self.updateRx = function() {
         var rx = this;
         self.rxBeingEdited = rx;
@@ -209,8 +220,8 @@ function scenarioFormViewModel(options) {
             }
         });
         app.rx_stand_layer.selectFeature.unselectAll();
+        self.updateWithRx();
     };
-
 
     self.selectedFeatures = ko.observable(false);
 
