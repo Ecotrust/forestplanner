@@ -468,6 +468,7 @@ function scenarioViewModel(options) {
                     });
                     $('#scenario-form-container').find('button.submit').click(function(e) {
                         // Submit handler
+                        $('#scenario-form-container').prepend("<div class='alert alert-info' id='scenario-form-saving'><h4>Saving...</h4></div>").fadeIn();
                         e.preventDefault();
                         $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
                         $("#id_input_rxs").val(JSON.stringify(app.scenarios.formViewModel.inputRxs()));
@@ -479,12 +480,14 @@ function scenarioViewModel(options) {
                             data: postData,
                             dataType: "json",
                             success: function(data, textStatus, jqXHR) {
+                                $('#scenario-form-container').html("<div class='alert alert-info'><h4>Loading...</h4></div>");
                                 var uid = data["X-Madrona-Select"];
                                 self.selectedFeatures.removeAll();
                                 self.loadScenarios(self.property);
                                 self.toggleScenarioForm(false);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
+                                $('#scenario-form-saving').remove();
                                 if (jqXHR.status >= 400 && jqXHR.status < 500) {
                                     // if there is a 4xx error
                                     // assume madrona returns a form with error msgs 
