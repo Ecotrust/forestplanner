@@ -307,8 +307,8 @@
                                     <p>
                                     <div class="scenario-details">
                                         <div style="font-size:9pt; margin:12px;" class="alert"
-                                              data-bind="css: { 'alert-info': fields.is_runnable && 
-                                              fields.property_is_runnable && !fields.needs_rerun }">
+                                              data-bind="visible: !fields.is_runnable || 
+                                              !fields.property_is_runnable || fields.needs_rerun">
                                             <p> 
                                                 Scenario is runnable? (each stand has a rx)
                                                 <em data-bind="text: fields.is_runnable"></em>
