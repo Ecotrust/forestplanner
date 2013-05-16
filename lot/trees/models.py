@@ -1278,7 +1278,10 @@ class MyRx(Feature):
             'rx_internal_name': self.rx.internal_name,
             'internal_desc': self.rx.internal_desc,
             'internal_type': self.rx.internal_type,
-        } 
+        }
+
+    class Meta:
+        ordering = ['date_modified']
 
     class Options:
         form = "trees.forms.MyRxForm"

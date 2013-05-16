@@ -37,8 +37,10 @@ function rxViewModel(options) {
 
 function scenarioFormViewModel(options) {
     var self = this;
-    var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', 
-                  '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
+    var colors = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#8DD3C7', '#E31A1C', '#FDBF6F', 
+                  '#FF7F00', '#CAB2D6', '#6A3D9A', '#FFFF99', '#FB9A99', '#FFFFB3',
+                  '#BEBADA', '#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5',
+                  '#D9D9D9', '#BC80BD', '#CCEBC5', '#AAAAAA', '#777777', '#000000'];
 
     self.prescriptionList = ko.observableArray([]);
     self.inputRxs = ko.observable({});
@@ -51,7 +53,7 @@ function scenarioFormViewModel(options) {
                 myrx_id: myrx.myrx_id,
                 rx_id: myrx.rx_id,
                 rx_internal_name: myrx.rx_internal_name,
-                color: colors.pop(),
+                color: colors[i],
                 editable: true
             }));
         });
@@ -86,24 +88,24 @@ function scenarioFormViewModel(options) {
     self.addNewRx = function() {
         self.newRx(true);
         decision(app.properties.viewModel.selectedProperty().variant_id(),
-
-        // final callback for decision tree
-        function(rx) {
-            self.newRx(false);
-            self.selectedRx(new rxViewModel({
-                rx_internal_name: rx,
-                color: colors.pop(),
-                editable: true
-            }));
-        },
-        // periodic updates for decision tree
-        function(update) {
-            if (update) {
-                self.decisionOutput.push(update);    
-            } else {
-                self.decisionOutput.pop();
+            // final callback for decision tree
+            function(rx) {
+                self.newRx(false);
+                self.selectedRx(new rxViewModel({
+                    rx_internal_name: rx,
+                    color: colors.pop(),
+                    editable: true
+                }));
+            },
+            // periodic updates for decision tree
+            function(update) {
+                if (update) {
+                    self.decisionOutput.push(update);    
+                } else {
+                    self.decisionOutput.pop();
+                }
             }
-        });
+        );
     };
 
     self.saveRx = function() {
@@ -124,21 +126,21 @@ function scenarioFormViewModel(options) {
                 description: self.selectedRx().description()
             },
             success: function(result) {
-                var rx_id = result["X-Madrona-Select"];
+                var rx_uid = result["X-Madrona-Select"];
 
                 if (rx.myrx_id) {
                     self.prescriptionList.replace(self.rxBeingEdited, self.selectedRx());
                     self.selectedRx(false);
                 } else {
                     $.ajax({
-                        url: _.string.sprintf('/features/forestproperty/%s/add/%s', app.properties.viewModel.selectedProperty().uid(), rx_id),
+                        url: _.string.sprintf('/features/forestproperty/%s/add/%s', app.properties.viewModel.selectedProperty().uid(), rx_uid),
                         type: 'POST',
                         dataType: 'JSON',
-                        data: {
-                            rx_internal_name: self.selectedRx().rx_internal_name,
-                            name: self.selectedRx().name(),
-                            description: self.selectedRx().description()
-                        },
+                        // data: {
+                        //     rx_internal_name: self.selectedRx().rx_internal_name,
+                        //     name: self.selectedRx().name(),
+                        //     description: self.selectedRx().description()
+                        // },
                         success: function() {
                             self.prescriptionList.unshift(rx);
                             self.selectedRx(false);
@@ -146,6 +148,29 @@ function scenarioFormViewModel(options) {
                         }
                     });
                 }
+
+                // reload the entire list of myrxs
+                $.ajax({
+                    url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function(res) {
+                        if (res) {
+                            self.prescriptionList.removeAll();
+                            $.each(res, function(i, myrx) {
+                                self.prescriptionList.unshift(new rxViewModel({
+                                    name: myrx.name,
+                                    description: myrx.description,
+                                    myrx_id: myrx.myrx_id,
+                                    rx_id: myrx.rx_id,
+                                    rx_internal_name: myrx.rx_internal_name,
+                                    color: colors[i],
+                                    editable: true
+                                }));
+                            });
+                        }
+                    }
+                });
             }
         });
     };
