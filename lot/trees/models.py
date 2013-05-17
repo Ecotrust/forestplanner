@@ -21,6 +21,7 @@ from trees.tasks import impute_rasters, impute_nearest_neighbor, schedule_harves
 from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.db import connection
+from celery.result import AsyncResult
 
 logger = get_logger()
 
@@ -760,6 +761,7 @@ class Scenario(Feature):
                 'needs_rerun': self.needs_rerun,
                 'property_is_runnable': self.input_property.is_runnable,
                 'is_runnable': self.is_runnable,
+                'is_running': self.is_running,
                 'user': self.user.username,
             }
         }
@@ -810,6 +812,21 @@ class Scenario(Feature):
                 logger.debug("%s not runnable; %s not in self.input_rxs" % (self.uid, stand.uid))
                 return False
         return True
+
+    @property
+    def is_running(self):
+        # determine if there is already a process running using the redis cache
+        taskid = cache.get('Taskid_%s' % self.uid)
+        if taskid:
+            task = AsyncResult(taskid)
+            status = task.status
+            if status not in ["SUCCESS", "FAILED"]:
+                # still running
+                return True
+            else:
+                return False
+        else:
+            return False
 
     def run(self):
         self.invalidate_cache()
@@ -914,6 +931,9 @@ class Scenario(Feature):
                 self.run()
             except ScenarioNotRunnable:
                 pass  # don't have enough info to run()
+
+    class Meta:
+        ordering = ['-date_modified']
 
     class Options:
         form = "trees.forms.ScenarioForm"

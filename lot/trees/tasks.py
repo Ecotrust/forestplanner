@@ -201,6 +201,8 @@ def schedule_harvest(scenario_id):
     datemod = datetime.datetime.now()
     scenario_qs.update(output_scheduler_results=json.dumps(offsets), date_modified=datemod)
 
+    cache.delete('Taskid_%s' % scenario.uid)
+
     return {'scenario_id': scenario_id, 'output_scheduler_results': offsets}
 
 
