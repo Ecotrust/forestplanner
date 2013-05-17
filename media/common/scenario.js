@@ -256,9 +256,11 @@ function scenarioViewModel(options) {
 
     self.scenarioForm = null;
 
-    self.reloadScenarios = function(property) {
-        // why is this here? 
-        self.loadScenarios(property);
+    self.reloadScenarios = function() {
+        self.scenarioList.removeAll();
+        self.selectedFeatures.removeAll();
+        refreshCharts();
+        self.loadScenarios(self.property);
     };
 
     self.loadScenarios = function(property) {

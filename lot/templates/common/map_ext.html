@@ -287,9 +287,15 @@
 						<header class="clearfix">
 							<h1>Evaluate Scenarios</h1>
 							<div class="btn-group pull-right">
-								<button class="btn btn-mini" data-bind="click: cancelManageScenarios"> <i class="icon-backward"></i> Back to Properties </button>
-								<!--<a href="/#properties" data-bind="disable: activeStratum()" class="btn btn-mini"><i class="icon-arrow-left"></i> properties</a>-->
-								<a href="#" class="btn btn-mini btn-success" data-bind="click: newScenarioStart"><i class="icon-plus-sign icon-white"></i> New Scenario</a>
+								<button class="btn btn-mini" data-bind="click: cancelManageScenarios"> 
+                                    <i class="icon-backward"></i> Back to Properties 
+                                </button>
+                                <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
+                                    <i class="icon-repeat"></i> Refresh
+                                </button>
+								<a href="#" class="btn btn-mini btn-success" data-bind="click: newScenarioStart">
+                                    <i class="icon-plus-sign icon-white"></i> New Scenario
+                                </a>
 							</div>
 						</header>
 
@@ -568,9 +574,13 @@
                         <div class="tab-pane fade active in" id="scenario-charts-tab-content">
                             <div>
                                 <select id="chart-metrics-select" class="selectpicker"></select>
-                                <p class="muted" style="margin: 88px; font-size: 16pt;" 
-                                   data-bind="visible: selectedFeatures().length === 0">
+                                <p class="muted" style="margin: 25px; font-size: 16pt;" 
+                                   data-bind="visible: scenarioList().length > 0 && selectedFeatures().length === 0">
                                     Select one or more scenarios to evaluate.
+                                </p>  
+                                <p class="muted" style="margin: 25px; font-size: 18pt;" 
+                                   data-bind="visible: scenarioList().length == 0">
+                                    Loading Scenarios...
                                 </p>  
                             </div>
                             <div id="chart-scenario" class="chart"></div>
