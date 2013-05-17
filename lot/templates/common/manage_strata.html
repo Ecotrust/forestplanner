@@ -451,6 +451,8 @@
                     "clickout": false,
                     "multiple": true,
                     "toggle": true,
+					//styling here to ensure selecting stands with strata applied appear selected.
+					"selectStyle": { fillColor: '#f00', fillOpacity: '.6', strokeColor: '#ff0' }
             
                 });
             
@@ -654,16 +656,15 @@
               self.color('#' + app.strata.color.reverse().pop());
               app.strata.colorMap[self.attributes.uid] = self.color();  
             }
-            
-
-            $.each(app.stand_layer.getFeaturesByAttribute('strata_uid', self.attributes.uid), function (i, stand) {
-              var total = app.strata.viewModel.appliedStrataTotal;
-
-              stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
-              app.stand_layer.drawFeature(stand);
-              total(total()+1);
-            });
-
+           
+			$.each(app.stand_layer.features, function (i, stand) {
+				var total = app.strata.viewModel.appliedStrataTotal;
+				if ( stand.attributes.strata !== null && stand.attributes.strata.uid === self.attributes.uid ) {
+				  stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
+				  app.stand_layer.drawFeature(stand);
+				  total(total()+1);
+				}
+			});
 
             return self;
         };
@@ -739,7 +740,8 @@
                   "clickout": false,
                   "multiple": true,
                   "toggle": true,
-                  "box": true
+                  "box": true,
+				  "selectStyle": { fillColor: '#444', fillOpacity: '.6', strokeColor: '#ff0' }
                 }); 
               map.addControl(app.selectFeature); 
               app.selectFeature.activate();
@@ -754,7 +756,8 @@
                   "clickout": false,
                   "multiple": true,
                   "toggle": true,
-                  "box": false
+                  "box": false,
+				  "selectStyle": { fillColor: '#444', fillOpacity: '.6', strokeColor: '#ff0' }
                 });
                 map.addControl(app.selectFeature); 
                 app.selectFeature.activate();
@@ -785,44 +788,46 @@
             var stand_uid_list = [],
                 color = stratum.color(),
                 stratum_id = stratum.attributes.uid;
-            // get strata id, if knockout stratum will be this
+				// get strata id, if knockout stratum will be this
 
-			      // Do we have a strata selected?
-  				  if( !app.stand_layer.selectedFeatures.length ){
+				// Do we have a strata selected?
+			if( !app.stand_layer.selectedFeatures.length ){
 
-    					var msg = "Please select an area on your map to apply this stand group.",
-                  $t;
+			  var msg = "Please select an area on your map to apply this stand group.",
+				  $t;
 
-              // little clean up because DOM stuff is silly
-              $('.stratum-box .alert-error').remove();
+			  // little clean up because DOM stuff is silly
+			  $('.stratum-box .alert-error').remove();
 
-              // add and remove a temporary warning
-              $('[data-sid="'+stratum_id+'"]').prepend('<div class="alert-error">'+msg+'</div>')
-                .find('.alert-error').each(function(){ 
-                  $t = $(this);
-                  window.setTimeout(function(){
-                    $t.fadeOut(1300, function(){
-                      $t.remove();
-                    }); 
-                  }, 5000);
-              });
+			  // add and remove a temporary warning
+			  $('[data-sid="'+stratum_id+'"]').prepend('<div class="alert-error">'+msg+'</div>')
+				.find('.alert-error').each(function(){ 
+				  $t = $(this);
+				  window.setTimeout(function(){
+					$t.fadeOut(1300, function(){
+					  $t.remove();
+					}); 
+				  }, 5000);
+			  });
 
-  					  return;
-  				  }
-				
-              // apply strata to selected stands
-              $.each(app.stand_layer.selectedFeatures, function (i, feature) {
-                  // apply strata
-                  var currentTotal = self.appliedStrataTotal();
-                  self.appliedStrataTotal(currentTotal+1);
-                  feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
-                  app.stand_layer.drawFeature(feature);
-                  stand_uid_list.push(feature.attributes.uid);
-              });
+			  return;
+			}
+			
+			// apply strata to selected stands
+			$.each(app.stand_layer.selectedFeatures, function (i, feature) {
+				// apply strata
+				// don't count features already counted 
+				if (!feature.attributes.strata){
+				  var currentTotal = self.appliedStrataTotal();
+				  self.appliedStrataTotal(currentTotal+1);
+				}
+				feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
+				app.stand_layer.drawFeature(feature);
+				stand_uid_list.push(feature.attributes.uid);
+			});
 
-
-              app.strata.applyStrataToStand(stratum_id, stand_uid_list);
-              app.selectFeature.unselectAll();
+			app.strata.applyStrataToStand(stratum_id, stand_uid_list);
+			app.selectFeature.unselectAll();
           }
 
           self.updateStratum = function (oldStratum, activeStratum) {
