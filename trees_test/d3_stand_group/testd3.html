@@ -1,0 +1,149 @@
+<html>
+<body>
+<script src="d3.v3.min.js" charset="utf-8"></script> 
+<h1> Stand Group Animation Test </h1>
+<style>
+svg {
+    border: 1px gray solid;
+    background-color: #A0D4F6;
+}
+rect.broadleaf.tree {
+    fill: #3A7A26;
+}
+rect.conifer.tree {
+    fill: #3A5A26;
+}
+rect.unknown.tree {
+    fill: #444;
+    fill-opacity: 0.1;
+    stroke-dasharray: 1, 5;
+    stroke: #444; 
+    stroke-width: 1;
+}
+textarea {
+    height: 200px; 
+    width: 400px; 
+}
+</style>
+
+<svg></svg>
+
+<div style="float:right">
+        TPA: <input type="text" id="target-tpa" value="200"></input>
+        <br>
+
+        Stand List: <textarea id="target-standlist" value="">
+        [
+            ['broadleaf', 6, 12, 50],
+            ['conifer', 12, 24, 50],
+        ]
+        </textarea>
+
+        <button onclick="refreshTreeChart()">Refresh</button>
+</div>
+
+<script>
+
+var fallbackStandList = [
+    ["broadleaf", 6, 12, 50],
+    ["conifer", 12, 24, 50],
+];
+
+var treeData = function() {
+    // Construct the treedata from the standList
+    // each data element assumed to represent 10 trees
+    var sListText = d3.select("#target-standlist")[0][0].value;
+    console.log("sListText", sListText);
+    var sList = eval(sListText);
+
+    var data = [];
+    if (!sList) {
+        alert("invalid standlist, reverting to a default");
+        sList = fallbackStandList;
+    }
+
+    var targetTpa = parseInt(d3.select("#target-tpa")[0][0].value);
+    var specifiedTpa = 0;
+    var row;
+    for (var i = 0; i <= sList.length - 1; i++) {
+       row = sList[i];
+       console.log(row);
+       specifiedTpa += row[3];
+       // data.length === 20 implies 200 tpa
+       for (var j = Math.floor(row[3]/10.0) - 1; j >= 0; j--) {
+           data.push({"type": row[0], "dbh": (row[2] + row[1]) / 2.0 });
+       }
+    }
+    remainingTpa = targetTpa - specifiedTpa;
+    console.log(targetTpa, specifiedTpa, remainingTpa);
+    if (remainingTpa > 0) {
+        for (var j = Math.ceil(remainingTpa/10.0) - 1; j >= 0; j--) {
+           data.push({"type": "unknown", "dbh": 5 });
+        }
+    }
+
+   return data; 
+};
+
+var chartWidth = 900;
+var chartHeight = 500;
+
+var svg = d3.select("svg")
+            .attr("width", chartWidth)
+            .attr("height", chartHeight);
+
+svg.append("rect")
+    .attr("class", "ground")
+    .attr("x", 0)
+    .attr("y", chartHeight - 100)
+    .attr("height", 100)
+    .attr("width", chartWidth)
+    .style("fill", "#698A4C");
+
+
+var refreshTreeChart = function (e) {
+    var data = treeData();
+    var numTrees = data.length;
+
+    var trees = svg.selectAll("rect.tree")
+                   .data( data )
+
+    // Updates
+    trees
+      .attr("class", function (d) { return "tree " + d.type; })
+      .transition()
+      .delay( function(d) { return Math.random() * 300 + 200; })
+      .attr("width", function(d, i) { return d.dbh; })
+      .attr("height", function(d, i) { return Math.sqrt(d.dbh)*50; })
+      .attr("x", function(d, i) { return i * ((chartWidth-10)/numTrees) + 10; })
+      .attr("y", function(d) { return (chartHeight-100) - Math.sqrt(d.dbh)*50; })
+      ;
+
+    // New data
+    trees.enter().append("rect")
+      //.style("fill", "#3A4A26")
+      .attr("class", function (d) { return "tree " + d.type; })
+      .attr("x", function(d, i) { return i * ((chartWidth-10)/numTrees) + 10; })
+      .attr("y", chartHeight - 100)
+      .attr("height", 0)
+      .attr("width", function(d, i) { return d.dbh; })
+      .transition()
+      .delay( function(d) { return Math.random() * 300 + 200; })
+      .attr("height", function(d, i) { return Math.sqrt(d.dbh)*50; })
+      .attr("y", function(d) { return (chartHeight - 100) - Math.sqrt(d.dbh)*50; })
+      .duration( 1000 )
+      ;
+
+    // Removals 
+    trees.exit().transition()
+      .attr("y", chartHeight - 100)
+      .attr("height", 0)
+      .remove()
+      ;
+};
+
+window.onload = refreshTreeChart;
+
+</script>
+</body>
+</html>
