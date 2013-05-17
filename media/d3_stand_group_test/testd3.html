@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <html>
 <body>
 <script src="d3.v3.min.js" charset="utf-8"></script> 
 <h1> Stand Group Animation Test </h1>
+<p> Just imagine these rectangles are actual svg trees and you get the idea.. </p>
 <style>
 svg {
     border: 1px gray solid;
@@ -29,7 +31,10 @@ textarea {
 <svg></svg>
 
 <div style="float:right">
-        TPA: <input type="text" id="target-tpa" value="200"></input>
+        Trees per acre: <input type="text" id="target-tpa" value="200"></input>
+         <p>
+          <em>If the stand list below is &lt; the specified TPA, "unknown" trees are shown.</em>
+        </p>
         <br>
 
         Stand List: <textarea id="target-standlist" value="">
@@ -40,6 +45,9 @@ textarea {
 ['conifer', 2, 6, 50]
 ]
         </textarea>
+        <p>
+          <em> ['broadleaf', 6, 12, 30] translates to "Broadleaf trees, 6 to 12 inches in diameter, 30 trees per acre"</em>
+        </p>
 
         <button onclick="refreshTreeChart()">Refresh</button>
 </div>
