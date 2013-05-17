@@ -349,6 +349,7 @@ function scenarioViewModel(options) {
     };
 
     self.newScenarioStart = function() {
+        $('#scenario-form-container').html("<h4>Loading...</h4>"); 
         self.activeScenario(null);
         self.addScenarioStart(false);
     };
