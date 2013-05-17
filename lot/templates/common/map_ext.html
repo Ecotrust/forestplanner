@@ -278,13 +278,12 @@
                 </div>
 				-->
                 <div class="span12 well">
-                    <div data-bind="if: selectedFeatures().length == 0" style="text-align:center">
+                    <div class="hide" data-bind="if: scenarioList().length == 0" style="text-align:center">
                         <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length === 0">
-                           Create a New Scenario to evaluate.</p> 
-                        <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length > 0">
-                           Select one or more scenarios to evaluate.</p> 
+                           Create a New Scenario to evaluate.
+                       </p>
                     </div>
-                    <div data-bind="if: selectedFeatures().length > 0">
+                    <div>  <!--  data-bind="if: selectedFeatures().length > 0"> -->
 						<header class="clearfix">
 							<h1>Evaluate Scenarios</h1>
 							<div class="btn-group pull-right">
@@ -297,7 +296,7 @@
                         <table class="table table-condensed table-striped table-hover table-bordered">
                         <!--<tbody data-bind="foreach: selectedFeatures">-->
                         <tbody data-bind="foreach: scenarioList">
-                            <tr class="scenario-row" rel="popover">
+                            <tr class="scenario-row" rel="popover" data-bind="click: $parent.toggleFeature">
                                 <td> 
                                     <div class="pull-right">
                                         <button href="#" id="delete-button" class="btn btn-mini" 
@@ -306,6 +305,13 @@
                                         <button class="btn btn-mini" href="#" 
                                             data-bind="click: $parent.editFeature">
                                             <i class="icon-edit"></i>Edit</button>
+                                    </div>
+
+                                    <div class="pull-left" style="margin: 12px; padding:2px; border:1px #ddd solid">
+                                        <i style="width:14px; height:14px;" 
+                                           class="icon-ok"
+                                           data-bind="css: { 'icon-white': $parent.selectedFeatures.indexOf($data) == -1 }">
+                                        </i>
                                     </div>
                                     <h5> <span data-bind="text: fields.name"><span> </h5>
                                     <span data-bind="text: fields.description"></span>
@@ -562,6 +568,10 @@
                         <div class="tab-pane fade active in" id="scenario-charts-tab-content">
                             <div>
                                 <select id="chart-metrics-select" class="selectpicker"></select>
+                                <p class="muted" style="margin: 88px; font-size: 16pt;" 
+                                   data-bind="visible: selectedFeatures().length === 0">
+                                    Select one or more scenarios to evaluate.
+                                </p>  
                             </div>
                             <div id="chart-scenario" class="chart"></div>
                         </div>
