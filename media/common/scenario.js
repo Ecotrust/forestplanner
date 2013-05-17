@@ -1,22 +1,27 @@
 app.scenarios.styleMap = new OpenLayers.StyleMap({
     "default": new OpenLayers.Style({
         fillColor: "${getColor}",
-        fillOpacity: 0.8,
+        fillOpacity: "${getOpacity}", //0.7,
         strokeWidth: 1,
-        strokeOpacity: 0.5
+        strokeOpacity: 0.6
 
     }, {
         // Rules go here.
         context: {
-
             getColor: function(feature) {
                 return feature.attributes.color ? feature.attributes.color : "#fff";
+            },
+            getOpacity: function(feature) {
+                return feature.attributes.color ? 0.7 : 0.0;
             }
         }
     }),
     "select": {
-        fillColor: "#8aeeef",
-        strokeColor: "#32a8a9"
+        fillOpacity: 0.7,
+        fillColor: "#aaaa00",
+        strokeColor: "#ffff00",
+        strokeWidth: 2,
+        strokeOpacity: 1.0 
     }
 });
 
@@ -37,8 +42,10 @@ function rxViewModel(options) {
 
 function scenarioFormViewModel(options) {
     var self = this;
-    var colors = ['#ADD071', '#6AC247', '#339936', '#267373', '#349D7F', '#449FC1', '#6A86CD', 
-                  '#7971D0', '#AB81D5', '#C79FDF', '#EBC6EC', '#D2A379', '#CCC266'];
+    var colors = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#8DD3C7', '#E31A1C', '#FDBF6F', 
+                  '#FF7F00', '#CAB2D6', '#6A3D9A', '#FFFF99', '#FB9A99', '#FFFFB3',
+                  '#BEBADA', '#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5',
+                  '#D9D9D9', '#BC80BD', '#CCEBC5', '#AAAAAA', '#777777', '#000000'];
 
     self.prescriptionList = ko.observableArray([]);
     self.inputRxs = ko.observable({});
@@ -51,7 +58,7 @@ function scenarioFormViewModel(options) {
                 myrx_id: myrx.myrx_id,
                 rx_id: myrx.rx_id,
                 rx_internal_name: myrx.rx_internal_name,
-                color: colors.pop(),
+                color: colors[i],
                 editable: true
             }));
         });
@@ -64,6 +71,17 @@ function scenarioFormViewModel(options) {
 
     // deciscion tree breadcrumbs:
     self.decisionOutput = ko.observableArray();
+
+    self.nWithRx = ko.observable(0);
+    self.total = app.rx_stand_layer.features.length;
+
+    self.updateWithRx = function() {
+         var with_rx = 0; 
+         $.each(self.inputRxs(), function(k,f) { 
+            with_rx++; 
+         }); 
+         self.nWithRx(with_rx++);
+    };
 
     self.updateRx = function() {
         var rx = this;
@@ -86,24 +104,24 @@ function scenarioFormViewModel(options) {
     self.addNewRx = function() {
         self.newRx(true);
         decision(app.properties.viewModel.selectedProperty().variant_id(),
-
-        // final callback for decision tree
-        function(rx) {
-            self.newRx(false);
-            self.selectedRx(new rxViewModel({
-                rx_internal_name: rx,
-                color: colors.pop(),
-                editable: true
-            }));
-        },
-        // periodic updates for decision tree
-        function(update) {
-            if (update) {
-                self.decisionOutput.push(update);    
-            } else {
-                self.decisionOutput.pop();
+            // final callback for decision tree
+            function(rx) {
+                self.newRx(false);
+                self.selectedRx(new rxViewModel({
+                    rx_internal_name: rx,
+                    color: colors.pop(),
+                    editable: true
+                }));
+            },
+            // periodic updates for decision tree
+            function(update) {
+                if (update) {
+                    self.decisionOutput.push(update);    
+                } else {
+                    self.decisionOutput.pop();
+                }
             }
-        });
+        );
     };
 
     self.saveRx = function() {
@@ -124,21 +142,21 @@ function scenarioFormViewModel(options) {
                 description: self.selectedRx().description()
             },
             success: function(result) {
-                var rx_id = result["X-Madrona-Select"];
+                var rx_uid = result["X-Madrona-Select"];
 
                 if (rx.myrx_id) {
                     self.prescriptionList.replace(self.rxBeingEdited, self.selectedRx());
                     self.selectedRx(false);
                 } else {
                     $.ajax({
-                        url: _.string.sprintf('/features/forestproperty/%s/add/%s', app.properties.viewModel.selectedProperty().uid(), rx_id),
+                        url: _.string.sprintf('/features/forestproperty/%s/add/%s', app.properties.viewModel.selectedProperty().uid(), rx_uid),
                         type: 'POST',
                         dataType: 'JSON',
-                        data: {
-                            rx_internal_name: self.selectedRx().rx_internal_name,
-                            name: self.selectedRx().name(),
-                            description: self.selectedRx().description()
-                        },
+                        // data: {
+                        //     rx_internal_name: self.selectedRx().rx_internal_name,
+                        //     name: self.selectedRx().name(),
+                        //     description: self.selectedRx().description()
+                        // },
                         success: function() {
                             self.prescriptionList.unshift(rx);
                             self.selectedRx(false);
@@ -146,6 +164,29 @@ function scenarioFormViewModel(options) {
                         }
                     });
                 }
+
+                // reload the entire list of myrxs
+                $.ajax({
+                    url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
+                    type: "GET",
+                    dataType: "JSON",
+                    success: function(res) {
+                        if (res) {
+                            self.prescriptionList.removeAll();
+                            $.each(res, function(i, myrx) {
+                                self.prescriptionList.unshift(new rxViewModel({
+                                    name: myrx.name,
+                                    description: myrx.description,
+                                    myrx_id: myrx.myrx_id,
+                                    rx_id: myrx.rx_id,
+                                    rx_internal_name: myrx.rx_internal_name,
+                                    color: colors[i],
+                                    editable: true
+                                }));
+                            });
+                        }
+                    }
+                });
             }
         });
     };
@@ -179,8 +220,8 @@ function scenarioFormViewModel(options) {
             }
         });
         app.rx_stand_layer.selectFeature.unselectAll();
+        self.updateWithRx();
     };
-
 
     self.selectedFeatures = ko.observable(false);
 
@@ -438,6 +479,7 @@ function scenarioViewModel(options) {
                     });
                     $('#scenario-form-container').find('button.submit').click(function(e) {
                         // Submit handler
+                        $('#scenario-form-container').prepend("<div class='alert alert-info' id='scenario-form-saving'><h4>Saving...</h4></div>").fadeIn();
                         e.preventDefault();
                         $("#id_input_property").val(app.properties.viewModel.selectedProperty().id());
                         $("#id_input_rxs").val(JSON.stringify(app.scenarios.formViewModel.inputRxs()));
@@ -449,12 +491,14 @@ function scenarioViewModel(options) {
                             data: postData,
                             dataType: "json",
                             success: function(data, textStatus, jqXHR) {
+                                $('#scenario-form-container').html("<h4>Loading...</h4>");
                                 var uid = data["X-Madrona-Select"];
                                 self.selectedFeatures.removeAll();
                                 self.loadScenarios(self.property);
                                 self.toggleScenarioForm(false);
                             },
                             error: function(jqXHR, textStatus, errorThrown) {
+                                $('#scenario-form-saving').remove();
                                 if (jqXHR.status >= 400 && jqXHR.status < 500) {
                                     // if there is a 4xx error
                                     // assume madrona returns a form with error msgs 

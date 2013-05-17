@@ -33,7 +33,8 @@ def list_species_sizecls(request, variant_id):
     SELECT fia_forest_type_name,
            --variant_code,
            MIN(calc_dbh_class) AS min_dbh,
-           MAX(calc_dbh_class) AS max_dbh
+           MAX(calc_dbh_class) AS max_dbh,
+           COUNT(calc_dbh_class) AS number
            --avg(calc_dbh_class) as avg_dbh,
            --count(calc_dbh_class) as count_trees,
            --stddev(calc_dbh_class) as sdev_dbh
@@ -44,7 +45,47 @@ def list_species_sizecls(request, variant_id):
     """
     cursor = connection.cursor()
     cursor.execute(sql, (variant.code,))
-    return HttpResponse(json.dumps(list(cursor.fetchall())), mimetype='application/json', status=200)
+    res = []
+
+    # Suggested diameter classes
+    dbh_classes = [
+        [0, 2],
+        [2, 6],
+        [6, 12],
+        [12, 24],
+        [24, 36],
+        [36, 48],
+        [48, 999],  # the top end will get replaced
+    ]
+    ignore_species = []
+
+    for row in cursor.fetchall():
+        species = row[0]
+        min_dbh = row[1]
+        max_dbh = row[2]
+        count = row[3]
+        relevant_classes = [dict(zip(['min', 'max'], [float(y) for y in x]))
+                            for x in dbh_classes
+                            if x[1] > min_dbh and x[0] <= max_dbh]
+
+        # filter
+        if count <= 10:
+            continue 
+        if species in ignore_species:
+            continue
+        if 'unknown' in species.lower():
+            continue
+        if len(relevant_classes) == 0:
+            continue
+
+        relevant_classes[-1]['max'] = max_dbh  # limit top end
+        res.append({
+            'species': species,
+            'size_classes': relevant_classes,
+        })
+
+    return HttpResponse(json.dumps(res),
+                        mimetype='application/json', status=200)
 
 
 def manage_stands(request):
@@ -493,6 +534,15 @@ def forestproperty_myrx(request, instance):
     /features/forestproperty/links/property-myrx-json/trees_forestproperty_<id>/
     """
     from trees.models import MyRx
-    myrxs = instance.feature_set(feature_classes=[MyRx,])
+    instance.check_or_create_default_myrxs()
+    myrxs = instance.feature_set(feature_classes=[MyRx, ])
     res_json = json.dumps([x._dict for x in myrxs])
     return HttpResponse(res_json, mimetype='application/json', status=200)
+
+
+# def forestproperty_potential_species(request, instance):
+#     """
+#     /features/forestproperty/links/property-status/trees_forestproperty_<id>/
+#     """
+#     res_json = json.dumps(instance.status)
+#     return HttpResponse(res_json, mimetype='application/json', status=200)
