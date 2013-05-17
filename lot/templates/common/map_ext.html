@@ -299,11 +299,11 @@
 							</div>
 						</header>
 
-                        <table class="table table-condensed table-striped table-hover table-bordered">
+                        <table class="table table-condensed table-hover table-bordered">
                         <!--<tbody data-bind="foreach: selectedFeatures">-->
                         <tbody data-bind="foreach: scenarioList">
-                            <tr class="scenario-row" rel="popover" data-bind="click: $parent.toggleFeature">
-                                <td> 
+                            <tr class="scenario-row" data-bind="click: $parent.toggleFeature">
+                                <td data-bind="css:{ 'highlighted-scenario': $parent.selectedFeatures.indexOf($data) !== -1 }"> 
                                     <div class="pull-right">
                                         <button href="#" id="delete-button" class="btn btn-mini" 
                                             data-bind="click: $parent.showDeleteDialog">
@@ -323,9 +323,13 @@
                                     <span data-bind="text: fields.description"></span>
                                     <p>
                                     <div class="scenario-details">
-                                        <ol style="font-size:9pt; margin:12px;" class="alert"
+                                        <!-- <ol style="font-size:9pt; margin:12px;" class="alert"
                                               data-bind="css: { 'alert-info': fields.is_runnable && 
-                                              fields.property_is_runnable && !fields.needs_rerun }">
+                                              fields.property_is_runnable && !fields.needs_rerun }"> 
+                                              -->
+                                        <ol style="font-size:9pt; margin:12px;" class="alert"
+                                              data-bind="visible: !fields.is_runnable || 
+                                              !fields.property_is_runnable || fields.needs_rerun || fields.is_running"> 
                                             <li> 
                                                 Scenario is runnable? (each stand has a rx)
                                                 <em data-bind="text: fields.is_runnable"></em>
@@ -343,27 +347,9 @@
                                                 <em data-bind="text: fields.is_running"></em>
                                             </li>
                                         </ol>
-                                        <!--
-                                        <div>
-                                            <img src="/media/img/temp_rx.jpg" size="width:300px;" class="img-polaroid"/>
-                                        </div>
-                                        -->
                                     </div>
                                     </p>
                                 </td>
-                                <!--
-                                <td data-bind="text: fields.name" class="hide scenario-name"></td>
-                                <td class="hide scenario-details">
-                                -->
-                                    <!--
-                                    <dd data-bind="text: fields.input_rxs"></dd> 
-                                    <span data-bind="text: chartColors[0]"></span>
-                                    <span data-bind="text: $index"></span> 
-                                    <span data-bind="text: chartColors[$index]"></span>
-                                    <span><div style="height: 20px; width: 20px; border: 1px grey solid;" 
-                                            data-bind="style: {backgroundColor: chartColors[$index]}"></div></span>
-                                    <span data-bind="text: fields.output_scheduler_results"></span> 
-                                    -->
                             </tr>
                         </tbody>
                         </table>

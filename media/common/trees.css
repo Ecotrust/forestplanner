@@ -332,3 +332,6 @@ ol.alert li, ul.alert li{
 .text-info {
     color: #3A87AD;
 }
+.highlighted-scenario {
+    background-color: #fcfcfc;
+}
