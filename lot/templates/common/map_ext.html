@@ -253,13 +253,16 @@
             <!-- end of property pages -->
 
             <div id="scenario-html" style="display: none" data-bind="visible: showScenarioPanels, if: showScenarioPanels">
+				<!--
+				<p class="info text-info well well-small clearfix">
+					<i class="icon-info-sign"></i> Scenarios are rad.
+				</p>
+				-->
               <div class="row-fluid" data-bind="visible: showScenarioList">
-                <div class="span4 well">
+				  <!--
+                <div class="span12 well">
                     <h3>Scenario List</h3>
                     <p>
-                        <div class="btn-group">
-                            <a href="#" class="btn" data-bind="click: newScenarioStart"><i class="icon-plus-sign"></i> New Scenario</a>
-                        </div>
                     </p>
                     <div>
                         <ul class="nav nav-tabs nav-stacked" data-bind="foreach: scenarioList">
@@ -272,11 +275,9 @@
                             </li>
                         </ul>
                     </div>
-                    <button class="btn btn-mini" data-bind="click: cancelManageScenarios">
-                        <i class="icon-backward"></i> Back to Properties 
-                    </button>
                 </div>
-                <div class="span8 well">
+				-->
+                <div class="span12 well">
                     <div data-bind="if: selectedFeatures().length == 0" style="text-align:center">
                         <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length === 0">
                            Create a New Scenario to evaluate.</p> 
@@ -284,44 +285,48 @@
                            Select one or more scenarios to evaluate.</p> 
                     </div>
                     <div data-bind="if: selectedFeatures().length > 0">
-                        <h3>Details for Selected Scenarios</h3>
+						<header class="clearfix">
+							<h1>Evaluate Scenarios</h1>
+							<div class="btn-group pull-right">
+								<button class="btn btn-mini" data-bind="click: cancelManageScenarios"> <i class="icon-backward"></i> Back to Properties </button>
+								<!--<a href="/#properties" data-bind="disable: activeStratum()" class="btn btn-mini"><i class="icon-arrow-left"></i> properties</a>-->
+								<a href="#" class="btn btn-mini btn-success" data-bind="click: newScenarioStart"><i class="icon-plus-sign icon-white"></i> New Scenario</a>
+							</div>
+						</header>
+
                         <table class="table table-condensed table-striped table-hover table-bordered">
-                        <tbody data-bind="foreach: selectedFeatures">
+                        <!--<tbody data-bind="foreach: selectedFeatures">-->
+                        <tbody data-bind="foreach: scenarioList">
                             <tr class="scenario-row" rel="popover">
                                 <td> 
-                                    <h5> <span data-bind="text: fields.name"><span> </h5>
-                                    <span data-bind="text: fields.description"></span>
                                     <div class="pull-right">
                                         <button href="#" id="delete-button" class="btn btn-mini" 
                                             data-bind="click: $parent.showDeleteDialog">
-                                            <i class="icon-remove"></i></button>
+                                            <i class="icon-remove"></i>Delete</button>
                                         <button class="btn btn-mini" href="#" 
                                             data-bind="click: $parent.editFeature">
-                                            <i class="icon-edit"></i></button>
-                                        <!--
-                                        <button class="btn btn-mini" href="#" 
-                                            data-bind="click: ">
-                                            <i class="icon-info-sign"></i></button>
-                                        -->
+                                            <i class="icon-edit"></i>Edit</button>
                                     </div>
+                                    <h5> <span data-bind="text: fields.name"><span> </h5>
+                                    <span data-bind="text: fields.description"></span>
                                     <p>
                                     <div class="scenario-details">
-                                        <div style="font-size:9pt; margin:12px;" class="alert"
+                                        <ol style="font-size:9pt; margin:12px;" class="alert"
                                               data-bind="css: { 'alert-info': fields.is_runnable && 
                                               fields.property_is_runnable && !fields.needs_rerun }">
-                                            <p> 
+                                            <li> 
                                                 Scenario is runnable? (each stand has a rx)
                                                 <em data-bind="text: fields.is_runnable"></em>
-                                            </p>
-                                            <p> 
+                                            </li>
+                                            <li> 
                                                 Property is runnable? (each stand has a condition)
                                                 <em data-bind="text: fields.property_is_runnable"></em>
-                                            </p>
-                                            <p> 
+                                            </li>
+                                            <li> 
                                                 Needs rerun? (stands or strata have changed)
                                                 <em data-bind="text: fields.needs_rerun"></em>
-                                            </p>
-                                        </div>
+                                            </li>
+                                        </ol>
                                         <!--
                                         <div>
                                             <img src="/media/img/temp_rx.jpg" size="width:300px;" class="img-polaroid"/>

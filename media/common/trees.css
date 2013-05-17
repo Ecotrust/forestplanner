@@ -307,6 +307,13 @@ h2 i, h3 i, h4 i{
 		line-height: 1.5;
 		margin: 0;
 	}
+
+ol.alert li, ul.alert li{
+	margin-left: 15px;
+}
+#scenario-html header{
+	margin-bottom: 1em;
+}
 /* Bootstrap SpaceLab Overrides */
 
 [class^="icon-"], [class*=" icon-"] {
