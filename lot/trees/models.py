@@ -1181,6 +1181,10 @@ class Strata(DirtyFieldsMixin, Feature):
                 stand.cond_id = None
                 stand.save()
 
+        for stand in self.stand_set.all():
+            #print "Invalidating ", stand
+            stand.invalidate_cache()
+
 
 class TreeliveSummary(models.Model):
     class_id = models.BigIntegerField(primary_key=True)
@@ -1451,8 +1455,12 @@ def postsave_stand_handler(sender, *args, **kwargs):
 def delete_strata_handler(sender, *args, **kwargs):
     '''
     When a strata is deleted, make sure to set all stand's cond_id to null
+    and invalidate the stand's caches
     '''
     instance = kwargs['instance']
+    for stand in instance.stand_set.all():
+        #print "Invalidating stand", stand, "after deleting strata ", instance
+        stand.invalidate_cache()
     instance.stand_set.all().update(
         cond_id=None, strata=None,
         nn_savetime=datetime_to_unix(datetime.datetime.now())
