@@ -847,6 +847,7 @@
             postData = ko.mapping.toJS(stratum.attributes);
 
             postData.stand_list = ko.toJSON({
+              'property': app.strata.property_id,
               'classes': $.map(stratum.standList(), function (stand) {
                     var sizes = [];
 
@@ -886,7 +887,6 @@
                     
                 },
                 error: function (response) { 
-                  debugger;
                     self.strataList.push(self.activeStratum());
                     self.activeStratum(null);
                 }

@@ -28,6 +28,10 @@ def dictfetchall(cursor, classname=None):
     return res
 
 
+class NearestNeighborError(Exception):
+    pass
+
+
 def get_candidates(stand_list, variant, min_candidates=1):
     """
     Given a stand list and a variant code,
@@ -75,7 +79,7 @@ def get_candidates(stand_list, variant, min_candidates=1):
         rows = dictfetchall(cursor, classname)
 
         if not rows:
-            raise Exception(
+            raise NearestNeighborError(
                 "No matches for %s, %s to %s in" % (sc[0], sc[1], sc[2]))
 
         df = pd.DataFrame(rows)
@@ -84,8 +88,7 @@ def get_candidates(stand_list, variant, min_candidates=1):
         dfs.append(df)
 
     if len(dfs) == 0:
-        raise Exception(
-            "The stand list provided does not provide enough matches.")
+        raise NearestNeighborError("The stand list provided does not yield enough matches.")
     elif len(dfs) == 1:
         sdfs = dfs
     else:
@@ -93,11 +96,16 @@ def get_candidates(stand_list, variant, min_candidates=1):
 
     enough = False
     while not enough:
+        if len(sdfs) == 0:
+            raise NearestNeighborError("The stand list provided does not yield enough matches.")
         candidates = pd.concat(sdfs, axis=1, join="inner")
         if len(candidates) < min_candidates:
             aa = sdfs.pop()  # remove the one with smallest number
-            logger.warn("Popping ", [x.replace(
-                                     "BAA_", "") for x in aa.columns.tolist() if x.startswith('BAA_')][0])
+            logger.warn("Popping %s ", [x.replace("BAA_", "")
+                                        for x in aa.columns.tolist()
+                                        if x.startswith('BAA_')][0]
+                        )
+
             continue
         else:
             enough = True
@@ -171,7 +179,7 @@ def get_sites(candidates):
         del df['cond_id']
         return df
     else:
-        raise Exception("No sites returned")
+        raise NearestNeighborError("No sites returned")
 
 
 def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10):

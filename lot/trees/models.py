@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 import os
+import sys
 import datetime
 import math
 import random
@@ -13,7 +14,7 @@ from django.utils.simplejson import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
-from madrona.features import register, alternate, edit
+from madrona.features import register, alternate, edit, get_feature_by_uid
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
@@ -1109,9 +1110,10 @@ class Strata(DirtyFieldsMixin, Feature):
                 pass
         return dct
 
-    def candidates(self, min_candidates=5):
-        from plots import get_candidates
-        return get_candidates(self.stand_list['classes'], min_candidates=min_candidates)
+    # TODO, add variant
+    # def candidates(self, min_candidates=5):
+    #     from plots import get_candidates
+    #     return get_candidates(self.stand_list['classes'], min_candidates=min_candidates)
 
     @property
     def desc(self):
@@ -1119,12 +1121,47 @@ class Strata(DirtyFieldsMixin, Feature):
 
     class Options:
         form = "trees.forms.StrataForm"
+        # not the actual form template, just container for validation errors
+        form_template = "trees/strata_form.html"
         links = (
             alternate('Add Stands',
                       'trees.views.add_stands_to_strata',
                       type="application/json",
                       select='single'),
         )
+
+    def clean(self):
+        """
+        Ensure that the stand list is valid and gives us some candidates
+        this shows up in the form as form.non_field_errors
+        """
+
+        if 'classes' not in self.stand_list or 'property' not in self.stand_list:
+            raise ValidationError("Not a valid stand list object. " +
+                                  "Looking for \"{'property': 'trees_forestproperty_<id>', " +
+                                  "classes': [(species, min_dbh, max_dbh, tpa),...]}\".")
+
+        for cls in self.stand_list['classes']:
+            if len(cls) != 4:
+                raise ValidationError("Each stand list class needs 4 entries: species, min_dbh, max_dbh, tpa")
+
+        try:
+            fp = get_feature_by_uid(self.stand_list['property'])
+            variant = fp.variant
+        except:
+            raise ValidationError("Cannot look up variant from stand list.property")
+
+        from plots import get_candidates, NearestNeighborError
+        min_candidates = 1
+        try:
+            candidates = get_candidates(self.stand_list['classes'], variant.code, min_candidates)
+        except NearestNeighborError:
+            raise ValidationError("Stand list did not return enough candidate plots.")
+
+        if len(candidates) < min_candidates:
+            raise ValidationError("Stand list did not return enough candidate plots.")
+
+        return True
 
     def save(self, *args, **kwargs):
         # Depending on what changed, trigger recalc of stand info
@@ -1135,21 +1172,6 @@ class Strata(DirtyFieldsMixin, Feature):
              # got new strata info - time to recalc terrain rasters for each stand!
                 recalc_required = True
 
-        if 'classes' not in self.stand_list:
-            raise Exception("Not a valid stand list. " +
-                            "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
-        for cls in self.stand_list['classes']:
-            try:
-                assert(len(cls) == 4)
-                # c[0] is valid species?
-                assert(TreeliveSummary.objects.filter(fia_forest_type_name=cls[0]).count() > 0)
-                # c[1] thru c[2] is valid diam class ? TODO actually query the database
-                assert(cls[1] < cls[2])
-                # c[3] is a valid tpa
-                assert(cls[3] > 0 and cls[3] < 5000)
-            except:
-                raise Exception("Not a valid stand list. " +
-                                "Looking for \"{'classes': [(species, age class, tpa), ...]}\".")
         super(Strata, self).save(*args, **kwargs)
 
         if recalc_required:

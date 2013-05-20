@@ -118,8 +118,6 @@ def impute_nearest_neighbor(stand_results, savetime):
     print "imputing nearest neighbor for %d" % stand_id
 
     stand_list = stand.strata.stand_list
-    # assume stand_list comes out as a string?? TODO JSONField acting strange?
-    # stand_list = json.loads(stand_list)
     geom = stand.geometry_final.transform(4326, clone=True)
     site_cond = {
         'latitude_fuzz': geom.centroid[1],
