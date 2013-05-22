@@ -636,6 +636,7 @@ class Scenario(Feature):
     spatial_constraints = models.TextField(
         default="", verbose_name='CSV List of spatial constraints to apply')
 
+    # contains dictionary of {scenariostand id: offset}
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
 
@@ -648,6 +649,52 @@ class Scenario(Feature):
 
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
+
+    def base_metrics_query(self):
+        """
+        **** FVSAggregate query
+
+        SELECT "cond", "rx", "year", "offset", "total_stand_carbon"
+        FROM trees_fvsaggregate
+        WHERE site = 2
+        AND "offset" = 0
+        AND var = 'WC'
+        -- AND total_stand_carbon IS NOT NULL
+
+        -- all combinations of condition and rx
+        AND (
+             (rx = 17 AND cond = 99301)
+          OR (rx = 23 AND cond = 99301)
+          OR (rx = 23 AND cond = 115101)
+        )
+        ORDER BY "cond", "rx", "year"
+        ;
+
+
+          cond  | rx | year | offset | total_stand_carbon
+        --------+----+------+--------+--------------------
+          99301 | 17 | 2013 |      0 |              128.9
+                        ...
+          99301 | 17 | 2108 |      0 |               61.8
+          99289 | 23 | 2013 |      0 |              128.9
+
+
+
+        ****  joined with ScenarioStand summary
+
+
+
+          ssid  | cond  | rx | offset |              acres
+        --------+----+------+--------+--------------------
+          1234  | 99301 | 17 |      0 |               28.9
+                        ...
+          1256  | 99301 | 17 |      0 |               21.8
+          1257  | 99289 | 23 |      0 |               18.9
+
+        offsets come from output_scheduler_results
+
+        """
+        pass
 
     @property
     @cachemethod("Scenario_%(id)s_property_metrics")
@@ -1372,6 +1419,8 @@ class ScenarioStand(PolygonFeature):
     scenario = models.ForeignKey(Scenario)
     stand = models.ForeignKey(Stand)
     constraint = models.ForeignKey(SpatialConstraint, null=True)
+    #acres = models.FloatField()
+    #offset = models.IntegerField(default=0)
     # assert that all cond_ids are present or make FK?
 
     class Options:
@@ -1399,6 +1448,116 @@ class ScenarioStand(PolygonFeature):
         gjf['properties']['scenario_uid'] = self.scenario.uid
         gjf['properties']['stand_uid'] = self.stand.uid
         return dumps(gjf)
+
+
+class FVSAggregate(models.Model):
+    """
+    0. Run fvsbatch
+    1. sed merge csvs
+
+        cd /usr/local/data/out
+        # copy header from first file
+        ls *.csv | head -n 1
+        sed -n 1p FIRST_FILE.csv > merge.csv
+        #copy all but the first line from all other files
+        for i in *.csv; do sed 1d $i; done >> merge.csv
+         cat merge.csv | wc -l
+         # should be...  plots = (lines - 1) / 126.0 lines per plot
+
+    2. copy/modify this model definition
+    3. schemamigration
+       python manage.py schemamigration trees --auto
+
+    4. migrate
+        python migrate trees
+
+    5.  TODO rm indicies before copy
+
+    6. postgres copy; the variable list below, the csv headers and the model need to be exactly in sync
+       run extract . test.csv on a untared directory to get the precise list
+
+        sudo su postgres
+        psql -d forestplanner
+        COPY trees_fvsaggregate("agl","bgl","calc_carbon","cond","dead","offset","rx","site","total_stand_carbon",
+            "var","year","merch_carbon_removed","merch_carbon_stored","cedr_bf","cedr_hrv","ch_cf","ch_hw","ch_tpa",
+            "cut_type","df_bf","df_hrv","es_btl","firehzd","hw_bf","hw_hrv","lg_cf","lg_hw","lg_tpa","lp_btl","mnconbf",
+            "mnconhrv","mnhw_bf","mnhw_hrv","nsodis","nsofrg","nsonest","pine_bf","pine_hrv","pp_btl","sm_cf","sm_hw",
+            "sm_tpa","spprich","sppsimp","sprc_bf","sprc_hrv","wj_bf","wj_hrv","ww_bf","ww_hrv","after_ba",
+            "after_merch_bdft","after_merch_ft3","after_total_ft3","after_tpa","age","removed_merch_bdft",
+            "removed_merch_ft3","removed_total_ft3","removed_tpa","start_ba","start_merch_bdft",
+            "start_merch_ft3","start_total_ft3","start_tpa")
+        FROM '/tmp/merge.csv'
+        DELIMITER ',' CSV HEADER;
+
+    7. TODO (re)create indicies
+    8. TODO create/backup/distribute fixtures
+    """
+
+    agl = models.FloatField(null=True, blank=True)
+    bgl = models.FloatField(null=True, blank=True)
+    calc_carbon = models.FloatField(null=True, blank=True)
+    cond = models.IntegerField()
+    dead = models.FloatField(null=True, blank=True)
+    offset = models.IntegerField()
+    rx = models.IntegerField()
+    site = models.IntegerField()
+    total_stand_carbon = models.FloatField(null=True, blank=True)
+    var = models.CharField(max_length=2)
+    year = models.FloatField()
+    merch_carbon_removed = models.FloatField(null=True, blank=True)
+    merch_carbon_stored = models.FloatField(null=True, blank=True)
+    cedr_bf = models.FloatField(null=True, blank=True)
+    cedr_hrv = models.FloatField(null=True, blank=True)
+    ch_cf = models.FloatField(null=True, blank=True)
+    ch_hw = models.FloatField(null=True, blank=True)
+    ch_tpa = models.FloatField(null=True, blank=True)
+    cut_type = models.FloatField(null=True, blank=True)
+    df_bf = models.FloatField(null=True, blank=True)
+    df_hrv = models.FloatField(null=True, blank=True)
+    es_btl = models.FloatField(null=True, blank=True)
+    firehzd = models.FloatField(null=True, blank=True)
+    hw_bf = models.FloatField(null=True, blank=True)
+    hw_hrv = models.FloatField(null=True, blank=True)
+    lg_cf = models.FloatField(null=True, blank=True)
+    lg_hw = models.FloatField(null=True, blank=True)
+    lg_tpa = models.FloatField(null=True, blank=True)
+    lp_btl = models.FloatField(null=True, blank=True)
+    mnconbf = models.FloatField(null=True, blank=True)
+    mnconhrv = models.FloatField(null=True, blank=True)
+    mnhw_bf = models.FloatField(null=True, blank=True)
+    mnhw_hrv = models.FloatField(null=True, blank=True)
+    nsodis = models.FloatField(null=True, blank=True)
+    nsofrg = models.FloatField(null=True, blank=True)
+    nsonest = models.FloatField(null=True, blank=True)
+    pine_bf = models.FloatField(null=True, blank=True)
+    pine_hrv = models.FloatField(null=True, blank=True)
+    pp_btl = models.FloatField(null=True, blank=True)
+    sm_cf = models.FloatField(null=True, blank=True)
+    sm_hw = models.FloatField(null=True, blank=True)
+    sm_tpa = models.FloatField(null=True, blank=True)
+    spprich = models.FloatField(null=True, blank=True)
+    sppsimp = models.FloatField(null=True, blank=True)
+    sprc_bf = models.FloatField(null=True, blank=True)
+    sprc_hrv = models.FloatField(null=True, blank=True)
+    wj_bf = models.FloatField(null=True, blank=True)
+    wj_hrv = models.FloatField(null=True, blank=True)
+    ww_bf = models.FloatField(null=True, blank=True)
+    ww_hrv = models.FloatField(null=True, blank=True)
+    after_ba = models.IntegerField(null=True, blank=True)
+    after_merch_bdft = models.IntegerField(null=True, blank=True)
+    after_merch_ft3 = models.IntegerField(null=True, blank=True)
+    after_total_ft3 = models.IntegerField(null=True, blank=True)
+    after_tpa = models.IntegerField(null=True, blank=True)
+    age = models.IntegerField(null=True, blank=True)
+    removed_merch_bdft = models.IntegerField(null=True, blank=True)
+    removed_merch_ft3 = models.IntegerField(null=True, blank=True)
+    removed_total_ft3 = models.IntegerField(null=True, blank=True)
+    removed_tpa = models.IntegerField(null=True, blank=True)
+    start_ba = models.IntegerField(null=True, blank=True)
+    start_merch_bdft = models.IntegerField(null=True, blank=True)
+    start_merch_ft3 = models.IntegerField(null=True, blank=True)
+    start_total_ft3 = models.IntegerField(null=True, blank=True)
+    start_tpa = models.IntegerField(null=True, blank=True)
 
 
 # Signals

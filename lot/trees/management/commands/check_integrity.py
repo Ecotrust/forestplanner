@@ -92,7 +92,6 @@ class Command(BaseCommand):
         # exist in the FVSVariant, Rx and IdbSummary/TreeliveSummary tables
         #
 
-
         #
         # User Features
         # TODO - do we check this here? This could be a separate issue...
@@ -101,5 +100,5 @@ class Command(BaseCommand):
         #
 
         print
-        print "check_integrity summary: %d violations that should be addressed" % self.errors 
+        print "check_integrity summary: %d violations that should be addressed" % self.errors
         print
