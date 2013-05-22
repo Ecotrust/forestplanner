@@ -3,7 +3,7 @@ import subprocess
 from django.db import connection
 from django.core.management.base import BaseCommand
 from django.core.management import call_command
-from trees.models import IdbSummary, TreeliveSummary, County, FVSVariant, FVSSpecies, ConditionVariantLookup, Rx
+from trees.models import IdbSummary, TreeliveSummary, County, FVSVariant, FVSSpecies, ConditionVariantLookup, Rx, FVSAggregate
 from madrona.raster_stats.models import RasterDataset
 from urllib import urlretrieve
 
@@ -21,9 +21,8 @@ class Command(BaseCommand):
         fixtures = [
             ('http://labs.ecotrust.org/forestplanner/data/idbsummary.json.gz', IdbSummary),
             ('http://labs.ecotrust.org/forestplanner/data/county.json.gz', County),
-            #('http://labs.ecotrust.org/forestplanner/data/fvsvariant.json.gz', FVSVariant),
             ('http://labs.ecotrust.org/forestplanner/data/fvsspecies.json.gz', FVSSpecies),
-            #('http://labs.ecotrust.org/forestplanner/data/rx.json', Rx),
+            ('http://labs.ecotrust.org/forestplanner/data/test_fvsaggregate.json', FVSAggregate),  # TODO temporary
             ('http://labs.ecotrust.org/forestplanner/data/conditionvariantlookup.json.gz', ConditionVariantLookup),
         ]
 
