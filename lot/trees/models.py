@@ -651,7 +651,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    @cachemethod("Scenario_%(id)s_property_metrics")
+    #TODO @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -674,7 +674,7 @@ class Scenario(Feature):
                   AND a.offset = ss.offset
                 WHERE a.site = 2 -- constant
                 AND   var = 'WC' --'%s' TODO get variant_code from current property
-                AND   ss.scenario_id = %s -- get id from current scenario
+                AND   ss.scenario_id = %d -- get id from current scenario
                 GROUP BY a.year
                 ORDER BY a.year;""" % (self.input_property.variant.code, self.id)
 
@@ -688,44 +688,47 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    @cachemethod("Scenario_%(id)s_stand_metrics")
+    #TODO @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
-        # Note the data structure for stands is different than properties
-        # (stands are optimized for openlayers map while property-level works with jqplot)
-
-        # TODO Randomness is random
-        # obviously we'll eventually use real data queries directly from the FVSAggregate table
-        # output_scheduler_results are only used to determine offsets
-        a = range(0, 100)
-        rsamp = [(math.sin(x) + 1) * 10.0 for x in a]
+        """
+        Note the data structure for stands is different than properties
+        (stands are optimized for openlayers map while property-level works with jqplot)
+        """
         d = {}
-
-        # Stand-level outputs
-        # TODO what if scenariostands are stale??
-        for sstand in self.scenariostand_set.all():
-            c = random.randint(0, 90)
-            t = random.randint(0, 90)
-            carbon = rsamp[c:c + 6]
-            timber = rsamp[t:t + 6]
+        scenariostands = self.scenariostand_set.all()
+        for sstand in scenariostands:
             d[sstand.pk] = {
-                "years": range(2020, 2121, 20),
-                "carbon": [
-                    carbon[0],
-                    carbon[1],
-                    carbon[2],
-                    carbon[3],
-                    carbon[4],
-                    carbon[5],
-                ],
-                "timber": [
-                    timber[0],
-                    timber[1],
-                    timber[2],
-                    timber[3],
-                    timber[4],
-                    timber[5],
-                ]
+                "years": [],
+                "carbon": [],
+                "timber": []
             }
+
+        sql = """SELECT
+                    ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
+                    a.total_stand_carbon * ss.acres AS carbon,
+                    a.removed_merch_bdft * ss.acres AS timber
+                FROM
+                    trees_fvsaggregate a
+                FULL OUTER JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                WHERE a.site = 2 -- constant
+                AND   var = 'WC' -- '%s' TODO get from current property
+                AND   ss.scenario_id = %d -- get from current scenario
+                ORDER BY ss.id, a.year;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        print sql
+        desc = cursor.description
+        for rawrow in cursor.fetchall():
+            row = dict(zip([col[0] for col in desc], rawrow))
+            ds = d[row["sstand_id"]]
+            ds['years'].append(row["year"])
+            ds['carbon'].append(row["carbon"])
+            ds['timber'].append(row["timber"])
 
         return d
 
