@@ -650,104 +650,41 @@ class Scenario(Feature):
     def stand_set(self):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
-    def base_metrics_query(self):
-        """
-        **** FVSAggregate query
-
-        SELECT "cond", "rx", "year", "offset", "total_stand_carbon"
-        FROM trees_fvsaggregate
-        WHERE site = 2
-        AND "offset" = 0
-        AND var = 'WC'
-        -- AND total_stand_carbon IS NOT NULL
-
-        -- all combinations of condition and rx
-        AND (
-             (rx = 17 AND cond = 99301)
-          OR (rx = 23 AND cond = 99301)
-          OR (rx = 23 AND cond = 115101)
-        )
-        ORDER BY "cond", "rx", "year"
-        ;
-
-
-          cond  | rx | year | offset | total_stand_carbon
-        --------+----+------+--------+--------------------
-          99301 | 17 | 2013 |      0 |              128.9
-                        ...
-          99301 | 17 | 2108 |      0 |               61.8
-          99289 | 23 | 2013 |      0 |              128.9
-
-
-
-        ****  joined with ScenarioStand summary
-
-
-
-          ssid  | cond  | rx | offset |              acres
-        --------+----+------+--------+--------------------
-          1234  | 99301 | 17 |      0 |               28.9
-                        ...
-          1256  | 99301 | 17 |      0 |               21.8
-          1257  | 99289 | 23 |      0 |               18.9
-
-        offsets come from output_scheduler_results
-
-        """
-        pass
-
     @property
     @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
-        # Note the data structure for stands is different than properties
-        # (stands are optimized for openlayers map while property-level works with jqplot)
-
-        # TODO use real data
-        # use the output_scheduler_results to query FVSAggregate table
-        # and calculate these metrics
-        # (output_scheduler_results are only used to determine offsets)
-
-        # Property-level outputs
-        def scale(data):
-            # fake data for ~3500 acres, adjust for size
-            sf = 3500.0 / self.input_property.acres
-
-            return [x / sf for x in data]
-
-        carbon_alt = scale([338243.812, 631721, 775308, 792018, 754616])
-        timber_alt = scale([1361780, 1861789, 2371139, 2613845, 3172212])
-        carbon_biz = scale([338243, 317594, 370360, 354604, 351987])
-        timber_biz = scale([2111800, 2333800, 2982600, 2989000, 2793700])
-
-        if self.input_target_carbon:
-            carbon = carbon_alt
-            timber = timber_alt
-        else:
-            carbon = carbon_biz
-            timber = timber_biz
-        if self.name.startswith("Grow"):
-            carbon = [c * 1.5 for c in carbon_alt]
-            carbon[0] = carbon_alt[0]
-            carbon[-2] = carbon_alt[-2] * 1.6
-            carbon[-1] = carbon_alt[-1] * 1.7
-            timber = [1, 1, 1, 1, 1]
-
+        """
+        Note the data structure for stands is different than properties
+        (stands are optimized for openlayers map while property-level works with jqplot)
+        """
         d = {
-            "carbon": [
-                ['2010-08-12 4:00PM', carbon[0]],
-                ['2035-09-12 4:00PM', carbon[1]],
-                ['2060-10-12 4:00PM', carbon[2]],
-                ['2085-12-12 4:00PM', carbon[3]],
-                ['2110-12-12 4:00PM', carbon[4]],
-            ],
-            "timber": [
-                ['2010-08-12 4:00PM', timber[0]],
-                ['2035-09-12 4:00PM', timber[1]],
-                ['2060-10-12 4:00PM', timber[2]],
-                ['2085-12-12 4:00PM', timber[3]],
-                ['2110-12-12 4:00PM', timber[4]],
-            ]
+            "carbon": [],
+            "timber": []
         }
+        sql = """SELECT
+                    a.year AS year,
+                    SUM(a.total_stand_carbon * ss.acres) AS carbon,
+                    SUM(a.removed_merch_bdft * ss.acres) AS timber
+                FROM
+                    trees_fvsaggregate a
+                FULL OUTER JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                WHERE a.site = 2 -- constant
+                AND   var = 'WC' --'%s' TODO get variant_code from current property
+                AND   ss.scenario_id = %s -- get id from current scenario
+                GROUP BY a.year
+                ORDER BY a.year;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        for row in cursor.fetchall():
+            date = "%d-12-31 11:59PM" % row[0]
+            d['carbon'].append([date, row[1]])
+            d['timber'].append([date, row[2]])
+
         return {'__all__': d}
 
     @property
@@ -1360,6 +1297,14 @@ class Rx(models.Model):
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
 
+    @property
+    def internal_num(self):
+        """
+        Strip the variant to match with FVS records e.g. "WC17" => 17
+        Assumes a 2 char preceding variant code
+        """
+        return int(self.internal_name[2:])
+
 
 @register
 class MyRx(Feature):
@@ -1414,14 +1359,15 @@ class ScenarioStand(PolygonFeature):
     The Rx from #2 takes precedence over the Rx from #1.
     """
     # geometry_final = inherited from PolygonFeature
+    # assert that all cond_ids are present or make FK?
     cond_id = models.BigIntegerField()
     rx = models.ForeignKey(Rx)
+    rx_internal_num = models.IntegerField(null=True, blank=True)
     scenario = models.ForeignKey(Scenario)
     stand = models.ForeignKey(Stand)
     constraint = models.ForeignKey(SpatialConstraint, null=True)
-    #acres = models.FloatField()
-    #offset = models.IntegerField(default=0)
-    # assert that all cond_ids are present or make FK?
+    acres = models.FloatField()
+    offset = models.IntegerField(default=0)
 
     class Options:
         form = "trees.forms.ScenarioStandForm"
@@ -1448,6 +1394,12 @@ class ScenarioStand(PolygonFeature):
         gjf['properties']['scenario_uid'] = self.scenario.uid
         gjf['properties']['stand_uid'] = self.stand.uid
         return dumps(gjf)
+
+    def save(self, *args, **kwargs):
+        # ensure this gets calculated and put in the db
+        # why? So raw sql query on FVSAggregate can avoid yet another join to the Rx table
+        self.rx_internal_num = self.rx.internal_num
+        super(ScenarioStand, self).save(*args, **kwargs)
 
 
 class FVSAggregate(models.Model):

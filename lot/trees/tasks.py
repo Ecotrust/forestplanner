@@ -187,9 +187,14 @@ def schedule_harvest(scenario_id):
     #
     # INSTEAD just assign offset 0 to every scenariostand
 
+    # construct scheduler results dict eventually stored as output_scheduler_results
+    # (not used currently except to check scenario status so it must exist)
     offsets = {}
     for sstand in scenariostands:
         offsets[sstand.id] = 0
+
+    # Update the offset on the scenariostands directly
+    scenariostands.update(offset=0)
 
     #
     # update the database

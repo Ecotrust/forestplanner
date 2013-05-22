@@ -528,16 +528,30 @@ def fake_scenariostands(the_scenario):
                 raise ScenarioNotRunnable(err)
 
         the_rx = Rx.objects.get(id=rx_id)
+        cond_id = stand.cond_id
+
+        ###################
+        #
+        # TODO ... TOTAL BS HERE for testing while we wait on full FVS results
+        #
+        ###################
+        import random
+        the_rx = random.choice(Rx.objects.filter(internal_name__in=["WC17", "WC23"]))
+        cond_id = random.choice([99301, 115101])
+
+        ########### END BS #################
 
         ScenarioStand.objects.create(
             user=the_scenario.user,
             geometry_final=stand.geometry_final,
             geometry_orig=stand.geometry_orig,
-            cond_id=stand.cond_id,
+            cond_id=cond_id,
             scenario=the_scenario,
             rx=the_rx,
             stand=stand,
-            constraint=None
+            constraint=None,
+            acres=stand.acres,
+            offset=0
         )
 
     return ScenarioStand.objects.filter(scenario=the_scenario)
