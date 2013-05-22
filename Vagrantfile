@@ -13,7 +13,8 @@ Vagrant::Config.run do |config|
   # doesn't already exist on the user's system.
   config.vm.box_url = "http://files.vagrantup.com/precise32.box"
 
-  # config.vm.customize ["modifyvm", :id, "--cpus", 1]
+  #config.vm.customize ["modifyvm", :id, "--cpus", 2]
+  #config.vm.customize ["modifyvm", :id, "--memory", 898]
 
   # Boot with a GUI so you can see the screen. (Default is headless)
   # config.vm.boot_mode = :gui
@@ -34,7 +35,7 @@ Vagrant::Config.run do |config|
   config.vm.forward_port 80, 8080
   config.vm.forward_port 443, 8443
   config.vm.forward_port 8000, 8000
-  config.vm.forward_port 5432, 5433  # TODO remove postgres port or secure it
+  config.vm.forward_port 5432, 5433
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
