@@ -1,7 +1,8 @@
-import os
 from django.core.management.base import BaseCommand
-from trees.models import ForestProperty, Stand, FVSVariant, IdbSummary, ScenarioStand, ConditionVariantLookup, Rx, RX_TYPE_CHOICES
+from trees.models import FVSVariant, Rx, RX_TYPE_CHOICES
 import xml.etree.ElementTree as ET
+from django.db import connection
+from sets import Set
 
 
 class Command(BaseCommand):
@@ -13,6 +14,43 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         self.errors = 0
+        cursor = connection.cursor()
+
+        #
+        # FVSAggregate
+        # Check that all Variants, Rxs and Conditions referenced in FVSAggregate table
+        #
+        def compare_distinct(ref_table, ref_col, comp_table, comp_col, cast=int):
+
+            ref_sql = "SELECT distinct(%s) FROM %s" % (ref_col, ref_table)
+            cursor.execute(ref_sql)
+            ref = Set([cast(x[0]) for x in list(cursor.fetchall())])
+
+            comp_sql = "SELECT distinct(%s) FROM %s" % (comp_col, comp_table)
+            cursor.execute(comp_sql)
+            comp = Set([cast(x[0]) for x in list(cursor.fetchall())])
+
+            diff = ref.difference(comp)
+            ndiff = len(diff)
+            if ndiff > 0:
+                self.errors += ndiff - 1
+                self.violation("* %s has %d %s that are NOT in %s. \n  %r" % (
+                    ref_table, ndiff, ref_col, comp_table, list(diff)[:4] + ["..."]))
+
+            diff = comp.difference(ref)
+            ndiff = len(diff)
+            if ndiff > 0:
+                self.errors += ndiff - 1
+                self.violation("* %s is missing %d %s that are found in %s. \n  %r" % (
+                    ref_table, ndiff, ref_col, comp_table, list(diff)[:4] + ["..."]))
+
+        compare_distinct("trees_fvsaggregate", "cond", "treelive_summary", "cond_id")
+        compare_distinct("trees_fvsaggregate", "cond", "trees_conditionvariantlookup", "cond_id")
+        compare_distinct("trees_fvsaggregate", "cond", "idb_summary", "cond_id")
+
+        compare_distinct("trees_conditionvariantlookup", "cond_id", "treelive_summary", "cond_id")
+        compare_distinct("trees_conditionvariantlookup", "cond_id", "idb_summary", "cond_id")
+        compare_distinct("trees_conditionvariantlookup", "variant_code", "trees_fvsvariant", "code", cast=str)
 
         #
         # Decision Tree XMLS
@@ -61,44 +99,16 @@ class Command(BaseCommand):
                 except Rx.DoesNotExist:
                     self.violation("Rx with type %s (%s) doesn't exist in %s but should according to RX_TYPE_CHOICES" % (
                         rx_choice[0], rx_choice[1], variant))
-
-        #
-        # ConditionVariantLookups
-        #
-        cond_ids = [x.cond_id for x in IdbSummary.objects.all()]
-        variant_codes = [x.code for x in FVSVariant.objects.all()]
-
-        # check that all lookups have valid references
-        for cvl in ConditionVariantLookup.objects.all():
-            if cvl.cond_id not in cond_ids:
-                self.violation(
-                    "ConditionVariantLookup table referen in the lookup tableces cond_id " +
-                    "%s which doesn't exist in IdbSummary" % cvl.cond_id)
-            if cvl.variant_code not in variant_codes:
-                self.violation(
-                    "ConditionVariantLookup table references variant code " +
-                    "%s which doesn't exist in FVSVariant" % cvl.variant_code)
-
-        # check that all IdbSummaries are present in the lookup table
-        lookup_cond_ids = [x.cond_id for x in ConditionVariantLookup.objects.all()]
-        for cond_id in cond_ids:
-            if cond_id not in lookup_cond_ids:
-                self.violation("Missing cond_id %s from ConditionVariantLookup table" % cond_id)
-
-        #
-        # FVSAggregate
-        # TODO
-        # Check that all Variants, Rxs and Conditions referenced in FVSAggregate table
-        # exist in the FVSVariant, Rx and IdbSummary/TreeliveSummary tables
-        #
-
         #
         # User Features
         # TODO - do we check this here? This could be a separate issue...
-        # check all user features that relate to variant, rx and cond_id and make sure they are referenced
+        # check all user features (stands, scenariostands) that relate to variant, rx and cond_id and make sure they are referenced
         # in FVSVariant, Rx and IdbSummary/TreeliveSummary/FVSAggregate
         #
 
         print
         print "check_integrity summary: %d violations that should be addressed" % self.errors
+        print
+        print " For further discussion on integrity_errors, see:"
+        print " https://github.com/Ecotrust/land_owner_tools/wiki/IDB-data-processing#potential-check_integrity-errors"
         print
