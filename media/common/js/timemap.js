@@ -60,50 +60,54 @@ var refreshTimeMap = function (f1, f2) {
         standScenario1.removeAllFeatures();
         $("#error-timemap1").fadeOut();
         var opt = $('#select-scenario1').find(":selected").val();
-        var data = timemapScenarioData[opt];
-        if (data) {
-            // we have it already
-            standScenario1.addFeatures(app.geojson_format.read(data));
-        } else {
-            // go fetch it 
-            var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
-            $.get( geojson_url, function(data) {
-                if (data.features.length) {
-                    standScenario1.addFeatures(app.geojson_format.read(data));
-                    timemapScenarioData[opt] = data;
-                    processBreaks();
-                    standScenario1.redraw();
-                } else {
-                    console.log("First scenario doesn't have any features! Check scenariostands...")
-                    $("#error-timemap1").fadeIn();
-                }
-            });
+        if (opt) {
+            var data = timemapScenarioData[opt];
+            if (data) {
+                // we have it already
+                standScenario1.addFeatures(app.geojson_format.read(data));
+            } else {
+                // go fetch it 
+                var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
+                $.get( geojson_url, function(data) {
+                    if (data.features.length) {
+                        standScenario1.addFeatures(app.geojson_format.read(data));
+                        timemapScenarioData[opt] = data;
+                        processBreaks();
+                        standScenario1.redraw();
+                    } else {
+                        console.log("First scenario doesn't have any features! Check scenariostands...")
+                        $("#error-timemap1").fadeIn();
+                    }
+                });
+            }
         }
     }
+
 
     if (f2) {
         standScenario2.removeAllFeatures();
         $("#error-timemap2").fadeOut();
         var opt2 = $('#select-scenario2').find(":selected").val();
-
-        var data = timemapScenarioData[opt2];
-        if (data) {
-            // we have it already
-            standScenario2.addFeatures(app.geojson_format.read(data));
-        } else {
-            // go fetch it 
-            var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
-            $.get( geojson_url2, function(data) {
-                if (data.features.length) {
-                    standScenario2.addFeatures(app.geojson_format.read(data));
-                    timemapScenarioData[opt2] = data;
-                    processBreaks();
-                    standScenario2.redraw();
-                } else {
-                    console.log("First scenario doesn't have any features! Check scenariostands...")
-                    $("#error-timemap2").fadeIn();
-                }
-            });
+        if (opt2) {
+            var data = timemapScenarioData[opt2];
+            if (data) {
+                // we have it already
+                standScenario2.addFeatures(app.geojson_format.read(data));
+            } else {
+                // go fetch it 
+                var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
+                $.get( geojson_url2, function(data) {
+                    if (data.features.length) {
+                        standScenario2.addFeatures(app.geojson_format.read(data));
+                        timemapScenarioData[opt2] = data;
+                        processBreaks();
+                        standScenario2.redraw();
+                    } else {
+                        console.log("First scenario doesn't have any features! Check scenariostands...")
+                        $("#error-timemap2").fadeIn();
+                    }
+                });
+            }
         }
     }
 };

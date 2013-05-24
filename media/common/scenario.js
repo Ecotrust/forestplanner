@@ -69,7 +69,7 @@ function scenarioFormViewModel(options) {
 
     self.rxBeingEdited = null;
 
-    // deciscion tree breadcrumbs:
+    // decision tree breadcrumbs:
     self.decisionOutput = ko.observableArray();
 
     self.nWithRx = ko.observable(0);
@@ -223,25 +223,6 @@ function scenarioFormViewModel(options) {
         self.updateWithRx();
     };
 
-    self.selectedFeatures = ko.observable(false);
-
-    // sometimes this happens too fast :()
-    setTimeout(function() {
-        app.rx_stand_layer.selectFeature.onSelect = function(feature) {
-            if (app.rx_stand_layer.selectedFeatures.length > 0) {
-                self.selectedFeatures(true);
-            }
-        };
-        app.rx_stand_layer.selectFeature.onUnselect = function(feature) {
-
-            if (app.rx_stand_layer.selectedFeatures.length === 0) {
-                self.selectedFeatures(false);
-            }
-        };
-
-    }, 900);
-
-
     return self;
 }
 
@@ -261,6 +242,8 @@ function scenarioViewModel(options) {
         self.selectedFeatures.removeAll();
         refreshCharts();
         self.loadScenarios(self.property);
+        timemapScenarioData = {};
+        refreshTimeMap(true, true);
     };
 
     self.loadScenarios = function(property) {
@@ -363,9 +346,6 @@ function scenarioViewModel(options) {
             $("div#scenario-form-metacontainer").show();
             $("#scenario-outputs").hide();
             $("#map").show();
-
-
-            //$("div.outermap").hide();
         } else {
             $("div#scenario-form-metacontainer").hide();
             $("#scenario-outputs").show();
@@ -377,9 +357,6 @@ function scenarioViewModel(options) {
                 app.rx_stand_layer.removeAllFeatures();
                 app.selectFeature.activate();
             }
-
-
-            //$("div.outermap").show();
         }
     };
 
@@ -419,44 +396,43 @@ function scenarioViewModel(options) {
                             "toggle": true
                         });
                         app.scenarios.rubberBandActive = false;
-                        $(document).on('keyup keydown', function (e) {
-                          if (e.shiftKey) {
-                            
-                            app.scenarios.rubberBandActive = true;
-                            app.selectFeature.deactivate();
-                            map.removeControl(app.selectFeature);
-                            app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                              { 
-                                "clickout": false,
-                                "multiple": true,
-                                "toggle": true,
-                                "box": true
-                              }); 
-                            map.addControl(app.selectFeature); 
-                            app.selectFeature.activate();
-                          } else {
+                        $(document).on('keyup', function (e) {
                             if (app.scenarios.rubberBandActive) {
-                            
-                              app.scenarios.rubberBandActive = true;
-                              app.selectFeature.deactivate();
-                              map.removeControl(app.selectFeature);
-                              app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                              { 
-                                "clickout": false,
-                                "multiple": true,
-                                "toggle": true,
-                                "box": false
-                              });
-                              map.addControl(app.selectFeature); 
-                              app.selectFeature.activate();
+                                app.scenarios.rubberBandActive = false;
+                                app.rx_stand_layer.selectFeature.deactivate();
+                                map.removeControl(app.rx_stand_layer.selectFeature);
+                                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
+                                    "clickout": false,
+                                    "multiple": true,
+                                    "toggle": true,
+                                    "box": false
+                                });
+                                map.addControl(app.rx_stand_layer.selectFeature); 
+                                app.rx_stand_layer.selectFeature.activate();
                             }
-                          }
+                        });
+
+                        $(document).on('keydown', function (e) {
+                            if (e.shiftKey && !app.scenarios.rubberBandActive) {
+                                app.scenarios.rubberBandActive = true;
+                                app.rx_stand_layer.selectFeature.deactivate();
+                                map.removeControl(app.rx_stand_layer.selectFeature);
+                                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
+                                  { 
+                                    "clickout": false,
+                                    "multiple": true,
+                                    "toggle": true,
+                                    "box": true
+                                  }); 
+                                map.addControl(app.rx_stand_layer.selectFeature); 
+                                app.rx_stand_layer.selectFeature.activate();
+                            }
                         });
 
                         // reenable click and drag in vectors
                         app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
-
                         map.addControl(app.rx_stand_layer.selectFeature);
+
                     }
 
                     app.rx_stand_layer.addFeatures(app.geojson_format.read(data));
@@ -569,6 +545,7 @@ function scenarioViewModel(options) {
                     }
                 };
                 app.rx_stand_layer.redraw()
+                app.scenarios.formViewModel.updateWithRx();
             }
         });
     };
