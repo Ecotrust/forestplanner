@@ -528,6 +528,7 @@
               </div>
               {% endif %}
               <div id="map"></div>
+              {% if user.is_authenticated %}
               <div id="scenario-outputs" style="display:none">
                     <ul class="nav nav-tabs" id="myTab">
                         <li class="active"><a href="#scenario-charts-tab-content" id="scenario-charts-tab" data-toggle="tab">Charts</a></li>
@@ -638,6 +639,7 @@
                         </div>
                     </div>
               </div> <!-- end scenario-outputs -->
+              {% endif %}
               
             </div>
           </div>

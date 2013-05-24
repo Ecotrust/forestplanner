@@ -68,14 +68,14 @@ var refreshCharts = function(){
   var containerWidth = $("#scenario-charts-tab-content").width();
   var containerHeight = $(window).height();
   $("#chart-scenario").width(containerWidth - 150);
-  $("#chart-scenario").height(containerHeight - 350);
+  $("#chart-scenario").height(containerHeight - 280);
 
   var scenarioData = [];
   var scenarioLabels = [];
   var metric = chartMetrics[selectedMetric];
 
   $.each(app.scenarios.viewModel.selectedFeatures(), function() {
-    var newData;
+    var newData = [];
     var resall;
     var res = this.fields.output_property_metrics;
     
@@ -85,7 +85,9 @@ var refreshCharts = function(){
 
     if (resall) {
         newData = resall[metric.variableName];
-    } else {
+    } 
+
+    if (newData.length === 0) {
         newData = [[null]];
     }
 
@@ -103,20 +105,17 @@ var refreshCharts = function(){
               label: "Year",
               renderer: $.jqplot.DateAxisRenderer,
               tickOptions: {formatString:'%Y'},
-              min:'Jan 01, 2000 8:00AM', 
+              min:'Jan 01, 2010 8:00AM', 
+              max:'Jan 01, 2111 8:00AM',
               tickInterval:'10 years',
               pad: 0
             },
             yaxis: {
               label: metric.axisLabel,
+              tickInterval: 10000,
               tickOptions: {formatString: metric.axisFormat}
             }
         }
     }));
   }
-
-  // $("tr.scenario-row").click( function() {
-  //     var row = $(this);
-  //     row.find("div.scenario-details").fadeToggle();
-  // });
 };

@@ -673,7 +673,7 @@ class Scenario(Feature):
                   AND a.rx = ss.rx_internal_num
                   AND a.offset = ss.offset
                 WHERE a.site = 2 -- constant
-                AND   var = 'WC' --'%s' TODO get variant_code from current property
+                AND   a.var = 'WC' --'%s' TODO get variant_code from current property
                 AND   ss.scenario_id = %d -- get id from current scenario
                 GROUP BY a.year
                 ORDER BY a.year;""" % (self.input_property.variant.code, self.id)
@@ -820,10 +820,7 @@ class Scenario(Feature):
         self.invalidate_cache()
         if not self.is_runnable:
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
-
         task = schedule_harvest.delay(self.id)
-        # total hack to slow the scenarios down to possibly allow the async task to complete
-        time.sleep(2)
         cache.set("Taskid_%s" % self.uid, task.task_id)
         return True
 
@@ -1445,6 +1442,16 @@ class FVSAggregate(models.Model):
         DELIMITER ',' CSV HEADER;
 
     7. TODO (re)create indicies
+
+        -- not sure which of thse are helpful or not, need to do some EXPLAIN ANALYZEs on real data
+        CREATE INDEX idx_trees_fvsaggregate_cond ON trees_fvsaggregate (cond);
+        CREATE INDEX idx_trees_fvsaggregate_rx ON trees_fvsaggregate (rx);
+        CREATE INDEX idx_trees_fvsaggregate_"offset" ON trees_fvsaggregate ("offset");
+        CREATE INDEX idx_trees_fvsaggregate_site ON trees_fvsaggregate (site);
+        CREATE INDEX idx_trees_fvsaggregate_var ON trees_fvsaggregate (var);
+        CREATE INDEX idx_trees_fvsaggregate_year ON trees_fvsaggregate (year);
+        CREATE INDEX idx_trees_fvsaggregate_site_var ON trees_fvsaggregate (site, var);
+
     8. TODO create/backup/distribute fixtures
     """
 

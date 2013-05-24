@@ -152,7 +152,7 @@ def impute_nearest_neighbor(stand_results, savetime):
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
-    from trees.models import Scenario  # Stand, ScenarioStand, Rx, SpatialConstraint
+    from trees.models import Scenario, ScenarioNotRunnable
     import time
     from celery import current_task
 
@@ -164,7 +164,7 @@ def schedule_harvest(scenario_id):
 
     print "Calculating schedule for %s" % scenario_id
     current_task.update_state(state='PROGRESS', meta={'current': 50})
-    time.sleep(2)
+    time.sleep(1)
 
     #
     # Populate ScenarioStands
@@ -175,10 +175,13 @@ def schedule_harvest(scenario_id):
 
     # from trees.utils import create_scenariostands
     # scenariostands = create_scenariostands(scenario)
-    # might raise ScenarioNotRunnable, don't retry
+    # might raise ScenarioNotRunnable, retry
 
     from trees.utils import fake_scenariostands
-    scenariostands = fake_scenariostands(scenario)
+    try:
+        scenariostands = fake_scenariostands(scenario)
+    except ScenarioNotRunnable:
+        raise schedule_harvest.retry(max_retries=2)
 
     #
     # Determine offsets
