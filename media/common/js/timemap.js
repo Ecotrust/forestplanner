@@ -8,6 +8,7 @@ var timemapInitialized = false;
 var selectedTimeMapMetric = 'carbon';
 var timemapScenarioData = {};
 var timemapBreaks = [4,8,12,16]; 
+var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
 
 var initTimeMap = function() {
     timemap1.render("timemap1");
@@ -65,6 +66,8 @@ var refreshTimeMap = function (f1, f2) {
             if (data) {
                 // we have it already
                 standScenario1.addFeatures(app.geojson_format.read(data));
+                processBreaks();
+                standScenario1.redraw();
             } else {
                 // go fetch it 
                 var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
@@ -93,6 +96,8 @@ var refreshTimeMap = function (f1, f2) {
             if (data) {
                 // we have it already
                 standScenario2.addFeatures(app.geojson_format.read(data));
+                processBreaks();
+                standScenario2.redraw();
             } else {
                 // go fetch it 
                 var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
@@ -140,6 +145,15 @@ function processBreaks() {
         steps.push((steprange*i) + min)
     };
     timemapBreaks = steps;
+
+    // screw it, just manipulate the DOM directly to get a legend
+    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + "</p><table>";
+    for (var i = 0; i < numclasses; i++) {
+        html += "<tr><td>" + parseInt((steprange*i) + min) + " to " + parseInt((steprange*(i+1)) + min) + "</td>" +
+           '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[i] + '">&nbsp;&nbsp;</td></tr>';
+    }
+    html += "</table>";
+    $("#timemap-legend").html(html);
 };
 
 $(document).ready(function() {
@@ -157,7 +171,6 @@ $(document).ready(function() {
             if (!attr) {
                 return "#ccc";
             }
-            var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
 
             if (attr < timemapBreaks[0]) {
                 color = timemapColorRamp[0];

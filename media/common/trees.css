@@ -211,7 +211,7 @@ textarea#id_description {
 .timemap {
     margin: 3px;
     width: 98%;
-    border: 2px grey solid;
+    border: 2px gray solid;
 }
 
 .error-timemap {
@@ -221,6 +221,23 @@ textarea#id_description {
     z-index: 99999;
     opacity: 0.75;
     font-size: 14pt;
+}
+
+#timemap-legend {
+    text-align: right;
+    padding: 4px;
+    background-color: white;
+    border: 1px solid #CCC;
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    z-index: 99999;
+    opacity: 0.82;
+    font-size: 8pt;
+    max-width: 240px;
 }
 
 #year-slider {
