@@ -395,19 +395,19 @@ function scenarioViewModel(options) {
                             "multiple": true,
                             "toggle": true
                         });
+
+                        app.rx_stand_layer.selectFeatureBox = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
+                            "clickout": false,
+                            "multiple": true,
+                            "toggle": true,
+                            "box": true
+                        });
+
                         app.scenarios.rubberBandActive = false;
                         $(document).on('keyup', function (e) {
                             if (app.scenarios.rubberBandActive) {
                                 app.scenarios.rubberBandActive = false;
-                                app.rx_stand_layer.selectFeature.deactivate();
-                                map.removeControl(app.rx_stand_layer.selectFeature);
-                                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
-                                    "clickout": false,
-                                    "multiple": true,
-                                    "toggle": true,
-                                    "box": false
-                                });
-                                map.addControl(app.rx_stand_layer.selectFeature); 
+                                app.rx_stand_layer.selectFeatureBox.deactivate();
                                 app.rx_stand_layer.selectFeature.activate();
                             }
                         });
@@ -416,22 +416,14 @@ function scenarioViewModel(options) {
                             if (e.shiftKey && !app.scenarios.rubberBandActive) {
                                 app.scenarios.rubberBandActive = true;
                                 app.rx_stand_layer.selectFeature.deactivate();
-                                map.removeControl(app.rx_stand_layer.selectFeature);
-                                app.rx_stand_layer.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                                  { 
-                                    "clickout": false,
-                                    "multiple": true,
-                                    "toggle": true,
-                                    "box": true
-                                  }); 
-                                map.addControl(app.rx_stand_layer.selectFeature); 
-                                app.rx_stand_layer.selectFeature.activate();
+                                app.rx_stand_layer.selectFeatureBox.activate();
                             }
                         });
 
                         // reenable click and drag in vectors
                         app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
                         map.addControl(app.rx_stand_layer.selectFeature);
+                        map.addControl(app.rx_stand_layer.selectFeatureBox);
 
                     }
 
