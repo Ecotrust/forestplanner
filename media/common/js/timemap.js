@@ -7,6 +7,7 @@ var updatingMap2 = false;
 var timemapInitialized = false;
 var selectedTimeMapMetric = 'carbon';
 var timemapScenarioData = {};
+var timemapBreaks = [4,8,12,16]; 
 
 var initTimeMap = function() {
     timemap1.render("timemap1");
@@ -70,6 +71,8 @@ var refreshTimeMap = function (f1, f2) {
                 if (data.features.length) {
                     standScenario1.addFeatures(app.geojson_format.read(data));
                     timemapScenarioData[opt] = data;
+                    processBreaks();
+                    standScenario1.redraw();
                 } else {
                     console.log("First scenario doesn't have any features! Check scenariostands...")
                     $("#error-timemap1").fadeIn();
@@ -94,6 +97,8 @@ var refreshTimeMap = function (f1, f2) {
                 if (data.features.length) {
                     standScenario2.addFeatures(app.geojson_format.read(data));
                     timemapScenarioData[opt2] = data;
+                    processBreaks();
+                    standScenario2.redraw();
                 } else {
                     console.log("First scenario doesn't have any features! Check scenariostands...")
                     $("#error-timemap2").fadeIn();
@@ -101,6 +106,36 @@ var refreshTimeMap = function (f1, f2) {
             });
         }
     }
+};
+
+function processBreaks() {
+
+    var flatData = [];
+
+    $.each( standScenario1.features, function(k,v) { 
+        flatData.push(v.attributes.results[selectedTimeMapMetric]);
+    });
+    $.each( standScenario2.features, function(k,v) { 
+        flatData.push(v.attributes.results[selectedTimeMapMetric]);
+    });
+
+    // flatten array of arrays into one big array
+    flatData = [].concat.apply([], flatData);
+    // Remove nulls
+    flatData = flatData.filter(Number);
+
+    var min = Math.min.apply(Math, flatData);
+    var max = Math.max.apply(Math, flatData);
+
+    // Equal interval classification
+    var numclasses = 5;
+    var range = max - min;
+    var steprange = range/numclasses; 
+    var steps = [];
+    for (var i = 1; i < numclasses; i++) {
+        steps.push((steprange*i) + min)
+    };
+    timemapBreaks = steps;
 };
 
 $(document).ready(function() {
@@ -115,18 +150,23 @@ $(document).ready(function() {
             var color;
 
             var attr = feature.attributes.results[selectedTimeMapMetric][yearIndex]; 
-            // TODO assumes 0-20 range
-            if (attr < 4) {
-                color = "#EDF8E9";
-            } else if (attr < 8) {
-                color = "#BAE4B3";
-            } else if (attr < 12) {
-                color = "#74C476";
-            } else if (attr < 16) {
-                color = "#31A354";
-            } else {
-                color = "#006D2C";
+            if (!attr) {
+                return "#ccc";
             }
+            var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
+
+            if (attr < timemapBreaks[0]) {
+                color = timemapColorRamp[0];
+            } else if (attr < timemapBreaks[1]) {
+                color = timemapColorRamp[1];
+            } else if (attr < timemapBreaks[2]) {
+                color = timemapColorRamp[2];
+            } else if (attr < timemapBreaks[3]) {
+                color = timemapColorRamp[3];
+            } else {
+                color = timemapColorRamp[4];
+            }
+
             return color;
         }
     };
@@ -186,7 +226,7 @@ $(document).ready(function() {
     onChange = function() {
         field.val(slidy.slider('value')); 
         var val = field.val();
-        yearIndex = Math.floor((parseInt(val, 10) - 2020)/20);
+        yearIndex = Math.floor((parseInt(val, 10) - 2013)/5);
         if (standScenario1) {
             standScenario1.redraw();
         }
@@ -196,8 +236,8 @@ $(document).ready(function() {
     };
     slidy.slider({
         range: 'min',
-        min : 2020, 
-        max : 2120,
+        min : 2013, 
+        max : 2108,
         step : 5,
         change : onChange,
         slide : onChange 
