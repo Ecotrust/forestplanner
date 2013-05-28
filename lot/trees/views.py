@@ -101,7 +101,7 @@ def manage_strata(request, property_uid):
     Strata management view
     '''
     return render_to_response(
-        'common/manage_strata.html', {'property_id': property_uid},
+        'common/manage_strata_2.html', {'property_id': property_uid},
         context_instance=RequestContext(request))
 
 
