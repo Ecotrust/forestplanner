@@ -306,7 +306,7 @@ function propertiesViewModel () {
   self.manageScenarios = function (self, event) {
     app.property_layer.setOpacity(0.4);
     if (app.scenarios.viewModel) {
-      app.scenarios.viewModel.reloadScenarios(self.selectedProperty());
+       app.scenarios.viewModel.reloadScenarios(self.selectedProperty());
     } else {
       app.scenarios.viewModel = new scenarioViewModel();
       app.scenarios.viewModel.initialize(self.selectedProperty());

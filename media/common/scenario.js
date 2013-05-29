@@ -238,12 +238,14 @@ function scenarioViewModel(options) {
     self.scenarioForm = null;
 
     self.reloadScenarios = function() {
+        property = app.properties.viewModel.selectedProperty();
+        self.property = property;
+        self.loadScenarios(property);
         self.scenarioList.removeAll();
         self.selectedFeatures.removeAll();
-        refreshCharts();
-        self.loadScenarios(self.property);
+        self.showScenarioList(true);
+        self.showScenarioPanels(true);
         timemapScenarioData = {};
-        refreshTimeMap(true, true);
     };
 
     self.loadScenarios = function(property) {
@@ -273,6 +275,7 @@ function scenarioViewModel(options) {
                 self.selectedFeatures.push(data[0]); // select the first one
             }
             refreshCharts();
+            refreshTimeMap(true, true);
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
@@ -295,6 +298,7 @@ function scenarioViewModel(options) {
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
         $('#map').fadeIn();
+        timemapInitialized = false; 
     };
 
     self.toggleFeature = function(f) {

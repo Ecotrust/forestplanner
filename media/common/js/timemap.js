@@ -49,6 +49,10 @@ var initTimeMap = function() {
 var refreshTimeMap = function (f1, f2) {
 
     var data;
+    if (!$("#scenario-maps-tab").parent().hasClass("active")) {
+        timemapInitialized = false;
+        return;
+    }
     if (!timemapInitialized)
         initTimeMap();
 
