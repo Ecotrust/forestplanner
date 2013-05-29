@@ -1,0 +1,68 @@
+<html>
+    <head>
+        <style>
+            body { background-color: #ccc; }
+            rect.ground { fill: orange; }
+            #tree > * { fill-opacity: 0.8; }  
+        </style>
+        <script type="text/javascript" src="d3.v3.min.js"></script>
+    </head>
+    <body>
+        <svg>
+            <defs> </defs>
+        </svg>
+
+        <script type="text/javascript">
+            function make_icon(url, id) {
+                defs = d3.select("defs");
+                d3.html(url, function(data) {
+                    xml = d3.select(data);
+                    icon = document.importNode(xml.select(id).node(), true);
+                    defs.node().appendChild(icon);
+                });
+            };
+
+            function make_row(name, id, n, x, y) {
+                d3.select("svg").selectAll("use." + name)
+                    .data(d3.range(n))
+                .enter()
+                    .append("svg:use")
+                    .attr("class", name)
+                    .attr("xlink:href", id)
+                    .attr("transform", function(d,i) {
+                        var xscale = (i / n) / 2.0;   // Math.random()/4 + 0.1;
+                        var yscale = xscale;
+                        var y0 = 1005; // height of #id
+                        var dy = y0 * (1.0 - yscale);
+                        //var dy = y * (1.0 - yscale);
+                        console.log(yscale, dy)
+                        //return "scale(" + [xscale, yscale] + ")"+ " translate(" + [(x + (150 * i)) / xscale, 
+                        //    (dy / yscale) ] + ")";
+                        //    ((dy - y) / yscale) - (300 / yscale) ] + ")";
+                        return "translate(" + [x + (150 * i), dy - (y0 - y)] 
+                            + ") scale(" + [xscale, yscale] +")";
+                    });
+
+            };
+
+            function make_ground(y) {
+                d3.select("svg")  // .selectAll("rect.ground")
+                    .append("rect")
+                      .attr("class", "ground")
+                      .attr("x", 20)
+                      .attr("y", y)
+                      .attr("height", 300)
+                      .attr("width", 800);
+            }
+
+            function go() {
+                make_icon("tree.svg", "#tree");
+                make_ground(500);
+                make_row("tree", "#tree", 5, 20, 500); // y arg is desired ground height
+            };
+
+            window.onload = go;
+
+        </script>
+    </body>
+</html>
