@@ -594,6 +594,7 @@
             };
 
             self.addSpecies = function () {
+							console.log('addSpecies');
                 var stand;
                 if (self.currentStand().index() === self.standList().length -1) {
                     stand = new standViewModel(self);
@@ -601,6 +602,7 @@
                     self.currentStand(stand);
 
                 } else {
+									console.log('self.currentStand().index(ELSE)', self.currentStand().index());
                     self.currentStand(self.standList()[self.currentStand().index() + 1]);
                 }
                 
@@ -613,6 +615,7 @@
             self.next = function () {
                 var self = this,
                     stand = new standViewModel(self);
+								console.log('next');
 
                 if (! self.editMode()) {
 
