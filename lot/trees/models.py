@@ -15,6 +15,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.features import register, alternate, edit, get_feature_by_uid
+from madrona.common.utils import clean_geometry
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
@@ -542,6 +543,9 @@ class ForestProperty(FeatureCollection):
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
+        # ensure multipolygon validity
+        if self.geometry_final:
+            self.geometry_final = clean_geometry(self.geometry_final)
         super(ForestProperty, self).save(*args, **kwargs)
 
     class Options:
