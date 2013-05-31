@@ -8,7 +8,8 @@ var timemapInitialized = false;
 var selectedTimeMapMetric = 'carbon';
 var timemapScenarioData = {};
 var timemapBreaks = [4,8,12,16];
-var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
+// var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];      //Defined in styles.js
+
 
 var initTimeMap = function() {
     timemap1.render("timemap1");

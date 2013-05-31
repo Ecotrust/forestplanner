@@ -1,30 +1,3 @@
-app.scenarios.styleMap = new OpenLayers.StyleMap({
-    "default": new OpenLayers.Style({
-        fillColor: "${getColor}",
-        fillOpacity: "${getOpacity}", //0.7,
-        strokeWidth: 1,
-        strokeOpacity: 0.6
-
-    }, {
-        // Rules go here.
-        context: {
-            getColor: function(feature) {
-                return feature.attributes.color ? feature.attributes.color : "#fff";
-            },
-            getOpacity: function(feature) {
-                return feature.attributes.color ? 0.7 : 0.0;
-            }
-        }
-    }),
-    "select": {
-        fillOpacity: 0.7,
-        fillColor: "#aaaa00",
-        strokeColor: "#ffff00",
-        strokeWidth: 2,
-        strokeOpacity: 1.0 
-    }
-});
-
 function rxViewModel(options) {
     var self = this;
 
@@ -388,7 +361,7 @@ function scenarioViewModel(options) {
                     } else {
 
                         app.rx_stand_layer = new OpenLayers.Layer.Vector("Stands", {
-                            styleMap: app.scenarios.styleMap,
+                            styleMap: map_styles.scenarios,
                             renderers: app.renderer
                         });
 

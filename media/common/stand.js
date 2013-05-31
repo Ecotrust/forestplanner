@@ -249,12 +249,7 @@ function standsViewModel() {
     // start the stand manager
     self.property_layer = new OpenLayers.Layer.Vector("Active Property", {
       renderers: app.renderer,
-      styleMap: new OpenLayers.StyleMap({
-        fillOpacity: 0,
-        strokeWidth: 2,
-        strokeOpacity: 1,
-        strokeColor: "#44ff00"
-      })
+      styleMap: map_styles.standProperty
     });
     map.addLayer(self.property_layer);
 
