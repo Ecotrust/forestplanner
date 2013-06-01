@@ -169,12 +169,26 @@ scenarios:
         }),
         "select": {
             fillOpacity: 0.7,
-            fillColor: "#aaaa00",
-            strokeColor: "#ffff00",
+            fillColor: "#aaaa00",           //mustard
+            strokeColor: "#ffff00",         //yellow
             strokeWidth: 2,
             strokeOpacity: 1.0 
         }
-    })
+    }),
+    
+strataSelect:
+    { 
+        fillColor: '#4f0', 
+        fillOpacity: '.6', 
+        strokeColor: '#ff0' 
+    },
+    
+strataShiftSelect:
+    { 
+        fillColor: '#4f0', 
+        fillOpacity: '.6', 
+        strokeColor: '#ff0' 
+    }
 
 };
 

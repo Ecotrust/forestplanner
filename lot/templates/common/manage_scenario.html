@@ -296,7 +296,6 @@
             
         }),
         $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', app.scenarios.property_id), function (data) {
-            var styleMap = map_styles.stand;
             app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
               styleMap: map_styles.stand,
               renderers: app.renderer
