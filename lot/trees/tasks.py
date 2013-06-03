@@ -2,6 +2,7 @@ from celery import task
 from django.core.cache import cache
 import json
 import datetime
+import random
 
 
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
@@ -188,16 +189,18 @@ def schedule_harvest(scenario_id):
     #
     # TODO prep scheduler, run it, parse the outputs
     #
-    # INSTEAD just assign offset 0 to every scenariostand
+    # INSTEAD just assign random offset to every scenariostand
 
     # construct scheduler results dict eventually stored as output_scheduler_results
     # (not used currently except to check scenario status so it must exist)
     offsets = {}
     for sstand in scenariostands:
-        offsets[sstand.id] = 0
-
+        random_offset = random.randint(0, 4)
+        offsets[sstand.id] = random_offset
+        sstand.offset = random_offset
+        sstand.save()
     # Update the offset on the scenariostands directly
-    scenariostands.update(offset=0)
+    # scenariostands.update(offset=0)
 
     #
     # update the database
