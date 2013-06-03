@@ -323,17 +323,19 @@
                                     <span data-bind="text: fields.description"></span>
                                     <p>
                                     <div class="scenario-details" style="padding-left: 8px; padding-right: 8px;">
-                                        <div class="alert" data-bind="visible: !fields.is_runnable" > 
-                                            Not enough data to run this scenario. (Edit the scenario and a Rx to all stands.)
-                                        </div>
-                                        <div class="alert" data-bind="visible: !fields.property_is_runnable" >
-                                           Not enough data to run scenarios yet. (Go back to stand groups and define vegetation for all stands.)
-                                        </div>
-                                        <div class="alert" data-bind="visible: fields.needs_rerun" > 
-                                            Scenario needs to be rerun (Stands or strata have changed. Edit and re-Submit.)
+                                        <div class="alert" data-bind="visible: !fields.is_running" > 
+                                            <div class="alert" data-bind="visible: !fields.is_runnable" > 
+                                                Not enough data to run this scenario. (Edit the scenario and a Rx to all stands.)
+                                            </div>
+                                            <div class="alert" data-bind="visible: !fields.property_is_runnable" >
+                                               Not enough data to run scenarios yet. (Go back to stand groups and define vegetation for all stands.)
+                                            </div>
+                                            <div class="alert" data-bind="visible: fields.needs_rerun" > 
+                                                Scenario needs to be rerun (Stands or strata have changed. Edit and re-Submit.)
+                                            </div>
                                         </div>
                                         <div class="alert" data-bind="visible: fields.is_running" > 
-                                            Scenario is currently processing or sitting in the task queue.
+                                            Scenario is currently in the task queue. Check back and hit Refresh in a few seconds.
                                         </div>
                                     </div>
                                     </p>
