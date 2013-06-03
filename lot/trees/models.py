@@ -671,13 +671,13 @@ class Scenario(Feature):
                     SUM(a.removed_merch_bdft * ss.acres) AS timber
                 FROM
                     trees_fvsaggregate a
-                FULL OUTER JOIN
+                JOIN
                     trees_scenariostand ss
                   ON  a.cond = ss.cond_id
                   AND a.rx = ss.rx_internal_num
                   AND a.offset = ss.offset
-                WHERE a.site = 2 -- constant
-                AND   a.var = 'WC' --'%s' TODO get variant_code from current property
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                AND   a.var = '%s' -- get variant_code from current property
                 AND   ss.scenario_id = %d -- get id from current scenario
                 GROUP BY a.year
                 ORDER BY a.year;""" % (self.input_property.variant.code, self.id)
@@ -713,19 +713,18 @@ class Scenario(Feature):
                     a.removed_merch_bdft * ss.acres AS timber
                 FROM
                     trees_fvsaggregate a
-                FULL OUTER JOIN
+                JOIN
                     trees_scenariostand ss
                   ON  a.cond = ss.cond_id
                   AND a.rx = ss.rx_internal_num
                   AND a.offset = ss.offset
-                WHERE a.site = 2 -- constant
-                AND   var = 'WC' -- '%s' TODO get from current property
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                AND   var = '%s' -- get from current property
                 AND   ss.scenario_id = %d -- get from current scenario
                 ORDER BY ss.id, a.year;""" % (self.input_property.variant.code, self.id)
 
         cursor = connection.cursor()
         cursor.execute(sql)
-        print sql
         desc = cursor.description
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
