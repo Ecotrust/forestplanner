@@ -116,7 +116,7 @@ var refreshCharts = function(){
     var baseline_peracre;
     switch (app.scenarios.viewModel.property.variant()) {
       case "Pacific Northwest Coast":
-          baseline_peracre = 38.6;
+          baseline_peracre = 38.6; // units = US/short tons
           break;
       case "South Central Oregon":
           baseline_peracre = 13.2;
@@ -136,9 +136,11 @@ var refreshCharts = function(){
     }
     if (baseline_peracre) {
         // baseline = AGL (tC/acre) * acres = AGL(tC)
+        var conversion = 0.90718474; // 1 short ton = 0.90718474 metric tons
+        baseline_peracre = baseline_peracre * conversion;
         var baseline = baseline_peracre * acres;
         scenarioData.push([['2001-12-31 11:59PM', baseline], ['2120-12-31 11:59PM', baseline]]);
-        scenarioLabels.push({'label': "Regional Baseline (" + baseline_peracre + " tC/acre)"});
+        scenarioLabels.push({'label': "Regional Baseline (" + parseInt(baseline_peracre*10,10)/10.0 + " metric tons/acre)"});
     }
   }
 
