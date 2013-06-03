@@ -662,13 +662,17 @@ class Scenario(Feature):
         (stands are optimized for openlayers map while property-level works with jqplot)
         """
         d = {
-            "carbon": [],
-            "timber": []
+            "agl_carbon": [],
+            "total_carbon": [],
+            "harvested_timber": [],
+            "standing_timber": [],
         }
         sql = """SELECT
                     a.year AS year,
-                    SUM(a.total_stand_carbon * ss.acres) AS carbon,
-                    SUM(a.removed_merch_bdft * ss.acres) AS timber
+                    SUM(a.total_stand_carbon * ss.acres) AS total_carbon,
+                    SUM(a.agl * ss.acres) AS agl_carbon,
+                    SUM(a.removed_merch_bdft * ss.acres) AS harvested_timber,
+                    SUM(a.after_merch_bdft * ss.acres) AS standing_timber
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -684,10 +688,14 @@ class Scenario(Feature):
 
         cursor = connection.cursor()
         cursor.execute(sql)
-        for row in cursor.fetchall():
-            date = "%d-12-31 11:59PM" % row[0]
-            d['carbon'].append([date, row[1]])
-            d['timber'].append([date, row[2]])
+        desc = cursor.description
+        for rawrow in cursor.fetchall():
+            row = dict(zip([col[0] for col in desc], rawrow))
+            date = "%d-12-31 11:59PM" % row['year']
+            d['agl_carbon'].append([date, row['agl_carbon']])
+            d['total_carbon'].append([date, row['total_carbon']])
+            d['harvested_timber'].append([date, row['harvested_timber']])
+            d['standing_timber'].append([date, row['standing_timber']])
 
         return {'__all__': d}
 
@@ -703,14 +711,18 @@ class Scenario(Feature):
         for sstand in scenariostands:
             d[sstand.pk] = {
                 "years": [],
-                "carbon": [],
-                "timber": []
+                "total_carbon": [],
+                "agl_carbon": [],
+                "standing_timber": [],
+                "harvested_timber": [],
             }
 
         sql = """SELECT
                     ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
-                    a.total_stand_carbon * ss.acres AS carbon,
-                    a.removed_merch_bdft * ss.acres AS timber
+                    a.total_stand_carbon * ss.acres AS total_carbon,
+                    a.agl * ss.acres AS agl_carbon,
+                    a.removed_merch_bdft * ss.acres AS harvested_timber,
+                    a.after_merch_bdft * ss.acres AS standing_timber
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -730,8 +742,10 @@ class Scenario(Feature):
             row = dict(zip([col[0] for col in desc], rawrow))
             ds = d[row["sstand_id"]]
             ds['years'].append(row["year"])
-            ds['carbon'].append(row["carbon"])
-            ds['timber'].append(row["timber"])
+            ds['agl_carbon'].append(row["agl_carbon"])
+            ds['total_carbon'].append(row["total_carbon"])
+            ds['standing_timber'].append(row["standing_timber"])
+            ds['harvested_timber'].append(row["harvested_timber"])
 
         return d
 

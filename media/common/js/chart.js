@@ -29,27 +29,39 @@ var globalChartOptions = {
       }
 };
 
-var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228", 
+var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228",
                     "#579575", "#839557", "#958c12",
-                    "#953579", "#4b5de4", "#d8b83f", 
+                    "#953579", "#4b5de4", "#d8b83f",
                     "#ff5800", "#0085cc"];  // assumes max of 11 series will be shown
 
-var scenarioPlot; 
+var scenarioPlot;
 
 var chartMetrics = {
-  'carbon': {
-    'variableName': 'carbon',
-    'title': "Carbon Sequestration",
-    'axisLabel': "Carbon (tons)",
+  'agl_carbon': {
+    'variableName': 'agl_carbon',
+    'title': "Above-Ground Carbon",
+    'axisLabel': "Carbon (metric tons)",
     'axisFormat': '%d'
   },
-  'timber': {
-    'variableName': 'timber',
+  'total_carbon': {
+    'variableName': 'total_carbon',
+    'title': "Total Ecosystem Carbon",
+    'axisLabel': "Carbon (metric tons)",
+    'axisFormat': '%d'
+  },
+  'harvested_timber': {
+    'variableName': 'harvested_timber',
     'title': "Timber Harvested",
-    'axisLabel': "Harvest (mbdft)",
+    'axisLabel': "Harvest (bdft)",
+    'axisFormat': '%d'
+  },
+  'standing_timber': {
+    'variableName': 'standing_timber',
+    'title': "Standing Timber",
+    'axisLabel': "Stock (mbdft)",
     'axisFormat': '%d'
   }
-}
+};
 
 var refreshCharts = function(){
 
@@ -78,34 +90,68 @@ var refreshCharts = function(){
     var newData = [];
     var resall;
     var res = this.fields.output_property_metrics;
-    
+
     if (res) {
         resall = res['__all__'];
     }
 
     if (resall) {
         newData = resall[metric.variableName];
-    } 
+    }
 
     if (newData.length === 0) {
         newData = [[null]];
     }
 
-    scenarioData.push(newData); 
-    scenarioLabels.push({'label': this.fields.name}); 
+    scenarioData.push(newData);
+    scenarioLabels.push({'label': this.fields.name});
 
   });
+
+  /*
+   *  AGL Regional baseline, hardcoded madness here
+   */
+  if (metric.variableName == "agl_carbon") {
+    var acres = app.scenarios.viewModel.property.acres();
+    var baseline_peracre;
+    switch (app.scenarios.viewModel.property.variant()) {
+      case "Pacific Northwest Coast":
+          baseline_peracre = 38.6;
+          break;
+      case "South Central Oregon":
+          baseline_peracre = 13.2;
+          break;
+      case "Eastside Cascades":
+          baseline_peracre = 13.2;
+          break;
+      case "Inland California and Southern Cascades":
+          baseline_peracre = 23.6;
+          break;
+      case "Westside Cascades":
+          baseline_peracre = 32.1;
+          break;
+      case "Blue Mountains":
+          baseline_peracre = 10.4;
+          break;
+    }
+    if (baseline_peracre) {
+        // baseline = AGL (tC/acre) * acres = AGL(tC)
+        var baseline = baseline_peracre * acres;
+        scenarioData.push([['2001-12-31 11:59PM', baseline], ['2120-12-31 11:59PM', baseline]]);
+        scenarioLabels.push({'label': "Regional Baseline (" + baseline_peracre + " tC/acre)"});
+    }
+  }
 
   if (scenarioData.length > 0) {
     scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
         title: metric.title,
-        series: scenarioLabels, 
+        series: scenarioLabels,
         axes: {
             xaxis: {
               label: "Year",
               renderer: $.jqplot.DateAxisRenderer,
               tickOptions: {formatString:'%Y'},
-              min:'Jan 01, 2010 8:00AM', 
+              min:'Jan 01, 2010 8:00AM',
               max:'Jan 01, 2111 8:00AM',
               tickInterval:'10 years',
               pad: 0
