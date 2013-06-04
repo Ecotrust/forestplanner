@@ -25,6 +25,8 @@ def list_species_sizecls(request, property_uid):
     from django.db import connection
 
     forestproperty = get_object_for_viewing(request, property_uid)
+    if isinstance(forestproperty, HttpResponse):
+        return forestproperty
     variant = forestproperty.variant
 
     sql = """
