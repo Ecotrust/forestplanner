@@ -132,9 +132,9 @@
 						<p>We should have some help text here.</p>
 					</div>
 					
-					<div data-bind="with: activeStratum">
+					<div >
 
-						<div class="row-fluid">
+						<div data-bind="with: activeStratum" class="row-fluid">
 						
 							<div class="span5">
 								<div>
@@ -179,10 +179,10 @@
 								<div id="chart-container"></div>
 							</div>
 
-						</div> <!-- /.row-fluid -->
+					 </div> <!-- /.row-fluid /with: activeStratum -->
 
 
-						<div class="row-fluid">
+						<div data-bind="with: activeStratum" class="row-fluid">
 						 <table class="table table-bordered stand-table" data-bind="visible: standList().length"  style="display: none">
 
 							 <thead>
@@ -322,22 +322,22 @@
 									<td>
 										<!--<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>-->
 									
-										<button data-bind="click: addSpecies" class="btn btn-mini btn-success">Save it</button>
+										<button data-bind="click: addSpecies" class="btn btn-mini btn-success">Save</button>
 									</td>										 
 								</tr>
 							 </tbody>
 							 
 						 </table>
-					 </div> <!-- /.row-fluid -->
+					 </div> <!-- /.row-fluid /with: activeStratum -->
 
 						 <div class="btn-group pull-right">
-							 <button class="btn btn-large" data-bind="click: $parent.cancel">cancel</button>
+							 <button class="btn btn-large" data-bind="click: cancel">cancel</button>
 							 <!--<button class="btn btn-large btn-success" data-bind="enable: $root.activeStratum().standList().length, click: $parent.saveStrata"><i class="icon-check icon-white"></i> Done</button>-->
-							 <button class="btn btn-large btn-success" data-bind="click: $root.saveStrata"><i class="icon-check icon-white"></i> Done</button>
+							 <button class="btn btn-large btn-success" data-bind="click: saveStrata"><i class="icon-check icon-white"></i> Done</button>
 						 </div>
 						 <div class="clearfix"></div>
 
-				 </div><!-- /with: activeStratum -->
+				 </div><!--  -->
 
 			 </div> <!-- / visible: activeStratum -->
 
@@ -596,8 +596,8 @@
 
         // individual stand list member
         function standViewModel (stratum, options) {
-			console.log('standViewModel stratum', stratum);
-			console.log('standViewModel options', options);
+					console.log('standViewModel stratum', stratum);
+					console.log('standViewModel options', options);
             var self = this, chartTimer = null;
             if (! options) {
               options = []
@@ -639,7 +639,8 @@
             
               
             };
-			self.isEditing = ko.observable(false);
+
+						self.isEditing = ko.observable(false);
 
             self.editTree = function (event) {
                 this.isEditing(true);
@@ -801,6 +802,7 @@
 
 				
 				console.info('self.standList after', self.standList());
+         //  self.activeStratum(null);
 				
 			/*	
 				if ( !self.editMode() ) {
@@ -914,7 +916,6 @@
 
           // either false, or holds a stratumViewModel
           self.activeStratum = ko.observable();
-          //self.activeStratum = ko.observable();
 
           // the species lists needs an empty string at the beggining
           self.treeSpecies = app.strata.treeSpecies;
@@ -943,9 +944,9 @@
             return filteredStrataList;
           }, self.strataList);
 
-		  self.clearStandFilter = function(){
-			  self.searchTerm("");
-		  }
+					self.clearStandFilter = function(){
+						self.searchTerm("");
+					}
 
           self.activeStratum.subscribe(function (activeStratum) {
             
@@ -997,12 +998,11 @@
           });
 
           self.editStratum = function (stratum) {
-						
-			console.log('editStratum stratum', stratum);
             var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
             app.strata.stratumBeingEdited = stratum;
             duplicateStratum.editMode(true);
             self.activeStratum(duplicateStratum);
+						console.log('editStratum stratum', stratum);
           };
 
           self.cancel = function () {
@@ -1071,13 +1071,14 @@
 
 					self.saveStrata = function () {
 						console.log('save strata');
+						console.log(' strataViewModel self.activeStratum	', this.activeStratum	);
+						console.log(' strataViewModel self', this	);
             var self = this; 
 						var	postData,
                 // stratum = self.activeStratum(),
-								// no!! But, ok. Fine. -wm
                 stratum = app.strata.viewModel.activeStratum(),
                 url = "/features/strata/form/";
-
+						console.log('self saveStrata', self);
             if (stratum.editMode()) {
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
@@ -1116,17 +1117,21 @@
                     } else {
                       // new strata
                       app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
-                      self.activeStratum().attributes.stand_list = postData.stand_list;
-                      self.activeStratum().attributes.uid = strata_uid;
-                      self.strataList.push(self.activeStratum());  
+                      stratum.attributes.stand_list = postData.stand_list;
+                      stratum.attributes.uid = strata_uid;
+											console.log(self);
+                      // self.strataList.push(self.activeStratum());  
+											app.strata.viewModel.strataList.push(self.activeStratum());
                     }
                     
                     self.activeStratum(null);
                     
                 },
                 error: function (response) { 
-                    self.strataList.push(self.activeStratum());
-                    self.activeStratum(null);
+									//self.strataList.push(self.activeStratum());
+									//self.activeStratum(null);
+									app.strata.viewModel.strataList.push(stratum);
+									app.strata.viewModel.activeStratum(null);
                 }
             });
           };
