@@ -18,13 +18,14 @@
 	</div>
 
 	<header style="display:none" data-bind="visible: $root">
-		<h1>
-			Manage Stand Groups 2
-		</h1>
 		<div class="btn-group pull-right">
 			<a class="btn btn-mini" data-bind="disable: activeStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
-			<button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
+			<!--<button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>-->
+			<button class="btn btn-mini btn-success" data-bind="click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
 		</div>
+		<h1>
+			Manage Stand Groups
+		</h1>
 	</header>
 
 </div>
@@ -38,7 +39,7 @@
 
 				<!-- strata list -->
 				<div class="row-fluid">
-					<div class="span12" data-bind="visible: strataList().length && ! activeStratum()">
+					<div class="span12" data-bind="visible: strataList().length && ! activeStratum()" style="display: none" >
 
 						<div class="row-fluid">
 								<p>You have applied stand groups to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
@@ -95,7 +96,7 @@
 				</div>
 
 				<!-- property has no strata -->
-				<div data-bind="visible: !strataList().length && ! activeStratum()">
+				<div data-bind="visible: !strataList().length && ! activeStratum()" style="display: none">
 						You have no stand groups.
 				</div>
 
@@ -127,10 +128,12 @@
 
 				<div data-bind="visible: activeStratum()" style="display: none">
 
+					<!--
 					<div data-bind="visible: !activeStratum().standList().length"  style="display: none">
 						<h2>Enter Stand Group Information</h2>
 						<p>We should have some help text here.</p>
 					</div>
+					-->
 					
 					<div >
 
@@ -139,7 +142,7 @@
 							<div class="span5">
 								<div>
 									<h2 data-bind="visible: !editMode()">Create a New Stand Group</h2>
-									<h2 data-bind="visible: editMode()">Edit: <i data-bind="text: attributes.name"></i></h2>
+									<h2 data-bind="visible: editMode()">Editing Stand Group: <i data-bind="text: attributes.name"></i></h2>
 									<label>Stand Group Name</label>
 									<input type="text" class="span8" placeholder="Stand Group Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
@@ -183,7 +186,8 @@
 
 
 						<div data-bind="with: activeStratum" class="row-fluid">
-						 <table class="table table-bordered stand-table" data-bind="visible: standList().length"  style="display: none">
+						 <!--<table class="table table-bordered stand-table" data-bind="visible: standList().length"  style="display: none">-->
+						 <table class="table table-bordered stand-table">
 
 							 <thead>
 								<tr>
@@ -197,15 +201,11 @@
 									 <td colspan="5">
 										 <div class="row-fluid">
 											 <div class="btn-group pull-right">
-												 <!--<button class="btn btn-large"><i class="icon-white icon-plus"></i> Cancel</button>-->
-
-												 <!--<button class="btn btn-large" data-bind="click: $parent.prev, enable: index() !== 0"><i class="icon-white icon-arrow-left"></i> Back</button>-->
-												 <!--<button class="btn btn-large btn-success" data-bind="click: $root.addSpecies, enable: standList.species() && standList.sizeClass() && percentage() && percentageIsValid() ">-->
+												 <!--
 												 <button class="btn btn-large btn-success" data-bind="click: $root.addSpecies ">
-
 													 <span data-bind=""><i class="icon-white icon-plus"></i> Add Species</span>
-													 <!--<span data-bind="visible: index() !== $parent.standList().length-1"><i class="icon-white icon-arrow-right"></i> Next Species</span>-->
 												 </button>
+												 -->
 											 </div>
 										 </div>         
 									 </td>
@@ -596,8 +596,6 @@
 
         // individual stand list member
         function standViewModel (stratum, options) {
-					console.log('standViewModel stratum', stratum);
-					console.log('standViewModel options', options);
             var self = this, chartTimer = null;
             if (! options) {
               options = []
@@ -720,7 +718,7 @@
                   // species name, sizeclass lower bound, upper bound, percentage
                   [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
               }
-			  */
+							*/
 
               return displayStandList;
             });
@@ -761,126 +759,82 @@
 
             };
 
-			self.saveSpecies = function () {
-				console.log('saveSpecies');
+						self.saveSpecies = function () {
 
-				if ( !self.editMode() ) {
-					console.info('saveSpecies !self.editMode')
-                  self.standList.push(stand);
-                  self.currentStand(stand);
-                } else {
-					console.info('saveSpecies else !self.editMode')
-                  self.currentStand(self.standList()[self.standList().length-1]);
-                  //self.editTrees(true);
-                }
-				self.currentStand().editTrees(false)
-				self.editTrees(false);
+							if ( !self.editMode() ) {
+								self.standList.push(stand);
+								self.currentStand(stand);
+							} else {
+								self.currentStand(self.standList()[self.standList().length-1]);
+								//self.editTrees(true);
+							}
+							self.currentStand().editTrees(false)
+							self.editTrees(false);
 
-			};
+						};
 
-			self.addSpecies = function (foo, bar) {
-				console.info('addSpecies');
-
-				var stand,
-						self = this,
-						attrs = [];
-
-				console.log('self.standList before', self.standList());
-
-				// 109% sure there is a better way
-				attrs[0] = self.species();
-				attrs[1] = 1;
-				attrs[2] = 5;
-				attrs[3] = self.percentage();
-
-				
-				stand = new standViewModel(self, attrs);
-		   
-
-				self.standList.push(stand);
-				self.currentStand(stand);
-
-				
-				console.info('self.standList after', self.standList());
-         //  self.activeStratum(null);
-				
-			/*	
-				if ( !self.editMode() ) {
-					console.log('!self.editMode')
-                  self.standList.push(stand);
-                  self.currentStand(stand);
-                } else {
-					console.log('else !self.editMode')
-                  self.currentStand(self.standList()[self.standList().length-1]);
-                  //self.editTrees(true);
-                }
-
-				
-                if (self.currentStand().index() === self.standList().length -1) {
-					console.log('addSpecies if');
-                    self.standList.push(stand);
-                    self.currentStand(stand);
-                } else {
-					console.log('addSpecies else');
-                    self.currentStand(self.standList()[self.currentStand().index() + 1]);
-                }
-			*/
-
-				
-                
-			};
-
-			self.editSpecies = function(){
-				console.log('edit species');
-                var self = this.stratum,
-					stand = new standViewModel(self);
-
-				self.currentStand(self.standList()[self.standList().length-1]);
-				
-			}
-			self.selectRow = function () {
-				var self = this;
-				if (self.stratum.currentStand().species !== 'unknown') {
-					self.stratum.currentStand(self);
-				}
+						self.addSpecies = function (foo, bar) {
+							var stand,
+									self = this,
+									attrs = [];
 
 
-			};
-			self.selectRowMeh = function () {
-				/*
-					TOO MUCH. Should trigger self.editSpecies
-					could:
-						form row duplicate/move to position?
-						add form controls to loop and editmode for any given species shows the form controls
-				*/
+							// 139% sure there is a better way. scope fail.
+							attrs[0] = self.species();
+							attrs[1] = 1;
+							attrs[2] = 5;
+							attrs[3] = self.percentage();
 
-                //var self = this,
-                var self = this.stratum,
-					stand = new standViewModel(self);
+							stand = new standViewModel(self, attrs);
+
+							self.standList.push(stand);
+							self.currentStand(stand);
+						};
+
+						self.editSpecies = function(){
+							console.log('edit species');
+							var self = this.stratum,
+									stand = new standViewModel(self);
+
+							self.currentStand(self.standList()[self.standList().length-1]);
+							
+						}
+						self.selectRow = function () {
+							var self = this;
+							if (self.stratum.currentStand().species !== 'unknown') {
+								self.stratum.currentStand(self);
+							}
 
 
-                if ( !self.editMode() ) {
-                  self.standList.push(stand);
-                  self.currentStand(stand);
-                } else {
-                  //self.currentStand(stand);
-
-                  self.currentStand(self.standList()[self.displayStandList().length-1]);
-                  self.editTrees(true);
-                }
-
-				self.editTrees(true);
-				self.currentStand().editTrees(true);
+						};
+						self.selectRowMeh = function () {
+							//var self = this,
+							var self = this.stratum,
+									stand = new standViewModel(self);
 
 
-				/*
-				if (self.currentStand().species !== 'unknown') {
-					self.currentStand(self);
-					//self.currentStand(self.standList()[self.standList().length-1])
-					self.editTrees(true);
-				}  
-				*/
-			};
+							if ( !self.editMode() ) {
+								self.standList.push(stand);
+								self.currentStand(stand);
+							} else {
+								//self.currentStand(stand);
+
+								self.currentStand(self.standList()[self.displayStandList().length-1]);
+								self.editTrees(true);
+							}
+
+							self.editTrees(true);
+							self.currentStand().editTrees(true);
+
+
+							/*
+							if (self.currentStand().species !== 'unknown') {
+								self.currentStand(self);
+								//self.currentStand(self.standList()[self.standList().length-1])
+								self.editTrees(true);
+							}  
+							*/
+						};
 
             // set the color and store a reference
             if (app.strata.colorMap[self.attributes.uid]) {
@@ -890,17 +844,21 @@
               app.strata.colorMap[self.attributes.uid] = self.color();  
             }
            
-			$.each(app.stand_layer.features, function (i, stand) {
-				var total = app.strata.viewModel.appliedStrataTotal;
-				if ( stand.attributes.strata !== null && stand.attributes.strata.uid === self.attributes.uid ) {
-					stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
-					app.stand_layer.drawFeature(stand);
-					total(total()+1);
-				}
-			});
+						$.each(app.stand_layer.features, function (i, stand) {
+							var total = app.strata.viewModel.appliedStrataTotal;
+							if ( stand.attributes.strata !== null && stand.attributes.strata.uid === self.attributes.uid ) {
+								stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
+								app.stand_layer.drawFeature(stand);
+								total(total()+1);
+							}
+						});
 
             return self;
         };
+
+
+
+
 
         function strataViewModel () {
           var self = {};
@@ -1010,6 +968,7 @@
           }
 
           self.createStratum = function () {
+
             self.activeStratum(new stratumViewModel());
           };
 
@@ -1070,15 +1029,11 @@
 
 
 					self.saveStrata = function () {
-						console.log('save strata');
-						console.log(' strataViewModel self.activeStratum	', this.activeStratum	);
-						console.log(' strataViewModel self', this	);
-            var self = this; 
-						var	postData,
-                // stratum = self.activeStratum(),
-                stratum = app.strata.viewModel.activeStratum(),
+            var self = this, postData,
+                stratum = self.activeStratum(),
+                //stratum = app.strata.viewModel.activeStratum(),
                 url = "/features/strata/form/";
-						console.log('self saveStrata', self);
+
             if (stratum.editMode()) {
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
@@ -1117,22 +1072,19 @@
                     } else {
                       // new strata
                       app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
-                      stratum.attributes.stand_list = postData.stand_list;
-                      stratum.attributes.uid = strata_uid;
-											console.log(self);
-                      // self.strataList.push(self.activeStratum());  
-											app.strata.viewModel.strataList.push(self.activeStratum());
+                      self.activeStratum().attributes.stand_list = postData.stand_list;
+                      self.activeStratum().attributes.uid = strata_uid;
+                      self.strataList.push(self.activeStratum());  
                     }
                     
                     self.activeStratum(null);
                     
                 },
                 error: function (response) { 
-									//self.strataList.push(self.activeStratum());
-									//self.activeStratum(null);
-									app.strata.viewModel.strataList.push(stratum);
-									app.strata.viewModel.activeStratum(null);
+                    self.strataList.push(self.activeStratum());
+                    self.activeStratum(null);
                 }
+
             });
           };
 
@@ -1301,8 +1253,6 @@
         }
       };
 
-function dbug(whatever) { debugger; return whatever; }
-function dbugg(vars, member) { console.log(vars); debugger; return vars[0][member]; }
 
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
