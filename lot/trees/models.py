@@ -1421,57 +1421,10 @@ class ScenarioStand(PolygonFeature):
 
 class FVSAggregate(models.Model):
     """
-    0. Run fvsbatch
-    1. sed merge csvs
-
-        cd /usr/local/data/out
-        # copy header from first file
-        ls *.csv | head -n 1
-        sed -n 1p FIRST_FILE.csv > merge.csv
-        #copy all but the first line from all other files
-        for i in *.csv; do sed 1d $i; done >> merge.csv
-         cat merge.csv | wc -l
-         # should be...  plots = (lines - 1) / 126.0 lines per plot
-
-    2. copy/modify this model definition
-    3. schemamigration
-       python manage.py schemamigration trees --auto
-
-    4. migrate
-        python migrate trees
-
-    5.  TODO rm indicies before copy
-
-    6. postgres copy; the variable list below, the csv headers and the model need to be exactly in sync
-       run extract . test.csv on a untared directory to get the precise list
-
-        sudo su postgres
-        psql -d forestplanner
-        COPY trees_fvsaggregate("agl","bgl","calc_carbon","cond","dead","offset","rx","site","total_stand_carbon",
-            "var","year","merch_carbon_removed","merch_carbon_stored","cedr_bf","cedr_hrv","ch_cf","ch_hw","ch_tpa",
-            "cut_type","df_bf","df_hrv","es_btl","firehzd","hw_bf","hw_hrv","lg_cf","lg_hw","lg_tpa","lp_btl","mnconbf",
-            "mnconhrv","mnhw_bf","mnhw_hrv","nsodis","nsofrg","nsonest","pine_bf","pine_hrv","pp_btl","sm_cf","sm_hw",
-            "sm_tpa","spprich","sppsimp","sprc_bf","sprc_hrv","wj_bf","wj_hrv","ww_bf","ww_hrv","after_ba",
-            "after_merch_bdft","after_merch_ft3","after_total_ft3","after_tpa","age","removed_merch_bdft",
-            "removed_merch_ft3","removed_total_ft3","removed_tpa","start_ba","start_merch_bdft",
-            "start_merch_ft3","start_total_ft3","start_tpa")
-        FROM '/tmp/merge.csv'
-        DELIMITER ',' CSV HEADER;
-
-    7. TODO (re)create indicies
-
-        -- not sure which of thse are helpful or not, need to do some EXPLAIN ANALYZEs on real data
-        CREATE INDEX idx_trees_fvsaggregate_cond ON trees_fvsaggregate (cond);
-        CREATE INDEX idx_trees_fvsaggregate_rx ON trees_fvsaggregate (rx);
-        CREATE INDEX idx_trees_fvsaggregate_"offset" ON trees_fvsaggregate ("offset");
-        CREATE INDEX idx_trees_fvsaggregate_site ON trees_fvsaggregate (site);
-        CREATE INDEX idx_trees_fvsaggregate_var ON trees_fvsaggregate (var);
-        CREATE INDEX idx_trees_fvsaggregate_year ON trees_fvsaggregate (year);
-        CREATE INDEX idx_trees_fvsaggregate_site_var ON trees_fvsaggregate (site, var);
-
-    8. TODO create/backup/distribute fixtures
+    Model to hold all FVS growth-and-yield results
+    Each object/row represents a single
+    variant/condition/offset/rx/year combination
     """
-
     agl = models.FloatField(null=True, blank=True)
     bgl = models.FloatField(null=True, blank=True)
     calc_carbon = models.FloatField(null=True, blank=True)
