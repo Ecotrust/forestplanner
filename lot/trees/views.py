@@ -4,6 +4,7 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponsePerman
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
+from madrona.features.views import get_object_for_viewing
 from geopy import geocoders
 from geopy.point import Point
 from trees.models import Stand
@@ -16,18 +17,15 @@ logger = get_logger()
 
 
 @cache_page(60 * 60 * 24 * 365)
-def list_species_sizecls(request, variant_id):
+def list_species_sizecls(request, property_uid):
     '''
     Provide a json list of all species and available size classes
     in the specified variant
     '''
-    from trees.models import FVSVariant
     from django.db import connection
 
-    try:
-        variant = FVSVariant.objects.get(id=int(variant_id))
-    except FVSVariant.DoesNotExist:
-        return HttpResponse(json.dumps({'error': 'Variant %s does not exist' % variant_id}), status=404)
+    forestproperty = get_object_for_viewing(request, property_uid)
+    variant = forestproperty.variant
 
     sql = """
     SELECT fia_forest_type_name,

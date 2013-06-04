@@ -19,7 +19,7 @@ urlpatterns = patterns(
     # Services
     url(r'^geosearch/$',
         geosearch, name='trees-geosearch'),
-    url(r'^variant/(?P<variant_id>\d+)/species_sizecls.json$',
+    url(r'^variant/(?P<property_uid>\w+)/species_sizecls.json$',
         list_species_sizecls, name='trees-list_species_sizecls'),
     url(r'^variant/(?P<variant_id>\d+)_decision.xml$',
         variant_decision_xml, name='trees-variant-decision-xml'),
