@@ -721,11 +721,26 @@
                 }
                 stand.percentageIsValid(true);                   
 								displayStandList.push(stand);  
+								console.info('within $each STAND', stand);
               });
-              if (totalPercentage < 100) {
+              if (totalPercentage < 100 && totalPercentage != 0) { // == 0 on load
+
+								var placeHolder = new standViewModel(self,
+                  // species name, sizeclass lower bound, upper bound, percentage
+                  [ 'Unknown type', "?", "?", 100 - totalPercentage ]) 
+
+								displayStandList.push(placeHolder);
+								self.standList.push(placeHolder);
+									//self.currentStand(placeHolder);
+									//self.currentStand().updateChart();
+									
+
+									/*
                 displayStandList.push(new standViewModel(self,
                   // species name, sizeclass lower bound, upper bound, percentage
                   [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
+									*/
+									
               }
 
               return displayStandList;
@@ -768,6 +783,8 @@
             };
 
 						self.saveSpecies = function () {
+							console.log('self.saveSpecies');
+
 							if ( !self.editMode() ) {
 								self.standList.push(stand);
 								self.currentStand(stand);
@@ -780,9 +797,10 @@
 						};
 
 						self.addSpecies = function (foo, bar) {
+							console.log('addSpecies');
 							var stand,
-							self = this,
-							attrs = [];
+									self = this,
+									attrs = [];
 
 							// 139% sure there is a better way. scope fail.
 							attrs[0] = self.species();
@@ -800,7 +818,7 @@
 						self.editSpecies = function(){
 							console.log('edit species - unused');
 							var self = this.stratum,
-							stand = new standViewModel(self);
+									stand = new standViewModel(self);
 
 							self.currentStand(self.standList()[self.standList().length-1]);
 						}
