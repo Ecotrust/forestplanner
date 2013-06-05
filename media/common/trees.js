@@ -12,11 +12,13 @@ function init() {
     var switcher = new OpenLayers.Control.LayerSwitcher();
     map.addControl(switcher);
 
-    map.addControl(new OpenLayers.Control.Navigation({
+    map.addControl( new OpenLayers.Control.Navigation({
             dragPanOptions: {
                 enableKinetic: false
             }
         }));
+
+    map.addControl(new OpenLayers.Control.KeyboardDefaults({observeElement: 'map'}));
 
     map.addControl(new OpenLayers.Control.Attribution());
 

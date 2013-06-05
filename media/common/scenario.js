@@ -1,30 +1,3 @@
-app.scenarios.styleMap = new OpenLayers.StyleMap({
-    "default": new OpenLayers.Style({
-        fillColor: "${getColor}",
-        fillOpacity: "${getOpacity}", //0.7,
-        strokeWidth: 1,
-        strokeOpacity: 0.6
-
-    }, {
-        // Rules go here.
-        context: {
-            getColor: function(feature) {
-                return feature.attributes.color ? feature.attributes.color : "#fff";
-            },
-            getOpacity: function(feature) {
-                return feature.attributes.color ? 0.7 : 0.0;
-            }
-        }
-    }),
-    "select": {
-        fillOpacity: 0.7,
-        fillColor: "#aaaa00",
-        strokeColor: "#ffff00",
-        strokeWidth: 2,
-        strokeOpacity: 1.0 
-    }
-});
-
 function rxViewModel(options) {
     var self = this;
 
@@ -69,7 +42,7 @@ function scenarioFormViewModel(options) {
 
     self.rxBeingEdited = null;
 
-    // deciscion tree breadcrumbs:
+    // decision tree breadcrumbs:
     self.decisionOutput = ko.observableArray();
 
     self.nWithRx = ko.observable(0);
@@ -223,25 +196,6 @@ function scenarioFormViewModel(options) {
         self.updateWithRx();
     };
 
-    self.selectedFeatures = ko.observable(false);
-
-    // sometimes this happens too fast :()
-    setTimeout(function() {
-        app.rx_stand_layer.selectFeature.onSelect = function(feature) {
-            if (app.rx_stand_layer.selectedFeatures.length > 0) {
-                self.selectedFeatures(true);
-            }
-        };
-        app.rx_stand_layer.selectFeature.onUnselect = function(feature) {
-
-            if (app.rx_stand_layer.selectedFeatures.length === 0) {
-                self.selectedFeatures(false);
-            }
-        };
-
-    }, 900);
-
-
     return self;
 }
 
@@ -257,10 +211,14 @@ function scenarioViewModel(options) {
     self.scenarioForm = null;
 
     self.reloadScenarios = function() {
+        property = app.properties.viewModel.selectedProperty();
+        self.property = property;
+        self.loadScenarios(property);
         self.scenarioList.removeAll();
         self.selectedFeatures.removeAll();
-        refreshCharts();
-        self.loadScenarios(self.property);
+        self.showScenarioList(true);
+        self.showScenarioPanels(true);
+        timemapScenarioData = {};
     };
 
     self.loadScenarios = function(property) {
@@ -290,6 +248,7 @@ function scenarioViewModel(options) {
                 self.selectedFeatures.push(data[0]); // select the first one
             }
             refreshCharts();
+            refreshTimeMap(true, true);
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
@@ -312,6 +271,7 @@ function scenarioViewModel(options) {
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
         $('#map').fadeIn();
+        timemapInitialized = false; 
     };
 
     self.toggleFeature = function(f) {
@@ -363,9 +323,6 @@ function scenarioViewModel(options) {
             $("div#scenario-form-metacontainer").show();
             $("#scenario-outputs").hide();
             $("#map").show();
-
-
-            //$("div.outermap").hide();
         } else {
             $("div#scenario-form-metacontainer").hide();
             $("#scenario-outputs").show();
@@ -377,9 +334,6 @@ function scenarioViewModel(options) {
                 app.rx_stand_layer.removeAllFeatures();
                 app.selectFeature.activate();
             }
-
-
-            //$("div.outermap").show();
         }
     };
 
@@ -407,7 +361,7 @@ function scenarioViewModel(options) {
                     } else {
 
                         app.rx_stand_layer = new OpenLayers.Layer.Vector("Stands", {
-                            styleMap: app.scenarios.styleMap,
+                            styleMap: map_styles.scenarios,
                             renderers: app.renderer
                         });
 
@@ -418,45 +372,36 @@ function scenarioViewModel(options) {
                             "multiple": true,
                             "toggle": true
                         });
+
+                        app.rx_stand_layer.selectFeatureBox = new OpenLayers.Control.SelectFeature(app.rx_stand_layer, {
+                            "clickout": false,
+                            "multiple": true,
+                            "toggle": true,
+                            "box": true
+                        });
+
                         app.scenarios.rubberBandActive = false;
-                        $(document).on('keyup keydown', function (e) {
-                          if (e.shiftKey) {
-                            
-                            app.scenarios.rubberBandActive = true;
-                            app.selectFeature.deactivate();
-                            map.removeControl(app.selectFeature);
-                            app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                              { 
-                                "clickout": false,
-                                "multiple": true,
-                                "toggle": true,
-                                "box": true
-                              }); 
-                            map.addControl(app.selectFeature); 
-                            app.selectFeature.activate();
-                          } else {
+                        $(document).on('keyup', function (e) {
                             if (app.scenarios.rubberBandActive) {
-                            
-                              app.scenarios.rubberBandActive = true;
-                              app.selectFeature.deactivate();
-                              map.removeControl(app.selectFeature);
-                              app.selectFeature = new OpenLayers.Control.SelectFeature(app.rx_stand_layer,
-                              { 
-                                "clickout": false,
-                                "multiple": true,
-                                "toggle": true,
-                                "box": false
-                              });
-                              map.addControl(app.selectFeature); 
-                              app.selectFeature.activate();
+                                app.scenarios.rubberBandActive = false;
+                                app.rx_stand_layer.selectFeatureBox.deactivate();
+                                app.rx_stand_layer.selectFeature.activate();
                             }
-                          }
+                        });
+
+                        $(document).on('keydown', function (e) {
+                            if (e.shiftKey && !app.scenarios.rubberBandActive) {
+                                app.scenarios.rubberBandActive = true;
+                                app.rx_stand_layer.selectFeature.deactivate();
+                                app.rx_stand_layer.selectFeatureBox.activate();
+                            }
                         });
 
                         // reenable click and drag in vectors
                         app.rx_stand_layer.selectFeature.handlers.feature.stopDown = false;
-
                         map.addControl(app.rx_stand_layer.selectFeature);
+                        map.addControl(app.rx_stand_layer.selectFeatureBox);
+
                     }
 
                     app.rx_stand_layer.addFeatures(app.geojson_format.read(data));
@@ -569,6 +514,7 @@ function scenarioViewModel(options) {
                     }
                 };
                 app.rx_stand_layer.redraw()
+                app.scenarios.formViewModel.updateWithRx();
             }
         });
     };

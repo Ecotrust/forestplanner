@@ -15,6 +15,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.features import register, alternate, edit, get_feature_by_uid
+from madrona.common.utils import clean_geometry
 from madrona.common.utils import get_logger
 from django.core.cache import cache
 from django.contrib.gis.geos import GEOSGeometry
@@ -542,6 +543,9 @@ class ForestProperty(FeatureCollection):
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
+        # ensure multipolygon validity
+        if self.geometry_final:
+            self.geometry_final = clean_geometry(self.geometry_final)
         super(ForestProperty, self).save(*args, **kwargs)
 
     class Options:
@@ -658,32 +662,40 @@ class Scenario(Feature):
         (stands are optimized for openlayers map while property-level works with jqplot)
         """
         d = {
-            "carbon": [],
-            "timber": []
+            "agl_carbon": [],
+            "total_carbon": [],
+            "harvested_timber": [],
+            "standing_timber": [],
         }
         sql = """SELECT
                     a.year AS year,
-                    SUM(a.total_stand_carbon * ss.acres) AS carbon,
-                    SUM(a.removed_merch_bdft * ss.acres) AS timber
+                    SUM(a.total_stand_carbon * ss.acres) AS total_carbon,
+                    SUM(a.agl * ss.acres) AS agl_carbon,
+                    SUM(a.removed_merch_bdft * ss.acres) AS harvested_timber,
+                    SUM(a.after_merch_bdft * ss.acres) AS standing_timber
                 FROM
                     trees_fvsaggregate a
-                FULL OUTER JOIN
+                JOIN
                     trees_scenariostand ss
                   ON  a.cond = ss.cond_id
                   AND a.rx = ss.rx_internal_num
                   AND a.offset = ss.offset
-                WHERE a.site = 2 -- constant
-                AND   var = 'WC' --'%s' TODO get variant_code from current property
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                AND   a.var = '%s' -- get variant_code from current property
                 AND   ss.scenario_id = %d -- get id from current scenario
                 GROUP BY a.year
                 ORDER BY a.year;""" % (self.input_property.variant.code, self.id)
 
         cursor = connection.cursor()
         cursor.execute(sql)
-        for row in cursor.fetchall():
-            date = "%d-12-31 11:59PM" % row[0]
-            d['carbon'].append([date, row[1]])
-            d['timber'].append([date, row[2]])
+        desc = cursor.description
+        for rawrow in cursor.fetchall():
+            row = dict(zip([col[0] for col in desc], rawrow))
+            date = "%d-12-31 11:59PM" % row['year']
+            d['agl_carbon'].append([date, row['agl_carbon']])
+            d['total_carbon'].append([date, row['total_carbon']])
+            d['harvested_timber'].append([date, row['harvested_timber']])
+            d['standing_timber'].append([date, row['standing_timber']])
 
         return {'__all__': d}
 
@@ -699,36 +711,41 @@ class Scenario(Feature):
         for sstand in scenariostands:
             d[sstand.pk] = {
                 "years": [],
-                "carbon": [],
-                "timber": []
+                "total_carbon": [],
+                "agl_carbon": [],
+                "standing_timber": [],
+                "harvested_timber": [],
             }
 
         sql = """SELECT
                     ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
-                    a.total_stand_carbon * ss.acres AS carbon,
-                    a.removed_merch_bdft * ss.acres AS timber
+                    a.total_stand_carbon * ss.acres AS total_carbon,
+                    a.agl * ss.acres AS agl_carbon,
+                    a.removed_merch_bdft * ss.acres AS harvested_timber,
+                    a.after_merch_bdft * ss.acres AS standing_timber
                 FROM
                     trees_fvsaggregate a
-                FULL OUTER JOIN
+                JOIN
                     trees_scenariostand ss
                   ON  a.cond = ss.cond_id
                   AND a.rx = ss.rx_internal_num
                   AND a.offset = ss.offset
-                WHERE a.site = 2 -- constant
-                AND   var = 'WC' -- '%s' TODO get from current property
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                AND   var = '%s' -- get from current property
                 AND   ss.scenario_id = %d -- get from current scenario
                 ORDER BY ss.id, a.year;""" % (self.input_property.variant.code, self.id)
 
         cursor = connection.cursor()
         cursor.execute(sql)
-        print sql
         desc = cursor.description
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
             ds = d[row["sstand_id"]]
             ds['years'].append(row["year"])
-            ds['carbon'].append(row["carbon"])
-            ds['timber'].append(row["timber"])
+            ds['agl_carbon'].append(row["agl_carbon"])
+            ds['total_carbon'].append(row["total_carbon"])
+            ds['standing_timber'].append(row["standing_timber"])
+            ds['harvested_timber'].append(row["harvested_timber"])
 
         return d
 
@@ -820,10 +837,7 @@ class Scenario(Feature):
         self.invalidate_cache()
         if not self.is_runnable:
             raise ScenarioNotRunnable("%s is not runnable; each stand needs a condition ID" % self.uid)
-
         task = schedule_harvest.delay(self.id)
-        # total hack to slow the scenarios down to possibly allow the async task to complete
-        time.sleep(2)
         cache.set("Taskid_%s" % self.uid, task.task_id)
         return True
 
@@ -1445,6 +1459,16 @@ class FVSAggregate(models.Model):
         DELIMITER ',' CSV HEADER;
 
     7. TODO (re)create indicies
+
+        -- not sure which of thse are helpful or not, need to do some EXPLAIN ANALYZEs on real data
+        CREATE INDEX idx_trees_fvsaggregate_cond ON trees_fvsaggregate (cond);
+        CREATE INDEX idx_trees_fvsaggregate_rx ON trees_fvsaggregate (rx);
+        CREATE INDEX idx_trees_fvsaggregate_"offset" ON trees_fvsaggregate ("offset");
+        CREATE INDEX idx_trees_fvsaggregate_site ON trees_fvsaggregate (site);
+        CREATE INDEX idx_trees_fvsaggregate_var ON trees_fvsaggregate (var);
+        CREATE INDEX idx_trees_fvsaggregate_year ON trees_fvsaggregate (year);
+        CREATE INDEX idx_trees_fvsaggregate_site_var ON trees_fvsaggregate (site, var);
+
     8. TODO create/backup/distribute fixtures
     """
 

@@ -322,31 +322,21 @@
                                     <h5> <span data-bind="text: fields.name"><span> </h5>
                                     <span data-bind="text: fields.description"></span>
                                     <p>
-                                    <div class="scenario-details">
-                                        <!-- <ol style="font-size:9pt; margin:12px;" class="alert"
-                                              data-bind="css: { 'alert-info': fields.is_runnable && 
-                                              fields.property_is_runnable && !fields.needs_rerun }"> 
-                                              -->
-                                        <ol style="font-size:9pt; margin:12px;" class="alert"
-                                              data-bind="visible: !fields.is_runnable || 
-                                              !fields.property_is_runnable || fields.needs_rerun || fields.is_running"> 
-                                            <li> 
-                                                Scenario is runnable? (each stand has a rx)
-                                                <em data-bind="text: fields.is_runnable"></em>
-                                            </li>
-                                            <li> 
-                                                Property is runnable? (each stand has a condition)
-                                                <em data-bind="text: fields.property_is_runnable"></em>
-                                            </li>
-                                            <li> 
-                                                Needs rerun? (stands or strata have changed)
-                                                <em data-bind="text: fields.needs_rerun"></em>
-                                            </li>
-                                            <li> 
-                                                Still running? (currently processing or sitting in the task queue)
-                                                <em data-bind="text: fields.is_running"></em>
-                                            </li>
-                                        </ol>
+                                    <div class="scenario-details" style="padding-left: 8px; padding-right: 8px;">
+                                        <div data-bind="visible: !fields.is_running" > 
+                                            <div class="alert" data-bind="visible: !fields.is_runnable" > 
+                                                Not enough data to run this scenario. (Edit the scenario and a Rx to all stands.)
+                                            </div>
+                                            <div class="alert" data-bind="visible: !fields.property_is_runnable" >
+                                               Not enough data to run scenarios yet. (Go back to stand groups and define vegetation for all stands.)
+                                            </div>
+                                            <div class="alert" data-bind="visible: fields.needs_rerun" > 
+                                                Scenario needs to be rerun (Stands or strata have changed. Edit and re-Submit.)
+                                            </div>
+                                        </div>
+                                        <div class="alert" data-bind="visible: fields.is_running" > 
+                                            Scenario is currently in the task queue. Check back and hit Refresh in a few seconds.
+                                        </div>
                                     </div>
                                     </p>
                                 </td>
@@ -528,6 +518,7 @@
               </div>
               {% endif %}
               <div id="map"></div>
+              {% if user.is_authenticated %}
               <div id="scenario-outputs" style="display:none">
                     <ul class="nav nav-tabs" id="myTab">
                         <li class="active"><a href="#scenario-charts-tab-content" id="scenario-charts-tab" data-toggle="tab">Charts</a></li>
@@ -594,11 +585,11 @@
                                                     <i class="icon-backward"></i>
                                                 </button>
                                             </div>
-                                            <div class="span1"><p class="pull-right">2020</p></div>
+                                            <div class="span1"><p class="pull-right">2013</p></div>
                                             <div class="span8" style="padding: 3px;">
                                                 <div class="slider" id="slider-year-slider"></div> 
                                             </div>
-                                            <div class="span1"><p class="pull-left">2120</p></div>
+                                            <div class="span1"><p class="pull-left">2108</p></div>
                                             <div class="span1">
                                                 <button href="#" id="timemap-forward" class="btn btn-mini"> 
                                                     <i class="icon-forward"></i>
@@ -616,7 +607,7 @@
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
                                     <div class="timemap" id="timemap1"></div>
-                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
+                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: scenarioList">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                 </div>
@@ -624,8 +615,9 @@
                                     <div class="well hide error-timemap alert alert-error" id="error-timemap2">
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
+                                    <div class="error-timemap" id="timemap-legend"></div>
                                     <div class="timemap" id="timemap2"></div>
-                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
+                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: scenarioList">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                     <!--
@@ -634,10 +626,12 @@
                                                        optionsValue: 'pk'"></select>
                                     -->
                                 </div>
+
                             </div>
                         </div>
                     </div>
               </div> <!-- end scenario-outputs -->
+              {% endif %}
               
             </div>
           </div>
