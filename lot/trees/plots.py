@@ -8,6 +8,7 @@ from django.core.cache import cache
 from madrona.common.utils import get_logger
 logger = get_logger()
 
+VERBOSE = True
 
 def dictfetchall(cursor, classname=None):
     """Returns all rows from a cursor as a dict
@@ -214,6 +215,9 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
         total_ba += est_ba
         ba_dict[key] = est_ba
 
+    if VERBOSE:
+        print "# estimated total basal area", total_ba
+
     # query for candidates
     candidates = get_candidates(stand_list, variant)
 
@@ -226,15 +230,22 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
 
     input_params = {}
     for attr in plotsummaries.axes[1].tolist():
-        if attr.startswith("BAA_"):  # or TPA?
+        if attr.startswith("BAA_"):
             ssc = attr.replace("BAA_", "")
             input_params[attr] = ba_dict[ssc]
+        elif attr.startswith("TPA_"):
+            ssc = attr.replace("TPA_", "")
+            input_params[attr] = tpa_dict[ssc]
         elif attr == "TOTAL_PCTBA":
             input_params[attr] = 100.0  # TODO don't assume 100%
         elif attr == "PLOT_BA":
             input_params[attr] = total_ba
         elif attr == "NONSPEC_BA":
             input_params[attr] = 0  # shoot for 0 ba from non-specified species
+        elif attr == "NONSPEC_TPA":
+            input_params[attr] = 0  # shoot for 0 tpa from non-specified species
+        elif attr == "TOTAL_TPA":
+            input_params[attr] = total_tpa
 
     # Add site conditions
     input_params.update(site_cond)
@@ -265,7 +276,17 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
       - total number of potential candidates
     """
     if not weight_dict:
-        weight_dict = {}
+        # default weight dict
+        weight_dict = {
+            'TOTAL_PCTBA': 10,
+            'PLOT_BA': 10,
+            'NONSPEC_BA': 10,
+            'NONSPEC_TPA': 10,
+            'TOTAL_TPA': 10,
+            'calc_slope': 0.2,
+            'calc_aspect': 0.5,
+            'elev_ft': 0.7,
+        }
 
     search_params = input_params.copy()
     origkeys = search_params.keys()
@@ -303,25 +324,32 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
         if key in weight_dict:
             weights[i] = weight_dict[key]
 
-    querypoint = np.array([float(search_params[attr]) for attr in keys])
+    if VERBOSE:
+        print "----- weights", weights
+        print "\t".join(keys)
+
+    querypoint = np.array([round(search_params[attr], 2) for attr in keys])
+    if VERBOSE:
+        print querypoint
 
     rawpoints = np.array(ps_attr_list)
 
-    # Normalize to max of 100; linear scale
-    high = 100.0
-    low = 0.0
-    mins = np.min(rawpoints, axis=0)
-    maxs = np.max(rawpoints, axis=0)
-    rng = maxs - mins
-    scaled_points = high - (((high - low) * (maxs - rawpoints)) / rng)
-    scaled_querypoint = high - (((high - low) * (maxs - querypoint)) / rng)
-    scaled_querypoint[np.isinf(
-        scaled_querypoint)] = high  # replace all infinite values with high val
+    # Normalize to standard deviations from mean
+    stds = np.std(rawpoints, axis=0)
+    means = np.mean(rawpoints, axis=0)
+    scaled_points = (rawpoints - means) / stds
+    scaled_querypoint = (querypoint - means) / stds
+    scaled_querypoint[np.isinf(scaled_querypoint)] = 0
 
     # Apply weights
     # and guard against any nans due to zero range or other
     scaled_points = np.nan_to_num(scaled_points * weights)
     scaled_querypoint = np.nan_to_num(scaled_querypoint * weights)
+
+    if VERBOSE:
+        print "** scaled query point **"
+        print "\t", "\t".join([str(round(x, 2)) for x in list(scaled_querypoint)])
+        print "** scaled candidates **"
 
     # Create tree and query it for nearest plot
     tree = KDTree(scaled_points)
@@ -341,6 +369,8 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
             continue
         try:
             pseries = plotsummaries.irow(t[0])
+            if VERBOSE:
+                print pseries.name, "\t".join([str(round(x, 2)) for x in list(scaled_points[t[0]])])
         except IndexError:
             continue
 
@@ -354,35 +384,3 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
         ps.append(pseries)
 
     return ps, num_candidates
-
-if __name__ == "__main__":
-
-        stand_list = [
-            ('Douglas-fir', 6, 160),
-            ('Douglas-fir', 10, 31),
-            ('Douglas-fir', 14, 7),
-            ('Western hemlock', 14, 5),
-            ('Western redcedar', 14, 5),
-        ]
-
-        site_cond = {
-            'calc_aspect': 360,
-            'elev_ft': 1000,
-            'latitude_fuzz': 44.70,
-            'longitude_fuzz': -122.13,
-            'calc_slope': 15
-        }
-
-        weight_dict = {
-            'TOTAL_PCTBA': 5,
-        }
-
-        ps, num_candidates = get_nearest_neighbors(
-            site_cond, stand_list, weight_dict, k=5)
-
-        print
-        print "Candidates: ", num_candidates
-        print
-        for pseries in ps:
-            print pseries.name, pseries['_certainty']
-        print

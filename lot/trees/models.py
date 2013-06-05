@@ -127,12 +127,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         return res['cond_id']
 
     @property
-    def default_weighting(self):
-        return {
-            'TOTAL_PCTBA': 5,
-        }
-
-    @property
     def acres(self):
         g2 = self.geometry_final.transform(
             settings.EQUAL_AREA_SRID, clone=True)
@@ -1208,6 +1202,10 @@ class TreeliveSummary(models.Model):
 
     class Meta:
         db_table = u'treelive_summary'
+
+    def __unicode__(self):
+        return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (
+            self.cond_id, self.fia_forest_type_name, self.calc_dbh_class, self.sumoftpa, self.pct_of_totalba)
 
 
 class ConditionVariantLookup(models.Model):
