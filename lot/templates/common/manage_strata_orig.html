@@ -847,11 +847,6 @@
                 stratum = self.activeStratum(),
                 url = "/features/strata/form/";
 
-						console.log('self saveStrata', self);
-
-						console.log('saveStrata');
-						console.log(self);
-
             if (stratum.editMode()) {
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }

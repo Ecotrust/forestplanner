@@ -232,10 +232,17 @@
 										 <span data-bind="text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
 									 </td>
 									 <td>
-										 <span>
+										 <div class="btn-group" data-bind="visible: speciesConfirmDelete() === false">
 											 <button class="btn btn-mini" data-bind="click: editTree">Edit</button>
-											 <button class="btn btn-mini">Delete</button>
-										 </span>	
+											 <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(true) } ">Delete</button>
+										 </div>
+										 <span data-bind="visible: speciesConfirmDelete">
+											 <p class="sure">Are you sure?</p>
+											 <div class="btn-group" >
+												 <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(false) } ">Cancel</button>
+												 <button class="btn btn-mini btn-success" data-bind="click:  $parent.removeSpecies">Delete</button>
+												</div>
+										 </div>
 									 </td>
 								</tr>
 								
@@ -640,6 +647,7 @@
             };
 
 						self.isEditing = ko.observable(false);
+						self.speciesConfirmDelete = ko.observable(false);
 
             self.editTree = function (event) {
                 this.isEditing(true);
@@ -739,6 +747,7 @@
 
             // launch into species list creation
             self.next = function () {
+							//unused 6/3 -wm
                 var self = this,
                     stand = new standViewModel(self);
 
@@ -749,93 +758,64 @@
                   self.currentStand(self.standList()[self.standList().length-1]);
                   self.editTrees(true);
                 }
-
             };
 
             self.prev = function () {
+							//unused 6/3 -wm
                 var self = this, 
                     stratum = self.stratum;
                 
                 stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
-
             };
 
-						self.saveSpecies = function () {
+			self.saveSpecies = function () {
+				if ( !self.editMode() ) {
+					self.standList.push(stand);
+					self.currentStand(stand);
+				} else {
+					self.currentStand(self.standList()[self.standList().length-1]);
+					//self.editTrees(true);
+				}
+				self.currentStand().editTrees(false)
+				self.editTrees(false);
+			};
 
-							if ( !self.editMode() ) {
-								self.standList.push(stand);
-								self.currentStand(stand);
-							} else {
-								self.currentStand(self.standList()[self.standList().length-1]);
-								//self.editTrees(true);
-							}
-							self.currentStand().editTrees(false)
-							self.editTrees(false);
+			self.addSpecies = function (foo, bar) {
+				var stand,
+				self = this,
+				attrs = [];
 
-						};
+				// 139% sure there is a better way. scope fail.
+				attrs[0] = self.species();
+				attrs[1] = 1;
+				attrs[2] = 5;
+				attrs[3] = self.percentage();
 
-						self.addSpecies = function (foo, bar) {
-							var stand,
-									self = this,
-									attrs = [];
+				stand = new standViewModel(self, attrs);
 
+				self.standList.push(stand);
+				self.currentStand(stand);
+			};
 
-							// 139% sure there is a better way. scope fail.
-							attrs[0] = self.species();
-							attrs[1] = 1;
-							attrs[2] = 5;
-							attrs[3] = self.percentage();
+			self.editSpecies = function(){
+				console.log('edit species - unused');
+				var self = this.stratum,
+				stand = new standViewModel(self);
 
-							stand = new standViewModel(self, attrs);
+				self.currentStand(self.standList()[self.standList().length-1]);
+			}
 
-							self.standList.push(stand);
-							self.currentStand(stand);
-						};
+			self.removeSpecies = function(stand){
+				self.standList.remove(stand);
+			};
 
-						self.editSpecies = function(){
-							console.log('edit species');
-							var self = this.stratum,
-									stand = new standViewModel(self);
-
-							self.currentStand(self.standList()[self.standList().length-1]);
-							
-						}
-						self.selectRow = function () {
-							var self = this;
-							if (self.stratum.currentStand().species !== 'unknown') {
-								self.stratum.currentStand(self);
-							}
-
-
-						};
-						self.selectRowMeh = function () {
-							//var self = this,
-							var self = this.stratum,
-									stand = new standViewModel(self);
-
-
-							if ( !self.editMode() ) {
-								self.standList.push(stand);
-								self.currentStand(stand);
-							} else {
-								//self.currentStand(stand);
-
-								self.currentStand(self.standList()[self.displayStandList().length-1]);
-								self.editTrees(true);
-							}
-
-							self.editTrees(true);
-							self.currentStand().editTrees(true);
-
-
-							/*
-							if (self.currentStand().species !== 'unknown') {
-								self.currentStand(self);
-								//self.currentStand(self.standList()[self.standList().length-1])
-								self.editTrees(true);
-							}  
-							*/
-						};
+			self.selectRow = function () {
+				//unused 6/2
+				var self = this;
+				if (self.stratum.currentStand().species !== 'unknown') {
+					self.stratum.currentStand(self);
+				}
+			};
 
             // set the color and store a reference
 						if (self.attributes.uid != undefined && app.strata.colorMap[self.attributes.uid]) {
