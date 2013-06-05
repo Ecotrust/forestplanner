@@ -166,10 +166,12 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             strata = None
 
         if self.cond_id:
-            cond_inst = IdbSummary.objects.get(cond_id=self.cond_id)
-            cond = cond_inst._dict
+            cond_id = self.cond_id
+            cond_stand_list = list(x.treelist for x in
+                                  TreeliveSummary.objects.filter(cond_id=cond_id))
         else:
-            cond = None
+            cond_id = None
+            cond_stand_list = []
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -182,7 +184,8 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             'acres': acres,
             'elevation': elevation,
             'strata': strata,
-            'condition': cond,
+            'cond_id': cond_id,
+            'condition_stand_list': cond_stand_list,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
             'user_id': self.user.pk,
@@ -1202,6 +1205,11 @@ class TreeliveSummary(models.Model):
 
     class Meta:
         db_table = u'treelive_summary'
+
+    @property
+    def treelist(self):
+        return [self.fia_forest_type_name, self.calc_dbh_class - 1,
+                self.calc_dbh_class + 1, self.sumoftpa]
 
     def __unicode__(self):
         return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (

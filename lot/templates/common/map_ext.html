@@ -403,35 +403,33 @@
 									<dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
                                 </dl>
 
-                                <hr>
 
-                                <h4> Strata </h4>
-                                <dl class="dl-horizontal" data-bind="with: strata">
-                                    <dt>Strata UID</dt><dd><span data-bind="text: uid"></span></dd>
-                                    <dt>Age</dt><dd><span data-bind="text: search_age"></span></dd>
-                                    <dt>TPA</dt><dd><span data-bind="text: search_tpa"></span></dd>
-                                    <dt>Stand List</dt><dd>
-                                        <ul data-bind="foreach: stand_list.classes">
-                                            <li data-bind="text: $data"></li>
-                                        </ul>
-                                    </dd>
+                                <a href="javascript:$('.stand-tree-details').toggle()">more...</a>
+                                <div class="stand-tree-details hide">
+                                    <h4> Strata </h4>
+                                    <dl class="dl-horizontal" data-bind="with: strata">
+                                        <dt>Strata UID</dt><dd><span data-bind="text: uid"></span></dd>
+                                        <dt>Age</dt><dd><span data-bind="text: search_age"></span></dd>
+                                        <dt>TPA</dt><dd><span data-bind="text: search_tpa"></span></dd>
+                                        <dt>Stand List</dt>
+                                        <dd>
+                                            <ul data-bind="foreach: stand_list.classes">
+                                                <li data-bind="text: $data"></li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
 
-                                </dl>
-
-                                <h4> Nearest Neighbor IDB Plot</h4>
-                                <dl class="dl-horizontal" data-bind="with: condition">
-                                    <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
-                                    <dt>Age</dt><dd><span data-bind="text: age_dom"></span></dd>
-                                    <dt>Forest Type</dt><dd><span data-bind="text: for_type_name"></span></dd>
-                                    <dt>Forest Type (secndry)</dt><dd><span data-bind="text: for_type_secdry_name"></span></dd>
-                                    <dt>Canopy Cover %</dt><dd><span data-bind="text: cancov"></span></dd>
-                                    <dt>Stand height</dt><dd><span data-bind="text: stndhgt_stunits"></span></dd>
-                                    <dt>Stand density index</dt><dd><span data-bind="text: sdi"></span></dd>
-                                    <dt>quadratic mean diameter</dt><dd><span data-bind="text: qmda_dom_stunits"></span></dd>
-                                    <dt>basal area</dt><dd><span data-bind="text: baa_ge_3_stunits"></span></dd>
-                                    <dt>tph</dt><dd><span data-bind="text: tph_ge_3_stunits"></span></dd>
-                                    <dt>proportion of conifer</dt><dd><span data-bind="text: bac_prop"></span></dd>
-                                </dl>
+                                    <h4> Nearest Neighbor IDB Plot</h4>
+                                    <dl class="dl-horizontal">
+                                        <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
+                                        <dt>Stand List</dt>
+                                        <dd>
+                                            <ul data-bind="foreach: condition_stand_list">
+                                                <li data-bind="text: $data"></li>
+                                            </ul>
+                                        </dd>
+                                    </dl>
+                                </div>
 
                             </p>
                       </div>
