@@ -35,7 +35,6 @@ $(document).ready(function() {
                 // TODO routing scenarios
                 break;
             default:
-                console.log("Going home");
                 app.breadCrumbs.breadcrumbs.push({url: '/', name: 'Home', action: null});
                 app.updateUrl();
                 break;

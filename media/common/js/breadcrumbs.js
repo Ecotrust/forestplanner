@@ -6,12 +6,12 @@ app.breadCrumbs = {
     breadcrumbs: ko.observableArray(),
 
     // ko method to determine if we are the last
-    isLast: function(crumb) {
+    isLast: function (crumb) {
         return this.breadcrumbs.indexOf(crumb) === this.breadcrumbs().length - 1;
     },
 
     // method to update breadcrumbs
-    update: function(crumb) {
+    update: function (crumb) {
         var index, lastCrumb = this.breadcrumbs.pop();
 
         if (crumb.url !== lastCrumb.url) {
@@ -27,5 +27,7 @@ app.breadCrumbs = {
         this.breadcrumbs.splice(index + 1, this.breadcrumbs().length);
     }
 };
-
-ko.applyBindings(app.breadCrumbs, document.getElementById('breadcrumbs'));
+var crumbsEl = document.getElementById('breadcrumbs');
+if (crumbsEl) {
+	ko.applyBindings(app.breadCrumbs, crumbsEl);
+}
