@@ -635,7 +635,6 @@
             }, self);
 
             self.updateChart = function () {
-							console.log('update chart');
               // delay the chart update for a bit
               if (chartTimer) {
                 clearTimeout(chartTimer);
@@ -721,8 +720,8 @@
                 }
                 stand.percentageIsValid(true);                   
 								displayStandList.push(stand);  
-								console.info('within $each STAND', stand);
               });
+
               if (totalPercentage < 100 && totalPercentage != 0) { // == 0 on load
 
 								var placeHolder = new standViewModel(self,
@@ -783,7 +782,6 @@
             };
 
 						self.saveSpecies = function () {
-							console.log('self.saveSpecies');
 
 							if ( !self.editMode() ) {
 								self.standList.push(stand);
@@ -797,7 +795,6 @@
 						};
 
 						self.addSpecies = function (foo, bar) {
-							console.log('addSpecies');
 							var stand,
 									self = this,
 									attrs = [];
@@ -816,7 +813,6 @@
 						};
 
 						self.editSpecies = function(){
-							console.log('edit species - unused');
 							var self = this.stratum,
 									stand = new standViewModel(self);
 
@@ -909,8 +905,11 @@
             
             if (activeStratum && activeStratum.standList().length) {
               app.strata.chartStandList(activeStratum.displayStandList());  
-            } else {
-              // no active stratum, so set cached chart data to null
+            } else { // no active stratum, so set cached chart data to null
+							// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)
+							window.setTimeout(function(){
+								map.render('map');
+							}, 1000);
               app.strata.chartData = null;
             }
             
@@ -959,7 +958,6 @@
             app.strata.stratumBeingEdited = stratum;
             duplicateStratum.editMode(true);
             self.activeStratum(duplicateStratum);
-						console.log('editStratum stratum', stratum);
           };
 
           self.cancel = function () {
