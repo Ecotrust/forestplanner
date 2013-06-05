@@ -635,6 +635,7 @@
             }, self);
 
             self.updateChart = function () {
+							console.log('update chart');
               // delay the chart update for a bit
               if (chartTimer) {
                 clearTimeout(chartTimer);
@@ -721,13 +722,11 @@
                 stand.percentageIsValid(true);                   
 								displayStandList.push(stand);  
               });
-             /* 
               if (totalPercentage < 100) {
                 displayStandList.push(new standViewModel(self,
                   // species name, sizeclass lower bound, upper bound, percentage
                   [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
               }
-							*/
 
               return displayStandList;
             });
@@ -768,54 +767,55 @@
                 stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
             };
 
-			self.saveSpecies = function () {
-				if ( !self.editMode() ) {
-					self.standList.push(stand);
-					self.currentStand(stand);
-				} else {
-					self.currentStand(self.standList()[self.standList().length-1]);
-					//self.editTrees(true);
-				}
-				self.currentStand().editTrees(false)
-				self.editTrees(false);
-			};
+						self.saveSpecies = function () {
+							if ( !self.editMode() ) {
+								self.standList.push(stand);
+								self.currentStand(stand);
+							} else {
+								self.currentStand(self.standList()[self.standList().length-1]);
+								//self.editTrees(true);
+							}
+							self.currentStand().editTrees(false)
+							self.editTrees(false);
+						};
 
-			self.addSpecies = function (foo, bar) {
-				var stand,
-				self = this,
-				attrs = [];
+						self.addSpecies = function (foo, bar) {
+							var stand,
+							self = this,
+							attrs = [];
 
-				// 139% sure there is a better way. scope fail.
-				attrs[0] = self.species();
-				attrs[1] = 1;
-				attrs[2] = 5;
-				attrs[3] = self.percentage();
+							// 139% sure there is a better way. scope fail.
+							attrs[0] = self.species();
+							attrs[1] = 1;
+							attrs[2] = 5;
+							attrs[3] = self.percentage();
 
-				stand = new standViewModel(self, attrs);
+							stand = new standViewModel(self, attrs);
 
-				self.standList.push(stand);
-				self.currentStand(stand);
-			};
+							self.standList.push(stand);
+							self.currentStand(stand);
+							self.currentStand().updateChart();
+						};
 
-			self.editSpecies = function(){
-				console.log('edit species - unused');
-				var self = this.stratum,
-				stand = new standViewModel(self);
+						self.editSpecies = function(){
+							console.log('edit species - unused');
+							var self = this.stratum,
+							stand = new standViewModel(self);
 
-				self.currentStand(self.standList()[self.standList().length-1]);
-			}
+							self.currentStand(self.standList()[self.standList().length-1]);
+						}
 
-			self.removeSpecies = function(stand){
-				self.standList.remove(stand);
-			};
+						self.removeSpecies = function(stand){
+							self.standList.remove(stand);
+						};
 
-			self.selectRow = function () {
-				//unused 6/2
-				var self = this;
-				if (self.stratum.currentStand().species !== 'unknown') {
-					self.stratum.currentStand(self);
-				}
-			};
+						self.selectRow = function () {
+							//unused 6/2
+							var self = this;
+							if (self.stratum.currentStand().species !== 'unknown') {
+								self.stratum.currentStand(self);
+							}
+						};
 
             // set the color and store a reference
 						if (self.attributes.uid != undefined && app.strata.colorMap[self.attributes.uid]) {
