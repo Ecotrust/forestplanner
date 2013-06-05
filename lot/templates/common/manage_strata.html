@@ -274,7 +274,7 @@
 										</span>
 									</td>
 									<td>
-										<span>enter a percentage to see TPA</span> 
+										 <span data-bind="text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
 									</td>
 									<td>
 										<span>
@@ -577,7 +577,8 @@
                     "multiple": true,
                     "toggle": true,
 										//styling here to ensure selecting stands with strata applied appear selected.
-										"selectStyle": { fillColor: '#f00', fillOpacity: '.6', strokeColor: '#ff0' }
+										"selectStyle": map_styles.strataSelect      //defined in styles.js
+
                 });
 
 							map.render('map');
@@ -837,11 +838,11 @@
 						};
 
             // set the color and store a reference
-            if (app.strata.colorMap[self.attributes.uid]) {
+						if (self.attributes.uid != undefined && app.strata.colorMap[self.attributes.uid]) {
               self.color(app.strata.colorMap[self.attributes.uid]);
             } else {
               self.color('#' + app.strata.color.reverse().pop());
-              app.strata.colorMap[self.attributes.uid] = self.color();  
+							app.strata.colorMap[self.attributes.uid] = self.color();      //TODO: app.strata.colorMap['undefined'] is being set. This should probably be fixed
             }
            
 						$.each(app.stand_layer.features, function (i, stand) {
@@ -931,7 +932,7 @@
                   "multiple": true,
                   "toggle": true,
                   "box": true,
-									"selectStyle": { fillColor: '#444', fillOpacity: '.6', strokeColor: '#ff0' }
+									"selectStyle": map_styles.strataShiftSelect
                 }); 
               map.addControl(app.selectFeature); 
               app.selectFeature.activate();
@@ -947,7 +948,7 @@
                   "multiple": true,
                   "toggle": true,
                   "box": false,
-									"selectStyle": { fillColor: '#444', fillOpacity: '.6', strokeColor: '#ff0' }
+									"selectStyle": map_styles.strataShiftSelect
                 });
                 map.addControl(app.selectFeature); 
                 app.selectFeature.activate();
@@ -1163,7 +1164,7 @@
                 
             }),
             $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', app.strata.property_id), function (data) {
-                var styleMap = map_styles.stand;
+                //var styleMap = map_styles.stand;
                 app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
                   styleMap: map_styles.stand,
                   renderers: app.renderer
