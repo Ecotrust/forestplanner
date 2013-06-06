@@ -34,7 +34,7 @@ class Command(BaseCommand):
         # Rasters
         #
         fname = os.path.join(download_dir, "terrain_rasters.tar.gz")
-        if not os.path.exists(fname):  # TODO not
+        if not os.path.exists(fname):
             print "\tGetting terrain raster data"
             url = "http://labs.ecotrust.org/forestplanner/data/terrain_rasters.tar.gz"
             urlretrieve(url, filename=fname)
@@ -45,7 +45,7 @@ class Command(BaseCommand):
         # Treelive
         #
         fname = os.path.join(download_dir, "treelive.tab")
-        if not os.path.exists(fname):  # TODO not
+        if not os.path.exists(fname):
             print "\tGetting treelive data"
             url = "http://labs.ecotrust.org/forestplanner/data/treelive.tab"
             urlretrieve(url, filename=fname)
@@ -56,7 +56,7 @@ class Command(BaseCommand):
         # FVS Aggregate
         #
         fname = os.path.join(download_dir, "fvsaggregate.csv")
-        if not os.path.exists(fname):  # TODO not
+        if not os.path.exists(fname):
             print "\tGetting treelive data"
             url = "http://labs.ecotrust.org/forestplanner/data/fvsaggregate.csv"
             urlretrieve(url, filename=fname)

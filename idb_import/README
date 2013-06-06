@@ -6,9 +6,4 @@ Loads the GNN data from mdbs
 4. rename to table in the schema file to IDB_SUMMARY 
 5. run load_X.sh to create the table and import the tsv
 6. run manage.py inspectdb and copy-n-paste into models.py
-
-7. TODO Index all fields that you might filter by:
-
-psql -d murdock -U murdock -c "CREATE INDEX fcid_idx ON sppsz_attr_all USING btree (fcid)"
-psql -d murdock -U murdock -c "CREATE INDEX usda_idx ON trees_fvsspecies USING btree (usda)"
-
+7. Index all fields that you might filter by:

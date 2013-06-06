@@ -1,3 +1,5 @@
+-- NOTE: probably wan to use shapely ala https://gist.github.com/perrygeo/5654648
+
 -- ArcGIS-style Unions and Overlays via building new polygons
 -- advantage to this method is that you can include polygons from multiple input tables 
 -- and overlapping polygons are handled gracefuly by taking the max(id)
@@ -11,14 +13,6 @@
 -- Join with the original tables to pull in attributes
 -- Create an Identity
 -- similar to a global arcgis-style union but "clipped" to one of the input layers
-
-
--- TODO where clause
--- TODO update trees_spatialconstraints
--- TODO migration
--- TODO variable substitution
--- TODO python wrapper
-
 
 DROP TABLE IDENTITY;
 CREATE TABLE IDENTITY AS

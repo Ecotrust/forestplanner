@@ -130,14 +130,20 @@ def impute_nearest_neighbor(stand_results, savetime):
         site_cond['elev_ft'] = stand.elevation
     if stand.slope:
         site_cond['calc_slope'] = stand.slope
-    weight_dict = stand.default_weighting
+    if stand.strata.search_age:
+        site_cond['stand_age'] = float(stand.strata.search_age)
+
+    weight_dict = None  # take the default defined in plots.py
     ps, num_candidates = get_nearest_neighbors(
-        site_cond, stand_list['classes'], variant=variant, weight_dict=weight_dict, k=5)
+        site_cond, stand_list['classes'], variant=variant,
+        weight_dict=weight_dict, k=2
+    )
 
     # Take the top match
     cond_id = int(ps[0].name)
 
     # just confirm that it exists
+    # TODO confirm that cond_id exists in the fvsaggregate table
     IdbSummary.objects.get(cond_id=cond_id)
 
     # update the database
