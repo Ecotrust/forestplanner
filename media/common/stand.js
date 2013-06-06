@@ -73,7 +73,6 @@ function standsViewModel() {
     app.updateUrl();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
-    app.property_layer.setOpacity(1);
     map.removeLayer(self.stand_layer);
     map.removeLayer(self.property_layer);
     app.drawFeature.featureAdded = app.properties.featureAdded;

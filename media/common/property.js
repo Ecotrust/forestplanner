@@ -287,9 +287,6 @@ function propertiesViewModel () {
     // create active property layer
     // copy active property to new layer
     // hide other properties
-    if (app.property_layer) {
-        app.property_layer.setOpacity(0.4);
-    }
     // initialize stand manager
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
@@ -304,7 +301,6 @@ function propertiesViewModel () {
   };
   
   self.manageScenarios = function (self, event) {
-    app.property_layer.setOpacity(0.4);
     if (app.scenarios.viewModel) {
        app.scenarios.viewModel.reloadScenarios(self.selectedProperty());
     } else {

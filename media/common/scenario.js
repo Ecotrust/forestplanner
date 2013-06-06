@@ -265,7 +265,6 @@ function scenarioViewModel(options) {
         app.updateUrl();
         self.showScenarioPanels(false);
         app.properties.viewModel.showPropertyPanels(true);
-        app.property_layer.setOpacity(1);
         if (app.rx_stand_layer)
             app.rx_stand_layer.removeAllFeatures();
         $('#scenario-form-metacontainer').hide();
