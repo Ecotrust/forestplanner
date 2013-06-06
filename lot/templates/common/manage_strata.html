@@ -216,7 +216,6 @@
 								 <!--<tr data-bind="click: $parent.selectRow, css: { active: $data === $parent.currentStand() }">-->
 
 
-
 								 <!-- ko foreach: displayStandList -->
 								 <tr data-bind="visible: !isEditing()">
 									 <td>
@@ -236,9 +235,9 @@
 											 <button class="btn btn-mini" data-bind="click: editTree">Edit</button>
 											 <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(true) } ">Delete</button>
 										 </div>
-										 <span data-bind="visible: speciesConfirmDelete">
+										 <div data-bind="visible: speciesConfirmDelete">
 											 <p class="sure">Are you sure?</p>
-											 <div class="btn-group" >
+											 <div class="btn-group">
 												 <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(false) } ">Cancel</button>
 												 <button class="btn btn-mini btn-success" data-bind="click:  $parent.removeSpecies">Delete</button>
 												</div>
@@ -246,8 +245,6 @@
 									 </td>
 								</tr>
 								
-
-
 
 								<tr data-bind="visible: isEditing()">
 									<td>
@@ -274,11 +271,11 @@
 										</span>
 									</td>
 									<td>
-										<span>
+										<div>
 											<label>Percentage of Stand</label>
 											<input name="percentage" class="input-mini" data-bind="value: percentage, valueUpdate: '$parent.keyup'"/>
 											<div class="help-inline alert-error" data-bind="visible: !$parent.percentageIsValid, text: $parent.percentageIsValidMsg "></div>
-										</span>
+										</div>
 									</td>
 									<td>
 										 <span data-bind="text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
@@ -298,24 +295,23 @@
 								<tr>
 									<td>
 										<label>Select a Species</label>
-										<select name="species" data-bind="options: app.strata.treeSpecies, value: species, select2: { placeholder: 'Select a species'}" class="span12" style="width: 95%"></select>
+										<select name="species" data-bind="options: app.strata.treeSpecies, value: species, selectedOptions:
+											species,  select2: { placeholder: 'Select a species'}" class="span12" style="width: 95%"></select>
 									</td>
 									<td>
 										<label>Select a Size Class</label>
-									<!--	
 										 <label class="radio">
-											 <input type="radio" value='1"-5"' data-bind="attr: { name: 'size-class_' + $parent.index() }, checked: $parent.sizeClass">
+											 <input type="radio" value='1"-5"' data-bind="attr: { name: 'size-class_'}, checked: $parent.sizeClass">
 											 1"-5"
 										 </label>
 										 <label class="radio">
-											 <input type="radio" value='5"-10"' data-bind="attr: { name: 'size-class_' + $parent.index() }, checked: $parent.sizeClass">
+											 <input type="radio" value='5"-10"' data-bind="attr: { name: 'size-class_'}, checked: $parent.sizeClass">
 											 5"-10"
 										 </label>
 										 <label class="radio">
-											 <input type="radio" value='10"-15"' data-bind="attr: { name: 'size-class_' + $parent.index() }, checked: $parent.sizeClass">
+											 <input type="radio" value='10"-15"' data-bind="attr: { name: 'size-class_'}, checked: $parent.sizeClass">
 											 10"-15"
 										 </label>
-										 -->
 									</td>
 									<td>
 										<label>Percentage of Stand</label>
@@ -554,7 +550,10 @@
         app.strata = {
             property_id: "{{ property_id }}",
             color: ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'],
-            treeSpecies: ["Ailanthus", "Alaska cedar", "Apple", "Bigcone Douglas-fir", "Bigleaf maple", "Bishop pine", "Black cottonwood", "Black locust", "Blue oak", "Boxelder", "Brewer spruce", "Bristlecone pine", "California black oak", "California buckeye", "California juniper", "California nutmeg", "California red fir", "California sycamore", "California-laurel", "Canyon live oak", "Cherry", "Coast live oak", "Coulter pine", "Curlleaf mountain-mahogany", "Cypress", "Douglas-fir", "Engelmann spruce", "Englemann oak", "Eucalyptus", "Foxtail pine", "Fremont poplar", "Giant Sequoia", "Golden chinkapin", "Grand fir", "Gray pine", "Holly", "Incense cedar", "Interior live oak", "Jeffrey pine", "Knobcone pine", "Limber pine", "Lodgepole pine", "McNab cypress", "Monterey pine", "Mountain hemlock", "Noble fir", "Oak-unclassified", "Oregon ash", "Oregon white oak", "Pacific dogwood", "Pacific madrone", "Pacific silver fir", "Pacific yew", "Ponderosa pine", "Port-Orford-cedar", "Quaking aspen", "Red alder", "Redwood", "Santa Lucia fir", "Scotch pine", "Shasta red fir", "Singleleaf pinyon", "Sitka spruce", "Subablpine larch", "Subalpine fir", "Sugar pine", "Tanoak", "Unknown hardwood", "Unknown softwood", "Unknown type", "Utah juniper", "Valley (California) white oak", "Walnut", "Water birch", "Western hemlock", "Western juniper", "Western larch", "Western paper birch", "Western redcedar", "Western white pine", "White alder", "White fir", "Whitebark pine", "Willow"]
+						treeSpecies : [],
+						treeSpeciesObj : {},
+						sizeClasses : []
+            //treeSpecies: ["Ailanthus", "Alaska cedar", "Apple", "Bigcone Douglas-fir", "Bigleaf maple", "Bishop pine", "Black cottonwood", "Black locust", "Blue oak", "Boxelder", "Brewer spruce", "Bristlecone pine", "California black oak", "California buckeye", "California juniper", "California nutmeg", "California red fir", "California sycamore", "California-laurel", "Canyon live oak", "Cherry", "Coast live oak", "Coulter pine", "Curlleaf mountain-mahogany", "Cypress", "Douglas-fir", "Engelmann spruce", "Englemann oak", "Eucalyptus", "Foxtail pine", "Fremont poplar", "Giant Sequoia", "Golden chinkapin", "Grand fir", "Gray pine", "Holly", "Incense cedar", "Interior live oak", "Jeffrey pine", "Knobcone pine", "Limber pine", "Lodgepole pine", "McNab cypress", "Monterey pine", "Mountain hemlock", "Noble fir", "Oak-unclassified", "Oregon ash", "Oregon white oak", "Pacific dogwood", "Pacific madrone", "Pacific silver fir", "Pacific yew", "Ponderosa pine", "Port-Orford-cedar", "Quaking aspen", "Red alder", "Redwood", "Santa Lucia fir", "Scotch pine", "Shasta red fir", "Singleleaf pinyon", "Sitka spruce", "Subablpine larch", "Subalpine fir", "Sugar pine", "Tanoak", "Unknown hardwood", "Unknown softwood", "Unknown type", "Utah juniper", "Valley (California) white oak", "Walnut", "Water birch", "Western hemlock", "Western juniper", "Western larch", "Western paper birch", "Western redcedar", "Western white pine", "White alder", "White fir", "Whitebark pine", "Willow"]
         };
 
 
@@ -691,11 +690,10 @@
             self.species = ko.observable(); 
             self.sizeLow = ko.observable(); 
             self.sizeHigh = ko.observable(); 
+
             self.percentage = ko.observable(); 
             self.tpa = ko.observable(); 
 
-            //self.percentageIsValid = ko.observable(true);
-  
             self.standList = ko.observableArray();
             // display a computed standlist with a dummy last item
             // to show the remaining percentage
@@ -722,6 +720,9 @@
 								displayStandList.push(stand);  
               });
 
+							/*
+							// @TODO fix this. causing more trouble than it's worth at the moment.
+							// without it, the chart does not render properly if species do not add up to 100%
               if (totalPercentage < 100 && totalPercentage != 0) { // == 0 on load
 
 								var placeHolder = new standViewModel(self,
@@ -730,17 +731,18 @@
 
 								displayStandList.push(placeHolder);
 								self.standList.push(placeHolder);
-									//self.currentStand(placeHolder);
-									//self.currentStand().updateChart();
+								//self.currentStand(placeHolder);
+								//self.currentStand().updateChart();
 									
 
 									/*
                 displayStandList.push(new standViewModel(self,
                   // species name, sizeclass lower bound, upper bound, percentage
                   [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
-									*/
+									
 									
               }
+							*/
 
               return displayStandList;
             });
@@ -782,7 +784,6 @@
             };
 
 						self.saveSpecies = function () {
-
 							if ( !self.editMode() ) {
 								self.standList.push(stand);
 								self.currentStand(stand);
@@ -794,16 +795,19 @@
 							self.editTrees(false);
 						};
 
-						self.addSpecies = function (foo, bar) {
+						self.addSpecies = function (stand, event) {
 							var stand,
 									self = this,
 									attrs = [];
 
-							// 139% sure there is a better way. scope fail.
+							// 139% sure there is a better way. 
 							attrs[0] = self.species();
 							attrs[1] = 1;
 							attrs[2] = 5;
 							attrs[3] = self.percentage();
+
+							self.species('');
+							self.percentage('');
 
 							stand = new standViewModel(self, attrs);
 
@@ -1146,6 +1150,21 @@
         $.when(
             $.getJSON("/features/forestproperty/links/property-strata-list/" + app.strata.property_id + '/', function (data) {
                 app.strata.data = data;
+            }),
+
+						//get the actual available species
+            $.getJSON("/trees/variant/" + app.strata.property_id + "/species_sizecls.json", function (data) {
+							//should probably be done server side.
+							data.sort(function(a,b) {
+								if(a.species<b.species) return -1;
+								if(a.species>b.species) return 1;
+								return 0;
+							});
+							$.each(data, function(i,tree){
+								app.strata.treeSpecies.push(tree.species);
+								app.strata.sizeClasses.push(tree.size_classes);
+								app.strata.treeSpeciesObj[tree.species] = tree.size_classes;
+							});
             }),
 
             // back to 1.4.3, this is erroring out
