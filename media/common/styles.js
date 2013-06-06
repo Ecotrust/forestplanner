@@ -6,17 +6,18 @@ var stand_style = {
     fillColor: "white",
     fillOpacity: 0,
     strokeWidth: 1,
-    strokeOpacity: 1,
+    strokeOpacity: 0.6,
     strokeColor: "white",
     strokeDashstyle: "solid"
 };
 
 var property_style = {
     graphicZIndex: 999,
+    pointRadius: 5,
     fillOpacity: 0,
     strokeWidth: 2,
     StrokeOpacity: 1,
-    strokeColor: "#44FF00",
+    strokeColor: "white", //"#44FF00",
     strokeDashStyle: "solid",
     label: "${name}",
     labelAlign: "cc",
@@ -26,7 +27,16 @@ var property_style = {
     fontSize: 14
 };
 
-var selected_style = {
+var selected_prop_style = {
+    graphicZIndex: 1,
+    fillColor: "#44FF00", //"#FFA000",
+    fillOpacity: 0,
+    strokeWidth: 2,
+    strokeOpacity: 1,
+    strokeColor: "#44FF00" //"#FFA000"
+};
+
+var selected_stand_style = {
     graphicZIndex: 1,
     fillColor: "#44FF00",
     fillOpacity: 0,
@@ -35,49 +45,54 @@ var selected_style = {
     strokeColor: "yellow"
 };
 
+var def_symbolizer_style = {
+    "Polygon": {
+        pointRadius: 5,
+        fillColor: "white",
+        fillOpacity: 0,
+        strokeWidth: 2,
+        strokeOpacity: 1,
+        strokeColor: "white"
+    }
+}
+
+var temp_symbolizer_style = {
+    "Point": {
+        pointRadius: 5,
+        fillColor: "#44ff00"
+    },
+    "Polygon": {
+        pointRadius: 5,
+        fillColor: "white",
+        fillOpacity: 0.35,
+        strokeWidth: 2,
+        strokeOpacity: 1,
+        strokeColor: "#44ff00"
+    }
+}
+
 var map_styles = {
     
 drawn: 
     new OpenLayers.StyleMap({
-    "default": new OpenLayers.Style(null, {
-        rules: [
-            new OpenLayers.Rule({
-                symbolizer: {
-                    "Polygon": {
-                        fillColor: "white",
-                        fillOpacity: 0.35,
-                        strokeWidth: 2,
-                        strokeOpacity: 1,
-                        strokeColor: "#444444"
-                    }
-                }
-            })
-        ]
+        "default": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: def_symbolizer_style
+                })
+            ]
+        }),
+        "select": new OpenLayers.Style({
+            strokeColor: "#44ff00"
+        }),
+        "temporary": new OpenLayers.Style(null, {
+            rules: [
+                new OpenLayers.Rule({
+                    symbolizer: temp_symbolizer_style
+                })
+            ]
+        })
     }),
-    "select": new OpenLayers.Style({
-        strokeColor: "#44ff00"
-    }),
-    "temporary": new OpenLayers.Style(null, {
-        rules: [
-            new OpenLayers.Rule({
-                symbolizer: {
-                    "Point": {
-                        pointRadius: 5,
-                        fillColor: "#44ff00"
-                    },
-                    "Polygon": {
-                        pointRadius: 5,
-                        fillColor: "white",
-                        fillOpacity: 0.35,
-                        strokeWidth: 2,
-                        strokeOpacity: 1,
-                        strokeColor: "#44ff00"
-                    }
-                }
-            })
-        ]
-    })
-}),
 
 forestProperty: 
     new OpenLayers.StyleMap({
@@ -86,43 +101,15 @@ forestProperty:
             new OpenLayers.Rule({
                 symbolizer: {
                     "Polygon": property_style
-                    // "Polygon": {
-                        // fillColor: "white",
-                        // fillOpacity: 0.5,
-                        // strokeWidth: 2,
-                        // strokeOpacity: 1,
-                        // strokeColor: "#999999",
-                        // strokeDashstyle: "dashdot",
-                        // label: "${name}",
-                        // labelAlign: "cc",
-                        // fontColor: "#333333",
-                        // fontOpacity: 0.9,
-                        // fontFamily: "Arial",
-                        // fontSize: 14
-                    // }
                 }
             })
         ]
     }),
-    "select": new OpenLayers.Style(selected_style),
+    "select": new OpenLayers.Style(selected_prop_style),
     "temporary": new OpenLayers.Style(null, {
         rules: [
             new OpenLayers.Rule({
-                symbolizer: {
-                    "Point": {
-                        pointRadius: 5,
-                        fillColor: "#44ff00"
-                    },
-                    // "Polygon": stand_style
-                    "Polygon": {
-                        pointRadius: 5,
-                        fillColor: "white",
-                        fillOpacity: 0.35,
-                        // strokeOpacity: 1,
-                        strokeColor: "#444444"
-                        // strokeDashstyle: "solid"
-                    }
-                }
+                symbolizer: temp_symbolizer_style
             })
         ]
     })
@@ -135,43 +122,15 @@ stand:
                 new OpenLayers.Rule({
                     symbolizer: {
                         "Polygon": stand_style
-                        // "Polygon": {
-                            // fillOpacity: 0,
-                            // strokeWidth: 1,
-                            // strokeOpacity: 0.75,
-                            // strokeColor: "white"
-                        // }
                     }
                 })
             ]
         }),
-        "select": new OpenLayers.Style(selected_style),
-        // "select": new OpenLayers.Style({
-            // graphicZIndex: 1,
-            // fillColor: "yellow",
-            // fillOpacity: 0.35,
-            // strokeWidth: 3,
-            // strokeOpacity: 1,
-            // strokeColor: "yellow"
-        // }),
+        "select": new OpenLayers.Style(selected_stand_style),
         "temporary": new OpenLayers.Style(null, {
             rules: [
                 new OpenLayers.Rule({
-                    symbolizer: {
-                        "Point": {
-                            pointRadius: 5,
-                            fillColor: "#44ff00"
-                        },
-                        "Polygon": stand_style
-                        // "Polygon": {
-                            // pointRadius: 5,
-                            // fillColor: "white",
-                            // fillOpacity: 0.35,
-                            // strokeWidth: 2,
-                            // strokeOpacity: 1,
-                            // strokeColor: "#44ff00"
-                        // }
-                    }
+                    symbolizer: temp_symbolizer_style
                 })
             ]
         })
@@ -179,19 +138,6 @@ stand:
 
 standProperty:
     new OpenLayers.StyleMap(property_style),
-    // new OpenLayers.StyleMap({
-        // graphicZIndex: 999,
-        // fillOpacity: 0,
-        // strokeWidth: 2,
-        // strokeOpacity: .8,
-        // strokeColor: "#44ff00",
-        // label: "${name}",
-        // labelAlign: "cc",
-        // fontColor: "#333333",
-        // fontOpacity: 0.9,
-        // fontFamily: "Arial",
-        // fontSize: 14
-    // }),
     
 scenarios:
     new OpenLayers.StyleMap({
@@ -213,29 +159,12 @@ scenarios:
                 }
             }
         }),
-        "select": selected_style
-        // "select": {
-            // fillOpacity: 0.7,
-            // fillColor: "#aaaa00",           //mustard
-            // strokeColor: "#ffff00",         //yellow
-            // strokeWidth: 2,
-            // strokeOpacity: 1.0 
-        // }
+        "select": selected_stand_style
     }),
     
-strataSelect: selected_style,
-    // { 
-        // fillColor: '#4f0', 
-        // fillOpacity: '.6', 
-        // strokeColor: '#ff0' 
-    // },
+strataSelect: selected_stand_style,
     
-strataShiftSelect: selected_style
-    // { 
-        // fillColor: '#4f0', 
-        // fillOpacity: '.6', 
-        // strokeColor: '#ff0' 
-    // }
+strataShiftSelect: selected_stand_style
 
 };
 
