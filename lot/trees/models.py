@@ -127,12 +127,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         return res['cond_id']
 
     @property
-    def default_weighting(self):
-        return {
-            'TOTAL_PCTBA': 5,
-        }
-
-    @property
     def acres(self):
         g2 = self.geometry_final.transform(
             settings.EQUAL_AREA_SRID, clone=True)
@@ -172,10 +166,12 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             strata = None
 
         if self.cond_id:
-            cond_inst = IdbSummary.objects.get(cond_id=self.cond_id)
-            cond = cond_inst._dict
+            cond_id = self.cond_id
+            cond_stand_list = list(x.treelist for x in
+                                  TreeliveSummary.objects.filter(cond_id=cond_id))
         else:
-            cond = None
+            cond_id = None
+            cond_stand_list = []
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -188,7 +184,8 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             'acres': acres,
             'elevation': elevation,
             'strata': strata,
-            'condition': cond,
+            'cond_id': cond_id,
+            'condition_stand_list': cond_stand_list,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
             'user_id': self.user.pk,
@@ -1209,6 +1206,15 @@ class TreeliveSummary(models.Model):
     class Meta:
         db_table = u'treelive_summary'
 
+    @property
+    def treelist(self):
+        return [self.fia_forest_type_name, self.calc_dbh_class - 1,
+                self.calc_dbh_class + 1, self.sumoftpa]
+
+    def __unicode__(self):
+        return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (
+            self.cond_id, self.fia_forest_type_name, self.calc_dbh_class, self.sumoftpa, self.pct_of_totalba)
+
 
 class ConditionVariantLookup(models.Model):
     """
@@ -1421,57 +1427,10 @@ class ScenarioStand(PolygonFeature):
 
 class FVSAggregate(models.Model):
     """
-    0. Run fvsbatch
-    1. sed merge csvs
-
-        cd /usr/local/data/out
-        # copy header from first file
-        ls *.csv | head -n 1
-        sed -n 1p FIRST_FILE.csv > merge.csv
-        #copy all but the first line from all other files
-        for i in *.csv; do sed 1d $i; done >> merge.csv
-         cat merge.csv | wc -l
-         # should be...  plots = (lines - 1) / 126.0 lines per plot
-
-    2. copy/modify this model definition
-    3. schemamigration
-       python manage.py schemamigration trees --auto
-
-    4. migrate
-        python migrate trees
-
-    5.  TODO rm indicies before copy
-
-    6. postgres copy; the variable list below, the csv headers and the model need to be exactly in sync
-       run extract . test.csv on a untared directory to get the precise list
-
-        sudo su postgres
-        psql -d forestplanner
-        COPY trees_fvsaggregate("agl","bgl","calc_carbon","cond","dead","offset","rx","site","total_stand_carbon",
-            "var","year","merch_carbon_removed","merch_carbon_stored","cedr_bf","cedr_hrv","ch_cf","ch_hw","ch_tpa",
-            "cut_type","df_bf","df_hrv","es_btl","firehzd","hw_bf","hw_hrv","lg_cf","lg_hw","lg_tpa","lp_btl","mnconbf",
-            "mnconhrv","mnhw_bf","mnhw_hrv","nsodis","nsofrg","nsonest","pine_bf","pine_hrv","pp_btl","sm_cf","sm_hw",
-            "sm_tpa","spprich","sppsimp","sprc_bf","sprc_hrv","wj_bf","wj_hrv","ww_bf","ww_hrv","after_ba",
-            "after_merch_bdft","after_merch_ft3","after_total_ft3","after_tpa","age","removed_merch_bdft",
-            "removed_merch_ft3","removed_total_ft3","removed_tpa","start_ba","start_merch_bdft",
-            "start_merch_ft3","start_total_ft3","start_tpa")
-        FROM '/tmp/merge.csv'
-        DELIMITER ',' CSV HEADER;
-
-    7. TODO (re)create indicies
-
-        -- not sure which of thse are helpful or not, need to do some EXPLAIN ANALYZEs on real data
-        CREATE INDEX idx_trees_fvsaggregate_cond ON trees_fvsaggregate (cond);
-        CREATE INDEX idx_trees_fvsaggregate_rx ON trees_fvsaggregate (rx);
-        CREATE INDEX idx_trees_fvsaggregate_"offset" ON trees_fvsaggregate ("offset");
-        CREATE INDEX idx_trees_fvsaggregate_site ON trees_fvsaggregate (site);
-        CREATE INDEX idx_trees_fvsaggregate_var ON trees_fvsaggregate (var);
-        CREATE INDEX idx_trees_fvsaggregate_year ON trees_fvsaggregate (year);
-        CREATE INDEX idx_trees_fvsaggregate_site_var ON trees_fvsaggregate (site, var);
-
-    8. TODO create/backup/distribute fixtures
+    Model to hold all FVS growth-and-yield results
+    Each object/row represents a single
+    variant/condition/offset/rx/year combination
     """
-
     agl = models.FloatField(null=True, blank=True)
     bgl = models.FloatField(null=True, blank=True)
     calc_carbon = models.FloatField(null=True, blank=True)
