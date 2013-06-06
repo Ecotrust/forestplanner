@@ -652,7 +652,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    #TODO @cachemethod("Scenario_%(id)s_property_metrics")
+    @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -697,7 +697,7 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    #TODO @cachemethod("Scenario_%(id)s_stand_metrics")
+    @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -822,7 +822,8 @@ class Scenario(Feature):
         if taskid:
             task = AsyncResult(taskid)
             status = task.status
-            if status not in ["SUCCESS", "FAILED"]:
+            print status
+            if status not in ["SUCCESS", "FAILED", "FAILURE"]:
                 # still running
                 return True
             else:
@@ -1107,11 +1108,6 @@ class Strata(DirtyFieldsMixin, Feature):
             except KeyError:
                 pass
         return dct
-
-    # TODO, add variant
-    # def candidates(self, min_candidates=5):
-    #     from plots import get_candidates
-    #     return get_candidates(self.stand_list['classes'], min_candidates=min_candidates)
 
     @property
     def desc(self):
@@ -1408,7 +1404,6 @@ class ScenarioStand(PolygonFeature):
         gjf['properties']['uid'] = self.uid
         gjf['date_modified'] = str(self.date_modified)
         gjf['date_created'] = str(self.date_created)
-        #TODO add new scenariostand-specific attrs
         gjf['properties']['rx'] = self.rx.internal_name
         try:
             gjf['properties']['constraint'] = self.constraint.category

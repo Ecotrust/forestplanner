@@ -522,7 +522,6 @@ def fake_scenariostands(the_scenario):
             try:
                 rx_id = input_rxs[unicode(stand.id)]
             except:
-                # TODO do we raise Exception or apply a default Rx silently?
                 err = "%s not in input_rxs!" % stand.id
                 logger.error(err)
                 raise ScenarioNotRunnable(err)

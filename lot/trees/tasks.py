@@ -143,6 +143,7 @@ def impute_nearest_neighbor(stand_results, savetime):
     cond_id = int(ps[0].name)
 
     # just confirm that it exists
+    # TODO confirm that cond_id exists in the fvsaggregate table
     IdbSummary.objects.get(cond_id=cond_id)
 
     # update the database
