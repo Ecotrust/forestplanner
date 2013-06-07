@@ -193,12 +193,7 @@ $(document).ready(function() {
             return color;
         }
     };
-    var template = {
-        fillOpacity: 0.8,
-        strokeColor: "#FFFFFF",
-        strokeWidth: 1,
-        fillColor: "${getColour}"
-    };
+    var template = time_map_template;
     var style = new OpenLayers.Style(template, {context: context});
     var styleMap = new OpenLayers.StyleMap({'default': style});
 

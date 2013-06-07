@@ -71,6 +71,13 @@ var temp_symbolizer_style = {
     }
 }
 
+var time_map_template = {
+    fillOpacity: 0.8,
+    strokeColor: "#FFFFFF",
+    strokeWidth: 1,
+    fillColor: "${getColour}"
+};
+
 var map_styles = {
     
 drawn: 
