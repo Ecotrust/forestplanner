@@ -856,9 +856,6 @@
         };
 
 
-
-
-
         function strataViewModel () {
           var self = {};
 
@@ -921,41 +918,41 @@
           
           self.rubberBandActive = ko.observable(false);
 
-          $(document).on('keyup keydown', function (e) {
-            if (e.shiftKey) {
-
+          app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
+            { 
+              "clickout": false,
+              "multiple": true,
+              "toggle": true,
+              "selectStyle": map_styles.strataShiftSelect
+            });
+            
+          app.selectFeatureBox = new OpenLayers.Control.SelectFeature(app.stand_layer,
+            { 
+              "clickout": false,
+              "multiple": true,
+              "toggle": true,
+              "box": true,
+              "selectStyle": map_styles.strataShiftSelect
+            }); 
+          
+          $(document).on('keydown', function (e) {
+            if (e.shiftKey && !self.rubberBandActive()) {
               self.rubberBandActive(true);
               app.selectFeature.deactivate();
-              map.removeControl(app.selectFeature);
-              app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-                { 
-                  "clickout": false,
-                  "multiple": true,
-                  "toggle": true,
-                  "box": true,
-									"selectStyle": map_styles.strataShiftSelect
-                }); 
-              map.addControl(app.selectFeature); 
-              app.selectFeature.activate();
-            } else {
-              if (self.rubberBandActive()) {
-
-                self.rubberBandActive(false);
-                app.selectFeature.deactivate();
-                map.removeControl(app.selectFeature);
-                app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-                { 
-                  "clickout": false,
-                  "multiple": true,
-                  "toggle": true,
-                  "box": false,
-									"selectStyle": map_styles.strataShiftSelect
-                });
-                map.addControl(app.selectFeature); 
-                app.selectFeature.activate();
-              }
+              app.selectFeatureBox.activate();
             }
           });
+          
+          $(document).on('keyup', function (e) {
+              if (self.rubberBandActive()) {
+                self.rubberBandActive(false);
+                app.selectFeatureBox.deactivate();
+                app.selectFeature.activate();
+              }
+          });
+          
+          map.addControl(app.selectFeature); 
+          map.addControl(app.selectFeatureBox); 
 
           self.editStratum = function (stratum) {
             var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
