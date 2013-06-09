@@ -3,6 +3,7 @@
 app.properties = {
     viewModel: new propertiesViewModel()
 };
+var authenticated = authenticated || false;
 
 app.onResize = function () {
     var height = $(window).height();
@@ -88,6 +89,12 @@ $(document).ready(function () {
         $(this).ajaxSubmit(options); 
         return false; 
     });
+
+	//set in the view
+	if (authenticated) {
+		app.properties.viewModel.init();
+	}
+
     $('.manage-your-properties').click( function(e) {
         e.preventDefault();
         $('div#home-html').hide();

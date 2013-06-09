@@ -3,7 +3,9 @@
 
 {% block content %}
         <div class="row-fluid">
+					
           <div class="span5">
+						<!--
               <div data-bind="visible: breadcrumbs.length > 0">
                 <ul id="breadcrumbs" class="breadcrumb" data-bind="foreach: breadcrumbs">
                     <li data-bind="visible: ! $parent.isLast($data)">
@@ -15,6 +17,9 @@
                     </li>
                 </ul>
             </div>
+						-->
+						<!-- Homepage is only for visitors not logged in.  -->
+					{% if not user.is_authenticated %}
             <div id="home-html" class="well">
                 <div style="width: 100%; text-align: center;">
                     <h3>An online tool for forest management and scenario planning</h3>
@@ -39,7 +44,7 @@
                 </div>
 
                 <div style="margin: 16px;">
-                    <p>
+										<p>
                         &nbsp;&nbsp;&nbsp;&nbsp;Ecotrust is developing online software that will give all Oregon and Washington 
                         land managers forest managment scenario planning capacity. You will be able to <strong>visualize 
                             alternative management scenarios</strong> on your lands and receive immediate feedback on <strong>how  
@@ -60,8 +65,12 @@
                     </p>                
                 </div>
             </div>
+            {% endif %}
 
             {% if user.is_authenticated %}
+						<script>
+								var authenticated = true;
+						</script>
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
                 <div class="modal" id="delete-dialog" style="display:none">
                     <div class="modal-header">
