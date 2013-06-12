@@ -34,7 +34,8 @@ $(document).ready(function () {
     app.onResize();
     map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
 	app.globalErrorHandling();
-
+console.log('init');
+window.foobar = "hi mom";
 	var options = {
 		beforeSubmit: function(formData, jqForm, options) {
 			var name, file;
