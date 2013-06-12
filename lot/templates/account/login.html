@@ -12,7 +12,7 @@
     {% if socialaccount.providers  %}
     <div class="well">
         <p>
-            <h4>Option 1</h4> Sign in with one of your existing third party accounts.
+            <h4>Option 1 <span class="text-info">(<em>recommended</em>)</span></h4> Sign in with one of your existing third party accounts.
         </p>
         <div class="socialaccount_ballot">
             <ul class="socialaccount_providers">
@@ -25,7 +25,7 @@
     <div class="well">
         <h4>Option 2</h4>
         <p>
-             If you've already set up a ForestPlanner account, sign in here.
+             If you've set up Forest Planner account with a password, sign in here.
         </p>
 	<form class="form-horizontal login" method="POST" action="/auth/login/">
             
