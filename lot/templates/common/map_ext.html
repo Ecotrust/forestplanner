@@ -103,6 +103,17 @@
 						<script>
 								var authenticated = true;
 						</script>
+						<div class="row-fluid">
+							    <ul class="nav nav-tabs">
+										<li class="active"><a href="#properties">Properties</a></li>
+										<li><a href="#stands">Define Stand Boundaries</a></li>
+										<li><a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID }">Define Stand Groups</a></li>
+										<li><a href="#scenarios" data-bind=" 
+											css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
+											app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
+									</ul>
+						</div>
+
         <div class="row-fluid">
           <div class="span5">
 						

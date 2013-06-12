@@ -284,6 +284,7 @@ function propertiesViewModel () {
   };
 
   self.manageStands = function (self, event) {
+console.log('manageStands self, event', self, event)
     // create active property layer
     // copy active property to new layer
     // hide other properties
@@ -322,6 +323,7 @@ function propertiesViewModel () {
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
+	  console.info('app.props.init');
     self.showPropertyPanels(true);
     return $.get('/trees/user_property_list/', function (data) {
       app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
