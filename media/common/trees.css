@@ -331,6 +331,16 @@ ol.alert li, ul.alert li{
 #scenario-html header{
 	margin-bottom: 1em;
 }
+.highlighted-scenario {
+    background-color: #fcfcfc;
+}
+.accessibility {
+	position: absolute;
+	left: -10000em;
+	height: 0;
+}
+
+
 /* Bootstrap SpaceLab Overrides */
 
 [class^="icon-"], [class*=" icon-"] {
@@ -342,6 +352,7 @@ ol.alert li, ul.alert li{
 }
 .carousel-control {
 	line-height: 25px;
+	top: 50%;
 }
 .navbar .nav > li > a {
 	line-height: 24px;
@@ -349,6 +360,7 @@ ol.alert li, ul.alert li{
 .text-info {
     color: #3A87AD;
 }
-.highlighted-scenario {
-    background-color: #fcfcfc;
+
+.btn-large [class^="icon-"], .btn-large [class*=" icon-"] {
+    margin-top: 8px;
 }

@@ -1,7 +1,7 @@
 function propertiesViewModel () {
   var self = this;
   // TODO: make function to map properties with test  
-  self.showPropertyPanels = ko.observable(false);
+  self.showPropertyPanels = ko.observable(true);
   self.propertyList = ko.observableArray();
   self.showEditPanel = ko.observable(false);
   self.showDetailPanel = ko.observable(false);
