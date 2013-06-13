@@ -973,10 +973,10 @@
 
           self.cancel = function () {
             self.activeStratum(null);
+            map.render('map'); //@TODO not sure why this is needed.
           }
 
           self.createStratum = function () {
-
             self.activeStratum(new stratumViewModel());
           };
 
