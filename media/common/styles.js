@@ -37,11 +37,11 @@ var selected_prop_style = {
 };
 
 var selected_stand_style = {
-    graphicZIndex: 1,
+    graphicZIndex: 999,
     fillColor: "#44FF00",
     fillOpacity: 0,
-    strokeWidth: 2,
-    strokeOpacity: 1,
+    strokeWidth: 6,
+    strokeOpacity: 0.7,
     strokeColor: "yellow"
 };
 
