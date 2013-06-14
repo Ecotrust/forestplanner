@@ -105,10 +105,9 @@ def init():
 
 def restart_services():
     run('sudo service uwsgi restart && sudo service nginx restart')
-    try:
-        run('sudo service supervisor start')
-    except:
-        run('sudo service supervisor restart')
+    # wtf start then stop OR just start .. always" returns success
+    run('((sudo stop supervisor && sudo start supervisor) || sudo start supervisor)')
+    run('sudo service supervisor status')
     run('sudo service redis-server status')
     run('sudo service postgresql status')
     run('sudo supervisorctl restart all')
