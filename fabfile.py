@@ -105,7 +105,10 @@ def init():
 
 def restart_services():
     run('sudo service uwsgi restart && sudo service nginx restart')
-    run('sudo service supervisor status')
+    try:
+        run('sudo service supervisor start')
+    except:
+        run('sudo service supervisor restart')
     run('sudo service redis-server status')
     run('sudo service postgresql status')
     run('sudo supervisorctl restart all')
@@ -149,3 +152,24 @@ def deploy():
     update()
     init()
     restart_services()
+
+
+def provision():
+    """
+    Run puppet on a staging/production environment
+    """
+    for s in env.hosts:
+        if 'vagrant' in s:
+            raise Exception("You can't provision() on local dev, just vagrant up/provision")
+            
+    def echo(x):
+        print x
+
+    echo("""sudo \
+        facter_user=ubuntu \
+        facter_group=ubuntu \
+        facter_url_base=http://%s \
+        facter_pgsql_base=/var/lib/postgresql/ puppet apply \
+        --templatedir=/usr/local/apps/land_owner_tools/scripts/puppet/manifests/files \
+        --modulepath=/usr/local/apps/land_owner_tools/scripts/puppet/modules \
+        /usr/local/apps/land_owner_tools/scripts/puppet/manifests/lot.pp """ % (env.host))
