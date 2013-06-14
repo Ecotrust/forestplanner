@@ -366,8 +366,8 @@
                                             data-bind="click: $parent.showDeleteDialog">
                                             <i class="icon-remove"></i>Delete</button>
                                         <button class="btn btn-mini" href="#" 
-                                            data-bind="click: $parent.editFeature">
-                                            <i class="icon-edit"></i>Edit</button>
+                                            data-bind="click: $parent.editFeature, visible: fields.property_is_runnable, css: {'btn-danger': !fields.is_runnable || fields.needs_rerun }">
+                                            <i class="icon-edit" data-bind="css: {'icon-white': !fields.is_runnable || fields.needs_rerun }"></i>Edit</button>
                                     </div>
 
                                     <div class="pull-left" style="margin: 12px; padding:2px; border:1px #ddd solid">
@@ -381,17 +381,25 @@
                                     <p>
                                     <div class="scenario-details" style="padding-left: 8px; padding-right: 8px;">
                                         <div data-bind="visible: !fields.is_running" > 
-                                            <div class="alert" data-bind="visible: !fields.is_runnable" > 
-                                                Not enough data to run this scenario. (Edit the scenario and a Rx to all stands.)
+                                            <div class="alert alert-danger" data-bind="visible: !fields.property_is_runnable" >
+                                                <i class="icon-exclamation-sign icon-white"></i>
+                                               All stands must be assigned a vegetation type to proceed.
                                             </div>
-                                            <div class="alert" data-bind="visible: !fields.property_is_runnable" >
-                                               Not enough data to run scenarios yet. (Go back to stand groups and define vegetation for all stands.)
-                                            </div>
-                                            <div class="alert" data-bind="visible: fields.needs_rerun" > 
-                                                Scenario needs to be rerun (Stands or strata have changed. Edit and re-Submit.)
+                                            <div data-bind="visible: fields.property_is_runnable">
+                                                <div class="alert" data-bind="visible: !fields.is_runnable" > 
+                                                    <i class="icon-exclamation-sign icon-white"></i>
+                                                    Scenario needs to be updated; Please <strong>Edit</strong> and apply a Rx to all stands (Step 2).
+                                                </div>
+                                                <div data-bind="visible: fields.is_runnable" > 
+                                                    <div class="alert" data-bind="visible: fields.needs_rerun" > 
+                                                        <i class="icon-exclamation-sign icon-white"></i>
+                                                        Stands have changed since scenario was created; Please <strong>Edit</strong> and re-Submit.
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div class="alert" data-bind="visible: fields.is_running" > 
+                                        <div class="alert alert-info" data-bind="visible: fields.is_running" > 
+                                            <i class="icon-refresh icon-white"></i>
                                             Scenario is currently in the task queue. Check back and hit Refresh in a few seconds.
                                         </div>
                                     </div>
