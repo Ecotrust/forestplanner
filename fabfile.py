@@ -161,11 +161,8 @@ def provision():
     for s in env.hosts:
         if 'vagrant' in s:
             raise Exception("You can't provision() on local dev, just vagrant up/provision")
-            
-    def echo(x):
-        print x
 
-    echo("""sudo \
+    run("""sudo \
         facter_user=ubuntu \
         facter_group=ubuntu \
         facter_url_base=http://%s \
