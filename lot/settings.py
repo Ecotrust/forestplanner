@@ -96,7 +96,7 @@ POSTGIS_TEMPLATE = 'template1'
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 
-ADMINS = (('Ecotrust', 'ksdev@ecotrust.org'))
+ADMINS = (('Ecotrust', 'forestplanner@ecotrust.org'))
 
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
 logging.getLogger('madrona.features.models').setLevel(logging.INFO)
@@ -157,9 +157,11 @@ ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # user logs in by entering eit
 STARSPAN_REMOVE_TMP = True
 
 # install postfix
-EMAIL_HOST = 'localhost'
+EMAIL_HOST = 'mail.ecotrust.org'
 #EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
+# EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'forestplanner@ecotrust.org'
+
 ################# END Auth
 
 try:
