@@ -1,0 +1,29 @@
+{
+  "project_page": "https://github.com/akumria/puppet-nullmailer",
+  "license": "GNU General Public License, Version 3+",
+  "source": "UNKNOWN",
+  "checksums": {
+    "manifests/params.pp": "68107fa59afcf6ab15c8a6fe7bcfd829",
+    "Modulefile": "19862439f667abc3effdf0d0a0c54652",
+    "manifests/config.pp": "7f22a11234b28f7952ed8faf382561a7",
+    "manifests/init.pp": "0a54cfb19134766739c2027549646799",
+    "README.md": "197783a4a66a82f3d1039d5c819b9454",
+    "GPL-3": "d32239bcb673463ab874e80d47fae504",
+    "manifests/service.pp": "05daceeba9811d66d2858a69966962fe",
+    "manifests/package.pp": "3ffb82a9ff89217150745acd79aae182"
+  },
+  "dependencies": [
+    {
+      "version_requirement": ">= 2.3.1",
+      "name": "puppetlabs/stdlib"
+    }
+  ],
+  "summary": "Install and configure nullmailer as a simple mail relay",
+  "types": [
+
+  ],
+  "description": "Nullmailer is useful in situations where you have machines but do not wish\n\tto configure them with a full email service (mail transfer agent, mta).\n\n\tParticularly to send email about local activity to a centralised place.\n",
+  "name": "akumria-nullmailer",
+  "version": "1.3.1",
+  "author": "akumria"
+}

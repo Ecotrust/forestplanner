@@ -54,10 +54,6 @@ package { "build-essential":
     ensure => "installed"
 }
 
-package { "postfix":
-    ensure => "installed"
-}
-
 package { "python-software-properties":
     ensure => "installed"
 }
@@ -132,6 +128,11 @@ package {'libgdal1-dev':
 
 package {'supervisor':
     ensure => "latest"
+}
+
+class {'nullmailer':
+    adminaddr => "forestplanner@ecotrust.org",
+    remoterelay => "mail.ecotrust.org"
 }
 
 package {'atop': ensure => "latest"}
