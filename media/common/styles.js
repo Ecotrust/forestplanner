@@ -33,16 +33,16 @@ var selected_prop_style = {
     fillOpacity: 0,
     strokeWidth: 2,
     strokeOpacity: 1,
-    strokeColor: "#44FF00" //"#FFA000"
+    strokeColor: "#FFFFFF" //"#FFA000"
 };
 
 var selected_stand_style = {
-    graphicZIndex: 1,
+    graphicZIndex: 999,
     fillColor: "#44FF00",
-    fillOpacity: 0,
-    strokeWidth: 2,
-    strokeOpacity: 1,
-    strokeColor: "yellow"
+    fillOpacity: 0.7,
+    strokeWidth: 5,
+    strokeOpacity: 0.7,
+    strokeColor: "#ffffff"
 };
 
 var def_symbolizer_style = {
