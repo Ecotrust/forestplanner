@@ -161,6 +161,7 @@ EMAIL_HOST = 'mail.ecotrust.org'
 #EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'forestplanner@ecotrust.org'
+DEFAULT_FROM_EMAIL = 'forestplanner@ecotrust.org'
 
 ################# END Auth
 
