@@ -86,7 +86,7 @@
 										<button class="btn" data-bind="click: deleteStratum">ok</button>
 									</div>
 									<div class="btn-group" data-bind="visible: confirmDelete() === false">
-										<button class="btn" data-bind="click: $parent.dropStrata">apply</button>
+										<button class="btn" data-bind="click: $parent.applyStrata">apply</button>
 										<button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
 										<button class="btn" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
 									</div>
@@ -519,7 +519,7 @@
 
             // $( "#map" ).droppable({
             //   drop: function (event, ui) {
-            //       app.strata.viewModel.dropStrata(ui.draggable.data('sid'))  
+            //       app.strata.viewModel.applyStrata(ui.draggable.data('sid'))  
             //     }
             // });
 
@@ -537,6 +537,8 @@
 							map.render('map');
 							map.updateSize();    
 							map.zoomToExtent(app.property_layer.getDataExtent());
+
+		
 
             // reenable click and drag in vectors
             map.addControl(app.selectFeature); 
@@ -564,7 +566,6 @@
             self.species = ko.observable(options[0]);
 
             if (options[1] && options[2]) {
-              //self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join('-'));  
               self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join(' to '));  
             } else {
               self.sizeClass = ko.observable();
@@ -718,12 +719,51 @@
               });
             }
 
+						// set the color and store a reference
+						if (self.attributes.uid != undefined && app.strata.colorMap[self.attributes.uid]) {
+              self.color(app.strata.colorMap[self.attributes.uid]);
+            } else {
+              self.color('#' + app.strata.color.reverse().pop());
+							app.strata.colorMap[self.attributes.uid] = self.color();      //TODO: app.strata.colorMap['undefined'] is being set. This should probably be fixed
+            }
+
+						// initial stand coloring
+						$.each(app.stand_layer.features, function (i, stand) {
+							// @TODO: if you have 10 strata and 15 stands, this is running 150 times.
+							// better way?
+							if ( stand.attributes.strata !== null && stand.attributes.strata.uid === self.attributes.uid ) {
+								stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
+								app.stand_layer.drawFeature(stand);
+								app.strata.viewModel.setAppliedStrataTotal();
+							}
+						});
+
             self.deleteStratum = function (stratum) {
               app.strata.deleteStratum(stratum.attributes.uid, function () {
                 app.strata.viewModel.strataList.remove(stratum);
-              });
+								self.clearStands(stratum.attributes.uid);
+							});
             };
 
+
+						//when a stratum is deleted, make sure we clear the existing stands on the map as well
+						self.clearStands = function(uid){
+							$.each(app.stand_layer.features, function (i, feature) {
+								// is it a stand assigned to the deleted stratum?
+								if ( feature.attributes.strata !== null && feature.attributes.strata.uid === uid ) {
+									//clear and apply
+									feature.style = { fillColor: 'Transparent', fillOpacity: '.6', strokeColor: '#fff' };
+									feature.attributes.strata = null;
+									feature.data.strata = null;
+									app.stand_layer.drawFeature(feature);
+
+									//hey count, pay attention.
+									app.strata.viewModel.setAppliedStrataTotal();
+								}
+							});	
+						};
+
+						/*
             // launch into species list creation
             self.next = function () {
 							//unused 6/3 -wm
@@ -759,6 +799,23 @@
 							self.editTrees(false);
 						};
 
+
+						self.editSpecies = function(){
+							var self = this.stratum,
+									stand = new standViewModel(self);
+
+							self.currentStand(self.standList()[self.standList().length-1]);
+						}
+						self.selectRow = function () {
+							//unused 6/2
+							var self = this;
+							if (self.stratum.currentStand().species !== 'unknown') {
+								self.stratum.currentStand(self);
+							}
+						};
+
+						*/
+
 						self.addSpecies = function (stand, event) {
 							var stand,
 									self = this,
@@ -774,51 +831,23 @@
 							attrs[2] = sizes[1];
 							attrs[3] = self.percentage();
 
+							stand = new standViewModel(self, attrs);
+
 							self.species('');
 							self.percentage('');
-
-							stand = new standViewModel(self, attrs);
 
 							self.standList.push(stand);
 							self.currentStand(stand);
 							self.currentStand().updateChart();
 						};
 
-						self.editSpecies = function(){
-							var self = this.stratum,
-									stand = new standViewModel(self);
-
-							self.currentStand(self.standList()[self.standList().length-1]);
-						}
-
 						self.removeSpecies = function(stand){
 							self.standList.remove(stand);
 						};
 
-						self.selectRow = function () {
-							//unused 6/2
-							var self = this;
-							if (self.stratum.currentStand().species !== 'unknown') {
-								self.stratum.currentStand(self);
-							}
-						};
 
-            // set the color and store a reference
-						if (self.attributes.uid != undefined && app.strata.colorMap[self.attributes.uid]) {
-              self.color(app.strata.colorMap[self.attributes.uid]);
-            } else {
-              self.color('#' + app.strata.color.reverse().pop());
-							app.strata.colorMap[self.attributes.uid] = self.color();      //TODO: app.strata.colorMap['undefined'] is being set. This should probably be fixed
-            }
-           
-						$.each(app.stand_layer.features, function (i, stand) {
-							var total = app.strata.viewModel.appliedStrataTotal;
-							if ( stand.attributes.strata !== null && stand.attributes.strata.uid === self.attributes.uid ) {
-								stand.style = { fillColor: self.color(), fillOpacity: '.6', strokeColor: '#fff' };
-								app.stand_layer.drawFeature(stand);
-								total(total()+1);
-							}
-						});
+
+
 
 						self.sizeClasses = ko.computed(function() {
 								var pos = app.strata.treeSpecies().indexOf(self.species());
@@ -880,7 +909,20 @@
 
           self.standTotal = app.stand_layer.features.length;
 
+					// n of Y stands applied
           self.appliedStrataTotal = ko.observable(0);
+          self.setAppliedStrataTotal = function(){
+          	 var total = 0;
+
+          	$.each(app.stand_layer.features, function (i, stand) {
+							if (stand.attributes.strata !== null ) {
+								total = total + 1;
+							}	
+						});
+						self.appliedStrataTotal(total);
+
+          };
+
 
           // either false, or holds a stratumViewModel
           self.activeStratum = ko.observable();
@@ -917,13 +959,17 @@
 					}
 
           self.activeStratum.subscribe(function (activeStratum) {
-            
+
             if (activeStratum && activeStratum.standList().length) {
               app.strata.chartStandList(activeStratum.displayStandList());  
             } else { // no active stratum, so set cached chart data to null
               app.strata.chartData = null;
             }
             
+          });
+
+          self.strataList.subscribe(function(){
+          	self.setAppliedStrataTotal();
           });
           
           self.rubberBandActive = ko.observable(false);
@@ -933,7 +979,7 @@
               "clickout": false,
               "multiple": true,
               "toggle": true,
-              "selectStyle": map_styles.strataShiftSelect
+              "selectStyle": map_styles.strataSelect
             });
             
           app.selectFeatureBox = new OpenLayers.Control.SelectFeature(app.stand_layer,
@@ -980,8 +1026,7 @@
             self.activeStratum(new stratumViewModel());
           };
 
-
-          self.dropStrata = function( stratum ) {
+          self.applyStrata = function( stratum ) {
             // can be called from the draggable/droppable
             // switching to the knockout binding
             // for now
@@ -991,7 +1036,8 @@
 
 						// get strata id, if knockout stratum will be this
 
-							// Do we have a strata selected?
+						// Do we have a strata selected?
+						// @TODO more KO, less JQ
 						if( !app.stand_layer.selectedFeatures.length ){
 
 							var msg = "Please select an area on your map to apply this stand group.",
@@ -1016,19 +1062,22 @@
 						
 						// apply strata to selected stands
 						$.each(app.stand_layer.selectedFeatures, function (i, feature) {
-							// apply strata
 							// don't count features already counted 
 							if (!feature.attributes.strata){
-								var currentTotal = self.appliedStrataTotal();
-								self.appliedStrataTotal(currentTotal+1);
+								// var currentTotal = self.appliedStrataTotal();
+								// self.appliedStrataTotal(currentTotal+1);
 							}
 							feature.style = { fillColor: color, fillOpacity: '.6', strokeColor: '#fff' };
+							feature.attributes.strata = ko.mapping.toJS(stratum.attributes);
+							feature.data.strata = ko.mapping.toJS(stratum.attributes);
+
 							app.stand_layer.drawFeature(feature);
 							stand_uid_list.push(feature.attributes.uid);
 						});
 
 						app.strata.applyStrataToStand(stratum_id, stand_uid_list);
 						app.selectFeature.unselectAll();
+						self.setAppliedStrataTotal();
           }
 
           self.updateStratum = function (oldStratum, activeStratum) {
@@ -1182,13 +1231,6 @@
 							});
             }),
 
-            // back to 1.4.3, this is erroring out
-            // $.get('/trees/list/species.json', function (data) {
-            //     if (data.length) {
-            //         app.strata.treeSpecies = data;    
-            //     }
-                
-            // }),
             $.get('/features/generic-links/links/geojson/{uid}/'.replace('{uid}', app.strata.property_id), function (data) {
                 app.property_layer.addFeatures(app.geojson_format.read(data));
                 
@@ -1202,19 +1244,15 @@
 
                 app.stand_layer.styleMap.default = new OpenLayers.Style({
                   fillColor: "blue",
-                  
-
                 }, {
                   // Rules go here.
                   context: {
-                    
                   }
                 });
                 map.addLayer(app.stand_layer);
                 app.stand_layer.addFeatures(app.geojson_format.read(data));  
             })
         ).then(function () {
-
             app.strata.init();
         });
 
