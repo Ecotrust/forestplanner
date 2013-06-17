@@ -36,7 +36,6 @@ def stage():
             raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
     except Exception as inst:
         print inst
-    env.stage = True
 
 
 def prod():
@@ -52,8 +51,6 @@ def prod():
             raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
     except Exception as inst:
         print inst
-    env.prod = True
-
 
 
 def test():
@@ -167,21 +164,25 @@ def provision():
     """
     Run puppet on a staging/production environment
     """
+    stage = False
     for s in env.hosts:
         if 'vagrant' in s:
             raise Exception("You can't provision() on local dev, just vagrant up/provision")
+        if 'stage' in s:
+            stage = True
 
     update()
 
     # see lot.pp for defaults
-    if env.stage:
+    if stage:
         num_cpus = AWS_VARS_STAGE.get("num_cpus", 1)
         postgres_shared_buffers = AWS_VARS_STAGE.get("postgres_shared_buffers", "48MB")
         shmmax = AWS_VARS_STAGE.get("shmmax", 67108864)
-    elif env.prod:
+    else:  # assume prod
         num_cpus = AWS_VARS_PROD.get("num_cpus", 1)
         postgres_shared_buffers = AWS_VARS_PROD.get("postgres_shared_buffers", "48MB")
         shmmax = AWS_VARS_PROD.get("shmmax", 67108864)
+
     run("""sudo \
         facter_user=ubuntu \
         facter_group=ubuntu \
