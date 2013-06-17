@@ -143,12 +143,12 @@ package {'htop': ensure => "latest"}
 package {'sysstat': ensure => "latest"}
 package {'iotop': ensure => "latest"}
 
-# Don't use uwsgi packages; out of date! 
+# use uwsgi packages but only for the config system; binary is out of date! 
 # see https://code.djangoproject.com/ticket/20537
-# package {'uwsgi': ensure => "latest"}
-# package {'uwsgi-plugin-python': ensure => "latest"}
+package {'uwsgi': ensure => "latest"}
 exec { "uwsgi":
     command => "/usr/bin/pip install uwsgi"
+    require => Package['uwsgi']
 }
 file { "forestplanner.ini":
   path => "/etc/uwsgi/apps-available/forestplanner.ini",
