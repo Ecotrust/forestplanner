@@ -36,7 +36,6 @@ def stage():
             raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
     except Exception as inst:
         print inst
-    
 
 
 def prod():
