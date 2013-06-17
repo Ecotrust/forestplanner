@@ -16,6 +16,9 @@ if $url_base == undef {
 if $pgsql_base == undef {
     $pgsql_base = '/var/lib/postgresql/'
 }
+if $num_cpus == undef {
+    $num_cpus = 1
+}
 
 # ensure that apt update is run before any packages are installed
 class apt {
@@ -140,17 +143,27 @@ package {'htop': ensure => "latest"}
 package {'sysstat': ensure => "latest"}
 package {'iotop': ensure => "latest"}
 
-package {'uwsgi': ensure => "latest"}
-package {'uwsgi-plugin-python': ensure => "latest"}
+# Don't use uwsgi packages; out of date! 
+# see https://code.djangoproject.com/ticket/20537
+# package {'uwsgi': ensure => "latest"}
+# package {'uwsgi-plugin-python': ensure => "latest"}
+exec { "uwsgi":
+    command => "/usr/bin/pip install uwsgi"
+}
 file { "forestplanner.ini":
   path => "/etc/uwsgi/apps-available/forestplanner.ini",
-  content => template("forestplanner.uwsgi.ini"),
-  require => [Package['uwsgi'], Package['uwsgi-plugin-python']]
+  content => template("forestplanner.uwsgi.erb"),
+  require => Exec['uwsgi']
+}
+file { "/etc/init.d/uwsgi":
+  path => "/etc/init.d/uwsgi",
+  content => template("uwsgi.init.erb"),
+  require => Exec['uwsgi']
 }
 file { "/etc/uwsgi/apps-enabled/forestplanner.ini":
-   ensure => 'link',
-   target => '/etc/uwsgi/apps-available/forestplanner.ini',
-   require => File['forestplanner.ini']
+  ensure => 'link',
+  target => '/etc/uwsgi/apps-available/forestplanner.ini',
+  require => File['forestplanner.ini']
 }
 
 package {'nginx-full': ensure => "latest"}

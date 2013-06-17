@@ -174,7 +174,8 @@ def provision():
         facter_user=ubuntu \
         facter_group=ubuntu \
         facter_url_base=http://%s \
+        facter_num_cpus=%s \
         facter_pgsql_base=/var/lib/postgresql/ puppet apply \
         --templatedir=/usr/local/apps/land_owner_tools/scripts/puppet/manifests/files \
         --modulepath=/usr/local/apps/land_owner_tools/scripts/puppet/modules \
-        /usr/local/apps/land_owner_tools/scripts/puppet/manifests/lot.pp """ % (env.host))
+        /usr/local/apps/land_owner_tools/scripts/puppet/manifests/lot.pp """ % (env.host, 2))
