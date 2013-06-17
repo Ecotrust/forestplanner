@@ -3,32 +3,40 @@
 
 {% if user %}
     <h2>Account info for <em>{{user.username}}</em></h2>
-    <dl class="dl-horizontal">
-      <dt>
-        Username
-      </dt>
-      <dd>
-        {{user.username}}
-      </dd>
-      <dt>
-        First Name 
-      </dt>
-      <dd>
-        {{user.first_name}}
-      </dd>
-      <dt>
-        Last Name 
-      </dt>
-      <dd>
-        {{user.last_name}}
-      </dd>
-      <dt>
-        Email 
-      </dt>
-      <dd>
-        {{user.email}}
-      </dd>
-    </dl>
+    <table class="table">
+      <tr>
+        <th>
+          Username
+        </th>
+        <td>
+          {{user.username}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          First name
+        </th>
+        <td>
+          {{user.first_name}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          Last name
+        </th>
+        <td>
+          {{user.last_name}}
+        </td>
+      </tr>
+      <tr>
+        <th>
+          Email 
+        </th>
+        <td>
+          {{user.email}}
+        </td>
+      </tr>
+    </table>
     <br>
     <div>
     {% for account in user.socialaccount_set.all %}
