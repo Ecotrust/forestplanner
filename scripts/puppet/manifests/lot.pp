@@ -19,7 +19,17 @@ if $pgsql_base == undef {
 if $num_cpus == undef {
     $num_cpus = 1
 }
+if $postgres_shared_buffers == undef {
+    $postgres_shared_buffers = '48MB'
+    # 24 MB default; adjust to 1/4 system resources
+}
+if $shmmax == undef {
+    $shmmax = 67108864
+    # 32 MB default; adjust to 1/2 system resources
+}
 
+
+#####################################################################
 # ensure that apt update is run before any packages are installed
 class apt {
   exec { "apt-update":
@@ -143,11 +153,12 @@ package {'htop': ensure => "latest"}
 package {'sysstat': ensure => "latest"}
 package {'iotop': ensure => "latest"}
 
+
 # use uwsgi packages but only for the config system; binary is out of date! 
 # see https://code.djangoproject.com/ticket/20537
 package {'uwsgi': ensure => "latest"}
 exec { "uwsgi":
-    command => "/usr/bin/pip install uwsgi>=1.2.6",
+    command => "/usr/bin/pip install 'uwsgi>=1.2.6'",
     require => Package['uwsgi']
 }
 file { "forestplanner.ini":
@@ -183,10 +194,15 @@ file { "/etc/nginx/sites-enabled/default":
    require => Package['nginx-full']
 }
 
+sysctl { "kernel.shmmax": 
+   value => $shmmax
+}
+
 class { "postgresql::server": version => "9.1",
     listen_addresses => "'*'",  # TODO localhost',
     max_connections => 100,
-    shared_buffers => '24MB',
+    shared_buffers => $postgres_shared_buffers,
+    require => Sysctl['kernel.shmmax']
 }
 
 postgresql::database { "forestplanner":
