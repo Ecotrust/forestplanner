@@ -158,7 +158,7 @@ file { "forestplanner.ini":
 file { "/etc/init.d/uwsgi":
   path => "/etc/init.d/uwsgi",
   content => template("uwsgi.init.erb"),
-  require => Exec['uwsgi']
+  require => Exec['uwsgi'],
   mode => 0755
 }
 file { "/etc/uwsgi/apps-enabled/forestplanner.ini":
