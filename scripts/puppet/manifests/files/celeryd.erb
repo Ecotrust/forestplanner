@@ -5,7 +5,7 @@
 [program:celeryd]
 command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celery worker -E --loglevel=INFO
 user=<%= user %>
-numprocs=<%= num_cpus %>
+numprocs=1
 stdout_logfile=/usr/local/apps/land_owner_tools/logs/celeryd.log
 stderr_logfile=/usr/local/apps/land_owner_tools/logs/celeryd.log
 autostart=true
