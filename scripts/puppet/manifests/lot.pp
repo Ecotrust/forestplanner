@@ -147,7 +147,7 @@ package {'iotop': ensure => "latest"}
 # see https://code.djangoproject.com/ticket/20537
 package {'uwsgi': ensure => "latest"}
 exec { "uwsgi":
-    command => "if [ ! -f /usr/local/bin/wsgi ]; then /usr/bin/pip install uwsgi; fi",
+    command => "/usr/bin/pip install uwsgi>=1.2.6",
     require => Package['uwsgi']
 }
 file { "forestplanner.ini":
