@@ -84,6 +84,14 @@ def _recache():
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py clear_cache && \
                            %(venv)s/bin/python manage.py precache' % vars)
 
+
+def manage(command):
+    """ Runs any manage.py command on the server """
+    vars['command'] = command
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py %(command)s' % vars)
+    del vars['command']
+
+
 def create_superuser():
     """ Create the django superuser (interactive!) """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py createsuperuser' % vars)
