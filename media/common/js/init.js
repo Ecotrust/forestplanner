@@ -34,8 +34,6 @@ $(document).ready(function () {
     app.onResize();
     map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
 	app.globalErrorHandling();
-console.log('init');
-window.foobar = "hi mom";
 	var options = {
 		beforeSubmit: function(formData, jqForm, options) {
 			var name, file;
@@ -78,17 +76,17 @@ window.foobar = "hi mom";
 				$("#uploadResponse").html('<p class="label label-success">Success</p>');
 				$("#uploadResponse").fadeIn();
 				$('#uploadForm').clearForm();
-				var interval = setTimeout( function() {   
+				var interval = setTimeout( function() {
 					$("#uploadResponse").html('');
 					app.properties.viewModel.afterUploadSuccess(data);
-				}, 2000); 
+				}, 2000);
 			}
 		}
 
-	}; 
+	};
     $('#uploadForm').submit( function () {
-        $(this).ajaxSubmit(options); 
-        return false; 
+        $(this).ajaxSubmit(options);
+        return false;
     });
 
 	//set in the view
@@ -116,7 +114,7 @@ window.foobar = "hi mom";
 
     $('.selectpicker').selectpicker();
 
-    $('#scenario-charts-tab').on('shown', refreshCharts); 
+    $('#scenario-charts-tab').on('shown', refreshCharts);
 });
 
 app.globalErrorHandling = function () {
@@ -129,7 +127,6 @@ app.globalErrorHandling = function () {
 	});
 
 	app.$flash.find('.close').bind('click', app.flash.dismiss);
-	
 };
 
 //@TODO should pass an object. it's 2013. -wm
