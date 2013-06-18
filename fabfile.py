@@ -155,9 +155,23 @@ def deploy():
     for s in env.hosts:
         if 'vagrant' in s:
             raise Exception("You can't deploy() to local dev, just use `init restart_services`")
+    maintenance("on")
     update()
     init()
     restart_services()
+    print "\n  Test and run \n  fab <server> maintenance:off\n  when it's good to go"
+
+
+def maintenance(status):
+    """
+    turn maintenance mode on or off
+        fab dev maintenance:on
+        fab dev maintenance:off
+    """
+    if status == "on":
+        run("touch /tmp/.maintenance_mode")
+    else:
+        run("rm /tmp/.maintenance_mode")
 
 
 def provision():
