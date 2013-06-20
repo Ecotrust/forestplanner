@@ -6,13 +6,14 @@ app.properties = {
 var authenticated = authenticated || false;
 
 app.onResize = function () {
-    var height = $(window).height();
-    var width = $(window).width();
+    var height = $(window).height(),
+		width = $(window).width(),
+		divWidth;
 
     $("#map").height(height - 117);
     map.render('map');
 
-    divWidth = width * (7/12); // span7
+    divWidth = width * (7 / 12); // span7
     if (divWidth > height) {
         // "widescreen" so go side-by-side
         $(".timemap-container").width('48%');
@@ -20,7 +21,7 @@ app.onResize = function () {
     } else {
         // "narrow" so go top-to-bottom
         $(".timemap-container").width('99%');
-        $(".timemap").height((height - 284)/2.0);
+        $(".timemap").height((height - 284) / 2.0);
     }
     if (scenarioPlot) {
         refreshCharts();
@@ -30,20 +31,22 @@ app.onResize = function () {
 $(document).ready(function () {
 
     ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
+	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
+	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
+    ko.applyBindings(app, document.getElementById('global-tabs'));
     $(window).resize(app.onResize);
     app.onResize();
     map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
 	app.globalErrorHandling();
-console.log('init');
-window.foobar = "hi mom";
+
 	var options = {
-		beforeSubmit: function(formData, jqForm, options) {
+		beforeSubmit: function (formData, jqForm, options) {
 			var name, file;
 			$(formData).each(function () {
 				if (this.name === 'new_property_name') {
-						name = this.value;
+					name = this.value;
 				} else if (this.name === 'ogrfile') {
-						file = this.value;
+					file = this.value;
 				}
 			});
 			if (!name) {
@@ -57,7 +60,7 @@ window.foobar = "hi mom";
 
 			$("#uploadProgress").show();
 		},
-		uploadProgress: function(event, position, total, percentComplete) {
+		uploadProgress: function (event, position, total, percentComplete) {
 			var percentVal = percentComplete + '%';
 			$("#uploadProgress .bar").css('width', percentVal);
 			if (percentComplete > 99) {
@@ -65,20 +68,20 @@ window.foobar = "hi mom";
 				$("#uploadResponse").html('<p class="label label-info">Upload complete. Processing stand data...</p>');
 			}
 		},
-		complete: function(xhr) {
+		complete: function (xhr) {
 			$("#uploadProgress").hide();
 			$("#uploadProgress .bar").css('width', '0%');
 		},
-		error: function(data, status, xhr) {
+		error: function (data, status, xhr) {
 			$("#uploadResponse").html(data.responseText);
 		},
-		success: function(data, status, xhr) {
-			if (xhr.status == 201) {
+		success: function (data, status, xhr) {
+			if (xhr.status === 201) {
 				$("#uploadResponse").fadeOut();
 				$("#uploadResponse").html('<p class="label label-success">Success</p>');
 				$("#uploadResponse").fadeIn();
 				$('#uploadForm').clearForm();
-				var interval = setTimeout( function() {   
+				var interval = setTimeout(function () {
 					$("#uploadResponse").html('');
 					app.properties.viewModel.afterUploadSuccess(data);
 				}, 2000); 
@@ -86,15 +89,12 @@ window.foobar = "hi mom";
 		}
 
 	}; 
-    $('#uploadForm').submit( function () {
+    $('#uploadForm').submit(function () {
         $(this).ajaxSubmit(options); 
         return false; 
     });
 
-	//set in the view
-	if (authenticated) {
-		app.properties.viewModel.init();
-	}
+
 
     $('.manage-your-properties').click( function(e) {
         e.preventDefault();
@@ -117,7 +117,24 @@ window.foobar = "hi mom";
     $('.selectpicker').selectpicker();
 
     $('#scenario-charts-tab').on('shown', refreshCharts); 
+
+	//set in map_ext
+	if (authenticated) {
+		if (window.location.hash !== "#properties") {
+			window.location.hash = "#properties";
+		}
+	}
+
+	window.onhashchange = app.hashChange;
+	if (window.location.hash) {
+		app.hashChange();
+	}
 });
+
+
+//needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
+app.selectedPropertyName = ko.observable("");
+app.selectedPropertyUID = ko.observable("");
 
 app.globalErrorHandling = function () {
 	$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');
@@ -133,7 +150,7 @@ app.globalErrorHandling = function () {
 };
 
 //@TODO should pass an object. it's 2013. -wm
-app.flash = function(message, header, flashType){
+app.flash = function (message, header, flashType) {
 	// bs: alert-error, alert-warning, 
 	var type = flashType || 'alert-error',
 		hdr = header || 'Oops',
@@ -150,4 +167,12 @@ app.flash = function(message, header, flashType){
 app.flash.dismiss = function () {
 	app.$flash.hide().removeClass('alert-error alert-warning alert-success');
 	app.$flash.find('div, h4').text('');
+};
+
+
+// for when logging goes wild. pass a string and a hex or named css color
+app.log = function (string, color) {
+	var logged = string.toUpperCase();
+	color = color || "#007";
+	console.log("%c     " + logged + "     ",  "color:white; background-color:" + color + "");
 };

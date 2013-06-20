@@ -27,3 +27,5 @@ celerymon.pid
 fab_vars.py
 celeryflower-passwords
 geofu/*
+.vimrc
+.ackrc

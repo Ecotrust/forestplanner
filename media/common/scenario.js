@@ -236,7 +236,7 @@ function scenarioViewModel(options) {
             name: property.name() + ' Scenarios',
             action: null
         });
-        app.updateUrl();
+        //app.updateUrl();
 
         self.showScenarioList(true);
         self.toggleScenarioForm(false);
@@ -261,10 +261,11 @@ function scenarioViewModel(options) {
     };
 
     self.cancelManageScenarios = function() {
-        app.breadCrumbs.breadcrumbs.pop();
-        app.updateUrl();
+        //app.breadCrumbs.breadcrumbs.pop();
+        //app.updateUrl();
         self.showScenarioPanels(false);
-        app.properties.viewModel.showPropertyPanels(true);
+		self.toggleScenarioForm('hide')
+        //app.properties.viewModel.showPropertyPanels(true);
         if (app.rx_stand_layer)
             app.rx_stand_layer.removeAllFeatures();
         $('#scenario-form-metacontainer').hide();

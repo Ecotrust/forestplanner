@@ -70,11 +70,14 @@ function standsViewModel() {
 
   self.cancelManageStands = function() {
     app.breadCrumbs.breadcrumbs.pop();
-    app.updateUrl();
+    //app.updateUrl();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
-    map.removeLayer(self.stand_layer);
-    map.removeLayer(self.property_layer);
+	
+    //these are breaking tab switching. seems to be working without them!
+    //uh oh?
+    //map.removeLayer(self.stand_layer);
+    //map.removeLayer(self.property_layer);
     app.drawFeature.featureAdded = app.properties.featureAdded;
     app.selectFeature.activate();
   };
@@ -363,6 +366,8 @@ function standsViewModel() {
     }, 100);
     self.showNoStandHelp(false);
     self.property = property;
+	console.info('stands.loadStands self.property = property', property);
+
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
     
@@ -370,7 +375,7 @@ function standsViewModel() {
     app.breadCrumbs.breadcrumbs.removeAll();
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands});
     app.breadCrumbs.breadcrumbs.push({url: 'stands/' + property.id(), name: property.name() + ' Stands', action: null});
-    app.updateUrl();
+    //app.updateUrl();
     
     map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc

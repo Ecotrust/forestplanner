@@ -27,6 +27,11 @@ function propertiesViewModel () {
       } 
       // set the selected property for the viewmodel
       self.selectedProperty(property);
+	  
+	  //for global tabs
+	  app.selectedPropertyName(self.selectedProperty().name());
+	  app.selectedPropertyUID(self.selectedProperty().uid());
+	  
       self.showDetailPanel(true);
       //zoom the map to the selected property
       map.zoomToExtent(bbox);
@@ -42,7 +47,7 @@ function propertiesViewModel () {
       }
     });
 	// learning knockout fail - wm
-	app.selectedPropertyUID = uid;
+	app.selectedPropertyUID(uid);
   };
 
   self.zoomToExtent = function () {
@@ -284,17 +289,24 @@ function propertiesViewModel () {
   };
 
   self.manageStands = function (self, event) {
-console.log('manageStands self, event', self, event)
     // create active property layer
     // copy active property to new layer
     // hide other properties
     // initialize stand manager
+
+	// it's possible to get here via tab click instead of from a property detail button
+	if(self.selectedProperty() == undefined){
+		self.selectedProperty(self.propertyList()[0]);  
+	}
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
     } else {
       app.stands.viewModel = new standsViewModel();
       app.stands.viewModel.initialize(self.selectedProperty());
     }
+	
+	//for global tabs
+	app.selectedPropertyName(self.selectedProperty().name());
 
     // hide property panels
     app.stands.viewModel.showStandPanels(true);
@@ -323,7 +335,6 @@ console.log('manageStands self, event', self, event)
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
-	  console.info('app.props.init');
     self.showPropertyPanels(true);
     return $.get('/trees/user_property_list/', function (data) {
       app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
@@ -363,8 +374,8 @@ console.log('manageStands self, event', self, event)
       });
   
       // set up the breadcrumbs    
-      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
-      app.updateUrl();
+      //app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
+      //app.updateUrl();
       
       // select the first property and show the detail panel
       if (data.features.length) {

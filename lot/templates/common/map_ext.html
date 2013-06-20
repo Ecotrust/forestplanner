@@ -48,42 +48,14 @@
 									</div>
 
 									<div class="pull-right">
-                                        <!--
+										<!--
 										<a class="btn btn-large btn-success" href="{% url 'registration_register' %}" id="register"><i class="icon-leaf icon-white"></i> Register Now</a>
-                                        -->
-                                        <a class="btn btn-large btn-success" 
-                                        href="{% url 'account_login' %}" id="signin">
-                                        <i class="icon-user icon-white"></i> Log In</a>
+											-->
+										<a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
+											<i class="icon-user icon-white"></i> Log In</a>
 
 									</div>
 								</div>
-								<!--
-								<div id="myCarousel" class="carousel slide">
-										<ol class="carousel-indicators">
-											<li data-target="#myCarousel" data-slide-to="0" class="active"></li>
-											<li data-target="#myCarousel" data-slide-to="1"></li>
-											<li data-target="#myCarousel" data-slide-to="2"></li>
-											<li data-target="#myCarousel" data-slide-to="3"></li>
-										</ol>
-										<div class="carousel-inner">
-											<div class="item active">
-												<img src="/media/img/forest_photos/walkers-205-full.jpg" alt="garibaldi forest" />
-											</div>
-											<div class="item">
-												<img src="/media/img/forest_photos/hills-0038-full.jpg" alt="Jed Smith Forest" />
-											</div>
-											<div class="item">
-												<img src="/media/img/forest_photos/forest-clouds-866-full.jpg" alt="Drift Creek" />
-											</div>
-											<div class="item">
-												<img src="/media/img/forest_photos/Nursery-log-1-full.jpg" alt="Nursery Log" />
-											</div>
-										</div>
-										<a class="left carousel-control" href="#myCarousel" data-slide="prev">&lsaquo;</a>
-										<a class="right carousel-control" href="#myCarousel" data-slide="next">&rsaquo;</a>
-									</div>
-									-->
-
 							</div> 
 							
 
@@ -108,13 +80,38 @@
 								var authenticated = true;
 						</script>
 						<div class="row-fluid">
-							    <ul class="nav nav-tabs">
-										<li class="active"><a href="#properties">Properties</a></li>
-										<li><a href="#stands">Define Stand Boundaries</a></li>
-										<li><a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID }">Define Stand Groups</a></li>
-										<li><a href="#scenarios" data-bind=" 
+
+									<ul class="nav nav-tabs" id="global-tabs">
+										<li data-bind="css: { active: app.state() == 'properties' }">
+											<a href="#properties">
+												<span class="tab-num">1</span>
+												Properties<span style="display:none" data-bind="visible: app.selectedPropertyName() !== '' ">: </span>
+												<span class="property-name" data-bind="text: app.selectedPropertyName()"></span>
+											</a>
+										</li>
+										<li data-bind="css: { active: app.state() == 'stands'}">
+											<a href="#stands">
+												<span class="tab-num">2</span>
+												Define Stand Boundaries</a>
+										</li>
+										<li>
+											<a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }">
+												<span class="tab-num">3</span>
+												Define Stand Groups</a>
+										</li>
+										<li data-bind="css: { active: app.state() == 'scenarios'}">
+											<a href="#scenarios">
+												<span class="tab-num">4</span>
+												Evalutate Future Scenarios</a>
+										</li>
+										<!--									
+										//  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
+										apply bindings to the tabs in a callback. doing it on doc.ready for now.
+										or ko.observable set when this is ready
+										<li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
 											css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
 											app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
+											-->
 									</ul>
 						</div>
 
@@ -508,7 +505,7 @@
                         -->
                         <button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
 						<a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
-							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID }" >
+							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
 							<i class="icon-repeat"></i> Define Stand Groups</a>
 						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
 							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
