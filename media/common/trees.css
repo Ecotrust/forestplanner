@@ -391,6 +391,9 @@ header.hero {
 	#global-tabs > li:first-child{
 		max-width: 32%;
 	}
+	#global-tabs a{
+		color: #666;
+	}
 	#global-tabs .property-name {
 		font-weight: bold;
 		font-style: italic;
