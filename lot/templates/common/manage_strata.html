@@ -47,13 +47,14 @@
 
 	<header style="display:none" data-bind="visible: $root">
 
+		<!--
 		<div class="btn-group pull-right">
 			<a class="btn" data-bind="disable: activeStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
-			<!--<button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>-->
-			<button class="btn btn-success" data-bind="click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
+			<button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
 		</div>	
+		-->
 		<h1>
-			Manage Stand Groups
+			Define Stand Groups
 		</h1>
 	</header>
 
@@ -130,6 +131,9 @@
 				</div>
 
 			</div><!-- /.well -->
+
+			<button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
+			
 		</div>
 
 		<div class="span7">

@@ -182,9 +182,9 @@
 
 								<div class="row-fluid property-details">
 										<div data-bind="if: selectedProperty()">
-											<h3>Property Details: <i data-bind="text: selectedProperty().name"></i></h3>
-											<div style="display: none;" class=" well" 
-												data-bind="if: showDetailPanel, visible: showDetailPanel">
+											<div style="display: none;" data-bind="if: showDetailPanel, visible: showDetailPanel">
+												<div class="  well" >
+												<h3>Property Details: <i data-bind="text: selectedProperty().name"></i></h3>
 												<div class="pull-right btn-group">
 													<button href="#" id="delete-button" class="btn btn-mini" 
 														data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete </button>
@@ -216,6 +216,9 @@
 														</dd>
 													</dl>
 
+
+
+													<!--
 													<div class="row-fluid">
 														<div class="span4">
 															<button class="btn pull-right btn-success" href="#" 
@@ -233,6 +236,17 @@
 															<i class="icon-repeat icon-white"></i> Evalutate Future Scenarios</button>
 														</div>
 													</div>
+													-->
+												</div>
+														<a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+															<i class="icon-plus-sign icon-white"></i> Draw New Property
+														</a>
+
+														<a class="btn pull-left" href="#" data-bind="click: startUpload, disable: preventUpdates">
+															<i class="icon-upload"></i> Upload GIS Data
+														</a>
+	
+													
 												</div>
 											</div>
 										</div> <!-- /.property-defails -->
@@ -348,28 +362,24 @@
                            Create a New Scenario to evaluate.
                        </p>
                     </div>
-                    <div>  <!--  data-bind="if: selectedFeatures().length > 0"> -->
-						<header class="clearfix">
-							<h1>Evaluate Scenarios</h1>
-							<div class="btn-group pull-right">
-								<button class="btn btn-mini" data-bind="click: cancelManageScenarios"> 
-                                    <i class="icon-backward"></i> Back to Properties 
-                                </button>
-                                <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
-                                    <i class="icon-repeat"></i> Refresh
-                                </button>
-								<a href="#" class="btn btn-mini btn-success" data-bind="click: newScenarioStart">
-                                    <i class="icon-plus-sign icon-white"></i> New Scenario
-                                </a>
-							</div>
-						</header>
+                    <div>  
+                      <header class="clearfix">
+                        <h3>Evaluate Scenarios</h3>
+                        <div class="btn-grouppull-right">
+                          <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
+                            <i class="icon-repeat"></i> Refresh
+                          </button>
+                          <a href="#" class="btn btn-success pull-right" data-bind="click: newScenarioStart">
+                            <i class="icon-plus-sign icon-white"></i> New Scenario
+                          </a>
+                        </div>
+                      </header>
 
                         <table class="table table-condensed table-hover table-bordered">
-                        <!--<tbody data-bind="foreach: selectedFeatures">-->
                         <tbody data-bind="foreach: scenarioList">
                             <tr class="scenario-row" data-bind="click: $parent.toggleFeature">
                                 <td data-bind="css:{ 'highlighted-scenario': $parent.selectedFeatures.indexOf($data) !== -1 }"> 
-                                    <div class="pull-right">
+                                    <div class="pull-right btn-group">
                                         <button href="#" id="delete-button" class="btn btn-mini" 
                                             data-bind="click: $parent.showDeleteDialog">
                                             <i class="icon-remove"></i>Delete</button>
@@ -500,13 +510,13 @@
                       </div>
                     </div>
 					<div class="pull-right btn-group">
-                        <!--
+						<!--
 						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
-                        -->
-                        <button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
+						<button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
 						<a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
 							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
 							<i class="icon-repeat"></i> Define Stand Groups</a>
+						-->
 						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
 							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
 					</div>
@@ -526,7 +536,7 @@
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
                     <div class="pull-right">
                       <button href="#" class="btn" data-bind="click: cancelManageStands">Cancel</button>
-                      <button href="#" class="btn btn-success" data-bind="click: addStandStart">Draw Stand</button>
+                      <button href="#" class="btn btn-success" data-bind="click: addStandStart"><i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                     </div>
                   </div>
                 </div>
