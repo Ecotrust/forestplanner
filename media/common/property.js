@@ -27,6 +27,11 @@ function propertiesViewModel () {
       } 
       // set the selected property for the viewmodel
       self.selectedProperty(property);
+	  
+	  //for global tabs
+	  app.selectedPropertyName(self.selectedProperty().name());
+	  app.selectedPropertyUID(self.selectedProperty().uid());
+	  
       self.showDetailPanel(true);
       //zoom the map to the selected property
       map.zoomToExtent(bbox);
@@ -42,7 +47,7 @@ function propertiesViewModel () {
       }
     });
 	// learning knockout fail - wm
-	app.selectedPropertyUID = uid;
+	app.selectedPropertyUID(uid);
   };
 
   self.zoomToExtent = function () {
@@ -288,12 +293,20 @@ function propertiesViewModel () {
     // copy active property to new layer
     // hide other properties
     // initialize stand manager
+
+	// it's possible to get here via tab click instead of from a property detail button
+	if(self.selectedProperty() == undefined){
+		self.selectedProperty(self.propertyList()[0]);  
+	}
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
     } else {
       app.stands.viewModel = new standsViewModel();
       app.stands.viewModel.initialize(self.selectedProperty());
     }
+	
+	//for global tabs
+	app.selectedPropertyName(self.selectedProperty().name());
 
     // hide property panels
     app.stands.viewModel.showStandPanels(true);
@@ -361,8 +374,8 @@ function propertiesViewModel () {
       });
   
       // set up the breadcrumbs    
-      app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
-      app.updateUrl();
+      //app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
+      //app.updateUrl();
       
       // select the first property and show the detail panel
       if (data.features.length) {

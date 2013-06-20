@@ -283,6 +283,9 @@ label#year-label {
 .modal .modal-body h3 {
 	font-size: 22px;
 }
+.property-details {
+	margin-top: 1em;
+}
 .carousel-inner .row-fluid .span6{
 	margin-top: 21px; /* so. cheap. */
 }
@@ -385,6 +388,106 @@ header.hero {
 .highlighted-scenario {
     background-color: #fcfcfc;
 }
+#scenario-outputs .nav-tabs{
+	/* hax to cover the top of the .well */
+	background-color: #E4E4E4;
+    margin: -5px -5px 10px;
+    padding: 4px 4px 0;
+}
+
+
+#global-tabs{}
+	#global-tabs > li:first-child{
+		max-width: 32%;
+	}
+	#global-tabs a{
+		color: #666;
+	}
+	#global-tabs .property-name {
+		font-weight: bold;
+		font-style: italic;
+		
+		display: inline-block;
+		font-style: italic;
+		font-weight: bold;
+		max-width: 67%;
+		overflow: hidden;
+		position: relative;
+		text-overflow: ellipsis;
+		top: 4px;
+		white-space: nowrap;
+	}
+	.tab-num {
+		background-color: #fff;
+		border: 2px solid #ccc;
+		-moz-border-radius:		15px;
+		-webkit-border-radius:	15px; 
+		border-radius:			15px;
+		color: #333333;
+		display: inline-block;
+		font-size: 13px;
+		line-height: 1.9;
+		margin-right: 4px;
+		padding: 0 9px;
+		text-align: center;
+	}
+		.active .tab-num{
+			background-color: #999999;
+			border: 2px solid #FFFFFF;
+			color: #fff;
+		}
+
+	#global-tabs > li:after {
+		border-color: transparent transparent transparent rgba(0, 0, 0, 0.05);
+		border-style: solid;
+		border-width: 13px;
+		content: "";
+		display: inline-block;
+		height: 0;
+		position: absolute;
+		right: -27px;
+		top: 11px;
+		width: 0;
+	}
+	#global-tabs > li {
+		margin-bottom: -1px;
+		margin-right: 26px;
+		position: relative;
+	}
+	#global-tabs > li.active:after{
+		border-color: transparent transparent transparent #fff;
+		border-width: 24px;
+
+		right: -44px;
+		top: 1px;
+	}
+/* not sure why this version isn't working. arrows end up on a new line.
+	#global-tabs > li:after {
+		border-color: transparent transparent transparent #CCCCCC;
+		border-style: solid;
+		border-width: 21px;
+		content: "";
+		display: inline-block;
+		height: 0;
+		margin-left: 8px;
+		margin-right: -21px;
+		position: relative;
+		top: 16px;
+		width: 0;
+	}
+	*/
+	#global-tabs > li:last-child:after {
+		border: none;
+		content: "";
+		display: none;
+		margin: 0;
+		position: static;
+	}	
+	#global-tabs > li > a:focus {
+		/* oh, firefox. for accessibility, the background color still changes on focus */
+		outline: 0 none;
+	}
+
 .accessibility {
 	position: absolute;
 	left: -10000em;

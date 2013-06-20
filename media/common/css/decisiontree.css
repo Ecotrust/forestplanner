@@ -1,9 +1,9 @@
 
-a{
+#scenario-form a{
  cursor: pointer;
  color: #666;
 }
-a:hover{
+#scenario-form a:hover{
 	text-decoration: underline;
 }
 .decision-links a{

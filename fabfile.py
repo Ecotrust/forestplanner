@@ -129,7 +129,7 @@ def install_media():
 
 def copy_media():
     """ Just copy the basic front end stuff. Speed! """
-    run('cp -r /vagrant/media/common/* /vagrant/mediaroot/common' % vars)+" +"
+    run('rsync -rtvu /usr/local/apps/land_owner_tools/media/common/ /usr/local/apps/land_owner_tools/mediaroot/common' % vars)
 
 
 def runserver():
