@@ -75,6 +75,12 @@ app.hashChange = function () {
 
 			break;
 
+		case "#about":
+			break;
+			
+		case "#help":
+			break;
+			
 		default:
 			app.state('properties');
 			// TODO? Set window.hash to #properties and move on? Recursion?
