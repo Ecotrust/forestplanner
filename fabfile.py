@@ -79,8 +79,9 @@ def _install_django():
 
 
 def _recache():
-    run('cd %(app_dir)s && %(venv)s/bin/python manage.py clear_cache && \
-                           %(venv)s/bin/python manage.py precache' % vars)
+    run('cd %(app_dir)s && %(venv)s/bin/python manage.py clear_cache' % vars)
+    # run('cd %(app_dir)s && %(venv)s/bin/python manage.py clear_cache && \
+    #                        %(venv)s/bin/python manage.py precache' % vars)
 
 
 def manage(command):
@@ -185,6 +186,7 @@ def provision():
         if 'stage' in s:
             stage = True
 
+    maintenance("on")
     update()
 
     # see lot.pp for defaults
@@ -216,5 +218,5 @@ def provision():
         )
 
     restart_services()
-    run("sudo service postgresql reload")
-
+    #run("sudo service postgresql reload")
+    print "\n  Test and run \n  fab <server> maintenance:off\n  when it's good to go"
