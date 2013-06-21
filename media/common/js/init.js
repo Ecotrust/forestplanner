@@ -5,12 +5,63 @@ app.properties = {
 };
 var authenticated = authenticated || false;
 
+
+$(document).ready(function () {
+
+    ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
+	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
+	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
+    ko.applyBindings(app, document.getElementById('global-tabs'));
+
+    $(window).resize(app.onResize);
+    app.onResize();
+
+    map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
+	app.globalErrorHandling();
+
+	app.standUploadFormInit();
+
+	app.chartInit();
+
+	app.deferredClickHandler();
+
+	//set in map_ext
+	if (authenticated) {
+		if (window.location.hash !== "#properties") {
+			window.location.hash = "#properties";
+		}
+	}
+
+	window.onhashchange = app.hashChange;
+	if (window.location.hash) {
+		app.hashChange();
+	}
+});
+
+app.deferredClickHandler = function () {
+	//let's bubble.
+	$('body').on('click', function (event, a) {
+		var $t = $(event.target);
+
+		if ($t.is('.more-toggle')) {
+			$t.next('.more').toggle();
+			event.preventDefault();
+			return false; 
+		}
+
+	});
+};
+
+//needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
+app.selectedPropertyName = ko.observable("");
+app.selectedPropertyUID = ko.observable("");
+
 app.onResize = function () {
     var height = $(window).height(),
 		width = $(window).width(),
 		divWidth;
 
-    $("#map").height(height - 117);
+    $("#map").height(height - 137);
     map.render('map');
 
     divWidth = width * (7 / 12); // span7
@@ -28,17 +79,28 @@ app.onResize = function () {
     }
 };
 
-$(document).ready(function () {
+app.chartInit = function () {
+	// initialize chart and timemap metrics dropdowns
+	// more in chart.js
+    var chart_sel = $('#chart-metrics-select'),
+		timemap_sel = $('#timemap-metrics-select'),
+		metric;
 
-    ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
-	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
-	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
-    ko.applyBindings(app, document.getElementById('global-tabs'));
-    $(window).resize(app.onResize);
-    app.onResize();
-    map.zoomToExtent(OpenLayers.Bounds.fromArray([-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]));
-	app.globalErrorHandling();
+    for (var prop in chartMetrics) {
+        metric = chartMetrics[prop];
+        chart_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        timemap_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+    }
+    chart_sel.change(refreshCharts);
+    timemap_sel.change( function () { refreshTimeMap(true, true); });
 
+    $('.selectpicker').selectpicker();
+
+    $('#scenario-charts-tab').on('shown', refreshCharts); 
+};
+
+app.standUploadFormInit = function () {
+	
 	var options = {
 		beforeSubmit: function (formData, jqForm, options) {
 			var name, file;
@@ -93,48 +155,7 @@ $(document).ready(function () {
         $(this).ajaxSubmit(options); 
         return false; 
     });
-
-
-
-    $('.manage-your-properties').click( function(e) {
-        e.preventDefault();
-        $('div#home-html').hide();
-        app.properties.viewModel.init();
-    });
-
-    // initialize chart and timemap metrics dropdowns
-    var chart_sel = $('#chart-metrics-select');
-    var timemap_sel = $('#timemap-metrics-select');
-    var metric;
-    for(var prop in chartMetrics){
-        metric = chartMetrics[prop];
-        chart_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
-        timemap_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
-    }
-    chart_sel.change(refreshCharts);
-    timemap_sel.change( function () { refreshTimeMap(true, true); });
-
-    $('.selectpicker').selectpicker();
-
-    $('#scenario-charts-tab').on('shown', refreshCharts); 
-
-	//set in map_ext
-	if (authenticated) {
-		if (window.location.hash !== "#properties") {
-			window.location.hash = "#properties";
-		}
-	}
-
-	window.onhashchange = app.hashChange;
-	if (window.location.hash) {
-		app.hashChange();
-	}
-});
-
-
-//needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
-app.selectedPropertyName = ko.observable("");
-app.selectedPropertyUID = ko.observable("");
+};
 
 app.globalErrorHandling = function () {
 	$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');

@@ -201,7 +201,11 @@
 														<dd data-bind="foreach: selectedProperty().location">
 															<span data-bind="text: $data"></span><!-- ko if: $index() == 0 -->, <!-- /ko -->
 														</dd>
-														<dt>Number of Stands</dt>
+                          </dl>
+
+                          <a href="#" class="more-toggle">dev more...</a>
+                          <dl class="hide more dl-horizontal">
+                            <dt>Number of Stands</dt>
 														<dd>
 															<span data-bind="text: selectedProperty().stand_summary.with_strata"></span> 
 															of <span data-bind="text: selectedProperty().stand_summary.total"></span> with strata 
@@ -214,6 +218,7 @@
 															<span data-bind="text: selectedProperty().stand_summary.with_terrain"></span> 
 															of <span data-bind="text: selectedProperty().stand_summary.total"></span> with terrain 
 														</dd>
+
 													</dl>
 
 
@@ -479,16 +484,15 @@
                         <div class="stand-detail" data-bind="with: selectedFeature">
                             <p>
                                 <dl class="dl-horizontal">
-                                    <dt>Area</dt>
-                                    <dd><span data-bind="text: acres"></span> acres</dd>
-									<dt>Aspect</dt><dd><span data-bind="text: aspect"></span>&nbsp;</dd>
-									<dt>Slope</dt><dd data-bind="text: slope">&nbsp;</dd>
-									<dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
+                                  <dt>Area</dt>
+                                  <dd><span data-bind="text: acres"></span> acres</dd>
+                                  <dt>Aspect</dt><dd><span data-bind="text: aspect"></span>&nbsp;</dd>
+                                  <dt>Slope</dt><dd data-bind="text: slope">&nbsp;</dd>
+                                  <dt>Elevation</dt><dd><span data-bind="text: elevation"></span> ft</dd>
                                 </dl>
 
-
-                                <a href="javascript:$('.stand-tree-details').toggle()">more...</a>
-                                <div class="stand-tree-details hide">
+                                <a href="#" class="more-toggle">dev more...</a>
+                                <div class="stand-tree-details hide more">
                                     <h4> Strata </h4>
                                     <dl class="dl-horizontal" data-bind="with: strata">
                                         <dt>Strata UID</dt><dd><span data-bind="text: uid"></span></dd>
