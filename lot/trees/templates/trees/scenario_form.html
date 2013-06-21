@@ -89,7 +89,7 @@
             </div>
             <div class="control-group pull-right">
                 <div class="controls">
-                    <button class="btn" data-bind="click: function() { $('#scenario-edit-rx-tab').click(); }"> Next step &gt;&gt; </button>
+                    <button class="btn btn-success" data-bind="click: function() { $('#scenario-edit-rx-tab').click(); }"> Next step &gt;&gt; </button>
                 </div>
             </div>
 
@@ -164,6 +164,12 @@
                 </form>
             </div>
             <div data-bind="visible: ! (newRx() || selectedRx())">
+                <div class="btn-group pull-left btn-controls">
+                    <a class="btn" data-bind="click: addNewRx">
+                       <i class="icon-plus-sign"></i>
+                       Add New Prescription
+                    </a>
+                </div>            
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
                         <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
@@ -186,9 +192,6 @@
                         </tr>
                     </tbody>
                 </table>
-                <div class="btn-group pull-left btn-controls">
-                    <a class="btn" data-bind="click: addNewRx">add new prescription</a>
-                </div>            
             </div>
             <div data-bind="visible: newRx">
                 <div id="tree-window">
@@ -200,9 +203,9 @@
                     <button class='btn' data-bind="click: function () { newRx(false); decisionOutput.removeAll(); }" style="margin-top: 10px">Cancel</button>
                 </div>
             </div>
-            <div class="control-group pull-right">
+            <div class="control-group pull-right" data-bind="visible: !newRx()">
                 <div class="controls">
-                    <button class="btn" data-bind="click: function() { $('#scenario-review-tab').click(); }"> Next step &gt;&gt; </button>
+                    <button class="btn btn-success" data-bind="click: function() { $('#scenario-review-tab').click(); }"> Next step &gt;&gt; </button>
                 </div>
             </div>
         </div>
@@ -235,16 +238,12 @@
             </div>
             <div class="control-group pull-right">
                 <div class="controls">
-                    <button class="btn btn-primary submit">Submit Scenario</button>
+                    <button class="btn cancel">Cancel</button>
+                    <button class="btn btn-success submit">Submit Scenario</button>
                 </div>
             </div>
         </div>
 
     </div>
 </form>
-            <div class="control-group pull-right">
-                <div class="controls">
-                    <button class="btn cancel">Cancel</button>
-                </div>
-            </div>
 {% endblock panel %}
