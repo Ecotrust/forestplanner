@@ -4,9 +4,9 @@ var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
 var stand_style = {    
     graphicZIndex: 1,
     fillColor: "white",
-    fillOpacity: 0,
+    fillOpacity: 0.3,
     strokeWidth: 1,
-    strokeOpacity: 0.6,
+    strokeOpacity: 0.8,
     strokeColor: "white",
     strokeDashstyle: "solid"
 };
