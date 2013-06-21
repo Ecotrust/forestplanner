@@ -42,8 +42,10 @@
 
         <div class="tab-pane active" id="scenario-edit-spatial-content">
 
-            <div class="well">
-                Use <strong>spatial constraints</strong> to visualize management restrictions. 
+            <p class="info text-info well well-small">
+                <i class="icon-info-sign"></i> 
+                Turn on spatial constraint layers to visualize management restrictions
+                <!-- 
                 <br><br> 
                 For example, knowing where streams and conservation
                 easements exist can help you decide on appropriate management activities for 
@@ -51,7 +53,8 @@
                 <br><br> 
                 Note: These spatial constraint maps are <em>not</em> legal boundaries and are presented
                 for reference only.
-            </div>
+                -->
+            </p>
 
             <div class="control-group" style="margin-left:40px;">
                 <div id="constraint-layers">
@@ -106,9 +109,10 @@
         </script>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
-            <div class="well">
-                <strong>Silvicultural Prescriptions</strong> describe the planned management activities for 
-                one or more stands on your property.
+            <p class="info text-info well well-small">
+                <i class="icon-info-sign"></i> 
+                Silvicultural Prescriptions describe the planned management activities for each stand on your property.
+                <!--
                 <br><br> 
                 For example, you may want to consder the effects of thinning every 20 years in certain areas.
                 By creating a prescription and applying to the desired stands, the Forest Planner can model 
@@ -116,7 +120,8 @@
                 <br><br> 
                 Note: If you <em>don't</em> apply a management prescription to a stand, it is assumed to be "Grow Only",
                 i.e. not actively managed. 
-            </div>
+                -->
+            </p>
             <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
                 <form>
                   <fieldset>
