@@ -79,7 +79,7 @@ function propertiesViewModel () {
   };
 
   self.showEditForm = function () {
-    var formUrl = '/features/forestproperty/{uid}/form/'.replace('{uid}', this.selectedProperty().uid());
+    var formUrl = '/features/forestproperty/{uid}/form/'.replace('{uid}', self.selectedProperty().uid());
     $.get(formUrl, function (data) {
       var $form = $(data).find('form');
         
