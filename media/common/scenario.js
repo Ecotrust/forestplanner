@@ -105,6 +105,11 @@ function scenarioFormViewModel(options) {
             url = "/features/myrx/{uid}/".replace('{uid}', rx.myrx_id);
         }
 
+        var desc = self.selectedRx().description();
+        if (!desc) {
+            self.selectedRx().description(self.decisionOutput().join(", \n"));
+        }
+
         $.ajax({
             url: url,
             type: 'POST',
