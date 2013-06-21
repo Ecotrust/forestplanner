@@ -249,7 +249,7 @@ function standsViewModel() {
     ko.applyBindings(self, document.getElementById('stand-html'));
 
     // start the stand manager
-    self.property_layer = new OpenLayers.Layer.Vector("Active Property", {
+    self.property_layer = new OpenLayers.Layer.Vector("My Active Property", {
       renderers: app.renderer,
       styleMap: map_styles.standProperty
     });

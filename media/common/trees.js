@@ -139,26 +139,25 @@ function init() {
     var renderer = OpenLayers.Util.getParameters(window.location.href).renderer;
     app.renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
 
-    new_features = new OpenLayers.Layer.Vector("New Features", 
-            {
-                renderers: app.renderer, 
-                styleMap: map_styles.drawn,
-                displayInLayerSwitcher: false
-            }
+    new_features = new OpenLayers.Layer.Vector("New Features", {
+        renderers: app.renderer, 
+        styleMap: map_styles.drawn,
+        displayInLayerSwitcher: false
+    }
     );
     map.addLayer(new_features);
     app.new_features = new_features;
     
 
     app.geojson_format = new OpenLayers.Format.GeoJSON(),
-    app.property_layer = new OpenLayers.Layer.Vector("Properties",  {
-                renderers: app.renderer, 
-                styleMap: map_styles.forestProperty
-            });
+    app.property_layer = new OpenLayers.Layer.Vector("My Properties",  {
+        renderers: app.renderer, 
+        styleMap: map_styles.forestProperty
+    });
     app.stand_layer = new OpenLayers.Layer.Vector("Stands",  {
-            renderers: app.renderer, 
-            styleMap: map_styles.forestProperty
-        });
+        renderers: app.renderer, 
+        styleMap: map_styles.forestProperty
+    });
     map.addLayer(app.property_layer);
 
     // add controls, save references
