@@ -25,6 +25,7 @@ $(document).ready(function () {
 
 	app.deferredClickHandler();
 
+	
 	//set in map_ext
 	if (authenticated) {
 		if (window.location.hash !== "#properties") {

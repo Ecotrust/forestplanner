@@ -286,15 +286,36 @@ label#year-label {
 .property-details {
 	margin-top: 1em;
 }
+.property-list {
+	list-style-type: none;
+	margin: 1em 0;
+	padding: 0;
+	/*border: 1px solid #ccc;*/
+	border-bottom: none;
+}
+	.property-list li{
+		padding: 0 1em 1em 1em;
+		/*border-bottom: 1px solid #aaa;*/
+	}
+	.property-list li:hover{
+		background-color: #f3f3f3;
+		cursor: pointer;
+	}
+	.property-list li.active{
+		background-color: #FFF;
+	}
+	.property-list h3{
+		font-size: 18px;
+		line-height: 1.5;
+	}
 .carousel-inner .row-fluid .span6{
 	margin-top: 21px; /* so. cheap. */
 }
 h2 i, h3 i, h4 i{
 	color: #888;
 }
-.nav-collapse .manage-your-properties{
-	margin-right: 10px;
-}
+/* .nav-collapse .manage-your-properties{ margin-right: 10px; } */
+
 #flash{
   border-width: 0 0 5px 0;
   margin: 0 auto 18px auto;
@@ -397,7 +418,22 @@ header.hero {
 .more-toggle{
 	color: #aaa;
 }
+a.btn .icon-arrow-right{
+		background-color: #fff;
+		border: 2px solid #ccc;
+		-moz-border-radius:		15px;
+		-webkit-border-radius:	15px; 
+		border-radius:			15px;
+		color: #333333;
+		display: inline-block;
+		font-size: 13px;
+		margin-top: 3px;
+		padding: 0 9px;
+		text-align: center;
 
+		background-position: background-position: -259px -92px;
+
+}
 
 #global-tabs{}
 	#global-tabs > li:first-child{
@@ -407,17 +443,15 @@ header.hero {
 		color: #666;
 	}
 	#global-tabs .property-name {
-		font-weight: bold;
-		font-style: italic;
-		
 		display: inline-block;
 		font-style: italic;
 		font-weight: bold;
 		max-width: 67%;
+		margin-top: -4px;
 		overflow: hidden;
 		position: relative;
 		text-overflow: ellipsis;
-		top: 4px;
+		vertical-align: middle;
 		white-space: nowrap;
 	}
 	.tab-num {
@@ -491,6 +525,14 @@ header.hero {
 		outline: 0 none;
 	}
 
+.center{
+	display: block;
+	margin: 0 auto 1em auto;
+	text-align: center;
+}
+	.center + .center{
+		margin-top: 1em; /* not working */
+	}
 .accessibility {
 	position: absolute;
 	left: -10000em;

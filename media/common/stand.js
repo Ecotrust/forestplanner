@@ -366,7 +366,6 @@ function standsViewModel() {
     }, 100);
     self.showNoStandHelp(false);
     self.property = property;
-	console.info('stands.loadStands self.property = property', property);
 
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
