@@ -513,6 +513,7 @@
 					</div>
                   </div>
                   </div>
+                  <!--
                   <div data-bind="if: standList().length, visible: standList().length > 10">
                     <div class="pagination">
                       <ul data-bind="foreach: paginationList">
@@ -522,6 +523,7 @@
                       </ul>
                     </div>
                   </div>
+                  -->
                   <div id="stands-none" class="well clearfix" data-bind="visible: ! standList().length">
                     <h3>Define New Stand Boundaries</h3>
                     <p>Then you will be asked to enter some additional information to help describe your property.</p>
@@ -555,7 +557,7 @@
                 </div>
                 <div class="modal-body">
                     <div data-bind="if: selectedFeature()">
-                    Are you sure you want to delete "<span data-bind="text: selectedFeature().name"></span>"?
+                    Are you sure you want to delete this stand?
                     </div>
                 </div>
                 <div class="modal-footer">
