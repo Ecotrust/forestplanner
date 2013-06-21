@@ -142,7 +142,7 @@
                         <!--<p class="help-block">Supporting help text</p>-->
                       </div>
                     </div>
-                    <div class="control-group">
+                    <div class="control-group hidden">  <!-- hide form element but still submit something using js -->
                       <label><strong>Description</strong></label>
                       <div>
                         <input type="text" class="input-xlarge" data-bind="value: description">
@@ -166,10 +166,11 @@
             <div data-bind="visible: ! (newRx() || selectedRx())">
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
-                        <tr class="scenario-row" rel="popover" data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
+                        <tr class="scenario-row" 
+                            data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
                             <td> 
-                                <h5><span data-bind="text: name">RX Name</span></h5>
-                                <span data-bind="text: description">RX Description</span>
+                                <span data-bind="text: name">RX Name</span>
+                                <!-- <span data-bind="text: description">RX Description</span> -->
                                 <div class="pull-right btn-group" data-bind="visible: confirmDelete">
                                   <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
                                   <button class="btn" data-bind="click: $parent.deleteRx">ok</button>
@@ -177,6 +178,12 @@
                                 <div class="pull-right btn-group" data-bind="visible: ! confirmDelete()">
                                     <button href="#" class="btn" data-bind="click: $parent.applyRx">
                                         Apply</button>
+                                    <!--
+                                    TODO info tooltip containing rx description
+                                    <button type="button" class="btn rx-popover" data-toggle="popover" data-placement="top"
+                                        rel="popover" data-content="It's so simple to create a tooltop for my website!" data-original-title="Twitter Bootstrap Popover"
+                                        <i class="icon-info-sign"></i></button>
+                                    -->
                                     <button class="btn" data-bind="enable: editable, click: function () { confirmDelete(true) }">
                                         <i class="icon-remove"></i></button>
                                     <button class="btn" data-bind="enable: editable, click: $parent.updateRx">
@@ -219,7 +226,8 @@
                 <div class="well">
                     <ul class="unstyled">
                         <li><span data-bind="text: nWithRx"></span> stands with specified management prescriptions.</li>
-                        <li><span data-bind="text: total"></span> total stands (the remainder will use a default prescription)</li>
+                        <li data-bind="visible: remainder() > 0"><span data-bind="text: remainder()"></span> remaining stands will 
+                            default to the "Grow Only" prescription</li>
                     </ul>
                 </div>
                 <div class="">

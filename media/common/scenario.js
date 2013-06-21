@@ -47,6 +47,9 @@ function scenarioFormViewModel(options) {
 
     self.nWithRx = ko.observable(0);
     self.total = app.rx_stand_layer.features.length;
+    self.remainder = function () {
+        return self.total - self.nWithRx();
+    };
 
     self.updateWithRx = function() {
          var with_rx = 0; 
