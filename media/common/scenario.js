@@ -47,6 +47,9 @@ function scenarioFormViewModel(options) {
 
     self.nWithRx = ko.observable(0);
     self.total = app.rx_stand_layer.features.length;
+    self.remainder = function () {
+        return self.total - self.nWithRx();
+    };
 
     self.updateWithRx = function() {
          var with_rx = 0; 
@@ -103,6 +106,11 @@ function scenarioFormViewModel(options) {
 
         if (rx.myrx_id) {
             url = "/features/myrx/{uid}/".replace('{uid}', rx.myrx_id);
+        }
+
+        var desc = self.selectedRx().description();
+        if (!desc) {
+            self.selectedRx().description(self.decisionOutput().join(", \n"));
         }
 
         $.ajax({
