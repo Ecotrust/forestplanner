@@ -143,7 +143,7 @@
                     <p><em>You currently have no properties under management.</em></p>
                     <div id="properties-none">
                         <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
-                        <div class="pull-right">
+                        <div class="btn-group pull-right">
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
                             <button href="#" class="btn btn-success" 
@@ -153,16 +153,15 @@
                 </div><!-- end of no properties -->
 
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
-                  <h2> My Properties </h2>
-                  <div class="row-fluid">
-                    <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
-                      <i class="icon-plus-sign icon-white"></i> Draw New Property
+                  <div class="btn-group pull-right">
+                    <a class="btn" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+                      <i class="icon-plus-sign"></i> Draw New Property
                     </a>
-
-                    <a class="btn pull-left" href="#" data-bind="click: startUpload, disable: preventUpdates">
+                    <a class="btn" href="#" data-bind="click: startUpload, disable: preventUpdates">
                       <i class="icon-upload"></i> Upload GIS Data
                     </a>
                   </div>
+                  <h2> My Properties </h2>
 
                   <ul class="property-list" data-bind="visible: propertyList().length > 0,foreach: propertyList">
                     <li class="property-box clearfix well" 
@@ -201,8 +200,9 @@
 													</dl>
                         </div> <!-- /.span4 -->
                         <div class="span6" style="text-align: center;">
-                            <button class="btn btn-primary center" 
-                              data-bind="click: $parent.selectProperty">Select</button>
+                          <!--
+                          <button class="btn btn-primary center" data-bind="click: $parent.selectProperty">Select</button>
+                          -->
                             
                           <div class="btn-group center">
                             <button id="delete-button" class="btn btn-mini" 
