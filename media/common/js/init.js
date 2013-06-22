@@ -25,20 +25,29 @@ $(document).ready(function () {
 
 	app.deferredClickHandler();
 
-	
-	//set in map_ext
-	if (authenticated) {
-		if (window.location.hash !== "#properties") {
-			window.location.hash = "#properties";
-		}
-	}
+	app.router();
 
 	window.onhashchange = app.hashChange;
-	if (window.location.hash) {
-		app.hashChange();
-	}
+
 });
 
+app.router = function () {
+	var viewList = ['#properties', '#stands', '#scenarios'],
+		loc = window.location.hash.split("/");
+
+	//set in map_ext
+	if (authenticated) {
+		//TODO should probably account for about and help
+		if ( $.inArray(loc[0], viewList) < 0) {
+			window.location.hash = "#properties";
+			app.log('Rerouting to #properties');
+		} else {
+			app.hashChange();
+		}
+
+	}
+
+};
 app.deferredClickHandler = function () {
 	//let's bubble.
 	$('body').on('click', function (event, a) {

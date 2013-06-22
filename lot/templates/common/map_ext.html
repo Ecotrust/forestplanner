@@ -80,20 +80,20 @@
 
             {% if user.is_authenticated %}
 						<script>
-								var authenticated = true;
+							var authenticated = true;
 						</script>
 						<div class="row-fluid">
 
 									<ul class="nav nav-tabs" id="global-tabs">
 										<li data-bind="css: { active: app.state() == 'properties' }">
-											<a href="#properties">
+											<a data-bind="attr: { href: '#properties/' + app.selectedPropertyUID() }">
 												<span class="tab-num">1</span>
 												Properties<span style="display:none" data-bind="visible: app.selectedPropertyName() !== '' ">: </span>
 												<span class="property-name" data-bind="text: app.selectedPropertyName()"></span>
 											</a>
 										</li>
 										<li data-bind="css: { active: app.state() == 'stands'}">
-											<a href="#stands">
+											<a data-bind="attr: { href: '#stands/' + app.selectedPropertyUID() }">
 												<span class="tab-num">2</span>
 												Define Stand Boundaries</a>
 										</li>
@@ -103,7 +103,7 @@
 												Define Stand Groups</a>
 										</li>
 										<li data-bind="css: { active: app.state() == 'scenarios'}">
-											<a href="#scenarios">
+											<a data-bind="attr: { href: '#scenarios/' + app.selectedPropertyUID() }">
 												<span class="tab-num">4</span>
 												Evalutate Future Scenarios</a>
 										</li>
@@ -744,7 +744,7 @@
     <script type="text/javascript">
 
         // if console is undefined, use an empty function so console.log wont break old browsers
-        if ( ! window.console ) console = { log: function(){} };
+        if ( ! window.console ) console = { log: function(){}, info: function(){}, warn: function(){} };
 
         var madrona = {
             onShow: function (callback) {
