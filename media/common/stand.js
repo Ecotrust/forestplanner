@@ -57,7 +57,6 @@ function standsViewModel() {
     } else {
     self.listStart(button.listIndex);
     }
-    //console.log(self.listStart());
     self.selectFeature(self.standList()[button.listIndex || self.listStart()]);
   };
 
@@ -394,7 +393,7 @@ function standsViewModel() {
     };
 
     self.showProgressBar(true);
-    //console.log('getting stands');
+
     $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', property.uid()), process);
   };
 

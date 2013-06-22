@@ -8,14 +8,14 @@
 
 	<ul class="nav nav-tabs" id="global-tabs">
 		<li>
-			<a href="/#properties">
+			<a data-bind="attr: { href: '/#properties/' + app.strata.property_id }">
 				<span class="tab-num">1</span>
 				Properties<span style="display:none" data-bind="visible: app.strata.property_name !== '' ">: </span>
 				<span class="property-name" data-bind="text: app.strata.property_name"></span>
 			</a>
 		</li>
 		<li>
-			<a href="/#stands">
+			<a data-bind="attr: { href: '/#stands/' + app.strata.property_id }">
 				<span class="tab-num">2</span>
 				Define Stand Boundaries</a>
 		</li>
@@ -25,7 +25,7 @@
 				Define Stand Groups</a>
 		</li>
 		<li>
-			<a href="/#scenarios">
+			<a data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
 				<span class="tab-num">4</span>
 				Evalutate Future Scenarios</a>
 		</li>

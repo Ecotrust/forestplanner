@@ -27,10 +27,13 @@ function propertiesViewModel () {
       } 
       // set the selected property for the viewmodel
       self.selectedProperty(property);
+
 	  
-	  //for global tabs
-	  app.selectedPropertyName(self.selectedProperty().name());
-	  app.selectedPropertyUID(self.selectedProperty().uid());
+      //for global tabs
+      app.selectedPropertyName(self.selectedProperty().name());
+      app.selectedPropertyUID(self.selectedProperty().uid());
+
+      app.updateUrlProperty(self.selectedProperty().uid());
 	  
       self.showDetailPanel(true);
       //zoom the map to the selected property
@@ -46,8 +49,8 @@ function propertiesViewModel () {
         self.selectProperty(property, null, zoomTo);
       }
     });
-	// learning knockout fail - wm
-	app.selectedPropertyUID(uid);
+    // learning knockout fail - wm
+    app.selectedPropertyUID(uid);
   };
 
   self.zoomToExtent = function () {
@@ -238,7 +241,7 @@ function propertiesViewModel () {
         self.propertyList.remove(self.selectedProperty());
         if (self.propertyList().length) {
           self.selectProperty(self.propertyList()[0]);
-         $("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
+         //$("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
         } else {
           self.showDetailPanel(false);
           self.showNoPropertiesHelp(true);
@@ -332,13 +335,18 @@ function propertiesViewModel () {
     $('#scenario-outputs').fadeIn();
   };
 
+  self.loadPropertiesFromServer = $.get('/trees/user_property_list/');
+
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
     self.showPropertyPanels(true);
-    return $.get('/trees/user_property_list/', function (data) {
-      app.bounds = OpenLayers.Bounds.fromArray(data.features.length >0 ? data.bbox: 
-        [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
+
+    return $.when(self.loadPropertiesFromServer).then(function(data){
+      app.bounds = OpenLayers.Bounds.fromArray(data.features.length > 0 
+                ? data.bbox
+                : [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
+
       map.zoomToExtent(app.bounds);
 
       // bind event to selected feature
@@ -347,8 +355,10 @@ function propertiesViewModel () {
         self.showDrawHelpPanel(false);
         app.saveFeature(feature);
       };
+
       app.drawFeature.featureAdded = app.properties.featureAdded;
 
+      // map interaction callbacks
       app.property_layer.events.on({
         'featureselected': function (feature) {
           self.selectPropertyByUID(feature.feature.data.uid, true);
@@ -357,32 +367,37 @@ function propertiesViewModel () {
           var featureViewModel = ko.mapping.fromJS(feature.feature.data);
           // save a reference to the feature
           featureViewModel.feature = feature.feature;
+          
           // add it to the viewmodel
           self.propertyList.unshift(featureViewModel);
         },
         'featuresadded': function (data) {
-          // if only adding one layer, select and zoom
-          // otherwise just select the last one and zoom to the full extent of the layer
           self.showNoPropertiesHelp(false);
 
+          // if only adding one layer, select and zoom
+          // otherwise just select the last one and zoom to the full extent of the layer
           if (data.features.length === 1) {
             self.selectPropertyByUID(data.features[0].data.uid);
+          } else if( window.location.hash.indexOf('/') > 1){
+              // hash may contain a property uid. If so, make that the selected property
+              if( window.location.hash.split('/')[1].indexOf('trees') == 0){
+                self.selectPropertyByUID(window.location.hash.split('/')[1]);
+              }
           } else {
             self.selectPropertyByUID(data.features[data.features.length-1].data.uid);
           }
         }
       });
   
-      // set up the breadcrumbs    
-      //app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: 'properties', action: null});
-      //app.updateUrl();
-      
-      // select the first property and show the detail panel
+      // add the features to the map and trigger the callbacks
       if (data.features.length) {
         app.property_layer.addFeatures(app.geojson_format.read(data));        
       } 
       app.onResize();
       self.zoomToExtent();
-  });
+    });
+
  };
 }
+
+
