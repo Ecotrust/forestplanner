@@ -118,25 +118,24 @@
 									</ul>
 						</div>
 
+
+
+
+
+
         <div class="row-fluid">
           <div class="span5">
 						
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
-                <div class="modal" id="delete-dialog" style="display:none">
-                    <div class="modal-header">
-                        <a class="close" data-dismiss="modal">×</a>
-                        <h3>Delete Property</h3>
-                    </div>
-                    <div class="modal-body">
-                        <div data-bind="if: selectedProperty()">
-                            Are you sure you want to delete the property "<strong data-bind="text: selectedProperty().name"></strong>"?
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <a href="#" class="btn" data-dismiss="modal">cancel</a>
-                        <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
-                    </div>
-                </div>
+
+                <p class="info text-info well well-small clearfix">
+                  <i class="icon-info-sign"></i> Scenarios are rad.
+                </p>
+              
+
+
+
+
                 <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0"> 
                     <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
@@ -151,6 +150,7 @@
                         </div>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
+
 
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
                   <h2> My Properties </h2>
@@ -310,6 +310,23 @@
                     </div>
                   </div>
               </div>
+
+              <div class="modal" id="delete-dialog" style="display:none">
+                <div class="modal-header">
+                  <a class="close" data-dismiss="modal">×</a>
+                  <h3>Delete Property</h3>
+                </div>
+                <div class="modal-body">
+                  <div data-bind="if: selectedProperty()">
+                    Are you sure you want to delete the property "<strong data-bind="text: selectedProperty().name"></strong>"?
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <a href="#" class="btn" data-dismiss="modal">cancel</a>
+                  <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
+                </div>
+              </div>
+
             </div> <!-- end of property pages -->
 
 
