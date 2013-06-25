@@ -100,8 +100,13 @@ def manage_strata(request, property_uid):
     '''
     Strata management view
     '''
+    forestproperty = get_object_for_viewing(request, property_uid)
+    if isinstance(forestproperty, HttpResponse):
+        return forestproperty
+    name = forestproperty.name
     return render_to_response(
-			'common/manage_strata.html', {'property_id': property_uid, 'property_name': 'Prop Name TODO'},
+        'common/manage_strata.html',
+        {'property_id': property_uid, 'property_name': name},
         context_instance=RequestContext(request))
 
 
