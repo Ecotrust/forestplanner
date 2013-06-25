@@ -261,11 +261,11 @@ file { "celeryd.conf":
   content => template("celeryd.erb"),
   require => Package['supervisor']
 }
-file { "celerymon.conf":
-  path => "/etc/supervisor/conf.d/celerymon.conf",
-  content => template("celerymon.erb"),
-  require => Package['supervisor']
-}
+# file { "celerymon.conf":
+#   path => "/etc/supervisor/conf.d/celerymon.conf",
+#   content => template("celerymon.erb"),
+#   require => Package['supervisor']
+# }
 file { "celeryflower.conf":
   path => "/etc/supervisor/conf.d/celeryflower.conf",
   content => template("celeryflower.erb"),
