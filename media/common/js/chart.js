@@ -41,25 +41,31 @@ var chartMetrics = {
     'variableName': 'agl_carbon',
     'title': "Above-Ground Carbon",
     'axisLabel': "Carbon (metric tons)",
-    'axisFormat': '%d'
+    'axisFormat': "%'d"
   },
   'total_carbon': {
     'variableName': 'total_carbon',
     'title': "Total Ecosystem Carbon",
     'axisLabel': "Carbon (metric tons)",
-    'axisFormat': '%d'
+    'axisFormat': "%'d"
   },
   'harvested_timber': {
     'variableName': 'harvested_timber',
     'title': "Timber Harvested",
-    'axisLabel': "Harvest (bdft)",
-    'axisFormat': '%d'
+    'axisLabel': "Harvest (mbf)",
+    'axisFormat': "%'d"
+  },
+  'cum_harvest': {
+    'variableName': 'cum_harvest',
+    'title': "Cumulative Timber Harvested",
+    'axisLabel': "Cumulative Harvest (mbf)",
+    'axisFormat': "%'d"
   },
   'standing_timber': {
     'variableName': 'standing_timber',
     'title': "Standing Timber",
-    'axisLabel': "Stock (mbdft)",
-    'axisFormat': '%d'
+    'axisLabel': "Stock (mbf)",
+    'axisFormat': "%'d"
   }
 };
 

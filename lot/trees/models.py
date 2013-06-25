@@ -663,13 +663,14 @@ class Scenario(Feature):
             "total_carbon": [],
             "harvested_timber": [],
             "standing_timber": [],
+            "cum_harvest": [],
         }
         sql = """SELECT
                     a.year AS year,
                     SUM(a.total_stand_carbon * ss.acres) AS total_carbon,
                     SUM(a.agl * ss.acres) AS agl_carbon,
-                    SUM(a.removed_merch_bdft * ss.acres) AS harvested_timber,
-                    SUM(a.after_merch_bdft * ss.acres) AS standing_timber
+                    SUM(a.removed_merch_bdft * ss.acres)/1000.0 AS harvested_timber, -- convert to mbf
+                    SUM(a.after_merch_bdft * ss.acres)/1000.0 AS standing_timber -- convert to mbf
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -686,6 +687,7 @@ class Scenario(Feature):
         cursor = connection.cursor()
         cursor.execute(sql)
         desc = cursor.description
+        cum_harvest = 0
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
             date = "%d-12-31 11:59PM" % row['year']
@@ -693,6 +695,9 @@ class Scenario(Feature):
             d['total_carbon'].append([date, row['total_carbon']])
             d['harvested_timber'].append([date, row['harvested_timber']])
             d['standing_timber'].append([date, row['standing_timber']])
+
+            cum_harvest += row['harvested_timber']
+            d['cum_harvest'].append([date, cum_harvest])
 
         return {'__all__': d}
 
@@ -712,14 +717,15 @@ class Scenario(Feature):
                 "agl_carbon": [],
                 "standing_timber": [],
                 "harvested_timber": [],
+                "cum_harvest": [],
             }
 
         sql = """SELECT
                     ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
                     a.total_stand_carbon * ss.acres AS total_carbon,
                     a.agl * ss.acres AS agl_carbon,
-                    a.removed_merch_bdft * ss.acres AS harvested_timber,
-                    a.after_merch_bdft * ss.acres AS standing_timber
+                    (a.removed_merch_bdft * ss.acres) / 1000.0 AS harvested_timber, -- convert to mbf
+                    (a.after_merch_bdft * ss.acres) / 1000.0 AS standing_timber -- convert to mbf
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -735,6 +741,7 @@ class Scenario(Feature):
         cursor = connection.cursor()
         cursor.execute(sql)
         desc = cursor.description
+        cum_harvest_dict = {}
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
             ds = d[row["sstand_id"]]
@@ -743,6 +750,12 @@ class Scenario(Feature):
             ds['total_carbon'].append(row["total_carbon"])
             ds['standing_timber'].append(row["standing_timber"])
             ds['harvested_timber'].append(row["harvested_timber"])
+
+            if row['sstand_id'] not in cum_harvest_dict: 
+                cum_harvest_dict[row['sstand_id']] = 0
+
+            cum_harvest_dict[row['sstand_id']] += row["harvested_timber"]
+            ds['cum_harvest'].append(cum_harvest_dict[row['sstand_id']])
 
         return d
 
