@@ -117,6 +117,14 @@ def restart_services():
     run('sudo supervisorctl status')
 
 
+def status():
+    init_services = ['postgresql', 'redis-server', 'supervisor']
+    for service in init_services:
+        run('sudo service %s status' % service)
+    run('sudo supervisorctl status')
+    run("sudo ps -eo pid,%cpu,%mem,comm,args --sort=-%cpu,-%mem | head -n 20")
+
+
 def install_media():
     """ Run the django install_media command """
     run('cd %(app_dir)s && %(venv)s/bin/python manage.py install_media' % vars)
