@@ -142,7 +142,7 @@ a {
     background: white;
 }
 #searchbox-container {
-    bottom: 31px;
+    bottom: 11px;
     margin: 2px;
     position: absolute; 
     z-index: 1023;
@@ -561,4 +561,9 @@ a.btn .icon-arrow-right{
 
 .btn-large [class^="icon-"], .btn-large [class*=" icon-"] {
     margin-top: 8px;
+}
+
+.no-overflow {
+    overflow-x: visible;
+    overflow-y: visible;
 }

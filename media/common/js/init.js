@@ -71,18 +71,19 @@ app.onResize = function () {
 		width = $(window).width(),
 		divWidth;
 
-    $("#map").height(height - 137);
+    //$("#map").height(height - 137);
+    $("#map").height(height - 163);
     map.render('map');
 
     divWidth = width * (7 / 12); // span7
     if (divWidth > height) {
         // "widescreen" so go side-by-side
         $(".timemap-container").width('48%');
-        $(".timemap").height(height - 264);
+        $(".timemap").height(height - 314);
     } else {
         // "narrow" so go top-to-bottom
         $(".timemap-container").width('99%');
-        $(".timemap").height((height - 284) / 2.0);
+        $(".timemap").height((height - 324) / 2.0);
     }
     if (scenarioPlot) {
         refreshCharts();
