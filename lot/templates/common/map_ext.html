@@ -137,7 +137,7 @@
                         <a href="#" class="btn btn-danger" data-bind="click: deleteFeature">Delete Property</a>
                     </div>
                 </div>
-                <div class="well" style="display:none;" data-bind="visible: propertyList().length === 0"> 
+                <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0"> 
                     <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
                     <p><em>You currently have no properties under management.</em></p>
@@ -202,7 +202,9 @@
                         </div> <!-- /.span4 -->
                         <div class="span6" style="text-align: center;">
                             <button class="btn btn-primary center" 
-                              data-bind="click: $parent.selectProperty">Select</button>
+                              data-bind="click: $parent.selectProperty,
+                              css: { active: $data === $parent.selectedProperty()}
+                              ">Select</button>
                             
                           <div class="btn-group center">
                             <button id="delete-button" class="btn btn-mini" 
@@ -319,12 +321,8 @@
 
 
             <div id="scenario-html" style="display: none" data-bind="visible: showScenarioPanels, if: showScenarioPanels">
-				<!--
-				<p class="info text-info well well-small clearfix">
-					<i class="icon-info-sign"></i> Scenarios are rad.
-				</p>
-				-->
               <div class="row-fluid" data-bind="visible: showScenarioList">
+
 				  <!--
                 <div class="span12 well">
                     <h3>Scenario List</h3>
@@ -343,7 +341,12 @@
                     </div>
                 </div>
 				-->
-                <div class="span12 well">
+                <h2>Evaluate Scenarios</h2>
+                <p class="info text-info well well-small clearfix">
+                  <i class="icon-info-sign"></i> Scenarios are rad.
+                </p>
+
+                <div class="well">
                     <div class="hide" data-bind="if: scenarioList().length == 0" style="text-align:center">
                         <p class="muted" style="margin-top: 88px; margin-bottom: 88px;" data-bind="visible: scenarioList().length === 0">
                            Create a New Scenario to evaluate.
@@ -351,7 +354,6 @@
                     </div>
                     <div>  
                       <header class="clearfix">
-                        <h3>Evaluate Scenarios</h3>
                         <div class="btn-grouppull-right">
                           <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
                             <i class="icon-repeat"></i> Refresh
@@ -437,13 +439,14 @@
             <!-- these are all stand pages -->
             <div id="stand-html" style="display: none" data-bind="visible: showStandPanels, if: showStandPanels">
               <div class="row-fluid">
+                <h2>Stand Boundaries</h2>
                 <div data-bind="visible: showStandList">
-					<p class="info text-info well well-small">
-						<i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
-					</p>
-					<div class="loading" data-bind="visible: showProgressBar">
-						<h3>Loading...</h3>
-					</div>
+                  <p class="info text-info well well-small">
+                    <i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
+                  </p>
+                  <div class="loading" data-bind="visible: showProgressBar">
+                    <h3>Loading...</h3>
+                  </div>
 					<!-- 
 					<div class="progress progress-striped active" data-bind="visible: showProgressBar">
 					  <div class="bar" style="width: 100%"></div> 

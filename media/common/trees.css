@@ -1,3 +1,7 @@
+h2{
+	margin-top: -3px;
+	margin-bottom: 15px;
+}
 .olLayerGooglePoweredBy, .olLayerGoogleCopyright {
     display: none;
 }
@@ -308,6 +312,10 @@ label#year-label {
 		font-size: 18px;
 		line-height: 1.5;
 	}
+	.property-list .btn-primary.active:after {
+		/*selectED*/
+		content: "ed";
+	}
 .carousel-inner .row-fluid .span6{
 	margin-top: 21px; /* so. cheap. */
 }
@@ -425,13 +433,11 @@ a.btn .icon-arrow-right{
 		-webkit-border-radius:	15px; 
 		border-radius:			15px;
 		color: #333333;
-		display: inline-block;
-		font-size: 13px;
 		margin-top: 3px;
-		padding: 0 9px;
+		padding: 3px;
 		text-align: center;
 
-		background-position: background-position: -259px -92px;
+		background-position: -261px -93px;
 
 }
 
