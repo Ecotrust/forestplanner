@@ -122,7 +122,15 @@ def status():
     for service in init_services:
         run('sudo service %s status' % service)
     run('sudo supervisorctl status')
-    run("sudo ps -eo pid,%cpu,%mem,comm,args --sort=-%cpu,-%mem | head -n 20")
+    run('sudo ps -eo pid,%cpu,%mem,comm,args --sort=-%cpu,-%mem | head -n 10')
+
+    ON = """\n  !!!! maintenance_mode is on !!!!
+     Test and run \n  fab <server> maintenance:off
+     when it's good to go
+    """
+    OFF = """\n  !!!! maintenance_mode is OFF; site is live !!!!"""
+
+    run('test -f /tmp/.maintenance_mode && echo "%s" || echo "%s"' % (ON, OFF))
 
 
 def install_media():
@@ -221,5 +229,4 @@ def provision():
         )
 
     restart_services()
-    #run("sudo service postgresql reload")
-    print "\n  Test and run \n  fab <server> maintenance:off\n  when it's good to go"
+    status()
