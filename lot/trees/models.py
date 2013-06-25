@@ -707,6 +707,7 @@ class Scenario(Feature):
         """
         Note the data structure for stands is different than properties
         (stands are optimized for openlayers map while property-level works with jqplot)
+        stands are normalized to area (i.e. values are per-acre)
         """
         d = {}
         scenariostands = self.scenariostand_set.all()
@@ -722,10 +723,10 @@ class Scenario(Feature):
 
         sql = """SELECT
                     ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
-                    a.total_stand_carbon * ss.acres AS total_carbon,
-                    a.agl * ss.acres AS agl_carbon,
-                    (a.removed_merch_bdft * ss.acres) / 1000.0 AS harvested_timber, -- convert to mbf
-                    (a.after_merch_bdft * ss.acres) / 1000.0 AS standing_timber -- convert to mbf
+                    a.total_stand_carbon AS total_carbon,
+                    a.agl AS agl_carbon,
+                    a.removed_merch_bdft / 1000.0 AS harvested_timber, -- convert to mbf
+                    a.after_merch_bdft / 1000.0 AS standing_timber -- convert to mbf
                 FROM
                     trees_fvsaggregate a
                 JOIN

@@ -153,7 +153,7 @@ function processBreaks() {
     timemapBreaks = steps;
 
     // screw it, just manipulate the DOM directly to get a legend
-    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + "</p><table>";
+    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + " <br> per acre</p><table style='float:right'>";
     for (var j = 0; j < numclasses; j++) {
         html += "<tr><td>" + parseInt((steprange*j) + min, 10) + " to " + parseInt((steprange*(j+1)) + min, 10) + "</td>" +
         '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[j] + '">&nbsp;&nbsp;</td></tr>';
