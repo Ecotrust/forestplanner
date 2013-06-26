@@ -167,10 +167,12 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
 
         if self.cond_id:
             cond_id = self.cond_id
+            cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
             cond_stand_list = list(x.treelist for x in
                                   TreeliveSummary.objects.filter(cond_id=cond_id))
         else:
             cond_id = None
+            cond_age = None
             cond_stand_list = []
 
         if self.acres:
@@ -185,6 +187,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             'elevation': elevation,
             'strata': strata,
             'cond_id': cond_id,
+            'condition_age': cond_age,
             'condition_stand_list': cond_stand_list,
             'aspect': "%s" % aspect_class,
             'slope': '%s %%' % slope,
