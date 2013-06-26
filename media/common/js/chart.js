@@ -9,7 +9,7 @@ var globalChartOptions = {
       seriesDefaults: { // applies to all rows
           lineWidth: 2,
           style: 'square',
-          rendererOptions: { smooth: true }
+          rendererOptions: { smooth: false }
       },
       highlighter: {
           show: true,

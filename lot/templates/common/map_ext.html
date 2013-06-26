@@ -677,7 +677,7 @@
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
                                     <div class="timemap" id="timemap1"></div>
-                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: scenarioList">
+                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                 </div>
@@ -687,7 +687,7 @@
                                     </div>
                                     <div class="error-timemap" id="timemap-legend"></div>
                                     <div class="timemap" id="timemap2"></div>
-                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: scenarioList">
+                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                     <!--

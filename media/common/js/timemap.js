@@ -74,6 +74,7 @@ var refreshTimeMap = function (f1, f2) {
                 standScenario1.addFeatures(app.geojson_format.read(data));
                 processBreaks();
                 standScenario1.redraw();
+                standScenario2.redraw();
             } else {
                 // go fetch it 
                 var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
@@ -83,6 +84,7 @@ var refreshTimeMap = function (f1, f2) {
                         timemapScenarioData[opt] = data;
                         processBreaks();
                         standScenario1.redraw();
+                        standScenario2.redraw();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
                         $("#error-timemap1").fadeIn();
@@ -91,7 +93,6 @@ var refreshTimeMap = function (f1, f2) {
             }
         }
     }
-
 
     if (f2) {
         standScenario2.removeAllFeatures();
@@ -103,6 +104,7 @@ var refreshTimeMap = function (f1, f2) {
                 // we have it already
                 standScenario2.addFeatures(app.geojson_format.read(data));
                 processBreaks();
+                standScenario1.redraw();
                 standScenario2.redraw();
             } else {
                 // go fetch it 
@@ -112,6 +114,7 @@ var refreshTimeMap = function (f1, f2) {
                         standScenario2.addFeatures(app.geojson_format.read(data));
                         timemapScenarioData[opt2] = data;
                         processBreaks();
+                        standScenario1.redraw();
                         standScenario2.redraw();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
@@ -165,8 +168,8 @@ function processBreaks() {
 $(document).ready(function() {
 
     $("#scenario-maps-tab").on('shown', function() {refreshTimeMap(true, true);});
-    $("#select-scenario1").change(function() {refreshTimeMap(true, false);});
-    $("#select-scenario2").change(function() {refreshTimeMap(false, true);});
+    $("#select-scenario1").change(function() {refreshTimeMap(true, true);});
+    $("#select-scenario2").change(function() {refreshTimeMap(true, true);});
 
     var timemapInitialized = false;
     var context = {

@@ -284,11 +284,13 @@ function scenarioViewModel(options) {
 
     self.toggleFeature = function(f) {
         var removed = self.selectedFeatures.remove(f);
-        if (removed.length === 0) { // add it
+        if (removed.length === 0) {
+            // add it
             self.selectedFeatures.push(f);
+            $('#select-scenario2 option:last-child').attr('selected', 'selected');
         }
         refreshCharts();
-        //refreshTimeMap();
+        refreshTimeMap(true, true);
     };
 
     self.showDeleteDialog = function(f) {
