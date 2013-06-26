@@ -283,6 +283,7 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10):
             'NONSPEC_BA': 10,
             'NONSPEC_TPA': 10,
             'TOTAL_TPA': 10,
+            'stand_age': 20,
             'calc_slope': 0.2,
             'calc_aspect': 0.5,
             'elev_ft': 0.7,
