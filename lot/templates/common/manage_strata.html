@@ -22,7 +22,7 @@
 		<li class="active">
 			<a>
 				<span class="tab-num">3</span>
-				Define Stand Groups</a>
+				Define Vegetation Types</a>
 		</li>
 		<li>
 			<a data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
@@ -62,7 +62,7 @@
 
 		<div class="span5">
 		<h2>
-			Define Stand Groups
+			Define Vegetation Types
 		</h2>
 
 			<div class="well">
@@ -72,7 +72,7 @@
 					<div class="span12" data-bind="visible: strataList().length && ! activeStratum()" style="display: none" >
 
 						<div class="row-fluid">
-								<p>You have applied stand groups to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
+								<p>You have applied vegetation types to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
 								<div class="progress">
 									<div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal()/standTotal)*100+'%' }"></div>
 								</div>
@@ -80,7 +80,7 @@
 
 						<div class="row-fluid">
 							<div class="form-inline">
-									<label for="filter-stand-group">Filter Stand Groups</label>
+									<label for="filter-stand-group">Filter Vegetation Types</label>
 									<input id="filter-stand-group" type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
 									<button class="btn btn-mini" data-bind="visible: searchTerm, click: clearStandFilter ">Clear Filter</button>
 							</div>
@@ -132,7 +132,8 @@
 
 			</div><!-- /.well -->
 
-			<button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
+			<button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i>
+				New Vegetation Type</button>
 			
 		</div>
 
@@ -174,10 +175,10 @@
 						
 							<div class="span6">
 								<div>
-									<h2 data-bind="visible: !editMode()">Create a New Stand Group</h2>
-									<h2 data-bind="visible: editMode()">Editing Stand Group: <i data-bind="text: attributes.name"></i></h2>
-									<label>Stand Group Name</label>
-									<input type="text" class="span8" placeholder="Stand Group Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
+									<h2 data-bind="visible: !editMode()">Create a Vegetation Type</h2>
+									<h2 data-bind="visible: editMode()">Editing Vegetation Type: <i data-bind="text: attributes.name"></i></h2>
+									<label>Name Your Vegetation Type</label>
+									<input type="text" class="span8" placeholder="Vegetation Type Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
 										<div class="span4">
 											<label>Trees Per Acre</label>
@@ -197,18 +198,19 @@
 
 					 </div> <!-- /.row-fluid /with: activeStratum -->
 
-
-						<div data-bind="with: activeStratum" class="row-fluid">
-						 <table class="table table-bordered stand-table">
+           <div class="alert-error well" data-bind="visible: vegetationTypeError(), text: vegetationTypeError"></div>
+           
+           <div data-bind="with: activeStratum" class="row-fluid">
+             <table class="table table-bordered stand-table">
 
 							 <thead>
-								<tr>
-									<th class="species-col">Species</th>
-									<th class="size-class-col">Size Class</th>
-									<th>Percentage</th>
-									<th>Density (trees per acre)</th>
-									<th class="actions-col"></th>
-								</tr>
+                 <tr>
+                   <th class="species-col">Species</th>
+                   <th class="size-class-col">Size Class</th>
+                   <th class="percentage-col">Percentage</th>
+                   <th class="tpa-col">Density (trees per acre)</th>
+                   <th class="actions-col"></th>
+                 </tr>
 							 </thead>
 
 							 <tbody>
@@ -225,7 +227,9 @@
 										 <span data-bind="text: percentage() + '%'"></span>
 									 </td>
 									 <td>
-										 <span data-bind="text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
+										 <span data-bind="
+											 visible: $parent.attributes.search_tpa(),
+											 text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
 									 </td>
 									 <td>
 										 <div class="btn-group" data-bind="visible: speciesConfirmDelete() === false">
@@ -248,66 +252,53 @@
 										 <span>
 											 <label class="accessibility">Select a Species <br> <span data-bind="text: species"></span></label>
 											 <select style="width: 95%" data-bind="options: app.strata.treeSpecies, value: species,  
-												 select2-is-making-me-sad: {  speciesData: species()}" >
+												 select2: {placeholder: 'Select a species',  speciesData: species()}" >
 											 </select>
 										 </span>
 									 </td>
 									 <td>
-										 <span><select data-bind="options: sizeClasses, value: sizeClass"></select></span>
+										 <span><select style="width: 90%" data-bind="options: sizeClasses, value: sizeClass, select2:
+												 {placeholder: '' }"></select></span>
 									 </td>
 									 <td>
-										 <div>
+										 <div class="row-fluid">
 											 <label class="accessibility">Percentage of Stand</label>
-											 <input name="percentage" class="input-mini" data-bind="value: percentage, valueUpdate: '$parent.keyup'"/>
-											 <div class="help-inline alert-error" data-bind="visible: !$parent.percentageIsValid, text: $parent.percentageIsValidMsg "></div>
+											 <input name="percentage" class="input-mini span3" 
+												data-bind="value: percentage, 
+												valueUpdate: 'keyup', 
+												css:{error: !percentageIsValid() }"
+												/> %
+											 <div class="help-inline alert-error" data-bind="visible: !percentageIsValid(), text:
+												 percentageIsValidMsg() "></div>
 										 </div>
 									 </td>
 									 <td>
-										 <span data-bind="text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
+										 <span data-bind="
+											 visible: $parent.attributes.search_tpa(),
+											 text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
 									 </td>
 									 <td>
 										 <span>
-											 <button data-bind="click: updateTree" class="btn btn-mini btn-success">Save</button>
+											 <button class="btn btn-mini btn-success disabled" data-bind="click: updateTree,
+													css: {'enabled': species().length && percentageIsValid(), 'disabled': !species().length   }" >Save Species</button>
 										 </span>	
 									 </td>
 								 </tr>
 								 <!-- /ko -->
 
 
-								 <tr>
-									 <td>
-										 <label>Select a Species</label>
-										 <select name="species" data-bind="options: app.strata.treeSpecies, value: species, select2: {
-											 placeholder: 'Select a species',  speciesData: species()}" class="span12" style="width: 95%"></select>
-									 </td>
-									 <td>
-										 <label>Select a Size Class</label>
-										 <span><select data-bind="options: sizeClasses, value: sizeClass"></select></span>
-										 <!--<pre data-bind="text: 'debugger outside', click: function() {debugger}"></pre>-->
-									 </td>
-									 <td>
-										 <label>Percentage of Stand</label>
-										 <input name="percentage" class="input-mini" data-bind="value: percentage, valueUpdate: '$parent.keyup'"/>
-										 <div class="help-inline alert-error" data-bind="visible: !$parent.percentageIsValid, text: $parent.percentageIsValidMsg "></div>
-									 </td>
-									 <td>
-										 <!--
-										<label>Trees Per Acre</label>
-										<input name="tpa" class="input-mini" data-bind="value: tpa, valueUpdate: '$parent.keyup'"/>
-										-->
-									 </td>
-									 <td>
-										 <button data-bind="click: addSpecies" class="btn btn-mini btn-success">Save</button>
-									 </td>										 
-								 </tr>
 							 </tbody>
 
 						 </table>
 					 </div> <!-- /.row-fluid /with: activeStratum -->
 
-						 <div class="btn-group pull-right">
+
+					 <!-- data-bind="with: activeStratum" ::::: enable:app.strata.viewModel.activeStratum().canSave() -->
+						 <div  class="btn-group pull-right">
 							 <button class="btn btn-large" data-bind="click: cancel">cancel</button>
-							 <button class="btn btn-large btn-success" data-bind="click: saveStrata"><i class="icon-check icon-white"></i> Done</button>
+							 <button class="btn btn-large btn-success" 
+								 data-bind="click: saveStrata">
+								 <i class="icon-check icon-white"></i> Save Vegetation Type</button>
 						 </div>
 						 <div class="clearfix"></div>
 
@@ -376,15 +367,12 @@
         }
 
 				.stand-table th {
-					width: 20%;
+					width: 10%;
 				}
 					.stand-table .species-col{
-						width: 35%;
+						width: 25%;
 					}
-					.stand-table .size-class-col{
-						width: 10%;
-					}
-					.stand-table .actions-col{
+					.stand-table .tpa-col{
 						width: 10%;
 					}
         .stand-table tr.active {
@@ -452,14 +440,17 @@
 		  }
           .strata-list .stratum-box p {
             line-height: 5px;
+						margin-bottom: 5px;
           }
-		  .strata-list .stratum-box .dl-horizontal dd, .strata-list .stratum-box .dl-horizontal dt{
+		  .strata-list .stratum-box .dl-horizontal dd, 
+			.strata-list .stratum-box .dl-horizontal dt{
 				float: left;
 				width: auto;
 				margin-left: 5px;
 		  }
 		  .strata-list .stratum-box .dl-horizontal dt{
 			  clear: both;
+				margin-left: 0;
 		  }
           .strata-list .stratum-box.ui-draggable-dragging .btn {
             opacity: 0;
@@ -477,7 +468,7 @@
             margin-top: -6px;
           }
           .strata-list .stratum-box .tree-list li {
-            margin-left: 5px;
+            /* margin-left: 5px; */
           }
           .dl-horizontal dt {
             text-align: left;
@@ -630,15 +621,17 @@
               
             };
 
+
 						self.isEditing = ko.observable(false);
 						self.speciesConfirmDelete = ko.observable(false);
 
             self.editTree = function (event) {
-                this.isEditing(true);
+								this.isEditing(true);
             }
 
             self.updateTree = function (task) {
                 this.isEditing(false);
+								app.strata.viewModel.activeStratum().recalculateDisplayStandList.notifySubscribers();
             }
 
 						self.sizeClasses = ko.computed(function() {
@@ -686,61 +679,122 @@
 
             self.species = ko.observable(); 
             self.sizeClass = ko.observable(); 
-            self.sizeLow = ko.observable(); 
-            self.sizeHigh = ko.observable(); 
-
             self.percentage = ko.observable(); 
             self.tpa = ko.observable(); 
 
             self.standList = ko.observableArray();
+
+						self.totalPercentage = ko.computed(function(){
+							var totalPercentage = 0;
+
+							$.each(self.standList(), function(i, stand){
+								totalPercentage += parseInt(stand.percentage(), 10);
+							});
+							return totalPercentage;
+						});
+
+						// basic validation setup. More @TODO
+						// check for numbers, display errors...
+						self.canSave = ko.computed(function(){
+							var canSave = true;
+
+							if ( self.totalPercentage > 100 ) {
+								//self.errorList
+								canSave = false;
+							}
+							if ( !self.attributes.name() ) {
+								canSave = false;
+							}
+							if ( !self.attributes.search_tpa() ) {
+								canSave = false;
+							}
+							if ( !self.attributes.search_age() ) {
+								canSave = false;
+							}
+
+							return canSave;
+						});
+
+						self.recalculateDisplayStandList = ko.observable();	
+
+						
             // display a computed standlist with a dummy last item
             // to show the remaining percentage
+						//called on keyup when model changes at all
+
             self.displayStandList = ko.computed(function () {
               var displayStandList = [], totalPercentage = 0, msg;
+							// console.info('displayStandList called', self.attributes.name());
+
+							// cheap hax. When saving a standlist member, we ping recalculateDisplayStandList so displayStandlist
+							// updates itself. without it, we don't get the remaining % species placeholder added again. 
+							self.recalculateDisplayStandList();
 
               $.each(self.standList(), function (i, stand) {
                 if (stand.percentage()) {
+
+
                   totalPercentage += parseInt(stand.percentage(), 10);
 
                   // no no
                   if (totalPercentage > 100) {
-                    msg = "You've entered a percentage over 100 (" + totalPercentage +") for this stand group. Please enter a percentage of ";
+                    msg = "You've entered a total percentage of over 100 for this Vegetation Type. Please enter a percentage of ";
                     msg += 100 - (totalPercentage-stand.percentage() ) + " or less for this species."
 
+                    /*
+										// since this isn't working on keyup yet, like it should, this hack prevents a new empty item
+										// from being added and instantly triggering the over 100% warning
+										// 1. If there's no species yet, just move on.
+										if (!stand.species()){
+											console.error(stand);
+											// 2. if the previous item is being edit, move on.
+										}
+
+                    if ( ( self.standList()[i-1].isEditing() && !stand.species() ) || stand.percentage() == 0 ) {
+                      console.info('isEditing',  self.standList()[i-1].species());
+                      self.standList.remove(stand)
+                      return;
+                    }
+										
+										*/
+                    
+                    // force the issue
+									  stand.percentage(100 - (totalPercentage-stand.percentage() ) );
+
+                    // let them know and keep on editing
                     stand.percentageIsValid(false);                   
                     stand.percentageIsValidMsg(msg);
+										stand.editTree()
 
-                    return;
 
-                  }
+									} else {
+										stand.percentageIsValid(true);                   
+									}
+
+									displayStandList.push(stand);  
+
                 }
-                stand.percentageIsValid(true);                   
-								displayStandList.push(stand);  
               });
 
-							/*
-							// @TODO fix this. causing more trouble than it's worth at the moment.
-							// without it, the chart does not render properly if species do not add up to 100%
-              if (totalPercentage < 100 && totalPercentage != 0) { // == 0 on load
+              if (totalPercentage < 100 ) { 
 
-								var placeHolder = new standViewModel(self,
-                  // species name, sizeclass lower bound, upper bound, percentage
-                  [ 'Unknown type', "?", "?", 100 - totalPercentage ]) 
+								if ( app.strata.viewModel.activeStratum() ){
+									// species name, sizeclass lower bound, upper bound, percentage
+									var placeHolder = new standViewModel(self,
+										[ 'Unknown type', "?", "?", 100 - totalPercentage ]);
 
-								displayStandList.push(placeHolder);
-								self.standList.push(placeHolder);
+										placeHolder.isEditing(true);
+										displayStandList.push(placeHolder);
+
+										if( app.strata.viewModel.activeStratum().attributes.uid == self.attributes.uid ){
+											self.standList.push(placeHolder);
+										}
+								} 
+
 								//self.currentStand(placeHolder);
 								//self.currentStand().updateChart();
-									
-
-									/*
-                displayStandList.push(new standViewModel(self,
-                  // species name, sizeclass lower bound, upper bound, percentage
-                  [ 'Unknown type', "?", "?", 100 - totalPercentage ]));
-									
-									
+																	
               }
-							*/
 
               return displayStandList;
             });
@@ -796,59 +850,6 @@
 							});	
 						};
 
-						/*
-            // launch into species list creation
-            self.next = function () {
-							//unused 6/3 -wm
-                var self = this,
-                    stand = new standViewModel(self);
-
-                if ( !self.editMode() ) {
-                  self.standList.push(stand);
-                  self.currentStand(stand);
-                } else {
-                  self.currentStand(self.standList()[self.standList().length-1]);
-                  self.editTrees(true);
-                }
-            };
-
-            self.prev = function () {
-							//unused 6/3 -wm
-                var self = this, 
-                    stratum = self.stratum;
-                
-                stratum.currentStand(stratum.standList()[stratum.currentStand().index() - 1]);
-            };
-
-						self.saveSpecies = function () {
-							if ( !self.editMode() ) {
-								self.standList.push(stand);
-								self.currentStand(stand);
-							} else {
-								self.currentStand(self.standList()[self.standList().length-1]);
-								//self.editTrees(true);
-							}
-							self.currentStand().editTrees(false)
-							self.editTrees(false);
-						};
-
-
-						self.editSpecies = function(){
-							var self = this.stratum,
-									stand = new standViewModel(self);
-
-							self.currentStand(self.standList()[self.standList().length-1]);
-						}
-						self.selectRow = function () {
-							//unused 6/2
-							var self = this;
-							if (self.stratum.currentStand().species !== 'unknown') {
-								self.stratum.currentStand(self);
-							}
-						};
-
-						*/
-
 						self.addSpecies = function (stand, event) {
 							var stand,
 									self = this,
@@ -874,18 +875,17 @@
 							self.currentStand().updateChart();
 						};
 
+
 						self.removeSpecies = function(stand){
 							self.standList.remove(stand);
 						};
-
-
-
 
 
 						self.sizeClasses = ko.computed(function() {
 								var pos = app.strata.treeSpecies().indexOf(self.species());
 								return app.strata.sizeClasses[pos-1];
 						}, self);
+
 
 						ko.bindingHandlers.select2 = {
 							init: function(element, valueAccessor, allBindingsAccessor) {
@@ -901,8 +901,6 @@
 										return item[lookupKey] === value;
 									}));
 								}
-								// $(element).select2(valueAccessor());
-								// console.log('select2 valueAccessor', valueAccessor() );
 
 								ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
 									$(element).select2('destroy');
@@ -939,7 +937,7 @@
           self.searchTerm = ko.observable();
           // list of strata
           self.strataList = ko.observableArray();
-
+					self.vegetationTypeError = ko.observable(null);	
           self.standTotal = app.stand_layer.features.length;
 
 					// n of Y stands applied
@@ -1061,8 +1059,7 @@
 
           self.applyStrata = function( stratum ) {
             // can be called from the draggable/droppable
-            // switching to the knockout binding
-            // for now
+            // switching to the knockout binding for now
             var stand_uid_list = [],
                 color = stratum.color(),
                 stratum_id = stratum.attributes.uid;
@@ -1123,8 +1120,16 @@
                 stratum = self.activeStratum(),
                 //stratum = app.strata.viewModel.activeStratum(),
                 url = "/features/strata/form/";
+						
+            if ( ! stratum.canSave() ) {
+              self.vegetationTypeError("Please include a name, trees per acre and age for this Vegetation Type.");
+              return;
+            }
+
+            self.vegetationTypeError(null);
 
             if (stratum.editMode()) {
+              console.log('editMode!!!!');
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
             
@@ -1159,6 +1164,7 @@
 
                     var strata_uid = response["X-Madrona-Select"];
                     if (stratum.editMode()) {
+                      console.log('editMode inside of ajax callback!');
                       // existing strata
                       self.updateStratum(app.strata.stratumBeingEdited, postData);
                     } else {

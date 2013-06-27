@@ -539,6 +539,10 @@ a.btn .icon-arrow-right{
 	.center + .center{
 		margin-top: 1em; /* not working */
 	}
+
+input.error{
+	border-color: red;
+}
 .accessibility {
 	position: absolute;
 	left: -10000em;
