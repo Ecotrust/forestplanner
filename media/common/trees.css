@@ -292,6 +292,16 @@ label#year-label {
 	width: 100%;
 	clear: both;
 }
+	.home-intro .btn-bar{
+		margin: 1em 0;
+		text-align: center;
+	}
+		.home-intro .btn-bar .btn{
+			margin-right: 1em;
+			text-align: center;
+			width: 9em;
+			z-index: 15; /* stop hiding during fades */
+		}
 .property-details {
 	margin-top: 1em;
 }
@@ -421,13 +431,7 @@ header.hero {
 		text-shadow: none;
 		padding: 2px 6px;
 	}
-	.home-about{
-		display: block;
-		margin: 1em auto;
-		text-align: center;
-		width: 9em;
-		z-index: 5; /* stop hiding during fades */
-	}
+
 	.home-intro .icon-arrow-right{
 		background-image: url("../img/glyphicons-halflings.png");
 		background-repeat: no-repeat;

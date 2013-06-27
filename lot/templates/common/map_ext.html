@@ -31,7 +31,7 @@
 								<div class="home-intro">
 									<header class="hero">
 										<h1>Forest Scenario Planner</h1>
-										<h2>An online tool for forest management and scenario planning<br>in Oregon and Washington</h2>
+										<h2>An online tool for forest management and scenario planning in Oregon and Washington</h2>
 									</header>
 
                   <div style="display: table; margin: 0 auto;">
@@ -40,25 +40,18 @@
                     <img src="{{MEDIA_URL}}/img/screenshots/screen3.png" class="img-polaroid" style="height: 160px; margin: 12px;" />
                   </div>
 
-									<div style="margin: 16px;" class="clearfix">
+									<div class="clearfix btn-bar">
 
                     <a class="btn btn-large btn-primary home-about" href="#"> 
                       <span>Learn More </span>
 											<span class="accessibility">about the Forest Scenario Planner</span> 
-                      <i class="icon-arrow-right icon-white"></i>
+                      <!--<i class="icon-arrow-right icon-white"></i>-->
                     </a>
-										
-										<!-- <a class="btn btn-large btn-success pull-right manage-your-properties" href="#">Manage Your Properties</a> -->
+                    <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
+											<!--<i class="icon-user icon-white"></i> -->
+                      Get Started</a>	
 									</div>
 
-									<div class="pull-right">
-										<!--
-										<a class="btn btn-large btn-success" href="{% url 'registration_register' %}" id="register"><i class="icon-leaf icon-white"></i> Register Now</a>
-											-->
-										<a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
-											<i class="icon-user icon-white"></i> Log In</a>
-
-									</div>
 								</div>
 							</div> 
 							
@@ -818,9 +811,22 @@
 					 "/media/img/forest_photos/forest-clouds-866-full-sat.jpg",
 					 "/media/img/forest_photos/walkers-205-full-sat.jpg",
 					 "/media/img/forest_photos/Nursery-log-1-full-sat.jpg",
-					 "/media/img/forest_photos/hills-0038-full-sat.jpg"
+					 // "/media/img/forest_photos/hills-0038-full-sat.jpg",
+           // by John David Nelson 
+           // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
+					 "/media/img/forest_photos/pine-jondavidnelson.jpg"
 					], {duration: 6000, fade: 1000});
 				});
+
+        /* Maybes
+          http://www.flickr.com/photos/proforged/6181409251/
+          http://www.flickr.com/photos/parksjd/5286896789/
+          http://www.flickr.com/photos/wastatednr/5286181483/
+          http://www.flickr.com/photos/sbeebe/7258372864/
+
+         */
+
+
 </script>
 {% endif %}
 

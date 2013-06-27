@@ -229,13 +229,17 @@ function standsViewModel() {
     self.showStandHelp(true);
     self.showStandList(true);
     self.showDrawPanel(false);
+    self.showNoStandHelp(true);
+
     app.new_features.removeAllFeatures();
     app.drawFeature.deactivate();
+
     if (self.modifyFeature.active) {
+      console.info('self.modifyFeature.active');
       self.modifyFeature.resetVertices();
       self.modifyFeature.deactivate();
     }
-    self.showNoStandHelp(true);
+    self.loadStands( app.properties.viewModel.selectedProperty() );
   };
 
   self.selectFeature = function(feature, event) {
