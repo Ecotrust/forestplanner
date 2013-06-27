@@ -111,15 +111,26 @@ def init():
 
 
 def restart_services():
-    run('sudo service uwsgi restart && sudo service nginx restart')
-    # wtf start then stop OR just start .. always" returns success
-    # sudo unlink /var/run/supervisord.sock ??
-    run('((sudo service supervisor stop && sudo service supervisor start) || sudo service supervisor start)')
-    run('sudo service supervisor status')
-    run('sudo service redis-server status')
-    run('sudo service postgresql status')
-    run('sudo supervisorctl restart all')
+    run('sudo service uwsgi restart')
+    run('sudo service nginx restart')
+    run('sudo supervisorctl reload')
     run('sudo supervisorctl status')
+
+
+def status():
+    init_services = ['postgresql', 'redis-server', 'supervisor']
+    for service in init_services:
+        run('sudo service %s status' % service)
+    run('sudo supervisorctl status')
+    run('sudo ps -eo pid,%cpu,%mem,comm,args --sort=-%cpu,-%mem | head -n 10')
+
+    ON = """\n  !!!! maintenance_mode is on !!!!
+     Test and run \n  fab <server> maintenance:off
+     when it's good to go
+    """
+    OFF = """\n  !!!! maintenance_mode is OFF; site is live !!!!"""
+
+    run('test -f /tmp/.maintenance_mode && echo "%s" || echo "%s"' % (ON, OFF))
 
 
 def install_media():
@@ -218,5 +229,4 @@ def provision():
         )
 
     restart_services()
-    #run("sudo service postgresql reload")
-    print "\n  Test and run \n  fab <server> maintenance:off\n  when it's good to go"
+    status()

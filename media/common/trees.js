@@ -76,13 +76,13 @@ function init() {
         [ "Streams", "LOT_streams"],
         [ "Watersheds", "LOT_watersheds"],
         [ "Conservation Easements", "LOT_natconseasedb"],
-        [ "Critical Stream Habitat", "Crithab_streams"], 
+        [ "Critical Stream Habitat", "Crithab_streams"],
         [ "Wetlands", "LOT_wetlands"],
         [ "Protected Areas", "LOT_protareas"],
         [ "PLSS", "LOT_plss"],
         [ "Parcels", "LOT_parcels"],
         [ "USFS Mill Facilities", "USFSMillFacilities"],
-        [ "Critical Habitat", "Crithab"],
+        [ "Public Land Critical Habitat", "Crithab"],
         [ "Counties", "LOT_counties"]
     ];
 

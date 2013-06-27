@@ -129,7 +129,7 @@
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
 
                 <p class="info text-info well well-small clearfix">
-                  <i class="icon-info-sign"></i> Scenarios are rad.
+                  <i class="icon-info-sign"></i> Properties are rad.
                 </p>
               
 
@@ -142,7 +142,7 @@
                     <p><em>You currently have no properties under management.</em></p>
                     <div id="properties-none">
                         <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
-                        <div class="pull-right">
+                        <div class="btn-group pull-right">
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
                             <button href="#" class="btn btn-success" 
@@ -153,16 +153,15 @@
 
 
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
-                  <h2> My Properties </h2>
-                  <div class="row-fluid">
-                    <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
-                      <i class="icon-plus-sign icon-white"></i> Draw New Property
+                  <div class="btn-group pull-right">
+                    <a class="btn" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+                      <i class="icon-plus-sign"></i> Draw New Property
                     </a>
-
-                    <a class="btn pull-left" href="#" data-bind="click: startUpload, disable: preventUpdates">
+                    <a class="btn" href="#" data-bind="click: startUpload, disable: preventUpdates">
                       <i class="icon-upload"></i> Upload GIS Data
                     </a>
                   </div>
+                  <h2> My Properties </h2>
 
                   <ul class="property-list" data-bind="visible: propertyList().length > 0,foreach: propertyList">
                     <li class="property-box clearfix well" 
@@ -201,6 +200,7 @@
 													</dl>
                         </div> <!-- /.span4 -->
                         <div class="span6" style="text-align: center;">
+
                             <button class="btn btn-primary center" 
                               data-bind="click: $parent.selectProperty,
                               css: { active: $data === $parent.selectedProperty()}
@@ -511,6 +511,7 @@
                                     <h4> Nearest Neighbor IDB Plot</h4>
                                     <dl class="dl-horizontal">
                                         <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
+                                        <dt>Condition Age</dt><dd><span data-bind="text: condition_age"></span></dd>
                                         <dt>Stand List</dt>
                                         <dd>
                                             <ul data-bind="foreach: condition_stand_list">
@@ -628,7 +629,7 @@
                         -->
                     </ul>
                     
-                    <div class="tab-content">
+                    <div class="tab-content no-overflow">
                         <!--
                         <div class="tab-pane fade" id="scenario-cash-tab-content">
                             <h4> Cash Flow Analysis </h4>
@@ -664,43 +665,40 @@
                                             <!-- populated by init.js -->
                                         </select>
                                     </div>
-                                    <div class="span3">
-                                        <div class="pull-right">
-                                            <label id="year-label" for="field-year-slider">Year:</label> 
-                                            <input class="input-mini slidervalue year-slider-value" 
-                                                type="text" name="year-slider" id="field-year-slider" />
-                                        </div>
-                                    </div>
-                                    <div class="span6">
+                                    <div class="span9">
                                         <div class="row-fluid">
-                                            <div class="span1">
-                                                <button id="timemap-backward" class="btn btn-mini"> 
-                                                    <i class="icon-backward"></i>
-                                                </button>
+                                            <div class="span5">
+                                                <span class="pull-right"> 
+                                                  <input class="input-mini slidervalue year-slider-value" 
+                                                      type="text" name="year-slider" id="field-year-slider" />
+                                                </span>
                                             </div>
-                                            <div class="span1"><p class="pull-right">2013</p></div>
-                                            <div class="span8" style="padding: 3px;">
-                                                <div class="slider" id="slider-year-slider"></div> 
-                                            </div>
-                                            <div class="span1"><p class="pull-left">2108</p></div>
                                             <div class="span1">
-                                                <button href="#" id="timemap-forward" class="btn btn-mini"> 
-                                                    <i class="icon-forward"></i>
-                                                </button>
+                                              <button id="timemap-backward" class="pull-right btn btn-link">
+                                                <i class="icon-backward"></i>
+                                              </button>
+                                            </div>
+                                            <div class="span5" style="margin:10px 0;">
+                                                <div class="slider" id="slider-year-slider">
+                                                </div> 
+                                            </div>
+                                            <div class="span1">
+                                              <button id="timemap-forward" class="pull-left btn btn-link">
+                                                <i class="icon-forward"></i>
+                                              </button>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
 
-                            <div style="margin-top: 25px;">
-
+                            <div style="margin-top: 12px;">
                                 <div class="timemap-container" style="position:relative;">
                                     <div class="well hide error-timemap alert alert-error" id="error-timemap1">
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
                                     <div class="timemap" id="timemap1"></div>
-                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: scenarioList">
+                                    <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                 </div>
@@ -710,7 +708,7 @@
                                     </div>
                                     <div class="error-timemap" id="timemap-legend"></div>
                                     <div class="timemap" id="timemap2"></div>
-                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: scenarioList">
+                                    <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                     <!--

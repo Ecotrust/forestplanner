@@ -74,6 +74,7 @@ var refreshTimeMap = function (f1, f2) {
                 standScenario1.addFeatures(app.geojson_format.read(data));
                 processBreaks();
                 standScenario1.redraw();
+                standScenario2.redraw();
             } else {
                 // go fetch it 
                 var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
@@ -83,6 +84,7 @@ var refreshTimeMap = function (f1, f2) {
                         timemapScenarioData[opt] = data;
                         processBreaks();
                         standScenario1.redraw();
+                        standScenario2.redraw();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
                         $("#error-timemap1").fadeIn();
@@ -91,7 +93,6 @@ var refreshTimeMap = function (f1, f2) {
             }
         }
     }
-
 
     if (f2) {
         standScenario2.removeAllFeatures();
@@ -103,6 +104,7 @@ var refreshTimeMap = function (f1, f2) {
                 // we have it already
                 standScenario2.addFeatures(app.geojson_format.read(data));
                 processBreaks();
+                standScenario1.redraw();
                 standScenario2.redraw();
             } else {
                 // go fetch it 
@@ -112,6 +114,7 @@ var refreshTimeMap = function (f1, f2) {
                         standScenario2.addFeatures(app.geojson_format.read(data));
                         timemapScenarioData[opt2] = data;
                         processBreaks();
+                        standScenario1.redraw();
                         standScenario2.redraw();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
@@ -153,7 +156,7 @@ function processBreaks() {
     timemapBreaks = steps;
 
     // screw it, just manipulate the DOM directly to get a legend
-    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + "</p><table>";
+    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + " <br> per acre</p><table style='float:right'>";
     for (var j = 0; j < numclasses; j++) {
         html += "<tr><td>" + parseInt((steprange*j) + min, 10) + " to " + parseInt((steprange*(j+1)) + min, 10) + "</td>" +
         '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[j] + '">&nbsp;&nbsp;</td></tr>';
@@ -165,8 +168,8 @@ function processBreaks() {
 $(document).ready(function() {
 
     $("#scenario-maps-tab").on('shown', function() {refreshTimeMap(true, true);});
-    $("#select-scenario1").change(function() {refreshTimeMap(true, false);});
-    $("#select-scenario2").change(function() {refreshTimeMap(false, true);});
+    $("#select-scenario1").change(function() {refreshTimeMap(true, true);});
+    $("#select-scenario2").change(function() {refreshTimeMap(true, true);});
 
     var timemapInitialized = false;
     var context = {
