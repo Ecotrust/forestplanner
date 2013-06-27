@@ -396,6 +396,9 @@ header.hero {
 		color: #fff;
 		text-shadow: 1px 1px #333;
 	}
+	.home-intro h2{
+		margin-top: 0;
+	}
 	.home-intro h1{
 		font-size: 73px;
 	}
@@ -422,8 +425,19 @@ header.hero {
 		display: block;
 		margin: 1em auto;
 		text-align: center;
-		width: 7em;
+		width: 9em;
 		z-index: 5; /* stop hiding during fades */
+	}
+	.home-intro .icon-arrow-right{
+		background-image: url("../img/glyphicons-halflings.png");
+		background-repeat: no-repeat;
+		display: inline-block;
+		height: 14px;
+		line-height: 14px;
+		margin-top: 1px;
+		margin-left: 5px;
+		vertical-align: text-top;
+		width: 14px;
 	}
 
 #scenario-html header{
