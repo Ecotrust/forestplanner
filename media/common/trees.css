@@ -287,12 +287,17 @@ label#year-label {
 .modal .modal-body h3 {
 	font-size: 22px;
 }
+.btn-bar{
+	margin-bottom: 1em;
+	width: 100%;
+	clear: both;
+}
 .property-details {
 	margin-top: 1em;
 }
 .property-list {
 	list-style-type: none;
-	margin: 1em 0;
+	margin: 0 0 1em 0;
 	padding: 0;
 	/*border: 1px solid #ccc;*/
 	border-bottom: none;
@@ -303,16 +308,26 @@ label#year-label {
 	}
 	.property-list li:hover{
 		background-color: #f3f3f3;
+			-moz-transition-property: background;
+			-moz-transition-duration: 0.5s;
+			-webkit-transition-property: background;
+			-webkit-transition-duration: 0.5s;
+			transition-property: background;
+			transition-duration: 0.5s;
+		
 		cursor: pointer;
 	}
 	.property-list li.active{
 		background-color: #FFF;
+		-moz-box-shadow: 		0px 0px 0px 3px rgba(0, 0, 0, 0.25) inset;
+		-webkit-box-shadow: 	0px 0px 0px 3px rgba(0, 0, 0, 0.25) inset;
+		box-shadow: 			0px 0px 0px 3px rgba(0, 0, 0, 0.25) inset;
 	}
 	.property-list h3{
 		font-size: 18px;
 		line-height: 1.5;
 	}
-	.property-list .btn-primary.active:after {
+	.property-list .btn-primary.active:after, .property-list .btn-info.active:after {
 		/*selectED*/
 		content: "ed";
 	}
@@ -447,6 +462,14 @@ a.btn .icon-arrow-right{
 	#global-tabs a{
 		color: #666;
 	}
+		#global-tabs a:hover{
+			-moz-transition-property: background;
+			-moz-transition-duration: 0.5s;
+			-webkit-transition-property: background;
+			-webkit-transition-duration: 0.5s;
+			transition-property: background;
+			transition-duration: 0.5s;
+		}
 	#global-tabs .property-name {
 		display: inline-block;
 		font-style: italic;
@@ -498,10 +521,16 @@ a.btn .icon-arrow-right{
 	}
 	#global-tabs > li.active:after{
 		border-color: transparent transparent transparent #fff;
-		border-width: 24px;
+		border-width: 23px;
 
-		right: -44px;
+		right: -43px;
 		top: 1px;
+	}
+
+	#global-tabs .active > a{
+		/*border: 10px solid #ccc;*/
+		/*border-width: 0 0 10px 0;*/
+		/*margin-bottom: -10px;*/
 	}
 /* not sure why this version isn't working. arrows end up on a new line.
 	#global-tabs > li:after {

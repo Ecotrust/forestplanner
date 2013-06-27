@@ -128,14 +128,6 @@
 						
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
 
-                <p class="info text-info well well-small clearfix">
-                  <i class="icon-info-sign"></i> Properties are rad.
-                </p>
-              
-
-
-
-
                 <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0"> 
                     <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
@@ -153,15 +145,22 @@
 
 
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
-                  <div class="btn-group pull-right">
-                    <a class="btn" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
-                      <i class="icon-plus-sign"></i> Draw New Property
+
+                  <!--<h2> My Properties </h2>-->
+
+                  <p class="info text-info well well-small clearfix">
+                    <i class="icon-info-sign"></i> Properties are rad.
+                  </p>
+
+                  <div class="row-fluid btn-bar clearfix">
+                    <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
+                      <i class="icon-plus-sign icon-white"></i> Draw New Property
                     </a>
-                    <a class="btn" href="#" data-bind="click: startUpload, disable: preventUpdates">
+
+                    <a class="btn pull-left" href="#" data-bind="click: startUpload, disable: preventUpdates">
                       <i class="icon-upload"></i> Upload GIS Data
                     </a>
                   </div>
-                  <h2> My Properties </h2>
 
                   <ul class="property-list" data-bind="visible: propertyList().length > 0,foreach: propertyList">
                     <li class="property-box clearfix well" 
@@ -201,10 +200,12 @@
                         </div> <!-- /.span4 -->
                         <div class="span6" style="text-align: center;">
 
-                            <button class="btn btn-primary center" 
+                          <!--
+                            <button class="btn btn-info center" 
                               data-bind="click: $parent.selectProperty,
                               css: { active: $data === $parent.selectedProperty()}
                               ">Select</button>
+                          -->
                             
                           <div class="btn-group center">
                             <button id="delete-button" class="btn btn-mini" 
@@ -230,7 +231,7 @@
                     </li>
                   </ul>
 
-                  <a href="#stands" class="btn btn-success btn-large" 
+                  <a href="#stands" class="btn btn-primary btn-large" 
                     data-bind="visible: selectedProperty()">
                     <strong>Next</strong>: Create or edit stands for 
                     <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
@@ -358,7 +359,7 @@
                     </div>
                 </div>
 				-->
-                <h2>Evaluate Scenarios</h2>
+                <!--<h2>Evaluate Scenarios</h2>-->
                 <p class="info text-info well well-small clearfix">
                   <i class="icon-info-sign"></i> Scenarios are rad.
                 </p>
@@ -456,11 +457,25 @@
             <!-- these are all stand pages -->
             <div id="stand-html" style="display: none" data-bind="visible: showStandPanels, if: showStandPanels">
               <div class="row-fluid">
-                <h2>Stand Boundaries</h2>
+                <!--<h2>Stand Boundaries</h2>-->
                 <div data-bind="visible: showStandList">
+
                   <p class="info text-info well well-small">
                     <i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
                   </p>
+
+                  <div class="btn-bar clearfix">
+                    <!--
+                      <button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
+                      <button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
+                      <a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
+                        data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
+                        <i class="icon-repeat"></i> Define Stand Groups</a>
+                      -->
+                    <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart">
+                      <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
+                  </div>
+
                   <div class="loading" data-bind="visible: showProgressBar">
                     <h3>Loading...</h3>
                   </div>
@@ -511,7 +526,7 @@
                                     <h4> Nearest Neighbor IDB Plot</h4>
                                     <dl class="dl-horizontal">
                                         <dt>Condition ID</dt><dd><span data-bind="text: cond_id"></span></dd>
-                                        <dt>Condition Age</dt><dd><span data-bind="text: condition_age"></span></dd>
+                                        <!--<dt>Condition Age</dt><dd><span data-bind="text: condition_age"></span></dd>-->
                                         <dt>Stand List</dt>
                                         <dd>
                                             <ul data-bind="foreach: condition_stand_list">
@@ -524,17 +539,7 @@
                             </p>
                       </div>
                     </div>
-					<div class="pull-right btn-group">
-						<!--
-						<button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
-						<button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
-						<a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
-							data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
-							<i class="icon-repeat"></i> Define Stand Groups</a>
-						-->
-						<button class="btn btn-success" href="#" data-bind="click: addStandStart">
-							<i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
-					</div>
+
                   </div>
                   </div>
                   <!--
@@ -593,8 +598,8 @@
             <!-- end of stand pages -->
             <!-- scenario pages -->
             <div class="row-fluid hide" id="scenario-form-metacontainer">
+            <h3>Define your scenario</h3>
                 <div class="well">
-                    <h3>Define your scenario</h3>
                     <div id="scenario-form-container">
                         <h4>Loading...</h4>
                     </div>
