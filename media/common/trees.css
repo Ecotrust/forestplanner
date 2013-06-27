@@ -438,6 +438,9 @@ header.hero {
     margin: -5px -5px 10px;
     padding: 4px 4px 0;
 }
+.scenario-row span{
+	color: #222;
+}
 .more-toggle{
 	color: #aaa;
 }
@@ -569,7 +572,10 @@ a.btn .icon-arrow-right{
 	}
 
 input.error{
-	border-color: red;
+	border-color: #cc0000;
+}
+label.error{
+	color: #cc0000;
 }
 .accessibility {
 	position: absolute;
@@ -597,7 +603,12 @@ input.error{
 .text-info {
     color: #3A87AD;
 }
-
+label.alert{
+	margin-bottom: 0;
+}
+	input+label.alert, textarea+label.alert, select+label.alert{
+		margin-bottom: 21px;
+	}
 .btn-large [class^="icon-"], .btn-large [class*=" icon-"] {
     margin-top: 8px;
 }

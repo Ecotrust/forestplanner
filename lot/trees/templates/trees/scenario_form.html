@@ -124,8 +124,9 @@
                         </ul>
                     </p>
                     <br data-bind="visible: ! $parent.decisionOutput()"/>
-                    <div class="control-group">
+					<div class="control-group" data-bind="css: { error: $parent.nameRequired() }">
                       <label><strong>Name</strong></label>
+					  <label class="help-block" data-bind="visible: $parent.nameRequired()">Please name your presription</label> 
                       <div>
                         <input type="text" class="input-xlarge" data-bind="value: name">
                         <!--<p class="help-block">Supporting help text</p>-->

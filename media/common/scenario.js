@@ -23,6 +23,9 @@ function scenarioFormViewModel(options) {
     self.prescriptionList = ko.observableArray([]);
     self.inputRxs = ko.observable({});
 
+	// @TODO make computed so viewModel will update as soon as any part of a name is entered. it's 2:30am.
+	self.nameRequired = ko.observable(false);
+
     if (options && options.myrxList) {
         $.each(options.myrxList, function(i, myrx) {
             self.prescriptionList.unshift(new rxViewModel({
@@ -112,6 +115,12 @@ function scenarioFormViewModel(options) {
         if (!desc) {
             self.selectedRx().description(self.decisionOutput().join(", \n"));
         }
+
+        var name = self.selectedRx().name();
+		if (!name){
+			self.nameRequired(true);
+			return;
+		}
 
         $.ajax({
             url: url,
