@@ -189,6 +189,7 @@ function standsViewModel() {
           self.associateStand(stand_uid, self.property.uid());
           self.addStandStart();  // automatically go back to digitizing mode
         } else {
+          self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", stand_uid )[0]); 
           self.updateStand(stand_uid, false);
         }
       },
