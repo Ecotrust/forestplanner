@@ -37,12 +37,11 @@ var selected_prop_style = {
 };
 
 var selected_stand_style = {
-    graphicZIndex: 999,
-    fillColor: "#44FF00",
-    fillOpacity: 0.7,
+    graphicZIndex: 9999,
+    fillOpacity: 0,
     strokeWidth: 5,
     strokeOpacity: 0.7,
-    strokeColor: "#ffffff"
+    strokeColor: "#44FF00",
 };
 
 var def_symbolizer_style = {
