@@ -114,7 +114,7 @@ def restart_services():
     run('sudo service uwsgi restart')
     run('sudo service nginx restart')
     run('sudo supervisorctl reload')
-    run('sudo supervisorctl status')
+    run('sleep 2 && sudo supervisorctl status')
 
 
 def status():
