@@ -31,6 +31,7 @@ function init() {
         "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
     var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
         arrayAerial, {attribution:"MapQuest"});
+    map.addLayer(baseAerial);
 
     var arrayOSM = [
         "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
@@ -39,10 +40,11 @@ function init() {
         "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
     var baseOSM = new OpenLayers.Layer.OSM("Mapquest Open Street Map",
         arrayOSM, {attribution:"Mapquest, OpenStreetMap"});
+    map.addLayer(baseOSM);
 
     var esriLayers = [
       ["Topo map", 'World_Topo_Map'],
-      ["Satellite Imagery", 'World_Imagery'],
+      ["Satellite Imagery", 'World_Imagery']
     ];
 
     for (var i=esriLayers.length-1; i>=0; --i) {
@@ -73,21 +75,18 @@ function init() {
         [ "Counties", "LOT_counties"]
     ];
 
-    map.addLayer(baseAerial);
-    map.addLayer(baseOSM);
-
     for (var i=tileServerLayers.length-1; i>=0; --i) {
         var lyrLongName = tileServerLayers[i][0];
         var lyrShortName = tileServerLayers[i][1];
-        var lyr = new OpenLayers.Layer.XYZ( lyrLongName, 
+        var lyr = new OpenLayers.Layer.XYZ( lyrLongName,
             "http://54.214.12.22/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
-            {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:"Ecotrust"} 
+            {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:"Ecotrust"}
         );
         lyr.shortName = lyrShortName;
         map.addLayer(lyr);
         lyr.events.register('visibilitychanged', lyr, function(evt) {
             if (this.visibility) {
-                $('.layersDiv').append('<div id="' + this.shortName + '-legend" style="text-align:center;">' + 
+                $('.layersDiv').append('<div id="' + this.shortName + '-legend" style="text-align:center;">' +
                     '<img src="/media/img/legends/' + this.shortName + '.png">');
             } else {
                 $('#' + this.shortName + '-legend').remove();
@@ -97,9 +96,9 @@ function init() {
 
     var soils = new OpenLayers.Layer.XYZ( "Soil Survey",
         "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
-        {sphericalMercator: true, 
-         isBaseLayer: false, 
-         visibility: false, 
+        {sphericalMercator: true,
+         isBaseLayer: false,
+         visibility: false,
          opacity: 0.75,
          attribution: "ESRI, USDA Natural Resources Conservation Service"} 
     );

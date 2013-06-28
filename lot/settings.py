@@ -58,7 +58,7 @@ IMPUTE_RASTERS = [
         ('gnn', albers),
 ]
 
-POINT_BUFFER = 500  # meters
+POINT_BUFFER = 2500  # meters
 
 ENFORCE_SUPPORTED_BROWSER = False
 
