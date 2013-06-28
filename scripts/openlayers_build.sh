@@ -1,15 +1,13 @@
-if test -z "$1"; then
-	BASEDIR=/usr/local/apps/murdock
-else
-	BASEDIR=$1
-fi
-
+BASEDIR=/e/git
 
 cd $BASEDIR/openlayers/build
 
-python $BASEDIR/openlayers/build/build.py $BASEDIR/scripts/openlayers_lot.cfg
+#python $BASEDIR/openlayers/build/build.py -c none $BASEDIR/land_owner_tools/scripts/openlayers_lot.cfg
+python $BASEDIR/openlayers/build/build.py -c jsmin $BASEDIR/land_owner_tools/scripts/openlayers_lot.cfg
 
-cp $BASEDIR/openlayers/build/OpenLayers.js $BASEDIR/media/
-cd $BASEDIR/lot
+cp $BASEDIR/land_owner_tools/media/OpenLayers.js $BASEDIR/land_owner_tools/media/OpenLayers.js.bu
+cp $BASEDIR/openlayers/build/OpenLayers.js $BASEDIR/land_owner_tools/media/OpenLayers.js
 
-python manage.py install_media
+# install media
+cp $BASEDIR/land_owner_tools/media/OpenLayers.js $BASEDIR/land_owner_tools/mediaroot/OpenLayers.js
+
