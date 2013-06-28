@@ -1119,7 +1119,6 @@
             self.vegetationTypeError(null);
 
             if (stratum.editMode()) {
-              console.log('editMode!!!!');
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
             
@@ -1138,7 +1137,7 @@
                           stand.species(), 
                           parseInt(sizes[0], 10), 
                           parseInt(sizes[1], 10), 
-                          parseInt(stand.percentage(), 10)
+                          parseInt( (Math.ceil( (stand.percentage()/100*stratum.attributes.search_tpa()) * 10 ) / 10).toFixed(2), 10)
                         ]];
                     }
                 })
