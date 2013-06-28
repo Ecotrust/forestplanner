@@ -172,6 +172,8 @@
 														<dd data-bind="foreach: location">
 															<span data-bind="text: $data"></span><!-- ko if: $index() == 0 -->, <!-- /ko -->
 														</dd>
+                            <dt># Stands</dt>
+                            <dd data-bind="text: stand_summary.total"></dd>
                           </dl>
 
                           <a href="#" class="more-toggle">dev more...</a>
