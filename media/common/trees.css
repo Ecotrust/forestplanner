@@ -57,7 +57,8 @@ h2{
 }
 
 body {
-    padding-top: 60px; /* 60px to make the container go all the way to the bottom of the topbar */
+    /* padding-top: 60px; 60px to make the container go all the way to the bottom of the topbar */
+    padding-top: 110px; /* 110px to make the container go all the way to the bottom of the topbar + tabs */
     background-color: #E4E4E4;
 }
 .label {
@@ -475,8 +476,25 @@ a.btn .icon-arrow-right{
 		background-position: -261px -93px;
 
 }
+.navbar-fixed-top .navbar-inner{
+	-moz-box-shadow: 		0 0 0 rgba(0,0,0,0.3);
+	-webkit-box-shadow: 	0 0 0 rgba(0,0,0,0.3);
+	box-shadow: 			0 0 0 rgba(0,0,0,0.3);
+}
 
-#global-tabs{}
+#global-tabs{
+	background-color: #E4E4E4; 
+	-moz-box-shadow: 		0 1px 10px rgba(0, 0, 0, 0.1);
+	-webkit-box-shadow: 	0 1px 10px rgba(0, 0, 0, 0.1);
+	box-shadow: 			0 1px 10px rgba(0, 0, 0, 0.1);
+	left: 0px; 
+	padding-top: 0;
+	position: fixed; 
+	right: 0px; 
+	top: 42px; 
+	width: 100%; 
+	z-index: 1010;
+}
 	#global-tabs > li:first-child{
 		max-width: 32%;
 	}
