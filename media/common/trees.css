@@ -97,10 +97,6 @@ body {
     font-size: 13px;
     line-height: 18px;
 }
-.olBingAttribution {
-    bottom: 5px;
-    font-size: 9px;
-}
 #customZoom {
     z-index: 1001;
     position: relative;

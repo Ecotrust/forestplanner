@@ -24,57 +24,42 @@ function init() {
 
     map.addControl(new OpenLayers.Control.ScaleLine());
 
-    var gphy = new OpenLayers.Layer.Google( "Google Physical", {type: google.maps.MapTypeId.TERRAIN});
-    var ghyb = new OpenLayers.Layer.Google( "Google Hybrid", {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 21});
-    var gsat = new OpenLayers.Layer.Google( "Google Satellite", {type: google.maps.MapTypeId.SATELLITE, numZoomLevels: 22});
-
-    var arrayMapboxTerrain = [
-        "http://a.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg",
-        "http://b.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg",
-        "http://c.tiles.mapbox.com/v3/examples.map-4l7djmvo/${z}/${x}/${y}.jpg"];
-
     var arrayAerial = [
-        "http://oatile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://oatile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://oatile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://oatile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+        "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
+        arrayAerial, {attribution:"MapQuest"});
 
-    /* Mapquest OSM
     var arrayOSM = [
         "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    */
+    var baseOSM = new OpenLayers.Layer.OSM("Mapquest Open Street Map",
+        arrayOSM, {attribution:"Mapquest, OpenStreetMap"});
 
-    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial", arrayAerial, {attribution:"MapQuest"});
-    var baseOSM = new OpenLayers.Layer.OSM("Mapbox OSM Terrain", arrayMapboxTerrain, {attribution:"Mapbox"});
-    var esri_base = new OpenLayers.Layer.XYZ( "ESRI Topo Maps",
-        "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
-        {
-            sphericalMercator: true,
-            attribution: "ESRI, (c) 2011 National Geographic Society, I-Cubed"
-        } 
-    );
+    var esriLayers = [
+      ["Topo map", 'World_Topo_Map'],
+      ["Satellite Imagery", 'World_Imagery'],
+    ];
 
-    var bingApiKey = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70";
-    var road = new OpenLayers.Layer.Bing({
-        name: "Bing Road",
-        key: bingApiKey,
-        type: "Road"
-    });
-    var hybrid = new OpenLayers.Layer.Bing({
-        name: "Bing Hybrid",
-        key: bingApiKey,
-        type: "AerialWithLabels"
-    });
-    var aerial = new OpenLayers.Layer.Bing({
-        name: "Bing Aerial",
-        key: bingApiKey,
-        type: "Aerial"
-    });
+    for (var i=esriLayers.length-1; i>=0; --i) {
+        var lyrLongName = esriLayers[i][0];
+        var lyrShortName = esriLayers[i][1];
+        var lyr = new OpenLayers.Layer.XYZ( lyrLongName,
+            "http://server.arcgisonline.com/ArcGIS/rest/services/"+ lyrShortName +"/MapServer/tile/${z}/${y}/${x}",
+            {
+                sphericalMercator: true,
+                attribution: "Basemaps by ESRI"
+            }
+        );
+        lyr.shortName = lyrShortName;
+        map.addLayer(lyr);
+    }
 
-    tileServerLayers = [
+    var tileServerLayers = [
         [ "Streams", "LOT_streams"],
         [ "Watersheds", "LOT_watersheds"],
         [ "Conservation Easements", "LOT_natconseasedb"],
@@ -88,11 +73,8 @@ function init() {
         [ "Counties", "LOT_counties"]
     ];
 
-    map.addLayers([hybrid, road]);
-    map.addLayer(baseOSM);
-    map.addLayers([ghyb, gphy]);
     map.addLayer(baseAerial);
-    map.addLayer(esri_base);
+    map.addLayer(baseOSM);
 
     for (var i=tileServerLayers.length-1; i>=0; --i) {
         var lyrLongName = tileServerLayers[i][0];
