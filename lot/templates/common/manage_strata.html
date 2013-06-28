@@ -41,22 +41,6 @@
 </div>
 
 
-<div class="row-fluid">
-	
-
-
-	<header style="display:none" data-bind="visible: $root">
-
-		<!--
-		<div class="btn-group pull-right">
-			<a class="btn" data-bind="disable: activeStratum()" href="/#properties"><i class="icon-arrow-left"></i> properties</a>
-			<button class="btn btn-mini btn-success" data-bind="disable: activeStratum(), click: createStratum"><i class="icon-plus icon-white"></i> new stand group</button>
-		</div>	
-		-->
-	</header>
-
-</div>
-
 <div data-bind="if: !activeStratum()">
 	<div class="row-fluid">
 
@@ -203,7 +187,8 @@
 
 					 </div> <!-- /.row-fluid /with: activeStratum -->
 
-           <div class="alert-error well" data-bind="visible: vegetationTypeError(), text: vegetationTypeError"></div>
+           <div class="alert-error well" style="font-weight: bold; white-space: pre-wrap" 
+             data-bind="visible: vegetationTypeError(), text: vegetationTypeError"></div>
            
            <div data-bind="with: activeStratum" class="row-fluid">
              <table class="table table-bordered stand-table">
@@ -1169,7 +1154,6 @@
 
                     var strata_uid = response["X-Madrona-Select"];
                     if (stratum.editMode()) {
-                      console.log('editMode inside of ajax callback!');
                       // existing strata
                       self.updateStratum(app.strata.stratumBeingEdited, postData);
                     } else {
@@ -1181,14 +1165,28 @@
                     }
                     
                     self.activeStratum(null);
+                    self.vegetationTypeError(null);
 										// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)
 										map.render('map');
                     
                 },
                 error: function (response) { 
-                    self.strataList.push(self.activeStratum());
-                    self.activeStratum(null);
-										map.render('map');
+                  var msg = "";
+                  if(response.status == 400){
+                    msg = "We were unable to find a representative plot for your inventory. Please verify ";
+                    msg += "the species and size classes you've entered. If everything looks ok, ";
+                    msg += "please try to remove any minor species or diameter classes from your list. ";
+                    msg += "\n\n" + "The Forest Scenario Planner is in active development - ";
+                    msg += "please let us know if we can help via the contact link above.";
+                    self.vegetationTypeError(msg);
+                  }else{
+                    msg = "We're sorry, something has gone wrong with saving your Vegetation Type; please check your work and try again. "
+                    msg += "\n\n" + "If you continue to have trouble ";
+                    msg += "saving your Vegetation Type, please contact us with this error code: " + response.status;
+                    msg += " via the contact link above. Thank you.";
+                    self.vegetationTypeError(msg);
+                  }
+                  
                 }
 
             });
