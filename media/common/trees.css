@@ -55,8 +55,8 @@ h2{
 }
 
 .olControlScaleLine {
-    background: #130085; /* fallback for IE - IE6 requires background shorthand*/
-    background: rgba(0, 60, 136, 0.3);
+    background: white; /* fallback for IE - IE6 requires background shorthand*/
+    background: rgba(255,255,255,0.2);
     filter: alpha(opacity=20);
     font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
     padding: 6px;
