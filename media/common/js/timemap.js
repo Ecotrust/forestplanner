@@ -200,12 +200,13 @@ $(document).ready(function() {
     var style = new OpenLayers.Style(template, {context: context});
     var styleMap = new OpenLayers.StyleMap({'default': style});
 
-    var apiKey = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70";
-    var aerial1 = new OpenLayers.Layer.Bing({
-        name: "Bing Aerial",
-        key: apiKey,
-        type: "Aerial"
-    });
+    var arrayAerial = [
+        "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+        "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+    var aerial1 = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
+        arrayAerial, {attribution:"MapQuest"});
 
     timemap1.addLayer(aerial1);
     standScenario1 = new OpenLayers.Layer.Vector("Scenario Stands",  {
@@ -214,11 +215,8 @@ $(document).ready(function() {
     });
     timemap1.addLayer(standScenario1);
 
-    var aerial2 = new OpenLayers.Layer.Bing({
-        name: "Bing Aerial",
-        key: apiKey,
-        type: "Aerial"
-    });
+    var aerial2 = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
+        arrayAerial, {attribution:"MapQuest"});
     timemap2.addLayer(aerial2);
     standScenario2 = new OpenLayers.Layer.Vector("Scenario Stands",  {
         renderers: app.renderer,

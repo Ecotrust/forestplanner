@@ -28,9 +28,41 @@ h2{
 }
 
 .olControlAttribution {
-        bottom: 5px;
-        font-size: 9px;
-    }
+    position: absolute;
+    text-align: right;
+    color: #eeeeee;
+    bottom: 0;
+    right: 0;
+    font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+    padding: 2px 4px;
+    bottom: 2px !important;
+    font-size: 9px;
+    line-height: 11px;
+}
+.olControlAttribution a {
+    color: #eeeeee;
+}
+
+.olControlScaleLineBottom {
+    color: black;
+    line-height: 11px;
+    border: solid 2px black;
+    border-top:none !important;
+    font-size: 8pt;
+}
+.olControlScaleLineTop {
+    display:none;
+}
+
+.olControlScaleLine {
+    background: white; /* fallback for IE - IE6 requires background shorthand*/
+    background: rgba(255,255,255,0.2);
+    filter: alpha(opacity=20);
+    font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
+    padding: 6px;
+    border-radius: 5px;
+}
+
 #customZoom {
     z-index: 1001;
     position: relative;
@@ -67,10 +99,6 @@ body {
 .label {
     font-size: 13px;
     line-height: 18px;
-}
-.olControlAttribution {
-    bottom: 5px;
-    font-size: 9px;
 }
 #customZoom {
     z-index: 1001;
