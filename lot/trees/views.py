@@ -118,7 +118,13 @@ def manage_scenario(request, property_uid):
         'common/manage_scenario.html', {'property_id': property_uid},
         context_instance=RequestContext(request))
 
-
+def about(request):
+    '''
+    Generic About Page
+    '''
+    return render_to_response(
+        'common/about.html', 
+        context_instance=RequestContext(request))
 
 def user_property_list(request):
     '''

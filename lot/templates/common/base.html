@@ -10,9 +10,11 @@
 
     <!-- Styles -->
     <link href="{{MEDIA_URL}}common/bootstrap.spacelab.css" rel="stylesheet"> 
-    <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
     <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+	{% if user.is_authenticated %}
+    <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
     <link href="{{MEDIA_URL}}support/select2.css" rel="stylesheet">
+	{% endif %}
     <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/trees.css">
     {% block styles %}{% endblock styles %}
 
@@ -27,7 +29,7 @@
     <link rel="apple-touch-icon-precomposed" href="../assets/ico/apple-touch-icon-57-precomposed.png">
   </head>
 
-  <body>
+  <body class="{% block bodyclass %}{% endblock %}">
 
 
     <div class="navbar navbar-fixed-top">
@@ -44,8 +46,9 @@
 		  </a>
           <div class="nav-collapse">
             <ul class="nav">
-              <!--<li><a href="/">Home</a></li>-->
-              <li><a id="navlink-about" href="#about">About</a></li>
+			  <li><a href="/">Home</a></li>
+              <li><a href="/trees/about-the-forest-scenario-planner" title="About the Forest Scenario Planner">About</a></li>
+              <!--<li><a id="navlink-about" href="#about">About</a></li>-->
               <!--<li><a id="navlink-help" href="#help">Help</a></li>-->
             </ul>
             {% if user.is_authenticated %}
@@ -153,11 +156,14 @@
 
     <!-- Scripts -->
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/jquery.js"></script>
+	{% if user.is_authenticated %}
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap.2-32.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/json2.js"></script> <!-- for the benefit of older IEs -->
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+	{% endif %}
+
     {% block scripts %}{% endblock scripts %}
     <script>
         $('#navlink-about, .home-about').click( function() {

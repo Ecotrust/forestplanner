@@ -61,6 +61,9 @@ body {
     padding-top: 110px; /* 110px to make the container go all the way to the bottom of the topbar + tabs */
     background-color: #E4E4E4;
 }
+	body.no-auth, body.about-page{
+		padding-top: 60px;
+	}
 .label {
     font-size: 13px;
     line-height: 18px;

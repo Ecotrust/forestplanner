@@ -1,0 +1,253 @@
+{% extends 'common/base.html' %}
+{% load url from future %}
+{% block bodyclass %}about-page{% endblock %}
+
+
+{% block content %}
+					
+
+<div class="row-fluid">
+  <aside class="span3">
+
+    <nav aria-role="navigation" id="sidenav">
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="#supporters">Supporters</a></li>
+        <li><a href="#disclaimer">Disclaimer</a></li>
+        <li><a href="#privacy">Privacy policy</a></li>
+        <li><a href="#copyright">Copyright</a></li>
+      </ul>
+
+      <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
+        <!--<i class="icon-user icon-white"></i> -->
+        Get Started</a>	
+    </nav>
+
+  </aside>
+
+  <section class="span9" id="main" aria-role="main">
+    <section id="about">
+
+      <h1>About the Forest Scenario Planner</h1>
+      <p>
+        Ecotrust has created the Forest Scenario Planner to give all Oregon and Washington 
+        land managers forest managment scenario planning capacity. You will be able to <em>visualize 
+          alternative management scenarios</em> on your lands and receive immediate feedback on 
+        <em>how decisions might pay off</em> in terms of timber harvests and financial returns, as well as
+        <em>public benefits</em> like carbon storage and ecosystem services.
+      </p>
+
+      <hr>
+
+      <h3>Using the Scenario Planning Tool</h3>
+      <ul>
+        <li>Identify their properties on an interactive map </li>
+        <li>Use preloaded Forest Inventory Analysis data (FIA) or upload their own cruise data.</li>
+        <li>Designate forest management areas or stands</li>
+        <li>Define management prescriptions</li>
+        <li>Specify timber and carbon market prices</li>
+      </ul>
+
+      <h3>Scenario Planning Tool Outputs:</h3>
+      <ul>
+        <li>Graphs of timber volume and financial returns generated over time</li>
+        <li>Optimized harvest schedule</li>
+        <li>Maps of standing timber volume, species and age class over time</li>
+        <li>Visualize potential to realize carbon credits and ecostytem-based incentives over time</li>
+      </ul>
+
+      <h3>Additional Features</h3>
+      <ul>
+        <li>Secure and confidentially store and manage data and scenario runs</li>
+        <li>Share scenarios between collaborators to explore collaborative decision making among forest landowners and managers</li>
+      </ul>
+            
+    </section> <!-- /#about -->
+
+    <section id="contact">
+      <h1>Contact Us</h1>
+      <p>Initial contact content</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.</p>
+     
+    </section> <!-- #contact -->
+
+    <section id="supporters">
+      <h1>Supporters</h1>
+      <p>Initial supporters content</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.</p>
+      <div class="row-fluid">
+
+        <ul class="thumbnails">
+          <li class="span4">
+            <figure>
+              <img src="http://placehold.it/260x120" />
+              <figcaption>
+                <h3>Supporter Name</h3>
+                <p>A few words about our sponsor could be very long. Duis aute irure dolor in reprehenderit in voluptate
+                  velit esse cillum dolore eu fugiat nulla pariatur.  Excepteur sint occaecat cupidatat non proident, sunt
+                  in culpa qui officia deserunt mollit anim id est laborum.</p>
+              </figcatption>
+            </figure>
+          </li>
+
+          <li class="span4">
+            <figure class="">
+              <img src="http://placehold.it/260x120" />
+              <figcaption>
+                A few words about our sponsor...
+              </figcatption>
+            </figure>
+          </li>
+
+          <li class="span4">
+            <figure>
+              <img src="http://placehold.it/260x120" />
+              <figcaption>
+                A few words about our sponsor...
+              </figcatption>
+            </figure>
+          </li>
+        </ul>
+
+      </div>
+    
+    </section> <!-- /#supporters -->
+
+    <section id="disclaimer">
+      <h1>Disclaimer</h1>
+      <p>Initial disclaimer content</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.</p>
+    
+    </section> <!-- /#disclaimer -->
+
+    <section id="privacy">
+      <h1>Privacy Policy</h1>
+      <p>Initial privacy content</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.</p>
+    
+    </section> <!-- /#privacy -->
+
+    <section id="copyright">
+      <h1>Copyright</h1>
+      <p>Initial copyright content</p>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore
+      magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
+      consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+      Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est
+      laborum.</p>
+    
+    </section> <!-- /#copyright -->
+
+  </section> <!-- /#main -->
+
+</div>
+
+<footer id="footer"> </footer>
+
+{% endblock content %}
+
+{% block styles %}
+<style type="text/css">
+    body.about-page{
+      padding-top: 60px;
+    }
+    .about-page section section{
+      padding-top: 40px;
+    }
+    .about-page section+section{
+      padding-top: 80px;
+    }
+    #sidenav {
+      position: fixed;
+      top: 100px;
+      left: 20px;
+    }
+    #footer{
+      height: 400px;
+    }
+</style>
+
+{% endblock styles %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#sidenav a').on('click', sidebarNavHandler);
+
+        // make bookmarks and the side nav work niceynice.
+        if(window.location.hash != ""){
+          $('#sidenav').find('[href='+window.location.hash+']').closest('li').addClass('active');
+        } else {
+          $('#sidenav').find('li').eq('0').addClass('active');
+        }
+    });
+
+    function sidebarNavHandler ( evt ){
+        var $t = $(evt.target),
+            href = $t.attr('href'),
+            $target = $(href),
+            position = $target.offset().top,
+            $nav = $('#sidenav');
+
+        // 'active' hocus pocos 
+        $nav.find('.active').removeClass('active');
+        $t.closest('li').addClass('active');
+
+        
+        // prevent the occasional pre animation jump 
+        evt.preventDefault();
+
+        // deal with the fixed position header and the first container getting truncated
+        if ( href == "#about"){
+          position = position - 150;
+        }
+
+        // scroll to the container
+        jQuery('html, body').animate({
+          scrollTop: position
+        }, { 
+          duration: 1500, 
+          easing: "easeInOutQuint",
+          complete: function() {
+            // since we are preventing default
+            window.location.hash = href;
+          }});
+    }
+
+
+    // https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
+    // we only need the one
+    jQuery.extend( jQuery.easing, {
+      easeInOutQuint: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+        return c/2*((t-=2)*t*t*t*t + 2) + b;
+      }
+    });
+
+</script>
+{% if user.is_authenticated %}
+
+
+{% else %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
+
+{% endif %}
+
+{% endblock scripts %}
