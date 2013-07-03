@@ -1221,8 +1221,8 @@ class TreeliveSummary(models.Model):
 
     @property
     def treelist(self):
-        return [self.fia_forest_type_name, self.calc_dbh_class - 1,
-                self.calc_dbh_class + 1, self.sumoftpa]
+        return [self.fia_forest_type_name, int(self.calc_dbh_class - 1),
+                int(self.calc_dbh_class + 1), self.sumoftpa]
 
     def __unicode__(self):
         return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (

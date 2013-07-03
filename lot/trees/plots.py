@@ -8,7 +8,7 @@ from django.core.cache import cache
 from madrona.common.utils import get_logger
 logger = get_logger()
 
-VERBOSE = True
+VERBOSE = False
 
 def dictfetchall(cursor, classname=None):
     """Returns all rows from a cursor as a dict
