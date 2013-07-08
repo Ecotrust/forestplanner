@@ -52,6 +52,14 @@ Vagrant::Config.run do |config|
     #   python setup.py develop
   end
 
+  if File.directory?("../cost_model")
+    config.vm.share_folder "v-cost-model", "/usr/local/apps/cost_model", "../cost_model"
+  end
+
+  if File.directory?("../harvest-scheduler")
+    config.vm.share_folder "v-harvest-scheduler", "/usr/local/apps/harvest-scheduler", "../harvest-scheduler"
+  end
+
   # Enable provisioning with Puppet stand alone.  Puppet manifests
   # are contained in a directory path relative to this Vagrantfile.
   # You will need to create the manifests directory and a manifest in
