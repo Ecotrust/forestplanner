@@ -13,10 +13,10 @@ from trees.models import ConditionVariantLookup
 from trees.models import IdbSummary
 
 fh = open("matches.csv", 'a')
-fh.write(','.join(['original_condition', 'variant', 'matched_condition', 'certainty']))
+#fh.write(','.join(['original_condition', 'variant', 'matched_condition', 'certainty']))
 fh.write('\n')
 
-for cvl in list(ConditionVariantLookup.objects.filter(cond_id__gt=27136)):
+for cvl in list(ConditionVariantLookup.objects.filter(cond_id__gt=31662)):
 
     cond = cvl.cond_id
     variant = cvl.variant_code
