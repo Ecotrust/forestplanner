@@ -547,6 +547,7 @@ a.btn .icon-arrow-right{
 		max-width: 67%;
 		margin-top: -4px;
 		overflow: hidden;
+		padding-right: 3px; /* firefox likes to trim letters */
 		position: relative;
 		text-overflow: ellipsis;
 		vertical-align: middle;
@@ -638,6 +639,26 @@ a.btn .icon-arrow-right{
 		margin-top: 1em; /* not working */
 	}
 
+.info-help {}
+	.info-help strong{
+		font-weight: normal;
+	}
+	.info-help.opened strong{
+		font-weight: bold;
+	}
+	.info-help .read-more{
+		cursor: pointer;
+		font-style: italic;
+		opacity: .7;
+	}
+		.info-help .read-more:hover{
+			opacity: 1;
+		}
+	.info-help.opened .read-more {
+		display: block;
+	}
+
+/* forms */
 input.error{
 	border-color: #cc0000;
 }
