@@ -369,7 +369,9 @@ function standsViewModel() {
         if (i > 90) { clearInterval(timer);}
     }, 100);
     self.showNoStandHelp(false);
+	console.info('loadStands property', property);
     self.property = property;
+	console.info('loadStands self.property', self.property);
 
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());

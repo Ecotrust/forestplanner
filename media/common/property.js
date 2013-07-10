@@ -239,19 +239,28 @@ function propertiesViewModel () {
         app.modifyFeature.deactivate();
         app.property_layer.removeFeatures(self.selectedProperty().feature);
         self.propertyList.remove(self.selectedProperty());
+
         if (self.propertyList().length) {
+          app.selectedPropertyName("");
+          app.selectedPropertyUID("");
           self.selectProperty(self.propertyList()[0]);
+          window.location.hash = "#properties";
          //$("#properties-list tbody").find('tr').first().not(':only-child').addClass('active');
         } else {
           self.showDetailPanel(false);
           self.showNoPropertiesHelp(true);
+          app.selectedPropertyName("");
+          app.selectedPropertyUID("");
+          window.location.hash = "#properties";
         }
+
+        map.updateSize();    
       }
     });
   };
 
   self.closeDialog = function (self, event) {
-     $(event.target).closest(".modal").modal("hide");
+    $(event.target).closest(".modal").modal("hide");
   };
 
   self.cancelEdit = function (self, event) {
@@ -298,14 +307,25 @@ function propertiesViewModel () {
     // initialize stand manager
 
 	// it's possible to get here via tab click instead of from a property detail button
+	if(self.propertyList()[0] == undefined){
+		alert('Please create a property first!');
+		window.location.hash = "#properties";
+		return;
+	}
 	if(self.selectedProperty() == undefined){
 		self.selectedProperty(self.propertyList()[0]);  
 	}
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
     } else {
-      app.stands.viewModel = new standsViewModel();
-      app.stands.viewModel.initialize(self.selectedProperty());
+		if ( !self.selectedProperty() ){
+			alert('Please create a property first!');
+			window.location.hash = "#properties";
+			return;
+		} else{
+		  app.stands.viewModel = new standsViewModel();
+		  app.stands.viewModel.initialize(self.selectedProperty());
+		}
     }
 	
 	//for global tabs
@@ -317,6 +337,11 @@ function propertiesViewModel () {
   };
   
   self.manageScenarios = function (self, event) {
+	  if(self.propertyList()[0] == undefined){
+		alert('Please create a property first!');
+		window.location.hash = "#properties";
+		return;
+	}
     if (app.scenarios.viewModel) {
        app.scenarios.viewModel.reloadScenarios(self.selectedProperty());
     } else {
@@ -340,7 +365,6 @@ function propertiesViewModel () {
   // initialize properties and vm
   // return request object to apply bindings when done
   self.init = function () {
-
     return $.when(self.loadPropertiesFromServer).then(function(data){
 
       self.showPropertyPanels(true);
@@ -369,7 +393,6 @@ function propertiesViewModel () {
           var featureViewModel = ko.mapping.fromJS(feature.feature.data);
           // save a reference to the feature
           featureViewModel.feature = feature.feature;
-          
           // add it to the viewmodel
           self.propertyList.unshift(featureViewModel);
         },

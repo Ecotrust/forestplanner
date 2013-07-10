@@ -240,20 +240,17 @@ function scenarioViewModel(options) {
 
     self.loadScenarios = function(property) {
         self.property = property;
+		
+		// we need a property. 
+		// Better if we showed something about scenarios but for now, this is better than a dead app!
+		if (self.property === undefined) {
+			alert('Please create a property first!');
+			window.location.hash = "#properties";
+			return;
+		} else{
+			console.log('loadScenarios else', property);
 
-        // update breadcrumbs
-        app.breadCrumbs.breadcrumbs.removeAll();
-        app.breadCrumbs.breadcrumbs.push({
-            name: 'Properties',
-            url: '/properties',
-            action: self.cancelManageScenarios
-        });
-        app.breadCrumbs.breadcrumbs.push({
-            url: 'scenarios/' + property.id(),
-            name: property.name() + ' Scenarios',
-            action: null
-        });
-        //app.updateUrl();
+		}
 
         self.showScenarioList(true);
         self.toggleScenarioForm(false);
@@ -358,6 +355,7 @@ function scenarioViewModel(options) {
 
 
     self.addScenarioStart = function(edit_mode) {
+
         self.showScenarioList(false);
         self.toggleScenarioForm(true);
 

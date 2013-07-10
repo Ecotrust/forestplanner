@@ -48,7 +48,7 @@ app.router = function () {
 		//TODO should probably account for about and help
 		if ( $.inArray(loc[0], viewList) < 0) {
 			window.location.hash = "#properties";
-			app.log('Rerouting to #properties');
+			//app.log('Rerouting to #properties');
 		} else {
 			app.hashChange();
 		}
