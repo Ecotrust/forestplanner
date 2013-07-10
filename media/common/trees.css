@@ -640,6 +640,9 @@ a.btn .icon-arrow-right{
 	}
 
 .info-help {}
+	.info-help.opened span{
+		display: block !important; /* using jquery toggle() sets it to display inline */
+	}
 	.info-help strong{
 		font-weight: normal;
 	}

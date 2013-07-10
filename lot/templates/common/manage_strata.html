@@ -48,7 +48,7 @@
       <!--<h2> Define Vegetation Types </h2>-->
       <p class="info-help info text-info well well-small clearfix">
         <i class="icon-info-sign"></i> 
-				<strong>A stand is your primary management unit to which you would apply on the ground prescriptions.  </strong>
+				<strong>A vegetation type defines the different forest characteristics across your property. </strong>
 				<span style="display: none">
 					Vegetation types are used to estimate growth and regeneration after.  Vegetation types are assigned to stands
 					&ndash; a single vegetation type can be applied to multiple stands but no single stand can have more than one
@@ -563,8 +563,8 @@
 							map.zoomToExtent(app.property_layer.getDataExtent());
 
 							$('.info-help').find('strong')
-							.next('span').hide()
-							.after('<span class="read-more"> Read More...</span>');
+								.next('span').hide()
+								.after('<span class="read-more"> Read More...</span>');
 
 							$('.info-help .read-more').on('click', function () {
 								var $t = $(this);
