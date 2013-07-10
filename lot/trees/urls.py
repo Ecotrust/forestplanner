@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 from trees.views import *
 from django.conf import settings
-
+from django.views.generic.simple import redirect_to
 
 urlpatterns = patterns(
     '',
@@ -11,6 +11,8 @@ urlpatterns = patterns(
         stand_list_nn, name='trees-standlist'),
     url(r'^stands/$',
         manage_stands, name='trees-manage_stands'),
+    url(r'^strata/$',
+        redirect_to, {'url': '/'}),
     url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
     url(r'^scenario/(?P<property_uid>\w+)$',

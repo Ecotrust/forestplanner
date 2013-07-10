@@ -247,10 +247,7 @@ function scenarioViewModel(options) {
 			alert('Please create a property first!');
 			window.location.hash = "#properties";
 			return;
-		} else{
-			console.log('loadScenarios else', property);
-
-		}
+		} 
 
         self.showScenarioList(true);
         self.toggleScenarioForm(false);
