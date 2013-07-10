@@ -703,7 +703,11 @@ label.alert{
 .btn-large [class^="icon-"], .btn-large [class*=" icon-"] {
     margin-top: 8px;
 }
-
+.alert.alert-danger > a {
+    color: #E9E9FF;
+    text-decoration: underline;
+    text-shadow: 0 0;
+}
 .no-overflow {
     overflow-x: visible;
     overflow-y: visible;

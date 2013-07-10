@@ -411,7 +411,10 @@
                                         <div data-bind="visible: !fields.is_running" > 
                                             <div class="alert alert-danger" data-bind="visible: !fields.property_is_runnable" >
                                                 <i class="icon-exclamation-sign icon-white"></i>
-                                               All stands must be assigned a vegetation type to proceed.
+                                                All stands must be 
+                                                <a data-bind="click: $parent.manageVegetationTypes,
+                                                  clickBubble: false">
+                                                  assigned a vegetation type</a> to proceed.
                                             </div>
                                             <div data-bind="visible: fields.property_is_runnable">
                                                 <div class="alert" data-bind="visible: !fields.is_runnable" > 

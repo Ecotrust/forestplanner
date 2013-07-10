@@ -285,16 +285,26 @@ function scenarioViewModel(options) {
         timemapInitialized = false; 
     };
 
-    self.toggleFeature = function(f) {
+    self.toggleFeature = function(f, e) {
         var removed = self.selectedFeatures.remove(f);
         if (removed.length === 0) {
             // add it
             self.selectedFeatures.push(f);
             $('#select-scenario2 option:last-child').attr('selected', 'selected');
         }
+
         refreshCharts();
         refreshTimeMap(true, true);
     };
+
+	// separate function because building the href dynamicaly doesn't allow the cancelling of the dom bubbling
+	self.manageVegetationTypes = function (feature, event) {
+		if ( app.selectedPropertyUID ) {
+			window.location = "/trees/strata/" + app.selectedPropertyUID();
+		} else {
+			return false; 
+		}
+	};
 
     self.showDeleteDialog = function(f) {
         self.activeScenario(f);
