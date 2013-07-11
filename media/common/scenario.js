@@ -240,20 +240,14 @@ function scenarioViewModel(options) {
 
     self.loadScenarios = function(property) {
         self.property = property;
-
-        // update breadcrumbs
-        app.breadCrumbs.breadcrumbs.removeAll();
-        app.breadCrumbs.breadcrumbs.push({
-            name: 'Properties',
-            url: '/properties',
-            action: self.cancelManageScenarios
-        });
-        app.breadCrumbs.breadcrumbs.push({
-            url: 'scenarios/' + property.id(),
-            name: property.name() + ' Scenarios',
-            action: null
-        });
-        //app.updateUrl();
+		
+		// we need a property. 
+		// Better if we showed something about scenarios but for now, this is better than a dead app!
+		if (self.property === undefined) {
+			alert('Please create a property first!');
+			window.location.hash = "#properties";
+			return;
+		} 
 
         self.showScenarioList(true);
         self.toggleScenarioForm(false);
@@ -291,16 +285,26 @@ function scenarioViewModel(options) {
         timemapInitialized = false; 
     };
 
-    self.toggleFeature = function(f) {
+    self.toggleFeature = function(f, e) {
         var removed = self.selectedFeatures.remove(f);
         if (removed.length === 0) {
             // add it
             self.selectedFeatures.push(f);
             $('#select-scenario2 option:last-child').attr('selected', 'selected');
         }
+
         refreshCharts();
         refreshTimeMap(true, true);
     };
+
+	// separate function because building the href dynamicaly doesn't allow the cancelling of the dom bubbling
+	self.manageVegetationTypes = function (feature, event) {
+		if ( app.selectedPropertyUID ) {
+			window.location = "/trees/strata/" + app.selectedPropertyUID();
+		} else {
+			return false; 
+		}
+	};
 
     self.showDeleteDialog = function(f) {
         self.activeScenario(f);
@@ -358,6 +362,7 @@ function scenarioViewModel(options) {
 
 
     self.addScenarioStart = function(edit_mode) {
+
         self.showScenarioList(false);
         self.toggleScenarioForm(true);
 

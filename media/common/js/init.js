@@ -27,7 +27,15 @@ $(document).ready(function () {
 
 	app.router();
 
+	app.moreHelp();
+
 	window.onhashchange = app.hashChange;
+	
+	// temp hack. django switch in template is always adding this.
+	//
+	if (authenticated) {
+		$('body').removeClass('no-auth');
+	}
 
 });
 
@@ -40,7 +48,7 @@ app.router = function () {
 		//TODO should probably account for about and help
 		if ( $.inArray(loc[0], viewList) < 0) {
 			window.location.hash = "#properties";
-			app.log('Rerouting to #properties');
+			//app.log('Rerouting to #properties');
 		} else {
 			app.hashChange();
 		}
@@ -65,6 +73,27 @@ app.deferredClickHandler = function () {
 //needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
 app.selectedPropertyName = ko.observable("");
 app.selectedPropertyUID = ko.observable("");
+
+app.moreHelp = function () {
+
+	$('.info-help').find('strong')
+		.next('span').hide()
+		.after('<span class="read-more"> Read More...</span>');
+
+	$('body').on('click', function (e) {
+		var $target = $(e.target);
+		if ($target.is('.read-more')) {
+			$target.prev('span').toggle();
+			$target.closest('.info-help').toggleClass('opened');
+			if ($target.prev('span').is(':visible')) {
+				$target.text(' Read Less');
+			} else {
+				$target.text(' Read More...');
+			}
+			e.stopImmediatePropagation();
+		}
+	});
+};
 
 app.onResize = function () {
     var height = $(window).height(),

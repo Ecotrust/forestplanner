@@ -46,8 +46,18 @@
 
 		<div class="span5">
       <!--<h2> Define Vegetation Types </h2>-->
-      <p class="info text-info well well-small clearfix">
-        <i class="icon-info-sign"></i> Vegetation Types are rad.
+      <p class="info-help info text-info well well-small clearfix">
+        <i class="icon-info-sign"></i> 
+				<strong>A vegetation type defines the different forest characteristics across your property. </strong>
+				<span style="display: none">
+					Vegetation types are used to estimate growth and regeneration after.  Vegetation types are assigned to stands
+					&ndash; a single vegetation type can be applied to multiple stands but no single stand can have more than one
+					vegetation type. Vegetation types are defined by entering species size class information based on knowledge of
+					your property or pre-existing stand tables (from any timber cruise that may have been conducted).  Once a
+					vegetation type has been defined it is applied to a stand or multiple stands by selecting the stand on the map
+					(shift select allows you to select multiple stands) and then clicking the &ldquo;apply&rdquo; button
+					associated with the vegetation type.
+				</span>
       </p>
       
       <div class="row-fluid btn-bar clearfix">
@@ -117,7 +127,7 @@
 
 				<!-- property has no strata -->
 				<div data-bind="visible: !strataList().length && ! activeStratum()" style="display: none">
-						You have no stand groups.
+					You have not yet defined any vegetation types. You can <a data-bind="click: createStratum">add one now</a>.
 				</div>
 
 			</div><!-- /.well -->
@@ -552,6 +562,21 @@
 							map.updateSize();    
 							map.zoomToExtent(app.property_layer.getDataExtent());
 
+							$('.info-help').find('strong')
+								.next('span').hide()
+								.after('<span class="read-more"> Read More...</span>');
+
+							$('.info-help .read-more').on('click', function () {
+								var $t = $(this);
+								console.log('$t clicked', $t);
+								$t.prev('span').toggle();
+								$t.closest('.info-help').toggleClass('opened');
+								if ($t.prev('span').is(':visible')) {
+									$t.text(' Read Less');
+								} else {
+									$t.text(' Read More...');
+								}
+							});
 		
 
             // reenable click and drag in vectors

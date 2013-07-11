@@ -22,44 +22,198 @@
     </div>
     {% endif %}
 
-    <div class="well">
+    <div class="well clearfix">
         <h4>Option 2</h4>
         <p>
              If you've set up Forest Planner account with a password, sign in here.
         </p>
-	<form class="form-horizontal login" method="POST" action="/auth/login/">
+        <form class="form-horizontal login" method="POST" action="/auth/login/">
             
-              <div class="control-group">
-                <label class="control-label" for="login">Login</label>
-                <div class="controls">
-                    <input type="text" class="input-medium" placeholder="Username or e-mail" name="login" id="id_login">
-                </div>
-              </div>
-            
-              <div class="control-group">
-                <label class="control-label" for="password">Password</label>
-                <div class="controls">
-                    <input type="password" class="input-medium" placeholder="Password" name="password" id="id_password">
-                </div>
-              </div>
-            
-              <div class="control-group">
-                <label class="control-label" for="remember">Remember Me</label>
-                <div class="controls">
-                    <input type="checkbox" name="remember" id="id_remember">
-                </div>
-              </div>
+          <div class="control-group">
+            <label class="control-label" for="id_login">Username</label>
+            <div class="controls">
+              <input type="text" class="input-medium" placeholder="Username or e-mail" name="login" id="id_login">
+              <span class="help-inline">Please include your username or email</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="id_password">Password</label>
+            <div class="controls">
+              <input type="password" class="input-medium" placeholder="Password" name="password" id="id_password">
+              <span class="help-inline">Please include your password</span>
+            </div>
+          </div>
+
+          <div class="control-group ">
+            <div class="controls">
+              <label class="checkbox" for="id_remember">
+                <input type="checkbox" name="remember" id="id_remember">
+                Remember Me</label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <div class="controls">
+              <label class="checkbox" for="id_tos">
+                <input type="checkbox" name="tos" id="id_tos"> 
+                I have read and agree to the Forest Scenario Planner's
+                <a href="#tos" id="tos-link">Terms of Service</a>
+              </label>
+              <span class="help-inline">You must agree to our Terms of Service before logging in</span>
+            </div>
+          </div>
+
+          <div id="tos" class="well">
+
+            <h3>Terms of Service</h3>
+
+            <p>The Forest Scenario Planner has been developed by Ecotrust to provide information regarding predicted
+            outcomes from a variety for different forest management practices.  The Forest Scenario Planner incorporates
+            data provided by the user along with data, models, and processes from a variety of private, local, state, and
+            federal agencies and non-governmental organizations.  Ecotrust makes no warranty, nor assumes any legal
+            liability for the accuracy, completeness or usefulness of the information contained in the Forest Scenario
+            Planner.  Ecotrust does not assume responsibility or liability for any direct, indirect or consequential
+            damages from the use of the Forest Scenario Planner.  The user of this application assumes all responsibility
+            and risk for the use of the information for any decision made as a result of this information, available from
+            this server and the Internet in general. The user alone is responsible for the application and interpretation
+            of this information and is responsible for use consistent with an appropriate level of caution.</p>
+   
+            <p>The Forest Scenario Planner is not a substitute for consultation with a qualified forester.  Users are
+            strongly encouraged to develop a written management plan including consultation with a qualified forester
+            before implementing any forest management activities in the field.</p>
+
+          </div>
             
           <div class="control-group">
             <div class="controls">
-              <button type="submit" class="btn">Sign in</button>
+              <button type="submit" id="sign-in-submit" class="btn">Log In</button>
             </div>
           </div>
+
         </form>
+
         <div class="pull-right">
-	    <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
-	    <a href="/auth/password/reset">Forget your info?</a> 
+          <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
+          <a href="/auth/password/reset">Forget your info?</a> 
         </div>
+
     </div>
-{% endblock %}
+{% endblock content %}
+
+
+{% block scripts %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
+
+
+<script>
+	/* homepage */
+		$(document).ready(function(){
+
+      $('#tos').hide();
+
+      if($.backstretch !== undefined){
+				 $.backstretch([
+					 "/media/img/forest_photos/forest-clouds-866-full-sat.jpg",
+					 "/media/img/forest_photos/walkers-205-full-sat.jpg",
+					 "/media/img/forest_photos/Nursery-log-1-full-sat.jpg",
+					 // "/media/img/forest_photos/hills-0038-full-sat.jpg",
+           // by John David Nelson 
+           // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
+					 "/media/img/forest_photos/pine-jondavidnelson.jpg"
+					], {duration: 6000, fade: 1000});
+      }
+
+        // instead of messing with the base login template
+        $('.offset3').removeClass('well');
+
+        $('#tos-link').click(function(){
+          $('#tos').slideToggle();
+        });
+
+        /*
+        $('#id_tos').change(function() {
+            if ( $(this).is(':checked') ) {
+                $('#sign-in-submit').removeAttr('disabled');
+            } else {
+                $('#sign-in-submit').attr('disabled', 'disabled');
+            }
+        });
+        */
+
+        $('.login').submit(validateLogin);
+
+    });
+
+function validateLogin(){
+    var $els = $('#id_tos, #id_login, #id_password'),
+        invalid = [],
+        pos;
+
+    $.each($els, function(i, el){
+      if ( $(el).is('#id_tos') ) {
+        if ( !el.checked ) {
+          $(el).closest('.control-group').addClass('error');
+          invalid.push(el);
+        } else{
+          $(el).closest('.control-group').removeClass('error');
+        }
+      } else if ($(el).val() === ""){ 
+        $(el).closest('.control-group').addClass('error');
+        invalid.push(el);
+      } else {
+        $(el).closest('.control-group').removeClass('error');
+      }
+    });
+
+    if(invalid.length){
+      return false;
+    } 
+}
+
+
+
+
+</script>
+{% endblock scripts %}
+
+{% block styles %}
+<style type="text/css">
+    .well{
+      background-color: rgba(254, 254, 254, 0.95);
+    }
+    h2{
+      color: #fff;
+    }
+    #tos{
+      /* padding: 5px; */
+    }
+    .socialaccount_providers {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+      .socialaccount_providers a{
+        background-color: transparent; 
+        background-image: url('/media/img/lot-sprite.png');
+        background-position: 0 0; 
+        background-repeat: no-repeat;
+        display: block;
+        height: 29px;
+        margin-bottom: 1em;
+        text-indent: -9999em;
+        width: 162px;
+      }
+      .socialaccount_providers .google{
+        background-position: 0 -40px;
+      }
+
+    .form-horizontal .help-inline {
+      display: none;
+    }
+    .form-horizontal .error .help-inline{
+      display: inline-block;
+    }
+</style>
+{% endblock styles %}
 

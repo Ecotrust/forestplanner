@@ -7,7 +7,6 @@
 
 {% block content %}
 					
-
 					<!-- Homepage is only for visitors not logged in.  -->
 					{% if not user.is_authenticated %}
           
@@ -111,7 +110,8 @@
 						
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
 
-                <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0"> 
+                <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0 &&
+                  showNoPropertiesHelp"> 
                     <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
                     <p><em>You currently have no properties under management.</em></p>
@@ -130,9 +130,13 @@
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
 
                   <!--<h2> My Properties </h2>-->
-
-                  <p class="info text-info well well-small clearfix">
-                    <i class="icon-info-sign"></i> Properties are rad.
+                  <p class="info-help info text-info well well-small clearfix">
+                    <i class="icon-info-sign"></i> 
+                    <strong>A property is the unit of analysis by which scenarios are developed.  </strong>
+                    <span>You may have one or more properties.  Stands and Vegetation types must be defined for a
+                      property before you are able to develop different management scenarios.  If you have a
+                      non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as
+                      many properties as you want however scenarios can only be run on one property at a time.</span>
                   </p>
 
                   <div class="row-fluid btn-bar clearfix">
@@ -345,8 +349,22 @@
                 </div>
 				-->
                 <!--<h2>Evaluate Scenarios</h2>-->
-                <p class="info text-info well well-small clearfix">
-                  <i class="icon-info-sign"></i> Scenarios are rad.
+                <p class="info-help info text-info well well-small clearfix">
+                  <i class="icon-info-sign"></i> 
+                  <strong>Scenarios represent a plausible future outcome given a set of defined management activities.</strong>
+                  <span>
+                    You can create and compare as many scenarios as you like.  Scenarios are made up of specific
+                    management activities called &ldquo;prescriptions&rdquo; applied to individual stands.  When
+                    creating and selecting prescriptions for specific locations (stands) you should consider management
+                    objectives, site conditions, cost constraints (e.g. whether there are existing roads) and any other
+                    spatial constraints (e.g. riparian buffer regulations, avoiding steep and hazardous slopes or
+                    conservation easements).  You must define specific management activities or
+                    &ldquo;prescriptions&rdquo; that can then be applied to one or more stands (in the same manner that
+                    you apply vegetation types to stands).  Once you create a prescription for one scenario, the
+                    prescription is available for use in other scenarios.  Once you have created a scenario, it will
+                    show up in the list on the left hand side of the page.  To view and compare outcomes for scenarios,
+                    merely check the box next to the scenario name.  
+                  </span>
                 </p>
 
                 <div class="well">
@@ -393,7 +411,10 @@
                                         <div data-bind="visible: !fields.is_running" > 
                                             <div class="alert alert-danger" data-bind="visible: !fields.property_is_runnable" >
                                                 <i class="icon-exclamation-sign icon-white"></i>
-                                               All stands must be assigned a vegetation type to proceed.
+                                                All stands must be 
+                                                <a data-bind="click: $parent.manageVegetationTypes,
+                                                  clickBubble: false">
+                                                  assigned a vegetation type</a> to proceed.
                                             </div>
                                             <div data-bind="visible: fields.property_is_runnable">
                                                 <div class="alert" data-bind="visible: !fields.is_runnable" > 
@@ -445,8 +466,18 @@
                 <!--<h2>Stand Boundaries</h2>-->
                 <div data-bind="visible: showStandList">
 
-                  <p class="info text-info well well-small">
-                    <i class="icon-info-sign"></i> Select a stand on the map to see or edit the stand's details.
+                  <p class="info-help info text-info well well-small">
+                    <i class="icon-info-sign"></i> 
+                    <!-- Select a stand on the map to see or edit the stand's details. -->
+
+                  <strong>A stand is your primary management unit to which you would apply on the ground prescriptions.  </strong>
+                  <span>Generally you will digitize stands based on a combination of vegetation characteristics,
+                    regulatory constraints, infrastructure (e.g. roads or landing sites) and harvest considerations such
+                    as minimum or maximum size of a harvest unit.  Digitize a stand for all forested areas on your
+                    property including recent clear cuts.  Non-forested areas (such as rocky outcrops, farm or pasture
+                    land or major roads) should not be digitized as stands.   Each stand must be digitized in its
+                    entirety; in other words, you must trace the boundary of pre-existing, adjacent stands when adding
+                    new stands.</span>
                   </p>
 
                   <div class="btn-bar clearfix">
@@ -457,7 +488,7 @@
                         data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
                         <i class="icon-repeat"></i> Define Stand Groups</a>
                       -->
-                    <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart">
+                    <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart, visible: standList().length">
                       <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                   </div>
 
@@ -804,7 +835,6 @@
 					 "/media/img/forest_photos/forest-clouds-866-full-sat.jpg",
 					 "/media/img/forest_photos/walkers-205-full-sat.jpg",
 					 "/media/img/forest_photos/Nursery-log-1-full-sat.jpg",
-					 // "/media/img/forest_photos/hills-0038-full-sat.jpg",
            // by John David Nelson 
            // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
 					 "/media/img/forest_photos/pine-jondavidnelson.jpg"
