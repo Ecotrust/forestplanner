@@ -640,10 +640,10 @@
                         <li>
                             <a href="#scenario-maps-tab-content" id="scenario-maps-tab" data-toggle="tab">Time-series Maps</a>
                         </li>
-                        <!--
                         <li>
-                            <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Cash-flow Analysis</a>
+                            <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Timber Costs/Revenue</a>
                         </li>
+                        <!--
                         <li>
                             <a href="#scenario-market-tab-content" id="scenario-market-tab" data-toggle="tab">Market Opportunities</a>
                         </li>
@@ -651,11 +651,16 @@
                     </ul>
                     
                     <div class="tab-content no-overflow">
-                        <!--
                         <div class="tab-pane fade" id="scenario-cash-tab-content">
-                            <h4> Cash Flow Analysis </h4>
-                            <div style="height: 200px;"><p class="muted">Coming soon...</p></div>
+                            <style>
+                              #cash-chart1 {
+                                height: 400px;
+                                width: 500px;
+                              }
+                            </style>
+                            <div id="cash-chart1"></div>
                         </div>
+                        <!--
 
                         <div class="tab-pane fade" id="scenario-market-tab-content">
                             <h4> Market Opportunities </h4>
@@ -770,6 +775,20 @@
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+
+
+<link href="http://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.min.css" rel="stylesheet" type="text/css"></link>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/jquery.jqplot.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.dateAxisRenderer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasTextRenderer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.barRenderer.min.js"></script>
+<script type="text/javascript" src="http://cdn.jsdelivr.net/jqplot/1.0.8/plugins/jqplot.highlighter.js"></script>
+
+
+
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
@@ -852,5 +871,90 @@
 
 </script>
 {% endif %}
+
+
+
+<script>
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+var make_chart = function(){
+
+    var heli = [-0.0, -0.0, -0.0, -0.0, -49157.0, -21592.0, -107744.0, -12981.0, -10320.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -15980.0, -0.0, -0.0, -0.0, -0.0] ;
+    var cable = [-0.0, -141242.0, -152875.0, -0.0, -0.0, -0.0, -0.0, -64290.0, -141968.0, -19882.0, -149182.0, -136889.0, -151957.0, -14663.0, -80961.0, -52539.0, -85341.0, -12559.0, -62926.0, -65398.0] ;
+    var ground = [-0.0, -0.0, -0.0, -0.0, -1533.0, -0.0, -0.0, -7990.0, -1525.0, -0.0, -0.0, -17670.0, -1132.0, -0.0, -0.0, -8501.0, -955.0, -0.0, -0.0, -5316.0] ;
+    var haul = [-0.0, -2064.0, -1032.0, -0.0, -5516.0, -2321.0, -11268.0, -10506.0, -17159.0, -2579.0, -23051.0, -24713.0, -23026.0, -2149.0, -12731.0, -12399.0, -13712.0, -1891.0, -10322.0, -9817.0] ;
+    var years = [2013, 2018, 2023, 2028, 2033, 2038, 2043, 2048, 2053, 2058, 2063, 2068, 2073, 2078, 2083, 2088, 2093, 2098, 2103, 2108] ;
+    var revenue = [0.0, 151119.00135682218, 202940.31882041722, 0.0, 73958.71780213497, 26617.055625375597, 134400.7016302686, 128100.24518252583, 155266.69377153495, 28143.253466692706, 225108.01569275412, 199372.21764986034, 153572.74052135315, 17245.574336887723, 102382.06551396813, 109212.064463478, 104798.66954346969, 16743.37352151583, 87347.72519781529, 80698.11790092077] ;
+    var profit = [0.0, 7813.001356822177, 49033.31882041722, 0.0, 17752.71780213497, 2704.0556253755967, 15388.701630268595, 32333.245182525832, -15705.306228465051, 5682.253466692706, 52875.015692754125, 20100.217649860337, -22542.259478646854, 433.5743368877229, 8690.065513968133, 19793.064463478004, 4790.6695434696885, 2293.3735215158304, 14099.725197815293, 167.1179009207699] ;
+
+
+  plot1 = $.jqplot('cash-chart1', [haul, cable, ground, heli, revenue, profit], {
+    // Tell the plot to stack the bars.
+    stackSeries: true,
+    seriesColors:['#D95F0E', '#EF3B2C', '#CB181D', '#FB6A4A', '#415DAB', '#000000'],
+    seriesDefaults:{
+      renderer:$.jqplot.BarRenderer,
+      useNegativeColors: false,
+      rendererOptions: {
+        fillToZero: true,
+        highlightMouseOver: false,
+        varyBarColor: true
+      }
+    },
+    series:[
+      {label:'Transportation Costs'},
+      {label:'Cable Harvest Cost'},
+      {label:'Ground Harvest Cost'},
+      {label:'Helicopter Harvest Cost'}, 
+      {label:'Timber Sale Income'},
+      {
+        label:'Net Revenue',
+        renderer:$.jqplot.LineRenderer,
+        disableStack: true
+        // rendererOptions: {fillToZero: false},
+        // xaxis:'x2axis', yaxis:'y2axis'
+      }
+    ],
+    highlighter : {
+      show : true,
+      showMarker: false,
+      tooltip: true,
+      useAxesFormatters: true,
+      tooltipAxes: 'y',
+      bringSeriesToFront: false,
+      //markerRenderer: $.jqplot.MarkerRenderer({shadow:true})
+    },
+    axes: {
+      xaxis: {
+        renderer: $.jqplot.CategoryAxisRenderer,
+        ticks: years
+      },
+      yaxis: {
+        autoscale:true,
+        tickOptions: {formatString: "$%'d"} 
+      }
+    },
+    legend: {
+      show: true,
+      location: 'ne',
+      placement: 'inside'
+    }      
+  });
+};
+
+</script>
+
 
 {% endblock scripts %}
