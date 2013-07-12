@@ -764,30 +764,152 @@ class Scenario(Feature):
         return d
 
     @property
-    @cachemethod("Scenario_%(id)s_cash_metrics")
+    #@cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
-        data = {
-            'heli':
-                [-0.0, -0.0, -0.0, -0.0, -49157.0, -21592.0, -107744.0, -12981.0,
-                 -10320.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -15980.0, -0.0, -0.0,
-                 -0.0, -0.0],
-            'cable':
-                [-0.0, -141242.0, -152875.0, -0.0, -0.0, -0.0, -0.0, -64290.0,
-                 -141968.0, -19882.0, -149182.0, -136889.0, -151957.0, -14663.0,
-                 -80961.0, -52539.0, -85341.0, -12559.0, -62926.0, -65398.0],
-            'ground':
-                [-0.0, -0.0, -0.0, -0.0, -1533.0, -0.0, -0.0, -7990.0, -1525.0,
-                 -0.0, -0.0, -17670.0, -1132.0, -0.0, -0.0, -8501.0, -955.0, -0.0,
-                 -0.0, -5316.0],
-            'haul':
-                [-0.0, -2064.0, -1032.0, -0.0, -5516.0, -2321.0, -11268.0, -10506.0,
-                 -17159.0, -2579.0, -23051.0, -
-                 24713.0, -23026.0, -2149.0, -12731.0,
-                 -12399.0, -13712.0, -1891.0, -10322.0, -9817.0],
-            'years':
-                [2013, 2018, 2023, 2028, 2033, 2038, 2043, 2048, 2053, 2058, 2063,
-                 2068, 2073, 2078, 2083, 2088, 2093, 2098, 2103, 2108],
-        }
+        import operator
+        import defaultdict
+        from forestcost import main_model
+        from forestcost import routing_main
+        from forestcost import landing
+
+        sql = """SELECT
+                    ss.id AS sstand_id,
+                    a.cond, a.rx, a.year, a.offset,
+                    ST_AsText(ss.geometry_final) AS stand_wkt,
+                    ss.acres         AS acres,
+                    a.LG_CF          AS LG_CF,
+                    a.LG_HW          AS LG_HW,
+                    a.LG_TPA         AS LG_TPA,
+                    a.SM_CF          AS SM_CF,
+                    a.SM_HW          AS SM_HW,
+                    a.SM_TPA         AS SM_TPA,
+                    a.CH_CF          AS CH_CF,
+                    a.CH_HW          AS CH_HW,
+                    a.CH_TPA         AS CH_TPA,
+                    stand.elevation  AS elev,
+                    stand.slope      AS slope,
+                    a.CUT_TYPE       AS CUT_TYPE
+                FROM
+                    trees_fvsaggregate a
+                JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                JOIN trees_stand stand
+                  ON ss.stand_id = stand.id
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                WHERE   var = '%s' -- get from current property
+                AND   ss.scenario_id = %d -- get from current scenario
+                ORDER BY a.year, ss.id;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        desc = cursor.description
+        rows = [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+            if None not in row  # remove any nulls; incomplete data can't be used
+        ]
+
+        # TODO get mill layer
+        mill_Lat = 43.1190
+        mill_Lon = -124.4075
+
+        # Landing Coordinates
+        # landing_coords = (-124.35033096, 42.980014393)
+        center = self.input_property.geometry_final.point_on_surface
+        centroid_coords = center.transform(4326, clone=True).tuple
+        landing_coords = landing.landing(centroid_coords=centroid_coords)
+
+        haulDist, haulTime, coord_mill = routing_main.routing(
+            landing_coords, None, mill_Lat, mill_Lon, None
+        )
+
+        annual_total_cost = defaultdict(float)
+        annual_haul_cost = defaultdict(float)
+        annual_heli_harvest_cost = defaultdict(float)
+        annual_ground_harvest_cost = defaultdict(float)
+        annual_cable_harvest_cost = defaultdict(float)
+        used_records = 0
+        skip_noharvest = 0
+        skip_error = 0
+
+        year = None
+        years = []
+        for row in rows:
+            if year != int(row['year']):
+                year = int(row['year'])
+                print "Calculating cost per stand in year", year
+                years.append(year)
+                annual_total_cost[year] += 0
+                annual_haul_cost[year] += 0
+                annual_heli_harvest_cost[year] += 0
+                annual_ground_harvest_cost[year] += 0
+                annual_cable_harvest_cost[year] += 0
+
+            ### Tree Data ###
+            # Cut type code indicating type of harvest implemented.
+            # 0 = no harvest, 1 = pre-commercial thin,
+            # 2 = commercial thin, 3 = regeneration harvest
+            try:
+                cut_type = int(row['cut_type'])
+            except:
+                # no harvest so don't attempt to calculate
+                cut_type = 0
+
+            # PartialCut(clear cut = 0, partial cut = 1)
+            if cut_type == 3:
+                PartialCut = 0
+            elif cut_type in [1, 2]:
+                PartialCut = 1
+            else:
+                # no harvest so don't attempt to calculate
+                skip_noharvest += 1
+                continue
+
+            cost_args = (
+                # stand info
+                row['acres'], row['elev'], row['slope'], row['stand_wkt'],
+                # harvest info
+                row['ch_tpa'], row['ch_cf'],
+                row['sm_tpa'], row['sm_cf'],
+                row['lg_tpa'], row['lg_cf'],
+                row['ch_hw'], row['sm_hw'], row['lg_hw'],
+                PartialCut,
+                # routing info
+                landing_coords, haulDist, haulTime, coord_mill
+            )
+
+            try:
+                result = main_model.cost_func(*cost_args)
+                annual_haul_cost[year] += result['total_haul_cost']
+                annual_total_cost[year] += result['total_cost']
+
+                system = result['harvest_system']
+                if system.startswith("Helicopter"):
+                    annual_heli_harvest_cost[year] += result['total_harvest_cost']
+                elif system.startswith("Ground"):
+                    annual_ground_harvest_cost[year] += result['total_harvest_cost']
+                elif system.startswith("Cable"):
+                    annual_cable_harvest_cost[year] += result['total_harvest_cost']
+                else:
+                    # TODO
+                    raise ValueError
+                used_records += 1
+            except (ZeroDivisionError, ValueError):
+                skip_error += 1
+
+        def ordered_costs(x):
+            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            return [-1 * z[1] for z in sorted_x]
+
+        data = {}
+        data['heli'] = ordered_costs(annual_heli_harvest_cost)
+        data['cable'] = ordered_costs(annual_cable_harvest_cost)
+        data['ground'] = ordered_costs(annual_ground_harvest_cost)
+        data['haul'] = ordered_costs(annual_haul_cost)
+        data['years'] = sorted(annual_haul_cost.keys())
 
         # Just make a random attempt at revenue; TODO HACK
         import numpy as np
