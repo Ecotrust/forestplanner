@@ -914,7 +914,7 @@ class Scenario(Feature):
         import numpy as np
         total_cost = np.array(data['heli']) + np.array(data['cable']) + \
             np.array(data['ground']) + np.array(data['haul'])
-        gross = [-1 * x * (1.0 + (0.35 - (random.random() * 0.5))) for x in total_cost.tolist()]
+        gross = [-1 * x * (1.0 + (1.35 - (random.random() * 1.75))) for x in total_cost.tolist()]
         net = (np.array(gross) + total_cost).tolist()
         data['gross'] = gross
         data['net'] = net
