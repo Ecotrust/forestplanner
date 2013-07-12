@@ -9,16 +9,28 @@ from shapely import wkt
 from shapely.geometry import Polygon, MultiPolygon
 import numpy as np
 from scipy.spatial import KDTree
+import datetime
 import math
 
 logger = get_logger()
+
+
+def datetime_to_unix(dt):
+    start = datetime.datetime(year=1970, month=1, day=1)
+    diff = dt - start
+    try:
+        total = diff.total_seconds()
+    except AttributeError:
+        # for the benefit of python 2.6
+        total = (diff.microseconds + (diff.seconds + diff.days * 24 * 3600) * 1e6) / 1e6
+    return total
 
 
 class StandImporter:
 
     def __init__(self, user):
         self.user = user
-        self.required_fields = ['name']
+        self.required_fields = []  # ['name']
         self.optional_fields = ['domspp', 'rx']  # model must provide defaults!
 
     def _validate_field_mapping(self, layer, field_mapping):
@@ -87,7 +99,7 @@ class StandImporter:
         for feature in layer:
             stand = Stand(
                 user=self.user,
-                name=feature.get(field_mapping['name']),
+                name=str(datetime_to_unix(datetime.datetime.now())),
                 geometry_orig=feature.geom.geos)
                 # geometry_final=feature.geom.geos)
 

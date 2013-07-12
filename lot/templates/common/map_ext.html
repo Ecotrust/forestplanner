@@ -237,9 +237,8 @@
                       <p> File upload </p>
                       <ul> 
                           <li> A .zip file containing an ESRI Shapefile </li>
-                          <li> Projected to Web Mercator </li>
-                          <li> Contains polygons of all stands </li>
-                          <li> Must contain an string attribute field called <em>name</em> or <em>STAND_ID</em> </li>
+                          <li> Projected to Web Mercator coordinates </li>
+                          <li> Shapefile contains polygons of all stands comprising the property</li>
                       </ul>
                       <div class="well">
                       <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data"> 
