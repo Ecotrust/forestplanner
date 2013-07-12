@@ -6,6 +6,7 @@ import datetime
 import math
 import random
 import time
+import operator
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -24,6 +25,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.db import connection
 from celery.result import AsyncResult
+from collections import defaultdict
 
 logger = get_logger()
 
@@ -766,8 +768,6 @@ class Scenario(Feature):
     @property
     #@cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
-        import operator
-        import defaultdict
         from forestcost import main_model
         from forestcost import routing_main
         from forestcost import landing
@@ -840,7 +840,6 @@ class Scenario(Feature):
         for row in rows:
             if year != int(row['year']):
                 year = int(row['year'])
-                print "Calculating cost per stand in year", year
                 years.append(year)
                 annual_total_cost[year] += 0
                 annual_haul_cost[year] += 0
@@ -1097,6 +1096,7 @@ class Scenario(Feature):
         self.input_rxs = new_input_rxs
 
     def save(self, *args, **kwargs):
+        self.invalidate_cache()
         super(Scenario, self).save(*args, **kwargs)
         self.fill_with_default_rxs()
         super(Scenario, self).save(*args, **kwargs)

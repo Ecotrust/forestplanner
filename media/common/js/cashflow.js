@@ -67,6 +67,7 @@ var refreshCashflow = function(refresh1, refresh2) {
         $('#cash-chart1').html('');
         cashChart1.destroy();
       }
+      $('#loading-cash-chart1').show();
 
       var xhr = $.get( cashflow_url1, function(data) {
           cashChartOptions.axes.xaxis.ticks = data['years'];
@@ -82,8 +83,13 @@ var refreshCashflow = function(refresh1, refresh2) {
           cashChart1 = $.jqplot('cash-chart1', dataSeries,
             cashChartOptions
           );
+          $('#loading-cash-chart1').hide();
       }, 'json');
     }
+  }
+
+  if (opt1 === opt2) {
+    $('#loading-cash-chart2').hide();
   }
 
   if (refresh2 && (opt1 !== opt2)) {
@@ -94,6 +100,7 @@ var refreshCashflow = function(refresh1, refresh2) {
         $('#cash-chart2').html('');
         cashChart2.destroy();
       }
+      $('#loading-cash-chart2').show();
 
       $.get( cashflow_url2, function(data) {
           cashChartOptions.axes.xaxis.ticks = data['years'];
@@ -107,8 +114,10 @@ var refreshCashflow = function(refresh1, refresh2) {
           ];
 
           cashChart2 = $.jqplot('cash-chart2', dataSeries,
-            $.extend({}, cashChartOptions, {legend: {show: false}})
+            cashChartOptions
+            // $.extend({}, cashChartOptions, {legend: {show: false}})
           );
+          $('#loading-cash-chart2').hide();
       }, 'json');
     }
   }
