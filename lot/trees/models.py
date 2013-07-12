@@ -764,6 +764,43 @@ class Scenario(Feature):
         return d
 
     @property
+    @cachemethod("Scenario_%(id)s_cash_metrics")
+    def output_cash_metrics(self):
+        data = {
+            'heli':
+                [-0.0, -0.0, -0.0, -0.0, -49157.0, -21592.0, -107744.0, -12981.0,
+                 -10320.0, -0.0, -0.0, -0.0, -0.0, -0.0, -0.0, -15980.0, -0.0, -0.0,
+                 -0.0, -0.0],
+            'cable':
+                [-0.0, -141242.0, -152875.0, -0.0, -0.0, -0.0, -0.0, -64290.0,
+                 -141968.0, -19882.0, -149182.0, -136889.0, -151957.0, -14663.0,
+                 -80961.0, -52539.0, -85341.0, -12559.0, -62926.0, -65398.0],
+            'ground':
+                [-0.0, -0.0, -0.0, -0.0, -1533.0, -0.0, -0.0, -7990.0, -1525.0,
+                 -0.0, -0.0, -17670.0, -1132.0, -0.0, -0.0, -8501.0, -955.0, -0.0,
+                 -0.0, -5316.0],
+            'haul':
+                [-0.0, -2064.0, -1032.0, -0.0, -5516.0, -2321.0, -11268.0, -10506.0,
+                 -17159.0, -2579.0, -23051.0, -
+                 24713.0, -23026.0, -2149.0, -12731.0,
+                 -12399.0, -13712.0, -1891.0, -10322.0, -9817.0],
+            'years':
+                [2013, 2018, 2023, 2028, 2033, 2038, 2043, 2048, 2053, 2058, 2063,
+                 2068, 2073, 2078, 2083, 2088, 2093, 2098, 2103, 2108],
+        }
+
+        # Just make a random attempt at revenue; TODO HACK
+        import numpy as np
+        total_cost = np.array(data['heli']) + np.array(data['cable']) + \
+            np.array(data['ground']) + np.array(data['haul'])
+        gross = [-1 * x * (1.0 + (0.35 - (random.random() * 0.5))) for x in total_cost.tolist()]
+        net = (np.array(gross) + total_cost).tolist()
+        data['gross'] = gross
+        data['net'] = net
+
+        return data
+
+    @property
     def property_level_dict(self):
         d = {
             'pk': self.pk,
@@ -962,6 +999,11 @@ class Scenario(Feature):
                  'trees.views.run_scenario',
                  edits_original=True,
                  select='single'),
+            # Link to calculate cash flow metrics for a scenario
+            alternate('Scenario Cash Flow',
+                      'trees.views.scenario_cash_flow',
+                      type="application/json",
+                      select='single'),
         )
 
 
