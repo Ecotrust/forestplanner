@@ -56,57 +56,61 @@ var cashChartOptions = {
 };
 
 var refreshCashflow = function(refresh1, refresh2) {
+  var opt1 = $('#cash-select-scenario1').find(":selected").val();
+  var opt2 = $('#cash-select-scenario2').find(":selected").val();
 
   if (refresh1) {
-    var opt1 = $('#cash-select-scenario1').find(":selected").val();
     var cashflow_url1 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt1 +"/";
 
-    if (cashChart1) {
-      $('#cash-chart1').html('');
-      cashChart1.destroy();
+    if (opt1) {
+      if (cashChart1) {
+        $('#cash-chart1').html('');
+        cashChart1.destroy();
+      }
+
+      var xhr = $.get( cashflow_url1, function(data) {
+          cashChartOptions.axes.xaxis.ticks = data['years'];
+          var dataSeries = [
+             data['haul'],
+             data['cable'],
+             data['gross'],
+             data['ground'],
+             data['heli'],
+             data['net']
+          ];
+
+          cashChart1 = $.jqplot('cash-chart1', dataSeries,
+            cashChartOptions
+          );
+      }, 'json');
     }
-
-    var xhr = $.get( cashflow_url1, function(data) {
-        cashChartOptions.axes.xaxis.ticks = data['years'];
-        var dataSeries = [
-           data['haul'],
-           data['cable'],
-           data['gross'],
-           data['ground'],
-           data['heli'],
-           data['net']
-        ];
-
-        cashChart1 = $.jqplot('cash-chart1', dataSeries,
-          cashChartOptions
-        );
-    }, 'json');
   }
 
-  if (refresh2) {
-    var opt2 = $('#cash-select-scenario2').find(":selected").val();
+  if (refresh2 && (opt1 !== opt2)) {
     var cashflow_url2 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt2 +"/";
 
-    if (cashChart2) {
-      $('#cash-chart2').html('');
-      cashChart2.destroy();
+    if (opt2) {
+      if (cashChart2) {
+        $('#cash-chart2').html('');
+        cashChart2.destroy();
+      }
+
+      $.get( cashflow_url2, function(data) {
+          cashChartOptions.axes.xaxis.ticks = data['years'];
+          var dataSeries = [
+             data['haul'],
+             data['cable'],
+             data['gross'],
+             data['ground'],
+             data['heli'],
+             data['net']
+          ];
+
+          cashChart2 = $.jqplot('cash-chart2', dataSeries,
+            $.extend({}, cashChartOptions, {legend: {show: false}})
+          );
+      }, 'json');
     }
-
-    $.get( cashflow_url2, function(data) {
-        cashChartOptions.axes.xaxis.ticks = data['years'];
-        var dataSeries = [
-           data['haul'],
-           data['cable'],
-           data['gross'],
-           data['ground'],
-           data['heli'],
-           data['net']
-        ];
-
-        cashChart2 = $.jqplot('cash-chart2', dataSeries,
-          $.extend({}, cashChartOptions, {legend: {show: false}})
-        );
-    }, 'json');
   }
 };
 
