@@ -4,10 +4,14 @@ selenium
 scipy
 python-memcached>=1.48
 pandas>=0.10.1
+xlrd
 
 # Don't use git master; see Vagrantfile for example of how to use a local dev madrona 
 # -e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
 madrona
+
+# Uli's cost model
+-e git+git://github.com/Ecotrust/cost_model.git@master#egg=forestcost
 
 simplejson
 django-pdb
