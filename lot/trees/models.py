@@ -769,7 +769,7 @@ class Scenario(Feature):
     #@cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
         from forestcost import main_model
-        from forestcost import routing_main
+        from forestcost import routing
         from forestcost import landing
 
         sql = """SELECT
@@ -812,18 +812,13 @@ class Scenario(Feature):
             if None not in row  # remove any nulls; incomplete data can't be used
         ]
 
-        # TODO get mill layer
-        mill_Lat = 43.1190
-        mill_Lon = -124.4075
-
         # Landing Coordinates
-        # landing_coords = (-124.35033096, 42.980014393)
         center = self.input_property.geometry_final.point_on_surface
         centroid_coords = center.transform(4326, clone=True).tuple
         landing_coords = landing.landing(centroid_coords=centroid_coords)
 
-        haulDist, haulTime, coord_mill = routing_main.routing(
-            landing_coords, None, mill_Lat, mill_Lon, None
+        haulDist, haulTime, coord_mill = routing.routing(
+            landing_coords, mill_shp=settings.MILL_SHAPEFILE
         )
 
         annual_total_cost = defaultdict(float)

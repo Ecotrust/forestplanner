@@ -90,6 +90,8 @@ var refreshCashflow = function(refresh1, refresh2) {
 
   if (opt1 === opt2) {
     $('#loading-cash-chart2').hide();
+    $('#cash-chart2').html('');
+    cashChart2.destroy();
   }
 
   if (refresh2 && (opt1 !== opt2)) {
