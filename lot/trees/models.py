@@ -657,7 +657,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    #@cachemethod("Scenario_%(id)s_property_metrics")
+    @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -707,7 +707,7 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    #@cachemethod("Scenario_%(id)s_stand_metrics")
+    @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -757,7 +757,7 @@ class Scenario(Feature):
             ds['standing_timber'].append(row["standing_timber"])
             ds['harvested_timber'].append(row["harvested_timber"])
 
-            if row['sstand_id'] not in cum_harvest_dict: 
+            if row['sstand_id'] not in cum_harvest_dict:
                 cum_harvest_dict[row['sstand_id']] = 0
 
             cum_harvest_dict[row['sstand_id']] += row["harvested_timber"]
@@ -766,7 +766,7 @@ class Scenario(Feature):
         return d
 
     @property
-    #@cachemethod("Scenario_%(id)s_cash_metrics")
+    @cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
         from forestcost import main_model
         from forestcost import routing
