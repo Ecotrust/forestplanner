@@ -59,6 +59,17 @@ var refreshCashflow = function(refresh1, refresh2) {
   var opt1 = $('#cash-select-scenario1').find(":selected").val();
   var opt2 = $('#cash-select-scenario2').find(":selected").val();
 
+  if (opt1 === opt2) {
+    $('#cash2').hide();
+    $('#cash-chart2').html('');
+    if (cashChart2) {
+      cashChart2.destroy();
+    }
+    refresh1 = true;
+  } else {
+    $('#cash2').show();
+  }
+
   if (refresh1) {
     var cashflow_url1 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt1 +"/";
 
@@ -86,14 +97,6 @@ var refreshCashflow = function(refresh1, refresh2) {
           $('#loading-cash-chart1').hide();
       }, 'json');
     }
-  }
-
-  if (opt1 === opt2) {
-    $('#cash2').hide();
-    $('#cash-chart2').html('');
-    cashChart2.destroy();
-  } else {
-    $('#cash2').show();
   }
 
   if (refresh2 && (opt1 !== opt2)) {
