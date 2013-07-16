@@ -1669,6 +1669,35 @@ class FVSAggregate(models.Model):
     start_tpa = models.IntegerField(null=True, blank=True)
 
 
+# variable names are lower-case and must correspond
+# exactly with FVSAggregate field names
+timber_choices = (
+    ('cedr_hrv', 'Cedar'),
+    ('df_hrv', 'Doug fir'),
+    ('hw_hrv', 'Major Hardwood'),
+    ('mnconhrv', 'Minor Conifer'),
+    ('mnhw_hrv', 'Minor Hardwood'),
+    ('pine_hrv', 'Pine'),
+    ('wj_hrv', 'Western Juniper'),
+    ('ww_hrv', 'White Wood'),
+    ('sprc_hrv', 'Spruce')
+)
+
+
+class TimberPrice(models.Model):
+    """
+    Average price for types of timber in different regions
+    """
+    variant = models.ForeignKey(FVSVariant)
+    timber_type = models.CharField(max_length=10, choices=timber_choices)
+    price = models.FloatField()
+
+    def __unicode__(self):
+        return "%s, %s: $%.2f per mbf" % (self.variant.code, self.get_timber_type_display(), self.price)
+
+    class Meta:
+        unique_together = ("variant", "timber_type")
+
 # Signals
 # Handle the triggering of asyncronous processes
 @receiver(post_save, sender=Stand)
