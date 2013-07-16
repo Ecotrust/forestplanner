@@ -3,7 +3,7 @@ var cashChart2;
 
 var cashChartOptions = {
     stackSeries: true,
-    seriesColors:['#D95F0E', '#EF3B2C','#415DAB', '#CB181D', '#FB6A4A', '#000000'],
+    seriesColors:['#D95F0E', '#EF3B2C','#415DAB', '#CB181D', '#D95F0E', '#EF3B2C','#AB5D41', '#FB6A4A', '#000000'],
     seriesDefaults:{
       renderer:$.jqplot.BarRenderer,
       useNegativeColors: false,
@@ -19,8 +19,11 @@ var cashChartOptions = {
       {label:'Timber Sale Income '},
       {label:'Ground Harvest Costs '},
       {label:'Helicopter Harvest Costs '},
+      {label:'Admin Costs '},
+      {label:'Taxes '},
+      {label:'Road Costs '},
       {
-        label:'Net Revenue ',
+        label:'Net (Cumulative, Discounted)',
         renderer:$.jqplot.LineRenderer,
         disableStack: true
       }
@@ -46,8 +49,8 @@ var cashChartOptions = {
     legend: {
       renderer: $.jqplot.EnhancedLegendRenderer,
       rendererOptions: {
-        // numberRows: 2
-        numberColumns: 3
+        numberRows: 2
+        //numberColumns: 4
       },
       show: true,
       location: 'n',
@@ -88,7 +91,10 @@ var refreshCashflow = function(refresh1, refresh2) {
              data['gross'],
              data['ground'],
              data['heli'],
-             data['net']
+             data['admin'],
+             data['tax'],
+             data['road'],
+             data['cum_disc_net']
           ];
 
           cashChart1 = $.jqplot('cash-chart1', dataSeries,
@@ -117,7 +123,10 @@ var refreshCashflow = function(refresh1, refresh2) {
              data['gross'],
              data['ground'],
              data['heli'],
-             data['net']
+             data['admin'],
+             data['tax'],
+             data['road'],
+             data['cum_disc_net']
           ];
 
           cashChart2 = $.jqplot('cash-chart2', dataSeries,

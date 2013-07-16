@@ -7,6 +7,7 @@ import math
 import random
 import time
 import operator
+import numpy as np
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -766,6 +767,66 @@ class Scenario(Feature):
         return d
 
     @property
+    @cachemethod("Scenario_%(id)s_revenue_metrics")
+    def output_revenue_metrics(self):
+        sql = """SELECT
+                    ss.id                          AS sstand_id,
+                    a.year                         AS year,
+                    ss.acres                       AS acres,
+                    a.CUT_TYPE                     AS CUT_TYPE,
+                    a.CEDR_HRV / 1000              AS CEDR_HRV,
+                    a.DF_HRV / 1000                AS DF_HRV,
+                    a.HW_HRV / 1000                AS HW_HRV,
+                    a.MNCONHRV / 1000              AS MNCONHRV,
+                    a.MNHW_HRV / 1000              AS MNHW_HRV,
+                    a.PINE_HRV / 1000              AS PINE_HRV,
+                    a.WJ_HRV / 1000                AS WJ_HRV,
+                    a.WW_HRV / 1000                AS WW_HRV,
+                    a.SPRC_HRV / 1000              AS SPRC_HRV
+                FROM
+                    trees_fvsaggregate a
+                JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                WHERE   var = '%s' -- get from current property
+                AND   ss.scenario_id = %d -- get from current scenario
+                ORDER BY a.year, ss.id;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        desc = cursor.description
+        rows = [dict(zip([col[0] for col in desc], row))
+                for row in cursor.fetchall()]
+
+        prices_per_mbf = dict([
+            (x.timber_type, x.price)
+            for x in TimberPrice.objects.filter(variant=self.input_property.variant)
+        ])
+
+        annual_revenue = defaultdict(float)
+
+        year = None
+        years = []
+        for row in rows:
+            if year != int(row['year']):
+                year = int(row['year'])
+                years.append(year)
+                annual_revenue[year] += 0
+
+            acres = row['acres']
+
+            for k, v in row.items():
+                if 'hrv' not in k or v is None or v == 0:
+                    continue
+                price = prices_per_mbf[k]
+                revenue = v * acres * price
+                annual_revenue[year] += revenue
+
+        return {'revenue': dict(annual_revenue)}
+
+    @property
     @cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
         from forestcost import main_model
@@ -826,6 +887,9 @@ class Scenario(Feature):
         annual_heli_harvest_cost = defaultdict(float)
         annual_ground_harvest_cost = defaultdict(float)
         annual_cable_harvest_cost = defaultdict(float)
+        annual_admin_cost = defaultdict(float)
+        annual_tax_cost = defaultdict(float)
+        annual_road_cost = defaultdict(float)
         used_records = 0
         skip_noharvest = 0
         skip_error = 0
@@ -841,6 +905,9 @@ class Scenario(Feature):
                 annual_heli_harvest_cost[year] += 0
                 annual_ground_harvest_cost[year] += 0
                 annual_cable_harvest_cost[year] += 0
+                annual_admin_cost[year] += 0
+                annual_tax_cost[year] += 0
+                annual_road_cost[year] += 0
 
             ### Tree Data ###
             # Cut type code indicating type of harvest implemented.
@@ -880,6 +947,11 @@ class Scenario(Feature):
                 annual_haul_cost[year] += result['total_haul_cost']
                 annual_total_cost[year] += result['total_cost']
 
+                ###### TODO : Estimate these based on bdft, acres, etc #########
+                annual_admin_cost[year] += result['total_harvest_cost'] / 3.0
+                annual_tax_cost[year] += result['total_harvest_cost'] / 10.0
+                annual_road_cost[year] += result['total_harvest_cost'] / 1.5
+
                 system = result['harvest_system']
                 if system.startswith("Helicopter"):
                     annual_heli_harvest_cost[year] += result['total_harvest_cost']
@@ -894,6 +966,7 @@ class Scenario(Feature):
             except (ZeroDivisionError, ValueError):
                 skip_error += 1
 
+        # Costs
         def ordered_costs(x):
             sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
             return [-1 * z[1] for z in sorted_x]
@@ -904,15 +977,41 @@ class Scenario(Feature):
         data['ground'] = ordered_costs(annual_ground_harvest_cost)
         data['haul'] = ordered_costs(annual_haul_cost)
         data['years'] = sorted(annual_haul_cost.keys())
+        data['admin'] = ordered_costs(annual_admin_cost)
+        data['tax'] = ordered_costs(annual_tax_cost)
+        data['road'] = ordered_costs(annual_road_cost)
 
-        # Just make a random attempt at revenue; TODO HACK
-        import numpy as np
-        total_cost = np.array(data['heli']) + np.array(data['cable']) + \
-            np.array(data['ground']) + np.array(data['haul'])
-        gross = [-1 * x * (1.0 + (1.35 - (random.random() * 1.75))) for x in total_cost.tolist()]
-        net = (np.array(gross) + total_cost).tolist()
+        # Revenue
+        def ordered_revenue(x, years):
+            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            return [rev for year, rev in sorted_x if year in years]
+
+        gross = ordered_revenue(self.output_revenue_metrics['revenue'], data['years'])
         data['gross'] = gross
+
+        # Net
+        total_cost = \
+            np.array(data['heli']) + \
+            np.array(data['cable']) + \
+            np.array(data['ground']) + \
+            np.array(data['haul']) + \
+            np.array(data['admin']) + \
+            np.array(data['tax']) + \
+            np.array(data['road'])
+
+        net = (np.array(gross) + total_cost).tolist()
         data['net'] = net
+
+        def cumulative_discounted_net(nets, discount_rate):
+            cum_sum = []
+            y = 0
+            for period, net in enumerate(nets):
+                years = period * 5  # Assume 5 year time periods
+                y += net / (1+(discount_rate ** years))
+                cum_sum.append(y)
+            return cum_sum
+
+        data['cum_disc_net'] = cumulative_discounted_net(net, discount_rate=0.04)
 
         return data
 
