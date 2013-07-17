@@ -11,7 +11,8 @@ var cashChartOptions = {
       rendererOptions: {
         fillToZero: true,
         highlightMouseOver: false,
-        varyBarColor: true
+        varyBarColor: true,
+        forceTickAt0: true
       }
     },
     series:[
@@ -26,6 +27,7 @@ var cashChartOptions = {
       {
         label:'Net (Cumulative, Discounted)',
         renderer:$.jqplot.LineRenderer,
+        rendererOptions: {forceTickAt0: true},
         disableStack: true
       }
     ],
@@ -43,7 +45,7 @@ var cashChartOptions = {
         //ticks: data['years']
       },
       yaxis: {
-        autoscale:false,
+        autoscale:true,
         tickOptions: {formatString: "$%'d"}
       }
     },
@@ -59,85 +61,108 @@ var cashChartOptions = {
     }
 };
 
+
+function sigFigs(n, sig) {
+    var mult = Math.pow(10, sig - Math.floor(Math.log(n) / Math.LN10) - 1);
+    return Math.round(n * mult) / mult;
+}
+
 var refreshCashflow = function(refresh1, refresh2) {
   var opt1 = $('#cash-select-scenario1').find(":selected").val();
   var opt2 = $('#cash-select-scenario2').find(":selected").val();
 
-  if (opt1 === opt2) {
-    $('#cash2').hide();
-    $('#cash-chart2').html('');
+  var cashflow_url1 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt1 +"/";
+  var cashflow_url2 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt2 +"/";
+
+  $('#cash-chart1').html('');
+  $('#cash-chart2').html('');
+  if (cashChart1) {
+    cashChart1.destroy();
+  }
+  if (cashChart2) {
+    cashChart2.destroy();
+  }
+
+  if (!opt1) {
+    return false;
+  }
+
+  $('#loading-cash-chart1').show();
+  $('#loading-cash-chart2').show();
+
+  var xhr1 = $.ajax( cashflow_url1, {
+    dataType: 'json'
+  });
+  var xhr2 = $.ajax( cashflow_url2, {
+    dataType: 'json'
+  });
+
+
+  $.when(xhr1, xhr2).done(function(r1, r2) {
+    var data = r1[0];
+    cashChartOptions.axes.xaxis.ticks = data['years'];
+    var dataSeries = [
+       data['haul'],
+       data['cable'],
+       data['ground'],
+       data['heli'],
+       data['gross'],
+       data['admin'],
+       data['tax'],
+       data['road'],
+       data['cum_disc_net']
+    ];
+    cashChart1 = $.jqplot('cash-chart1', dataSeries, cashChartOptions);
+    $('#loading-cash-chart1').hide();
+
+    if (opt1 !== opt2) {
+      data = r2[0];
+      cashChartOptions.axes.xaxis.ticks = data['years'];
+      dataSeries = [
+         data['haul'],
+         data['cable'],
+         data['ground'],
+         data['heli'],
+         data['gross'],
+         data['admin'],
+         data['tax'],
+         data['road'],
+         data['cum_disc_net']
+      ];
+      cashChart2 = $.jqplot('cash-chart2', dataSeries, cashChartOptions);
+      $('#loading-cash-chart2').hide();
+    } else {
+      $('#loading-cash-chart2').hide();
+      $("#cash2").hide();
+      $('#cash-chart2').html('');
+      cashChart2 = null;
+    }
+
     if (cashChart2) {
-      cashChart2.destroy();
+      $("#cash2").show();
+
+      // sync the axes
+      var newMin = Math.min(cashChart1.axes.yaxis.min, cashChart2.axes.yaxis.min);
+      var newMax = Math.max(cashChart1.axes.yaxis.max, cashChart2.axes.yaxis.max);
+
+      newYAxis = {
+        'min': newMin,
+        'max': newMax,
+        // Looks wierd but ensures tick line at zero
+        'ticks': [newMin, 0, newMax]
+        // 'ticks': [newMin, -1*sigFigs(-1*newMin/2, 2), 0, sigFigs(newMax/2, 2), newMax]
+      };
+
+      cashChart1.resetAxesScale();
+      $.extend(cashChart1.axes.yaxis, newYAxis);
+      cashChart1.replot();
+
+      cashChart2.resetAxesScale();
+      $.extend(cashChart2.axes.yaxis, newYAxis);
+      cashChart2.replot();
     }
-    refresh1 = true;
-  } else {
-    $('#cash2').show();
-  }
 
-  if (refresh1) {
-    var cashflow_url1 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt1 +"/";
-
-    if (opt1) {
-      if (cashChart1) {
-        $('#cash-chart1').html('');
-        cashChart1.destroy();
-      }
-      $('#loading-cash-chart1').show();
-
-      var xhr = $.get( cashflow_url1, function(data) {
-          cashChartOptions.axes.xaxis.ticks = data['years'];
-          var dataSeries = [
-             data['haul'],
-             data['cable'],
-             data['ground'],
-             data['heli'],
-             data['gross'],
-             data['admin'],
-             data['tax'],
-             data['road'],
-             data['cum_disc_net']
-          ];
-
-          cashChart1 = $.jqplot('cash-chart1', dataSeries,
-            cashChartOptions
-          );
-          $('#loading-cash-chart1').hide();
-      }, 'json');
-    }
-  }
-
-  if (refresh2 && (opt1 !== opt2)) {
-    var cashflow_url2 = "/features/scenario/links/scenario-cash-flow/trees_scenario_" + opt2 +"/";
-
-    if (opt2) {
-      if (cashChart2) {
-        $('#cash-chart2').html('');
-        cashChart2.destroy();
-      }
-      $('#loading-cash-chart2').show();
-
-      $.get( cashflow_url2, function(data) {
-          cashChartOptions.axes.xaxis.ticks = data['years'];
-          var dataSeries = [
-             data['haul'],
-             data['cable'],
-             data['ground'],
-             data['heli'],
-             data['gross'],
-             data['admin'],
-             data['tax'],
-             data['road'],
-             data['cum_disc_net']
-          ];
-
-          cashChart2 = $.jqplot('cash-chart2', dataSeries,
-            cashChartOptions
-            // $.extend({}, cashChartOptions, {legend: {show: false}})
-          );
-          $('#loading-cash-chart2').hide();
-      }, 'json');
-    }
-  }
+  });
 };
 
 $(document).ready(function() {
