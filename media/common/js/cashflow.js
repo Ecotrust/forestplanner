@@ -1,9 +1,10 @@
 var cashChart1;
 var cashChart2;
+var cashChartYAxisRange = {};
 
 var cashChartOptions = {
     stackSeries: true,
-    seriesColors:['#D95F0E', '#EF3B2C','#415DAB', '#CB181D', '#D95F0E', '#EF3B2C','#AB5D41', '#FB6A4A', '#000000'],
+    seriesColors:['#D95F0E', '#EF3B2C', '#CB181D', '#D95F0E','#415DAB', '#EF3B2C','#AB5D41', '#FB6A4A', '#000000'],
     seriesDefaults:{
       renderer:$.jqplot.BarRenderer,
       useNegativeColors: false,
@@ -14,14 +15,14 @@ var cashChartOptions = {
       }
     },
     series:[
-      {label:'Transportation Costs '},
-      {label:'Cable Harvest Costs '},
-      {label:'Timber Sale Income '},
-      {label:'Ground Harvest Costs '},
-      {label:'Helicopter Harvest Costs '},
-      {label:'Admin Costs '},
+      {label:'Transportation '},
+      {label:'Cable Harvest'},
+      {label:'Ground Harvest '},
+      {label:'Helicopter Harvest '},
+      {label:'Timber Revenue '},
+      {label:'Administration '},
       {label:'Taxes '},
-      {label:'Road Costs '},
+      {label:'Road Maintenance '},
       {
         label:'Net (Cumulative, Discounted)',
         renderer:$.jqplot.LineRenderer,
@@ -42,7 +43,7 @@ var cashChartOptions = {
         //ticks: data['years']
       },
       yaxis: {
-        autoscale:true,
+        autoscale:false,
         tickOptions: {formatString: "$%'d"}
       }
     },
@@ -88,9 +89,9 @@ var refreshCashflow = function(refresh1, refresh2) {
           var dataSeries = [
              data['haul'],
              data['cable'],
-             data['gross'],
              data['ground'],
              data['heli'],
+             data['gross'],
              data['admin'],
              data['tax'],
              data['road'],
@@ -120,9 +121,9 @@ var refreshCashflow = function(refresh1, refresh2) {
           var dataSeries = [
              data['haul'],
              data['cable'],
-             data['gross'],
              data['ground'],
              data['heli'],
+             data['gross'],
              data['admin'],
              data['tax'],
              data['road'],
