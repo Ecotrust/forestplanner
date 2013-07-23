@@ -258,6 +258,7 @@ function scenarioViewModel(options) {
             if (data[0]) {
                 self.selectedFeatures.push(data[0]); // select the first one
             }
+            timemapScenarioData = {};
             refreshCharts();
             refreshTimeMap(true, true);
         };

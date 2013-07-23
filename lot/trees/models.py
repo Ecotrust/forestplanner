@@ -655,7 +655,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    #@cachemethod("Scenario_%(id)s_property_metrics")
+    @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -705,7 +705,7 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    #@cachemethod("Scenario_%(id)s_stand_metrics")
+    @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -938,6 +938,7 @@ class Scenario(Feature):
         self.input_rxs = new_input_rxs
 
     def save(self, *args, **kwargs):
+        self.invalidate_cache()
         super(Scenario, self).save(*args, **kwargs)
         self.fill_with_default_rxs()
         super(Scenario, self).save(*args, **kwargs)
