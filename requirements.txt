@@ -7,7 +7,7 @@ pandas>=0.10.1
 
 # Don't use git master; see Vagrantfile for example of how to use a local dev madrona 
 # -e git+https://github.com/Ecotrust/madrona.git@master#egg=madrona
-madrona
+madrona>=4.1
 
 simplejson
 django-pdb
