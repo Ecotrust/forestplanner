@@ -167,7 +167,8 @@ app.standUploadFormInit = function () {
 			$("#uploadProgress .bar").css('width', percentVal);
 			if (percentComplete > 99) {
 				$("#uploadProgress").hide();
-				$("#uploadResponse").html('<p class="label label-info">Upload complete. Processing stand data...</p>');
+				$("#uploadResponse").html('<p class="label label-info">Transfer complete. Processing stand data; please wait... ' +
+                    '<span style="margin-left: 15px"><img src="/media/img/ajax-loader.gif"></span></p>');
 			}
 		},
 		complete: function (xhr) {
