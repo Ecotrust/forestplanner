@@ -887,9 +887,9 @@ class Scenario(Feature):
         annual_heli_harvest_cost = defaultdict(float)
         annual_ground_harvest_cost = defaultdict(float)
         annual_cable_harvest_cost = defaultdict(float)
-        annual_admin_cost = defaultdict(float)
-        annual_tax_cost = defaultdict(float)
-        annual_road_cost = defaultdict(float)
+        #annual_admin_cost = defaultdict(float)
+        #annual_tax_cost = defaultdict(float)
+        #annual_road_cost = defaultdict(float)
         used_records = 0
         skip_noharvest = 0
         skip_error = 0
@@ -905,9 +905,9 @@ class Scenario(Feature):
                 annual_heli_harvest_cost[year] += 0
                 annual_ground_harvest_cost[year] += 0
                 annual_cable_harvest_cost[year] += 0
-                annual_admin_cost[year] += 0
-                annual_tax_cost[year] += 0
-                annual_road_cost[year] += 0
+                #annual_admin_cost[year] += 0
+                #annual_tax_cost[year] += 0
+                #annual_road_cost[year] += 0
 
             ### Tree Data ###
             # Cut type code indicating type of harvest implemented.
@@ -948,9 +948,9 @@ class Scenario(Feature):
                 annual_total_cost[year] += result['total_cost']
 
                 ###### TODO : Estimate these based on bdft, acres, etc #########
-                annual_admin_cost[year] += result['total_harvest_cost'] / 3.0
-                annual_tax_cost[year] += result['total_harvest_cost'] / 10.0
-                annual_road_cost[year] += result['total_harvest_cost'] / 1.5
+                #annual_admin_cost[year] += result['total_harvest_cost'] / 3.0
+                #annual_tax_cost[year] += result['total_harvest_cost'] / 10.0
+                #annual_road_cost[year] += result['total_harvest_cost'] / 1.5
 
                 system = result['harvest_system']
                 if system.startswith("Helicopter"):
@@ -977,41 +977,41 @@ class Scenario(Feature):
         data['ground'] = ordered_costs(annual_ground_harvest_cost)
         data['haul'] = ordered_costs(annual_haul_cost)
         data['years'] = sorted(annual_haul_cost.keys())
-        data['admin'] = ordered_costs(annual_admin_cost)
-        data['tax'] = ordered_costs(annual_tax_cost)
-        data['road'] = ordered_costs(annual_road_cost)
+        # data['admin'] = ordered_costs(annual_admin_cost)
+        # data['tax'] = ordered_costs(annual_tax_cost)
+        # data['road'] = ordered_costs(annual_road_cost)
 
-        # Revenue
-        def ordered_revenue(x, years):
-            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
-            return [rev for year, rev in sorted_x if year in years]
+        ##### TODO  Revenue
+        # def ordered_revenue(x, years):
+        #     sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+        #     return [rev for year, rev in sorted_x if year in years]
 
-        gross = ordered_revenue(self.output_revenue_metrics['revenue'], data['years'])
-        data['gross'] = gross
+        # gross = ordered_revenue(self.output_revenue_metrics['revenue'], data['years'])
+        # data['gross'] = gross
 
-        # Net
-        total_cost = \
-            np.array(data['heli']) + \
-            np.array(data['cable']) + \
-            np.array(data['ground']) + \
-            np.array(data['haul']) + \
-            np.array(data['admin']) + \
-            np.array(data['tax']) + \
-            np.array(data['road'])
+        ##### TODO Net
+        # total_cost = \
+        #     np.array(data['heli']) + \
+        #     np.array(data['cable']) + \
+        #     np.array(data['ground']) + \
+        #     np.array(data['haul'])
+        #     # np.array(data['admin']) + \
+        #     # np.array(data['tax']) + \
+        #     # np.array(data['road'])
 
-        net = (np.array(gross) + total_cost).tolist()
-        data['net'] = net
+        # net = (np.array(gross) + total_cost).tolist()
+        # data['net'] = net
 
-        def cumulative_discounted_net(nets, discount_rate):
-            cum_sum = []
-            y = 0
-            for period, net in enumerate(nets):
-                years = period * 5  # Assume 5 year time periods
-                y += net / (1+(discount_rate ** years))
-                cum_sum.append(y)
-            return cum_sum
+        # def cumulative_discounted_net(nets, discount_rate):
+        #     cum_sum = []
+        #     y = 0
+        #     for period, net in enumerate(nets):
+        #         years = period * 5  # Assume 5 year time periods
+        #         y += net / (1+(discount_rate ** years))
+        #         cum_sum.append(y)
+        #     return cum_sum
 
-        data['cum_disc_net'] = cumulative_discounted_net(net, discount_rate=0.04)
+        # data['cum_disc_net'] = cumulative_discounted_net(net, discount_rate=0.04)
 
         return data
 

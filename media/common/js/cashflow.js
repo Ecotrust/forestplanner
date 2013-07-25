@@ -4,7 +4,8 @@ var cashChartYAxisRange = {};
 
 var cashChartOptions = {
     stackSeries: true,
-    seriesColors:['#D95F0E', '#EF3B2C', '#CB181D', '#D95F0E','#415DAB', '#EF3B2C','#AB5D41', '#FB6A4A', '#000000'],
+    //seriesColors:['#D95F0E', '#EF3B2C', '#CB181D', '#D95F0E','#415DAB', '#EF3B2C','#AB5D41', '#FB6A4A', '#000000'],
+    seriesColors:['#8DD3C7', '#FFFFB3', '#BEBADA', '#FB8072'],
     seriesDefaults:{
       renderer:$.jqplot.BarRenderer,
       useNegativeColors: false,
@@ -19,17 +20,17 @@ var cashChartOptions = {
       {label:'Transportation '},
       {label:'Cable Harvest'},
       {label:'Ground Harvest '},
-      {label:'Helicopter Harvest '},
-      {label:'Timber Revenue '},
-      {label:'Administration '},
-      {label:'Taxes '},
-      {label:'Road Maintenance '},
-      {
-        label:'Net (Cumulative, Discounted)',
-        renderer:$.jqplot.LineRenderer,
-        rendererOptions: {forceTickAt0: true},
-        disableStack: true
-      }
+      {label:'Helicopter Harvest '}
+      // {label:'Timber Revenue '},
+      // {label:'Administration '},
+      // {label:'Taxes '},
+      // {label:'Road Maintenance '},
+      // {
+      //   label:'Net (Cumulative, Discounted)',
+      //   renderer:$.jqplot.LineRenderer,
+      //   rendererOptions: {forceTickAt0: true},
+      //   disableStack: true
+      // }
     ],
     highlighter : {
       show : true,
@@ -105,12 +106,12 @@ var refreshCashflow = function(refresh1, refresh2) {
        data['haul'],
        data['cable'],
        data['ground'],
-       data['heli'],
-       data['gross'],
-       data['admin'],
-       data['tax'],
-       data['road'],
-       data['cum_disc_net']
+       data['heli']
+       // data['gross'],
+       // data['admin'],
+       // data['tax'],
+       // data['road'],
+       // data['cum_disc_net']
     ];
     cashChart1 = $.jqplot('cash-chart1', dataSeries, cashChartOptions);
     $('#loading-cash-chart1').hide();
@@ -122,12 +123,12 @@ var refreshCashflow = function(refresh1, refresh2) {
          data['haul'],
          data['cable'],
          data['ground'],
-         data['heli'],
-         data['gross'],
-         data['admin'],
-         data['tax'],
-         data['road'],
-         data['cum_disc_net']
+         data['heli']
+         // data['gross'],
+         // data['admin'],
+         // data['tax'],
+         // data['road'],
+         // data['cum_disc_net']
       ];
       cashChart2 = $.jqplot('cash-chart2', dataSeries, cashChartOptions);
       $('#loading-cash-chart2').hide();

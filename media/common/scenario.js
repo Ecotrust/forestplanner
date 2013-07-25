@@ -261,6 +261,7 @@ function scenarioViewModel(options) {
             timemapScenarioData = {};
             refreshCharts();
             refreshTimeMap(true, true);
+            refreshCashflow(true, true);
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
