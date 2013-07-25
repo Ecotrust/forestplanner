@@ -712,3 +712,8 @@ label.alert{
     overflow-x: visible;
     overflow-y: visible;
 }
+
+.cash-chart {
+    height: 300px;
+    width: 100%;
+}

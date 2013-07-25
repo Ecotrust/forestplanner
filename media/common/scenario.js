@@ -261,6 +261,7 @@ function scenarioViewModel(options) {
             timemapScenarioData = {};
             refreshCharts();
             refreshTimeMap(true, true);
+            refreshCashflow(true, true);
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
@@ -292,10 +293,12 @@ function scenarioViewModel(options) {
             // add it
             self.selectedFeatures.push(f);
             $('#select-scenario2 option:last-child').attr('selected', 'selected');
+            $('#cash-select-scenario2 option:last-child').attr('selected', 'selected');
         }
 
         refreshCharts();
         refreshTimeMap(true, true);
+        refreshCashflow(false, true);
     };
 
 	// separate function because building the href dynamicaly doesn't allow the cancelling of the dom bubbling

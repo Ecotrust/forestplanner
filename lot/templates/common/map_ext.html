@@ -639,28 +639,12 @@
                         <li>
                             <a href="#scenario-maps-tab-content" id="scenario-maps-tab" data-toggle="tab">Time-series Maps</a>
                         </li>
-                        <!--
                         <li>
-                            <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Cash-flow Analysis</a>
+                            <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Costs</a>
                         </li>
-                        <li>
-                            <a href="#scenario-market-tab-content" id="scenario-market-tab" data-toggle="tab">Market Opportunities</a>
-                        </li>
-                        -->
                     </ul>
                     
                     <div class="tab-content no-overflow">
-                        <!--
-                        <div class="tab-pane fade" id="scenario-cash-tab-content">
-                            <h4> Cash Flow Analysis </h4>
-                            <div style="height: 200px;"><p class="muted">Coming soon...</p></div>
-                        </div>
-
-                        <div class="tab-pane fade" id="scenario-market-tab-content">
-                            <h4> Market Opportunities </h4>
-                            <div style="height: 200px;"><p class="muted">Coming soon...</p></div>
-                        </div>
-                        -->
 
                         <div class="tab-pane fade active in" id="scenario-charts-tab-content">
                             <div>
@@ -740,6 +724,35 @@
 
                             </div>
                         </div>
+
+                        <div class="tab-pane fade" id="scenario-cash-tab-content">
+                            <p class="info-help info text-info well well-small">
+                              <i class="icon-info-sign"></i> 
+                              <strong>Harvesting and transportation costs for each scenario.</strong>
+                            </p>
+                            <br>
+                            <div id="cash1">
+                              <select id="cash-select-scenario1" 
+                                      data-bind="foreach: selectedFeatures">
+                                  <option data-bind="value: pk, text: fields.name"></option>
+                              </select>
+                              <p class="muted" id="loading-cash-chart1" style="margin: 8px; font-size: 18pt;">
+                                  Calculating Cost/Revenue...
+                              </p>
+                            </div>
+                            <div id="cash-chart1" class="cash-chart"></div>
+                            <hr>
+                            <div id="cash2">
+                              <select id="cash-select-scenario2"
+                                      data-bind="foreach: selectedFeatures">
+                                  <option data-bind="value: pk, text: fields.name"></option>
+                              </select>
+                              <p class="muted" id="loading-cash-chart2" style="margin: 8px; font-size: 18pt;">
+                                  Calculating Cost/Revenue...
+                              </p>
+                            </div>
+                            <div id="cash-chart2" class="cash-chart"></div>
+                        </div>
                     </div>
               </div> <!-- end scenario-outputs -->
               
@@ -769,6 +782,14 @@
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/jquery.jqplot.min.js"></script>
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
     <script class="include" type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasAxisLabelRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasTextRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.canvasAxisTickRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.categoryAxisRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.barRenderer.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
+
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.dateAxisRenderer.min.js"></script>
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
     <script src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
@@ -822,6 +843,7 @@
     <script src="{{ MEDIA_URL }}common/js/init.js"></script>
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
     <script src="{{ MEDIA_URL }}common/js/timemap.js"></script>
+    <script src="{{ MEDIA_URL }}common/js/cashflow.js"></script>
 {% else %}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
 
