@@ -66,6 +66,9 @@ EQUAL_AREA_SRID = 26910  # NAD83 UTM Zone 10 N meters
 EQUAL_AREA_ACRES_CONVERSION = 0.000247105381  # sq m to acres
 SLIVER_THRESHOLD = 100.0  # square meters
 
+MILL_SHAPEFILE = os.path.realpath(os.path.join(os.path.dirname(__file__),
+                                  'fixtures', 'mills', 'mills.shp'))
+
 BING_API_KEY = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70"
 
 SESSION_ENGINE = 'redis_sessions.session'
