@@ -325,28 +325,28 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
             weights[i] = weight_dict[key]
 
     if verbose:
-        print "----- keys"
-        print "\t".join(keys)
-
-        print "----- weights"
-        print list(weights)
+        table_data = []
+        headers = keys
+        table_data.append(([round(x, 2) for x in list(weights)], 'Weights'))
 
     querypoint = np.array([round(search_params[attr], 2) for attr in keys])
-    if verbose:
-        print "----- querypoint"
-        print "\t".join(["%.3f" % float(x) for x in list(querypoint)])
-
     rawpoints = np.array(ps_attr_list)
 
     # Normalize to standard deviations from mean
     stds = np.std(rawpoints, axis=0)
     means = np.mean(rawpoints, axis=0)
     if verbose:
-        print "----- means\n", means.tolist()
-        print "----- stds\n", stds.tolist()
+        table_data.append(([round(x, 2) for x in means.tolist()], 'Means'))
+        table_data.append(([round(x, 2) for x in stds.tolist()], 'Std devs'))
     scaled_points = (rawpoints - means) / stds
     scaled_querypoint = (querypoint - means) / stds
     scaled_querypoint[np.isinf(scaled_querypoint)] = 0
+
+    if verbose:
+        raw_querypoint = [float(x) for x in list(querypoint)]
+        table_data.append((list(raw_querypoint), 'Raw querypoint'))
+        sqp = [round(x, 2) for x in list(scaled_querypoint)]
+        table_data.append((sqp, 'scaled querypoint'))
 
     # Apply weights
     # and guard against any nans due to zero range or other
@@ -354,9 +354,8 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
     scaled_querypoint = np.nan_to_num(scaled_querypoint * weights)
 
     if verbose:
-        print "----- scaled query point"
-        print "\t", "\t".join([str(round(x, 2)) for x in list(scaled_querypoint)])
-        print "----- scaled candidates"
+        sqp = [round(x, 2) for x in list(scaled_querypoint)]
+        table_data.append((sqp, 'scaled/weighted querypoint'))
 
     # Create tree and query it for nearest plot
     tree = KDTree(scaled_points)
@@ -377,7 +376,8 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         try:
             pseries = plotsummaries.irow(t[0])
             if verbose:
-                print pseries.name, "\t".join([str(round(x, 2)) for x in list(scaled_points[t[0]])])
+                sp = [round(x, 2) for x in list(scaled_points[t[0]])]
+                table_data.append((sp, 'scaled/weighted candidate %s' % pseries.name))
         except IndexError:
             continue
 
@@ -389,5 +389,16 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
             '_certainty', 1.0 - ((t[1] / max_dist) ** 0.5))
 
         ps.append(pseries)
+
+    if verbose:
+        print "".join(["%-32s" % ("| " + x) for x in headers[::4]])
+        print " "*8 + "".join(["%-32s" % ("| " + x) for x in headers[1::4]])
+        print " "*16 + "".join(["%-32s" % ("| " + x) for x in headers[2::4]])
+        print " "*24 + "".join(["%-32s" % ("| " + x) for x in headers[3::4]])
+        print "|-------" * (len(headers) + 1)
+
+
+        for td in table_data:
+            print "".join(["%8s" % str(x) for x in td[0]]), td[1]
 
     return ps, num_candidates

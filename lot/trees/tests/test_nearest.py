@@ -54,12 +54,12 @@ if __name__ == "__main__":
         weight_dict = {
             'TOTAL_PCTBA': 10.0,
             'PLOT_BA': 10.0,
-            'NONSPEC_BA': 10.0,
+            'NONSPEC_BA': 100.0,
             'NONSPEC_TPA': 10.0,
-            'TOTAL_TPA': 10.0,
+            'TOTAL_TPA': 4.0,
             'calc_slope': 0.2,
             'calc_aspect': 0.5,
-            'stand_age': 99.0,
+            'stand_age': 20.0,
             'elev_ft': 0.7,
         }
 
@@ -81,6 +81,8 @@ if __name__ == "__main__":
         print "NONSPEC_TPA::", pseries['NONSPEC_TPA']
         print "NONSPEC_BA::", pseries['NONSPEC_BA']
         print "PLOT_BA::", pseries['PLOT_BA']
+        print "TOTAL_TPA::", pseries['TOTAL_TPA']
+        print "TOTAL_PCTBA::", pseries['TOTAL_PCTBA']
 
         idb = IdbSummary.objects.get(cond_id=cond_id)
         print json.dumps({
