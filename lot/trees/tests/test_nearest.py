@@ -41,26 +41,28 @@ if __name__ == "__main__":
         data = json.loads(txt)
 
         # default is defined in plots.py
+        # # default weight dict
         # weight_dict = {
-        #     'TOTAL_PCTBA': 10,
-        #     'PLOT_BA': 10,
-        #     'NONSPEC_BA': 10,
-        #     'NONSPEC_TPA': 10,
-        #     'TOTAL_TPA': 10,
-        #     'calc_slope': 0.2,
-        #     'calc_aspect': 0.5,
-        #     'elev_ft': 0.7,
+        #     'TOTAL_PCTBA': 10.0,
+        #     'PLOT_BA': 5.0,
+        #     'NONSPEC_BA': 10.0,
+        #     'NONSPEC_TPA': 5.0,
+        #     'TOTAL_TPA': 2.0,
+        #     'stand_age': 10.0,
+        #     'calc_slope': 0.5,
+        #     'calc_aspect': 1.0,
+        #     'elev_ft': 0.75,
         # }
         weight_dict = {
             'TOTAL_PCTBA': 10.0,
-            'PLOT_BA': 10.0,
-            'NONSPEC_BA': 100.0,
-            'NONSPEC_TPA': 10.0,
-            'TOTAL_TPA': 4.0,
-            'calc_slope': 0.2,
-            'calc_aspect': 0.5,
-            'stand_age': 20.0,
-            'elev_ft': 0.7,
+            'PLOT_BA': 5.0,
+            'NONSPEC_BA': 10.0,
+            'NONSPEC_TPA': 5.0,
+            'TOTAL_TPA': 2.0,
+            'stand_age': 10.0,
+            'calc_slope': 0.5,
+            'calc_aspect': 1.0,
+            'elev_ft': 0.75,
         }
 
         ps, num_candidates = get_nearest_neighbors(

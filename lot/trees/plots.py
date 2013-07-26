@@ -277,15 +277,15 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
     if not weight_dict:
         # default weight dict
         weight_dict = {
-            'TOTAL_PCTBA': 10,
-            'PLOT_BA': 10,
-            'NONSPEC_BA': 10,
-            'NONSPEC_TPA': 10,
-            'TOTAL_TPA': 10,
-            'stand_age': 20,
-            'calc_slope': 0.2,
-            'calc_aspect': 0.5,
-            'elev_ft': 0.7,
+            'TOTAL_PCTBA': 10.0,
+            'PLOT_BA': 5.0,
+            'NONSPEC_BA': 10.0,
+            'NONSPEC_TPA': 5.0,
+            'TOTAL_TPA': 2.0,
+            'stand_age': 10.0,
+            'calc_slope': 0.5,
+            'calc_aspect': 1.0,
+            'elev_ft': 0.75,
         }
 
     search_params = input_params.copy()
@@ -396,7 +396,6 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         print " "*16 + "".join(["%-32s" % ("| " + x) for x in headers[2::4]])
         print " "*24 + "".join(["%-32s" % ("| " + x) for x in headers[3::4]])
         print "|-------" * (len(headers) + 1)
-
 
         for td in table_data:
             print "".join(["%8s" % str(x) for x in td[0]]), td[1]
