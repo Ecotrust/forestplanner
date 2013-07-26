@@ -19,7 +19,6 @@ class Command(BaseCommand):
             os.makedirs(download_dir)
 
         fixtures = [
-            ('http://labs.ecotrust.org/forestplanner/data/idbsummary.json.gz', IdbSummary),
             ('http://labs.ecotrust.org/forestplanner/data/county.json.gz', County),
             ('http://labs.ecotrust.org/forestplanner/data/fvsspecies.json.gz', FVSSpecies),
             # fvs variant and rx are handled via initial_data.json fixture for trees app
@@ -51,6 +50,17 @@ class Command(BaseCommand):
             urlretrieve(url, filename=fname)
         else:
             print "\tSkipping treelive download; .tab already exists"
+
+        #
+        # IdbSummary
+        #
+        fname = os.path.join(download_dir, "idb_summary.tsv")
+        if not os.path.exists(fname):
+            print "\tGetting idb_summary data"
+            url = "http://labs.ecotrust.org/forestplanner/data/idb_summary.tsv"
+            urlretrieve(url, filename=fname)
+        else:
+            print "\tSkipping idb_summary download; .tsv already exists"
 
         #
         # FVS Aggregate
@@ -110,10 +120,20 @@ class Command(BaseCommand):
                     SumOfBA_FT2_AC, AvgOfBA_FT2_AC, AvgOfHT_FT, AvgOfDBH_IN, AvgOfAge_BH,
                     TOTAL_BA_FT2_AC, COUNT_SPECIESSIZECLASSES, PCT_OF_TOTALBA)
                 FROM '%s' WITH NULL AS ''""" % fname)
-            transaction.commit_unless_managed()            
+            transaction.commit_unless_managed()
             cursor.close()
         else:
             print "\tSkip loading TreeliveSummary data"
+
+        fname = os.path.join(download_dir, "idb_summary.tsv")
+        if IdbSummary.objects.all().count() == 0:
+            print "\tLoading IdbSummary data"
+            cursor = connection.cursor()
+            cursor.execute("COPY idb_summary FROM '%s' WITH NULL AS ''" % fname)
+            transaction.commit_unless_managed()
+            cursor.close()
+        else:
+            print "\tSkip loading IdbSummary data"
 
         fname = os.path.join(download_dir, "fvsaggregate.csv")
         if FVSAggregate.objects.all().count() == 0 and \
@@ -139,7 +159,7 @@ class Command(BaseCommand):
                     FROM '%s'
                     DELIMITER ',' CSV HEADER
                 """ % fname)
-            transaction.commit_unless_managed()            
+            transaction.commit_unless_managed()
             cursor.close()
 
             print "\tPopulating conditionvariantlookup table based on fvsaggregate table"
@@ -150,7 +170,7 @@ class Command(BaseCommand):
                     FROM trees_fvsaggregate
                     GROUP BY cond, var
                 """)
-            transaction.commit_unless_managed()            
+            transaction.commit_unless_managed()
             cursor.close()
         else:
             print "\tSkip loading FVSAggregate data"
