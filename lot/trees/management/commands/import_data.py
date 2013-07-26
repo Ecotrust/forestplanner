@@ -65,13 +65,20 @@ class Command(BaseCommand):
         #
         # FVS Aggregate
         #
-        fname = os.path.join(download_dir, "fvsaggregate.csv")
-        if not os.path.exists(fname):
-            print "\tGetting treelive data"
-            url = "http://labs.ecotrust.org/forestplanner/data/fvsaggregate.csv"
-            urlretrieve(url, filename=fname)
+        fname = os.path.join(download_dir, "fvsaggregate.tsv.gz")
+        unzipped = os.path.join(download_dir, "fvsaggregate.tsv")
+        if not os.path.exists(unzipped):
+            if not os.path.exists(fname):
+                print "\tGetting FVS aggregate data"
+                url = "http://labs.ecotrust.org/forestplanner/data/fvsaggregate.tsv.gz"
+                urlretrieve(url, filename=fname)
+            assert os.path.exists(fname)
+
+            print "\tUnpacking FVS aggregate gzip file"
+            subprocess.check_output(['gunzip', fname])
+            assert os.path.exists(unzipped)
         else:
-            print "\tSkipping fvsaggregate download; fvsaggregate.csv already exists"
+            print "\tSkipping fvsaggregate download; fvsaggregate.tsv already exists"
 
         #
         # Fixtures
@@ -135,29 +142,15 @@ class Command(BaseCommand):
         else:
             print "\tSkip loading IdbSummary data"
 
-        fname = os.path.join(download_dir, "fvsaggregate.csv")
+        fname = os.path.join(download_dir, "fvsaggregate.tsv")
         if FVSAggregate.objects.all().count() == 0 and \
            ConditionVariantLookup.objects.all().count() == 0:
             print "\tLoading FVSAggregate data"
             cursor = connection.cursor()
             cursor.execute("""
-                    COPY trees_fvsaggregate("agl","bgl","calc_carbon","cond",
-                        "dead","offset","rx","site","total_stand_carbon","var",
-                        "year","merch_carbon_removed","merch_carbon_stored",
-                        "cedr_bf","cedr_hrv","ch_cf","ch_hw","ch_tpa",
-                        "cut_type","df_bf","df_hrv","es_btl","firehzd","hw_bf",
-                        "hw_hrv","lg_cf","lg_hw","lg_tpa","lp_btl","mnconbf",
-                        "mnconhrv","mnhw_bf","mnhw_hrv","nsodis","nsofrg",
-                        "nsonest","pine_bf","pine_hrv","pp_btl","sm_cf","sm_hw",
-                        "sm_tpa","spprich","sppsimp","sprc_bf","sprc_hrv",
-                        "wj_bf","wj_hrv","ww_bf","ww_hrv","after_ba",
-                        "after_merch_bdft","after_merch_ft3","after_total_ft3",
-                        "after_tpa","age","removed_merch_bdft",
-                        "removed_merch_ft3","removed_total_ft3","removed_tpa",
-                        "start_ba","start_merch_bdft","start_merch_ft3",
-                        "start_total_ft3","start_tpa")
+                    COPY trees_fvsaggregate
                     FROM '%s'
-                    DELIMITER ',' CSV HEADER
+                    WITH NULL AS ''
                 """ % fname)
             transaction.commit_unless_managed()
             cursor.close()
@@ -174,6 +167,7 @@ class Command(BaseCommand):
             cursor.close()
         else:
             print "\tSkip loading FVSAggregate data"
+            print "\tSkip populating conditionvariantlookup"
 
         for url, klass in fixtures:
             fname = os.path.join(download_dir, url.split("/")[-1])
