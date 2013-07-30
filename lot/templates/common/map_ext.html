@@ -186,8 +186,8 @@
 														</dd>
 
 													</dl>
-                        </div> <!-- /.span4 -->
-                        <div class="span6" style="text-align: center;">
+                        </div> <!-- /.span6 -->
+                        <div class="span6">
 
                           <!--
                             <button class="btn btn-info center" 
@@ -196,7 +196,7 @@
                               ">Select</button>
                           -->
                             
-                          <div class="btn-group center">
+                          <div class="btn-group pull-right">
                             <button id="delete-button" class="btn btn-mini" 
                               data-bind="click: $parent.showDeleteDialog"><i class="icon-remove"></i> Delete </button>
                             <button class="btn btn-mini"  
@@ -419,12 +419,14 @@
                                             <div data-bind="visible: fields.property_is_runnable">
                                                 <div class="alert" data-bind="visible: !fields.is_runnable" > 
                                                     <i class="icon-exclamation-sign icon-white"></i>
-                                                    Scenario needs to be updated; Please <strong>Edit</strong> and apply a Rx to all stands (Step 2).
+                                                    Scenario needs to be updated; Please <strong data-bind="click:
+                                                      $parent.editFeature">Edit</strong> and apply a Rx to all stands (Step 2).
                                                 </div>
                                                 <div data-bind="visible: fields.is_runnable" > 
                                                     <div class="alert" data-bind="visible: fields.needs_rerun" > 
                                                         <i class="icon-exclamation-sign icon-white"></i>
-                                                        Stands have changed since scenario was created; Please <strong>Edit</strong> and re-Submit.
+                                                        Stands have changed since scenario was created; Please <strong
+                                                          data-bind="click: $parent.editFeature">Edit</strong> and re-Submit.
                                                     </div>
                                                 </div>
                                             </div>
