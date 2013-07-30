@@ -49,3 +49,12 @@ class FVSVariantAdmin(admin.ModelAdmin):
 
 
 admin.site.register(FVSVariant, FVSVariantAdmin)
+
+
+class TimberPriceAdmin(admin.ModelAdmin):
+    list_display = ('variant', 'timber_type', 'price')
+    list_filter = ['variant', 'timber_type']
+    list_editable = ('price',)
+    ordering = ['variant', 'timber_type']
+
+admin.site.register(TimberPrice, TimberPriceAdmin)

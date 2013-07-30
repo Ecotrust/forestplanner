@@ -6,6 +6,8 @@ import datetime
 import math
 import random
 import time
+import operator
+import numpy as np
 from django.contrib.gis.db import models
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
@@ -24,6 +26,7 @@ from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django.db import connection
 from celery.result import AsyncResult
+from collections import defaultdict
 
 logger = get_logger()
 
@@ -655,7 +658,7 @@ class Scenario(Feature):
         return self.input_property.feature_set(feature_classes=[Stand, ])
 
     @property
-    #@cachemethod("Scenario_%(id)s_property_metrics")
+    @cachemethod("Scenario_%(id)s_property_metrics")
     def output_property_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -705,7 +708,7 @@ class Scenario(Feature):
         return {'__all__': d}
 
     @property
-    #@cachemethod("Scenario_%(id)s_stand_metrics")
+    @cachemethod("Scenario_%(id)s_stand_metrics")
     def output_stand_metrics(self):
         """
         Note the data structure for stands is different than properties
@@ -755,13 +758,262 @@ class Scenario(Feature):
             ds['standing_timber'].append(row["standing_timber"])
             ds['harvested_timber'].append(row["harvested_timber"])
 
-            if row['sstand_id'] not in cum_harvest_dict: 
+            if row['sstand_id'] not in cum_harvest_dict:
                 cum_harvest_dict[row['sstand_id']] = 0
 
             cum_harvest_dict[row['sstand_id']] += row["harvested_timber"]
             ds['cum_harvest'].append(cum_harvest_dict[row['sstand_id']])
 
         return d
+
+    @property
+    @cachemethod("Scenario_%(id)s_revenue_metrics")
+    def output_revenue_metrics(self):
+        sql = """SELECT
+                    ss.id                          AS sstand_id,
+                    a.year                         AS year,
+                    ss.acres                       AS acres,
+                    a.CUT_TYPE                     AS CUT_TYPE,
+                    a.CEDR_HRV / 1000              AS CEDR_HRV,
+                    a.DF_HRV / 1000                AS DF_HRV,
+                    a.HW_HRV / 1000                AS HW_HRV,
+                    a.MNCONHRV / 1000              AS MNCONHRV,
+                    a.MNHW_HRV / 1000              AS MNHW_HRV,
+                    a.PINE_HRV / 1000              AS PINE_HRV,
+                    a.WJ_HRV / 1000                AS WJ_HRV,
+                    a.WW_HRV / 1000                AS WW_HRV,
+                    a.SPRC_HRV / 1000              AS SPRC_HRV
+                FROM
+                    trees_fvsaggregate a
+                JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                WHERE   var = '%s' -- get from current property
+                AND   ss.scenario_id = %d -- get from current scenario
+                ORDER BY a.year, ss.id;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        desc = cursor.description
+        rows = [dict(zip([col[0] for col in desc], row))
+                for row in cursor.fetchall()]
+
+        prices_per_mbf = dict([
+            (x.timber_type, x.price)
+            for x in TimberPrice.objects.filter(variant=self.input_property.variant)
+        ])
+
+        annual_revenue = defaultdict(float)
+
+        year = None
+        years = []
+        for row in rows:
+            if year != int(row['year']):
+                year = int(row['year'])
+                years.append(year)
+                annual_revenue[year] += 0
+
+            acres = row['acres']
+
+            for k, v in row.items():
+                if 'hrv' not in k or v is None or v == 0:
+                    continue
+                price = prices_per_mbf[k]
+                revenue = v * acres * price
+                annual_revenue[year] += revenue
+
+        return {'revenue': dict(annual_revenue)}
+
+    @property
+    @cachemethod("Scenario_%(id)s_cash_metrics")
+    def output_cash_metrics(self):
+        from forestcost import main_model
+        from forestcost import routing
+        from forestcost import landing
+
+        sql = """SELECT
+                    ss.id AS sstand_id,
+                    a.cond, a.rx, a.year, a.offset,
+                    ST_AsText(ss.geometry_final) AS stand_wkt,
+                    ss.acres         AS acres,
+                    a.LG_CF          AS LG_CF,
+                    a.LG_HW          AS LG_HW,
+                    a.LG_TPA         AS LG_TPA,
+                    a.SM_CF          AS SM_CF,
+                    a.SM_HW          AS SM_HW,
+                    a.SM_TPA         AS SM_TPA,
+                    a.CH_CF          AS CH_CF,
+                    a.CH_HW          AS CH_HW,
+                    a.CH_TPA         AS CH_TPA,
+                    stand.elevation  AS elev,
+                    stand.slope      AS slope,
+                    a.CUT_TYPE       AS CUT_TYPE
+                FROM
+                    trees_fvsaggregate a
+                JOIN
+                    trees_scenariostand ss
+                  ON  a.cond = ss.cond_id
+                  AND a.rx = ss.rx_internal_num
+                  AND a.offset = ss.offset
+                JOIN trees_stand stand
+                  ON ss.stand_id = stand.id
+                -- WHERE a.site = 2 -- TODO if we introduce multiple site classes, we need to fix
+                WHERE   var = '%s' -- get from current property
+                AND   ss.scenario_id = %d -- get from current scenario
+                ORDER BY a.year, ss.id;""" % (self.input_property.variant.code, self.id)
+
+        cursor = connection.cursor()
+        cursor.execute(sql)
+        desc = cursor.description
+        rows = [
+            dict(zip([col[0] for col in desc], row))
+            for row in cursor.fetchall()
+            if None not in row  # remove any nulls; incomplete data can't be used
+        ]
+
+        # Landing Coordinates
+        center = self.input_property.geometry_final.point_on_surface
+        centroid_coords = center.transform(4326, clone=True).tuple
+        landing_coords = landing.landing(centroid_coords=centroid_coords)
+
+        haulDist, haulTime, coord_mill = routing.routing(
+            landing_coords, mill_shp=settings.MILL_SHAPEFILE
+        )
+
+        annual_total_cost = defaultdict(float)
+        annual_haul_cost = defaultdict(float)
+        annual_heli_harvest_cost = defaultdict(float)
+        annual_ground_harvest_cost = defaultdict(float)
+        annual_cable_harvest_cost = defaultdict(float)
+        #annual_admin_cost = defaultdict(float)
+        #annual_tax_cost = defaultdict(float)
+        #annual_road_cost = defaultdict(float)
+        used_records = 0
+        skip_noharvest = 0
+        skip_error = 0
+
+        year = None
+        years = []
+        for row in rows:
+            if year != int(row['year']):
+                year = int(row['year'])
+                years.append(year)
+                annual_total_cost[year] += 0
+                annual_haul_cost[year] += 0
+                annual_heli_harvest_cost[year] += 0
+                annual_ground_harvest_cost[year] += 0
+                annual_cable_harvest_cost[year] += 0
+                #annual_admin_cost[year] += 0
+                #annual_tax_cost[year] += 0
+                #annual_road_cost[year] += 0
+
+            ### Tree Data ###
+            # Cut type code indicating type of harvest implemented.
+            # 0 = no harvest, 1 = pre-commercial thin,
+            # 2 = commercial thin, 3 = regeneration harvest
+            try:
+                cut_type = int(row['cut_type'])
+            except:
+                # no harvest so don't attempt to calculate
+                cut_type = 0
+
+            # PartialCut(clear cut = 0, partial cut = 1)
+            if cut_type == 3:
+                PartialCut = 0
+            elif cut_type in [1, 2]:
+                PartialCut = 1
+            else:
+                # no harvest so don't attempt to calculate
+                skip_noharvest += 1
+                continue
+
+            cost_args = (
+                # stand info
+                row['acres'], row['elev'], row['slope'], row['stand_wkt'],
+                # harvest info
+                row['ch_tpa'], row['ch_cf'],
+                row['sm_tpa'], row['sm_cf'],
+                row['lg_tpa'], row['lg_cf'],
+                row['ch_hw'], row['sm_hw'], row['lg_hw'],
+                PartialCut,
+                # routing info
+                landing_coords, haulDist, haulTime, coord_mill
+            )
+
+            try:
+                result = main_model.cost_func(*cost_args)
+                annual_haul_cost[year] += result['total_haul_cost']
+                annual_total_cost[year] += result['total_cost']
+
+                ###### TODO : Estimate these based on bdft, acres, etc #########
+                #annual_admin_cost[year] += result['total_harvest_cost'] / 3.0
+                #annual_tax_cost[year] += result['total_harvest_cost'] / 10.0
+                #annual_road_cost[year] += result['total_harvest_cost'] / 1.5
+
+                system = result['harvest_system']
+                if system.startswith("Helicopter"):
+                    annual_heli_harvest_cost[year] += result['total_harvest_cost']
+                elif system.startswith("Ground"):
+                    annual_ground_harvest_cost[year] += result['total_harvest_cost']
+                elif system.startswith("Cable"):
+                    annual_cable_harvest_cost[year] += result['total_harvest_cost']
+                else:
+                    # TODO
+                    raise ValueError
+                used_records += 1
+            except (ZeroDivisionError, ValueError):
+                skip_error += 1
+
+        # Costs
+        def ordered_costs(x):
+            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            return [-1 * z[1] for z in sorted_x]
+
+        data = {}
+        data['heli'] = ordered_costs(annual_heli_harvest_cost)
+        data['cable'] = ordered_costs(annual_cable_harvest_cost)
+        data['ground'] = ordered_costs(annual_ground_harvest_cost)
+        data['haul'] = ordered_costs(annual_haul_cost)
+        data['years'] = sorted(annual_haul_cost.keys())
+        # data['admin'] = ordered_costs(annual_admin_cost)
+        # data['tax'] = ordered_costs(annual_tax_cost)
+        # data['road'] = ordered_costs(annual_road_cost)
+
+        ##### TODO  Revenue
+        # def ordered_revenue(x, years):
+        #     sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+        #     return [rev for year, rev in sorted_x if year in years]
+
+        # gross = ordered_revenue(self.output_revenue_metrics['revenue'], data['years'])
+        # data['gross'] = gross
+
+        ##### TODO Net
+        # total_cost = \
+        #     np.array(data['heli']) + \
+        #     np.array(data['cable']) + \
+        #     np.array(data['ground']) + \
+        #     np.array(data['haul'])
+        #     # np.array(data['admin']) + \
+        #     # np.array(data['tax']) + \
+        #     # np.array(data['road'])
+
+        # net = (np.array(gross) + total_cost).tolist()
+        # data['net'] = net
+
+        # def cumulative_discounted_net(nets, discount_rate):
+        #     cum_sum = []
+        #     y = 0
+        #     for period, net in enumerate(nets):
+        #         years = period * 5  # Assume 5 year time periods
+        #         y += net / (1+(discount_rate ** years))
+        #         cum_sum.append(y)
+        #     return cum_sum
+
+        # data['cum_disc_net'] = cumulative_discounted_net(net, discount_rate=0.04)
+
+        return data
 
     @property
     def property_level_dict(self):
@@ -938,6 +1190,7 @@ class Scenario(Feature):
         self.input_rxs = new_input_rxs
 
     def save(self, *args, **kwargs):
+        self.invalidate_cache()
         super(Scenario, self).save(*args, **kwargs)
         self.fill_with_default_rxs()
         super(Scenario, self).save(*args, **kwargs)
@@ -962,6 +1215,11 @@ class Scenario(Feature):
                  'trees.views.run_scenario',
                  edits_original=True,
                  select='single'),
+            # Link to calculate cash flow metrics for a scenario
+            alternate('Scenario Cash Flow',
+                      'trees.views.scenario_cash_flow',
+                      type="application/json",
+                      select='single'),
         )
 
 
@@ -1509,6 +1767,35 @@ class FVSAggregate(models.Model):
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
 
+
+# variable names are lower-case and must correspond
+# exactly with FVSAggregate field names
+timber_choices = (
+    ('cedr_hrv', 'Cedar'),
+    ('df_hrv', 'Doug fir'),
+    ('hw_hrv', 'Major Hardwood'),
+    ('mnconhrv', 'Minor Conifer'),
+    ('mnhw_hrv', 'Minor Hardwood'),
+    ('pine_hrv', 'Pine'),
+    ('wj_hrv', 'Western Juniper'),
+    ('ww_hrv', 'White Wood'),
+    ('sprc_hrv', 'Spruce')
+)
+
+
+class TimberPrice(models.Model):
+    """
+    Average price for types of timber in different regions
+    """
+    variant = models.ForeignKey(FVSVariant)
+    timber_type = models.CharField(max_length=10, choices=timber_choices)
+    price = models.FloatField()
+
+    def __unicode__(self):
+        return "%s, %s: $%.2f per mbf" % (self.variant.code, self.get_timber_type_display(), self.price)
+
+    class Meta:
+        unique_together = ("variant", "timber_type")
 
 # Signals
 # Handle the triggering of asyncronous processes
