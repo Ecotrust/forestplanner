@@ -11,7 +11,7 @@ urlpatterns = patterns(
         stand_list_nn, name='trees-standlist'),
     url(r'^stands/$',
         manage_stands, name='trees-manage_stands'),
-    url(r'^strata/$',
+    url(r'^strata/$', # Just in case you land there without a property
         redirect_to, {'url': '/'}),
     url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
