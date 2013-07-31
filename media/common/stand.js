@@ -90,6 +90,7 @@ function standsViewModel() {
   };
 
   self.addStandStart = function() {
+    self.selectControl.unselectAll();
     app.drawFeature.activate();
     self.showStandHelp(false);
     self.showStandList(false);
@@ -170,7 +171,6 @@ function standsViewModel() {
       return false;
     }
     if (self.modifyFeature.active) {
-      console.info('self.modifyFeature.active within saveStandForm');      
       values.geometry_final = values.geometry_orig = self.modifyFeature.feature.geometry.toString();
       self.modifyFeature.deactivate();
       isNew = false;
@@ -221,7 +221,6 @@ function standsViewModel() {
   // start the stand editing process
   self.editStand = function() {
     if ( ! self.stand_layer.selectedFeatures[0] ){
-      console.info(" ! self.stand_layer.selectedFeatures[0]", self.stand_layer.selectedFeatures[0]);
         self.selectFeature(self.stand_layer.features[0].data);
     }
     self.modifyFeature.selectFeature(self.stand_layer.selectedFeatures[0]);
@@ -241,7 +240,6 @@ function standsViewModel() {
     app.drawFeature.deactivate();
 
     if (self.modifyFeature.active) {
-      console.info('self.modifyFeature.active within cancelAddStand');
       self.modifyFeature.resetVertices();
       self.modifyFeature.deactivate();
     }
