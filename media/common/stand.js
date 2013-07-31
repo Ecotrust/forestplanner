@@ -73,10 +73,9 @@ function standsViewModel() {
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
 	
-    //these are breaking tab switching. seems to be working without them!
-    //uh oh?
-    //map.removeLayer(self.stand_layer);
+    //this is breaking tab switching. seems to be working without it!  uh oh?
     //map.removeLayer(self.property_layer);
+    map.removeLayer(self.stand_layer);
     app.drawFeature.featureAdded = app.properties.featureAdded;
     app.selectFeature.activate();
   };
