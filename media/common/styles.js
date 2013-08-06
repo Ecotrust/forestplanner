@@ -14,7 +14,8 @@ var stand_style = {
 var property_style = {
     graphicZIndex: 999,
     pointRadius: 5,
-    fillOpacity: 0,
+    fillOpacity: 0.1,
+    fillColor: "#FFFFFF",
     strokeWidth: 2,
     StrokeOpacity: 1,
     strokeColor: "white", //"#44FF00",
@@ -29,16 +30,17 @@ var property_style = {
 
 var selected_prop_style = {
     graphicZIndex: 1,
-    fillColor: "#44FF00", //"#FFA000",
-    fillOpacity: 0,
-    strokeWidth: 2,
+    fillColor: "#FFFFFF", //"#FFA000",
+    fillOpacity: 0.2,
+    strokeWidth: 4,
     strokeOpacity: 1,
     strokeColor: "#FFFFFF" //"#FFA000"
 };
 
 var selected_stand_style = {
     graphicZIndex: 9999,
-    fillOpacity: 0,
+    fillColor: "#44FF00", //"#FFA000",    
+    fillOpacity: 0.4,
     strokeWidth: 5,
     strokeOpacity: 0.7,
     strokeColor: "#44FF00",
@@ -47,13 +49,13 @@ var selected_stand_style = {
 var def_symbolizer_style = {
     "Polygon": {
         pointRadius: 5,
-        fillColor: "white",
-        fillOpacity: 0,
+        fillColor: "#44FF00",
+        fillOpacity: 1,
         strokeWidth: 2,
         strokeOpacity: 1,
         strokeColor: "white"
     }
-}
+};
 
 var temp_symbolizer_style = {
     "Point": {

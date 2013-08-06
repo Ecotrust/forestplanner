@@ -73,10 +73,9 @@ function standsViewModel() {
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
 	
-    //these are breaking tab switching. seems to be working without them!
-    //uh oh?
-    //map.removeLayer(self.stand_layer);
+    //this is breaking tab switching. seems to be working without it!  uh oh?
     //map.removeLayer(self.property_layer);
+    map.removeLayer(self.stand_layer);
     app.drawFeature.featureAdded = app.properties.featureAdded;
     app.selectFeature.activate();
   };
@@ -90,6 +89,7 @@ function standsViewModel() {
   };
 
   self.addStandStart = function() {
+    self.selectControl.unselectAll();
     app.drawFeature.activate();
     self.showStandHelp(false);
     self.showStandList(false);
@@ -212,12 +212,16 @@ function standsViewModel() {
       success: function (data, textStatus, jqXHR) {
         self.stand_layer.removeFeatures(self.stand_layer.getFeaturesByAttribute("uid", self.selectedFeature().uid()));
         self.standList.remove(self.selectedFeature());
+        self.selectFeature(self.standList()[0]);
       }  
     });
   };
 
   // start the stand editing process
   self.editStand = function() {
+    if ( ! self.stand_layer.selectedFeatures[0] ){
+        self.selectFeature(self.stand_layer.features[0].data);
+    }
     self.modifyFeature.selectFeature(self.stand_layer.selectedFeatures[0]);
     self.modifyFeature.activate();
     self.showStandList(false);
@@ -235,7 +239,6 @@ function standsViewModel() {
     app.drawFeature.deactivate();
 
     if (self.modifyFeature.active) {
-      console.info('self.modifyFeature.active');
       self.modifyFeature.resetVertices();
       self.modifyFeature.deactivate();
     }
@@ -243,6 +246,7 @@ function standsViewModel() {
   };
 
   self.selectFeature = function(feature, event) {
+    //app.log('selectFeature', 'pink');
     self.selectControl.unselectAll();
     self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", feature.uid())[0]);
     self.selectedFeature(feature);
@@ -265,7 +269,7 @@ function standsViewModel() {
       self.showDrawPanel(false);
       app.stands.geometry = feature.geometry.toString();
       self.showStandForm("create");
-      //app.saveFeature(feature);
+      app.saveFeature(feature);
     };
 
     self.stand_layer = new OpenLayers.Layer.Vector("Stands", {
@@ -275,32 +279,35 @@ function standsViewModel() {
 
     app.stand_layer = self.stand_layer;
 
-    //
-    //  Snapping controls for drawing/editing stands
-    //
-    new_snap = new OpenLayers.Control.Snapping({
-                layer: app.new_features,
-                targets: [app.property_layer, app.stand_layer],
-                greedy: false
-            });
-    new_snap.activate();
-    var stand_snap = new OpenLayers.Control.Snapping({
-            layer: self.stand_layer,
-            targets: [app.property_layer, app.stand_layer],
-            greedy: false
-        });
-    stand_snap.activate();
 
     map.addLayer(self.stand_layer);
     self.modifyFeature = new OpenLayers.Control.ModifyFeature(self.stand_layer);
     map.addControl(self.modifyFeature);
 
+    //
+    //  Snapping controls for drawing/editing stands
+    //
+    var new_snap = new OpenLayers.Control.Snapping({
+      layer: app.new_features,
+      targets: [app.property_layer, app.stand_layer],
+      greedy: false
+    });
+    new_snap.activate();
+    var stand_snap = new OpenLayers.Control.Snapping({
+      layer: self.stand_layer,
+      targets: [app.property_layer, app.stand_layer],
+      greedy: false
+    });
+    stand_snap.activate();
+
+//self.modifyFeature.events.on({ });
     self.stand_layer.events.on({
       'featureselected': function(feature) {
         // use true as second argument to indicate map event
-        self.selectFeatureById(feature.feature.data.uid);
+        self.selectFeatureById(feature.feature.data.uid, true);
       },
       'featureadded': function(feature) {
+        
         // var featureViewModel = ko.mapping.fromJS(feature.feature.data);
         // console.log('loading ' + feature.feature.data.name);
         // // save a reference to the feature in the viewmodel
@@ -369,9 +376,7 @@ function standsViewModel() {
         if (i > 90) { clearInterval(timer);}
     }, 100);
     self.showNoStandHelp(false);
-	console.info('loadStands property', property);
     self.property = property;
-	console.info('loadStands self.property', self.property);
 
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
@@ -387,6 +392,7 @@ function standsViewModel() {
     var key = 'stand_' +  property.uid();
     var process = function (data) {
       if (data.features.length) {
+        self.stand_layer.removeAllFeatures();
         self.stand_layer.addFeatures(app.geojson_format.read(data));
         self.loadViewModel(data);
       } else {
