@@ -14,7 +14,20 @@ import json
 
 if __name__ == "__main__":
 
+    args = sys.argv[1:]
+
     for json_path in glob.glob(os.path.join(thisdir, "test_plots", "*.json")):
+
+        if len(args) > 0:
+            match = False
+            for arg in args:
+                if arg in json_path:
+                    match = True
+                    break
+            if not match:
+                print "\tskipping", json_path
+                continue    
+
         print
         print "<" * 80
         print json_path
@@ -59,7 +72,7 @@ if __name__ == "__main__":
             'NONSPEC_BA': 10.0,
             'NONSPEC_TPA': 5.0,
             'TOTAL_TPA': 2.0,
-            'stand_age': 10.0,
+            'stand_age': 25.0,
             'calc_slope': 0.5,
             'calc_aspect': 1.0,
             'elev_ft': 0.75,
