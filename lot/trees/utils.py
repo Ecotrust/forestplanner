@@ -31,7 +31,7 @@ class StandImporter:
     def __init__(self, user):
         self.user = user
         self.required_fields = []  # ['name']
-        self.optional_fields = ['domspp', 'rx']  # model must provide defaults!
+        self.optional_fields = ['name', 'domspp', 'rx']  # model must provide defaults!
 
     def _validate_field_mapping(self, layer, field_mapping):
         fields = layer.fields

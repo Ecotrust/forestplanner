@@ -19,8 +19,6 @@ def impute_rasters(stand_id, savetime):
     except (Stand.DoesNotExist, IndexError):
         raise impute_rasters.retry()
 
-    print "imputing raster stats for %d" % stand_id
-
     def get_raster_stats(stand, rastername):
         # yes we know zonal_stats has it's own internal caching but it uses the DB
         key = "zonal_%s_%s" % (stand.geometry_final.wkt.__hash__(), rastername)
@@ -116,8 +114,6 @@ def impute_nearest_neighbor(stand_results, savetime):
     # get variant code
     variant = stand.collection.variant.code
 
-    print "imputing nearest neighbor for %d" % stand_id
-
     stand_list = stand.strata.stand_list
     geom = stand.geometry_final.transform(4326, clone=True)
     site_cond = {
@@ -169,7 +165,6 @@ def schedule_harvest(scenario_id):
     except:
         raise schedule_harvest.retry()
 
-    print "Calculating schedule for %s" % scenario_id
     current_task.update_state(state='PROGRESS', meta={'current': 50})
     time.sleep(1)
 

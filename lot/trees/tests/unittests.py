@@ -12,7 +12,7 @@ from madrona.features.models import Feature, PointFeature, LineFeature, PolygonF
 from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario
+from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx
 from trees.utils import StandImporter
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
@@ -148,7 +148,8 @@ class RESTTest(TestCase):
         response = self.client.post(self.create_url, {'name': 'test', 'geometry_orig': g1.wkt, })
         self.assertEqual(response.status_code, 201, response.content)
         self.assertTrue(old_count < Stand.objects.count())
-        inst = Stand.objects.get(name='test')
+        uid = json.loads(response.content)['X-Madrona-Select']
+        inst = get_feature_by_uid(uid)
         self.assertTrue(
             response._get_content().find(inst.get_absolute_url()) > -1)
 
@@ -423,41 +424,12 @@ class ImputeTest(TestCase):
         self.cos_aspect = RasterDataset.objects.get(name="cos_aspect")
         self.sin_aspect = RasterDataset.objects.get(name="sin_aspect")
         self.slope = RasterDataset.objects.get(name="slope")
-        self.avg_elev = 145.05799999
+        self.avg_elev = 145.6
 
     def test_impute_onsave(self):
         s1 = Stand.objects.get(pk=self.pk1)
         self.assertNotEqual(s1.elevation, None)
-        self.assertAlmostEqual(s1.elevation, self.avg_elev)
-
-    def test_impute_smart_save(self):
-        d = os.path.dirname(__file__)
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.elevation, None)
-        self.assertAlmostEqual(s1.elevation, self.avg_elev)
-        elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
-            'testdata', 'elevationx2.tif')) # swap raster to elevation x 2
-        self.elev.filepath = elev_path
-        self.elev.save() 
-        s1.save()  # saving stand should trigger re-imputing
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.elevation, None)
-        self.assertAlmostEqual(s1.elevation, self.avg_elev * 2, places=5) # now we should get a new elevation value  
-        elev_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
-            'testdata', 'elevation.tif')) # swap rasters back to normal elevation
-        self.elev.filepath = elev_path
-        self.elev.save()
-        s1.save()  # saving stand should trigger re-imputing
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertNotEqual(s1.elevation, None)
-        self.assertAlmostEqual(s1.elevation, self.avg_elev) # back to the original elevation value
-
-    def test_raster_not_found(self):
-        self.elev.delete()
-        s1 = Stand.objects.get(pk=self.pk1)
-        s1.save()
-        s1 = Stand.objects.get(pk=self.pk1)
-        self.assertEquals(s1.elevation, None)
+        self.assertAlmostEqual(s1.elevation, self.avg_elev, places=0)
 
     def test_zonal_null(self):
         s1 = Stand.objects.get(pk=self.pk1)
@@ -612,9 +584,9 @@ class StandImportTest(TestCase):
         url = reverse('trees-upload_stands')
         response = self.client.post(url, {'property_pk': self.prop1.pk, 'ogrfile': f})
         f.close()
-        self.assertEqual(response.status_code, 500, response.content)
-        self.assertNotEqual(response.content.find('Dataset does not have a required field'), -1, response.content)
-        self.assertEqual(len(self.prop1.feature_set()), 0)
+        self.assertEqual(response.status_code, 201, response.content)
+        self.assertNotEqual(response.content.find('X-Madrona-Select'), -1, response.content)
+        self.assertEqual(len(self.prop1.feature_set()), 37)
 
     def test_importer_http_badproperty(self):
         '''
@@ -781,43 +753,42 @@ class LocationTest(TestCase):
 
     def test_bad_location(self):
         self.assertEqual(self.prop1.location, self.realloc)
-        cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
-        g1 = cntr.buffer(75)
-        g1.transform(settings.GEOMETRY_DB_SRID)
-        p1 = MultiPolygon(g1)
-        self.prop1.geometry_final = p1 
+        cntr = GEOSGeometry('SRID=3857;POINT(-638474.0 980123.1)') # not on the map
+        g2 = cntr.buffer(75)
+        g2.transform(settings.GEOMETRY_DB_SRID)
+        p2 = MultiPolygon(g2)
+        self.prop1.geometry_final = p2 
         self.prop1.save()
         self.assertEqual(self.prop1.location, (None, None))
 
 class VariantTest(TestCase):
-    fixtures = ['test_fvs_variants.json',]
 
     def setUp(self):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
-        self.real = "Klamath Mountains"
+        self.real = FVSVariant.objects.get(code="PN")
+        self.other = FVSVariant.objects.get(code="SO")
 
     def test_variant(self):
-        self.assertEqual(len(FVSVariant.objects.all()), 1, "Variant fixture didn't load properly!")
         self.assertEqual(self.prop1.variant, self.real)
 
     def test_bad_variant(self):
         self.assertEqual(self.prop1.variant, self.real)
-        cntr = GEOSGeometry('SRID=3857;POINT(-438474.0 980123.1)') # not on the map
-        g1 = cntr.buffer(75)
-        g1.transform(settings.GEOMETRY_DB_SRID)
-        p1 = MultiPolygon(g1)
-        self.prop1.geometry_final = p1 
+        cntr = GEOSGeometry('SRID=3857;POINT(-638474.0 980123.1)')  # not on the map, but close to SO
+        g2 = cntr.buffer(75)
+        g2.transform(settings.GEOMETRY_DB_SRID)
+        p2 = MultiPolygon(g2)
+        self.prop1.geometry_final = p2 
         self.prop1.save()
-        self.assertEqual(self.prop1.variant, None)
+        self.assertEqual(self.prop1.variant, self.other)
 
 class SearchTest(TestCase):
     
     def setUp(self):
         self.searches = [
-            ('Tyron Creek', 200, [-13654088.17, 5688345.48]),
+            ('Tyron Creek', 200, [-13654114.0, 5688345.48]),
             ('41.12345;-81.98765', 200, [-9126823, 5030567]),
             ('39.3 N 76.4 W', 200, [-8504809, 4764735]), 
             ('KJHASBUNCHOFNONSENSEDOIHJJDHSGF', 404, None),
@@ -841,8 +812,8 @@ class SearchTest(TestCase):
             if content['center'] is None:
                 self.assertEquals(search[2], None)
             else:
-                for x, y in zip(content['center'], search[2]):
-                    self.assertAlmostEquals(x, y, delta=3)  # within 3 meters of expected
+                for a, b in zip(content['center'], search[2]):
+                    self.assertAlmostEquals(a, b, delta=50)  # within 50 meters of expected
 
 class ScenarioTest(TestCase):
 
@@ -865,7 +836,9 @@ class ScenarioTest(TestCase):
 
         self.options = Scenario.get_options()
         self.create_url = self.options.get_create_form()
-        self.geojson_link = self.options.get_link('GeoJSON')
+
+        self.rx1 = Rx.objects.get(internal_name=self.prop1.variant.code + "1").id
+        self.rx2 = Rx.objects.get(internal_name=self.prop1.variant.code + "2").id
 
         enable_sharing()
 
@@ -874,7 +847,7 @@ class ScenarioTest(TestCase):
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
-                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+                input_rxs={self.stand1.pk: self.rx1, self.stand2.pk: self.rx2},
              )
         s1.save()
         self.assertEquals(Scenario.objects.get(name="My Scenario").input_target_boardfeet, 2000.0)
@@ -884,12 +857,12 @@ class ScenarioTest(TestCase):
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
-                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+                input_rxs={self.stand1.pk: self.rx1, self.stand2.pk: self.rx2},
              )
         s1.save()
-        out = s1.output_scheduler_results
-        results = out[self.stand1.pk]
-        self.assertTrue(len(results['carbon']) == len(results['carbon']) ==len(results['carbon']))
+        out = s1.output_property_metrics
+        self.assertTrue(out.has_key("__all__"))
+        # TODO out = s1.output_stand_metrics
 
     def test_post(self):
         self.client.login(username='featuretest', password='pword')
@@ -900,7 +873,7 @@ class ScenarioTest(TestCase):
             'input_age_class': 1,
             'input_site_diversity': 1,
             'input_property': self.prop1.pk,
-            'input_rxs': dumps({self.stand1.pk: 'CC', self.stand2.pk: "SW"}),
+            'input_rxs': dumps({self.stand1.pk: self.rx1, self.stand2.pk: self.rx2}),
         })
         self.assertEqual(response.status_code, 201)
         
@@ -913,7 +886,7 @@ class ScenarioTest(TestCase):
             'input_age_class': 1,
             'input_site_diversity': 1,
             'input_property': self.prop1.pk,
-            'input_rxs': dumps({self.stand1.pk: 'BAD', self.stand2.pk: "SW"}),
+            'input_rxs': dumps({self.stand1.pk: 9879898, self.stand2.pk: self.rx2}),
         })
         self.assertEqual(response.status_code, 400, response.content)
 
@@ -926,19 +899,20 @@ class ScenarioTest(TestCase):
             'input_age_class': 1,
             'input_site_diversity': 1,
             'input_property': self.prop1.pk,
-            'input_rxs': dumps({self.stand3.pk: 'CC', self.stand2.pk: "SW"}),
+            'input_rxs': dumps({self.stand3.pk: self.rx1, self.stand2.pk: self.rx2}),
         })
         self.assertEqual(response.status_code, 400, response.content)
 
-    def test_geojson_results(self):
+    def test_json_results(self):
         s1 = Scenario(user=self.user, name="My Scenario", 
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
-                input_rxs={self.stand1.pk: 'CC', self.stand2.pk: "SW"},
+                input_rxs={self.stand1.pk: self.rx1, self.stand2.pk: self.rx2},
              )
         s1.save()
-        url = self.geojson_link.reverse(s1)
+        geojson_link = ForestProperty.get_options().get_link('Property Scenarios')
+        url = geojson_link.reverse(self.prop1)
         # not logged in yet
         response = self.client.get(url)
         self.assertEqual(response.status_code, 401, response.content)
@@ -946,14 +920,7 @@ class ScenarioTest(TestCase):
         self.client.login(username='featuretest', password='pword')
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200, response.content)
-        # make sure response is good
-        res = loads(response.content) 
-        results = res['features'][0]['properties']['results']
-        self.assertTrue(len(results['carbon']) == len(results['carbon']) ==len(results['carbon']))
-        with self.assertRaises(KeyError):
-            results['non existent'][0]
-        with self.assertRaises(IndexError):
-            results['timber'][200]
+
 
 class AspectTest(TestCase):
     def test_aspect(self):
@@ -970,31 +937,25 @@ class AspectTest(TestCase):
         for ae in aspect_examples:
             self.assertEquals(classify_aspect(ae[0]), ae[1], ae[0])
 
-class SVSTest(TestCase):
-    def setUp(self):
-        self.client = Client()
-        self.baseurl = "/trees/gnn2svs"
-
-    def test_get(self):
-        url = "%s/%s/" % (self.baseurl, 2222)
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 301)
 
 class NearestPlotPyTest(TestCase):
-    fixtures = ['test_treelive_summary', 'test_idb_summary']  #TODO test_conditionvariantlookup
+    fixtures = ['test_treelive_summary', 'test_idb_summary', 'test_conditionvariantlookup']
 
     def setUp(self):
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
         self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
         self.stand1.save()
+        self.stand1.add_to_collection(self.prop1)
 
     def _create_strata(self):
         stand_list = {
+            'property': self.prop1.uid,
             'classes': [
-                ('Douglas-fir', 10, 14, 31),
+                ('Douglas-fir', 2, 4, 145),
             ]
         }
         strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
@@ -1002,18 +963,19 @@ class NearestPlotPyTest(TestCase):
         return strata
 
     def test_bad_stand_list(self):
-        stand_list = [ ('Douglas-fir', 10, 14, 31), ] 
-        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
-        with self.assertRaises(Exception):
+        stand_list = [ ('Douglas-fir', 2, 4, 145), ] 
+        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list=stand_list)
+        with self.assertRaises(ValidationError):
             strata.save()
 
         stand_list = {
+            'property': self.prop1.uid,
             'classes': [
                 ('Douglas-fir', "booo"),
             ]
         }
-        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list = stand_list)
-        with self.assertRaises(Exception):
+        strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list=stand_list)
+        with self.assertRaises(ValidationError):
             strata.save()
 
     def test_assign_strata_to_stand(self):
@@ -1022,32 +984,18 @@ class NearestPlotPyTest(TestCase):
         self.stand1.strata = strata
         self.assertEqual("My Strata", self.stand1.strata.name)
 
-    def test_find_candidates_for_strata(self):
-        strata = self._create_strata()
-        self.assertTrue(1 in [x[0] for x in strata.candidates(1).iterrows()])
-        self.assertTrue(2 in [x[0] for x in strata.candidates(1).iterrows()])
-
-    def test_nearest(self):
-        strata = self._create_strata()
-        import_rasters()
-        self.assertTrue(strata)
-        self.stand1.strata = strata
-        self.stand1.save()
-        self.assertEquals(self.stand1.cond_id, None)
-        self.assertTrue(1 in [x[0] for x in strata.candidates(1).iterrows()])
-        self.assertTrue(2 in [x[0] for x in strata.candidates(1).iterrows()])
-        self.assertEquals(self.stand1.get_idb().pk, 1)
-        self.assertEquals(self.stand1.cond_id, 1)
-
     def test_candidates(self):
         from trees.plots import get_candidates
-        stand_list = {'classes': [('Douglas-fir', 10, 14, 31), ]}
-        variant = "WS"
-        cs = get_candidates(stand_list['classes'], variant)
+        stand_list = {
+            'property': self.prop1.uid,
+            'classes': [('Douglas-fir', 2, 4, 145), ]
+        }
+        variant = self.prop1.variant.code
+        get_candidates(stand_list['classes'], variant)
 
 
 class NearestPlotRestTest(TestCase):
-    fixtures = ['test_treelive_summary', 'test_idb_summary']
+    fixtures = ['test_treelive_summary', 'test_idb_summary', 'test_conditionvariantlookup']
 
     def setUp(self):
         self.client = Client()
@@ -1082,7 +1030,8 @@ class NearestPlotRestTest(TestCase):
         )
         self.assertEqual(response.status_code, 201, response.content)
         self.assertTrue(old_count < Stand.objects.count())
-        stand1 = Stand.objects.get(name="test stand")
+        uid = json.loads(response.content)['X-Madrona-Select']
+        stand1 = get_feature_by_uid(uid)
 
         #### Step 2b. Associate the stand with the property
         url = "/features/forestproperty/%s/add/%s" % (prop1.uid, stand1.uid)
@@ -1097,7 +1046,7 @@ class NearestPlotRestTest(TestCase):
                 'name': 'test strata', 
                 'search_tpa': 160,
                 'search_age': 40,
-                'stand_list': u'{"classes":[["Douglas-fir",5,10,5],["Douglas-fir",10,15,50]]}'
+                'stand_list': u'{"property": "%s", "classes":[["Douglas-fir",2,4,145]]}' % prop1.uid
                 # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
             }
         )
@@ -1118,11 +1067,11 @@ class NearestPlotRestTest(TestCase):
             { 'stands': ",".join([stand1.uid]) }   
         )
         self.assertEqual(response.status_code, 200, response.content)
-        stand1b = Stand.objects.get(name="test stand")
+        stand1b = get_feature_by_uid(uid)
         self.assertEqual(stand1b.strata, strata1)
 
         #### Step 5. Get the list of strata for the property
-        url = "/trees/strata_list/%s/" % prop1.uid
+        url = "/features/forestproperty/links/property-strata-list/%s/" % prop1.uid
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200, response.content)
         rd = json.loads(response.content)
@@ -1134,6 +1083,6 @@ class NearestPlotRestTest(TestCase):
         url = "/features/generic-links/links/delete/%s/" % strata1.uid
         response = self.client.delete(url)
         self.assertEqual(response.status_code, 200, response.content)
-        stand1b = Stand.objects.get(name="test stand")
+        stand1b = get_feature_by_uid(uid)
         self.assertEqual(stand1b.strata, None)
 

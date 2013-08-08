@@ -1434,6 +1434,7 @@ class Strata(DirtyFieldsMixin, Feature):
 
     def save(self, *args, **kwargs):
         # Depending on what changed, trigger recalc of stand info
+        self.clean()
         recalc_required = False
         dirty = self.get_dirty_fields()
         if 'stand_list' in dirty.keys() or 'search_age' in dirty.keys() or \

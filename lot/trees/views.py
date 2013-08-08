@@ -318,6 +318,10 @@ def geosearch(request):
     while not (searchtype and lat and lon):  # try a geocoder
         try:
             g = searches.pop()
+        except IndexError:
+            break  # no more search engines left to try
+
+        try:
             for p, loc in g.geocode(txt, exactly_one=False):
                 d = distance.distance(loc, centerloc).miles
                 if d < max_dist:
