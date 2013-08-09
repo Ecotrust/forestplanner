@@ -1,14 +1,21 @@
 # Django settings for lot project.
 from madrona.common.default_settings import *
-import logging
 import os
 
 APP_NAME = "ForestPlanner"
-
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
+ADMINS = (('Ecotrust', 'forestplanner@ecotrust.org'))
 TIME_ZONE = 'America/Vancouver'
 ROOT_URLCONF = 'urls'
+ENFORCE_SUPPORTED_BROWSER = False
+POSTGIS_TEMPLATE = 'template1'
+STARSPAN_REMOVE_TMP = True
+DEBUG = True
+TEMPLATE_DEBUG = DEBUG
+BING_API_KEY = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70"
+INSTALLED_APPS += (
+    'trees',
+    'madrona.raster_stats'
+)
 
 DATABASES = {
     'default': {
@@ -18,10 +25,21 @@ DATABASES = {
     }
 }
 
+# ------------------------------------------------------------------------------
+# Paths
+# ------------------------------------------------------------------------------
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
+TEMPLATE_DIRS = (os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\', '/')), )
+FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
+GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
+
+# ------------------------------------------------------------------------------
+# Media
+# ------------------------------------------------------------------------------
 COMPRESS_CSS['application']['source_filenames'] = (
     'common/trees.css',
 )
-
 COMPRESS_JS['application']['source_filenames'] = (
     'common/styles.js',
     'common/trees.js',
@@ -29,21 +47,26 @@ COMPRESS_JS['application']['source_filenames'] = (
     'common/stand.js',
     'common/scenario.js'
 )
+MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
+MEDIA_URL = 'http://localhost:8000/media/'
+STATIC_URL = 'http://localhost:8000/media/'
 
-INSTALLED_APPS += ('trees', 'madrona.raster_stats')
+# ------------------------------------------------------------------------------
+# Logging
+# ------------------------------------------------------------------------------
+import logging
+logging.getLogger('django.db.backends').setLevel(logging.INFO)
+logging.getLogger('madrona.features.models').setLevel(logging.INFO)
+logging.getLogger('madrona.common.utils').setLevel(logging.INFO)
+LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'trees.log')
 
+# ------------------------------------------------------------------------------
+# Spatial data settings
+# ------------------------------------------------------------------------------
 GEOMETRY_DB_SRID = 3857
 GEOMETRY_CLIENT_SRID = 3857  # for mercator
 EQD_SRID = 3786  # World Equidistant Cylindrical (Sphere)
-
-TEMPLATE_DIRS = (
-        os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\', '/')),
-)
-
-FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
-GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'data'))
-
-DEFAULT_EXTENT = [-14056200, 4963200, -12471500, 6128400]  # in mercator
+EQUAL_AREA_SRID = 26910  # NAD83 UTM Zone 10 N meters
 
 # List of tuples: raster name and proj4 string of the raster
 # proj4==None implies mercator
@@ -57,28 +80,20 @@ IMPUTE_RASTERS = [
         ('cost', albers),
         ('gnn', albers),
 ]
-
 POINT_BUFFER = 2500  # meters
-
-ENFORCE_SUPPORTED_BROWSER = False
-
-EQUAL_AREA_SRID = 26910  # NAD83 UTM Zone 10 N meters
+DEFAULT_EXTENT = [-14056200, 4963200, -12471500, 6128400]  # in mercator
 EQUAL_AREA_ACRES_CONVERSION = 0.000247105381  # sq m to acres
 SLIVER_THRESHOLD = 100.0  # square meters
-
 MILL_SHAPEFILE = os.path.realpath(os.path.join(os.path.dirname(__file__),
                                   'fixtures', 'mills', 'mills.shp'))
 
-BING_API_KEY = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70"
-
+# ------------------------------------------------------------------------------
+# Redis sessions and caching
+# ------------------------------------------------------------------------------
 SESSION_ENGINE = 'redis_sessions.session'
 SESSION_REDIS_HOST = 'localhost'
 SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
-#SESSION_REDIS_PASSWORD = 'password'
-#SESSION_REDIS_PREFIX = 'session'
-#If you prefer domain socket connection, you can just add this line instead of SESSION_REDIS_HOST and SESSION_REDIS_PORT.
-# SESSION_REDIS_UNIX_DOMAIN_SOCKET_PATH = '/var/run/redis/redis.sock'
 
 CACHES = {
     "default": {
@@ -90,26 +105,12 @@ CACHES = {
     }
 }
 
-MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
-MEDIA_URL = 'http://localhost:8000/media/'
-STATIC_URL = 'http://localhost:8000/media/'
-
-POSTGIS_TEMPLATE = 'template1'
-
-DEBUG = True
-TEMPLATE_DEBUG = DEBUG
-
-ADMINS = (('Ecotrust', 'forestplanner@ecotrust.org'))
-
-logging.getLogger('django.db.backends').setLevel(logging.INFO)
-logging.getLogger('madrona.features.models').setLevel(logging.INFO)
-logging.getLogger('madrona.common.utils').setLevel(logging.INFO)
-
-LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'trees.log')
-
+# ------------------------------------------------------------------------------
+# Celery
+# ------------------------------------------------------------------------------
 BROKER_URL = 'redis://localhost:6379/0'
 BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'  # ? or use django ?
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 CELERY_ALWAYS_EAGER = False
 CELERY_DISABLE_RATE_LIMITS = True
 from datetime import timedelta
@@ -121,20 +122,17 @@ CELERYBEAT_SCHEDULE = {
     },
 }
 CELERY_TIMEZONE = 'UTC'
-#CELERY_IGNORE_RESULT = True  # set on per-task basis
-
-# see http://docs.celeryproject.org/en/latest/getting-started/brokers/redis.html
-
 import djcelery
 djcelery.setup_loader()
 
-################# BEGIN Auth
+# ------------------------------------------------------------------------------
+# Allauth
+# ------------------------------------------------------------------------------
 TEMPLATE_CONTEXT_PROCESSORS += (
     "allauth.account.context_processors.account",
     "allauth.socialaccount.context_processors.socialaccount",
     "django.core.context_processors.request",
 )
-
 AUTHENTICATION_BACKENDS = (
     # Needed to login by username in Django admin, regardless of `allauth`
     "django.contrib.auth.backends.ModelBackend",
@@ -142,7 +140,6 @@ AUTHENTICATION_BACKENDS = (
     # `allauth` specific authentication methods, such as login by e-mail
     "allauth.account.auth_backends.AuthenticationBackend",
 )
-
 INSTALLED_APPS += (
     'allauth',
     'allauth.account',
@@ -155,22 +152,27 @@ INSTALLED_APPS += (
 )
 
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_AUTHENTICATION_METHOD = "username_email"  # user logs in by entering either his username or e-mail address
 
-STARSPAN_REMOVE_TMP = True
+# user logs in by entering either his username or e-mail address
+ACCOUNT_AUTHENTICATION_METHOD = "username_email"  
 
-# install postfix
+# ------------------------------------------------------------------------------
+# Email
+# ------------------------------------------------------------------------------
 EMAIL_HOST = 'mail.ecotrust.org'
-#EMAIL_PORT = 587
+# EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'forestplanner@ecotrust.org'
 DEFAULT_FROM_EMAIL = 'forestplanner@ecotrust.org'
 
-################# END Auth
-
+# ------------------------------------------------------------------------------
+# Local settings
+# ------------------------------------------------------------------------------
 try:
     from settings_local import *
 except ImportError:
+    print "we recommend using a local settings file; "\
+    "`cp settings_local.template settings_local.py` and modify as needed"
     pass
 
 if DEBUG:
