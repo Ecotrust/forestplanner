@@ -888,11 +888,19 @@ class Scenario(Feature):
         # Landing Coordinates
         center = self.input_property.geometry_final.point_on_surface
         centroid_coords = center.transform(4326, clone=True).tuple
-        landing_coords = landing.landing(centroid_coords=centroid_coords)
+        try:
+            landing_coords = landing.landing(centroid_coords=centroid_coords)
+        except:
+            logger.error("Cost model landing failed: centroid_coords=%r" % (centroid_coords,))
+            return None
 
-        haulDist, haulTime, coord_mill = routing.routing(
-            landing_coords, mill_shp=settings.MILL_SHAPEFILE
-        )
+        try:
+            haulDist, haulTime, coord_mill = routing.routing(
+                landing_coords, mill_shp=settings.MILL_SHAPEFILE
+            )
+        except:
+            logger.error("Cost model routing failed: landing=%r millshp=%s" % (landing_coords, settings.MILL_SHAPEFILE))
+            return None
 
         annual_total_cost = defaultdict(float)
         annual_haul_cost = defaultdict(float)
@@ -976,6 +984,9 @@ class Scenario(Feature):
                     raise ValueError
                 used_records += 1
             except (ZeroDivisionError, ValueError):
+                logger.error("Cost model exception raised, ignoring cost for trees_scenariostand_%d"\
+                    "\ncost args:"
+                    "%r" % (row['sstand_id'], cost_args))
                 skip_error += 1
 
         # Costs
