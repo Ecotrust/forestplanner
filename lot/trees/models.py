@@ -664,6 +664,9 @@ class Scenario(Feature):
         Note the data structure for stands is different than properties
         (stands are optimized for openlayers map while property-level works with jqplot)
         """
+        if self.needs_rerun or self.is_running:
+            return None
+
         d = {
             "agl_carbon": [],
             "total_carbon": [],
@@ -715,6 +718,9 @@ class Scenario(Feature):
         (stands are optimized for openlayers map while property-level works with jqplot)
         stands are normalized to area (i.e. values are per-acre)
         """
+        if self.needs_rerun or self.is_running:
+            return None
+
         d = {}
         scenariostands = self.scenariostand_set.all()
         for sstand in scenariostands:
@@ -769,6 +775,9 @@ class Scenario(Feature):
     @property
     @cachemethod("Scenario_%(id)s_revenue_metrics")
     def output_revenue_metrics(self):
+        if self.needs_rerun or self.is_running:
+            return None
+
         sql = """SELECT
                     ss.id                          AS sstand_id,
                     a.year                         AS year,
@@ -829,6 +838,9 @@ class Scenario(Feature):
     @property
     @cachemethod("Scenario_%(id)s_cash_metrics")
     def output_cash_metrics(self):
+        if self.needs_rerun or self.is_running:
+            return None
+
         from forestcost import main_model
         from forestcost import routing
         from forestcost import landing
