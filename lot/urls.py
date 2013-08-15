@@ -6,6 +6,12 @@ admin.autodiscover()
 
 urlpatterns = patterns(
     '',
+
+    # Looser pattern matching for workspace username (as opposed to \w+)
+    # Already in madrona 4.2dev+ but just in case we're still running <=4.1
+    url(r'^features/(?P<username>.+)/workspace-owner.json', 'madrona.features.views.workspace', kwargs={"is_owner": True}, name='workspace-owner-json'),
+    url(r'^features/(?P<username>.+)/workspace-shared.json', 'madrona.features.views.workspace', kwargs={"is_owner": False}, name='workspace-shared-json'),
+
     (r'', include('madrona.common.urls')),
     (r'^trees/', include('trees.urls')),
     (r'^auth/', include('allauth.urls')),
