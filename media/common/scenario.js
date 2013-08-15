@@ -18,7 +18,7 @@ function scenarioFormViewModel(options) {
     var colors = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#8DD3C7', '#E31A1C', '#FDBF6F', 
                   '#FF7F00', '#CAB2D6', '#6A3D9A', '#FFFF99', '#FB9A99', '#FFFFB3',
                   '#BEBADA', '#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5',
-                  '#D9D9D9', '#BC80BD', '#CCEBC5', '#AAAAAA', '#777777', '#000000'];
+                  '#D9D9D9', '#BC80BD', '#CCEBC5', '#AAAAAA', '#777777'];
 
     self.prescriptionList = ko.observableArray([]);
     self.inputRxs = ko.observable({});
