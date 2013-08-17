@@ -296,7 +296,7 @@
 					 <!-- data-bind="with: activeStratum" ::::: enable:app.strata.viewModel.activeStratum().canSave() -->
 						 <div  class="btn-group pull-right">
 							 <button class="btn btn-large" data-bind="click: cancel">cancel</button>
-							 <button class="btn btn-large btn-success" 
+							 <button class="btn btn-large btn-success" id="btn-save-strata"
 								 data-bind="click: saveStrata">
 								 <i class="icon-check icon-white"></i> Save Vegetation Type</button>
 						 </div>
@@ -1130,11 +1130,16 @@
           };
 
 
-					self.saveStrata = function () {
+					self.saveStrata = function (data, event) {
+	
             var self = this, postData,
                 stratum = self.activeStratum(),
                 //stratum = app.strata.viewModel.activeStratum(),
-                url = "/features/strata/form/";
+                url = "/features/strata/form/",
+								$target = 	$(event.target),
+								$targetText = $target.text();
+
+						$target.addClass('loading').text('Saving. One moment...');
 						
             if ( ! stratum.canSave() ) {
               self.vegetationTypeError("Please include a name, trees per acre and age for this Vegetation Type.");
@@ -1187,7 +1192,7 @@
                       self.activeStratum().attributes.uid = strata_uid;
                       self.strataList.push(self.activeStratum());  
                     }
-                    
+										$target.removeClass('loading').text($targetText); 
                     self.activeStratum(null);
                     self.vegetationTypeError(null);
 										// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)

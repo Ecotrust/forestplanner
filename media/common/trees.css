@@ -414,6 +414,11 @@ h2 i, h3 i, h4 i{
 		line-height: 1.5;
 		margin: 0;
 	}
+	.btn-success.loading{
+		background-color: #47CB2A;
+		background-position: 10px 50%;
+		padding-left: 35px;
+	}
 
 ol.alert li, ul.alert li{
 	margin-left: 15px;
