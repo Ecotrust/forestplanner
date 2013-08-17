@@ -15,6 +15,10 @@
 .btn-group {
     margin: 5px;
 }
+#scenario-form li strong{
+	display: block;
+	color: #999;
+}
 </style>
 
 {% if form.non_field_errors %}
@@ -28,13 +32,13 @@
 
     <ul class="nav nav-tabs" id="myTab">
         <li class="active">
-            <a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab">Step 1<br> Spatial Contraints</a>
+		<a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab"><strong>Step 1</strong> Spatial Contraints</a>
         </li>
         <li>
-            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab">Step 2<br> Silvicultural Prescriptions</a>
+            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab"><strong>Step 2</strong> Silvicultural Prescriptions</a>
         </li>
         <li>
-            <a href="#scenario-review-content" id="scenario-review-tab" data-toggle="tab">Step 3<br> Review</a>
+            <a href="#scenario-review-content" id="scenario-review-tab" data-toggle="tab"><strong>Step 3</strong> Review</a>
         </li>
     </ul>
     

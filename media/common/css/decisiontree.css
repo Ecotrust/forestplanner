@@ -1,15 +1,20 @@
 
 #scenario-form a{
  cursor: pointer;
- color: #666;
+ color: #666666;
+}
+#scenario-form .active a{
+  color: #222;
 }
 #scenario-form a:hover{
-	text-decoration: underline;
+	text-decoration: none;
 }
 .decision-links a{
- margin-right: 1em;
- padding-right: 1em;
- 
+  margin-right: 1em;
+  padding: 0 1em 0 0.5em;
+}
+.decision-links a:hover{
+  background-color: #eeeeee;
 }
 .decision-links a.last-child{
 	border: none;
