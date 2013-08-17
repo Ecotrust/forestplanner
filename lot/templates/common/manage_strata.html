@@ -88,27 +88,29 @@
 
 						<div class="row-fluid strata-list" data-bind="foreach: filteredStrataList()">
 							<div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': attributes.uid }, style: { 'background': color() }, event: { mouseleave: function () { confirmDelete(false) } }">
-								<h4><span data-bind="text: attributes.name"></span></h4>
-									<div class="row-fluid">
-										<div class="span5">
-											<dl class="dl-horizontal">
-												<dt>Trees Per Acre</dt>
-												<dd data-bind="text: attributes.search_tpa"></dd>
-												<dt>Stand Age:</dt>
-												<dd data-bind="text: attributes.search_age"></dd>
-											</dl>
-										</div>
-										<div class="span7">
-											<p><strong>Trees</strong></p>
-											<ul class="unstyled tree-list" data-bind="foreach: standList">
-												<li data-bind="visible: species">
+								<div class="row-fluid">
+									<div class="span5">
+										<h4><span data-bind="text: attributes.name"></span></h4>
+									</div>
+									<div class="span7">
+										<dl class="dl-horizontal">
+											<dt>Trees Per Acre</dt>
+											<dd data-bind="text: attributes.search_tpa"></dd>
+											<dt>Stand Age:</dt>
+											<dd data-bind="text: attributes.search_age"></dd>
+											<dt class="show-trees" data-bind="click: toggleTrees, 
+												text: showTrees() ? '- Hide Trees' : '+ Show Trees'"></dt>
+											<dd data-bind=" visible: showTrees">
+												<ul class="unstyled tree-list" data-bind="foreach: standList">
+													<li data-bind="visible: species">
 													<span data-bind="text: sizeClass"></span>
 													<span data-bind="text: species"></span>
 													(<span data-bind="text: percentage"></span>%)
-												</li>
-											</ul>
-
-										</div>
+													</li>
+												</ul>
+											</dd>
+										</dl>
+									</div>
 									</div>
 									<div class="btn-group" data-bind="visible: confirmDelete">
 										<button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
@@ -400,7 +402,8 @@
         }
           .strata-list .stratum-box {
             border: 1px solid #aaa;
-            padding: 5px 5% 0;
+            // padding: 5px 5% 0;
+            padding: 0 5% 0;
             position: relative;
 			      width: 86%;
 
@@ -425,8 +428,8 @@
           text-align: center;
         }
           .strata-list .stratum-box h4 {
-			       max-width: 65%;
 			       /*
+			       max-width: 65%;
               font-size: 16px;
               margin-left: -5px;
               margin-bottom: 10px;
@@ -438,7 +441,7 @@
 		  .strata-list .stratum-box .row-fluid{
 			  font-size: 80%;
 		  }
-          .strata-list .stratum-box p {
+          .strata-list .stratum-box p { /* no more */
             line-height: 5px;
 						margin-bottom: 5px;
           }
@@ -446,8 +449,12 @@
 			.strata-list .stratum-box .dl-horizontal dt{
 				float: left;
 				width: auto;
+				line-height: 1.4;
 				margin-left: 5px;
 		  }
+			.strata-list .show-trees:hover {
+				cursor: pointer;
+			}
 		  .strata-list .stratum-box .dl-horizontal dt{
 			  clear: both;
 				margin-left: 0;
@@ -465,7 +472,8 @@
             opacity: .7;
           }
           .strata-list .stratum-box dl {
-            margin-top: -6px;
+            //margin-top: -6px;
+						margin-bottom: 13px;
           }
           .strata-list .stratum-box .tree-list li {
             /* margin-left: 5px; */
@@ -696,6 +704,11 @@
             self.sizeClass = ko.observable(); 
             self.percentage = ko.observable(); 
             self.tpa = ko.observable(); 
+
+						self.showTrees = ko.observable(false);
+						self.toggleTrees =  function(){
+							 self.showTrees(!self.showTrees());
+						}
 
             self.standList = ko.observableArray();
 
