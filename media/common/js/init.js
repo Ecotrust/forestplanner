@@ -184,7 +184,7 @@ app.standUploadFormInit = function () {
 				$("#uploadResponse").html('<p class="label label-success">Success</p>');
 				$("#uploadResponse").fadeIn();
 				$('#uploadForm').clearForm();
-				var interval = setTimeout( function() {
+				var interval = setTimeout(function() {
 					$("#uploadResponse").html('');
 					app.properties.viewModel.afterUploadSuccess(data);
 				}, 2000);
@@ -202,7 +202,10 @@ app.globalErrorHandling = function () {
 	$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');
 	app.$flash = $('#flash');
 
-	$( document ).ajaxError(function (event, request, settings, exception) {
+	$(document).ajaxError(function (event, request, settings, exception) {
+		if (request.responseText.length > 200) {
+			return false;
+		}
 		app.flash(request.responseText);
         // TODO parse out human-readable text from html error responses?
 	});
@@ -217,9 +220,9 @@ app.flash = function (message, header, flashType) {
 		hdr = header || 'Oops',
 		msg = message || '';
 
-	app.$flash.addClass( type ).slideDown(200)
-		.find('div').text( msg ).end()
-		.find('h4').text( hdr );
+	app.$flash.addClass(type).slideDown(200)
+		.find('div').text(msg).end()
+		.find('h4').text(hdr);
 
 	// $(window).scrollTop(0);
 	$("html, body").animate({ scrollTop: 0 }, 300);
