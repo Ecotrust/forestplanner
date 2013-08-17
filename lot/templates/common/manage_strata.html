@@ -1152,12 +1152,12 @@
 								$target = 	$(event.target),
 								$targetText = $target.text();
 
-						$target.addClass('loading').text('Saving. One moment...');
 						
             if ( ! stratum.canSave() ) {
               self.vegetationTypeError("Please include a name, trees per acre and age for this Vegetation Type.");
               return;
             }
+						$target.addClass('loading').text('Saving. One moment...');
 
             self.vegetationTypeError(null);
 
@@ -1205,7 +1205,6 @@
                       self.activeStratum().attributes.uid = strata_uid;
                       self.strataList.push(self.activeStratum());  
                     }
-										$target.removeClass('loading').text($targetText); 
                     self.activeStratum(null);
                     self.vegetationTypeError(null);
 										// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)
@@ -1228,8 +1227,10 @@
                     msg += " via the contact link above. Thank you.";
                     self.vegetationTypeError(msg);
                   }
-                  
-                }
+                }, 
+								complete: function (){
+										$target.removeClass('loading').text($targetText); 
+								}
 
             });
           };
