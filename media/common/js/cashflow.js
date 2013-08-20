@@ -101,25 +101,9 @@ var refreshCashflow = function(refresh1, refresh2) {
 
   $.when(xhr1, xhr2).done(function(r1, r2) {
     var data = r1[0];
-    cashChartOptions.axes.xaxis.ticks = data['years'];
-    var dataSeries = [
-       data['haul'],
-       data['cable'],
-       data['ground'],
-       data['heli']
-       // data['gross'],
-       // data['admin'],
-       // data['tax'],
-       // data['road'],
-       // data['cum_disc_net']
-    ];
-    cashChart1 = $.jqplot('cash-chart1', dataSeries, cashChartOptions);
-    $('#loading-cash-chart1').hide();
-
-    if (opt1 !== opt2) {
-      data = r2[0];
+    if (data && data['years']) {
       cashChartOptions.axes.xaxis.ticks = data['years'];
-      dataSeries = [
+      var dataSeries = [
          data['haul'],
          data['cable'],
          data['ground'],
@@ -130,7 +114,30 @@ var refreshCashflow = function(refresh1, refresh2) {
          // data['road'],
          // data['cum_disc_net']
       ];
-      cashChart2 = $.jqplot('cash-chart2', dataSeries, cashChartOptions);
+      cashChart1 = $.jqplot('cash-chart1', dataSeries, cashChartOptions);
+    } else {
+      $("#cash1").hide();
+      $('#cash-chart1').html('');
+    }
+    $('#loading-cash-chart1').hide();
+
+    if (opt1 !== opt2) {
+      data = r2[0];
+      if (data && data['years']) {
+        cashChartOptions.axes.xaxis.ticks = data['years'];
+        var dataSeries = [
+           data['haul'],
+           data['cable'],
+           data['ground'],
+           data['heli']
+           // data['gross'],
+           // data['admin'],
+           // data['tax'],
+           // data['road'],
+           // data['cum_disc_net']
+        ];
+        cashChart2 = $.jqplot('cash-chart2', dataSeries, cashChartOptions);
+      }
       $('#loading-cash-chart2').hide();
     } else {
       $('#loading-cash-chart2').hide();
