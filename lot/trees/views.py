@@ -527,6 +527,7 @@ def forestproperty_status(request, instance):
     return HttpResponse(res_json, mimetype='application/json', status=200)
 
 
+@cache_page(60 * 60 * 24 * 365)
 def variant_decision_xml(request, variant_id):
     '''
     Provide the xml for decision tree
