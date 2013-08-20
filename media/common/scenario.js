@@ -183,10 +183,21 @@ function scenarioFormViewModel(options) {
 
     self.updateManagementStyle = function() {
         self.newRx(true);
-        decision(app.properties.viewModel.selectedProperty().variant_id(), function(rx) {
-            self.newRx(false);
-            self.selectedRx().rx_internal_name = rx;
-        });
+        decision(
+            app.properties.viewModel.selectedProperty().variant_id(),
+            function(rx) {
+                self.newRx(false);
+                self.selectedRx().rx_internal_name = rx;
+            },
+            function(update) {
+                if (update) {
+                    self.decisionOutput.push(update);
+                } else {
+                    self.decisionOutput.pop();
+                }
+            }
+
+        );
     };
 
     self.cancel = function() {
