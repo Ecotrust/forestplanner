@@ -22,12 +22,14 @@ function debug( str ){
 
 function loadData( id, variant_id ){
     var url = "/trees/variant/" + variant_id + "_decision.xml";
+    $("#decisiontree-loading").show();
 	$.ajax({
-		type: "GET", 
-		url: url, 
-		dataType: "xml", 
+		type: "GET",
+		url: url,
+		dataType: "xml",
 		success: function( xml ){
 			buildNodes( xml );
+            $("#decisiontree-loading").hide();
 		}
 	});
 }
