@@ -48,8 +48,8 @@ COMPRESS_JS['application']['source_filenames'] = (
     'common/scenario.js'
 )
 MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
-MEDIA_URL = 'http://localhost:8000/media/'
-STATIC_URL = 'http://localhost:8000/media/'
+MEDIA_URL = '/media/'
+STATIC_URL = '/media/'
 
 # ------------------------------------------------------------------------------
 # Logging
