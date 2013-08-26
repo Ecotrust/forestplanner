@@ -7,13 +7,15 @@ var decision = function(variant_id, cb, progress){
 	windowWidth = $('#tree-window').outerWidth( false );
 	sliderWidth = 0;
 	slideTime = 300;
+
+    // Reset tree-window for Firefox
+    $('#tree-window').scrollTo('0px', {axis:'x', duration:slideTime, easing:'easeInOutExpo'});
+
 	branches = new Array();
 	options = {};
 	var thisURL = new String(document.location);
 	var urlParts = thisURL.split('?');
 	loadData(urlParts[1], variant_id);
-	
-		
 };
 
 function debug( str ){
