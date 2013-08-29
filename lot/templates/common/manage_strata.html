@@ -100,7 +100,7 @@
 											<dd data-bind="text: attributes.search_age"></dd>
 											<dt class="show-trees" data-bind="click: toggleTrees, 
 												text: showTrees() ? '- Hide Trees' : '+ Show Trees'"></dt>
-											<dd data-bind=" visible: showTrees">
+											<dd class="dd-treelist" data-bind=" visible: showTrees">
 												<ul class="unstyled tree-list" data-bind="foreach: standList">
 													<li data-bind="visible: species">
 													<span data-bind="text: sizeClass"></span>
@@ -481,6 +481,9 @@
           .dl-horizontal dt {
             text-align: left;
           }
+					.dd-treelist {
+						clear: both;
+					}
           .span6 .alert-error{
             margin-bottom: 10px;
             padding: 5px;
