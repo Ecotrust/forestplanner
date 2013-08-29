@@ -144,7 +144,7 @@ var refreshCharts = function(){
         // baseline = AGL (tC/acre) * acres = AGL(metric tons C)
         var baseline = baseline_peracre * acres;
         scenarioData.push([['2001-12-31 11:59PM', baseline], ['2120-12-31 11:59PM', baseline]]);
-        scenarioLabels.push({'label': "Regional Baseline (" + baseline_peracre + " metric tons/acre)"});
+        scenarioLabels.push({'label': "Regional Average (" + baseline_peracre + " metric tons/acre)"});
     }
   }
 
