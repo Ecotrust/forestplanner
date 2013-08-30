@@ -171,7 +171,7 @@ def deploy():
     update()
     init()
     restart_services()
-    print "\n  Test and run \n  fab <server> maintenance:off\n  when it's good to go"
+    maintenance("off")
 
 
 def maintenance(status):
