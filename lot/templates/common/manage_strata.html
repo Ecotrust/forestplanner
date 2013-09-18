@@ -181,10 +181,13 @@
 									<label>Name Your Vegetation Type</label>
 									<input type="text" class="span8" placeholder="Vegetation Type Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
+										<!--
 										<div class="span4">
 											<label>Trees Per Acre</label>
+											<p data-bind="text: totalTpa()"></p>
 											<input type="text" class="input-mini" data-bind="value: attributes.search_tpa, valueUpdate: 'keyup'">
 										</div>
+										-->
 										<div class="span4">
 											<label>Stand Age</label>
 											<input type="text" class="input-mini" data-bind="value: attributes.search_age, valueUpdate: 'keyup'">
@@ -209,8 +212,8 @@
                  <tr>
                    <th class="species-col">Species</th>
                    <th class="size-class-col">Size Class</th>
-                   <th class="percentage-col">Percentage</th>
-                   <th class="tpa-col">Density (trees per acre)</th>
+                   <th class="percentage-col">Density (trees per acre)</th>
+                   <th class="tpa-col">Percentage</th>
                    <th class="actions-col"></th>
                  </tr>
 							 </thead>
@@ -225,14 +228,19 @@
 									 <td>
 										 <span data-bind=" text: sizeClass"></span>
 									 </td>
+										 <td>
+										 <span data-bind="text: tpa"></span>
+									 </td>
 									 <td>
 										 <span data-bind="text: percentage() + '%'"></span>
 									 </td>
+									 <!--
 									 <td>
 										 <span data-bind="
 											 visible: $parent.attributes.search_tpa(),
 											 text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
 									 </td>
+									-->
 									 <td>
 										 <div class="btn-group" data-bind="visible: speciesConfirmDelete() === false">
 											 <button class="btn btn-mini btn-primary" data-bind="click: editTree">Edit</button>
@@ -262,6 +270,7 @@
 										 <span><select style="width: 90%" data-bind="options: sizeClasses, value: sizeClass, select2:
 												 {placeholder: '' }"></select></span>
 									 </td>
+									 <!--
 									 <td>
 										 <div class="row-fluid">
 											 <label class="accessibility">Percentage of Stand</label>
@@ -274,14 +283,25 @@
 												 percentageIsValidMsg() "></div>
 										 </div>
 									 </td>
+									-->
+										<td>
+											 <label class="accessibility">Trees per Acre</label>
+											 <input name="percentage" class="input-mini span3" 
+												data-bind="value: tpa, 
+												valueUpdate: 'keyup', 
+												css:{error: !percentageIsValid() }"
+												/> 
+										</td>
 									 <td>
+										 <!--
 										 <span data-bind="
 											 visible: $parent.attributes.search_tpa(),
-											 text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
+											 text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>%
+											 -->
 									 </td>
 									 <td>
-										 <span>
-											 <button class="btn btn-mini btn-success disabled" data-bind="click: updateTree,
+										 <span> <!-- /click:updateTree, -->
+											 <button class="btn btn-mini btn-success disabled" data-bind="click: $parent.saveTreee,
 													css: {'enabled': species().length && percentageIsValid(), 'disabled': !species().length   }" >Save Species</button>
 										 </span>	
 									 </td>
@@ -544,6 +564,7 @@
             app.strata.viewModel = new strataViewModel();
 
             $.each(app.strata.data, function (i, strata) {
+							console.warn('strata init ', i);
               app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
 
@@ -579,7 +600,7 @@
 
 							$('.info-help .read-more').on('click', function () {
 								var $t = $(this);
-								console.log('$t clicked', $t);
+								// console.log('$t clicked', $t);
 								$t.prev('span').toggle();
 								$t.closest('.info-help').toggleClass('opened');
 								if ($t.prev('span').is(':visible')) {
@@ -614,7 +635,7 @@
 
             // stand characteristics
             self.species = ko.observable(options[0]);
-
+            self.tpa = ko.observable('22');
             if (options[1] && options[2]) {
               self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join(' to '));  
             } else {
@@ -622,11 +643,17 @@
             }
 
             if (options[3]) {
-              self.percentage = ko.observable(parseInt(options[3], 10));  
+              self.tpa = ko.observable(parseInt(options[3], 10));  
             } else {
-              self.percentage = ko.observable();
+              self.tpa = ko.observable();
             }
-            
+           	//self.percentage = ko.observable(  );
+
+            self.percentage = ko.computed(function () {
+                var self = this;
+								return Math.ceil(( (self.tpa() / self.stratum.totalTpa()) * 100).toFixed(0));
+            }, self);
+
             self.percentageIsValid = ko.observable(true);
             self.percentageIsValidMsg = ko.observable('');
             
@@ -656,6 +683,7 @@
             }
 
             self.updateTree = function (task) {
+            		//create the new model and push to standList here?
                 this.isEditing(false);
 								app.strata.viewModel.activeStratum().recalculateDisplayStandList.notifySubscribers();
             }
@@ -686,6 +714,7 @@
             if (! options) {
               options = {}
             }
+            // console.dir(options);
             self.attributes = {
               // feature attributes from madrona
               name: ko.observable(options.name),
@@ -703,17 +732,38 @@
             self.editMode = ko.observable(false);
             self.editTrees = ko.observable(false); 
 
+            self.standList = ko.observableArray();
+
             self.species = ko.observable(); 
             self.sizeClass = ko.observable(); 
             self.percentage = ko.observable(); 
             self.tpa = ko.observable(); 
+
+						self.totalTpa = ko.computed(function(){
+							var totalTpa = 0;
+
+							$.each(self.standList(), function(i, stand){
+								// console.info('stand.tpa()', stand.tpa());
+								totalTpa += parseInt(stand.tpa(), 10);
+							});
+							return totalTpa;
+						});
+
+            self.saveTreee = function (tree, event, bar) {
+
+							// @TODO create the new model and push to standList here?
+							if(tree){
+                tree.isEditing(false);
+								self.standList.push(tree);
+								app.strata.viewModel.activeStratum().recalculateDisplayStandList.notifySubscribers();
+							}
+            }
 
 						self.showTrees = ko.observable(false);
 						self.toggleTrees =  function(){
 							 self.showTrees(!self.showTrees());
 						}
 
-            self.standList = ko.observableArray();
 
 						self.totalPercentage = ko.computed(function(){
 							var totalPercentage = 0;
@@ -731,7 +781,7 @@
 
 							if ( self.totalPercentage > 100 ) {
 								//self.errorList
-								canSave = false;
+								// canSave = false;
 							}
 							if ( !self.attributes.name() ) {
 								canSave = false;
@@ -762,8 +812,8 @@
 							self.recalculateDisplayStandList();
 
               $.each(self.standList(), function (i, stand) {
+								/*
                 if (stand.percentage()) {
-
 
                   totalPercentage += parseInt(stand.percentage(), 10);
 
@@ -772,23 +822,14 @@
                     msg = "You've entered a total percentage of over 100 for this Vegetation Type. Please enter a percentage of ";
                     msg += 100 - (totalPercentage-stand.percentage() ) + " or less for this species."
 
-                    /*
-										// since this isn't working on keyup yet, like it should, this hack prevents a new empty item
-										// from being added and instantly triggering the over 100% warning
-										// 1. If there's no species yet, just move on.
-										if (!stand.species()){
-											console.error(stand);
-											// 2. if the previous item is being edit, move on.
-										}
 
-                    if ( ( self.standList()[i-1].isEditing() && !stand.species() ) || stand.percentage() == 0 ) {
-                      console.info('isEditing',  self.standList()[i-1].species());
-                      self.standList.remove(stand)
-                      return;
-                    }
-										
-										*/
-                    
+
+
+
+
+
+
+
                     // force the issue
 									  stand.percentage(100 - (totalPercentage-stand.percentage() ) );
 
@@ -802,30 +843,35 @@
 										stand.percentageIsValid(true);                   
 									}
 
-									displayStandList.push(stand);  
-
                 }
+								*/
+									displayStandList.push(stand);  
               });
 
-              if (totalPercentage < 100 ) { 
+              //if (totalPercentage < 100 ) { 
 
-								if ( app.strata.viewModel.activeStratum() ){
+								if ( app.strata.viewModel.activeStratum() && ( app.strata.viewModel.activeStratum().attributes.name() == self.attributes.name() ) ){
 									// species name, sizeclass lower bound, upper bound, percentage
 									var placeHolder = new standViewModel(self,
 										[ 'Unknown type', "?", "?", 100 - totalPercentage ]);
 
 										placeHolder.isEditing(true);
+										// console.log('displayStandList', displayStandList);
+										
+										console.log('activeStratum.name()', app.strata.viewModel.activeStratum().attributes.name());
+										console.log(self.attributes.name() + ' displayStandList length', displayStandList.length);
 										displayStandList.push(placeHolder);
 
 										if( app.strata.viewModel.activeStratum().attributes.uid == self.attributes.uid ){
-											self.standList.push(placeHolder);
+											// console.warn('pushed placeHolder');
+											// self.standList.push(placeHolder);
 										}
 								} 
 
 								//self.currentStand(placeHolder);
 								//self.currentStand().updateChart();
 																	
-              }
+             // }
 
               return displayStandList;
             });
@@ -833,6 +879,8 @@
 
             if (options.stand_list) {
               $.each(options.stand_list.classes || JSON.parse(options.stand_list).classes, function (i, stand) {
+
+              	// console.warn('pushed new standViewModel from options.stand_list');
                 self.standList.push(new standViewModel(self, stand));
               });
             }
@@ -902,6 +950,8 @@
 							self.percentage('');
 
 							self.standList.push(stand);
+
+              	console.warn('pushed new standViewModel from self.addSpecies');
 							self.currentStand(stand);
 							self.currentStand().updateChart();
 						};
@@ -949,7 +999,7 @@
 							}
 						};
 
-
+// console.dir(self.standList());
 
             return self;
         };
@@ -1073,10 +1123,13 @@
           map.addControl(app.selectFeatureBox); 
 
           self.editStratum = function (stratum) {
-            var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
+						console.warn('editStratum');
+            //var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
             app.strata.stratumBeingEdited = stratum;
-            duplicateStratum.editMode(true);
-            self.activeStratum(duplicateStratum);
+           // duplicateStratum.editMode(true);
+						stratum.editMode(true);
+            //self.activeStratum(duplicateStratum);
+            self.activeStratum(stratum);
           };
 
           self.cancel = function () {
@@ -1085,6 +1138,7 @@
           }
 
           self.createStratum = function () {
+						console.warn('createStratum');
             self.activeStratum(new stratumViewModel());
           };
 
@@ -1142,15 +1196,17 @@
           }
 
           self.updateStratum = function (oldStratum, activeStratum) {
+						console.warn('updateStratum');
             self.strataList.replace(oldStratum, new stratumViewModel(activeStratum));
           };
 
 
 					self.saveStrata = function (data, event) {
-	
+						
+
             var self = this, postData,
-                stratum = self.activeStratum(),
-                //stratum = app.strata.viewModel.activeStratum(),
+                // stratum = self.activeStratum(),
+                stratum = app.strata.viewModel.activeStratum(),
                 url = "/features/strata/form/",
 								$target = 	$(event.target),
 								$targetText = $target.text();
@@ -1175,15 +1231,22 @@
               'classes': $.map(stratum.standList(), function (stand) {
                     var sizes = [];
 
-                    if (stand.species() && stand.sizeClass() && stand.percentage()) {
+                    if (stand.species() && stand.sizeClass() && stand.tpa()) {
                         //sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
 												sizes = stand.sizeClass().replace(/(")/g, "").split(" to ");
-												
+												/*											
                         return [[
                           stand.species(), 
                           parseInt(sizes[0], 10), 
                           parseInt(sizes[1], 10), 
                           parseInt( (Math.ceil( (stand.percentage()/100*stratum.attributes.search_tpa()) * 10 ) / 10).toFixed(2), 10)
+                        ]];
+                        */
+                        return [[
+                          stand.species(), 
+                          parseInt(sizes[0], 10), 
+                          parseInt(sizes[1], 10), 
+                          parseInt( stand.tpa() )
                         ]];
                     }
                 })
@@ -1191,12 +1254,18 @@
 
             $.ajax({
                 url: url,
-                type: "POST",
+                type: "post",
                 traditional: true,
-                dataType: 'json',
+                datatype: 'json',
                 data: postData,
                 success: function (response) { 
 
+									/*
+console.log('postdata:::        ::::');
+console.log(postData);
+console.log('response:::        ::::');
+console.log(response)
+*/
                     var strata_uid = response["X-Madrona-Select"];
                     if (stratum.editMode()) {
                       // existing strata
@@ -1212,27 +1281,28 @@
                     self.vegetationTypeError(null);
 										// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)
 										map.render('map');
+
                     
                 },
                 error: function (response) { 
                   var msg = "";
                   if(response.status == 400){
-                    msg = "We were unable to find a representative plot for your inventory. Please verify ";
-                    msg += "the species and size classes you've entered. If everything looks ok, ";
+                    msg = "we were unable to find a representative plot for your inventory. please verify ";
+                    msg += "the species and size classes you've entered. if everything looks ok, ";
                     msg += "please try to remove any minor species or diameter classes from your list. ";
-                    msg += "\n\n" + "The Forest Scenario Planner is in active development - ";
-                    msg += "please let us know if we can help via the contact link above.";
+                    msg += "\n\n" + "the forest scenario planner is in active development - ";
+                    msg += "please let us know if we can help via the about page above.";
                     self.vegetationTypeError(msg);
                   }else{
-                    msg = "We're sorry, something has gone wrong with saving your Vegetation Type; please check your work and try again. "
-                    msg += "\n\n" + "If you continue to have trouble ";
-                    msg += "saving your Vegetation Type, please contact us with this error code: " + response.status;
-                    msg += " via the contact link above. Thank you.";
+                    msg = "we're sorry, something has gone wrong with saving your vegetation type; please check your work and try again. "
+                    msg += "\n\n" + "if you continue to have trouble ";
+                    msg += "saving your vegetation type, please contact us with this error code: " + response.status;
+                    msg += " via the about page above. thank you.";
                     self.vegetationTypeError(msg);
                   }
                 }, 
 								complete: function (){
-										$target.removeClass('loading').text($targetText); 
+									$target.removeClass('loading').text($targetText); 
 								}
 
             });
@@ -1428,6 +1498,8 @@
     -->
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
 {% endblock scripts %}
+
+
 
 
 
