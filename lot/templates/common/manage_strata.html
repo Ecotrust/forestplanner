@@ -212,7 +212,7 @@
                  <tr>
                    <th class="species-col">Species</th>
                    <th class="size-class-col">Size Class</th>
-                   <th class="percentage-col">Density (trees per acre)</th>
+									 <th class="percentage-col">Density <br />(trees per acre)</th>
                    <th class="tpa-col">Percentage</th>
                    <th class="actions-col"></th>
                  </tr>
@@ -286,10 +286,8 @@
 									-->
 										<td>
 											 <label class="accessibility">Trees per Acre</label>
-											 <input name="percentage" class="input-mini span3" 
-												data-bind="value: tpa, 
-												valueUpdate: 'keyup', 
-												css:{error: !percentageIsValid() }"
+											 <input name="tpa" class="input-mini span3" 
+												data-bind="value: tpa, valueUpdate: 'keyup' "
 												/> 
 										</td>
 									 <td>
@@ -302,7 +300,7 @@
 									 <td>
 										 <span> <!-- /click:updateTree, -->
 											 <button class="btn btn-mini btn-success disabled" data-bind="click: $parent.saveTreee,
-													css: {'enabled': species().length && percentageIsValid(), 'disabled': !species().length   }" >Save Species</button>
+													css: {'enabled': species().length, 'disabled': !species().length   }" >Save Species</button>
 										 </span>	
 									 </td>
 								 </tr>
@@ -751,9 +749,9 @@
 
             self.saveTreee = function (tree, event, bar) {
 
-							// @TODO create the new model and push to standList here?
 							if(tree){
                 tree.isEditing(false);
+								self.standList.remove(tree);
 								self.standList.push(tree);
 								app.strata.viewModel.activeStratum().recalculateDisplayStandList.notifySubscribers();
 							}
@@ -853,7 +851,8 @@
 								if ( app.strata.viewModel.activeStratum() && ( app.strata.viewModel.activeStratum().attributes.name() == self.attributes.name() ) ){
 									// species name, sizeclass lower bound, upper bound, percentage
 									var placeHolder = new standViewModel(self,
-										[ 'Unknown type', "?", "?", 100 - totalPercentage ]);
+										//[ 'Unknown type', "?", "?", 100 - totalPercentage ]);
+										[ 'Unknown type', "?", "?", 0 ]);
 
 										placeHolder.isEditing(true);
 										// console.log('displayStandList', displayStandList);
@@ -1438,7 +1437,7 @@ console.log(response)
         if (app.strata.chartData && ko.toJSON(chartData) === ko.toJSON(app.strata.chartData)) {
           chartDataUpdated = false;
         }
-        if (chartDataUpdated) {
+        if (chartDataUpdated && app.strata.viewModel.activeStratum() ) {
           setTimeout(function () {
             app.strata.chartData = chartData;
             chart = new Highcharts.Chart({
