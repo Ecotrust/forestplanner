@@ -564,7 +564,5 @@ def forestproperty_myrx(request, instance):
 #     return HttpResponse(res_json, mimetype='application/json', status=200)
 
 def scenario_cash_flow(request, instance):
-    # TODO fix cash stuff first, for now just return empty
-    # data = instance.output_cash_metrics
-    data = [] 
+    data = instance.output_cash_metrics
     return HttpResponse(json.dumps(data), mimetype="text/javascript")
