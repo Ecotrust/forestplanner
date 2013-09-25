@@ -105,7 +105,8 @@
 													<li data-bind="visible: species">
 													<span data-bind="text: sizeClass"></span>
 													<span data-bind="text: species"></span>
-													(<span data-bind="text: percentage"></span>%)
+													<!-- (<span data-bind="text: percentage"></span>%) -->
+													(<span data-bind="text: tpa"></span> tpa)
 													</li>
 												</ul>
 											</dd>
@@ -182,9 +183,9 @@
 									<input type="text" class="span8" placeholder="Vegetation Type Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
 										<!--
+											<p data-bind="text: totalTpa()"></p>
 										<div class="span4">
 											<label>Trees Per Acre</label>
-											<p data-bind="text: totalTpa()"></p>
 											<input type="text" class="input-mini" data-bind="value: attributes.search_tpa, valueUpdate: 'keyup'">
 										</div>
 										-->
@@ -721,7 +722,7 @@
               stand_list: ko.observable(options.stand_list),
               uid: options.uid
             }
-            
+
             // viewmodel attributes
             self.color = ko.observable();
             self.currentStand = ko.observable();
@@ -776,16 +777,15 @@
 						self.canSave = ko.computed(function(){
 							var canSave = true;
 
-							if ( self.totalPercentage > 100 ) {
-								//self.errorList
-								// canSave = false;
-							}
 							if ( !self.attributes.name() ) {
 								canSave = false;
 							}
+							/*
 							if ( !self.attributes.search_tpa() ) {
-								canSave = false;
+								self.attributes.search_tpa( self.totalTpa() );
+								//canSave = false;
 							}
+							*/
 							if ( !self.attributes.search_age() ) {
 								canSave = false;
 							}
@@ -1120,7 +1120,7 @@
           self.cancel = function () {
             self.activeStratum(null);
             self.vegetationTypeError(null);
-            map.render('map'); //@TODO not sure why this is needed.
+            map.render('map');
           }
 
           self.createStratum = function () {
@@ -1199,9 +1199,10 @@
 
 						
             if ( ! stratum.canSave() ) {
-              self.vegetationTypeError("Please include a name, trees per acre and age for this Vegetation Type.");
+              self.vegetationTypeError("Please include a name and age for this Vegetation Type.");
               return;
             }
+
 						$target.addClass('loading').text('Saving. One moment...');
 
             self.vegetationTypeError(null);
@@ -1209,7 +1210,8 @@
             if (stratum.editMode()) {
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
-            
+           
+						stratum.attributes.search_tpa( stratum.totalTpa() );
             postData = ko.mapping.toJS(stratum.attributes);
 
             postData.stand_list = ko.toJSON({
@@ -1245,13 +1247,12 @@
                 data: postData,
                 success: function (response) { 
 
-									/*
-console.log('postdata:::        ::::');
-console.log(postData);
-console.log('response:::        ::::');
-console.log(response)
-*/
+										if( typeof(response) == "string" ) {
+											response = jQuery.parseJSON(response);
+										}
+
                     var strata_uid = response["X-Madrona-Select"];
+
                     if (stratum.editMode()) {
                       // existing strata
                       self.updateStratum(app.strata.stratumBeingEdited, postData);
@@ -1271,10 +1272,11 @@ console.log(response)
                 error: function (response) { 
                   var msg = "";
                   if(response.status == 400){
-                    msg = "we were unable to find a representative plot for your inventory. please verify ";
+										//@TODO er, ko. -wm
+                    msg = "We were unable to find a representative plot for your inventory. please verify ";
                     msg += "the species and size classes you've entered. if everything looks ok, ";
                     msg += "please try to remove any minor species or diameter classes from your list. ";
-                    msg += "\n\n" + "the forest scenario planner is in active development - ";
+                    msg += "\n\n" + "The forest scenario planner is in active development - ";
                     msg += "please let us know if we can help via the about page above.";
                     self.vegetationTypeError(msg);
                   }else{
@@ -1448,7 +1450,9 @@ console.log(response)
                             color: '#000000',
                             connectorColor: '#000000',
                             formatter: function() {
-                                return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+															//@TODO ROUND CHART NUMBERS TO TWO PLACES
+                                //return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
+                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) + ' %';
                             }
                         }
                     }
