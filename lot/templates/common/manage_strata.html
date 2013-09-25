@@ -94,7 +94,7 @@
 									</div>
 									<div class="span7">
 										<dl class="dl-horizontal">
-											<dt>Trees Per Acre</dt>
+											<dt>Trees Per Acre:</dt>
 											<dd data-bind="text: attributes.search_tpa"></dd>
 											<dt>Stand Age:</dt>
 											<dd data-bind="text: attributes.search_age"></dd>
@@ -117,9 +117,9 @@
 										<button class="btn" data-bind="click: deleteStratum">ok</button>
 									</div>
 									<div class="btn-group" data-bind="visible: confirmDelete() === false">
-										<button class="btn" data-bind="click: $parent.applyStrata">apply</button>
-										<button class="btn" data-bind="click: $parent.editStratum"><i class="icon-edit"></i></button>
-										<button class="btn" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
+										<button class="btn btn-mini" title="Apply this vegetation type to any selected stands" data-bind="click: $parent.applyStrata">apply</button>
+										<button class="btn btn-mini" title="Edit this vegetation type" data-bind="click: $parent.editStratum">edit</button>
+										<button class="btn btn-mini" title="Delete this vegetation type" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
 									</div>
 							</div>
 						</div>
@@ -562,7 +562,6 @@
             app.strata.viewModel = new strataViewModel();
 
             $.each(app.strata.data, function (i, strata) {
-							console.warn('strata init ', i);
               app.strata.viewModel.strataList.push(new stratumViewModel(strata));
             });
 
@@ -803,7 +802,6 @@
 
             self.displayStandList = ko.computed(function () {
               var displayStandList = [], totalPercentage = 0, msg;
-							// console.info('displayStandList called', self.attributes.name());
 
 							// cheap hax. When saving a standlist member, we ping recalculateDisplayStandList so displayStandlist
 							// updates itself. without it, we don't get the remaining % species placeholder added again. 
@@ -819,13 +817,6 @@
                   if (totalPercentage > 100) {
                     msg = "You've entered a total percentage of over 100 for this Vegetation Type. Please enter a percentage of ";
                     msg += 100 - (totalPercentage-stand.percentage() ) + " or less for this species."
-
-
-
-
-
-
-
 
 
                     // force the issue
@@ -855,14 +846,10 @@
 										[ 'Unknown type', "?", "?", 0 ]);
 
 										placeHolder.isEditing(true);
-										// console.log('displayStandList', displayStandList);
-										
-										console.log('activeStratum.name()', app.strata.viewModel.activeStratum().attributes.name());
-										console.log(self.attributes.name() + ' displayStandList length', displayStandList.length);
+
 										displayStandList.push(placeHolder);
 
 										if( app.strata.viewModel.activeStratum().attributes.uid == self.attributes.uid ){
-											// console.warn('pushed placeHolder');
 											// self.standList.push(placeHolder);
 										}
 								} 
@@ -1122,17 +1109,17 @@
           map.addControl(app.selectFeatureBox); 
 
           self.editStratum = function (stratum) {
-						console.warn('editStratum');
-            //var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
+            // var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
+						// duplicateStratum.editMode(true);
+            // self.activeStratum(duplicateStratum);
             app.strata.stratumBeingEdited = stratum;
-           // duplicateStratum.editMode(true);
 						stratum.editMode(true);
-            //self.activeStratum(duplicateStratum);
             self.activeStratum(stratum);
           };
 
           self.cancel = function () {
             self.activeStratum(null);
+            self.vegetationTypeError(null);
             map.render('map'); //@TODO not sure why this is needed.
           }
 
@@ -1231,7 +1218,6 @@
                     var sizes = [];
 
                     if (stand.species() && stand.sizeClass() && stand.tpa()) {
-                        //sizes = stand.sizeClass().replace(/\"/g, "") .split("-");
 												sizes = stand.sizeClass().replace(/(")/g, "").split(" to ");
 												/*											
                         return [[
@@ -1278,7 +1264,6 @@ console.log(response)
                     }
                     self.activeStratum(null);
                     self.vegetationTypeError(null);
-										// @TODO not yet sure why this is needed. Map was hidden in OG Stand UI via the same KO mechanism (!activeStratum)
 										map.render('map');
 
                     
