@@ -9,9 +9,8 @@ var authenticated = authenticated || false;
 $(document).ready(function () {
 
     ko.applyBindings(app.properties.viewModel, document.getElementById('property-html'));
-	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
-	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
-    ko.applyBindings(app, document.getElementById('global-tabs'));
+
+	app.setTabs();
 
     $(window).resize(app.onResize);
     app.onResize();
@@ -32,7 +31,6 @@ $(document).ready(function () {
 	window.onhashchange = app.hashChange;
 	
 	// temp hack. django switch in template is always adding this.
-	//
 	if (authenticated) {
 		$('body').removeClass('no-auth');
 	}
@@ -56,6 +54,16 @@ app.router = function () {
 	}
 
 };
+//needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
+app.selectedPropertyName = ko.observable("");
+app.selectedPropertyUID = ko.observable("");
+
+
+app.setTabs = function(){
+	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
+	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
+    ko.applyBindings(app, document.getElementById('global-tabs'));
+};
 app.deferredClickHandler = function () {
 	//let's bubble.
 	$('body').on('click', function (event, a) {
@@ -67,12 +75,20 @@ app.deferredClickHandler = function () {
 			return false; 
 		}
 
+		// attempt to fix the notorious /undefined problem
+		// Looks like on your first property, updateOrCreateProperty may not be functioning properly?
+		// For whatever reason, self.selectedProperty() is not being set.
+		// 11/5 -wm 
+		if ($t.is('#global-tabs a')) {
+			if ($t.attr('href').indexOf('undefined') > 0) {
+				app.properties.viewModel.selectPropertyByUID(app.property_layer.features[0].data.uid);
+				app.setTabs();
+				return true; 
+			}
+		}
+
 	});
 };
-
-//needed by global tabs. Need to bind on page load but they don't exist yet. Cheap defer.
-app.selectedPropertyName = ko.observable("");
-app.selectedPropertyUID = ko.observable("");
 
 app.moreHelp = function () {
 
@@ -184,17 +200,17 @@ app.standUploadFormInit = function () {
 				$("#uploadResponse").html('<p class="label label-success">Success</p>');
 				$("#uploadResponse").fadeIn();
 				$('#uploadForm').clearForm();
-				var interval = setTimeout(function() {
+				var interval = setTimeout(function () {
 					$("#uploadResponse").html('');
 					app.properties.viewModel.afterUploadSuccess(data);
 				}, 2000);
 			}
 		}
 
-	}; 
+	};
     $('#uploadForm').submit(function () {
-        $(this).ajaxSubmit(options); 
-        return false; 
+        $(this).ajaxSubmit(options);
+        return false;
     });
 };
 
@@ -215,7 +231,7 @@ app.globalErrorHandling = function () {
 
 //@TODO should pass an object. it's 2013. -wm
 app.flash = function (message, header, flashType) {
-	// bs: alert-error, alert-warning, 
+	// bs: alert-error, alert-warning,
 	var type = flashType || 'alert-error',
 		hdr = header || 'Oops',
 		msg = message || '';

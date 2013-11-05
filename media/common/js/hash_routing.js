@@ -1,5 +1,5 @@
 /**
- * Hash Routing and App State 
+ * Hash Routing and App State
  * hashChange bound in doc.ready of init.js
  */
 
@@ -10,7 +10,7 @@ app.hash = "";
 
 app.getState = function () {
     var crumbs = app.breadCrumbs.breadcrumbs(),
-		state = crumbs[crumbs.length - 1].url; 
+		state = crumbs[crumbs.length - 1].url;
     return state;
 };
 
@@ -30,13 +30,14 @@ app.updateUrlProperty = function (uid) {
 // Load state from hash
 app.hashChange = function () {
 	var loc = window.location.hash.split("/");
-
+    // may be able to test the undefined problem by using the console
+    // and setting the app.properwhatever == undefined and triggering a hash change
 	if (loc) {
         //console.info(loc);
 
         // avoid double triggering, particulary for changing the property_uid in the url
 		if (loc[0] === app.hash) {
-			console.warn('attempted to load ' + app.hash + ' twice. Ignoring second request.', loc[0], app.hash);
+			//console.warn('attempted to load ' + app.hash + ' twice. Ignoring second request.', loc[0], app.hash);
 			return;
 		}
 
@@ -96,7 +97,8 @@ app.setState = {
         }
         if (app.properties.viewModel.propertyList().length < 1) {
             app.properties.viewModel.init();
-        } else {
+        }
+        else {
             app.properties.viewModel.showPropertyPanels(true);
         }
 
@@ -122,7 +124,7 @@ app.setState = {
         app.properties.viewModel.manageStands(app.properties.viewModel);
     },
     scenarios: function (loc) {
-        app.state('scenarios');			
+        app.state('scenarios');
 
         // select the current property via the location hash
         app.properties.viewModel.selectPropertyByUID(loc[1]);

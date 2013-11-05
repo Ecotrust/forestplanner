@@ -198,6 +198,7 @@ function propertiesViewModel () {
         app.modifyFeature.deactivate();
         self.showNoPropertiesHelp(false);
         app.new_features.removeAllFeatures();
+		app.setTabs();
       },
       error: function (jqXHR, textStatus, errorThrown) {
         alert("Failed to save property drawing: " + errorThrown);
@@ -420,6 +421,7 @@ function propertiesViewModel () {
       } 
       app.onResize();
       self.zoomToExtent();
+	  
     });
 
  };
