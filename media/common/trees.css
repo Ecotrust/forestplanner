@@ -179,7 +179,9 @@ a {
     background: white;
 }
 #searchbox-container {
-    bottom: 11px;
+    /*bottom: 11px;*/
+    background:none;
+	bottom: 28px;
     margin: 2px;
     position: absolute; 
     z-index: 1023;
@@ -187,15 +189,19 @@ a {
     vertical-align:center;
     font-size: 85%;
     padding: 2px;
-    background:none;
 }
 .outermap {
     padding: 4px !important;
 }
 #input-geosearch {
-    border-radius: 8px !important;
-    height: 15px !important;
+    border-radius: 4px !important;
+	color: #000;
+    height: 1em !important;
 }
+#input-geosearch::-webkit-input-placeholder { color: #444; opacity: 1;  }
+#input-geosearch:-moz-placeholder { /* Firefox 18- */ color: #444; opacity: 1;  }
+#input-geosearch::-moz-placeholder {  /* Firefox 19+ */ color: #444; opacity: 1;  }
+#input-geosearch:-ms-input-placeholder {  color: #444; opacity: 1;  }
 
 .chart { 
     height: 450px; 
@@ -551,7 +557,7 @@ a.btn .icon-arrow-right{
 		font-style: italic;
 		font-weight: bold;
 		max-width: 67%;
-		margin-top: -4px;
+		margin-top: -3px;
 		overflow: hidden;
 		padding-right: 3px; /* firefox likes to trim letters */
 		position: relative;
