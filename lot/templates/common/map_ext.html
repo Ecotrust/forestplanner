@@ -467,6 +467,28 @@
               </div>
             </div>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             <!-- these are all stand pages -->
             <div id="stand-html" style="display: none" data-bind="visible: showStandPanels, if: showStandPanels">
               <div class="row-fluid">
@@ -502,12 +524,12 @@
                   <div class="loading" data-bind="visible: showProgressBar">
                     <h3>Loading...</h3>
                   </div>
-					<!-- 
-					<div class="progress progress-striped active" data-bind="visible: showProgressBar">
-					  <div class="bar" style="width: 100%"></div> 
-					  <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
-					</div>
-					-->
+                  <!-- 
+                  <div class="progress progress-striped active" data-bind="visible: showProgressBar">
+                    <div class="bar" style="width: 100%"></div> 
+                    <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
+                  </div>
+                  -->
 
                   <p data-bind="visible: ! standList().length"></p>
                   <div data-bind="if: standList().length > 0">
@@ -564,6 +586,12 @@
                     </div>
 
                   </div>
+                  <p>When you've finished adding all of your stands...</p>
+                  <a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" class="btn btn-primary btn-large">
+                    <strong>Next</strong>: Define vegetation types for 
+                    <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
+                    <i class="icon-arrow-right"></i>
+                  </a>
                   </div>
                   <!--
                   <div data-bind="if: standList().length, visible: standList().length > 10">
@@ -601,7 +629,8 @@
                 <div id="stands-form-container" class="form-panel"></div>
                 <div class="pull-right">
                   <button href="#" class="btn" data-bind="click: cancelAddStand">Cancel</button>
-                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand</button>
+                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand and Continue
+                    Adding Stands</button>
                 </div>
               </div>
 
