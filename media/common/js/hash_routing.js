@@ -91,6 +91,7 @@ app.setState = {
         // if we came from stands, lets hide it. But the model doesn't exist on page load.
         if (app.stands.viewModel !== undefined) {
             app.stands.viewModel.cancelManageStands();
+            app.stands.viewModel.cancelAddStand();
         }
         if (app.scenarios.viewModel !== undefined) {
             app.scenarios.viewModel.cancelManageScenarios();
@@ -132,6 +133,7 @@ app.setState = {
         // if we came from stands, hide them.
         if (app.stands.viewModel !== undefined) {
             app.stands.viewModel.cancelManageStands();
+            app.stands.viewModel.cancelAddStand();
         }
         // hide any properties stuff
         app.properties.viewModel.showPropertyList(false);
