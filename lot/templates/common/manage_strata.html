@@ -180,7 +180,7 @@
 									<h2 data-bind="visible: !editMode()">Create a Vegetation Type</h2>
 									<h2 data-bind="visible: editMode()">Editing Vegetation Type: <i data-bind="text: attributes.name"></i></h2>
 									<label>Name Your Vegetation Type</label>
-									<input type="text" class="span8" placeholder="Vegetation Type Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
+									<input type="text" class="span8" placeholder="Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
 										<!--
 											<p data-bind="text: totalTpa()"></p>
@@ -190,7 +190,7 @@
 										</div>
 										-->
 										<div class="span4">
-											<label>Stand Age</label>
+											<label>Stand Age (in years)</label>
 											<input type="text" class="input-mini" data-bind="value: attributes.search_age, valueUpdate: 'keyup'">
 										</div>
 									</div>
@@ -1400,6 +1400,12 @@
             app.strata.init();
         });
 
+
+
+
+
+
+
       // charting stuff
       app.strata.chartData = null;
       app.strata.chartTimer = null;
@@ -1435,11 +1441,17 @@
                     plotShadow: false,
                     backgroundColor:'rgba(255, 255, 255, 0.1)'
                 },
-                title: false,
+								title: {
+										text: 'Species Breakdown',
+										css:{
+											fontFamily: '"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif'
+										}
+								},
                 credits: false,
                 tooltip: {
-                  pointFormat: '{series.name}: <b>{point.percentage}%</b>',
-                  percentageDecimals: 1
+                  pointFormat: '{series.name}: <b>{point.percentage:.2f}%</b>',
+                  percentageddDecimals: 1,
+									valueDecimals: 2
                 },
                 plotOptions: {
                     pie: {
@@ -1450,9 +1462,7 @@
                             color: '#000000',
                             connectorColor: '#000000',
                             formatter: function() {
-															//@TODO ROUND CHART NUMBERS TO TWO PLACES
-                                //return '<b>'+ this.point.name +'</b>: '+ this.percentage +' %';
-                                return '<b>'+ this.point.name +'</b>: '+ Highcharts.numberFormat(this.percentage, 2) + ' %';
+                                return '<b>'+ this.point.name +'</b>: '+ (this.percentage).toFixed(0) +' %';
                             }
                         }
                     }
