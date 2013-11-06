@@ -202,7 +202,13 @@ a {
 #input-geosearch:-moz-placeholder { /* Firefox 18- */ color: #444; opacity: 1;  }
 #input-geosearch::-moz-placeholder {  /* Firefox 19+ */ color: #444; opacity: 1;  }
 #input-geosearch:-ms-input-placeholder {  color: #444; opacity: 1;  }
-
+.help-inline{
+	padding-left: 0;
+	font-size: .9em;
+}
+.progress+.help-inline{
+	margin-top: -10px;
+}
 .chart { 
     height: 450px; 
     width: 550px; 

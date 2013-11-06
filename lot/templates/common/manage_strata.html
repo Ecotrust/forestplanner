@@ -72,10 +72,14 @@
 					<div class="span12" data-bind="visible: strataList().length && ! activeStratum()" style="display: none" >
 
 						<div class="row-fluid">
-								<p>You have applied vegetation types to <span data-bind="text: appliedStrataTotal"></span> of <span data-bind="text: standTotal"></span> stands.</p>
+								<p>You have applied vegetation types to <span data-bind="text: appliedStrataTotal"></span> of <span
+									data-bind="text: standTotal"></span> stands.</p>
 								<div class="progress">
 									<div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal()/standTotal)*100+'%' }"></div>
 								</div>
+								<p class="help-inline">
+										To apply a vegetation type to a stand, select a stand on the map and click the apply button on the associated vegetation type.
+								</p>
 						</div>
 
 						<div class="row-fluid">
@@ -1149,7 +1153,7 @@
 						// @TODO more KO, less JQ
 						if( !app.stand_layer.selectedFeatures.length ){
 
-							var msg = "Please select an area on your map to apply this stand group.",
+							var msg = "Please select an stand on your map to apply this stand group.",
 								$t;
 
 							// little clean up because DOM stuff is silly
