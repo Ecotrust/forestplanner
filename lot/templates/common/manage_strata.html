@@ -233,7 +233,9 @@
 										 <span data-bind="text: tpa"></span>
 									 </td>
 									 <td>
+										 <!-- ko if: percentage() / percentage() == 1 -->
 										 <span data-bind="text: percentage() + '%'"></span>
+										 <!-- /ko -->
 									 </td>
 									 <!--
 									 <td>
@@ -263,7 +265,7 @@
 										 <span>
 											 <label class="accessibility">Select a Species <br> <span data-bind="text: species"></span></label>
 											 <select style="width: 95%" data-bind="options: app.strata.treeSpecies, value: species,  
-												 select2: {placeholder: 'Select a species',  speciesData: species()}" >
+												 select2: {placeholder: 'Add a Species',  speciesData: species()}" >
 											 </select>
 										 </span>
 									 </td>
@@ -301,7 +303,13 @@
 									 <td>
 										 <span> <!-- /click:updateTree, -->
 											 <button class="btn btn-mini btn-success disabled" data-bind="click: $parent.saveTreee,
-													css: {'enabled': species().length, 'disabled': !species().length   }" >Save Species</button>
+													css: {
+													'enabled': species().length && !isNaN(parseFloat( tpa() )), 
+													'disabled': !species().length || isNaN(parseFloat( tpa() )) 
+													},
+													enable: species().length && !isNaN(parseFloat( tpa() ))" >
+													Save Species
+												</button>
 										 </span>	
 									 </td>
 								 </tr>
@@ -1444,7 +1452,7 @@
 								title: {
 										text: 'Species Breakdown',
 										css:{
-											fontFamily: '"Open Sans","Helvetica Neue",Helvetica,Arial,sans-serif'
+											fontFamily: 'Helvetica,Arial,sans-serif'
 										}
 								},
                 credits: false,
