@@ -204,7 +204,7 @@
                               <i class="icon-edit"></i> Edit </button>
                           </div>
 
-                          <button data-bind="click: $parent.editStands" style="clear: both; margin-top: 4px;" class="btn btn-mini pull-right">Create or Edit Stands</button> 
+                          <button data-bind="click: $parent.editStands" style="clear: both; margin-top: 4px;" class="btn btn-mini pull-right">Create or Edit Stands <i class="icon-arrow-right"></i></button> 
 
                         </div> <!-- /.span6 -->
                       </div> <!-- /.row-fluid inner li -->
@@ -278,10 +278,10 @@
                     </div>
                     <div style="display:none" data-bind="if: showDrawHelpPanel, visible: showDrawHelpPanel">
                       <h2>Draw Property Boundary</h2>
-                      <p>Single click anywhere on the map to start defining your property property boundary.</p>
+                      <p>Single click anywhere on the map to start defining your property boundary.</p>
                       <p>Find the next point in the boundary and click again. Continue clicking to complete the shape of your property.</p>
                       <p>Click and drag to pan the map. Use the +/- in the top left to zoom as needed.</p>
-                      <p>When you're satisfied with property outline, <em>Double-click</em> to end drawing.</p>
+                      <p>When you're satisfied with your property outline, <strong>Double-click</strong> to end drawing.</p>
                       <div class="pull-right">
                         <a href="#" class="btn" data-bind="click: cancelEdit">Cancel</a>
                       </div>
@@ -629,8 +629,7 @@
                 <div id="stands-form-container" class="form-panel"></div>
                 <div class="pull-right">
                   <button href="#" class="btn" data-bind="click: cancelAddStand">Cancel</button>
-                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand and Continue
-                    Adding Stands</button>
+                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand and Add Another</button>
                 </div>
               </div>
 
