@@ -206,9 +206,7 @@ a {
 	padding-left: 0;
 	font-size: .9em;
 }
-.progress+.help-inline{
-	margin-top: -10px;
-}
+
 .chart { 
     height: 450px; 
     width: 550px; 
