@@ -226,6 +226,10 @@ function propertiesViewModel () {
     $("#delete-dialog").modal("show");
   };
 
+  self.editStands = function () {
+    window.location.hash = "#stands";
+  };
+
   self.deleteFeature = function () {
     var url = "/features/generic-links/links/delete/{uid}/".replace("{uid}", self.selectedProperty().uid());
     $('#delete-dialog').modal('hide');

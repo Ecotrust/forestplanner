@@ -15,7 +15,9 @@ function standsViewModel() {
 
   self.showNoStandHelp = ko.observable(true);
 
-  // pagination config will display x items 
+  self.addAnotherStand = ko.observable(false);
+
+  // pagination config will display x items
   // from this zero based index
   self.listStart = ko.observable(0);
   self.listDisplayCount = 25;
@@ -28,7 +30,7 @@ function standsViewModel() {
     return self.standList.slice(self.listStart(), self.listDisplayCount+self.listStart());
   });
 
-  // this list is model for pagination controls 
+  // this list is model for pagination controls
   self.paginationList = ko.computed(function () {
     var list = [], displayIndex = 1, listIndex = 0;
     
@@ -43,7 +45,7 @@ function standsViewModel() {
         list.push({'displayIndex': '»', 'listIndex': null });
     }
     if (self.listStart() > 10) {
-        list.shift({'displayIndex': '&laquo;', 'listIndex': null });      
+        list.shift({'displayIndex': '&laquo;', 'listIndex': null });
     }
     //console.log('repaginating list');
     */
@@ -100,9 +102,9 @@ function standsViewModel() {
     // get the form
     var formUrl;
     if (action === "create") {
-      formUrl = app.workspace["feature-classes"][0]["link-relations"]["create"]["uri-template"]; 
+      formUrl = app.workspace["feature-classes"][0]["link-relations"]["create"]["uri-template"];
     } else if (action === "edit") {
-      formUrl = app.workspace["feature-classes"][0]["link-relations"]["edit"][0]["uri-template"]; 
+      formUrl = app.workspace["feature-classes"][0]["link-relations"]["edit"][0]["uri-template"];
       formUrl = formUrl.replace('{uid}', uid);
     }
     // clean up and show the form
@@ -188,15 +190,19 @@ function standsViewModel() {
         if (isNew) {
           self.associateStand(stand_uid, self.property.uid());
           self.addStandStart();  // automatically go back to digitizing mode
+          self.addAnotherStand(true);
         } else {
-          self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", stand_uid )[0]); 
-          self.updateStand(stand_uid, false);
+          self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", stand_uid )[0]);
+          self.updateStand(stand_uid,  false);
+          self.addAnotherStand(false);
         }
       },
       error: function(jqXHR, textStatus, errorThrown) {
         self.cancelAddStand();
       }
     });
+
+
   };
 
   self.showDeleteDialog = function () {
@@ -213,7 +219,7 @@ function standsViewModel() {
         self.stand_layer.removeFeatures(self.stand_layer.getFeaturesByAttribute("uid", self.selectedFeature().uid()));
         self.standList.remove(self.selectedFeature());
         self.selectFeature(self.standList()[0]);
-      }  
+      }
     });
   };
 
@@ -234,6 +240,7 @@ function standsViewModel() {
     self.showStandList(true);
     self.showDrawPanel(false);
     self.showNoStandHelp(true);
+	self.addAnotherStand(false);
 
     app.new_features.removeAllFeatures();
     app.drawFeature.deactivate();
@@ -327,7 +334,7 @@ function standsViewModel() {
     };
     
     // reenable click and drag in vectors
-    self.selectControl.handlers.feature.stopDown = false; 
+    self.selectControl.handlers.feature.stopDown = false;
     map.addControl(self.selectControl);
     self.selectControl.activate();
 
@@ -338,7 +345,7 @@ function standsViewModel() {
     var pageSize = self.standList().length / self.listDisplayCount;
     $.each(self.standList(), function (i, feature) {
       if (feature.uid() === id) {
-        // set list start to first in list page      
+        // set list start to first in list page
         self.listStart(Math.floor(i / self.listDisplayCount) * self.listDisplayCount);
         self.selectedFeature(this);
       }

@@ -203,6 +203,9 @@
                               data-bind="click: $parent.showEditForm, disable: $parent.preventUpdates">
                               <i class="icon-edit"></i> Edit </button>
                           </div>
+
+                          <button data-bind="click: $parent.editStands" style="clear: both; margin-top: 4px;" class="btn btn-mini pull-right">Create or Edit Stands</button> 
+
                         </div> <!-- /.span6 -->
                       </div> <!-- /.row-fluid inner li -->
 
@@ -275,7 +278,10 @@
                     </div>
                     <div style="display:none" data-bind="if: showDrawHelpPanel, visible: showDrawHelpPanel">
                       <h2>Draw Property Boundary</h2>
-                      <p> Double-click to complete polygon. </p>
+                      <p>Single click anywhere on the map to start defining your property property boundary.</p>
+                      <p>Find the next point in the boundary and click again. Continue clicking to complete the shape of your property.</p>
+                      <p>Click and drag to pan the map. Use the +/- in the top left to zoom as needed.</p>
+                      <p>When you're satisfied with property outline, <em>Double-click</em> to end drawing.</p>
                       <div class="pull-right">
                         <a href="#" class="btn" data-bind="click: cancelEdit">Cancel</a>
                       </div>
@@ -580,15 +586,18 @@
                   </div>
                 </div>
                 <div data-bind="visible: showDrawPanel">
-                  <h3>Draw your stand</h3>
-                  <p>Starting drawing your stand. Double-click to finish.</p>
+                  <h3 data-bind="visible: !addAnotherStand()">Draw your stand</h3>
+                  <h3 data-bind="visible: addAnotherStand()">Draw another stand</h3>
+                  <p>Like drawing your property, click once on the map to begin drawing your stand boundaries. Click
+                  again to add aditional points. <strong>Double-click to finish.</strong></p>
                   <div class="pull-right">
-                    <button href="#" class="btn" data-bind="click: cancelAddStand">Done</button>
+                    <button href="#" class="btn" data-bind="click: cancelAddStand">I'm Finished Adding Stands</button>
                   </div>
                 </div>
               </div> <!-- no properties -->
               <div class="row-fluid" data-bind="visible: showStandFormPanel">
                 <h3>Confirm Stand Boundaries</h3>
+                <p>Drag the orange circles to adjust your stand's boundaries.</p>
                 <div id="stands-form-container" class="form-panel"></div>
                 <div class="pull-right">
                   <button href="#" class="btn" data-bind="click: cancelAddStand">Cancel</button>
