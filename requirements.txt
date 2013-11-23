@@ -1,5 +1,5 @@
 Shapely>=1.2.14
-geopy>=0.94.2
+geopy==0.95.1
 selenium
 scipy
 python-memcached>=1.48
