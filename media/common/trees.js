@@ -78,8 +78,13 @@ function init() {
     for (var i=tileServerLayers.length-1; i>=0; --i) {
         var lyrLongName = tileServerLayers[i][0];
         var lyrShortName = tileServerLayers[i][1];
-        var lyr = new OpenLayers.Layer.XYZ( lyrLongName,
-            "http://54.214.12.22/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+        var arrayTile = [
+            "http://a.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://b.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://c.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://d.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+        ];
+        var lyr = new OpenLayers.Layer.XYZ( lyrLongName, arrayTile,
             {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:"Ecotrust"}
         );
         lyr.shortName = lyrShortName;
