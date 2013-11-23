@@ -27,7 +27,10 @@ def stage():
     """ Use production server settings """
     try:
         if fab_vars_exists:
-            env.key_filename = AWS_KEY_FILENAME_STAGE
+            if AWS_KEY_FILENAME_STAGE:
+                env.key_filename = AWS_KEY_FILENAME_STAGE
+            else:
+                env.key_filename = None
             servers = AWS_PUBLIC_DNS_STAGE
             env.hosts = servers
             vars['sitename'] = AWS_SITENAME_STAGE
@@ -155,7 +158,7 @@ def update():
 
 def _install_starspan():
     run('mkdir -p ~/src && cd ~/src && \
-        if [ ! -d "starspan" ]; then git clone git://github.com/Ecotrust/starspan.git; fi && \
+        if [ ! -d "starspan" ]; then git clone https://github.com/Ecotrust/starspan.git; fi && \
         cd starspan && \
         if [ ! `which starspan` ]; then ./configure && make && sudo make install; fi')
 
