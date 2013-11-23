@@ -11,7 +11,7 @@ xlrd
 madrona>=4.1
 
 # Uli's cost model
--e git+https://github.com/Ecotrust/cost_model.git@master#egg=forestcost
+# -e git+https://github.com/Ecotrust/cost_model.git@master#egg=forestcost
 
 simplejson
 django-pdb
