@@ -983,7 +983,7 @@ class Scenario(Feature):
                     # TODO
                     raise ValueError
                 used_records += 1
-            except (ZeroDivisionError, ValueError):
+            except:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
                 logger.error("Cost model exception raised, ignoring cost for trees_scenariostand_%d"\
                     "\ncost args:"
                     "%r" % (row['sstand_id'], cost_args))
