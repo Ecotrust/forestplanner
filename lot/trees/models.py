@@ -74,6 +74,24 @@ def postgres_now():
     return now
 
 
+def handle_cost_error(e, cost_args, standid):
+    '''
+    Handle errors in the cost model so as not to overwhelm admin emails  
+    '''
+    errorid = hash(cost_args) 
+    costlog_path = os.path.join(settings.COSTLOG_DIR, errorid + ".txt") 
+
+    subject = "forestplanner@ecotrust.org; Cost model exception raised"
+    message = "Internal Stand ID: %s\n\nException:\n%r\n\nCost function arguments:\n%r" % (
+        standid, e, cost_args)
+
+    # Only email IF this error has not been detected yet
+    if not os.path.exists(costlog_path):
+        mail.mail_admins(subject, message, fail_silently=True, html_message=None)
+        with open(costlog_path, 'w') as fh:
+            fh.write(message)
+
+
 class DirtyFieldsMixin(object):
     """
     http://stackoverflow.com/a/4676107/519385
@@ -985,14 +1003,7 @@ class Scenario(Feature):
                     raise ValueError
                 used_records += 1
             except Exception as e:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
-                logger.error("Cost model exception raised, ignoring cost for trees_scenariostand_%d"\
-                    "\ncost args: %r" % (row['sstand_id'], cost_args))
-
-                subject = "forestplanner@ecotrust.org; Cost model exception raised"
-                message = "Internal Stand ID: %s\n\nException:\n%r\nCost function arguments:\n%r" % (
-                    row['sstand_id'], e, cost_args)
-                mail.mail_admins(subject, message, fail_silently=True, html_message=None)
-
+                handle_cost_error(e, cost_args, row['sstand_id'])
                 skip_error += 1
 
         # Costs

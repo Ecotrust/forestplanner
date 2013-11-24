@@ -58,7 +58,8 @@ import logging
 logging.getLogger('django.db.backends').setLevel(logging.INFO)
 logging.getLogger('madrona.features.models').setLevel(logging.INFO)
 logging.getLogger('madrona.common.utils').setLevel(logging.INFO)
-LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'trees.log')
+LOG_FILE = os.path.join(os.path.dirname(__file__), '..', 'logs', 'trees.log')
+COSTLOG_DIR = os.path.join(os.path.dirname(__file__), '..', 'logs', 'cost_errors')
 
 # ------------------------------------------------------------------------------
 # Spatial data settings
@@ -164,6 +165,7 @@ EMAIL_HOST = 'mail.ecotrust.org'
 # EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'forestplanner@ecotrust.org'
 DEFAULT_FROM_EMAIL = 'forestplanner@ecotrust.org'
+SERVER_EMAIL = 'forestplanner@ecotrust.org'
 
 # ------------------------------------------------------------------------------
 # Local settings
