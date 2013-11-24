@@ -27,6 +27,7 @@ from django.dispatch import receiver
 from django.db import connection
 from celery.result import AsyncResult
 from collections import defaultdict
+from django.core import mail
 
 logger = get_logger()
 
@@ -983,10 +984,15 @@ class Scenario(Feature):
                     # TODO
                     raise ValueError
                 used_records += 1
-            except:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
+            except Exception as e:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
                 logger.error("Cost model exception raised, ignoring cost for trees_scenariostand_%d"\
-                    "\ncost args:"
-                    "%r" % (row['sstand_id'], cost_args))
+                    "\ncost args: %r" % (row['sstand_id'], cost_args))
+
+                subject = "forestplanner@ecotrust.org; Cost model exception raised"
+                message = "Internal Stand ID: %s\n\nException:\n%r\nCost function arguments:\n%r" % (
+                    row['sstand_id'], e, cost_args)
+                mail.mail_admins(subject, message, fail_silently=True, html_message=None)
+
                 skip_error += 1
 
         # Costs
