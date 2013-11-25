@@ -78,8 +78,7 @@ def handle_cost_error(e, cost_args, standid):
     '''
     Handle errors in the cost model so as not to overwhelm admin emails  
     '''
-    errorid = hash(cost_args) 
-    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % errorid) 
+    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid) 
 
     subject = "forestplanner@ecotrust.org; Cost model exception raised"
     message = "Internal Stand ID: %s\n\nException:\n%r\n\nCost function arguments:\n%r" % (
