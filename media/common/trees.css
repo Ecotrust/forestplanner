@@ -50,6 +50,11 @@ h2{
     border-top:none !important;
     font-size: 8pt;
 }
+.olControlScaleLine.olControlNoSelect{
+	left: auto !important;
+	right: 3px !important;
+}
+
 .olControlScaleLineTop {
     display:none;
 }
@@ -202,6 +207,7 @@ a {
 #input-geosearch:-moz-placeholder { /* Firefox 18- */ color: #444; opacity: 1;  }
 #input-geosearch::-moz-placeholder {  /* Firefox 19+ */ color: #444; opacity: 1;  }
 #input-geosearch:-ms-input-placeholder {  color: #444; opacity: 1;  }
+
 .help-inline{
 	padding-left: 0;
 	font-size: .9em;
@@ -377,8 +383,8 @@ label#year-label {
 		box-shadow: 			0px 0px 0px 3px rgba(0, 0, 0, 0.25) inset;
 	}
 	.property-list h3{
-		font-size: 18px;
-		line-height: 1.5;
+		font-size: 22px;
+		line-height: 1.2;
 	}
 	.property-list .btn-primary.active:after, .property-list .btn-info.active:after {
 		/*selectED*/
