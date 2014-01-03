@@ -17,6 +17,8 @@ urlpatterns = patterns(
         manage_strata, name='trees-manage_strata'),
     url(r'^scenario/(?P<property_uid>\w+)$',
         manage_scenario, name='trees-manage_scenario'),
+    url(r'^intro', # /intro
+        intro, name='intro'),
     url(r'^about', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
         about, name='about'),
 
