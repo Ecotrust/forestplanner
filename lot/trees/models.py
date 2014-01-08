@@ -963,9 +963,11 @@ class Scenario(Feature):
             # PartialCut(clear cut = 0, partial cut = 1)
             if cut_type == 3:
                 PartialCut = 0
+                # Assume partial cut moves all the timber off-site
                 haul_prop = 1.0
             elif cut_type in [1, 2]:
                 PartialCut = 1
+                # Assume partial cut moves 1/2 the timber off-site
                 haul_prop = 0.5
             else:
                 # no harvest so don't attempt to calculate
@@ -987,8 +989,8 @@ class Scenario(Feature):
 
             try:
                 result = main_model.cost_func(*cost_args,
-                    NoHelicopter=True,  # don't bother with helipcopter logging costs
-                    NoHaulProportion=haul_prop)  # TODO this will be HaulProportion
+                    Helicopter=True,  # don't bother with helipcopter logging costs
+                    HaulProportion=haul_prop)
                 annual_haul_cost[year] += result['total_haul_cost']
                 annual_total_cost[year] += result['total_cost']
 
