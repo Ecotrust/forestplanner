@@ -5,11 +5,13 @@
 # Configuration:
 
 FULLDEM="/g/Basedata/PNW/terrain/dem_prjr6/hdr.adf"
-OUTDIR="resamp45"
-OUTRES="45.4133849338" 
-# x3 27.2480309603
+OUTDIR="resamp27"
+# x3
+OUTRES="27.2480309603"
+
 # x4 36.330707947
 # x5 45.4133849338
+# OUTRES="45.4133849338" 
 
 #---------------------------------------------------------------#
 

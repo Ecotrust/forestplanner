@@ -8,10 +8,9 @@ import random
 @task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
 def impute_rasters(stand_id, savetime):
     # import here to avoid circular dependencies
+    from trees.utils import terrain_zonal
     from trees.models import Stand
     from django.conf import settings
-    from madrona.raster_stats.models import RasterDataset, zonal_stats
-    import math
 
     try:
         stand_qs = Stand.objects.filter(id=stand_id)
@@ -19,52 +18,16 @@ def impute_rasters(stand_id, savetime):
     except (Stand.DoesNotExist, IndexError):
         raise impute_rasters.retry()
 
-    def get_raster_stats(stand, rastername):
-        # yes we know zonal_stats has it's own internal caching but it uses the DB
-        key = "zonal_%s_%s" % (stand.geometry_final.wkt.__hash__(), rastername)
-        stats = cache.get(key)
-        if stats is None:
-            try:
-                raster = RasterDataset.objects.get(name=rastername)
-            except RasterDataset.DoesNotExist:
-                return None
-            rproj = [rproj for rname, rproj
-                     in settings.IMPUTE_RASTERS
-                     if rname == rastername][0]
-            g1 = stand.geometry_final.transform(rproj, clone=True)
-            if not raster.is_valid:
-                raise Exception("Raster is not valid: %s" % raster)
-            # only need 33% coverage to include pixel, helps with small stands
-            stats = zonal_stats(g1, raster, pixprop=0.33)
-            cache.set(key, stats, 60 * 60 * 24 * 365)
-        return stats
+    rproj = settings.TERRAIN_PROJ
+    g1 = stand.geometry_final.transform(rproj, clone=True)
 
-    elevation = aspect = slope = cost = None
-
-    # elevation
-    data = get_raster_stats(stand, 'elevation')
-    if data:
-        elevation = data.avg
-
-    # aspect
-    cos = get_raster_stats(stand, 'cos_aspect')
-    sin = get_raster_stats(stand, 'sin_aspect')
-    if cos and sin:
-        result = None
-        if cos and sin and cos.sum and sin.sum:
-            avg_aspect_rad = math.atan2(sin.sum, cos.sum)
-            result = math.degrees(avg_aspect_rad) % 360
-        aspect = result
-
-    # slope
-    data = get_raster_stats(stand, 'slope')
-    if data:
-        slope = data.avg
-
-    # cost
-    data = get_raster_stats(stand, 'cost')
-    if data:
-        cost = data.avg
+    # Either get cached zonal stats or generate it
+    key = "terrain_zonal_%s" % (g1.wkt.__hash__())
+    stats = cache.get(key)
+    if stats is None:
+        stats = terrain_zonal(g1)
+        cache.set(key, stats, 60 * 60 * 24 * 365)
+    elevation, slope, aspect, cost = stats
 
     # stuff might have changed, we dont want a wholesale update of all fields!
     # use the timestamp to make sure we don't clobber a more recent request
@@ -73,8 +36,7 @@ def impute_rasters(stand_id, savetime):
         slope=slope,
         aspect=aspect,
         cost=cost,
-        rast_savetime=savetime
-    )
+        rast_savetime=savetime )
 
     stand.invalidate_cache()
 

@@ -105,6 +105,7 @@ class Command(BaseCommand):
             print "\tSkip unpacking terrain rasters; already unpacked"
 
         # install
+        # Technically this is not necessary now that we've replaced starspan with python-rasterstats
         if RasterDataset.objects.all().count() < 6:
             print "\tLoading RasterDataset"
             RasterDataset.objects.get_or_create(filepath=os.path.join(odirname, 'dem.tif'), type="continuous", name="elevation")

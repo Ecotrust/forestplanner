@@ -555,3 +555,50 @@ def fake_scenariostands(the_scenario):
         )
 
     return ScenarioStand.objects.filter(scenario=the_scenario)
+
+
+def terrain_zonal(geom):
+    from rasterstats import raster_stats
+    from django.conf import settings
+    import math
+    import os
+
+    tdir = settings.TERRAIN_DIR 
+
+    def get_raster_stats(rastername):
+        raster_path = os.path.join(tdir, rastername)
+        stats = raster_stats(geom.wkt, raster_path, stats="median mean sum")
+        if any(val is None or math.isnan(val) for val in stats[0].values()):
+            # fall back to point centroid
+            stats = raster_stats(geom.centroid.wkt, raster_path, stats="median mean sum")
+        return stats[0]
+
+    elevation = aspect = slope = cost = None
+
+    # elevation
+    data = get_raster_stats('dem.tif')
+    elevation = data['mean']
+
+    # aspect
+    cos = get_raster_stats('cos_aspect.tif')
+    sin = get_raster_stats('sin_aspect.tif')
+    result = None
+    Esin = sin['sum']
+    Ecos = cos['sum']
+    if Ecos and Esin:
+        avg_aspect_rad = math.atan2(Esin, Ecos)
+        result = math.degrees(avg_aspect_rad) % 360
+    aspect = result
+
+    # slope
+    data = get_raster_stats('slope.tif')
+    slope = data['median']
+    cost = slope
+
+    terrain = (elevation, slope, aspect, cost)
+
+    if any(x is None or math.isnan(x) for x in terrain):
+        # fail silently so as not to distrupt NN 
+        terrain = (0, 0, 0, 0)
+    return terrain
+

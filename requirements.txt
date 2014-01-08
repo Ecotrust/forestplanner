@@ -24,6 +24,9 @@ django-allauth
 celerymon
 flower
 
+rasterstats
+# -e git+https://github.com/perrygeo/rasterstats.git@master#egg=forestcost
+
 django>1.4,<1.5  
 # not quite ready for 1.5; see:
 #  https://github.com/simplejson/simplejson/issues/37

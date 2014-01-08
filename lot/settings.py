@@ -71,15 +71,18 @@ EQUAL_AREA_SRID = 26910  # NAD83 UTM Zone 10 N meters
 
 # List of tuples: raster name and proj4 string of the raster
 # proj4==None implies mercator
-albers = '+proj=aea +lat_1=43 +lat_2=48 +lat_0=34 +lon_0=-120 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+TERRAIN_PROJ = '+proj=aea +lat_1=43 +lat_2=48 +lat_0=34 +lon_0=-120 +x_0=600000 +y_0=0 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs'
+DOWNLOAD_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "fixtures", "downloads"))
+TERRAIN_DIR = os.path.join(DOWNLOAD_DIR, "terrain")
+albers = TERRAIN_PROJ
 IMPUTE_RASTERS = [
-        ('elevation', albers),
-        ('cos_aspect', albers),
-        ('sin_aspect', albers),
-        ('aspect', albers),
-        ('slope', albers),
-        ('cost', albers),
-        ('gnn', albers),
+        ('elevation', TERRAIN_PROJ),
+        ('cos_aspect', TERRAIN_PROJ),
+        ('sin_aspect', TERRAIN_PROJ),
+        ('aspect', TERRAIN_PROJ),
+        ('slope', TERRAIN_PROJ),
+        ('cost', TERRAIN_PROJ),
+        ('gnn', TERRAIN_PROJ),
 ]
 POINT_BUFFER = 2500  # meters
 DEFAULT_EXTENT = [-14056200, 4963200, -12471500, 6128400]  # in mercator
