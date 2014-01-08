@@ -258,7 +258,7 @@ function scenarioViewModel(options) {
 			alert('Please create a property first!');
 			window.location.hash = "#properties";
 			return;
-		} 
+		}
 
         self.showScenarioList(true);
         self.toggleScenarioForm(false);
@@ -272,7 +272,7 @@ function scenarioViewModel(options) {
             timemapScenarioData = {};
             refreshCharts();
             refreshTimeMap(true, true);
-            refreshCashflow(true, true);
+            refreshCashflow();
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
@@ -288,14 +288,14 @@ function scenarioViewModel(options) {
         //app.breadCrumbs.breadcrumbs.pop();
         //app.updateUrl();
         self.showScenarioPanels(false);
-		self.toggleScenarioForm('hide')
+		self.toggleScenarioForm('hide');
         //app.properties.viewModel.showPropertyPanels(true);
         if (app.rx_stand_layer)
             app.rx_stand_layer.removeAllFeatures();
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
         $('#map').fadeIn();
-        timemapInitialized = false; 
+        timemapInitialized = false;
     };
 
     self.toggleFeature = function(f, e) {
@@ -304,12 +304,12 @@ function scenarioViewModel(options) {
             // add it
             self.selectedFeatures.push(f);
             $('#select-scenario2 option:last-child').attr('selected', 'selected');
-            $('#cash-select-scenario2 option:last-child').attr('selected', 'selected');
+            $('#cash-select-scenario1 option:last-child').attr('selected', 'selected');
         }
 
         refreshCharts();
         refreshTimeMap(true, true);
-        refreshCashflow(false, true);
+        refreshCashflow();
     };
 
 	// separate function because building the href dynamicaly doesn't allow the cancelling of the dom bubbling

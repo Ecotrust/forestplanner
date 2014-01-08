@@ -769,9 +769,9 @@
                               <i class="icon-info-sign"></i> 
                               <strong>Harvesting and transportation costs for each scenario.</strong>
                             </p>
-                            <br>
                             <div id="cash1">
                               <select id="cash-select-scenario1" 
+                                      class="btn"
                                       data-bind="foreach: selectedFeatures">
                                   <option data-bind="value: pk, text: fields.name"></option>
                               </select>
@@ -779,18 +779,9 @@
                                   Calculating Cost/Revenue...
                               </p>
                             </div>
+                            <br>
                             <div id="cash-chart1" class="cash-chart"></div>
-                            <hr>
-                            <div id="cash2">
-                              <select id="cash-select-scenario2"
-                                      data-bind="foreach: selectedFeatures">
-                                  <option data-bind="value: pk, text: fields.name"></option>
-                              </select>
-                              <p class="muted" id="loading-cash-chart2" style="margin: 8px; font-size: 18pt;">
-                                  Calculating Cost/Revenue...
-                              </p>
-                            </div>
-                            <div id="cash-chart2" class="cash-chart"></div>
+
                         </div>
                     </div>
               </div> <!-- end scenario-outputs -->

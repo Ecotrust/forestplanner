@@ -927,7 +927,6 @@ class Scenario(Feature):
 
         annual_total_cost = defaultdict(float)
         annual_haul_cost = defaultdict(float)
-        annual_heli_harvest_cost = defaultdict(float)
         annual_ground_harvest_cost = defaultdict(float)
         annual_cable_harvest_cost = defaultdict(float)
         #annual_admin_cost = defaultdict(float)
@@ -945,7 +944,6 @@ class Scenario(Feature):
                 years.append(year)
                 annual_total_cost[year] += 0
                 annual_haul_cost[year] += 0
-                annual_heli_harvest_cost[year] += 0
                 annual_ground_harvest_cost[year] += 0
                 annual_cable_harvest_cost[year] += 0
                 #annual_admin_cost[year] += 0
@@ -965,8 +963,10 @@ class Scenario(Feature):
             # PartialCut(clear cut = 0, partial cut = 1)
             if cut_type == 3:
                 PartialCut = 0
+                haul_prop = 1.0
             elif cut_type in [1, 2]:
                 PartialCut = 1
+                haul_prop = 0.5
             else:
                 # no harvest so don't attempt to calculate
                 skip_noharvest += 1
@@ -986,7 +986,9 @@ class Scenario(Feature):
             )
 
             try:
-                result = main_model.cost_func(*cost_args)
+                result = main_model.cost_func(*cost_args,
+                    NoHelicopter=True,  # don't bother with helipcopter logging costs
+                    NoHaulProportion=haul_prop)  # TODO this will be HaulProportion
                 annual_haul_cost[year] += result['total_haul_cost']
                 annual_total_cost[year] += result['total_cost']
 
@@ -996,9 +998,7 @@ class Scenario(Feature):
                 #annual_road_cost[year] += result['total_harvest_cost'] / 1.5
 
                 system = result['harvest_system']
-                if system.startswith("Helicopter"):
-                    annual_heli_harvest_cost[year] += result['total_harvest_cost']
-                elif system.startswith("Ground"):
+                if system.startswith("Ground"):
                     annual_ground_harvest_cost[year] += result['total_harvest_cost']
                 elif system.startswith("Cable"):
                     annual_cable_harvest_cost[year] += result['total_harvest_cost']
@@ -1013,10 +1013,9 @@ class Scenario(Feature):
         # Costs
         def ordered_costs(x):
             sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
-            return [-1 * z[1] for z in sorted_x]
+            return [z[1] for z in sorted_x]
 
         data = {}
-        data['heli'] = ordered_costs(annual_heli_harvest_cost)
         data['cable'] = ordered_costs(annual_cable_harvest_cost)
         data['ground'] = ordered_costs(annual_ground_harvest_cost)
         data['haul'] = ordered_costs(annual_haul_cost)
@@ -1035,7 +1034,6 @@ class Scenario(Feature):
 
         ##### TODO Net
         # total_cost = \
-        #     np.array(data['heli']) + \
         #     np.array(data['cable']) + \
         #     np.array(data['ground']) + \
         #     np.array(data['haul'])
