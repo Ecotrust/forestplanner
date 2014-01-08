@@ -251,6 +251,11 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             self.cond_id = None
 
         super(Stand, self).save(*args, **kwargs)
+        # Cheesy hack allows the app to pause long enough 
+        # to hopefully get the terrain variables calculated
+        # TODO .. this is going to slow down shapefile imports
+        # why not just run the terrain zonal syncronously rather than deal with celery???
+        time.sleep(0.2)
 
 
 @register

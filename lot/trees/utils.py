@@ -598,6 +598,7 @@ def terrain_zonal(geom):
     terrain = (elevation, slope, aspect, cost)
 
     if any(x is None or math.isnan(x) for x in terrain):
-        terrain = (None, None, None, None)
+        # fail silently so as not to distrupt NN 
+        terrain = (0, 0, 0, 0)
     return terrain
 
