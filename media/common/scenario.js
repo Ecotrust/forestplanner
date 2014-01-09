@@ -558,5 +558,25 @@ function scenarioViewModel(options) {
         });
     };
 
+    self.scenariosNeedRerun = function() {
+        needs_rerun = false;
+        $.each(app.scenarios.viewModel.scenarioList(), function(){
+            if (this.fields.needs_rerun === true) {
+                needs_rerun = true;
+            }
+        });
+        return needs_rerun;
+    };
+
+    self.scenariosRunnable = function() {
+        rerun = true;
+        $.each(app.scenarios.viewModel.scenarioList(), function(){
+            if (this.fields.property_is_runnable === false) {
+                rerun = false;
+            }
+        });
+        return rerun;
+    };
+
     return self;
 }

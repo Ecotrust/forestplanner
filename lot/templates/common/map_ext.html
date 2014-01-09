@@ -390,6 +390,26 @@
                         </div>
                       </header>
 
+                        <div data-bind="visible: scenariosNeedRerun()"> <!-- visible if property needs rerun -->
+                          <div class="alert alert-danger" data-bind="visible: scenariosRunnable()">
+                            <p class="">
+                              Data has changed and the scenarios must be <em>Edited</em> to reflect the new information.
+                            </p>
+                            <!-- TODO auto reload
+                            <button class="btn"><i class="icon-repeat"></i> Update</button>
+                            -->
+                          </div>
+                          <div class="alert alert-danger" data-bind="visible: !scenariosRunnable()">
+                            <p class="pull-left">
+                              Vegetation is unknown for one or more stands.
+                              <em>Assign</em> or wait and <em>Refresh</em> (server may still be working)
+                            </p>
+                            <button class="btn" data-bind="click: manageVegetationTypes, clickBubble: false">
+                              Assign vegetation types
+                            </button>
+                          </div>
+                        </div>
+
                         <table class="table table-condensed table-hover table-bordered">
                         <tbody data-bind="foreach: scenarioList">
                             <tr class="scenario-row" data-bind="click: $parent.toggleFeature">
@@ -400,7 +420,9 @@
                                             <i class="icon-remove"></i>Delete</button>
                                         <button class="btn btn-mini" href="#" 
                                             data-bind="click: $parent.editFeature, visible: fields.property_is_runnable, css: {'btn-danger': !fields.is_runnable || fields.needs_rerun }">
-                                            <i class="icon-edit" data-bind="css: {'icon-white': !fields.is_runnable || fields.needs_rerun }"></i>Edit</button>
+                                            <i class="icon-edit" data-bind="css: {'icon-white': !fields.is_runnable || fields.needs_rerun }"></i>
+                                            Edit
+                                        </button>
                                     </div>
 
                                     <div class="pull-left" style="margin: 12px; padding:2px; border:1px #ddd solid">
@@ -413,6 +435,7 @@
                                     <span data-bind="text: fields.description"></span>
                                     <p>
                                     <div class="scenario-details" style="padding-left: 8px; padding-right: 8px;">
+                                      <!--
                                         <div data-bind="visible: !fields.is_running" > 
                                             <div class="alert alert-danger" data-bind="visible: !fields.property_is_runnable" >
                                                 <i class="icon-exclamation-sign icon-white"></i>
@@ -436,6 +459,7 @@
                                                 </div>
                                             </div>
                                         </div>
+                                       -->
                                         <div class="alert alert-info" data-bind="visible: fields.is_running" > 
                                             <i class="icon-refresh icon-white"></i>
                                             Scenario is currently in the task queue. Check back and hit Refresh in a few seconds.
