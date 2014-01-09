@@ -69,6 +69,7 @@ def all():
 
 
 def _install_requirements():
+    run('cd %(app_dir)s && %(venv)s/bin/pip install distribute' % vars)
     run('cd %(app_dir)s && %(venv)s/bin/pip install -r ../requirements.txt' % vars)
 
 
