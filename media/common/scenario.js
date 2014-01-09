@@ -15,7 +15,7 @@ function rxViewModel(options) {
 
 function scenarioFormViewModel(options) {
     var self = this;
-    var colors = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#8DD3C7', '#E31A1C', '#FDBF6F', 
+    var colors = ['#A6CEE3', '#1F78B4', '#B2DF8A', '#33A02C', '#8DD3C7', '#E31A1C', '#FDBF6F',
                   '#FF7F00', '#CAB2D6', '#6A3D9A', '#FFFF99', '#FB9A99', '#FFFFB3',
                   '#BEBADA', '#FB8072', '#80B1D3', '#FDB462', '#B3DE69', '#FCCDE5',
                   '#D9D9D9', '#BC80BD', '#CCEBC5', '#AAAAAA', '#777777'];
@@ -55,10 +55,10 @@ function scenarioFormViewModel(options) {
     };
 
     self.updateWithRx = function() {
-         var with_rx = 0; 
-         $.each(self.inputRxs(), function(k,f) { 
-            with_rx++; 
-         }); 
+         var with_rx = 0;
+         $.each(self.inputRxs(), function(k,f) {
+            with_rx++;
+         });
          self.nWithRx(with_rx++);
     };
 
@@ -95,7 +95,7 @@ function scenarioFormViewModel(options) {
             // periodic updates for decision tree
             function(update) {
                 if (update) {
-                    self.decisionOutput.push(update);    
+                    self.decisionOutput.push(update);
                 } else {
                     self.decisionOutput.pop();
                 }
@@ -217,7 +217,7 @@ function scenarioFormViewModel(options) {
             if (stand_id && rx_id) {
                 self.inputRxs()[stand_id] = rx_id;
             } else {
-                console.log("Can't add to inputRxs: stand_id and rx_id are ", feature.data, myrx)
+                console.log("Can't add to inputRxs: stand_id and rx_id are ", feature.data, myrx);
             }
         });
         app.rx_stand_layer.selectFeature.unselectAll();
@@ -317,7 +317,7 @@ function scenarioViewModel(options) {
 		if ( app.selectedPropertyUID ) {
 			window.location = "/trees/strata/" + app.selectedPropertyUID();
 		} else {
-			return false; 
+			return false;
 		}
 	};
 
@@ -349,7 +349,7 @@ function scenarioViewModel(options) {
     };
 
     self.newScenarioStart = function() {
-        $('#scenario-form-container').html("<h4>Loading...</h4>"); 
+        $('#scenario-form-container').html("<h4>Loading...</h4>");
         self.activeScenario(null);
         self.addScenarioStart(false);
     };
@@ -392,7 +392,7 @@ function scenarioViewModel(options) {
         // Fire off 3 Async calls
         $.when(
             // #1 - load the stands geojson
-            $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()), 
+            $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', self.property.uid()),
 
                 function(data) {
                     if (app.rx_stand_layer) {
@@ -492,7 +492,7 @@ function scenarioViewModel(options) {
                                     data = $(jqXHR.responseText);
                                     errors = data.find(".errorlist > *");
                                     errorHtml = "";
-                                    $.each(errors, function(k,v) { 
+                                    $.each(errors, function(k,v) {
                                         errorHtml += v.innerHTML + " . ";
                                     });
                                     app.flash(errorHtml, "Error saving scenario...");
@@ -531,14 +531,14 @@ function scenarioViewModel(options) {
                 var rx_id;
                 var myrx;
                 var color;
-                var stand_feature; 
+                var stand_feature;
                 var myrx_colors = {};
 
                 // loop through myrxs and transform to a {rx_id: myrx_color} hash
                 for (var i = app.scenarios.formViewModel.prescriptionList().length - 1; i >= 0; i--) {
                      myrx = app.scenarios.formViewModel.prescriptionList()[i];
                      myrx_colors[myrx.rx_id] = myrx.color;
-                }; 
+                }
                 // Apply to correct color for each polygon and add to inputRxs 
                 for (var i = app.rx_stand_layer.features.length - 1; i >= 0; i--) {
                     stand_feature = app.rx_stand_layer.features[i];
@@ -551,8 +551,8 @@ function scenarioViewModel(options) {
                             app.scenarios.formViewModel.inputRxs()[stand_id] = rx_id;
                         }
                     }
-                };
-                app.rx_stand_layer.redraw()
+                }
+                app.rx_stand_layer.redraw();
                 app.scenarios.formViewModel.updateWithRx();
             }
         });
