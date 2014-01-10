@@ -82,7 +82,7 @@
 										<li>
 											<a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }">
 												<span class="tab-num">3</span>
-												Define Vegetation Types</a>
+												Define Forest Types</a>
 										</li>
 										<li data-bind="css: { active: app.state() == 'scenarios'}">
 											<a data-bind="attr: { href: '#scenarios/' + app.selectedPropertyUID() }">
@@ -132,8 +132,8 @@
                   <!--<h2> My Properties </h2>-->
                   <p class="info-help info text-info well well-small clearfix">
                     <i class="icon-info-sign"></i> 
-                    <strong>A property is the unit of analysis by which scenarios are developed.  </strong>
-                    <span>You may have one or more properties.  Stands and Vegetation types must be defined for a
+                    <strong>A property is the unit of analysis by which management scenarios will be developed.</strong>
+                    <span>You may have one or more properties.  Stands and Forest Types must be defined for a
                       property before you are able to develop different management scenarios.  If you have a
                       non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as
                       many properties as you want however scenarios can only be run on one property at a time.</span>
@@ -356,19 +356,15 @@
                 <!--<h2>Evaluate Scenarios</h2>-->
                 <p class="info-help info text-info well well-small clearfix">
                   <i class="icon-info-sign"></i> 
-                  <strong>Scenarios represent a plausible future outcome given a set of defined management activities.</strong>
+                  <strong>Scenarios represent a combination of management activities intended to achieve one or more desired outcomes.</strong>
                   <span>
-                    You can create and compare as many scenarios as you like.  Scenarios are made up of specific
-                    management activities called &ldquo;prescriptions&rdquo; applied to individual stands.  When
-                    creating and selecting prescriptions for specific locations (stands) you should consider management
-                    objectives, site conditions, cost constraints (e.g. whether there are existing roads) and any other
-                    spatial constraints (e.g. riparian buffer regulations, avoiding steep and hazardous slopes or
-                    conservation easements).  You must define specific management activities or
-                    &ldquo;prescriptions&rdquo; that can then be applied to one or more stands (in the same manner that
-                    you apply vegetation types to stands).  Once you create a prescription for one scenario, the
-                    prescription is available for use in other scenarios.  Once you have created a scenario, it will
-                    show up in the list on the left hand side of the page.  To view and compare outcomes for scenarios,
-                    merely check the box next to the scenario name.  
+                    You can create and compare as many scenarios as you like.  Begin by clicking on the &ldquo;+ New Scenario&rdquo; button.  
+					To build a scenario, you will choose one or more management activities called &ldquo;prescriptions&rdquo; and then apply
+					those to each stand you want managed that way.  To ensure you get the most reasonable results, when choosing prescriptions
+					to apply to your stands, we recommend that you consider issues such as potential costs of entries, accessibility to roads 
+					and different types of harvesting equipment, and regulatory limitations such as riparian buffers or hazardous slopes.
+                    Once you have created a scenario, it will show up in the list on the left hand side of the page.  Check the box next to 
+					the name of each scenario you want to see to show the predicted outcomes for each scenario in the graphs or maps.   
                   </span>
                 </p>
 
@@ -401,11 +397,11 @@
                           </div>
                           <div class="alert alert-danger" data-bind="visible: !scenariosRunnable()">
                             <p class="pull-left">
-                              Vegetation is unknown for one or more stands.
+                              Forest Type is unknown for one or more stands.
                               <em>Assign</em> or wait and <em>Refresh</em> (server may still be working)
                             </p>
                             <button class="btn" data-bind="click: manageVegetationTypes, clickBubble: false">
-                              Assign vegetation types
+                              Assign forest types
                             </button>
                           </div>
                         </div>
@@ -442,7 +438,7 @@
                                                 All stands must be 
                                                 <a data-bind="click: $parent.manageVegetationTypes,
                                                   clickBubble: false">
-                                                  assigned a vegetation type</a> to proceed.
+                                                  assigned a forest type</a> to proceed.
                                             </div>
                                             <div data-bind="visible: fields.property_is_runnable">
                                                 <div class="alert" data-bind="visible: !fields.is_runnable" > 
@@ -527,10 +523,10 @@
 					Create stands for all forested areas on your property, including recently harvested areas.
 					Non-forested areas, such as rocky outcrops, pasture, roads, or home sites should not be included as 
 					stands (leave these areas blank).</strong>
-                  <span>Generally you will digitize stands based on a combination of vegetation characteristics,
-                    regulatory constraints, infrastructure (e.g. roads or landing sites) and harvest considerations such
-                    as minimum or maximum size of a harvest unit.  Each stand must be digitized in its entirety; 
-					in other words, you must trace the boundary of pre-existing, adjacent stands when adding new stands.</span>
+                  <span>Each stand should be created to represent an area that will be managed in the same way.  This 
+					will generally reflect the stand's forest type, slope and accessibility to different harvest equipment, 
+					regulatory constraints (e.g., riparian buffers), and minimum/maximum size of a harvest unit.  Use the
+					&ldquo;+Draw a New Stand&rdquo; button to map out your stands.</span>
                   </p>
 
                   <div class="btn-bar clearfix">
@@ -612,7 +608,7 @@
                   </div>
                   <p>When you've finished adding all of your stands...</p>
                   <a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" class="btn btn-primary btn-large">
-                    <strong>Next</strong>: Define vegetation types for 
+                    <strong>Next</strong>: Define forest types for 
                     <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
                     <i class="icon-arrow-right"></i>
                   </a>

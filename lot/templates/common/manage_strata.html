@@ -22,7 +22,7 @@
 		<li class="active">
 			<a>
 				<span class="tab-num">3</span>
-				Define Vegetation Types</a>
+				Define Forest Types</a>
 		</li>
 		<li>
 			<a data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
@@ -45,24 +45,24 @@
 	<div class="row-fluid">
 
 		<div class="span5">
-      <!--<h2> Define Vegetation Types </h2>-->
+      <!--<h2> Define Forest Types </h2>-->
       <p class="info-help info text-info well well-small clearfix">
         <i class="icon-info-sign"></i> 
-				<strong>A vegetation type defines the different forest characteristics across your property. </strong>
+				<strong>A forest type defines the tree composition of one or more stands, including the stand age, species, 
+					diameter classes, and number of trees per acre.</strong>
 				<span style="display: none">
-					Vegetation types are used to estimate growth and regeneration after.  Vegetation types are assigned to stands
-					&ndash; a single vegetation type can be applied to multiple stands but no single stand can have more than one
-					vegetation type. Vegetation types are defined by entering species size class information based on knowledge of
-					your property or pre-existing stand tables (from any timber cruise that may have been conducted).  Once a
-					vegetation type has been defined it is applied to a stand or multiple stands by selecting the stand on the map
-					(shift select allows you to select multiple stands) and then clicking the &ldquo;apply&rdquo; button
-					associated with the vegetation type.
+					Create and then apply one or more forest types to all the stands across your property.  To create a forest type, 
+					click the &ldquo;+ New Forest Type&rdquo; button and then fill out a stand table including the number of trees per 
+					acre that are found in each diameter class by species.  Forest types you have created will then be available to 
+					assign to stands in a list below. A single forest type may be applied to multiple stands.  To apply forest types 
+					to stands, select one or more stands in the map	(holding down the shift key while dragging your mouse allows you 
+					to select multiple stands) and then click the &ldquo;apply&rdquo; button from the relevant forest type.
 				</span>
       </p>
       
       <div class="row-fluid btn-bar clearfix">
         <button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i>
-            New Vegetation Type</button>
+            New Forest Type</button>
       </div>
 
 			<div class="well">
@@ -72,15 +72,15 @@
 					<div class="span12" data-bind="visible: strataList().length && ! activeStratum()" style="display: none" >
 
 						<div class="row-fluid">
-								<p>You have applied vegetation types to <span data-bind="text: appliedStrataTotal"></span> of <span
+								<p>You have applied forest types to <span data-bind="text: appliedStrataTotal"></span> of <span
 									data-bind="text: standTotal"></span> stands.</p>
 								<div class="progress">
 									<div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal()/standTotal)*100+'%' }"></div>
 								</div>
 
 								<p class="help-inline" data-bind="if: appliedStrataTotal() !== standTotal">
-										To apply a vegetation type to a stand, select a stand on the map and click the apply button on the
-										associated vegetation type. You can select multiple stands simply by clicking.
+										To apply a forest type to a stand, select a stand on the map and click the &ldquo;apply&rdquo; button on the
+										associated forest type. You can select multiple stands simply by clicking.
 								</p>
 							
 
@@ -96,7 +96,7 @@
 
 						<div class="row-fluid">
 							<div class="form-inline">
-									<label for="filter-stand-group">Filter Vegetation Types</label>
+									<label for="filter-stand-group">Filter Forest Types</label>
 									<input id="filter-stand-group" type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
 									<button class="btn btn-mini" data-bind="visible: searchTerm, click: clearStandFilter ">Clear Filter</button>
 							</div>
@@ -131,7 +131,7 @@
 
 								<div class="veg-type-btns" data-bind="visible: confirmDelete">
 									<p class="sure">Are you sure?</p>
-									<!--<p>Delete this vegetation type?</p> too long! -->
+									<!--<p>Delete this forest type?</p> too long! -->
 									<div class="btn-group">
 										<button class="btn btn-mini" data-bind="click: function () { confirmDelete(false) }">cancel</button>
 										<button class="btn btn-mini btn-danger" data-bind="click: deleteStratum">delete</button>
@@ -139,9 +139,9 @@
 								</div>
 
 								<div class="btn-group veg-type-btns" data-bind="visible: confirmDelete() === false">
-									<button class="btn btn-mini" title="Apply this vegetation type to any selected stands" data-bind="click: $parent.applyStrata">apply</button>
-									<button class="btn btn-mini" title="Edit this vegetation type" data-bind="click: $parent.editStratum">edit</button>
-									<button class="btn btn-mini" title="Delete this vegetation type" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
+									<button class="btn btn-mini" title="Apply this forest type to any selected stands" data-bind="click: $parent.applyStrata">apply</button>
+									<button class="btn btn-mini" title="Edit this forest type" data-bind="click: $parent.editStratum">edit</button>
+									<button class="btn btn-mini" title="Delete this forest type" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
 								</div>
 
 							</div>
@@ -152,7 +152,7 @@
 
 				<!-- property has no strata -->
 				<div data-bind="visible: !strataList().length && ! activeStratum()" style="display: none">
-					You have not yet defined any vegetation types. You can <a data-bind="click: createStratum">add one now</a>.
+					You have not yet defined any forest types. You can <a data-bind="click: createStratum">add one now</a>.
 				</div>
 
 			</div><!-- /.well -->
@@ -199,9 +199,9 @@
 						
 							<div class="span6">
 								<div>
-									<h2 data-bind="visible: !editMode()">Create a Vegetation Type</h2>
-									<h2 data-bind="visible: editMode()">Editing Vegetation Type: <i data-bind="text: attributes.name"></i></h2>
-									<label>Name Your Vegetation Type</label>
+									<h2 data-bind="visible: !editMode()">Create a Forest Type</h2>
+									<h2 data-bind="visible: editMode()">Editing Forest Type: <i data-bind="text: attributes.name"></i></h2>
+									<label>Name Your Forest Type</label>
 									<input type="text" class="span8" placeholder="Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
 									<div class="row-fluid">
 										<!--
@@ -349,7 +349,7 @@
 							 <button class="btn btn-large" data-bind="click: cancel">cancel</button>
 							 <button class="btn btn-large btn-success" id="btn-save-strata"
 								 data-bind="click: saveStrata">
-								 <i class="icon-check icon-white"></i> Save Vegetation Type</button>
+								 <i class="icon-check icon-white"></i> Save Forest Type</button>
 						 </div>
 						 <div class="clearfix"></div>
 
@@ -743,7 +743,7 @@
 
 
 
-        // viewmodel for a single stratum (aka Vegetation Type)
+        // viewmodel for a single stratum (aka Forest Type)
         function stratumViewModel (options) {
             var self = {};
 
@@ -853,7 +853,7 @@
 
                   // no no
                   if (totalPercentage > 100) {
-                    msg = "You've entered a total percentage of over 100 for this Vegetation Type. Please enter a percentage of ";
+                    msg = "You've entered a total percentage of over 100 for this Forest Type. Please enter a percentage of ";
                     msg += 100 - (totalPercentage-stand.percentage() ) + " or less for this species."
 
 
@@ -1180,7 +1180,7 @@
 						// @TODO more KO, less JQ
 						if( !app.stand_layer.selectedFeatures.length ){
 
-							var msg = "Please select an stand on your map to apply this vegetation type.",
+							var msg = "Please select an stand on your map to apply this forest type.",
 								$t;
 
 							// little clean up because DOM stuff is silly
@@ -1238,7 +1238,7 @@
 
 						
             if ( ! stratum.canSave() ) {
-              self.vegetationTypeError("Please include a name and age for this Vegetation Type.");
+              self.vegetationTypeError("Please include a name and age for this Forest Type.");
               return;
             }
 
@@ -1319,9 +1319,9 @@
                     msg += "please let us know if we can help via the about page above.";
                     self.vegetationTypeError(msg);
                   }else{
-                    msg = "we're sorry, something has gone wrong with saving your vegetation type; please check your work and try again. "
+                    msg = "we're sorry, something has gone wrong with saving your forest type; please check your work and try again. "
                     msg += "\n\n" + "if you continue to have trouble ";
-                    msg += "saving your vegetation type, please contact us with this error code: " + response.status;
+                    msg += "saving your forest type, please contact us with this error code: " + response.status;
                     msg += " via the about page above. thank you.";
                     self.vegetationTypeError(msg);
                   }
