@@ -1,20 +1,20 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
-
+ 
 Vagrant::Config.run do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
   # please see the online documentation at vagrantup.com.
 
   # Every Vagrant virtual environment requires a box to build off of.
-  config.vm.box = "precise32"
+  config.vm.box = "precise64"
 
   # The url from where the 'config.vm.box' box will be fetched if it
   # doesn't already exist on the user's system.
-  config.vm.box_url = "http://files.vagrantup.com/precise32.box"
+  config.vm.box_url = "http://files.vagrantup.com/precise64.box"
 
   #config.vm.customize ["modifyvm", :id, "--cpus", 2]
-  #config.vm.customize ["modifyvm", :id, "--memory", 898]
+  config.vm.customize ["modifyvm", :id, "--memory", 898]
 
   # Boot with a GUI so you can see the screen. (Default is headless)
   # config.vm.boot_mode = :gui
@@ -40,11 +40,11 @@ Vagrant::Config.run do |config|
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
   # folder, and the third is the path on the host to the actual folder.
-  config.vm.share_folder "v-app", "/usr/local/apps/land_owner_tools", "./"
+  config.vm.share_folder "v-app", "/usr/local/apps/land_owner_tools", "./", mount_options: ["dmode=775,fmode=664"]
 
   # To use a local copy of madrona:
   if File.directory?("../madrona")
-    config.vm.share_folder "v-madrona", "/usr/local/src/madrona", "../madrona"
+    config.vm.share_folder "v-madrona", "/usr/local/src/madrona", "../madrona", mount_options: ["dmode=775,fmode=664"]
     # then vagrant ssh,
     #   source /usr/local/venv/lot/bin/activate
     #   pip uninstall madrona
@@ -53,11 +53,11 @@ Vagrant::Config.run do |config|
   end
 
   if File.directory?("../cost_model")
-    config.vm.share_folder "v-cost-model", "/usr/local/apps/cost_model", "../cost_model"
+    config.vm.share_folder "v-cost-model", "/usr/local/apps/cost_model", "../cost_model", mount_options: ["dmode=775,fmode=664"]
   end
 
   if File.directory?("../harvest-scheduler")
-    config.vm.share_folder "v-harvest-scheduler", "/usr/local/apps/harvest-scheduler", "../harvest-scheduler"
+    config.vm.share_folder "v-harvest-scheduler", "/usr/local/apps/harvest-scheduler", "../harvest-scheduler", mount_options: ["dmode=775,fmode=664"]
   end
 
   # Enable provisioning with Puppet stand alone.  Puppet manifests
