@@ -59,8 +59,8 @@ var refreshTimeMap = function (f1, f2) {
 
     selectedTimeMapMetric = $("#timemap-metrics-select").find(":selected").val();
     if (!selectedTimeMapMetric || !(selectedTimeMapMetric in chartMetrics)) {
-        console.log("WARNING: no metric selected. Defaulting to 'carbon'");
-        selectedTimeMapMetric = 'carbon';
+        console.log("WARNING: no metric selected. Defaulting to 'agl_carbon'");
+        selectedTimeMapMetric = 'agl_carbon';
     }
 
     if (f1) {
