@@ -856,7 +856,17 @@ class Scenario(Feature):
                 revenue = v * acres * price
                 annual_revenue[year] += revenue
 
-        return {'revenue': dict(annual_revenue)}
+        def ordered_revenue(x, years):
+            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            return [rev for year, rev in sorted_x if year in years]
+
+        rev = dict(annual_revenue)
+
+        data = {}
+        data['years'] = sorted(rev.keys())
+        gross = ordered_revenue(rev, data['years'])
+        data['gross'] = gross
+        return data
 
     @property
     @cachemethod("Scenario_%(id)s_cash_metrics")
@@ -1025,37 +1035,6 @@ class Scenario(Feature):
         # data['admin'] = ordered_costs(annual_admin_cost)
         # data['tax'] = ordered_costs(annual_tax_cost)
         # data['road'] = ordered_costs(annual_road_cost)
-
-        ##### TODO  Revenue
-        # def ordered_revenue(x, years):
-        #     sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
-        #     return [rev for year, rev in sorted_x if year in years]
-
-        # gross = ordered_revenue(self.output_revenue_metrics['revenue'], data['years'])
-        # data['gross'] = gross
-
-        ##### TODO Net
-        # total_cost = \
-        #     np.array(data['cable']) + \
-        #     np.array(data['ground']) + \
-        #     np.array(data['haul'])
-        #     # np.array(data['admin']) + \
-        #     # np.array(data['tax']) + \
-        #     # np.array(data['road'])
-
-        # net = (np.array(gross) + total_cost).tolist()
-        # data['net'] = net
-
-        # def cumulative_discounted_net(nets, discount_rate):
-        #     cum_sum = []
-        #     y = 0
-        #     for period, net in enumerate(nets):
-        #         years = period * 5  # Assume 5 year time periods
-        #         y += net / (1+(discount_rate ** years))
-        #         cum_sum.append(y)
-        #     return cum_sum
-
-        # data['cum_disc_net'] = cumulative_discounted_net(net, discount_rate=0.04)
 
         return data
 
@@ -1262,6 +1241,11 @@ class Scenario(Feature):
             # Link to calculate cash flow metrics for a scenario
             alternate('Scenario Cash Flow',
                       'trees.views.scenario_cash_flow',
+                      type="application/json",
+                      select='single'),
+            # Link to calculate revenue metrics for a scenario
+            alternate('Scenario Revenue',
+                      'trees.views.scenario_revenue',
                       type="application/json",
                       select='single'),
         )

@@ -702,6 +702,9 @@
                         <li>
                             <a href="#scenario-cash-tab-content" id="scenario-cash-tab" data-toggle="tab">Costs</a>
                         </li>
+                        <li>
+                            <a href="#scenario-revenue-tab-content" id="scenario-revenue-tab" data-toggle="tab">Revenues</a>
+                        </li>
                     </ul>
                     
                     <div class="tab-content no-overflow">
@@ -797,13 +800,32 @@
                                   <option data-bind="value: pk, text: fields.name"></option>
                               </select>
                               <p class="muted" id="loading-cash-chart1" style="margin: 8px; font-size: 18pt;">
-                                  Calculating Cost/Revenue...
+                                  Calculating Costs...
                               </p>
                             </div>
                             <br>
                             <div id="cash-chart1" class="cash-chart"></div>
-
                         </div>
+
+                        <div class="tab-pane fade" id="scenario-revenue-tab-content">
+                            <p class="info-help info text-info well well-small">
+                              <i class="icon-info-sign"></i> 
+                              <strong>Potential timber revenues under given scenarios.</strong>
+                            </p>
+                            <div id="revenue1">
+                              <select id="revenue-select-scenario1" 
+                                      class="btn"
+                                      data-bind="foreach: selectedFeatures">
+                                  <option data-bind="value: pk, text: fields.name"></option>
+                              </select>
+                              <p class="muted" id="loading-revenue-chart1" style="margin: 8px; font-size: 18pt;">
+                                  Calculating Revenues...
+                              </p>
+                            </div>
+                            <br>
+                            <div id="revenue-chart1" class="cash-chart"></div>
+                        </div>
+
                     </div>
               </div> <!-- end scenario-outputs -->
               
@@ -895,6 +917,7 @@
     <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
     <script src="{{ MEDIA_URL }}common/js/timemap.js"></script>
     <script src="{{ MEDIA_URL }}common/js/cashflow.js"></script>
+    <script src="{{ MEDIA_URL }}common/js/revenue.js"></script>
 {% else %}
     <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
 

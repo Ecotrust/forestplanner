@@ -574,3 +574,8 @@ def forestproperty_myrx(request, instance):
 def scenario_cash_flow(request, instance):
     data = instance.output_cash_metrics
     return HttpResponse(json.dumps(data), mimetype="text/javascript")
+
+
+def scenario_revenue(request, instance):
+    data = instance.output_revenue_metrics
+    return HttpResponse(json.dumps(data), mimetype="text/javascript")
