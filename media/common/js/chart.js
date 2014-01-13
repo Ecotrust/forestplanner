@@ -19,7 +19,7 @@ var globalChartOptions = {
           renderer: $.jqplot.EnhancedLegendRenderer,
           show: true,
           showLabels: true,
-          location: 'ne',
+          location: 'n',
           placement: 'outside',
           fontSize: '11px',
           fontFamily: ["Lucida Grande","Lucida Sans Unicode","Arial","Verdana","sans-serif"],
@@ -39,32 +39,32 @@ var scenarioPlot;
 var chartMetrics = {
   'agl_carbon': {
     'variableName': 'agl_carbon',
-    'title': "Above-Ground Carbon",
-    'axisLabel': "Carbon (metric tons)",
+    'title': "Carbon (Live Tree)",
+    'axisLabel': "Carbon (metric tons C)",
     'axisFormat': "%'d"
   },
   'total_carbon': {
     'variableName': 'total_carbon',
-    'title': "Total Ecosystem Carbon",
-    'axisLabel': "Carbon (metric tons)",
+    'title': "Carbon (Live & Dead Tree)",
+	'axisLabel': "Carbon (metric tons C)",
     'axisFormat': "%'d"
   },
   'harvested_timber': {
     'variableName': 'harvested_timber',
-    'title': "Timber Harvested",
-    'axisLabel': "Harvest (mbf)",
+    'title': "Harvest (per period)",
+	'axisLabel': "Timber yield (MBF)",
     'axisFormat': "%'d"
   },
   'cum_harvest': {
     'variableName': 'cum_harvest',
-    'title': "Cumulative Timber Harvested",
-    'axisLabel': "Cumulative Harvest (mbf)",
+    'title': "Harvest (cumulative)",
+    'axisLabel': "Timber yield (MBF)",
     'axisFormat': "%'d"
   },
   'standing_timber': {
     'variableName': 'standing_timber',
-    'title': "Standing Timber",
-    'axisLabel': "Stock (mbf)",
+    'title': "Standing Volume",
+    'axisLabel': "Standing volume (MBF)",
     'axisFormat': "%'d"
   }
 };
@@ -73,8 +73,8 @@ var refreshCharts = function(){
 
   var selectedMetric = $("#chart-metrics-select").find(":selected").val();
   if (!selectedMetric || !(selectedMetric in chartMetrics)) {
-      alert("WARNING: no metric selected. Defaulting to 'carbon'");
-      selectedMetric = 'carbon';
+      alert("WARNING: no metric selected. Defaulting to 'agl_carbon'");
+      selectedMetric = 'agl_carbon';
   }
 
   // destroy then replot to prevent memory leaks
@@ -122,7 +122,7 @@ var refreshCharts = function(){
     var baseline_peracre;
     switch (app.scenarios.viewModel.property.variant()) {
       case "Pacific Northwest Coast":
-          baseline_peracre = 38.6; // units = US/short tons
+          baseline_peracre = 38.6; // units = metric tons of carbon per acre (not CO2)
           break;
       case "South Central Oregon":
           baseline_peracre = 13.2;
@@ -144,7 +144,7 @@ var refreshCharts = function(){
         // baseline = AGL (tC/acre) * acres = AGL(metric tons C)
         var baseline = baseline_peracre * acres;
         scenarioData.push([['2001-12-31 11:59PM', baseline], ['2120-12-31 11:59PM', baseline]]);
-        scenarioLabels.push({'label': "Regional Average (" + baseline_peracre + " metric tons/acre)"});
+        scenarioLabels.push({'label': "Regional Average (" + baseline_peracre + " tC/ac)"});
     }
   }
 
