@@ -65,6 +65,7 @@ var refreshTimeMap = function (f1, f2) {
 
     if (f1) {
         standScenario1.removeAllFeatures();
+        $("#loading-timemap1").fadeIn();
         $("#error-timemap1").fadeOut();
         var opt = $('#select-scenario1').find(":selected").val();
         if (opt) {
@@ -75,6 +76,7 @@ var refreshTimeMap = function (f1, f2) {
                 processBreaks();
                 standScenario1.redraw();
                 standScenario2.redraw();
+                $("#loading-timemap1").fadeOut();
             } else {
                 // go fetch it 
                 var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
@@ -85,6 +87,7 @@ var refreshTimeMap = function (f1, f2) {
                         processBreaks();
                         standScenario1.redraw();
                         standScenario2.redraw();
+                        $("#loading-timemap1").fadeOut();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
                         $("#error-timemap1").fadeIn();
@@ -96,6 +99,7 @@ var refreshTimeMap = function (f1, f2) {
 
     if (f2) {
         standScenario2.removeAllFeatures();
+        $("#loading-timemap2").fadeIn();
         $("#error-timemap2").fadeOut();
         var opt2 = $('#select-scenario2').find(":selected").val();
         if (opt2) {
@@ -106,6 +110,7 @@ var refreshTimeMap = function (f1, f2) {
                 processBreaks();
                 standScenario1.redraw();
                 standScenario2.redraw();
+                $("#loading-timemap2").fadeOut();
             } else {
                 // go fetch it 
                 var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
@@ -116,6 +121,7 @@ var refreshTimeMap = function (f1, f2) {
                         processBreaks();
                         standScenario1.redraw();
                         standScenario2.redraw();
+                        $("#loading-timemap2").fadeOut();
                     } else {
                         console.log("First scenario doesn't have any features! Check scenariostands...");
                         $("#error-timemap2").fadeIn();

@@ -276,6 +276,15 @@ textarea#id_description {
     font-size: 14pt;
 }
 
+.loading-timemap {
+    position: absolute;
+    top: 20px;
+    right: 130px;
+    z-index: 99999;
+    opacity: 0.75;
+    font-size: 14pt;
+}
+
 #timemap-legend {
     text-align: right;
     padding: 4px;
@@ -719,12 +728,15 @@ label.error{
 label.alert{
 	margin-bottom: 0;
 }
-	input+label.alert, textarea+label.alert, select+label.alert{
-		margin-bottom: 21px;
-	}
+
+input+label.alert, textarea+label.alert, select+label.alert{
+	margin-bottom: 21px;
+}
+
 .btn-large [class^="icon-"], .btn-large [class*=" icon-"] {
     margin-top: 8px;
 }
+
 .alert.alert-danger > a {
     color: #E9E9FF;
     text-decoration: underline;
@@ -736,6 +748,6 @@ label.alert{
 }
 
 .cash-chart {
-    height: 300px;
+    height: 400px;
     width: 100%;
 }
