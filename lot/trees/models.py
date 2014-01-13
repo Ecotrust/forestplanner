@@ -832,9 +832,11 @@ class Scenario(Feature):
         rows = [dict(zip([col[0] for col in desc], row))
                 for row in cursor.fetchall()]
 
+        timber_prices = list(TimberPrice.objects.filter(variant=self.input_property.variant))
+
         prices_per_mbf = dict([
             (x.timber_type, x.price)
-            for x in TimberPrice.objects.filter(variant=self.input_property.variant)
+            for x in timber_prices
         ])
 
         annual_revenue = defaultdict(float)
@@ -866,6 +868,12 @@ class Scenario(Feature):
         data['years'] = sorted(rev.keys())
         gross = ordered_revenue(rev, data['years'])
         data['gross'] = gross
+
+        price_sheet = dict([
+            (x.get_timber_type_display(), x.price)
+            for x in timber_prices if x.price > 0
+        ])
+        data['prices'] = price_sheet
         return data
 
     @property
