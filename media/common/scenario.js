@@ -273,6 +273,7 @@ function scenarioViewModel(options) {
             refreshCharts();
             refreshTimeMap(true, true);
             refreshCashflow();
+            refreshRevenue();
         };
         $.get('/features/forestproperty/links/property-scenarios/{property_id}/'.replace('{property_id}', property.uid()), process);
     };
@@ -305,11 +306,13 @@ function scenarioViewModel(options) {
             self.selectedFeatures.push(f);
             $('#select-scenario2 option:last-child').attr('selected', 'selected');
             $('#cash-select-scenario1 option:last-child').attr('selected', 'selected');
+            $('#revenue-select-scenario1 option:last-child').attr('selected', 'selected');
         }
 
         refreshCharts();
         refreshTimeMap(true, true);
         refreshCashflow();
+        refreshRevenue();
     };
 
 	// separate function because building the href dynamicaly doesn't allow the cancelling of the dom bubbling
