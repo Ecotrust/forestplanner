@@ -45,7 +45,7 @@ var chartMetrics = {
   },
   'total_carbon': {
     'variableName': 'total_carbon',
-    'title': "Carbon (Live & Dead Tree)",
+    'title': "Carbon (Stand Total)",
 	'axisLabel': "Carbon (metric tons C)",
     'axisFormat': "%'d"
   },
