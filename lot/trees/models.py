@@ -947,9 +947,6 @@ class Scenario(Feature):
         annual_haul_cost = defaultdict(float)
         annual_ground_harvest_cost = defaultdict(float)
         annual_cable_harvest_cost = defaultdict(float)
-        #annual_admin_cost = defaultdict(float)
-        #annual_tax_cost = defaultdict(float)
-        #annual_road_cost = defaultdict(float)
         used_records = 0
         skip_noharvest = 0
         skip_error = 0
@@ -1011,11 +1008,6 @@ class Scenario(Feature):
                     HaulProportion=haul_prop)
                 annual_haul_cost[year] += result['total_haul_cost']
                 annual_total_cost[year] += result['total_cost']
-
-                ###### TODO : Estimate these based on bdft, acres, etc #########
-                #annual_admin_cost[year] += result['total_harvest_cost'] / 3.0
-                #annual_tax_cost[year] += result['total_harvest_cost'] / 10.0
-                #annual_road_cost[year] += result['total_harvest_cost'] / 1.5
 
                 system = result['harvest_system']
                 if system.startswith("Ground"):
