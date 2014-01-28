@@ -564,7 +564,7 @@ function scenarioViewModel(options) {
     self.scenariosNeedRerun = function() {
         needs_rerun = false;
         $.each(app.scenarios.viewModel.scenarioList(), function(){
-            if (this.fields.needs_rerun === true) {
+            if (this.fields.needs_rerun === true && !this.fields.is_running) {
                 needs_rerun = true;
             }
         });
