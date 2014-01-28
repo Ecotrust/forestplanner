@@ -20,11 +20,14 @@ var globalChartOptions = {
           show: true,
           showLabels: true,
           location: 'n',
-          placement: 'outside',
+          placement: 'inside',
+          //marginTop: "60px",
+          //marginBottom: "-25px",
           fontSize: '11px',
           fontFamily: ["Lucida Grande","Lucida Sans Unicode","Arial","Verdana","sans-serif"],
           rendererOptions: {
-              seriesToggle: 'normal'
+              seriesToggle: 'normal',
+              numberRows: 1
           }
       }
 };
@@ -85,8 +88,8 @@ var refreshCharts = function(){
 
   var containerWidth = $("#scenario-charts-tab-content").width();
   var containerHeight = $(window).height();
-  $("#chart-scenario").width(containerWidth - 150);
-  $("#chart-scenario").height(containerHeight - 320);
+  $("#chart-scenario").width(containerWidth - 30);
+  $("#chart-scenario").height(containerHeight - 300);
 
   var scenarioData = [];
   var scenarioLabels = [];
@@ -150,7 +153,7 @@ var refreshCharts = function(){
 
   if (scenarioData.length > 0) {
     scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
-        title: metric.title,
+        //title: metric.title,
         series: scenarioLabels,
         axes: {
             xaxis: {
