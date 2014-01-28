@@ -155,10 +155,13 @@ INSTALLED_APPS += (
     #'allauth.socialaccount.providers.linkedin',
 )
 
-ACCOUNT_EMAIL_REQUIRED = True
-
 # user logs in by entering either his username or e-mail address
 ACCOUNT_AUTHENTICATION_METHOD = "username_email"  
+
+ACCOUNT_EMAIL_REQUIRED = True
+
+# Go to intermediate signup page
+SOCIALACCOUNT_AUTO_SIGNUP = False
 
 # ------------------------------------------------------------------------------
 # Email

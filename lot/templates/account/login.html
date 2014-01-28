@@ -52,38 +52,6 @@
                 Remember Me</label>
             </div>
           </div>
-
-          <div class="control-group">
-            <div class="controls">
-              <label class="checkbox" for="id_tos">
-                <input type="checkbox" name="tos" id="id_tos"> 
-                I have read and agree to the Forest Planner's
-                <a href="#tos" id="tos-link">Terms of Service</a>
-              </label>
-              <span class="help-inline">You must agree to our Terms of Service before logging in</span>
-            </div>
-          </div>
-
-          <div id="tos" class="well">
-
-            <h3>Terms of Service</h3>
-
-            <p>The Forest Planner has been developed by Ecotrust to provide information regarding predicted
-            outcomes from a variety for different forest management practices.  The Forest Planner incorporates
-            data provided by the user along with data, models, and processes from a variety of private, local, state, and
-            federal agencies and non-governmental organizations.  Ecotrust makes no warranty, nor assumes any legal
-            liability for the accuracy, completeness or usefulness of the information contained in the Forest 
-            Planner.  Ecotrust does not assume responsibility or liability for any direct, indirect or consequential
-            damages from the use of the Forest Planner.  The user of this application assumes all responsibility
-            and risk for the use of the information for any decision made as a result of this information, available from
-            this server and the Internet in general. The user alone is responsible for the application and interpretation
-            of this information and is responsible for use consistent with an appropriate level of caution.</p>
-   
-            <p>The Forest Planner is not a substitute for consultation with a qualified forester.  Users are
-            strongly encouraged to develop a written management plan including consultation with a qualified forester
-            before implementing any forest management activities in the field.</p>
-
-          </div>
             
           <div class="control-group">
             <div class="controls">
@@ -94,9 +62,21 @@
         </form>
 
         <div class="pull-right">
-          <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
-          <a href="/auth/password/reset">Forget your info?</a> 
+          <a href="/auth/signup/">Need an account?</a> <span class="muted">|</span> 
+          <a href="/auth/password/reset">Forget your info?</a> <span class="muted">|</span> 
+          <a href="#tos" id="tos-link">Terms of Service</a>
         </div>
+
+        
+          <div id="tos">
+
+            <br><hr>
+            <h4>Forest Planner Terms of Service</h4>
+
+            {% include "tos.html" %}
+
+
+          </div>
 
     </div>
 {% endblock content %}

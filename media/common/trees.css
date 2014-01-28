@@ -751,3 +751,8 @@ input+label.alert, textarea+label.alert, select+label.alert{
     height: 400px;
     width: 100%;
 }
+
+.errorlist {
+	color: red;
+	font-size: 110%;
+}
