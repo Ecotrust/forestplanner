@@ -17,7 +17,7 @@ for txt in glob.glob("*.txt"):
         try:
             main_model.cost_func(*args)
             good += 1
-            moveit = True
+            #moveit = True
         except:
             bad += 1
             print "-----"

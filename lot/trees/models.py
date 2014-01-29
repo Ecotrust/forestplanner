@@ -80,9 +80,12 @@ def handle_cost_error(e, cost_args, standid):
     '''
     costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid) 
 
+    import traceback
+    trace = traceback.format_exc()
+
     subject = "forestplanner@ecotrust.org; Cost model exception raised"
     message = "Internal Stand ID: %s\n\nException:\n%r\n\nCost function arguments:\n%r" % (
-        standid, e, cost_args)
+        standid, trace, cost_args)
 
     # Only email IF this error has not been detected yet
     if not os.path.exists(costlog_path):
@@ -1004,23 +1007,26 @@ class Scenario(Feature):
 
             try:
                 result = main_model.cost_func(*cost_args,
-                    Helicopter=True,  # don't bother with helipcopter logging costs
-                    HaulProportion=haul_prop)
-                annual_haul_cost[year] += result['total_haul_cost']
-                annual_total_cost[year] += result['total_cost']
-
-                system = result['harvest_system']
-                if system.startswith("Ground"):
-                    annual_ground_harvest_cost[year] += result['total_harvest_cost']
-                elif system.startswith("Cable"):
-                    annual_cable_harvest_cost[year] += result['total_harvest_cost']
-                else:
-                    skip_noharvest += 1
-                    continue
-                used_records += 1
-            except Exception as e:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
+                    Helicopter=False,  # don't bother with helipcopter logging costs
+                    HaulProportion=haul_prop  # only haul the requisite proportion
+                )
+            except Exception as e:
                 handle_cost_error(e, cost_args, row['sstand_id'])
                 skip_error += 1
+
+            annual_haul_cost[year] += result['total_haul_cost']
+            annual_total_cost[year] += result['total_cost']
+
+            system = result['harvest_system']
+            if system.startswith("Ground"):
+                annual_ground_harvest_cost[year] += result['total_harvest_cost']
+            elif system.startswith("Cable"):
+                annual_cable_harvest_cost[year] += result['total_harvest_cost']
+            else:
+                # Assume not ground and not cable = no harvest
+                skip_noharvest += 1
+                continue
+            used_records += 1
 
         # Costs
         def ordered_costs(x):
