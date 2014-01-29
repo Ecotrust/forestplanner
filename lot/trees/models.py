@@ -1015,8 +1015,8 @@ class Scenario(Feature):
                 elif system.startswith("Cable"):
                     annual_cable_harvest_cost[year] += result['total_harvest_cost']
                 else:
-                    # TODO
-                    raise ValueError
+                    skip_noharvest += 1
+                    continue
                 used_records += 1
             except Exception as e:  # TODO CostModelError plus (ZeroDivisionError, ValueError):
                 handle_cost_error(e, cost_args, row['sstand_id'])
