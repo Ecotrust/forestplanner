@@ -31,10 +31,10 @@ Ecotrust is developing online software that will give all Oregon and Washington 
 
 ### Authors
 
-* Matthew Perry (perrygeo)
-* Edwin Knuth (eknuth)
-* Mike Mertens (mmertens)
-* Ryan Hodges (rhodges)
+* Matthew Perry ([perrygeo](https://github.com/perrygeo))
+* Edwin Knuth ([eknuth](https://github.com/eknuth))
+* Mike Mertens ([mmertens](https://github.com/mmertens))
+* Ryan Hodges ([rhodges](https://github.com/rhodges))
 * Ken Vollmer (kvollmer)
-* Will Moore (willthemoor)
-* David Diaz (d-diaz)
+* Will Moore ([willthemoor](https://github.com/willthemoor))
+* David Diaz ([d-diaz](https://github.com/d-diaz))
