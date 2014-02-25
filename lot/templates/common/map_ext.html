@@ -118,14 +118,17 @@
                     <div id="properties-none">
                         <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
                         <p>To quickly move the map to the area of your property, use the search box on the lower left of the map</p>
-                        <p>Alternatively, you can upload GIS data for your property.</p>
+                        <p>Alternatively, you can upload GIS data for your <span class="definition-term"><em>property</em> <i class="icon-info-sign" title="<strong>A property is the unit of analysis by which management scenarios will be developed.</strong>
+                    <span>You may have one or more properties.  Stands and Forest Types must be defined for a
+                      property before you are able to develop different management scenarios.  If you have a
+                      non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as
+                      many properties as you want however scenarios can only be run on one property at a time.</span>" data-html="true" rel="tooltip"></i></span>.</p>
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
                             <button href="#" class="btn btn-success  pull-right" 
                                 data-bind="click: startAddDrawing, disable: preventUpdates">Draw Property Boundary</button>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
-
 
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
 
@@ -910,6 +913,10 @@
             app.workspace = data;
         });
         {% endif %}
+
+        $('.definition-term').tooltip({
+          selector: "i[rel=tooltip]"
+        });
 
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
