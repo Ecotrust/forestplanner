@@ -118,11 +118,7 @@
                     <div id="properties-none">
                         <p>When your property is in view on the map, click the button below to draw the boundaries of your first property.</p>
                         <p>To quickly move the map to the area of your property, use the search box on the lower left of the map</p>
-                        <p>Alternatively, you can upload GIS data for your <span class="definition-term"><em>property</em> <i class="icon-info-sign" title="<strong>A property is the unit of analysis by which management scenarios will be developed.</strong>
-                    <span>You may have one or more properties.  Stands and Forest Types must be defined for a
-                      property before you are able to develop different management scenarios.  If you have a
-                      non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as
-                      many properties as you want however scenarios can only be run on one property at a time.</span>" data-html="true" rel="tooltip"></i></span>.</p>
+                        <p>Alternatively, you can upload GIS data for your property.</p>
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
                             <button href="#" class="btn btn-success  pull-right" 
@@ -133,16 +129,11 @@
 								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
 
                   <!--<h2> My Properties </h2>-->
-                  <p class="info-help info text-info well well-small clearfix">
-                    <i class="icon-info-sign"></i> 
-                    <strong>A property is the unit of analysis by which management scenarios will be developed.</strong>
-                    <span>You may have one or more properties.  Stands and Forest Types must be defined for a
-                      property before you are able to develop different management scenarios.  If you have a
-                      non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as
-                      many properties as you want however scenarios can only be run on one property at a time.</span>
-                  </p>
 
                   <div class="row-fluid btn-bar clearfix">
+
+                    <i class="icon-info-sign pull-right" title="A property is the unit of analysis by which management scenarios will be developed. You may have one or more properties.  Stands and Forest Types must be defined for a property before you are able to develop different management scenarios.  If you have a non-contiguous property, you must load the data from a pre-existing GIS file.  You can enter as many properties as you want however scenarios can only be run on one property at a time." rel="tooltip"></i></span>
+
                     <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
                       <i class="icon-plus-sign icon-white"></i> Draw New Property
                     </a>
@@ -357,19 +348,6 @@
                 </div>
 				-->
                 <!--<h2>Evaluate Scenarios</h2>-->
-                <p class="info-help info text-info well well-small clearfix">
-                  <i class="icon-info-sign"></i> 
-                  <strong>Scenarios represent a combination of management activities intended to achieve one or more desired outcomes.</strong>
-                  <span>
-                    You can create and compare as many scenarios as you like.  Begin by clicking on the &ldquo;+ New Scenario&rdquo; button.  
-					To build a scenario, you will choose one or more management activities called &ldquo;prescriptions&rdquo; and then apply
-					those to each stand you want managed that way.  To ensure you get the most reasonable results, when choosing prescriptions
-					to apply to your stands, we recommend that you consider issues such as potential costs of entries, accessibility to roads 
-					and different types of harvesting equipment, and regulatory limitations such as riparian buffers or hazardous slopes.
-                    Once you have created a scenario, it will show up in the list on the left hand side of the page.  Check the box next to 
-					the name of each scenario you want to see to show the predicted outcomes for each scenario in the graphs or maps.   
-                  </span>
-                </p>
 
                 <div class="well">
                     <div class="hide" data-bind="if: scenarioList().length == 0" style="text-align:center">
@@ -383,6 +361,9 @@
                           <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
                             <i class="icon-repeat"></i> Refresh
                           </button>
+
+                          <i class="icon-info-sign pull-right" title="Scenarios represent a combination of management activities intended to achieve one or more desired outcomes. You can create and compare as many scenarios as you like.  Begin by clicking on the &ldquo;+ New Scenario&rdquo; button. To build a scenario, you will choose one or more management activities called &ldquo;prescriptions&rdquo; and then apply those to each stand you want managed that way.  To ensure you get the most reasonable results, when choosing prescriptions to apply to your stands, we recommend that you consider issues such as potential costs of entries, accessibility to roads and different types of harvesting equipment, and regulatory limitations such as riparian buffers or hazardous slopes. Once you have created a scenario, it will show up in the list on the left hand side of the page.  Check the box next to the name of each scenario you want to see to show the predicted outcomes for each scenario in the graphs or maps."></i> 
+
                           <a href="#" class="btn btn-success pull-right" data-bind="click: newScenarioStart">
                             <i class="icon-plus-sign icon-white"></i> New Scenario
                           </a>
@@ -518,20 +499,6 @@
                 <!--<h2>Stand Boundaries</h2>-->
                 <div data-bind="visible: showStandList">
 
-                  <p class="info-help info text-info well well-small">
-                    <i class="icon-info-sign"></i> 
-                    <!-- Select a stand on the map to see or edit the stand's details. -->
-
-                  <strong>A stand is the primary management unit to which you would apply on-the-ground prescriptions.
-					Create stands for all forested areas on your property, including recently harvested areas.
-					Non-forested areas, such as rocky outcrops, pasture, roads, or home sites should not be included as 
-					stands (leave these areas blank).</strong>
-                  <span>Each stand should be created to represent an area that will be managed in the same way.  This 
-					will generally reflect the stand's forest type, slope and accessibility to different harvest equipment, 
-					regulatory constraints (e.g., riparian buffers), and minimum/maximum size of a harvest unit.  Use the
-					&ldquo;+ Draw a New Stand&rdquo; button to map out your stands.</span>
-                  </p>
-
                   <div class="btn-bar clearfix">
                     <!--
                       <button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
@@ -540,6 +507,7 @@
                         data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
                         <i class="icon-repeat"></i> Define Stand Groups</a>
                       -->
+                    <i class="icon-info-sign pull-right" title="A stand is the primary management unit to which you would apply on-the-ground prescriptions. Create stands for all forested areas on your property, including recently harvested areas. Non-forested areas, such as rocky outcrops, pasture, roads, or home sites should not be included as stands (leave these areas blank). Each stand should be created to represent an area that will be managed in the same way. This will generally reflect the stand's forest type, slope and accessibility to different harvest equipment, regulatory constraints (e.g., riparian buffers), and minimum/maximum size of a harvest unit.  Use the &ldquo;+ Draw a New Stand&rdquo; button to map out your stands."></i>
                     <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart, visible: standList().length">
                       <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                   </div>
