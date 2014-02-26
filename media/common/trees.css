@@ -756,3 +756,11 @@ input+label.alert, textarea+label.alert, select+label.alert{
 	color: red;
 	font-size: 110%;
 }
+
+.definition-icon {
+    margin: 8px;
+}
+
+.silvicultural-definition-icon {
+    margin: 18px 0 8px 0;
+}
