@@ -758,7 +758,8 @@ input+label.alert, textarea+label.alert, select+label.alert{
 }
 
 .definition-icon {
-    margin: 8px;
+    width: 20px;
+    margin: 5px;
 }
 
 .silvicultural-definition-icon {
