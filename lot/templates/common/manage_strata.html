@@ -38,6 +38,11 @@
 					app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
 					-->
 	</ul>
+	<div id="help-collapse" class="accordion-body collapse">
+	  <div class="accordion-inner well">
+	    <div data-bind="html: app.helpText"></div>
+	  </div>
+  	</div>
 </div>
 
 
@@ -575,6 +580,11 @@
         
 
         {% endif %}
+
+        app.helpText = ko.observable();
+        $.get('/trees/intro.html', function(text){
+            app.helpText($(text).find('#intro-vegetation')[0].outerHTML);
+        });
 
         // to go into strata.js
         app.strata = {

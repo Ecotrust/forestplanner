@@ -58,11 +58,39 @@ app.router = function () {
 app.selectedPropertyName = ko.observable("");
 app.selectedPropertyUID = ko.observable("");
 
-
 app.setTabs = function(){
+
+    app.helpText = ko.observable();
+    app.state.subscribe(function (state) {
+        switch(state) {
+            case "properties":
+                $.get('/trees/intro.html', function(text){
+                    app.helpText($(text).find('#intro-property')[0].outerHTML);
+                });
+                break;
+            case "stands":
+                $.get('/trees/intro.html', function(text){
+                    app.helpText($(text).find('#intro-stands')[0].outerHTML);
+                });
+                break;
+            case "types":
+                $.get('/trees/intro.html', function(text){
+                    app.helpText($(text).find('#intro-vegetation')[0].outerHTML);
+                });
+                break;
+            case "scenarios":
+                $.get('/trees/intro.html', function(text){
+                    app.helpText($(text).find('#intro-scenarios')[0].outerHTML);
+                });
+                break;
+        }
+
+    });
+
 	// might be terribly inefficient to bind app to the tabs but we need many viewModels to update their state
 	// beyond basic tabs (eg. when scenarios require xyz and we want to alert the user via the tabs...)
     ko.applyBindings(app, document.getElementById('global-tabs'));
+    ko.applyBindings(app, document.getElementById('help-collapse'));
 };
 app.deferredClickHandler = function () {
 	//let's bubble.

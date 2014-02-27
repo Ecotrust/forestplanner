@@ -71,17 +71,19 @@
               </ul>
             </div>
 
-			
+            <button type="button" class="btn btn-warning pull-right help-button" data-bind:"click: displayHelp" data-toggle="collapse" href="#help-collapse">Help</button>
+            
             {% else %}
 
-			{% load socialaccount %}
+            {% load socialaccount %}
             <div class="btn-group pull-right">
               <a href="{% url 'account_login' %}" class="btn dropdown-toggle">
                 <i class="icon-user"></i> 
                 <span>Log In</span>
               </a>
             </div>
-            {% endif %}                
+            {% endif %} 
+
           </div><!--/.nav-collapse -->
         </div>
       </div>

@@ -49,66 +49,55 @@
 					{% endif %}
 					<!-- /End Home Page -->
 
-
-
-
-
-
-
-
-
-
-
-
             {% if user.is_authenticated %}
 						<script>
 							var authenticated = true;
 						</script>
 						<div class="row-fluid">
-
-									<ul class="nav nav-tabs" id="global-tabs">
-										<li data-bind="css: { active: app.state() == 'properties' }">
-											<a data-bind="attr: { href: '#properties/' + app.selectedPropertyUID() }">
-												<span class="tab-num">1</span>
-												Properties<span style="display:none" data-bind="visible: app.selectedPropertyName() !== '' ">: </span>
-												<span class="property-name" data-bind="text: app.selectedPropertyName()"></span>
-											</a>
-										</li>
-										<li data-bind="css: { active: app.state() == 'stands'}">
-											<a data-bind="attr: { href: '#stands/' + app.selectedPropertyUID() }">
-												<span class="tab-num">2</span>
-												Define Stand Boundaries</a>
-										</li>
-										<li>
-											<a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }">
-												<span class="tab-num">3</span>
-												Define Forest Types</a>
-										</li>
-										<li data-bind="css: { active: app.state() == 'scenarios'}">
-											<a data-bind="attr: { href: '#scenarios/' + app.selectedPropertyUID() }">
-												<span class="tab-num">4</span>
-												Evalutate Future Scenarios</a>
-										</li>
-										<!--									
-										//  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
-										apply bindings to the tabs in a callback. doing it on doc.ready for now.
-										or ko.observable set when this is ready
-										<li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
-											css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
-											app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
-											-->
-									</ul>
-						</div>
-
-
-
-
-
+              <ul class="nav nav-tabs" id="global-tabs">
+                <li data-bind="css: { active: app.state() == 'properties' }">
+                  <a data-bind="attr: { href: '#properties/' + app.selectedPropertyUID() }">
+                    <span class="tab-num">1</span>
+                    Properties<span style="display:none" data-bind="visible: app.selectedPropertyName() !== '' ">: </span>
+                    <span class="property-name" data-bind="text: app.selectedPropertyName()"></span>
+                  </a>
+                </li>
+                <li data-bind="css: { active: app.state() == 'stands'}">
+                  <a data-bind="attr: { href: '#stands/' + app.selectedPropertyUID() }">
+                    <span class="tab-num">2</span>
+                    Define Stand Boundaries</a>
+                </li>
+                <li>
+                  <a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }">
+                    <span class="tab-num">3</span>
+                    Define Forest Types</a>
+                </li>
+                <li data-bind="css: { active: app.state() == 'scenarios'}">
+                  <a data-bind="attr: { href: '#scenarios/' + app.selectedPropertyUID() }">
+                    <span class="tab-num">4</span>
+                    Evalutate Future Scenarios</a>
+                </li>
+                <!--                  
+                //  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
+                apply bindings to the tabs in a callback. doing it on doc.ready for now.
+                or ko.observable set when this is ready
+                <li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
+                  css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
+                  app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
+                  -->
+                <!-- <li data-bind="text: helpText"></li> -->
+              </ul>
+              <div id="help-collapse" class="accordion-body collapse">
+                <div class="accordion-inner well">
+                  <div data-bind="html: app.helpText"></div>
+                </div>
+              </div>
+            </div>
 
         <div class="row-fluid">
           <div class="span5">
-						
             <div id="property-html" data-bind="visible: showPropertyPanels" > 
+
 
                 <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0 &&
                   showNoPropertiesHelp"> 
