@@ -772,4 +772,9 @@ input+label.alert, textarea+label.alert, select+label.alert{
 
 #help-collapse .well{
     border: orange solid;
+    padding-bottom: 35px;
+}
+
+#hide-help {
+    margin: 10px;
 }
