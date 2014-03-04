@@ -208,8 +208,8 @@
                     </li>
                   </ul>
 
-                  <a href="#stands" class="btn btn-primary btn-large" 
-                    data-bind="visible: selectedProperty()">
+                  <a class="btn btn-primary btn-large" 
+                    data-bind="visible: selectedProperty(), attr: { href: '#stands/' + app.selectedPropertyUID()}">
                     <strong>Next</strong>: Create or edit stands for 
                     <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
                     <i class="icon-arrow-right"></i>
