@@ -15,7 +15,7 @@ for txt in glob.glob("*.txt"):
         lines = fh.readlines()
         args = eval(lines[6])
         try:
-            main_model.cost_func(*args)
+            print main_model.cost_func(*args)
             good += 1
             #moveit = True
         except:
