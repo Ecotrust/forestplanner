@@ -1,0 +1,18 @@
+{
+  "tree_list": [
+    ["Douglas-fir", 12, 24, 5],
+    ["Douglas-fir", 6, 12, 200],
+    ["Red alder", 6, 12, 19],
+    ["Western redcedar", 12, 24, 3],
+    ["Grand fir", 12, 24, 2]
+  ],
+  "variant": "PN",
+  "plot_attrs": {
+    "calc_aspect": 270,
+    "elev_ft": 252,
+    "latitude_fuzz": 46.06, 
+    "longitude_fuzz": -123.15,
+    "calc_slope": 11.0,
+    "stand_age": 25.0
+  }
+}

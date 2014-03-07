@@ -31,7 +31,7 @@ class NearestNeighborError(Exception):
     pass
 
 
-def get_candidates(stand_list, variant, min_candidates=1):
+def get_candidates(stand_list, variant, min_candidates=20, verbose=False):
     """
     Given a stand list and a variant code,
     return a list of IdbSummary instances that are potential candidate matches
@@ -98,12 +98,14 @@ def get_candidates(stand_list, variant, min_candidates=1):
         if len(sdfs) == 0:
             raise NearestNeighborError("The stand list provided does not yield enough matches.")
         candidates = pd.concat(sdfs, axis=1, join="inner")
+        if verbose:
+            print len(candidates)
         if len(candidates) < min_candidates:
             aa = sdfs.pop()  # remove the one with smallest number
-            logger.warn("Popping %s ", [x.replace("BAA_", "")
-                                        for x in aa.columns.tolist()
-                                        if x.startswith('BAA_')][0]
-                        )
+            if verbose:
+                print "Popping", [x.replace("BAA_", "")
+                                  for x in aa.columns.tolist()
+                                  if x.startswith('BAA_')][0]
 
             continue
         else:
@@ -218,7 +220,7 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
         print "----- estimated total basal area", total_ba
 
     # query for candidates
-    candidates = get_candidates(stand_list, variant)
+    candidates = get_candidates(stand_list, variant, verbose=verbose)
 
     # query for site variables and create dataframe
     sites = get_sites(candidates)
@@ -277,15 +279,17 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
     if not weight_dict:
         # default weight dict
         weight_dict = {
-            'TOTAL_PCTBA': 10.0,
-            'PLOT_BA': 5.0,
-            'NONSPEC_BA': 10.0,
-            'NONSPEC_TPA': 5.0,
-            'TOTAL_TPA': 2.0,
-            'stand_age': 25.0,
-            'calc_slope': 0.5,
+            'TOTAL_PCTBA': 1.0,
+            'PLOT_BA': 15.0,
+            'NONSPEC_BA': 5.0,
+            'NONSPEC_TPA': 0.1,
+            'TOTAL_TPA': 0.1,
+            'stand_age': 20.0,
+            'calc_slope': 0.1,
             'calc_aspect': 1.0,
-            'elev_ft': 0.75,
+            'elev_ft': 1.0,
+            'latitude_fuzz': 1.0,
+            'longitude_fuzz': 1.0,
         }
 
     search_params = input_params.copy()
@@ -323,6 +327,10 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         key = keys[i]
         if key in weight_dict:
             weights[i] = weight_dict[key]
+        elif key.startswith("BAA_"):
+            weights[i] = 1.5
+        elif key.startswith("TPA_"):
+            weights[i] = 1.0
 
     if verbose:
         table_data = []
