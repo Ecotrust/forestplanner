@@ -197,6 +197,7 @@ a {
 }
 .outermap {
     padding: 4px !important;
+    position: relative !important;
 }
 #input-geosearch {
     border-radius: 4px !important;
