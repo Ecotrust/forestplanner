@@ -250,8 +250,12 @@ app.globalErrorHandling = function () {
 		if (request.responseText.length > 200) {
 			return false;
 		}
-		app.flash(request.responseText);
-        // TODO parse out human-readable text from html error responses?
+        var response = request.responseText;
+        if (request.responseText.split('>').length > 1){
+            response = request.responseText.split('>')[1].split('<')[0];
+        }
+        app.flash(response);
+        // TODO parse out human-readable text from complex html error responses?
 	});
 
 	app.$flash.find('.close').bind('click', app.flash.dismiss);
