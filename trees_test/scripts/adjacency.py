@@ -8,8 +8,7 @@ Since shapefiles (and other OGR data sources) are not topological, adjacency is 
 by a minimum distance threshold.
 """
 from django.contrib.gis.gdal import DataSource
-import time
-#import ipdb; ipdb.set_trace();
+import sys
 
 def calc_adj(inds, outfile, threshold, fid_field=None):
     ds = DataSource(inds)
@@ -19,13 +18,14 @@ def calc_adj(inds, outfile, threshold, fid_field=None):
 
     outfh = open(outfile, 'w')
 
-    for feat in layer:
+    for i, feat in enumerate(layer):
+        print i, "of", layer.num_feat
         if fid_field == None:
             fid = feat.fid
         else:
             fid = feat[fid_field]
 
-        geom_orig = feat.geom
+        #geom_orig = feat.geom
         geom_buf = feat.geom.geos.buffer(threshold)
 
         layer2.spatial_filter = geom_buf.extent
@@ -52,5 +52,6 @@ def calc_adj(inds, outfile, threshold, fid_field=None):
     outfh.close()
 
 if __name__ == "__main__":
-    calc_adj('data/MgtBasins.shp','data/adj500.txt', threshold=500)
-    calc_adj('data/MgtBasins.shp','data/adj600.txt', threshold=600)
+    #calc_adj('data/MgtBasins.shp','data/adj500.txt', threshold=500)
+    #calc_adj('data/MgtBasins.shp','data/adj600.txt', threshold=600)
+    calc_adj(sys.argv[1],'adj.txt', threshold=10)
