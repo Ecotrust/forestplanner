@@ -607,12 +607,26 @@
               </div> <!-- no properties -->
               <div class="row-fluid" data-bind="visible: showStandFormPanel">
                 <h3>Confirm Stand Boundaries</h3>
+                <!--
                 <p>Drag the orange circles to adjust your stand's boundaries.</p>
-				<p>To delete an existing point, hover your mouse over that point and then hit the delete key on your keyboard.</p>
+				        <p>To delete an existing point, hover your mouse over that point and then hit the delete key on your keyboard.</p>
+                -->
+                <p>If you are happy with your stand, click on "Save Stand and Add Another." If it isn't right, click on the "Discard" button.</p>
+                <div id="stands-form-container" class="form-panel"></div>
+                <div class="pull-right">
+                  <button href="#" class="btn" data-bind="click: cancelAddStand">Discard</button>
+                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand and Add Another</button>
+                </div>
+              </div>
+
+              <div class="row-fluid" data-bind="visible: showStandEditPanel">
+                <h3>Edit Stand Boundaries</h3>
+                <p>Drag the orange circles to adjust your stand's boundaries.</p>
+                <p>To delete an existing point, hover your mouse over that point and then hit the delete key on your keyboard.</p>
                 <div id="stands-form-container" class="form-panel"></div>
                 <div class="pull-right">
                   <button href="#" class="btn" data-bind="click: cancelAddStand">Cancel</button>
-                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand and Add Another</button>
+                  <button href="#" class="btn btn-success" data-bind="click: saveStandForm">Save Stand Edits</button>
                 </div>
               </div>
 

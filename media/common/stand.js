@@ -10,6 +10,8 @@ function standsViewModel() {
   self.showDrawPanel = ko.observable(false);
   // display form
   self.showStandFormPanel = ko.observable(false);
+  // display stand editing
+  self.showStandEditPanel = ko.observable(false);
   // display list of stands
   self.showStandList = ko.observable(true);
 
@@ -114,7 +116,11 @@ function standsViewModel() {
       // app.cleanupForm($form);
       $('#stands-form-container').empty().append($form);
       self.showNoStandHelp(false);
-      self.showStandFormPanel(true);
+      if (action === "create") {
+        self.showStandFormPanel(true);
+      } else {
+        self.showStandEditPanel(true);
+      }
       $form.find('input:visible:first').focus();
       $form.bind('submit', function(event) {
         event.preventDefault();
@@ -132,6 +138,7 @@ function standsViewModel() {
       } else {
         ko.mapping.fromJS(data.features[0].properties, self.selectedFeature());
         self.showStandFormPanel(false);
+        self.showStandEditPanel(false);
         self.showStandList(true);
       }
     });
@@ -146,6 +153,7 @@ function standsViewModel() {
       success: function(data) {
         self.updateStand(JSON.parse(data)["X-Madrona-Select"], true);
         app.stands.viewModel.showStandFormPanel(false);
+        app.stands.viewModel.showStandEditPanel(false);
         //app.stands.viewModel.showStandList(true);
         app.new_features.removeAllFeatures();
       }
@@ -236,6 +244,7 @@ function standsViewModel() {
 
   self.cancelAddStand = function () {
     self.showStandFormPanel(false);
+    self.showStandEditPanel(false);
     self.showStandHelp(true);
     self.showStandList(true);
     self.showDrawPanel(false);
