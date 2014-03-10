@@ -64,10 +64,58 @@ var chartMetrics = {
     'axisLabel': "Timber yield (MBF)",
     'axisFormat': "%'d"
   },
+  'age': {
+    'variableName': 'age',
+    'title': "Age",
+    'axisLabel': "Age (years)",
+    'axisFormat': "%'d"
+  },
+  'ba': {
+    'variableName': 'ba',
+    'title': "Basal Area",
+    'axisLabel': "Basal Area (ft2/acre)",
+    'axisFormat': "%'d"
+  },
+  'tpa': {
+    'variableName': 'tpa',
+    'title': "Trees per acre",
+    'axisLabel': "Trees per acre",
+    'axisFormat': "%'d"
+  },
+  'standing_vol': {
+    'variableName': 'standing_vol',
+    'title': "Standing Volume",
+    'axisLabel': "Standing volume (ft3)",
+    'axisFormat': "%'d"
+  },
   'standing_timber': {
     'variableName': 'standing_timber',
-    'title': "Standing Volume",
-    'axisLabel': "Standing volume (MBF)",
+    'title': "Standing Boardfeet",
+    'axisLabel': "Standing Boardfeet (MBF)",
+    'axisFormat': "%'d"
+  },
+  'fire': {
+    'variableName': 'fire',
+    'title': "Fire Hazard",
+    'axisLabel': "High Fire Hazard",
+    'axisFormat': "%'d"
+  },
+  'pp_btl': {
+    'variableName': 'pp_btl',
+    'title': "Mountain Pine Beetle Hazard to PP",
+    'axisLabel': "High Pine Beetle Hazard to PP",
+    'axisFormat': "%'d"
+  },
+  'lp_btl': {
+    'variableName': 'lp_btl',
+    'title': "Mountain Pine Beetle Hazard to LP",
+    'axisLabel': "High Pine Beetle Hazard to LP",
+    'axisFormat': "%'d"
+  },
+  'es_btl': {
+    'variableName': 'lp_btl',
+    'title': "Spruce Beetle Hazard",
+    'axisLabel': "High Spruce Beetle Hazard",
     'axisFormat': "%'d"
   }
 };

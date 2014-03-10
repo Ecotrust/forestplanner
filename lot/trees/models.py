@@ -693,19 +693,22 @@ class Scenario(Feature):
         if self.needs_rerun or self.is_running:
             return None
 
-        d = {
-            "agl_carbon": [],
-            "total_carbon": [],
-            "harvested_timber": [],
-            "standing_timber": [],
-            "cum_harvest": [],
-        }
+        d = defaultdict(list)
+
         sql = """SELECT
                     a.year AS year,
                     SUM(a.total_stand_carbon * ss.acres) AS total_carbon,
                     SUM(a.agl * ss.acres) AS agl_carbon,
                     SUM(a.removed_merch_bdft * ss.acres)/1000.0 AS harvested_timber, -- convert to mbf
-                    SUM(a.after_merch_bdft * ss.acres)/1000.0 AS standing_timber -- convert to mbf
+                    SUM(a.after_merch_bdft * ss.acres)/1000.0 AS standing_timber, -- convert to mbf
+                    SUM(a.age * ss.acres)/ SUM(ss.acres) as age,  -- area-weighted average age
+                    SUM(a.after_ba * ss.acres)/ SUM(ss.acres) as ba, -- area-weighted average ba
+                    SUM(a.after_tpa * ss.acres)/ SUM(ss.acres) as tpa,  -- area-weighted average tpa
+                    SUM(a.after_total_ft3 * ss.acres) as standing_vol,
+                    SUM(CASE WHEN firehzd = 4 then ss.acres else 0 end) as fire, -- number of acres in high fire risk
+                    SUM(CASE WHEN pp_btl >= 9 then ss.acres else 0 end) as pp_btl, -- number of acres in high pp btl
+                    SUM(CASE WHEN lp_btl >= 9 then ss.acres else 0 end) as lp_btl, -- number of acres in high lp btl
+                    SUM(CASE WHEN es_btl >= 9 then ss.acres else 0 end) as es_btl -- number of acres in high es btl
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -726,10 +729,8 @@ class Scenario(Feature):
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
             date = "%d-12-31 11:59PM" % row['year']
-            d['agl_carbon'].append([date, row['agl_carbon']])
-            d['total_carbon'].append([date, row['total_carbon']])
-            d['harvested_timber'].append([date, row['harvested_timber']])
-            d['standing_timber'].append([date, row['standing_timber']])
+            for key in [x for x in row.keys() if x != 'year']:
+                d[key].append([date, row[key]])
 
             cum_harvest += row['harvested_timber']
             d['cum_harvest'].append([date, cum_harvest])
@@ -750,21 +751,22 @@ class Scenario(Feature):
         d = {}
         scenariostands = self.scenariostand_set.all()
         for sstand in scenariostands:
-            d[sstand.pk] = {
-                "years": [],
-                "total_carbon": [],
-                "agl_carbon": [],
-                "standing_timber": [],
-                "harvested_timber": [],
-                "cum_harvest": [],
-            }
+            d[sstand.pk] = defaultdict(list)
 
         sql = """SELECT
                     ss.id AS sstand_id, a.cond, a.rx, a.year, a.offset, ss.acres AS acres,
                     a.total_stand_carbon AS total_carbon,
                     a.agl AS agl_carbon,
                     a.removed_merch_bdft / 1000.0 AS harvested_timber, -- convert to mbf
-                    a.after_merch_bdft / 1000.0 AS standing_timber -- convert to mbf
+                    a.after_merch_bdft / 1000.0 AS standing_timber, -- convert to mbf
+                    a.age AS age,
+                    a.after_ba AS ba,
+                    a.after_tpa AS tpa,
+                    a.after_total_ft3 AS standing_vol,
+                    a.firehzd AS fire,
+                    a.pp_btl AS pp_btl,
+                    a.lp_btl AS lp_btl,
+                    a.es_btl AS es_btl
                 FROM
                     trees_fvsaggregate a
                 JOIN
@@ -784,11 +786,8 @@ class Scenario(Feature):
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
             ds = d[row["sstand_id"]]
-            ds['years'].append(row["year"])
-            ds['agl_carbon'].append(row["agl_carbon"])
-            ds['total_carbon'].append(row["total_carbon"])
-            ds['standing_timber'].append(row["standing_timber"])
-            ds['harvested_timber'].append(row["harvested_timber"])
+            for key in row.keys():
+                ds[key].append(row[key])
 
             if row['sstand_id'] not in cum_harvest_dict:
                 cum_harvest_dict[row['sstand_id']] = 0
