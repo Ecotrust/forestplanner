@@ -164,6 +164,8 @@ function processBreaks(numclasses) {
     }
     timemapBreaks = steps;
 
+    $('#timemap-scenario-text').html(chartMetrics[selectedTimeMapMetric].mapText);
+
     // screw it, just manipulate the DOM directly to get a legend
     var html = "<p>" + chartMetrics[selectedTimeMapMetric].mapLabel + " <br> per acre</p><table style='float:right'>";
     for (var j = 0; j < numclasses; j++) {

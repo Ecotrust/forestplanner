@@ -45,6 +45,8 @@ var chartMetrics = {
     'title': "Boardfoot Volume",
     'axisLabel': "Standing Boardfeet (MBF)",
     'mapLabel': "Standing Boardfeet (MBF)",
+    'mapText': "Standing Boardfeet (MBF)",
+    'chartText': "Standing Boardfeet (MBF)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -54,6 +56,8 @@ var chartMetrics = {
     'title': "Cubic Volume",
     'axisLabel': "Standing volume (ft3)",
     'mapLabel': "Standing volume (ft3)",
+    'mapText': "Standing volume (ft3)",
+    'chartText': "Standing volume (ft3)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -63,6 +67,8 @@ var chartMetrics = {
     'title': "Age",
     'axisLabel': "Age (years)",
     'mapLabel': "Age (years)",
+    'mapText': "Age (years)",
+    'chartText': "Age (years)",
     'displayChart': false,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -72,6 +78,8 @@ var chartMetrics = {
     'title': "Basal Area",
     'axisLabel': "Basal Area (ft2/acre)",
     'mapLabel': "Basal Area (ft2/acre)",
+    'mapText': "Basal Area (ft2/acre)",
+    'chartText': "Basal Area (ft2/acre)",
     'displayChart': false,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -88,6 +96,8 @@ var chartMetrics = {
     'title': "Carbon (Live Tree)",
     'axisLabel': "Carbon (metric tons C)",
     'mapLabel': "Carbon (metric tons C)",
+    'mapText': "Carbon (metric tons C)",
+    'chartText': "Carbon (metric tons C)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -97,6 +107,8 @@ var chartMetrics = {
     'title': "Carbon (Stand Total)",
     'axisLabel': "Carbon (metric tons C)",
     'mapLabel': "Carbon (metric tons C)",
+    'mapText': "Carbon (metric tons C)",
+    'chartText': "Carbon (metric tons C)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -106,6 +118,8 @@ var chartMetrics = {
     'title': "Boardfoot Yield (each period)",
     'axisLabel': "Timber yield (MBF)",
     'mapLabel': "Timber yield (MBF)",
+    'mapText': "Timber yield (MBF)",
+    'chartText': "Timber yield (MBF)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -115,6 +129,8 @@ var chartMetrics = {
     'title': "Boardfoot Yield (cumulative)",
     'axisLabel': "Cumulative Timber yield (MBF)",
     'mapLabel': "Cumulative Timber yield (MBF)",
+    'mapText': "Cumulative Timber yield (MBF)",
+    'chartText': "Cumulative Timber yield (MBF)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -124,6 +140,8 @@ var chartMetrics = {
     'title': "Fire Hazard",
     'axisLabel': "High Fire Hazard (acres)",
     'mapLabel': "Fire Hazard rating",
+    'mapText': "Fire Hazard rating",
+    'chartText': "Fire Hazard rating",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -133,6 +151,8 @@ var chartMetrics = {
     'title': "Spruce Beetle Hazard",
     'axisLabel': "High Spruce Beetle Hazard (acres)",
     'mapLabel': "High Spruce Beetle Hazard",
+    'mapText': "High Spruce Beetle Hazard",
+    'chartText': "High Spruce Beetle Hazard",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -142,6 +162,8 @@ var chartMetrics = {
     'title': "Pine Beetle Hazard",
     'axisLabel': "High Pine Beetle Hazard (acres)",
     'mapLabel': "Pine Beetle Hazard rating",
+    'mapText': "Pine Beetle Hazard rating",
+    'chartText': "Pine Beetle Hazard rating",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -192,6 +214,8 @@ var refreshCharts = function(){
     scenarioLabels.push({'label': this.fields.name});
 
   });
+
+  $('#chart-scenario-text').html(metric.chartText);
 
   /*
    *  AGL Regional baseline, hardcoded madness here
