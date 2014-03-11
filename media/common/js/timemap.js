@@ -132,7 +132,7 @@ var refreshTimeMap = function (f1, f2) {
     }
 };
 
-function processBreaks() {
+function processBreaks(numclasses) {
 
     var flatData = [];
 
@@ -152,7 +152,10 @@ function processBreaks() {
     var max = Math.max.apply(Math, flatData);
 
     // Equal interval classification
-    var numclasses = 5;
+    if(typeof(numclasses)==='undefined') {
+        // Default number of classes
+        numclasses = 4;
+    }
     var range = max - min;
     var steprange = range/numclasses;
     var steps = [];
@@ -162,7 +165,7 @@ function processBreaks() {
     timemapBreaks = steps;
 
     // screw it, just manipulate the DOM directly to get a legend
-    var html = "<p>" + chartMetrics[selectedTimeMapMetric].axisLabel + " <br> per acre</p><table style='float:right'>";
+    var html = "<p>" + chartMetrics[selectedTimeMapMetric].mapLabel + " <br> per acre</p><table style='float:right'>";
     for (var j = 0; j < numclasses; j++) {
         html += "<tr><td>" + parseInt((steprange*j) + min, 10) + " to " + parseInt((steprange*(j+1)) + min, 10) + "</td>" +
         '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[j] + '">&nbsp;&nbsp;</td></tr>';

@@ -172,15 +172,19 @@ app.chartInit = function () {
 
     for (var prop in chartMetrics) {
         metric = chartMetrics[prop];
-        chart_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
-        timemap_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        if (metric.displayChart) {
+            chart_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        }
+        if (metric.displayMap) {
+            timemap_sel.append($('<option value="' + metric.variableName + '">' + metric.title + '</option>'));
+        }
     }
     chart_sel.change(refreshCharts);
     timemap_sel.change( function () { refreshTimeMap(true, true); });
 
     $('.selectpicker').selectpicker();
 
-    $('#scenario-charts-tab').on('shown', refreshCharts); 
+    $('#scenario-charts-tab').on('shown', refreshCharts);
 };
 
 app.standUploadFormInit = function () {

@@ -44,78 +44,106 @@ var chartMetrics = {
     'variableName': 'agl_carbon',
     'title': "Carbon (Live Tree)",
     'axisLabel': "Carbon (metric tons C)",
+    'mapLabel': "Carbon (metric tons C)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'total_carbon': {
     'variableName': 'total_carbon',
     'title': "Carbon (Stand Total)",
-	'axisLabel': "Carbon (metric tons C)",
+    'axisLabel': "Carbon (metric tons C)",
+    'mapLabel': "Carbon (metric tons C)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'harvested_timber': {
     'variableName': 'harvested_timber',
     'title': "Harvest (per period)",
-	'axisLabel': "Timber yield (MBF)",
+    'axisLabel': "Timber yield (MBF)",
+    'mapLabel': "Timber yield (MBF)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'cum_harvest': {
     'variableName': 'cum_harvest',
     'title': "Harvest (cumulative)",
     'axisLabel': "Timber yield (MBF)",
+    'mapLabel': "Timber yield (MBF)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'age': {
     'variableName': 'age',
     'title': "Age",
     'axisLabel': "Age (years)",
+    'mapLabel': "Age (years)",
+    'displayChart': false,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'ba': {
     'variableName': 'ba',
     'title': "Basal Area",
     'axisLabel': "Basal Area (ft2/acre)",
+    'mapLabel': "Basal Area (ft2/acre)",
+    'displayChart': false,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
-  'tpa': {
-    'variableName': 'tpa',
-    'title': "Trees per acre",
-    'axisLabel': "Trees per acre",
-    'axisFormat': "%'d"
-  },
+  // 'tpa': {
+  //   'variableName': 'tpa',
+  //   'title': "Trees per acre",
+  //   'axisLabel': "Trees per acre",
+  //   'mapLabel': "Trees per acre",
+  //   'axisFormat': "%'d"
+  // },
   'standing_vol': {
     'variableName': 'standing_vol',
-    'title': "Standing Volume",
+    'title': "Standing Cubic Volume",
     'axisLabel': "Standing volume (ft3)",
+    'mapLabel': "Standing volume (ft3)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'standing_timber': {
     'variableName': 'standing_timber',
-    'title': "Standing Boardfeet",
+    'title': "Standing Boardfoot Volume",
     'axisLabel': "Standing Boardfeet (MBF)",
+    'mapLabel': "Standing Boardfeet (MBF)",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'fire': {
     'variableName': 'fire',
     'title': "Fire Hazard",
-    'axisLabel': "High Fire Hazard",
+    'axisLabel': "High Fire Hazard (acres)",
+    'mapLabel': "Fire Hazard rating",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
-  'pp_btl': {
-    'variableName': 'pp_btl',
-    'title': "Mountain Pine Beetle Hazard to PP",
-    'axisLabel': "High Pine Beetle Hazard to PP",
-    'axisFormat': "%'d"
-  },
-  'lp_btl': {
-    'variableName': 'lp_btl',
-    'title': "Mountain Pine Beetle Hazard to LP",
-    'axisLabel': "High Pine Beetle Hazard to LP",
+  'pine_btl': {
+    'variableName': 'pine_btl',
+    'title': "Pine Beetle Hazard",
+    'axisLabel': "High Pine Beetle Hazard (acres)",
+    'mapLabel': "Pine Beetle Hazard rating",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   },
   'es_btl': {
-    'variableName': 'lp_btl',
+    'variableName': 'es_btl',
     'title': "Spruce Beetle Hazard",
-    'axisLabel': "High Spruce Beetle Hazard",
+    'axisLabel': "High Spruce Beetle Hazard (acres)",
+    'mapLabel': "High Spruce Beetle Hazard",
+    'displayChart': true,
+    'displayMap': true,
     'axisFormat': "%'d"
   }
 };
