@@ -285,7 +285,10 @@ function standsViewModel() {
       self.showDrawPanel(false);
       app.stands.geometry = feature.geometry.toString();
       self.showStandForm("create");
-      app.saveFeature(feature);
+      // Calling this has ripple effects on the properties interface: 
+      //   app.saveFeature(feature);
+      // Instead, we just directly perform the relevant part of saveFeature
+      app.newGeometry = feature.geometry.toString();
     };
 
     self.stand_layer = new OpenLayers.Layer.Vector("Stands", {
