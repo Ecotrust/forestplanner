@@ -347,12 +347,15 @@ function scenarioViewModel(options) {
     };
 
     self.editFeature = function(f) {
+        $('#scenario-form-container').html("<h4>Loading...</h4>");
+        $('#scenario-form-title').html("Redfine the <em>" + f.fields.name + "</em> scenario");
         self.activeScenario(f);
         self.addScenarioStart(true);
     };
 
     self.newScenarioStart = function() {
         $('#scenario-form-container').html("<h4>Loading...</h4>");
+        $('#scenario-form-title').html("Define New Scenario");
         self.activeScenario(null);
         self.addScenarioStart(false);
     };
