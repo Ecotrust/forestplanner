@@ -21,6 +21,8 @@ urlpatterns = patterns(
         intro, name='intro'),
     url(r'^about', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
         about, name='about'),
+    url(r'^documentation$', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
+        documentation, name='documentation'),    
 
     # Services
     url(r'^geosearch/$',

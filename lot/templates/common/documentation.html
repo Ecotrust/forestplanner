@@ -1,0 +1,167 @@
+{% extends 'common/base.html' %}
+{% load url from future %}
+{% block bodyclass %}about-page{% endblock %}
+
+
+{% block content %}
+					
+
+<div class="row-fluid">
+  <aside class="span3">
+
+    <nav aria-role="navigation" id="sidenav">
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#gy">Growth and Yield Modeling</a></li>
+        <li><a href="#contact">Contact Us</a></li>
+        <li><a href="#copyright">Copyright</a></li>
+      </ul>
+
+      <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
+        <!--<i class="icon-user icon-white"></i> -->
+        Get Started</a>	
+    </nav>
+
+  </aside>
+
+  <section class="span9" id="main" aria-role="main">
+    <section id="gy">
+      <h4>Growth and Yield Modeling</h4>
+      <p>
+        ...
+      </p>
+    </section>
+
+   
+    <section id="contact">
+      <h4>Contact Us</h4>
+      <p>If you have questions, please contact us at <a href="mailto:forestplanner@ecotrust.org?subject=Documentation">forestplanner@ecotrust.org</a> or at:</p>
+      <p>
+        Ecotrust<br/>
+        ATTN: Knowledge Systems - Forest Planner Documentation<br/>
+        721 NW 9th Ave., Ste. 200<br/>
+        Portland, OR 97209<br/>
+      </p>
+    </section>
+
+    <section id="copyright">
+      <h4>Copyright</h4>
+      <p>The Forest Planner &copy; 2013 is copyrighted by <a href="http://www.ecotrust.org" target="_blank">Ecotrust</a></p>
+    </section> <!-- /#copyright -->
+
+  </section> <!-- /#main -->
+
+</div>
+
+<footer id="footer"> </footer>
+
+{% endblock content %}
+
+{% block styles %}
+<style type="text/css">
+    body.about-page{
+      padding-top: 60px;
+    }
+    .about-page section section{
+      padding-top: 40px;
+    }
+    .about-page section+section{
+      padding-top: 80px;
+    }
+    #sidenav {
+      position: fixed;
+      top: 100px;
+      left: 20px;
+    }
+    .about-page figure {
+      margin: 0;
+      padding: 0 80px 0 0;
+    }
+    .about-page figure img{
+      background-color: rgba(255, 255, 255, 1);
+      border: 1px solid #DDDDDD;
+      -moz-border-radius: 5px 5px 5px 5px;
+      -webkit-border-radius: 5px 5px 5px 5px;
+      -o-border-radius: 5px 5px 5px 5px;
+      border-radius: 5px 5px 5px 5px;
+      padding: 10px;
+    }
+    #footer{
+      height: 400px;
+    }
+    .about-page p, .about-page li {
+      max-width: 45em;
+    }
+    .about-page h4{
+       margin-top: 1.6em;
+    }
+    .about-page figure h4{
+       margin-top: 10px;
+    }
+
+</style>
+
+{% endblock styles %}
+
+{% block scripts %}
+<script type="text/javascript">
+    $(document).ready(function(){
+        $('#sidenav a').on('click', sidebarNavHandler);
+
+        // make bookmarks and the side nav work niceynice.
+        if(window.location.hash != ""){
+          $('#sidenav').find('[href='+window.location.hash+']').closest('li').addClass('active');
+        } else {
+          $('#sidenav').find('li').eq('0').addClass('active');
+        }
+    });
+
+    function sidebarNavHandler ( evt ){
+        var $t = $(evt.target),
+            href = $t.attr('href'),
+            $target = $(href),
+            position = $target.offset().top,
+            $nav = $('#sidenav');
+
+        // 'active' hocus pocos 
+        $nav.find('.active').removeClass('active');
+        $t.closest('li').addClass('active');
+
+        
+        // prevent the occasional pre animation jump 
+        evt.preventDefault();
+
+        // deal with the fixed position header and the first container getting truncated
+        if ( href == "#about"){
+          position = position - 150;
+        }
+
+        // scroll to the container
+        jQuery('html, body').animate({
+          scrollTop: position
+        }, { 
+          duration: 1500, 
+          easing: "easeInOutQuint",
+          complete: function() {
+            // since we are preventing default
+            window.location.hash = href;
+          }});
+    }
+
+
+    // https://github.com/danro/jquery-easing/blob/master/jquery.easing.js
+    // we only need the one
+    jQuery.extend( jQuery.easing, {
+      easeInOutQuint: function (x, t, b, c, d) {
+        if ((t/=d/2) < 1) return c/2*t*t*t*t*t + b;
+        return c/2*((t-=2)*t*t*t*t + 2) + b;
+      }
+    });
+
+</script>
+{% if user.is_authenticated %}
+
+{% else %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
+{% endif %}
+
+{% endblock scripts %}

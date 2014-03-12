@@ -134,6 +134,14 @@ def about(request):
         'common/about.html', 
         context_instance=RequestContext(request))
 
+def documentation(request):
+    '''
+    Generic Documentation Page
+    '''
+    return render_to_response(
+        'common/documentation.html', 
+        context_instance=RequestContext(request))
+
 def user_property_list(request):
     '''
     Present list of properties for a given user
