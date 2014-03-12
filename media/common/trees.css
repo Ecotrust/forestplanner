@@ -184,10 +184,9 @@ a {
     background: white;
 }
 #searchbox-container {
-    /*bottom: 11px;*/
     background:none;
-	bottom: 28px;
-    margin: 2px;
+	bottom: -17px;
+    margin: 1px;
     position: absolute; 
     z-index: 1023;
     text-align:left;
