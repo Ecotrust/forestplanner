@@ -572,18 +572,20 @@ a.btn .icon-arrow-right{
 			transition-property: background;
 			transition-duration: 0.5s;
 		}
+
 	#global-tabs .property-name {
 		display: inline-block;
 		font-style: italic;
 		font-weight: bold;
-		max-width: 67%;
+		max-width: 150px;
 		margin-top: -3px;
 		overflow: hidden;
 		padding-right: 3px; /* firefox likes to trim letters */
 		position: relative;
-		text-overflow: ellipsis;
 		vertical-align: middle;
 		white-space: nowrap;
+	    /* width: 150px;  */
+	    text-overflow: ellipsis;
 	}
 	.tab-num {
 		background-color: #fff;
@@ -621,6 +623,12 @@ a.btn .icon-arrow-right{
 		margin-bottom: -1px;
 		margin-right: 26px;
 		position: relative;
+	}
+	#global-tabs > li > a {
+		padding-right: 2px;
+		padding-left: 2px;
+		margin-right: 2px;
+		line-height: 14px;
 	}
 	#global-tabs > li.active:after{
 		border-color: transparent transparent transparent #fff;
