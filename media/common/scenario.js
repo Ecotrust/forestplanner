@@ -299,6 +299,7 @@ function scenarioViewModel(options) {
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
         $('#legend-container').show();
+        $('#legend-button').show();
         $('#map').fadeIn();
         timemapInitialized = false;
     };

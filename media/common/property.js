@@ -363,6 +363,7 @@ function propertiesViewModel () {
     $('#map').hide();
     $('#searchbox-container').hide();
     $('#legend-container').hide();
+    $('#legend-button').hide();
     $('#scenario-outputs').fadeIn();
   };
 

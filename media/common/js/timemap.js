@@ -154,7 +154,7 @@ function processBreaks(numclasses) {
     // Equal interval classification
     if(typeof(numclasses)==='undefined') {
         // Default number of classes
-        numclasses = 4;
+        numclasses = 5;
     }
     var range = max - min;
     var steprange = range/numclasses;
