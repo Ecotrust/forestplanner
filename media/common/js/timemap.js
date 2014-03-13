@@ -167,10 +167,11 @@ function processBreaks(numclasses) {
     $('#timemap-scenario-text').html(chartMetrics[selectedTimeMapMetric].mapText);
 
     // screw it, just manipulate the DOM directly to get a legend
-    var html = "<p>" + chartMetrics[selectedTimeMapMetric].mapLabel + " <br> per acre</p><table style='float:right'>";
+    var html = "<p>" + chartMetrics[selectedTimeMapMetric].mapLabel + " <br> per acre</p><table>";
     for (var j = 0; j < numclasses; j++) {
-        html += "<tr><td>" + parseInt((steprange*j) + min, 10) + " to " + parseInt((steprange*(j+1)) + min, 10) + "</td>" +
-        '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[j] + '">&nbsp;&nbsp;</td></tr>';
+        html += "<tr>" +
+        '<td style="padding-left:8px; border: 1px gray solid; background-color:' + timemapColorRamp[j] + '">&nbsp;&nbsp;</td>' +
+        '<td>' + parseInt((steprange*j) + min, 10) + ' to ' + parseInt((steprange*(j+1)) + min, 10) + '</td></tr>';
     }
     html += "</table>";
     $("#timemap-legend").html(html);

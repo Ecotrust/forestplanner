@@ -668,6 +668,20 @@
             <div class="outermap well">
               <!-- Not sure why but non authenticated requests cause failure in geoSearch knockout binding -->
 
+              <div id="legend-container">
+                    <a id="legend-button" data-toggle="collapse" data-target="#legend-list">
+                        <i class="icon-align-justify icon-white"></i>
+                    </a>
+                    <div class="clearfix"></div>
+                    <div id="legend-list" class="collapse"> 
+                      <div class="well">
+                        <div style="opacity:1.0;" id="layerswitcher"></div>
+                        <div id="legend"></div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+              </div>
+
               <div id="searchbox-container" class="pull-right">
                 {% include "common/geosearch.html" %}
               </div>
@@ -763,7 +777,18 @@
                                     <div class="well hide error-timemap alert alert-error" id="error-timemap2">
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
-                                    <div class="error-timemap" id="timemap-legend"></div>
+                                    <div id="timemap-legend-container">
+                                          <a id="timemap-legend-button" style="color:black;" data-toggle="collapse" data-target="#timemap-legend-meta">
+                                              <i class="icon-align-justify icon-white"></i>
+                                          </a>
+                                          <div class="clearfix"></div>
+                                          <div class="collapse in" id="timemap-legend-meta">
+                                            <div class="well">
+                                              <div id="timemap-legend"></div>
+                                            </div>
+                                          </div>
+                                          <div class="clearfix"></div>
+                                    </div>
                                     <div class="timemap" id="timemap2"></div>
                                     <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>

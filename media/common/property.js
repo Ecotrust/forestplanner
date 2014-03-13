@@ -362,6 +362,7 @@ function propertiesViewModel () {
     self.showPropertyPanels(false);
     $('#map').hide();
     $('#searchbox-container').hide();
+    $('#legend-container').hide();
     $('#scenario-outputs').fadeIn();
   };
 

@@ -298,6 +298,7 @@ function scenarioViewModel(options) {
             app.rx_stand_layer.removeAllFeatures();
         $('#scenario-form-metacontainer').hide();
         $('#searchbox-container').show();
+        $('#legend-container').show();
         $('#map').fadeIn();
         timemapInitialized = false;
     };

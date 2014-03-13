@@ -9,7 +9,7 @@ var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
     map = new OpenLayers.Map();
-    var switcher = new OpenLayers.Control.LayerSwitcher();
+    var switcher = new OpenLayers.Control.LayerSwitcher({'div':OpenLayers.Util.getElement('layerswitcher')});
     map.addControl(switcher);
 
     map.addControl( new OpenLayers.Control.Navigation({
@@ -91,7 +91,7 @@ function init() {
         map.addLayer(lyr);
         lyr.events.register('visibilitychanged', lyr, function(evt) {
             if (this.visibility) {
-                $('.layersDiv').append('<div id="' + this.shortName + '-legend" style="text-align:center;">' +
+                $('#legend').append('<div id="' + this.shortName + '-legend">' +
                     '<img src="/media/img/legends/' + this.shortName + '.png">');
             } else {
                 $('#' + this.shortName + '-legend').remove();
