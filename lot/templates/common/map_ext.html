@@ -677,11 +677,10 @@
               {% if user.is_authenticated %}
             <div class="outermap well">
               <!-- Not sure why but non authenticated requests cause failure in geoSearch knockout binding -->
-
+              <a id="legend-button" data-toggle="collapse" data-target="#legend-list">
+                  <i class="icon-align-justify icon-white" style="margin-top: 2px;"></i>
+              </a>
               <div id="legend-container">
-                    <a id="legend-button" data-toggle="collapse" data-target="#legend-list">
-                        <i class="icon-align-justify icon-white"></i>
-                    </a>
                     <div class="clearfix"></div>
                     <div id="legend-list" class="collapse"> 
                       <div class="well">
