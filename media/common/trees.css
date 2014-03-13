@@ -855,3 +855,8 @@ input+label.alert, textarea+label.alert, select+label.alert{
 	font-weight: bold;
 	padding: 15px 0 5px;
 }
+
+.anim-help {
+    margin-top: 20px;
+    padding: 5px !important;
+}
