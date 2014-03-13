@@ -128,6 +128,15 @@ function standsViewModel() {
     });
   };
 
+  self.finAddStand = function () {
+    self.addAnotherStand(false);
+    self.selectControl.unselectAll();
+    app.drawFeature.deactivate();
+    self.showStandHelp(true);
+    self.showStandList(true);
+    self.showDrawPanel(false);
+  };
+
   self.updateStand = function(stand_id, isNew) {
     var updateUrl = '/features/generic-links/links/geojson/{uid}/'.replace('{uid}', stand_id);
     $.get(updateUrl, function(data) {
@@ -165,7 +174,8 @@ function standsViewModel() {
       $form = $dialog.find('form'),
       actionUrl = $form.attr('action'),
       values = {},
-      error = false;
+      error = false,
+      button_pressed = event.currentTarget.id;
     $form.find('input,select').each(function() {
       var $input = $(this);
       if ($input.closest('.field').hasClass('required') && $input.attr('type') !== 'hidden' && !$input.val()) {
@@ -189,6 +199,7 @@ function standsViewModel() {
       isNew = true;
     }
     $form.addClass('form-horizontal');
+
     $.ajax({
       url: actionUrl,
       type: "POST",
@@ -197,8 +208,12 @@ function standsViewModel() {
         var stand_uid = JSON.parse(data)["X-Madrona-Select"];
         if (isNew) {
           self.associateStand(stand_uid, self.property.uid());
-          self.addStandStart();  // automatically go back to digitizing mode
-          self.addAnotherStand(true);
+          if (button_pressed == "saveStandAndQuitBtn"){
+            self.finAddStand();
+          } else {
+            self.addStandStart();  // automatically go back to digitizing mode
+            self.addAnotherStand(true);
+          }
         } else {
           self.selectControl.select(self.stand_layer.getFeaturesByAttribute("uid", stand_uid )[0]);
           self.updateStand(stand_uid,  false);
