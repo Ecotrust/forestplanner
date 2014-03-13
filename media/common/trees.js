@@ -63,6 +63,8 @@ function init() {
 
     var tileServerLayers = [
         [ "Streams", "LOT_streams"],
+        [ "Stream Buffers", "LOT_streambuffers"],
+        [ "Steep Slopes", "LOT_steepslopes"],
         [ "Watersheds", "LOT_watersheds"],
         [ "Conservation Easements", "LOT_natconseasedb"],
         [ "Critical Stream Habitat", "Crithab_streams"],
