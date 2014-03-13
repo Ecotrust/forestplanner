@@ -775,6 +775,19 @@
                                     <div class="well hide error-timemap alert alert-error" id="error-timemap1">
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
+                                    <div id="timemap-legend-container">
+                                          <a id="timemap-legend-button" style="color:black;" class="pull-right" 
+                                             data-toggle="collapse" data-target="#timemap-legend-meta">
+                                              <i class="icon-align-justify icon-white"></i>
+                                          </a>
+                                          <div class="clearfix"></div>
+                                          <div class="collapse in" id="timemap-legend-meta">
+                                            <div class="well">
+                                              <div id="timemap-legend"></div>
+                                            </div>
+                                          </div>
+                                          <div class="clearfix"></div>
+                                    </div>
                                     <div class="timemap" id="timemap1"></div>
                                     <select id="select-scenario1" class="scenario-select" data-bind="foreach: selectedFeatures">
                                         <option data-bind="value: pk, text: fields.name"></option>
@@ -786,18 +799,6 @@
                                     </div>
                                     <div class="well hide error-timemap alert alert-error" id="error-timemap2">
                                         <p> This scenario doesn't have valid modeling results... </p>
-                                    </div>
-                                    <div id="timemap-legend-container">
-                                          <a id="timemap-legend-button" style="color:black;" data-toggle="collapse" data-target="#timemap-legend-meta">
-                                              <i class="icon-align-justify icon-white"></i>
-                                          </a>
-                                          <div class="clearfix"></div>
-                                          <div class="collapse in" id="timemap-legend-meta">
-                                            <div class="well">
-                                              <div id="timemap-legend"></div>
-                                            </div>
-                                          </div>
-                                          <div class="clearfix"></div>
                                     </div>
                                     <div class="timemap" id="timemap2"></div>
                                     <select id="select-scenario2" class="scenario-select" data-bind="foreach: selectedFeatures">

@@ -812,8 +812,8 @@ input+label.alert, textarea+label.alert, select+label.alert{
 }
 
 #timemap-legend-container {
-	top: 58px;
-	left: 10px;
+	top: 2px;
+	right: 6px;
     margin: 1px;
     position: absolute; 
     z-index: 999;
