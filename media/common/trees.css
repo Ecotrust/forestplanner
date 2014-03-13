@@ -860,3 +860,12 @@ input+label.alert, textarea+label.alert, select+label.alert{
     margin-top: 20px;
     padding: 5px !important;
 }
+
+.well-small {
+	padding: 9px;
+	margin-bottom: 4px;
+	marigin-top: 2px;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
