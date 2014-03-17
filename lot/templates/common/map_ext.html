@@ -117,13 +117,13 @@
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
 
-								<div id="properties-list" style="display: none;" class="row-fluid" data-bind=" visible: showDetailPanel">
+								<div id="properties-list" style="display:none;" class="row-fluid" data-bind=" visible: showDetailPanel">
 
                   <!--<h2> My Properties </h2>-->
 
                   <div class="row-fluid btn-bar clearfix">
 
-                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Your property boundary can include forest and non-forest areas.  If your property has non-contiguous parcels, you must either upload a pre-existing GIS file or draw each portion of your land as if it were a separate property." rel="tooltip"></i></span>
+                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Your property boundary can include forest and non-forest areas.  If your property has non-contiguous parcels, you must either upload a pre-existing GIS file or draw each portion of your land as if it were a separate property."></i></span>
 
                     <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
                       <i class="icon-plus-sign icon-white"></i> Draw New Property
@@ -508,7 +508,7 @@
                         data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
                         <i class="icon-repeat"></i> Define Stand Groups</a>
                       -->
-                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Stands are the forested management units for your property.  Do not map non-forest areas within your property as stands: leave them blank.  Define each stand as an area you would manage in the same way.  Turn on layers in the map, such as steep slope areas or streams to help distinguish areas that should be managed differently."></i>
+                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Stands are the forested management units for your property.  Do not map non-forest areas within your property as stands: leave them blank.  Define each stand as an area you would manage in the same way.  Turn on layers in the map, such as steep slope areas or streams to help distinguish areas that should be managed differently.">
                     <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart, visible: standList().length">
                       <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                   </div>
@@ -929,9 +929,7 @@
         });
         {% endif %}
 
-        $('.definition-term').tooltip({
-          selector: "i[rel=tooltip]"
-        });
+
 
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
@@ -962,7 +960,9 @@
            // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
 					 "{{MEDIA_URL}}/img/forest_photos/pine-jondavidnelson.jpg"
 					], {duration: 6000, fade: 1000});
-				});
+
+
+		});
 
         /* Maybes
           http://www.flickr.com/photos/proforged/6181409251/
