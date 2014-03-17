@@ -14,7 +14,7 @@ var stand_style = {
 var property_style = {
     graphicZIndex: 999,
     pointRadius: 5,
-    fillOpacity: 0.1,
+    fillOpacity: 0.05,
     fillColor: "#FFFFFF",
     strokeWidth: 2,
     StrokeOpacity: 1,
@@ -31,7 +31,7 @@ var property_style = {
 var selected_prop_style = {
     graphicZIndex: 1,
     fillColor: "#FFFFFF", //"#FFA000",
-    fillOpacity: 0.2,
+    fillOpacity: 0.0,
     strokeWidth: 4,
     strokeOpacity: 1,
     strokeColor: "#FFFFFF" //"#FFA000"
