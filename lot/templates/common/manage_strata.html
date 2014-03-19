@@ -159,11 +159,26 @@
 		</div>
 
 		<div class="span7">
-			<div class="well">
-				<div class="map_wrapper">
-				 <!--  <button class="btn " data-bind="click: rubberBand, css: { 'btn-inverse': rubberBandActive }">select box</button> -->
-					<div id="map"></div>
-				</div>
+			<div class="outermap well"> <!-- map_wrapper"> -->
+				<!--
+				HAVING A TOUGH TIME GETTING THIS TO WORK.
+				SHOWS UP BUT DOES NOT SYNC WITH MAP!
+
+			    <a id="legend-button" data-toggle="collapse" data-target="#legend-list">
+                  <i class="icon-align-justify icon-white" style="margin-top: 2px;"></i>
+                </a>
+                <div id="legend-container">
+                    <div class="clearfix"></div>
+                    <div id="legend-list" class="collapse"> 
+                      <div class="well">
+                        <div style="opacity:1.0;" id="not-a-layerswitcher"></div>
+                        <div id="legend"></div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                -->
+				<div id="map"></div>
 			</div>
 		</div>
 
@@ -396,7 +411,7 @@
     <script src="http://code.highcharts.com/highcharts.js"></script>
 
     <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
-    <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
+    <!-- <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script> -->
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
     {% load compressed %}
     <style>
