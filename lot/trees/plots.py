@@ -31,7 +31,7 @@ class NearestNeighborError(Exception):
     pass
 
 
-def get_candidates(stand_list, variant, min_candidates=20, verbose=False):
+def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
     """
     Given a stand list and a variant code,
     return a list of IdbSummary instances that are potential candidate matches
