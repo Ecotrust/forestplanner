@@ -138,16 +138,17 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         form_template = "trees/stand_form.html"
         manipulators = []
 
-    def get_idb(self, force=False):
+    def get_cond_id(self, force=False):
         '''
-        Synchronous computation of nearest neighbor
+        Synchronous computation of nearest neighbor or just return what we've got
         Prefer instead:
-          impute_nearest_neighbor.delay(stand_id)
+          impute_nearest_neighbor.delay(stand_id, savetime)
         '''
         if self.cond_id and not force:
             return self.cond_id
 
-        res = impute_nearest_neighbor(self.id)
+        savetime = datetime_to_unix(postgres_now())
+        res = impute_nearest_neighbor(self.id, savetime)
         return res['cond_id']
 
     @property
