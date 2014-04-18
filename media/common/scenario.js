@@ -353,7 +353,7 @@ function scenarioViewModel(options) {
 
     self.editFeature = function(f) {
         $('#scenario-form-container').html("<h4>Loading...</h4>");
-        $('#scenario-form-title').html("Redfine the <em>" + f.fields.name + "</em> scenario");
+        $('#scenario-form-title').html("Redefine the <em>" + f.fields.name + "</em> scenario");
         self.activeScenario(f);
         self.addScenarioStart(true);
     };

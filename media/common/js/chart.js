@@ -45,8 +45,8 @@ var chartMetrics = {
     'title': "Boardfoot Volume",
     'axisLabel': "Standing Boardfeet (MBF)",
     'mapLabel': "Standing Boardfeet (MBF)",
-    'mapText': "Standing merchantable boardfoot volume across property (MBF Total)",
-    'chartText': "Standing merchantable boardfoot volume in each stand (MBF/acre)",
+    'mapText': "Standing merchantable boardfoot volume in each stand (MBF/acre)",
+    'chartText': "Standing merchantable boardfoot volume across property (MBF Total)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
@@ -97,7 +97,7 @@ var chartMetrics = {
     'axisLabel': "Carbon (metric tons C)",
     'mapLabel': "Carbon (metric tons C)",
     'mapText': "Carbon storage in above-ground live tree biomass in each stand (metric tons C/acre)",
-    'chartText': "Total carbon storage in above-ground live tree biomass across proeprty (metric tons C)",
+    'chartText': "Total carbon storage in above-ground live tree biomass across property (metric tons C)",
     'displayChart': true,
     'displayMap': true,
     'axisFormat': "%'d"
