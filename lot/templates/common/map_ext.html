@@ -75,7 +75,7 @@
                 <li data-bind="css: { active: app.state() == 'scenarios'}">
                   <a data-bind="attr: { href: '#scenarios/' + app.selectedPropertyUID() }">
                     <span class="tab-num">4</span>
-                    Evalutate Future Scenarios</a>
+                    Evaluate Future Scenarios</a>
                 </li>
                 <!--                  
                 //  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
@@ -83,7 +83,7 @@
                 or ko.observable set when this is ready
                 <li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
                   css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
-                  app.properties.viewModel.selectedProperty().stand_summary.total()}">Evalutate Future Scenarios</a></li>
+                  app.properties.viewModel.selectedProperty().stand_summary.total()}">Evaluate Future Scenarios</a></li>
                   -->
                 <!-- <li data-bind="text: helpText"></li> -->
               </ul>
@@ -816,7 +816,7 @@
 
                         <div class="tab-pane fade" id="scenario-cash-tab-content">
                             <p class="info-help info text-info well well-small">
-                              <strong>Harvesting and transportation costs for each scenario.</strong>
+                              <strong>Harvest and transportation costs for each scenario.</strong>
                             </p>
                             <div id="cash1">
                               <select id="cash-select-scenario1" 
@@ -834,7 +834,7 @@
 
                         <div class="tab-pane fade" id="scenario-revenue-tab-content">
                             <p class="info-help info text-info well well-small">
-                              <strong>Potential timber revenues under given scenarios.</strong>
+                              <strong>Gross timber revenues under each scenario.</strong>
                             </p>
                             <div id="revenue1">
                               <select id="revenue-select-scenario1" 
