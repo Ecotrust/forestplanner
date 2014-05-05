@@ -14,6 +14,15 @@ server {
 server {
     client_max_body_size 20M;
 
+    # gzip settings
+    gzip              on;
+    gzip_buffers      16 8k;
+    gzip_comp_level   4;
+    gzip_http_version 1.0;
+    gzip_min_length   1280;
+    gzip_types        text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon image/bmp application/json;
+    gzip_vary         on;
+
     # A special wildcard name in the form .example.org can be used to match
     # both the exact name example.org and the wildcard name *.example.org
     server_name .forestplanner.ecotrust.org;

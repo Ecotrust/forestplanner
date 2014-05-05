@@ -25,6 +25,15 @@ server {
     server_name localhost;
     listen  443 ssl;
 
+    # gzip settings
+    gzip              on;
+    gzip_buffers      16 8k;
+    gzip_comp_level   4;
+    gzip_http_version 1.0;
+    gzip_min_length   1280;
+    gzip_types        text/plain text/css application/x-javascript text/xml application/xml application/xml+rss text/javascript image/x-icon image/bmp application/json;
+    gzip_vary         on;
+
     ssl on;
     ssl_certificate /usr/local/keys/dummy-cert.pem;
     ssl_certificate_key /usr/local/keys/dummy-key.pem;
