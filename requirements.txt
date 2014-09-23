@@ -21,6 +21,7 @@ django-redis-sessions
 ipdb
 coverage
 django-allauth
+django-extensions
 celerymon
 flower
 

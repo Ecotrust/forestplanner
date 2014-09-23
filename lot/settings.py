@@ -184,5 +184,5 @@ except ImportError:
     pass
 
 if DEBUG:
-    INSTALLED_APPS += ('django_pdb',)
+    INSTALLED_APPS += ('django_pdb', 'django_extensions',)
     MIDDLEWARE_CLASSES += ('django_pdb.middleware.PdbMiddleware',)
