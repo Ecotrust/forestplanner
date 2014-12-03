@@ -13,7 +13,7 @@ admin.site.register(SpatialConstraint)
 admin.site.register(County)
 admin.site.register(TreeliveSummary)
 admin.site.register(IdbSummary)
-
+admin.site.register(CarbonGroup)
 
 class FVSVariantAdminForm(forms.ModelForm):
     class Meta:
@@ -50,6 +50,12 @@ class FVSVariantAdmin(admin.ModelAdmin):
 
 admin.site.register(FVSVariant, FVSVariantAdmin)
 
+class MembershipAdmin(admin.ModelAdmin):
+    list_display = ('group', 'applicant', 'status')
+    list_filter = ['group', 'applicant', 'status']
+    ordering = ['group', 'applicant', 'status']
+
+admin.site.register(Membership, MembershipAdmin)
 
 class TimberPriceAdmin(admin.ModelAdmin):
     list_display = ('variant', 'timber_type', 'price')

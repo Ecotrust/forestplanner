@@ -1801,9 +1801,8 @@ class FVSAggregate(models.Model):
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
 
-
+@register
 class CarbonGroup(PolygonFeature):
-    group_name = models.TextField()
     manager = models.ForeignKey(User, related_name='manager_set')
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
@@ -1814,6 +1813,8 @@ class CarbonGroup(PolygonFeature):
     class Options:
         verbose_name = "Carbon Group Geographic Reach"
         manipulators = []
+        form = "trees.forms.CarbonGroupForm"
+        form_template = "trees/carbongroup_form.html"
 
     def acceptProperty(self, propertyId):
         acceptedList = loads(self.accepted_properties)

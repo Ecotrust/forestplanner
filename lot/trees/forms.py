@@ -1,6 +1,6 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx
+from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx, CarbonGroup
 #from madrona.analysistools.widgets import SliderWidget
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
@@ -115,3 +115,7 @@ class MyRxForm(FeatureForm):
     class Meta(FeatureForm.Meta):
         model = MyRx
         exclude = ('content_type', 'object_id')
+
+class CarbonGroupForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = CarbonGroup

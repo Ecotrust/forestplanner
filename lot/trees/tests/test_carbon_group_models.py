@@ -41,7 +41,7 @@ def cleanup():
     except DoesNotExist:
         manager = False
     try:
-        testCarbonGroup = CarbonGroup.objects.get(group_name='test')
+        testCarbonGroup = CarbonGroup.objects.get(name='test')
         CarbonGroup.delete(testCarbonGroup)
     except DoesNotExist:
         pass
@@ -72,7 +72,7 @@ if __name__ == "__main__":
     #--------------------------------------------------------------------------#
     print "Create Group"
     #--------------------------------------------------------------------------#
-    testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, group_name='test', manager=manager, description='Demo test group', private=False)
+    testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, name='test', manager=manager, description='Demo test group', private=False)
 
     #--------------------------------------------------------------------------#
     # print "Assign Manager"  #Can this happen in "Create Group"?
