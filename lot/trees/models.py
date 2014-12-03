@@ -9,6 +9,7 @@ import time
 import operator
 import numpy as np
 from django.contrib.gis.db import models
+from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
@@ -1799,6 +1800,106 @@ class FVSAggregate(models.Model):
     start_merch_ft3 = models.IntegerField(null=True, blank=True)
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
+
+
+class CarbonGroup(PolygonFeature):
+    group_name = models.TextField()
+    manager = models.ForeignKey(User, related_name='manager_set')
+    members = models.ManyToManyField(User, related_name='members_set', through='Membership')
+    description = models.TextField()
+    # geometry_final = models.PolygonField(srid=3857, null=True, blank=True, verbose_name="Carbon Group Geographic Reach")
+    accepted_properties = models.TextField(default='[]')
+    private = models.BooleanField(default=False)
+
+    class Options:
+        verbose_name = "Carbon Group Geographic Reach"
+        manipulators = []
+
+    def acceptProperty(self, propertyId):
+        acceptedList = loads(self.accepted_properties)
+        acceptedList.append(propertyId)
+        self.accepted_properties = dumps(acceptedList)
+
+    def rejectProperty(self, propertyId):
+        acceptedList = loads(self.accepted_properties)
+        try:
+            acceptedList.remove(propertyId)
+        except ValueError:
+            pass
+        self.accepted_properties = dumps(acceptedList)
+
+    def getAcceptedProperties(self):
+        return loads(self.accepted_properties)
+
+    def requestMembership(self, applicant):
+        newMembership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
+        if not created:
+            raise ValidationError("Membership request already exists")
+        newMembership.save()
+        Membership.emailStatusUpdate(newMembership)
+
+    def getMemberships(self, requester, status=None):
+        if self.manager == requester:
+            if status == None:
+                return self.membership_set.all()
+            else:
+                return self.membership_set.filter(status=status)
+        else:
+            raise ValidationError("You are not the manager of this group")
+
+membership_status_choices = (
+    ('pending', 'Pending'),
+    ('accepted', 'Accepted'),
+    ('declined', 'Declined'),
+    ('revoked', 'Revoked')
+)
+
+class Membership(models.Model):
+    applicant = models.ForeignKey(User)
+    group = models.ForeignKey(CarbonGroup)
+    date_requested = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
+    status = models.CharField(max_length=10, choices=membership_status_choices, default="pending")
+    reason = models.TextField()
+
+    class Meta:
+        unique_together = (("applicant", "group"))
+
+
+    def acceptMembership(self, accepter):
+        if self.group.manager == accepter:
+            self.status = 'accepted'
+            self.save()
+            Membership.emailStatusUpdate(self)
+        else:
+            raise ValidationError("You are not the manager of this group")
+
+    def declineMembership(self, decliner, reason):
+        if self.group.manager == decliner and self.status == 'pending':
+            self.status = 'declined'
+            self.reason = reason
+            self.save()
+            Membership.emailStatusUpdate(self)
+        else:
+            if self.status == 'pending':
+                raise ValidationError("You are not the manager of this group")
+            else:
+                raise ValidationError("You are not able to change this group's status to 'declined'.")
+
+    def revokeMembership(self, revoker, reason):
+        if self.applicant == revoker or self.group.owner == revoker:
+            self.status = 'revoked'
+            self.reason = reason
+            self.save()
+            Membership.emailStatusUpdate(self)
+        else:
+            raise ValidationError("You are not the manager of this group")
+
+    def emailStatusUpdate(self):
+        # TODO: switch on status, email both parties in all cases, 
+            # especially revoke since either party can do that.
+        pass
+
 
 
 # variable names are lower-case and must correspond
