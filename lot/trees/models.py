@@ -263,353 +263,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         # time.sleep(0.2)
 
 
-@register
-class ForestProperty(FeatureCollection):
-    geometry_final = models.MultiPolygonField(
-        srid=settings.GEOMETRY_DB_SRID, null=True, blank=True,
-        verbose_name="Forest Property MultiPolygon Geometry")
-
-    #@property
-    def geojson(self, srid=None):
-        '''
-        Couldn't find any serialization methods flexible enough for our needs
-        So we do it the hard way.
-        '''
-        if self.acres:
-            acres = round(self.acres, 0)
-        else:
-            acres = None
-
-        d = {
-            'uid': self.uid,
-            'id': self.id,
-            'name': self.name,
-            'user_id': self.user.pk,
-            'acres': acres,
-            'location': self.location,
-            'stand_summary': self.stand_summary,
-            'variant': self.variant.fvsvariant.strip(),
-            'variant_id': self.variant.id,
-            'bbox': self.bbox,
-            'date_modified': str(self.date_modified),
-            'date_created': str(self.date_created),
-        }
-        try:
-            geom_json = self.geometry_final.json
-        except AttributeError:
-            geom_json = 'null'
-
-        gj = """{
-              "type": "Feature",
-              "geometry": %s,
-              "properties": %s
-        }""" % (geom_json, dumps(d))
-        return gj
-
-    @property
-    def is_runnable(self):
-        '''
-        Boolean.
-        Do all the stands have associated plots?
-        '''
-        for stand in self.feature_set(feature_classes=[Stand]):
-            if not stand.cond_id:
-                return False
-        return True
-
-    def check_or_create_default_myrxs(self):
-        """
-        based on RX_TYPE_CHOICES, check for all default myrxs and create them if they don't exist
-        """
-        myrxs = self.feature_set(feature_classes=[MyRx, ])
-        for rx_choice in RX_TYPE_CHOICES:
-            if rx_choice[0] == "NA":
-                # don't create default myrx for NA rxs
-                continue
-            matching_myrxs = [x for x in myrxs if x.rx.internal_type == rx_choice[0]]
-            if len(matching_myrxs) == 0:
-                try:
-                    rx = Rx.objects.get(variant=self.variant, internal_type=rx_choice[0])
-                except Rx.DoesNotExist:
-                    logger.warning("Rx with type %s doesn't exist in %s" % (rx_choice[0], self.variant))
-                    continue
-                m1 = MyRx(name=rx_choice[1], rx=rx, user=self.user)
-                m1.save()
-                m1.add_to_collection(self)
-                m1.save()
-
-    def create_default_scenarios(self):
-        """
-        Create two scenarios for the property (should only be called if self.is_runnable)
-        """
-        if not self.is_runnable:
-            return
-
-        if Scenario.objects.filter(input_property=self, name="Grow Only").count() == 0:
-            rxs = Rx.objects.filter(internal_type='GO', variant=self.variant)
-            if not rxs.count() > 0:
-                return
-            rx = rxs[0]
-            in_rxs = {}
-            for stand in self.feature_set(feature_classes=[Stand]):
-                in_rxs[stand.id] = rx.id
-
-            s1 = Scenario(user=self.user,
-                          input_property=self,
-                          name="Grow Only",
-                          description="No management activities; allow natural regeneration for entire time period.",
-                          input_target_boardfeet=0,
-                          input_target_carbon=True,
-                          input_rxs=in_rxs,
-                          input_age_class=10,
-                          )
-            s1.save()
-            s1.run()
-
-        if Scenario.objects.filter(input_property=self, name="Conventional Even-Aged").count() == 0:
-            rxs = Rx.objects.filter(internal_type='CI', variant=self.variant)
-            if not rxs.count() > 0:
-                return
-            rx = rxs[0]
-            in_rxs = {}
-            for stand in self.feature_set(feature_classes=[Stand]):
-                in_rxs[stand.id] = rx.id
-
-            s2 = Scenario(user=self.user,
-                          input_property=self,
-                          name="Conventional Even-Aged",
-                          description="Even-aged management for timber. 40-year rotation clear cut.",
-                          input_target_boardfeet=2000,
-                          input_target_carbon=False,
-                          input_rxs=in_rxs,
-                          input_age_class=1,
-                          )
-            s2.save()
-            s2.run()
-
-        return True
-
-    @property
-    def stand_summary(self):
-        '''
-        Summarize the status of stands in this property
-        '''
-        n_with_strata = 0
-        n_with_terrain = 0
-        n_with_condition = 0
-        stands = self.feature_set(feature_classes=[Stand])
-        for stand in stands:
-
-            if stand.cond_id:
-                n_with_condition += 1
-
-            if stand.elevation and stand.slope and stand.aspect and stand.cost:
-                n_with_terrain += 1
-
-            if stand.strata:
-                n_with_strata += 1
-
-        return {
-            'total': len(stands),
-            'with_strata': n_with_strata,
-            'with_condition': n_with_condition,
-            'with_terrain': n_with_terrain,
-        }
-
-    @property
-    def status(self):
-        d = self.stand_summary
-        d['is_runnable'] = self.is_runnable
-        d['scenarios'] = []
-        for scenario in self.scenario_set.all():
-            sd = {
-                'uid': scenario.uid,
-                'needs_rerun': scenario.needs_rerun,
-                'runnable': scenario.is_runnable,
-            }
-            d['scenarios'].append(sd)
-        return d
-
-    def reset_scenarios(self):
-        """
-        The 'reset' button for all property's scenarios
-        """
-        for scenario in self.scenario_set.all():
-            scenario.run()
-
-    def reset_stands(self):
-        """
-        Strips all imputed data from stands and attempts to recalculate it
-        The 'reset' button for seriously screwed up data
-        """
-        stands = self.feature_set(feature_classes=[Stand])
-        for stand in stands:
-            stand.elevation = stand.slope = stand.aspect = stand.cost = stand.cond_id = None
-            stand.save()
-
-    @property
-    def acres(self):
-        try:
-            g2 = self.geometry_final.transform(
-                settings.EQUAL_AREA_SRID, clone=True)
-            area_m = g2.area
-        except:
-            return None
-        return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
-
-    @property
-    @cachemethod("ForestProperty_%(id)s_variant")
-    def variant(self):
-        '''
-        Returns: Closest FVS variant instance
-        '''
-        geom = self.geometry_final.point_on_surface
-
-        variants = FVSVariant.objects.all()
-
-        min_distance = 99999999999999.0
-        the_variant = None
-        for variant in variants:
-            variant_geom = variant.geom
-            if not variant_geom.valid:
-                variant_geom = variant_geom.buffer(0)
-            dst = variant_geom.distance(geom)
-            if dst == 0.0:
-                return variant
-            if dst < min_distance:
-                min_distance = dst
-                the_variant = variant
-        return the_variant
-
-    @property
-    @cachemethod("ForestProperty_%(id)s_location")
-    def location(self):
-        '''
-        Returns: (CountyName, State)
-        '''
-        geom = self.geometry_final
-        if geom:
-            counties = County.objects.filter(geom__bboverlaps=geom)
-        else:
-            return None
-
-        if not geom.valid:
-            geom = geom.buffer(0)
-        the_size = 0
-        the_county = (None, None)
-        for county in counties:
-            county_geom = county.geom
-            if not county_geom.valid:
-                county_geom = county_geom.buffer(0)
-            if county_geom.intersects(geom):
-                try:
-                    overlap = county_geom.intersection(geom)
-                except Exception as e:
-                    logger.error(self.uid + ": " + str(e))
-                    continue
-                area = overlap.area
-                if area > the_size:
-                    the_size = area
-                    the_county = (county.cntyname.title(), county.stname)
-        return the_county
-
-    def feature_set_geojson(self):
-        # We'll use the bbox for the property geom itself
-        # Instead of using the overall bbox of the stands
-        # Assumption is that property boundary SHOULD contain all stands
-        # and, if not, they should expand the property boundary
-        bb = self.bbox
-        featxt = ', '.join(
-            [i.geojson() for i in self.feature_set(feature_classes=[Stand])])
-        return """{ "type": "FeatureCollection",
-        "bbox": [%f, %f, %f, %f],
-        "features": [
-        %s
-        ]}""" % (bb[0], bb[1], bb[2], bb[3], featxt)
-
-    @property
-    def bbox(self):
-        try:
-            return self.geometry_final.extent
-        except AttributeError:
-            return settings.DEFAULT_EXTENT
-
-    @property
-    def file_dir(self):
-        '''
-        Standard property for determining where supporting files reside
-        /feature_file_root/database_name/feature_uid/
-        '''
-        root = settings.FEATURE_FILE_ROOT
-        try:
-            dbname = settings.DATABASES['default']['NAME']
-        except:
-            dbname = settings.DATABASE_NAME
-
-        path = os.path.realpath(os.path.join(root, dbname, self.uid))
-        if not os.path.exists(path):
-            os.makedirs(path)
-
-        if not os.access(path, os.W_OK):
-            raise Exception("Feature file_dir %s is not writeable" % path)
-
-        return path
-
-    def adjacency(self, threshold=1.0):
-        from trees.utils import calculate_adjacency
-        stands = Stand.objects.filter(
-            content_type=ContentType.objects.get_for_model(self),
-            object_id=self.pk
-        )
-        return calculate_adjacency(stands, threshold)
-
-    def invalidate_cache(self):
-        if not self.id:
-            return True
-        # depends on django-redis as the cache backend!!!
-        key_pattern = "ForestProperty_%d_*" % self.id
-        cache.delete_pattern(key_pattern)
-        assert cache.keys(key_pattern) == []
-        return True
-
-    def save(self, *args, **kwargs):
-        self.invalidate_cache()
-        # ensure multipolygon validity
-        if self.geometry_final:
-            self.geometry_final = clean_geometry(self.geometry_final)
-        super(ForestProperty, self).save(*args, **kwargs)
-
-    class Options:
-        valid_children = ('trees.models.Stand', 'trees.models.Strata', 'trees.models.MyRx')
-        form = "trees.forms.PropertyForm"
-        links = (
-            # Link to grab ALL *stands* associated with a property
-            alternate('Property Stands GeoJSON',
-                      'trees.views.geojson_forestproperty',
-                      type="application/json",
-                      select='single'),
-            # Link to grab ALL *scenarios* associated with a property
-            alternate('Property Scenarios',
-                      'trees.views.forestproperty_scenarios',
-                      type="application/json",
-                      select='single'),
-            # Link to grab ALL *strata* belonging to a property
-            alternate('Property Strata List',
-                      'trees.views.forestproperty_strata_list',
-                      type="application/json",
-                      select='single'),
-            alternate('Property status',
-                      'trees.views.forestproperty_status',
-                      type="application/json",
-                      select='single'),
-            # Link to grab ALL MyRx associated with a property
-            alternate('Property MyRx JSON',
-                      'trees.views.forestproperty_myrx',
-                      type="application/json",
-                      select='single'),
-        )
-
-
 class JSONField(models.TextField):
     """JSONField is a generic textfield that neatly serializes/unserializes
     JSON objects seamlessly"""
@@ -1256,6 +909,402 @@ class Scenario(Feature):
         )
 
 
+@register
+class CarbonGroup(PolygonFeature):
+    manager = models.ForeignKey(User, related_name='manager_set')
+    members = models.ManyToManyField(User, related_name='members_set', through='Membership')
+    description = models.TextField()
+    # geometry_final = models.PolygonField(srid=3857, null=True, blank=True, verbose_name="Carbon Group Geographic Reach")
+    accepted_properties = models.TextField(default='[]')
+    private = models.BooleanField(default=False)
+
+    class Options:
+        verbose_name = "Carbon Group Geographic Reach"
+        manipulators = []
+        form = "trees.forms.CarbonGroupForm"
+        form_template = "trees/carbongroup_form.html"
+
+    def acceptProperty(self, propertyId):
+        acceptedList = loads(self.accepted_properties)
+        acceptedList.append(propertyId)
+        self.accepted_properties = dumps(acceptedList)
+
+    def rejectProperty(self, propertyId):
+        acceptedList = loads(self.accepted_properties)
+        try:
+            acceptedList.remove(propertyId)
+        except ValueError:
+            pass
+        self.accepted_properties = dumps(acceptedList)
+
+    def getAcceptedProperties(self):
+        return loads(self.accepted_properties)
+
+    def requestMembership(self, applicant):
+        newMembership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
+        if not created:
+            raise ValidationError("Membership request already exists")
+        newMembership.save()
+        Membership.emailStatusUpdate(newMembership)
+
+    def getMemberships(self, requester, status=None):
+        if self.manager == requester:
+            if status == None:
+                return self.membership_set.all()
+            else:
+                return self.membership_set.filter(status=status)
+        else:
+            raise ValidationError("You are not the manager of this group")
+
+
+@register
+class ForestProperty(FeatureCollection):
+    geometry_final = models.MultiPolygonField(
+        srid=settings.GEOMETRY_DB_SRID, null=True, blank=True,
+        verbose_name="Forest Property MultiPolygon Geometry")
+    carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True)
+    shared_scenario = models.ForeignKey(Scenario, null=True, blank=True)
+
+    #@property
+    def geojson(self, srid=None):
+        '''
+        Couldn't find any serialization methods flexible enough for our needs
+        So we do it the hard way.
+        '''
+        if self.acres:
+            acres = round(self.acres, 0)
+        else:
+            acres = None
+
+        d = {
+            'uid': self.uid,
+            'id': self.id,
+            'name': self.name,
+            'user_id': self.user.pk,
+            'acres': acres,
+            'location': self.location,
+            'stand_summary': self.stand_summary,
+            'variant': self.variant.fvsvariant.strip(),
+            'variant_id': self.variant.id,
+            'bbox': self.bbox,
+            'date_modified': str(self.date_modified),
+            'date_created': str(self.date_created),
+        }
+        try:
+            geom_json = self.geometry_final.json
+        except AttributeError:
+            geom_json = 'null'
+
+        gj = """{
+              "type": "Feature",
+              "geometry": %s,
+              "properties": %s
+        }""" % (geom_json, dumps(d))
+        return gj
+
+    @property
+    def is_runnable(self):
+        '''
+        Boolean.
+        Do all the stands have associated plots?
+        '''
+        for stand in self.feature_set(feature_classes=[Stand]):
+            if not stand.cond_id:
+                return False
+        return True
+
+    def check_or_create_default_myrxs(self):
+        """
+        based on RX_TYPE_CHOICES, check for all default myrxs and create them if they don't exist
+        """
+        myrxs = self.feature_set(feature_classes=[MyRx, ])
+        for rx_choice in RX_TYPE_CHOICES:
+            if rx_choice[0] == "NA":
+                # don't create default myrx for NA rxs
+                continue
+            matching_myrxs = [x for x in myrxs if x.rx.internal_type == rx_choice[0]]
+            if len(matching_myrxs) == 0:
+                try:
+                    rx = Rx.objects.get(variant=self.variant, internal_type=rx_choice[0])
+                except Rx.DoesNotExist:
+                    logger.warning("Rx with type %s doesn't exist in %s" % (rx_choice[0], self.variant))
+                    continue
+                m1 = MyRx(name=rx_choice[1], rx=rx, user=self.user)
+                m1.save()
+                m1.add_to_collection(self)
+                m1.save()
+
+    def create_default_scenarios(self):
+        """
+        Create two scenarios for the property (should only be called if self.is_runnable)
+        """
+        if not self.is_runnable:
+            return
+
+        if Scenario.objects.filter(input_property=self, name="Grow Only").count() == 0:
+            rxs = Rx.objects.filter(internal_type='GO', variant=self.variant)
+            if not rxs.count() > 0:
+                return
+            rx = rxs[0]
+            in_rxs = {}
+            for stand in self.feature_set(feature_classes=[Stand]):
+                in_rxs[stand.id] = rx.id
+
+            s1 = Scenario(user=self.user,
+                          input_property=self,
+                          name="Grow Only",
+                          description="No management activities; allow natural regeneration for entire time period.",
+                          input_target_boardfeet=0,
+                          input_target_carbon=True,
+                          input_rxs=in_rxs,
+                          input_age_class=10,
+                          )
+            s1.save()
+            s1.run()
+
+        if Scenario.objects.filter(input_property=self, name="Conventional Even-Aged").count() == 0:
+            rxs = Rx.objects.filter(internal_type='CI', variant=self.variant)
+            if not rxs.count() > 0:
+                return
+            rx = rxs[0]
+            in_rxs = {}
+            for stand in self.feature_set(feature_classes=[Stand]):
+                in_rxs[stand.id] = rx.id
+
+            s2 = Scenario(user=self.user,
+                          input_property=self,
+                          name="Conventional Even-Aged",
+                          description="Even-aged management for timber. 40-year rotation clear cut.",
+                          input_target_boardfeet=2000,
+                          input_target_carbon=False,
+                          input_rxs=in_rxs,
+                          input_age_class=1,
+                          )
+            s2.save()
+            s2.run()
+
+        return True
+
+    @property
+    def stand_summary(self):
+        '''
+        Summarize the status of stands in this property
+        '''
+        n_with_strata = 0
+        n_with_terrain = 0
+        n_with_condition = 0
+        stands = self.feature_set(feature_classes=[Stand])
+        for stand in stands:
+
+            if stand.cond_id:
+                n_with_condition += 1
+
+            if stand.elevation and stand.slope and stand.aspect and stand.cost:
+                n_with_terrain += 1
+
+            if stand.strata:
+                n_with_strata += 1
+
+        return {
+            'total': len(stands),
+            'with_strata': n_with_strata,
+            'with_condition': n_with_condition,
+            'with_terrain': n_with_terrain,
+        }
+
+    @property
+    def status(self):
+        d = self.stand_summary
+        d['is_runnable'] = self.is_runnable
+        d['scenarios'] = []
+        for scenario in self.scenario_set.all():
+            sd = {
+                'uid': scenario.uid,
+                'needs_rerun': scenario.needs_rerun,
+                'runnable': scenario.is_runnable,
+            }
+            d['scenarios'].append(sd)
+        return d
+
+    def reset_scenarios(self):
+        """
+        The 'reset' button for all property's scenarios
+        """
+        for scenario in self.scenario_set.all():
+            scenario.run()
+
+    def reset_stands(self):
+        """
+        Strips all imputed data from stands and attempts to recalculate it
+        The 'reset' button for seriously screwed up data
+        """
+        stands = self.feature_set(feature_classes=[Stand])
+        for stand in stands:
+            stand.elevation = stand.slope = stand.aspect = stand.cost = stand.cond_id = None
+            stand.save()
+
+    @property
+    def acres(self):
+        try:
+            g2 = self.geometry_final.transform(
+                settings.EQUAL_AREA_SRID, clone=True)
+            area_m = g2.area
+        except:
+            return None
+        return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
+
+    @property
+    @cachemethod("ForestProperty_%(id)s_variant")
+    def variant(self):
+        '''
+        Returns: Closest FVS variant instance
+        '''
+        geom = self.geometry_final.point_on_surface
+
+        variants = FVSVariant.objects.all()
+
+        min_distance = 99999999999999.0
+        the_variant = None
+        for variant in variants:
+            variant_geom = variant.geom
+            if not variant_geom.valid:
+                variant_geom = variant_geom.buffer(0)
+            dst = variant_geom.distance(geom)
+            if dst == 0.0:
+                return variant
+            if dst < min_distance:
+                min_distance = dst
+                the_variant = variant
+        return the_variant
+
+    @property
+    @cachemethod("ForestProperty_%(id)s_location")
+    def location(self):
+        '''
+        Returns: (CountyName, State)
+        '''
+        geom = self.geometry_final
+        if geom:
+            counties = County.objects.filter(geom__bboverlaps=geom)
+        else:
+            return None
+
+        if not geom.valid:
+            geom = geom.buffer(0)
+        the_size = 0
+        the_county = (None, None)
+        for county in counties:
+            county_geom = county.geom
+            if not county_geom.valid:
+                county_geom = county_geom.buffer(0)
+            if county_geom.intersects(geom):
+                try:
+                    overlap = county_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
+                area = overlap.area
+                if area > the_size:
+                    the_size = area
+                    the_county = (county.cntyname.title(), county.stname)
+        return the_county
+
+    def feature_set_geojson(self):
+        # We'll use the bbox for the property geom itself
+        # Instead of using the overall bbox of the stands
+        # Assumption is that property boundary SHOULD contain all stands
+        # and, if not, they should expand the property boundary
+        bb = self.bbox
+        featxt = ', '.join(
+            [i.geojson() for i in self.feature_set(feature_classes=[Stand])])
+        return """{ "type": "FeatureCollection",
+        "bbox": [%f, %f, %f, %f],
+        "features": [
+        %s
+        ]}""" % (bb[0], bb[1], bb[2], bb[3], featxt)
+
+    @property
+    def bbox(self):
+        try:
+            return self.geometry_final.extent
+        except AttributeError:
+            return settings.DEFAULT_EXTENT
+
+    @property
+    def file_dir(self):
+        '''
+        Standard property for determining where supporting files reside
+        /feature_file_root/database_name/feature_uid/
+        '''
+        root = settings.FEATURE_FILE_ROOT
+        try:
+            dbname = settings.DATABASES['default']['NAME']
+        except:
+            dbname = settings.DATABASE_NAME
+
+        path = os.path.realpath(os.path.join(root, dbname, self.uid))
+        if not os.path.exists(path):
+            os.makedirs(path)
+
+        if not os.access(path, os.W_OK):
+            raise Exception("Feature file_dir %s is not writeable" % path)
+
+        return path
+
+    def adjacency(self, threshold=1.0):
+        from trees.utils import calculate_adjacency
+        stands = Stand.objects.filter(
+            content_type=ContentType.objects.get_for_model(self),
+            object_id=self.pk
+        )
+        return calculate_adjacency(stands, threshold)
+
+    def invalidate_cache(self):
+        if not self.id:
+            return True
+        # depends on django-redis as the cache backend!!!
+        key_pattern = "ForestProperty_%d_*" % self.id
+        cache.delete_pattern(key_pattern)
+        assert cache.keys(key_pattern) == []
+        return True
+
+    def save(self, *args, **kwargs):
+        self.invalidate_cache()
+        # ensure multipolygon validity
+        if self.geometry_final:
+            self.geometry_final = clean_geometry(self.geometry_final)
+        super(ForestProperty, self).save(*args, **kwargs)
+
+    class Options:
+        valid_children = ('trees.models.Stand', 'trees.models.Strata', 'trees.models.MyRx')
+        form = "trees.forms.PropertyForm"
+        links = (
+            # Link to grab ALL *stands* associated with a property
+            alternate('Property Stands GeoJSON',
+                      'trees.views.geojson_forestproperty',
+                      type="application/json",
+                      select='single'),
+            # Link to grab ALL *scenarios* associated with a property
+            alternate('Property Scenarios',
+                      'trees.views.forestproperty_scenarios',
+                      type="application/json",
+                      select='single'),
+            # Link to grab ALL *strata* belonging to a property
+            alternate('Property Strata List',
+                      'trees.views.forestproperty_strata_list',
+                      type="application/json",
+                      select='single'),
+            alternate('Property status',
+                      'trees.views.forestproperty_status',
+                      type="application/json",
+                      select='single'),
+            # Link to grab ALL MyRx associated with a property
+            alternate('Property MyRx JSON',
+                      'trees.views.forestproperty_myrx',
+                      type="application/json",
+                      select='single'),
+        )
+
 class FVSSpecies(models.Model):
     usda = models.CharField(max_length=8, null=True, blank=True)
     fia = models.CharField(max_length=3, null=True, blank=True)
@@ -1800,53 +1849,6 @@ class FVSAggregate(models.Model):
     start_merch_ft3 = models.IntegerField(null=True, blank=True)
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
-
-@register
-class CarbonGroup(PolygonFeature):
-    manager = models.ForeignKey(User, related_name='manager_set')
-    members = models.ManyToManyField(User, related_name='members_set', through='Membership')
-    description = models.TextField()
-    # geometry_final = models.PolygonField(srid=3857, null=True, blank=True, verbose_name="Carbon Group Geographic Reach")
-    accepted_properties = models.TextField(default='[]')
-    private = models.BooleanField(default=False)
-
-    class Options:
-        verbose_name = "Carbon Group Geographic Reach"
-        manipulators = []
-        form = "trees.forms.CarbonGroupForm"
-        form_template = "trees/carbongroup_form.html"
-
-    def acceptProperty(self, propertyId):
-        acceptedList = loads(self.accepted_properties)
-        acceptedList.append(propertyId)
-        self.accepted_properties = dumps(acceptedList)
-
-    def rejectProperty(self, propertyId):
-        acceptedList = loads(self.accepted_properties)
-        try:
-            acceptedList.remove(propertyId)
-        except ValueError:
-            pass
-        self.accepted_properties = dumps(acceptedList)
-
-    def getAcceptedProperties(self):
-        return loads(self.accepted_properties)
-
-    def requestMembership(self, applicant):
-        newMembership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
-        if not created:
-            raise ValidationError("Membership request already exists")
-        newMembership.save()
-        Membership.emailStatusUpdate(newMembership)
-
-    def getMemberships(self, requester, status=None):
-        if self.manager == requester:
-            if status == None:
-                return self.membership_set.all()
-            else:
-                return self.membership_set.filter(status=status)
-        else:
-            raise ValidationError("You are not the manager of this group")
 
 membership_status_choices = (
     ('pending', 'Pending'),
