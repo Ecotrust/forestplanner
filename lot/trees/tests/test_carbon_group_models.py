@@ -144,6 +144,12 @@ if __name__ == "__main__":
 
     assert(len(testCarbonGroup.getProposedProperties(manager)) == 1)
 
+    assert(len(owner.membership_set.all()) == 1)
+    assert(len(owner.membership_set.filter(status='accepted')) == 1)
+    assert(owner.membership_set.get(status='accepted').group == testCarbonGroup)
+    assert(len(owner2.membership_set.all()) == 1)
+    assert(len(owner2.membership_set.filter(status='accepted')) == 0)
+
 
 
     #--------------------------------------------------------------------------#
