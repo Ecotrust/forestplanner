@@ -19,6 +19,7 @@ idb_import/treelive_summary/*/*.tab
 openlayers
 trees_test/work*
 lot/.coverage
+lot/fixtures/fvsaggregate_tiny.*
 .vagrant
 .DS_Store
 .*.swp
