@@ -872,7 +872,7 @@ class Scenario(Feature):
 
     def save(self, *args, **kwargs):
         self.invalidate_cache()
-        super(Scenario, self).save(*args, **kwargs)
+        # super(Scenario, self).save(*args, **kwargs)
         self.fill_with_default_rxs()
         super(Scenario, self).save(*args, **kwargs)
         if 'rerun' in kwargs and kwargs['rerun'] is False:
@@ -924,6 +924,12 @@ class CarbonGroup(PolygonFeature):
         form = "trees.forms.CarbonGroupForm"
         form_template = "trees/carbongroup_form.html"
 
+    def getProposedProperties(self, requester):
+        if requester == self.manager:
+            acceptedPropertyIds = loads(self.accepted_properties)
+            allProperties = self.forestproperty_set.all()
+            return [x for x in allProperties if x.id not in acceptedPropertyIds]
+
     def acceptProperty(self, propertyId):
         acceptedList = loads(self.accepted_properties)
         acceptedList.append(propertyId)
@@ -931,10 +937,12 @@ class CarbonGroup(PolygonFeature):
 
     def rejectProperty(self, propertyId):
         acceptedList = loads(self.accepted_properties)
+        rejectedProperty = ForestProperty.objects.get(id=propertyId)
         try:
             acceptedList.remove(propertyId)
         except ValueError:
             pass
+        rejectedProperty.group = None
         self.accepted_properties = dumps(acceptedList)
 
     def getAcceptedProperties(self):
@@ -955,6 +963,12 @@ class CarbonGroup(PolygonFeature):
                 return self.membership_set.filter(status=status)
         else:
             raise ValidationError("You are not the manager of this group")
+
+    def userIsMember(self, requester):
+        if requester in [x.applicant for x in self.membership_set.filter(status='accepted')]:
+            return True
+        else:
+            return False
 
 
 @register
@@ -1258,6 +1272,34 @@ class ForestProperty(FeatureCollection):
             object_id=self.pk
         )
         return calculate_adjacency(stands, threshold)
+
+    def shareWithGroup(self, group, requester):
+        if self.user == requester and group.userIsMember(requester):
+            self.carbon_group = group
+            self.save()
+        else:
+            raise ValidationError("You are not an accepted member of this group.")
+
+    def unshareWithGroup(self, requester):
+        if self.user == requester:
+            self.group = None
+            self.save()
+        else:
+            raise ValidationError("You do not have permission to alter this property.")
+
+    def shareScenario(self, scenario, requester):
+        if self.user == requester and scenario.user == requester:
+            self.shared_scenario = scenario
+            self.save()
+        else:
+            raise ValidationError("You do not have permission to share this scenario.")
+
+    def unshareScenario(self, requester):
+        if self.user == requester:
+            self.shared_scenario = None
+            self.save()
+        else:
+            raise ValidationError("You do not have permission to alter this property.")
 
     def invalidate_cache(self):
         if not self.id:
