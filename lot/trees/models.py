@@ -914,8 +914,7 @@ class CarbonGroup(PolygonFeature):
     manager = models.ForeignKey(User, related_name='manager_set')
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
-    # geometry_final = models.PolygonField(srid=3857, null=True, blank=True, verbose_name="Carbon Group Geographic Reach")
-    accepted_properties = models.TextField(default='[]')
+    excluded_properties = models.ManyToManyField('ForestProperty', related_name='excludedproperties_set')
     private = models.BooleanField(default=False)
 
     class Options:
@@ -924,29 +923,13 @@ class CarbonGroup(PolygonFeature):
         form = "trees.forms.CarbonGroupForm"
         form_template = "trees/carbongroup_form.html"
 
-    def getProposedProperties(self, requester):
+    def getProperties(self, requester):
         if requester == self.manager:
-            acceptedPropertyIds = loads(self.accepted_properties)
             allProperties = self.forestproperty_set.all()
-            return [x for x in allProperties if x.id not in acceptedPropertyIds]
+            return [x for x in allProperties if x not in self.excluded_properties.all()]
 
-    def acceptProperty(self, propertyId):
-        acceptedList = loads(self.accepted_properties)
-        acceptedList.append(propertyId)
-        self.accepted_properties = dumps(acceptedList)
-
-    def rejectProperty(self, propertyId):
-        acceptedList = loads(self.accepted_properties)
-        rejectedProperty = ForestProperty.objects.get(id=propertyId)
-        try:
-            acceptedList.remove(propertyId)
-        except ValueError:
-            pass
-        rejectedProperty.group = None
-        self.accepted_properties = dumps(acceptedList)
-
-    def getAcceptedProperties(self):
-        return loads(self.accepted_properties)
+    def rejectProperty(self, property):
+        self.excluded_properties.add(property)
 
     def requestMembership(self, applicant):
         newMembership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
@@ -1920,17 +1903,14 @@ class Membership(models.Model):
             raise ValidationError("You are not the manager of this group")
 
     def declineMembership(self, decliner, reason):
-        if self.group.manager == decliner and self.status == 'pending':
+        if self.group.manager == decliner:
             self.status = 'declined'
             self.reason = reason
             self.save()
             Membership.emailStatusUpdate(self)
         else:
-            if self.status == 'pending':
-                raise ValidationError("You are not the manager of this group")
-            else:
-                raise ValidationError("You are not able to change this group's status to 'declined'.")
-
+            raise ValidationError("You are not the manager of this group")
+        
     def revokeMembership(self, revoker, reason):
         if self.applicant == revoker or self.group.owner == revoker:
             self.status = 'revoked'

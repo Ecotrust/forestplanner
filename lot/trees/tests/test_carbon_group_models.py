@@ -8,16 +8,9 @@ import settings
 setup_environ(settings)
 ##############################
 import ipdb
-import json
-import time
-from trees.models import Stand, Scenario, Strata, ForestProperty, ScenarioNotRunnable, Rx, CarbonGroup
+from trees.models import Scenario, ForestProperty, CarbonGroup, Membership
 from django.contrib.auth.models import User
 from django.core.exceptions import ObjectDoesNotExist as DoesNotExist
-# from django.test.client import Client
-from django.contrib.gis.geos import GEOSGeometry
-# from shapely.ops import cascaded_union
-# from shapely.geometry import Polygon, MultiPolygon
-from shapely import wkt
 
 # On exception, drop into ipdb in post-mortem mode
 def info(type, value, tb):
@@ -40,26 +33,32 @@ def cleanup():
         manager = User.objects.get(username='testManager') 
     except DoesNotExist:
         manager = False
+
     ownerScenarios = Scenario.objects.filter(user=owner)
     for scenario in ownerScenarios:
         for prop in scenario.forestproperty_set.all():
             prop.shared_scenario = None
             prop.save()
         Scenario.delete(scenario)
+    owner2Scenarios = Scenario.objects.filter(user=owner2)
+    for scenario in owner2Scenarios:
+        for prop in scenario.forestproperty_set.all():
+            prop.shared_scenario = None
+            prop.save()
+        Scenario.delete(scenario)
+
     ownerProperties = ForestProperty.objects.filter(user=owner)
     for fproperty in ownerProperties:
         ForestProperty.delete(fproperty)
-    try:
-        testCarbonGroup = CarbonGroup.objects.get(name='test')
-        CarbonGroup.delete(testCarbonGroup)
-    except DoesNotExist:
-        pass
+
+    owner2Properties = ForestProperty.objects.filter(user=owner2)
+    for fproperty in owner2Properties:
+        ForestProperty.delete(fproperty)
+
+    for cgroup in CarbonGroup.objects.filter(manager=manager):
+        CarbonGroup.delete(cgroup)
+
     if owner:
-        try: 
-            ownerProperty = ForestProperty.objects.get(name='testProperty', user=owner)
-            ForestProperty.delete(ownerProperty)
-        except DoesNotExist:
-            pass
         User.delete(owner)
     if owner2:
         User.delete(owner2)
@@ -87,6 +86,8 @@ if __name__ == "__main__":
     print "Create Group"
     #--------------------------------------------------------------------------#
     testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, name='test', manager=manager, description='Demo test group', private=False)
+    testCarbonGroup2, created = CarbonGroup.objects.get_or_create(user=manager, name='test2', manager=manager, description='Second demo test group', private=False)
+    assert(len(CarbonGroup.objects.filter(manager=manager))==2)
 
     #--------------------------------------------------------------------------#
     # print "Assign Manager"  #Can this happen in "Create Group"?
@@ -117,7 +118,7 @@ if __name__ == "__main__":
     assert(owner2Memberships[0].reason=='You smell.')
 
     #--------------------------------------------------------------------------#
-    print "Load Property, Stands, Strata, ?_Scenario_?"
+    print "Load Property and Scenario"
     #--------------------------------------------------------------------------#
     ### Load a json file?
     ownerProperty = ForestProperty.objects.create(
@@ -139,10 +140,35 @@ if __name__ == "__main__":
         input_target_boardfeet=0,
         description="Test Scenario"
     )
+
+    owner2Property = ForestProperty.objects.create(
+        name='testProperty', 
+        user=owner2, 
+        geometry_final="MULTIPOLYGON (((-13649324.9062920007854700 5701104.7213275004178286, -13649329.6836060006171465 5700851.5236713001504540, -13649016.7695209998637438 5700846.7463570004329085, -13649324.9062920007854700 5701104.7213275004178286)))"
+    )
+
+    owner2Scenario = Scenario.objects.create(
+        input_age_class=0, 
+        input_target_carbon=True, 
+        name='Grow Only',
+        # output_scheduler_results="{u'3135': 2, u'3134': 2, u'3137': 0, u'3136': 0, u'3133': 4, u'3139': 3, u'3138': 4}",
+        output_scheduler_results="{}",
+        input_property=owner2Property,
+        user=owner2,
+        # input_rxs="{u'1559': 42, u'1558': 42, u'1560': 42, u'1561': 42, u'1562': 42, u'1563': 42, u'1564': 42}",
+        input_rxs="{}",
+        input_target_boardfeet=0,
+        description="Test Scenario"
+    )
+
+    #--------------------------------------------------------------------------#
+    print "Update Property With Group and Shared Scenario"
+    #--------------------------------------------------------------------------#
+
     ownerProperty.shareWithGroup(testCarbonGroup, owner)
     ownerProperty.shareScenario(ownerScenario, owner)
 
-    assert(len(testCarbonGroup.getProposedProperties(manager)) == 1)
+    assert(len(testCarbonGroup.getProperties(manager)) == 1)
 
     assert(len(owner.membership_set.all()) == 1)
     assert(len(owner.membership_set.filter(status='accepted')) == 1)
@@ -150,34 +176,58 @@ if __name__ == "__main__":
     assert(len(owner2.membership_set.all()) == 1)
     assert(len(owner2.membership_set.filter(status='accepted')) == 0)
 
+    # Add a second user to the group to test ignoring properties.
+    owner2Memberships[0].acceptMembership(manager)
 
+    assert(len(owner2.membership_set.filter(status='accepted')) == 1)
 
-    #--------------------------------------------------------------------------#
-    print "Update Property With Group and Shared Scenario"
-    #--------------------------------------------------------------------------#
+    owner2Property.shareWithGroup(testCarbonGroup, owner2)
+    owner2Property.shareScenario(owner2Scenario, owner2)
+
+    assert(len(testCarbonGroup.getProperties(manager)) == 2)
 
     #--------------------------------------------------------------------------#
     print "Request group Users, Properties, Scenarios"
     #--------------------------------------------------------------------------#
     ### Check for users, properties, scenarios
-
+    #check that we see both accepted memberships
+    groupMemberships = testCarbonGroup.getMemberships(manager, 'accepted')
+    assert(len(groupMemberships)==2)
+    #check that expected users are in the acceptedgroup memberships
+    assert(groupMemberships.get(applicant=owner))
+    assert(groupMemberships.get(applicant=owner2))
+    assert(len(groupMemberships.filter(applicant=manager))==0)
+    groupUsers = [x.applicant for x in groupMemberships]
+    assert(owner in groupUsers)
+    assert(owner2 in groupUsers)
+    assert(manager not in groupUsers)
+    #test that we can get properties
+    groupProperties = testCarbonGroup.getProperties(manager)
+    assert(ownerProperty in groupProperties)
+    assert(owner2Property in groupProperties)
+    assert(testCarbonGroup.manager == manager)
+    
     #--------------------------------------------------------------------------#
-    print "Manager accepts/ignores the property"
+    print "Manager ignores a property"
     #--------------------------------------------------------------------------#
-    ### Check for users, properties, scenarios
+    testCarbonGroup.rejectProperty(owner2Property)
+    assert(len(testCarbonGroup.getProperties(manager))==1)
+    assert(testCarbonGroup.getProperties(manager)[0] == ownerProperty)
 
     #--------------------------------------------------------------------------#
     print "Manager changes membership status to denied"
     #--------------------------------------------------------------------------#
-    ### Check for users, properties, scenarios
+    owner2Memberships = testCarbonGroup.membership_set.filter(applicant=owner2)
+    assert(len(owner2Memberships) == 1)
+    owner2Memberships[0].declineMembership(manager, 'You still smell.')
+    groupMemberships = testCarbonGroup.getMemberships(manager, 'accepted')
+    assert(len(groupMemberships) == 1)
+    assert(groupMemberships[0] == Membership.objects.get(applicant=owner, group=testCarbonGroup))
+    declinedMemberships = testCarbonGroup.getMemberships(manager, 'declined')
+    assert(len(declinedMemberships) == 1)
 
     #--------------------------------------------------------------------------#
     print "Clean up"
     #--------------------------------------------------------------------------#
     ### Remove everything added by the fixture.
     cleanup()
-
-    # print
-    # print "SUCCESS!"
-    # print
-    # print "... ignore the following GEOS error ... "
