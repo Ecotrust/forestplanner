@@ -964,7 +964,6 @@ class CarbonGroup(PolygonFeature):
     def get_pending_users(self):
         return [m.applicant for m in self.get_memberships(status="pending")]
 
-    # TODO - get scenarios
     def get_scenarios(self):
         for prop in self.get_properties():
             shared = prop.shared_scenario
@@ -973,9 +972,9 @@ class CarbonGroup(PolygonFeature):
 
     @property
     def aggregate_stats(self):
-        # TODO run query against all scenarios
         scenarios = list(self.get_scenarios())
 
+        # TODO run query against all scenarios.output_property_metrics
         dummy = {
           'total_scenarios': len(scenarios),
           'total_carbon': 321,
