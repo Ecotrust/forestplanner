@@ -1903,31 +1903,22 @@ class Membership(models.Model):
         unique_together = (("applicant", "group"))
 
 
-    def accept_membership(self, accepter):
-        if self.group.manager == accepter:
-            self.status = 'accepted'
-            self.save()
-            Membership.email_status_update(self)
-        else:
-            raise ValidationError("You are not the manager of this group")
+    def accept(self):
+        self.status = 'accepted'
+        self.save()
+        Membership.email_status_update(self)
 
-    def decline_membership(self, decliner, reason):
-        if self.group.manager == decliner:
-            self.status = 'declined'
-            self.reason = reason
-            self.save()
-            Membership.email_status_update(self)
-        else:
-            raise ValidationError("You are not the manager of this group")
+    def decline(self, reason):
+        self.status = 'declined'
+        self.reason = reason
+        self.save()
+        Membership.email_status_update(self)
         
-    def revoke_membership(self, revoker, reason):
-        if self.applicant == revoker or self.group.owner == revoker:
-            self.status = 'revoked'
-            self.reason = reason
-            self.save()
-            Membership.emailStatusUpdate(self)
-        else:
-            raise ValidationError("You are not the manager of this group")
+    def revoke(self, reason):
+        self.status = 'revoked'
+        self.reason = reason
+        self.save()
+        Membership.emailStatusUpdate(self)
 
     def email_status_update(self):
         # TODO: switch on status, email both parties in all cases, 

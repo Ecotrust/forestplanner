@@ -104,7 +104,7 @@ if __name__ == "__main__":
     assert(memberships.count() == 2)
     owner_memberships = [x for x in memberships if x.applicant == owner]
     assert(len(owner_memberships) == 1)
-    owner_memberships[0].accept_membership(manager)
+    owner_memberships[0].accept()
     assert(owner_memberships[0].status=='accepted')
 
     #--------------------------------------------------------------------------#
@@ -113,7 +113,7 @@ if __name__ == "__main__":
 
     owner2_memberships = [x for x in memberships if x.applicant == owner2]
     assert(len(owner2_memberships)==1)
-    owner2_memberships[0].decline_membership(manager, 'You smell.')
+    owner2_memberships[0].decline('You smell.')
     assert(owner2_memberships[0].status=='declined')
     assert(owner2_memberships[0].reason=='You smell.')
 
@@ -177,7 +177,7 @@ if __name__ == "__main__":
     assert(len(owner2.membership_set.filter(status='accepted')) == 0)
 
     # Add a second user to the group to test ignoring properties.
-    owner2_memberships[0].accept_membership(manager)
+    owner2_memberships[0].accept()
 
     assert(len(owner2.membership_set.filter(status='accepted')) == 1)
 
@@ -219,7 +219,7 @@ if __name__ == "__main__":
     #--------------------------------------------------------------------------#
     owner2_memberships = testCarbonGroup.membership_set.filter(applicant=owner2)
     assert(len(owner2_memberships) == 1)
-    owner2_memberships[0].decline_membership(manager, 'You still smell.')
+    owner2_memberships[0].decline('You still smell.')
     group_memberships = testCarbonGroup.get_memberships('accepted')
     assert(len(group_memberships) == 1)
     assert(group_memberships[0] == Membership.objects.get(applicant=owner, group=testCarbonGroup))
