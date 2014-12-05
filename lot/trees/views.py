@@ -647,7 +647,7 @@ def map(request, template_name='common/map_ext.html', extra_context={}):
     context = RequestContext(request,{
         'session_key': request.session.session_key,
         'member_of_sharing_group': member_of_sharing_group,
-        'manager_of_carbongroup': True,
+        'manager_of_carbongroup': manager_of_carbongroup,
         'show_help': True
     })
 

@@ -911,7 +911,6 @@ class Scenario(Feature):
 
 @register
 class CarbonGroup(PolygonFeature):
-    manager = models.ForeignKey(User, related_name='manager_set')
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
     excluded_properties = models.ManyToManyField('ForestProperty', 
@@ -929,6 +928,10 @@ class CarbonGroup(PolygonFeature):
                       type="text/html",
                       select='single'),
         )
+
+    @property
+    def manager(self):
+        return self.user
 
     def get_properties(self):
         all_properties = self.forestproperty_set.all()
@@ -1928,7 +1931,6 @@ class Membership(models.Model):
     class Meta:
         unique_together = (("applicant", "group"))
 
-
     def accept(self):
         self.status = 'accepted'
         self.save()
@@ -1944,13 +1946,12 @@ class Membership(models.Model):
         self.status = 'revoked'
         self.reason = reason
         self.save()
-        Membership.emailStatusUpdate(self)
+        Membership.email_status_update(self)
 
     def email_status_update(self):
         # TODO: switch on status, email both parties in all cases, 
             # especially revoke since either party can do that.
         pass
-
 
 
 # variable names are lower-case and must correspond
