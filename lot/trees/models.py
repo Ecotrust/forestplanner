@@ -923,22 +923,22 @@ class CarbonGroup(PolygonFeature):
         form = "trees.forms.CarbonGroupForm"
         form_template = "trees/carbongroup_form.html"
 
-    def getProperties(self, requester):
+    def get_properties(self, requester):
         if requester == self.manager:
             allProperties = self.forestproperty_set.all()
             return [x for x in allProperties if x not in self.excluded_properties.all()]
 
-    def rejectProperty(self, property):
+    def reject_property(self, property):
         self.excluded_properties.add(property)
 
-    def requestMembership(self, applicant):
-        newMembership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
+    def request_membership(self, applicant):
+        new_membership, created = Membership.objects.get_or_create(applicant=applicant, group=self)
         if not created:
             raise ValidationError("Membership request already exists")
-        newMembership.save()
-        Membership.emailStatusUpdate(newMembership)
+        new_membership.save()
+        Membership.email_status_update(new_membership)
 
-    def getMemberships(self, requester, status=None):
+    def get_memberships(self, requester, status=None):
         if self.manager == requester:
             if status == None:
                 return self.membership_set.all()
@@ -947,7 +947,7 @@ class CarbonGroup(PolygonFeature):
         else:
             raise ValidationError("You are not the manager of this group")
 
-    def userIsMember(self, requester):
+    def user_is_member(self, requester):
         if requester in [x.applicant for x in self.membership_set.filter(status='accepted')]:
             return True
         else:
@@ -1256,28 +1256,28 @@ class ForestProperty(FeatureCollection):
         )
         return calculate_adjacency(stands, threshold)
 
-    def shareWithGroup(self, group, requester):
-        if self.user == requester and group.userIsMember(requester):
+    def share_with_group(self, group, requester):
+        if self.user == requester and group.user_is_member(requester):
             self.carbon_group = group
             self.save()
         else:
             raise ValidationError("You are not an accepted member of this group.")
 
-    def unshareWithGroup(self, requester):
+    def unshare_with_group(self, requester):
         if self.user == requester:
             self.group = None
             self.save()
         else:
             raise ValidationError("You do not have permission to alter this property.")
 
-    def shareScenario(self, scenario, requester):
+    def share_scenario(self, scenario, requester):
         if self.user == requester and scenario.user == requester:
             self.shared_scenario = scenario
             self.save()
         else:
             raise ValidationError("You do not have permission to share this scenario.")
 
-    def unshareScenario(self, requester):
+    def unshare_scenario(self, requester):
         if self.user == requester:
             self.shared_scenario = None
             self.save()
@@ -1894,24 +1894,24 @@ class Membership(models.Model):
         unique_together = (("applicant", "group"))
 
 
-    def acceptMembership(self, accepter):
+    def accept_membership(self, accepter):
         if self.group.manager == accepter:
             self.status = 'accepted'
             self.save()
-            Membership.emailStatusUpdate(self)
+            Membership.email_status_update(self)
         else:
             raise ValidationError("You are not the manager of this group")
 
-    def declineMembership(self, decliner, reason):
+    def decline_membership(self, decliner, reason):
         if self.group.manager == decliner:
             self.status = 'declined'
             self.reason = reason
             self.save()
-            Membership.emailStatusUpdate(self)
+            Membership.email_status_update(self)
         else:
             raise ValidationError("You are not the manager of this group")
         
-    def revokeMembership(self, revoker, reason):
+    def revoke_membership(self, revoker, reason):
         if self.applicant == revoker or self.group.owner == revoker:
             self.status = 'revoked'
             self.reason = reason
@@ -1920,7 +1920,7 @@ class Membership(models.Model):
         else:
             raise ValidationError("You are not the manager of this group")
 
-    def emailStatusUpdate(self):
+    def email_status_update(self):
         # TODO: switch on status, email both parties in all cases, 
             # especially revoke since either party can do that.
         pass

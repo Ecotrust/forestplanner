@@ -97,25 +97,25 @@ if __name__ == "__main__":
     print "Associate User with Group"   
     #--------------------------------------------------------------------------#
     # testCarbonGroup.members.add(owner)
-    testCarbonGroup.requestMembership(owner)
+    testCarbonGroup.request_membership(owner)
     assert(owner in testCarbonGroup.members.all())
-    testCarbonGroup.requestMembership(owner2)
-    memberships = testCarbonGroup.getMemberships(manager, 'pending')
+    testCarbonGroup.request_membership(owner2)
+    memberships = testCarbonGroup.get_memberships(manager, 'pending')
     assert(memberships.count() == 2)
-    ownerMemberships = [x for x in memberships if x.applicant == owner]
-    assert(len(ownerMemberships) == 1)
-    ownerMemberships[0].acceptMembership(manager)
-    assert(ownerMemberships[0].status=='accepted')
+    owner_memberships = [x for x in memberships if x.applicant == owner]
+    assert(len(owner_memberships) == 1)
+    owner_memberships[0].accept_membership(manager)
+    assert(owner_memberships[0].status=='accepted')
 
     #--------------------------------------------------------------------------#
     print "Decline a membership request"   
     #--------------------------------------------------------------------------#
 
-    owner2Memberships = [x for x in memberships if x.applicant == owner2]
-    assert(len(owner2Memberships)==1)
-    owner2Memberships[0].declineMembership(manager, 'You smell.')
-    assert(owner2Memberships[0].status=='declined')
-    assert(owner2Memberships[0].reason=='You smell.')
+    owner2_memberships = [x for x in memberships if x.applicant == owner2]
+    assert(len(owner2_memberships)==1)
+    owner2_memberships[0].decline_membership(manager, 'You smell.')
+    assert(owner2_memberships[0].status=='declined')
+    assert(owner2_memberships[0].reason=='You smell.')
 
     #--------------------------------------------------------------------------#
     print "Load Property and Scenario"
@@ -165,10 +165,10 @@ if __name__ == "__main__":
     print "Update Property With Group and Shared Scenario"
     #--------------------------------------------------------------------------#
 
-    ownerProperty.shareWithGroup(testCarbonGroup, owner)
-    ownerProperty.shareScenario(ownerScenario, owner)
+    ownerProperty.share_with_group(testCarbonGroup, owner)
+    ownerProperty.share_scenario(ownerScenario, owner)
 
-    assert(len(testCarbonGroup.getProperties(manager)) == 1)
+    assert(len(testCarbonGroup.get_properties(manager)) == 1)
 
     assert(len(owner.membership_set.all()) == 1)
     assert(len(owner.membership_set.filter(status='accepted')) == 1)
@@ -177,32 +177,32 @@ if __name__ == "__main__":
     assert(len(owner2.membership_set.filter(status='accepted')) == 0)
 
     # Add a second user to the group to test ignoring properties.
-    owner2Memberships[0].acceptMembership(manager)
+    owner2_memberships[0].accept_membership(manager)
 
     assert(len(owner2.membership_set.filter(status='accepted')) == 1)
 
-    owner2Property.shareWithGroup(testCarbonGroup, owner2)
-    owner2Property.shareScenario(owner2Scenario, owner2)
+    owner2Property.share_with_group(testCarbonGroup, owner2)
+    owner2Property.share_scenario(owner2Scenario, owner2)
 
-    assert(len(testCarbonGroup.getProperties(manager)) == 2)
+    assert(len(testCarbonGroup.get_properties(manager)) == 2)
 
     #--------------------------------------------------------------------------#
     print "Request group Users, Properties, Scenarios"
     #--------------------------------------------------------------------------#
     ### Check for users, properties, scenarios
     #check that we see both accepted memberships
-    groupMemberships = testCarbonGroup.getMemberships(manager, 'accepted')
-    assert(len(groupMemberships)==2)
+    group_memberships = testCarbonGroup.get_memberships(manager, 'accepted')
+    assert(len(group_memberships)==2)
     #check that expected users are in the acceptedgroup memberships
-    assert(groupMemberships.get(applicant=owner))
-    assert(groupMemberships.get(applicant=owner2))
-    assert(len(groupMemberships.filter(applicant=manager))==0)
-    groupUsers = [x.applicant for x in groupMemberships]
+    assert(group_memberships.get(applicant=owner))
+    assert(group_memberships.get(applicant=owner2))
+    assert(len(group_memberships.filter(applicant=manager))==0)
+    groupUsers = [x.applicant for x in group_memberships]
     assert(owner in groupUsers)
     assert(owner2 in groupUsers)
     assert(manager not in groupUsers)
     #test that we can get properties
-    groupProperties = testCarbonGroup.getProperties(manager)
+    groupProperties = testCarbonGroup.get_properties(manager)
     assert(ownerProperty in groupProperties)
     assert(owner2Property in groupProperties)
     assert(testCarbonGroup.manager == manager)
@@ -210,21 +210,21 @@ if __name__ == "__main__":
     #--------------------------------------------------------------------------#
     print "Manager ignores a property"
     #--------------------------------------------------------------------------#
-    testCarbonGroup.rejectProperty(owner2Property)
-    assert(len(testCarbonGroup.getProperties(manager))==1)
-    assert(testCarbonGroup.getProperties(manager)[0] == ownerProperty)
+    testCarbonGroup.reject_property(owner2Property)
+    assert(len(testCarbonGroup.get_properties(manager))==1)
+    assert(testCarbonGroup.get_properties(manager)[0] == ownerProperty)
 
     #--------------------------------------------------------------------------#
     print "Manager changes membership status to denied"
     #--------------------------------------------------------------------------#
-    owner2Memberships = testCarbonGroup.membership_set.filter(applicant=owner2)
-    assert(len(owner2Memberships) == 1)
-    owner2Memberships[0].declineMembership(manager, 'You still smell.')
-    groupMemberships = testCarbonGroup.getMemberships(manager, 'accepted')
-    assert(len(groupMemberships) == 1)
-    assert(groupMemberships[0] == Membership.objects.get(applicant=owner, group=testCarbonGroup))
-    declinedMemberships = testCarbonGroup.getMemberships(manager, 'declined')
-    assert(len(declinedMemberships) == 1)
+    owner2_memberships = testCarbonGroup.membership_set.filter(applicant=owner2)
+    assert(len(owner2_memberships) == 1)
+    owner2_memberships[0].decline_membership(manager, 'You still smell.')
+    group_memberships = testCarbonGroup.get_memberships(manager, 'accepted')
+    assert(len(group_memberships) == 1)
+    assert(group_memberships[0] == Membership.objects.get(applicant=owner, group=testCarbonGroup))
+    declined_memberships = testCarbonGroup.get_memberships(manager, 'declined')
+    assert(len(declined_memberships) == 1)
 
     #--------------------------------------------------------------------------#
     print "Clean up"
