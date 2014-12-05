@@ -923,11 +923,15 @@ class CarbonGroup(PolygonFeature):
         manipulators = []
         form = "trees.forms.CarbonGroupForm"
         form_template = "trees/carbongroup_form.html"
-
-    def get_properties(self, requester):
-        if requester == self.manager:
-            allProperties = self.forestproperty_set.all()
-            return [x for x in allProperties if x not in self.excluded_properties.all()]
+        links = (
+            alternate('Dashboard',
+                      'trees.views.carbongroup_dashboard',
+                      type="text/html",
+                      select='single'),
+        )
+    def get_properties(self):
+        all_properties = self.forestproperty_set.all()
+        return [x for x in all_properties if x not in self.excluded_properties.all()]
 
     def reject_property(self, property):
         self.excluded_properties.add(property)
@@ -939,14 +943,17 @@ class CarbonGroup(PolygonFeature):
         new_membership.save()
         Membership.email_status_update(new_membership)
 
-    def get_memberships(self, requester, status=None):
-        if self.manager == requester:
-            if status == None:
-                return self.membership_set.all()
-            else:
-                return self.membership_set.filter(status=status)
+    def get_memberships(self, status=None):
+        if status == None:
+            return self.membership_set.all()
         else:
-            raise ValidationError("You are not the manager of this group")
+            return self.membership_set.filter(status=status)
+
+    def get_accepted_users(self):
+        return [m.applicant for m in self.get_memberships(status="accepted")]
+
+    def get_pending_users(self):
+        return [m.applicant for m in self.get_memberships(status="pending")]
 
     def user_is_member(self, requester):
         if requester in [x.applicant for x in self.membership_set.filter(status='accepted')]:
@@ -1890,7 +1897,7 @@ class Membership(models.Model):
     date_requested = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10, choices=membership_status_choices, default="pending")
-    reason = models.TextField()
+    reason = models.TextField(blank=True)
 
     class Meta:
         unique_together = (("applicant", "group"))
