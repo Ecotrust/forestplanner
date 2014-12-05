@@ -55,7 +55,7 @@ def cleanup():
     for fproperty in owner2Properties:
         ForestProperty.delete(fproperty)
 
-    for cgroup in CarbonGroup.objects.filter(manager=manager):
+    for cgroup in CarbonGroup.objects.filter(user=manager):
         CarbonGroup.delete(cgroup)
 
     if owner:
@@ -85,9 +85,9 @@ if __name__ == "__main__":
     #--------------------------------------------------------------------------#
     print "Create Group"
     #--------------------------------------------------------------------------#
-    testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, name='test', manager=manager, description='Demo test group', private=False)
-    testCarbonGroup2, created = CarbonGroup.objects.get_or_create(user=manager, name='test2', manager=manager, description='Second demo test group', private=False)
-    assert(len(CarbonGroup.objects.filter(manager=manager))==2)
+    testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, name='test', user=manager, description='Demo test group', private=False)
+    testCarbonGroup2, created = CarbonGroup.objects.get_or_create(user=manager, name='test2', user=manager, description='Second demo test group', private=False)
+    assert(len(CarbonGroup.objects.filter(user=manager))==2)
 
     #--------------------------------------------------------------------------#
     # print "Assign Manager"  #Can this happen in "Create Group"?
@@ -206,6 +206,7 @@ if __name__ == "__main__":
     assert(ownerProperty in groupProperties)
     assert(owner2Property in groupProperties)
     assert(testCarbonGroup.manager == manager)
+    assert(testCarbonGroup.user == manager)
     
     #--------------------------------------------------------------------------#
     print "Manager ignores a property"

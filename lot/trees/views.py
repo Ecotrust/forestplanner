@@ -642,7 +642,7 @@ def map(request, template_name='common/map_ext.html', extra_context={}):
     if user.is_authenticated() and user_sharing_groups(user):
         member_of_sharing_group = True
 
-    manager_of_carbongroup = CarbonGroup.objects.filter(manager=user).count() > 0
+    manager_of_carbongroup = CarbonGroup.objects.filter(user=user).count() > 0
 
     context = RequestContext(request,{
         'session_key': request.session.session_key,
