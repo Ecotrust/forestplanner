@@ -929,9 +929,15 @@ class CarbonGroup(PolygonFeature):
                       type="text/html",
                       select='single'),
         )
+
     def get_properties(self):
         all_properties = self.forestproperty_set.all()
-        return [x for x in all_properties if x not in self.excluded_properties.all()]
+        return [x for x in all_properties 
+            if (
+                x not in self.excluded_properties.all() and
+                x.user in self.get_accepted_users()
+            )
+        ]
 
     def reject_property(self, property):
         self.excluded_properties.add(property)
@@ -954,6 +960,26 @@ class CarbonGroup(PolygonFeature):
 
     def get_pending_users(self):
         return [m.applicant for m in self.get_memberships(status="pending")]
+
+    # TODO - get scenarios
+    def get_scenarios(self):
+        for prop in self.get_properties():
+            shared = prop.shared_scenario
+            if shared:
+                yield shared
+
+    @property
+    def aggregate_stats(self):
+        # TODO run query against all scenarios
+        scenarios = list(self.get_scenarios())
+
+        dummy = {
+          'total_scenarios': len(scenarios),
+          'total_carbon': 321,
+          'total_timber': 121,
+          'carbon_minus_baseline': 111
+        }
+        return dummy
 
     def user_is_member(self, requester):
         if requester in [x.applicant for x in self.membership_set.filter(status='accepted')]:

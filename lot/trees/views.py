@@ -591,8 +591,6 @@ def scenario_revenue(request, instance):
 
 
 def carbongroup_dashboard(request, instance):
-
-    # import ipdb; ipdb.set_trace()
     return render_to_response(
         'common/manage_carbongroups_dashboard.html',
         {

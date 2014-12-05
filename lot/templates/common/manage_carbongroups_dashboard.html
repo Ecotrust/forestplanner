@@ -3,65 +3,50 @@
 
 {% block content %}
 
+<div class="well">
 
-<div class="hero-unit">
-    <h3>Review Carbon Aggregation Group: {{group.name}} </h3>
-    <p> Description: {{group.description}} </p>
+<h2><strong>{{group.name}}</strong> </h2>
+<h4> Review Carbon Aggregation Group</h4>
+<p> Description: {{group.description}} </p>
 
 
-    <h4> Properties ({{group.get_properties|length}})</h4>
+<h4> Properties ({{group.get_properties|length}})</h4>
+<ul>
+{% for prop in group.get_properties %}
+  <li> {{ prop.name }} (<em>{{ prop.user.username }}</em>)
     <ul>
-    {% for prop in group.get_properties %}
-    <li> <a href="">{{ prop.name }}</a> </li>
-    {% endfor %}
+        <li>shared scenario: {{ prop.shared_scenario }}</li>
     </ul>
+  </li>
+{% endfor %}
+</ul>
 
-    <h4> Group Members ({{group.get_accepted_users|length}})</h4>
-    <ul>
-    {% for member in group.get_accepted_users %}
-    <li> {{ member.username }} </li>
-    {% endfor %}
-    </ul>
+<h4> Aggregate Stats </h4>
+<ul>
+{% with group.aggregate_stats as stats %}
+{% for stat, val in stats.items %}
+  <li> {{ stat }}: {{val}} </li>
+{% endfor %}
+{% endwith %}
+</ul>
 
-    <h4> Pending Members ({{group.get_pending_users|length}})</h4>
-    <ul>
-    {% for member in group.get_pending_users %}
-    <li> {{ member.username }} </li>
-    {% endfor %}
-    </ul>
+<h4> Group Members ({{group.get_accepted_users|length}})</h4>
+<ul>
+{% for member in group.get_accepted_users %}
+  <li> {{ member.username }} </li>
+{% endfor %}
+</ul>
+
+<h4> Pending Members ({{group.get_pending_users|length}})</h4>
+<ul>
+{% for member in group.get_pending_users %}
+  <li> {{ member.username }} </li>
+{% endfor %}
+</ul>
+
 </div>
 
 {% endblock content %}
-{% block scripts %}
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/jquery.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/json2.js"></script> <!-- for the benefit of older IEs -->
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script> 
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/knockout-custom-bindings.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/select2.js"></script>
-    
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tab.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tooltip.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-carousel.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-button.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-popover.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-modal.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-dropdown.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-transition.js"></script>
-    <script src="http://code.highcharts.com/highcharts.js"></script>
-
-    <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{{MEDIA_URL}}/jqplot/excanvas.js"></script><![endif]-->
-    <!-- <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script> -->
-    
-    <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
-    {% load compressed %}
-    {% compressed_js 'application' %}
-    <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/strata.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
-{% endblock scripts %}
 
 
 

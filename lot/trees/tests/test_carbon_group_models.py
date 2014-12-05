@@ -226,6 +226,11 @@ if __name__ == "__main__":
     declined_memberships = testCarbonGroup.get_memberships('declined')
     assert(len(declined_memberships) == 1)
 
+    # test that carbon group sees no properties after all users are declined
+    owner_membership = testCarbonGroup.membership_set.get(applicant=owner)
+    owner_membership.decline('You also smell.')
+    assert(len(testCarbonGroup.get_properties()) == 0)
+
     #--------------------------------------------------------------------------#
     print "Clean up"
     #--------------------------------------------------------------------------#
