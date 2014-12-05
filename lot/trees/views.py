@@ -590,6 +590,18 @@ def scenario_revenue(request, instance):
     return HttpResponse(json.dumps(data), mimetype="text/javascript")
 
 
+def carbongroup_dashboard(request, instance):
+
+    # import ipdb; ipdb.set_trace()
+    return render_to_response(
+        'common/manage_carbongroups_dashboard.html',
+        {
+            'group': instance,
+            'manager_of_carbongroup': True
+        },
+        context_instance=RequestContext(request)) 
+
+
 def manage_carbongroups_entry(request):
     '''
     Carbon Group management starting point
@@ -626,7 +638,7 @@ def map(request, template_name='common/map_ext.html', extra_context={}):
     Replaces madrona.common.views.map 
     """
     from trees.models import CarbonGroup 
-    
+
     member_of_sharing_group = False
     user = request.user
     if user.is_authenticated() and user_sharing_groups(user):
