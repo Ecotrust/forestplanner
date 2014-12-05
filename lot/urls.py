@@ -12,6 +12,8 @@ urlpatterns = patterns(
     url(r'^features/(?P<username>.+)/workspace-owner.json', 'madrona.features.views.workspace', kwargs={"is_owner": True}, name='workspace-owner-json'),
     url(r'^features/(?P<username>.+)/workspace-shared.json', 'madrona.features.views.workspace', kwargs={"is_owner": False}, name='workspace-shared-json'),
 
+    url(r'^$', 'trees.views.map', name='map'),
+
     (r'', include('madrona.common.urls')),
     (r'^trees/', include('trees.urls')),
     (r'^auth/', include('allauth.urls')),

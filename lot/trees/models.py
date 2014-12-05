@@ -914,7 +914,8 @@ class CarbonGroup(PolygonFeature):
     manager = models.ForeignKey(User, related_name='manager_set')
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
-    excluded_properties = models.ManyToManyField('ForestProperty', related_name='excludedproperties_set')
+    excluded_properties = models.ManyToManyField('ForestProperty', 
+        related_name='excludedproperties_set', blank=True)
     private = models.BooleanField(default=False)
 
     class Options:
@@ -952,6 +953,7 @@ class CarbonGroup(PolygonFeature):
             return True
         else:
             return False
+
 
 
 @register

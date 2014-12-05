@@ -1,10 +1,11 @@
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponsePermanentRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.template import RequestContext
 from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
 from madrona.features.views import get_object_for_viewing
+from madrona.features import user_sharing_groups
 from geopy import geocoders
 from geopy.point import Point
 from trees.models import Stand
@@ -587,3 +588,60 @@ def scenario_cash_flow(request, instance):
 def scenario_revenue(request, instance):
     data = instance.output_revenue_metrics
     return HttpResponse(json.dumps(data), mimetype="text/javascript")
+
+
+def manage_carbongroups_entry(request):
+    '''
+    Carbon Group management starting point
+    '''
+    if not request.user.is_authenticated() or request.user.is_anonymous():
+        return HttpResponse("Not authenticated", status=401)
+
+    # get list of CarbonGroups managed by this user
+    from trees.models import CarbonGroup
+    groups = CarbonGroup.objects.filter(manager=request.user)
+
+    if len(groups) == 0:
+        return HttpResponse("You are not a manager of a carbon aggregation group", 
+            status=403)
+    # elif len(groups) == 1:
+    #     # if groups contains only a single group
+    #     # redirect to /features/carbongroup/links/manage-group/trees_carbongroup_<id>/
+    #     gid = groups[0].id
+    #     return HttpResponseRedirect("/features/carbongroup/links/manage-group/trees_carbongroup_{}/".format(gid))
+
+    return render_to_response(
+        'common/manage_carbongroups_entry.html',
+        {
+            'user': request.user, 
+            'groups': groups,
+            'manager_of_carbongroup': True
+        },
+        context_instance=RequestContext(request)) 
+
+
+def map(request, template_name='common/map_ext.html', extra_context={}):
+    """
+    Main application window
+    Replaces madrona.common.views.map 
+    """
+    from trees.models import CarbonGroup 
+    
+    member_of_sharing_group = False
+    user = request.user
+    if user.is_authenticated() and user_sharing_groups(user):
+        member_of_sharing_group = True
+
+    manager_of_carbongroup = CarbonGroup.objects.filter(manager=user).count() > 0
+
+    context = RequestContext(request,{
+        'session_key': request.session.session_key,
+        'member_of_sharing_group': member_of_sharing_group,
+        'manager_of_carbongroup': True,
+        'show_help': True
+    })
+
+    context.update(extra_context)
+    response = render_to_response(template_name, context)
+
+    return response

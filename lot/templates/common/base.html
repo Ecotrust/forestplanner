@@ -70,7 +70,15 @@
               </ul>
             </div>
 
+            {% if manager_of_carbongroup %}
+            <div class="pull-right">
+                <a class="btn btn-primary help-button" href="/trees/manage_carbongroups/">Carbon Groups</a>
+            </div>
+            {% endif %}
+
+            {% if show_help %}
             <button type="button" class="btn btn-warning pull-right help-button" data-bind:"click: displayHelp" data-toggle="collapse" href="#help-collapse">Help</button>
+            {% endif %}
             
             {% else %}
 

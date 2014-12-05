@@ -23,6 +23,8 @@ urlpatterns = patterns(
         about, name='about'),
     url(r'^documentation$', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
         documentation, name='documentation'),    
+    url(r'^manage_carbongroups/$',
+        manage_carbongroups_entry, name='trees-manage_carbongroups'),
 
     # Services
     url(r'^geosearch/$',
