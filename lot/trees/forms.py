@@ -57,9 +57,9 @@ class PropertyForm(FeatureForm):
 
             self.fields['shared_scenario'] = forms.ModelChoiceField(label="Scenario to share with group", queryset=Scenario.objects.filter(input_property=instance), initial=instance.shared_scenario, required=False)
         else:
+            self.fields['name'] = forms.CharField(initial='')
             self.fields['carbon_group'] = forms.ModelChoiceField(required=False, queryset=CarbonGroup.objects.filter(id__in=[]), widget=forms.HiddenInput())
             self.fields['shared_scenario'] = forms.ModelChoiceField(required=False, queryset=Scenario.objects.filter(id__in=[]), widget=forms.HiddenInput())
-
 
 class StrataForm(FeatureForm):
     class Meta(FeatureForm.Meta):

@@ -1336,13 +1336,29 @@ class ForestProperty(FeatureCollection):
         assert cache.keys(key_pattern) == []
         return True
 
+    def clean(self):
+        if self.carbon_group and not self.carbon_group.user_is_member(self.user):
+            raise ValidationError({'carbon_group':'You are not an accepted member of this group.'})
+        if self.shared_scenario:
+            if not self.shared_scenario.user == self.user:
+                raise ValidationError({'shared_scenario':'You are not the owner of this scenario.'})
+            if not self.shared_scenario.input_property == self:
+                raise ValidationError({'shared_scenario':'This scenario is not associated with this property.'})
+
     def save(self, *args, **kwargs):
         self.invalidate_cache()
         # ensure multipolygon validity
-        if self.geometry_final:
-            self.geometry_final = clean_geometry(self.geometry_final)
 
-        super(ForestProperty, self).save(*args, **kwargs)
+        try:
+            self.full_clean()
+
+            if self.geometry_final:
+                self.geometry_final = clean_geometry(self.geometry_final)
+
+            super(ForestProperty, self).save(*args, **kwargs)
+        except ValidationError as e:
+            non_field_errors = e.message_dict[NON_FIELD_ERRORS]
+            return non_field_errors
 
     class Options:
         valid_children = ('trees.models.Stand', 'trees.models.Strata', 'trees.models.MyRx')
