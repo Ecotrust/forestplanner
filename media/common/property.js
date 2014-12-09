@@ -160,7 +160,7 @@ function propertiesViewModel () {
 
   self.saveFeature = function (event, property, geometry) {
     var $dialog = $(event.target).closest('.form-panel'),
-      $form = $dialog.find('form'), 
+      $form = $dialog.find('form'),
       actionUrl = $form.attr('action'),
       values = {}, error=false;
     $form.find('input').each(function () {
@@ -173,6 +173,19 @@ function propertiesViewModel () {
         values[$input.attr('name')] = $input.val();
       }
     });
+
+    $form.find('select').each(function () {
+      var $select = $(this);
+      if ($select.closest('.field').hasClass('required') && $select.attr('type') !== 'hidden' && ! $select.val()) {
+        error = true;
+        $select.closest('.control-group').addClass('error');
+        $select.siblings('p.help-block').text('This field is required.');
+      } else {
+        option = $select[0].children[$select[0].selectedIndex];
+        values[$select.attr('name')] = option.value;
+      }
+    });
+
     if (error) {
       return false;
     }
@@ -181,7 +194,7 @@ function propertiesViewModel () {
         // Properties expect multipolygons even if only a single polygon was digitized
         geometry = geometry.replace("POLYGON", "MULTIPOLYGON(") + ")";
     }
-    values.geometry_final = geometry; 
+    values.geometry_final = geometry;
     $form.addClass('form-horizontal');
     self.showEditPanel(false);
     self.showCreatePanel(false);

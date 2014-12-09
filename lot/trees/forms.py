@@ -1,6 +1,6 @@
 from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
-from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx, CarbonGroup
+from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx, CarbonGroup, Membership
 #from madrona.analysistools.widgets import SliderWidget
 from django.forms.util import flatatt
 from django.utils.safestring import mark_safe
@@ -22,6 +22,18 @@ class ScenarioStandForm(FeatureForm):
 class PropertyForm(FeatureForm):
     class Meta(FeatureForm.Meta):
         model = ForestProperty
+
+    def __init__(self, *args, **kwargs):
+        instance = kwargs['instance']
+        super(PropertyForm, self).__init__(*args, **kwargs)
+        if instance:
+            self.fields['name'] = forms.CharField(initial=instance.name)
+            # pardon the bad form, but this doesn't work well without ModelChoiceField and querysets
+
+            group_ids = [x.group.id for x in Membership.objects.filter(applicant=instance.user, status='accepted')]
+            self.fields['carbon_group'] = forms.ModelChoiceField(label="Carbon Group", queryset=CarbonGroup.objects.filter(id__in=group_ids), initial=instance.carbon_group, required=False)
+
+            self.fields['shared_scenario'] = forms.ModelChoiceField(label="Scenario to share with group", queryset=Scenario.objects.filter(input_property=instance), initial=instance.shared_scenario, required=False)
 
 
 class StrataForm(FeatureForm):

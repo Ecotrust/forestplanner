@@ -328,6 +328,9 @@ class Scenario(Feature):
     # All output fields should be allowed to be Null/Blank
     output_scheduler_results = JSONField(null=True, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
     def constraint_set(self):
         scs = self.spatial_constraints.split(",")
         return SpatialConstraint.objects.filter(
@@ -929,6 +932,9 @@ class CarbonGroup(PolygonFeature):
                       select='single'),
         )
 
+    def __unicode__(self):
+        return self.name
+
     @property
     def manager(self):
         return self.user
@@ -1335,6 +1341,7 @@ class ForestProperty(FeatureCollection):
         # ensure multipolygon validity
         if self.geometry_final:
             self.geometry_final = clean_geometry(self.geometry_final)
+
         super(ForestProperty, self).save(*args, **kwargs)
 
     class Options:
