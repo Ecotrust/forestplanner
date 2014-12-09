@@ -591,6 +591,15 @@ def scenario_revenue(request, instance):
 
 
 def carbongroup_dashboard(request, instance):
+    if request.method == 'POST':
+        from trees.models import Membership
+        data = request.POST.dict()
+        user_id = data['user_id']
+        if user_id.isnumeric():
+            membership = Membership.objects.get(group=instance, applicant__id=int(user_id), status='pending')
+            membership.status = data['membership_status']
+            membership.save()
+
     return render_to_response(
         'common/manage_carbongroups_dashboard.html',
         {
