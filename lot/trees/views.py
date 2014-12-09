@@ -609,7 +609,7 @@ def manage_carbongroups_entry(request):
 
     # get list of CarbonGroups managed by this user
     from trees.models import CarbonGroup
-    groups = CarbonGroup.objects.filter(manager=request.user)
+    groups = CarbonGroup.objects.filter(user=request.user)
 
     if len(groups) == 0:
         return HttpResponse("You are not a manager of a carbon aggregation group", 
