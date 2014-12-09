@@ -19,28 +19,6 @@ class ScenarioStandForm(FeatureForm):
         model = ScenarioStand
 
 
-class PropertyForm(FeatureForm):
-    class Meta(FeatureForm.Meta):
-        model = ForestProperty
-
-    def __init__(self, *args, **kwargs):
-        instance = kwargs['instance']
-        super(PropertyForm, self).__init__(*args, **kwargs)
-        if instance:
-            self.fields['name'] = forms.CharField(initial=instance.name)
-            # pardon the bad form, but this doesn't work well without ModelChoiceField and querysets
-
-            group_ids = [x.group.id for x in Membership.objects.filter(applicant=instance.user, status='accepted')]
-            self.fields['carbon_group'] = forms.ModelChoiceField(label="Carbon Group", queryset=CarbonGroup.objects.filter(id__in=group_ids), initial=instance.carbon_group, required=False)
-
-            self.fields['shared_scenario'] = forms.ModelChoiceField(label="Scenario to share with group", queryset=Scenario.objects.filter(input_property=instance), initial=instance.shared_scenario, required=False)
-
-
-class StrataForm(FeatureForm):
-    class Meta(FeatureForm.Meta):
-        model = Strata
-
-
 class HiddenJSONInput(forms.HiddenInput):
     """
     Widget that properly escapes text as JSON
@@ -58,6 +36,34 @@ class HiddenJSONInput(forms.HiddenInput):
         if value != '':
             final_attrs['value'] = json.dumps(value)
         return mark_safe(u'<input%s />' % flatatt(final_attrs))
+
+
+class PropertyForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = ForestProperty
+
+    def __init__(self, *args, **kwargs):
+        if 'instance' in kwargs:
+            instance = kwargs['instance']
+        else:
+            instance = False
+        super(PropertyForm, self).__init__(*args, **kwargs)
+        if instance:
+            self.fields['name'] = forms.CharField(initial=instance.name)
+            # pardon the bad form, but this doesn't work well without ModelChoiceField and querysets
+
+            group_ids = [x.group.id for x in Membership.objects.filter(applicant=instance.user, status='accepted')]
+            self.fields['carbon_group'] = forms.ModelChoiceField(label="Carbon Group", queryset=CarbonGroup.objects.filter(id__in=group_ids), initial=instance.carbon_group, required=False)
+
+            self.fields['shared_scenario'] = forms.ModelChoiceField(label="Scenario to share with group", queryset=Scenario.objects.filter(input_property=instance), initial=instance.shared_scenario, required=False)
+        else:
+            self.fields['carbon_group'] = forms.ModelChoiceField(required=False, queryset=CarbonGroup.objects.filter(id__in=[]), widget=forms.HiddenInput())
+            self.fields['shared_scenario'] = forms.ModelChoiceField(required=False, queryset=Scenario.objects.filter(id__in=[]), widget=forms.HiddenInput())
+
+
+class StrataForm(FeatureForm):
+    class Meta(FeatureForm.Meta):
+        model = Strata
 
 
 class ScenarioForm(FeatureForm):
