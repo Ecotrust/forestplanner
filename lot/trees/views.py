@@ -630,6 +630,37 @@ def manage_carbongroups_entry(request):
         context_instance=RequestContext(request)) 
 
 
+def browse_carbongroups(request):
+    '''
+    Carbon Group Browser view
+    '''
+    from trees.models import CarbonGroup, Membership
+    if not request.user.is_authenticated() or request.user.is_anonymous():
+        return HttpResponse("Not authenticated", status=401)
+
+    #get list of available CarbonGroups
+    memberships = Membership.objects.filter(applicant=request.user, status='accepted')
+    membership_ids = [x.group.id for x in memberships]
+
+    membership_groups = CarbonGroup.objects.filter(id__in=membership_ids)
+    other_public_groups = CarbonGroup.objects.filter(private=False).exclude(id__in=membership_ids)
+
+    managed_groups = CarbonGroup.objects.filter(user=request.user)
+    if len(managed_groups) > 0:
+        manager_of_carbongroup = True
+    else:
+        manager_of_carbongroup = False
+
+    return render_to_response(
+        'common/browse_carbongroups.html',
+        {
+            'user': request.user,
+            'membership_groups': membership_groups,
+            'other_public_groups': other_public_groups,
+            'manager_of_carbongroup': manager_of_carbongroup
+        },
+        context_instance=RequestContext(request))
+
 def map(request, template_name='common/map_ext.html', extra_context={}):
     """
     Main application window

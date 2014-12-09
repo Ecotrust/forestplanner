@@ -1,0 +1,32 @@
+{% extends 'common/base.html' %}
+{% load url from future %}
+
+{% block content %}
+
+
+<div class="hero-unit">
+<h3>Your Carbon Group Memberships:</h3>
+<ul>
+{% for group in membership_groups %}
+<li> <a href="#">
+    {{ group.name }}</a> </li>
+{% endfor %}
+</ul>
+</div>
+
+<div class="hero-unit">
+<h3>Other Public Carbon Groups:</h3>
+<ul>
+{% for group in other_public_groups %}
+<li> <a href="#">
+    {{ group.name }}</a> </li>
+{% endfor %}
+</ul>
+</div>
+
+{% endblock content %}
+
+
+
+
+

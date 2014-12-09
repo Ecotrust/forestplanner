@@ -25,6 +25,8 @@ urlpatterns = patterns(
         documentation, name='documentation'),    
     url(r'^manage_carbongroups/$',
         manage_carbongroups_entry, name='trees-manage_carbongroups'),
+    url(r'^browse_carbongroups/$',
+        browse_carbongroups, name='trees-browse_carbongroups'),
 
     # Services
     url(r'^geosearch/$',
