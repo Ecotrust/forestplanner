@@ -591,23 +591,35 @@ def scenario_revenue(request, instance):
 
 
 def carbongroup_dashboard(request, instance):
-    if request.method == 'POST':
-        from trees.models import Membership
-        data = request.POST.dict()
-        if data.has_key('user_id') and data.has_key('membership_status') and data['user_id'].isnumeric():
-            user_id = data['user_id']
-            membership = Membership.objects.get(group=instance, applicant__id=int(user_id))
-            if membership.status == 'pending':
-                membership.status = data['membership_status']
-                membership.save()
+    if request.user.is_authenticated() and instance.user == request.user:
+        if request.method == 'POST':
+            from trees.models import Membership, ForestProperty
+            data = request.POST.dict()
+            if data.has_key('user_id') and data.has_key('membership_status') and data['user_id'].isnumeric():
+                user_id = data['user_id']
+                membership = Membership.objects.get(group=instance, applicant__id=int(user_id))
+                if membership.status == 'pending':
+                    membership.status = data['membership_status']
+                    membership.save()
+            elif data.has_key('property_id') and data.has_key('action'):
+                ex_property = ForestProperty.objects.get(id=data['property_id'])
+                if data['action'] == 'ignore':
+                    instance.excluded_properties.add(ex_property)
+                elif data['action'] == 'include' and ex_property in instance.excluded_properties:
+                    instance.excluded_properties.remove(ex_property)
+                instance.save()
 
-    return render_to_response(
-        'common/manage_carbongroups_dashboard.html',
-        {
-            'group': instance,
-            'manager_of_carbongroup': True
-        },
-        context_instance=RequestContext(request)) 
+
+        return render_to_response(
+            'common/manage_carbongroups_dashboard.html',
+            {
+                'group': instance,
+                'manager_of_carbongroup': True
+            },
+            context_instance=RequestContext(request)) 
+
+    else:
+        return HttpResponse('You do not have permission to view this page.', status=401)
 
 
 def manage_carbongroups_entry(request):

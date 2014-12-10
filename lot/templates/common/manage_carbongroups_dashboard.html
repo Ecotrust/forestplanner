@@ -13,7 +13,8 @@
 <h4> Properties ({{group.get_properties|length}})</h4>
 <ul>
 {% for prop in group.get_properties %}
-  <li> {{ prop.name }} (<em>{{ prop.user.username }}</em>)
+{% if not prop in group.excluded_properties %}
+  <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='ignore'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Ignore"></form>
     <ul>
         <li>
           shared scenario: <strong>{{ prop.shared_scenario }}</strong>
@@ -37,6 +38,9 @@
         </li>
     </ul>
   </li>
+{% else %}
+    <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='include'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Include"></form> </li>
+{% endif %}
 {% endfor %}
 </ul>
 
