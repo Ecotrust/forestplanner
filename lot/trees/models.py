@@ -8,6 +8,7 @@ import random
 import time
 import operator
 import numpy as np
+import pandas as pd
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
@@ -988,14 +989,11 @@ class CarbonGroup(PolygonFeature):
 
     @property
     def aggregate_stats(self):
-        import pandas as pd
-
         # initialize
         incomplete = 0
         complete = 0
 
         # Loop through and aggregate
-        # total_carbon_dicts = []
         agl_carbon_dicts = []
         column_headers = []
         for sc in self.get_scenarios():
@@ -1006,20 +1004,21 @@ class CarbonGroup(PolygonFeature):
                 continue
             complete += 1
 
-            # total_carbon_dicts.append(dict(prop_metrics['total_carbon']))
-            agl_carbon_dicts.append(dict(prop_metrics['agl_carbon']))
-            # import ipdb; ipdb.set_trace()
+            # take the year only (e.g. k[:4] slices off rest of time stamp)
+            # round the output data
+            agl_carbon_dicts.append(dict([(int(k[:4]), int(v))
+                for k,v in prop_metrics['agl_carbon'] if v > 0]))
+
             column_headers.append("{}, {} ({})".format(sc.input_property.name,
                 sc.name, sc.user))
 
-        # total_carbon_df = pd.DataFrame(total_carbon_dicts)
         agl_carbon_df = pd.DataFrame(agl_carbon_dicts, index=column_headers)
+
 
         data = {
           'incomplete scenarios (not included in calculations)': incomplete,
           'complete scenarios': complete,
           'above ground carbon': agl_carbon_df.transpose().to_html(),
-          # 'total stand carbon': total_carbon_df.transpose().to_html()
         }
         return data
 
