@@ -6,22 +6,44 @@
 
 <div class="hero-unit">
 <h3>Your Carbon Group Memberships:</h3>
-<ul>
 {% for group in membership_groups %}
-<li> <a href="#">
-    {{ group.name }}</a> </li>
+<div class="well">
+    <h4>{{ group.name }}:</h4>
+    {{group.description}}
+    <div class="pull-right">
+        <form method='POST' action='#'>
+            <input name="group_id" type='hidden' value="{{group.id}}">
+            <input name="user_id" type='hidden' value="{{user.id}}">
+            <input name="action" type='hidden' value="leave">
+            <input class="btn btn-primary" type='submit' value='Leave group'>
+        </form>
+    </div>
+</div>
 {% endfor %}
-</ul>
+
 </div>
 
 <div class="hero-unit">
 <h3>Other Public Carbon Groups:</h3>
-<ul>
 {% for group in other_public_groups %}
-<li> <a href="#">
-    {{ group.name }}</a> </li>
+<div class="well">
+    <div class="pull-right">
+        <form method='POST' action='#'>
+            <input name="group_id" type='hidden' value="{{group.id}}">
+            <input name="user_id" type='hidden' value="{{user.id}}">
+            <input name="action" type='hidden' value="join">
+            <input class="btn btn-primary" type='submit' value='Join group'>
+            {% for membership in membership_status %}
+                {% if group.id == membership.id %}
+                    <p>Status: {{ membership.status }}</p>
+                {% endif %}
+            {% endfor %}
+        </form>
+    </div>
+    <h4>{{ group.name }}:</h4>
+    {{group.description}}
+</div>
 {% endfor %}
-</ul>
 </div>
 
 {% endblock content %}

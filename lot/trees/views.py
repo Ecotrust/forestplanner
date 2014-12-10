@@ -644,16 +644,32 @@ def browse_carbongroups(request):
     '''
     Carbon Group Browser view
     '''
+    from django.contrib.auth.models import User
     from trees.models import CarbonGroup, Membership
     if not request.user.is_authenticated() or request.user.is_anonymous():
         return HttpResponse("Not authenticated", status=401)
 
-    #get list of available CarbonGroups
-    memberships = Membership.objects.filter(applicant=request.user, status='accepted')
-    membership_ids = [x.group.id for x in memberships]
+    if request.method == 'POST':
+        data = request.POST.dict()
+        if data.has_key('action') and data.has_key('group_id') and data.has_key('user_id'):
+            if data['action'] == 'leave':
+                membership_qs = Membership.objects.filter(group__id=data['group_id'], applicant__id=data['user_id'], status='accepted')
+                if len(membership_qs) == 1:
+                    membership = membership_qs[0]
+                    membership.delete()
+            if data['action'] == 'join':
+                group = CarbonGroup.objects.get(id=data['group_id'])
+                applicant = User.objects.get(id=data['user_id'])
+                membership, created= Membership.objects.get_or_create(group=group, applicant=applicant)
+                membership.status = 'pending'
+                membership.save()
 
+    #get list of available CarbonGroups
+    memberships = Membership.objects.filter(applicant=request.user)
+    membership_ids = [x.group.id for x in memberships if x.status == 'accepted']
     membership_groups = CarbonGroup.objects.filter(id__in=membership_ids)
     other_public_groups = CarbonGroup.objects.filter(private=False).exclude(id__in=membership_ids)
+    membership_status = [{'id':x.group.id, 'status':x.status} for x in memberships]
 
     managed_groups = CarbonGroup.objects.filter(user=request.user)
     if len(managed_groups) > 0:
@@ -667,6 +683,7 @@ def browse_carbongroups(request):
             'user': request.user,
             'membership_groups': membership_groups,
             'other_public_groups': other_public_groups,
+            'membership_status': membership_status,
             'manager_of_carbongroup': manager_of_carbongroup
         },
         context_instance=RequestContext(request))
