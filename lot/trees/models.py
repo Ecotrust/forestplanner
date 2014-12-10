@@ -8,6 +8,7 @@ import random
 import time
 import operator
 import numpy as np
+import pandas as pd
 from django.contrib.gis.db import models
 from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
@@ -784,6 +785,16 @@ class Scenario(Feature):
         else:
             return False
 
+    @property
+    def has_property_metrics(self):
+        try:
+            prop_metrics = self.output_property_metrics['__all__']
+        except KeyError:
+            return False
+        if not prop_metrics:
+            return False
+        return True
+
     def run(self):
         self.invalidate_cache()
         if not self.is_runnable:
@@ -978,16 +989,38 @@ class CarbonGroup(PolygonFeature):
 
     @property
     def aggregate_stats(self):
-        scenarios = list(self.get_scenarios())
+        # initialize
+        incomplete = 0
+        complete = 0
 
-        # TODO run query against all scenarios.output_property_metrics
-        dummy = {
-          'total_scenarios': len(scenarios),
-          'total_carbon': 321,
-          'total_timber': 121,
-          'carbon_minus_baseline': 111
+        # Loop through and aggregate
+        agl_carbon_dicts = []
+        column_headers = []
+        for sc in self.get_scenarios():
+            # Only do calcs if it's complete
+            prop_metrics = sc.output_property_metrics['__all__']
+            if sc.needs_rerun or sc.is_running or not sc.has_property_metrics:
+                incomplete += 1
+                continue
+            complete += 1
+
+            # take the year only (e.g. k[:4] slices off rest of time stamp)
+            # round the output data
+            agl_carbon_dicts.append(dict([(int(k[:4]), int(v))
+                for k,v in prop_metrics['agl_carbon'] if v > 0]))
+
+            column_headers.append("{}, {} ({})".format(sc.input_property.name,
+                sc.name, sc.user))
+
+        agl_carbon_df = pd.DataFrame(agl_carbon_dicts, index=column_headers)
+
+
+        data = {
+          'incomplete scenarios (not included in calculations)': incomplete,
+          'complete scenarios': complete,
+          'above ground carbon': agl_carbon_df.transpose().to_html(),
         }
-        return dummy
+        return data
 
     def user_is_member(self, requester):
         if requester in [x.applicant for x in self.membership_set.filter(status='accepted')]:

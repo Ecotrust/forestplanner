@@ -15,7 +15,26 @@
 {% for prop in group.get_properties %}
   <li> {{ prop.name }} (<em>{{ prop.user.username }}</em>)
     <ul>
-        <li>shared scenario: {{ prop.shared_scenario }}</li>
+        <li>
+          shared scenario: <strong>{{ prop.shared_scenario }}</strong>
+          {% if prop.shared_scenario.has_property_metrics %}
+          <div class="alert alert-success">
+            Scenario is ready to go.
+          </div>
+          {% else %}
+          <div class="alert">
+            <strong>Warning!</strong>
+            This scenario is not included in the calculations below 
+            due to it's incomplete status:
+            <ul>
+              <li>runnable: {{prop.shared_scenario.is_runnable}}</li>
+              <li>needs_rerun: {{prop.shared_scenario.needs_rerun}}</li>
+              <li>is_running: {{prop.shared_scenario.is_running}}</li>
+              <li>has_property_metrics: {{prop.shared_scenario.has_property_metrics}}</li>
+            </ul>
+          </div>
+          {% endif %}
+        </li>
     </ul>
   </li>
 {% endfor %}
@@ -25,7 +44,7 @@
 <ul>
 {% with group.aggregate_stats as stats %}
 {% for stat, val in stats.items %}
-  <li> {{ stat }}: {{val}} </li>
+  <li> {{ stat }}: {{val|safe}} </li>
 {% endfor %}
 {% endwith %}
 </ul>
