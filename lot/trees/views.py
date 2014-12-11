@@ -599,8 +599,12 @@ def carbongroup_dashboard(request, instance):
                 user_id = data['user_id']
                 membership = Membership.objects.get(group=instance, applicant__id=int(user_id))
                 if membership.status == 'pending':
-                    membership.status = data['membership_status']
-                    membership.save()
+                    if data['membership_status'] == 'accepted':
+                        membership.accept()
+                    elif data['membership_status'] == 'declined':
+                        membership.decline(data['reason'])
+                    elif data['membership_status'] == 'revoked':
+                        membership.revoke(data['reason'])
             elif data.has_key('property_id') and data.has_key('action'):
                 ex_property = ForestProperty.objects.get(id=data['property_id'])
                 if data['action'] == 'ignore':

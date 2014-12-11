@@ -1989,24 +1989,41 @@ class Membership(models.Model):
     def accept(self):
         self.status = 'accepted'
         self.save()
-        Membership.email_status_update(self)
+        self.email_status_update()
 
     def decline(self, reason):
         self.status = 'declined'
         self.reason = reason
         self.save()
-        Membership.email_status_update(self)
+        self.email_status_update()
         
     def revoke(self, reason):
         self.status = 'revoked'
         self.reason = reason
         self.save()
-        Membership.email_status_update(self)
+        self.email_status_update()
 
     def email_status_update(self):
-        # TODO: switch on status, email both parties in all cases, 
-            # especially revoke since either party can do that.
-        pass
+
+        subject = 'Update: Forest Planner Carbon Group Membership'
+        from_addr = settings.DEFAULT_FROM_EMAIL
+        to_addr = [self.applicant.email]
+        fail_silently=True
+
+        content= "Dear Forest Planner User, \r\n\r\n"
+        content += "Please be aware that your application's status with %s has been changed.\r\n" % (self.group.name)
+        content += "As of now, your application's status is: %s.\r\n\r\n" % (self.status.capitalize())
+        if self.status == 'revoked' or self.status == 'declined':
+            content += "The following reason was given for this change by the group's manager:\r\n"
+            content += "%s\r\n\r\n" % (self.reason)
+
+        content += "If you believe you received this email in error or have any other questions, please contact our team at %s. \r\n\r\n" % (from_addr)
+
+        content += "Thank you for using Forest Planner.\r\n\r\n"
+        content += "Sincerely,\r\n"
+        content += "The Forest Planner Team"
+
+        mail.send_mail(subject, content, from_addr, [to_addr], fail_silently=fail_silently)
 
 
 # variable names are lower-case and must correspond

@@ -67,11 +67,12 @@
     {{ member.username }} 
     <form action="#" method="POST">
         <input name="user_id" value={{ member.id }} type="hidden">
-        <select name="membership_status">
+        Change status: <select name="membership_status" id="{{member.id}}_status">
             <option value='pending' selected=true>------</option>
             <option value='accepted'>Accept</option>
             <option value='declined'>Decline</option>
         </select>
+        Reason: <textarea name='reason' placeholder="Please give a reason if declining a request."></textarea>
         <input type="submit" value="submit">
     <form>
   </li>
