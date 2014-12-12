@@ -174,6 +174,19 @@ DEFAULT_FROM_EMAIL = 'forestplanner@ecotrust.org'
 SERVER_EMAIL = 'forestplanner@ecotrust.org'
 
 # ------------------------------------------------------------------------------
+# Data Constants
+# ------------------------------------------------------------------------------
+
+VARIANT_BASELINES = {
+    "Pacific Northwest Coast": 38.6, # units = metric tons of carbon per acre (not CO2)
+    "South Central Oregon": 13.2,
+    "Eastside Cascades": 13.2,
+    "Inland California and Southern Cascades": 23.6,
+    "Westside Cascades": 32.1,
+    "Blue Mountains": 10.4
+}
+
+# ------------------------------------------------------------------------------
 # Local settings
 # ------------------------------------------------------------------------------
 try:

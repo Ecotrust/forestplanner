@@ -994,7 +994,9 @@ class CarbonGroup(PolygonFeature):
         complete = 0
 
         # Loop through and aggregate
+        total_carbon_dicts = []
         agl_carbon_dicts = []
+        baseline_carbon_diff_dicts = []
         column_headers = []
         for sc in self.get_scenarios():
             # Only do calcs if it's complete
@@ -1004,21 +1006,45 @@ class CarbonGroup(PolygonFeature):
                 continue
             complete += 1
 
+            variant = sc.input_property.variant.fvsvariant
+            baseline_per_acre = settings.VARIANT_BASELINES[variant]
+            baseline = baseline_per_acre * sc.input_property.acres
+
             # take the year only (e.g. k[:4] slices off rest of time stamp)
             # round the output data
+            total_carbon_dicts.append(dict([(int(k[:4]), int(v))
+                for k,v in prop_metrics['total_carbon'] if v > 0]))
+
             agl_carbon_dicts.append(dict([(int(k[:4]), int(v))
                 for k,v in prop_metrics['agl_carbon'] if v > 0]))
+
+            baseline_carbon_diff_dicts.append(dict([(int(k[:4]), int(v)-baseline)
+                for k, v in prop_metrics['agl_carbon'] if v > 0]))
 
             column_headers.append("{}, {} ({})".format(sc.input_property.name,
                 sc.name, sc.user))
 
-        agl_carbon_df = pd.DataFrame(agl_carbon_dicts, index=column_headers)
+        total_carbon_df = pd.DataFrame(total_carbon_dicts, index=column_headers)
+        # baseline_carbon_diff_df = pd.DataFrame(baseline_carbon_diff_dicts, index=column_headers)
 
+        carbon_diff_dict = {}
+        for index, prop_dict in enumerate(baseline_carbon_diff_dicts):
+            for key in prop_dict:
+                if not carbon_diff_dict.has_key(key):
+                    carbon_diff_dict[key] = 0
+                carbon_diff_dict[key] = carbon_diff_dict[key] + baseline_carbon_diff_dicts[index][key]
+
+        agl_carbon_dicts.append(carbon_diff_dict)
+        column_headers.append("Carbon Diff from Baseline")
+
+        agl_carbon_df = pd.DataFrame(agl_carbon_dicts, index=column_headers)
 
         data = {
           'incomplete scenarios (not included in calculations)': incomplete,
           'complete scenarios': complete,
+          'total carbon': total_carbon_df.transpose().to_html(),
           'above ground carbon': agl_carbon_df.transpose().to_html(),
+          # 'carbon difference from baseline': baseline_carbon_diff_df.transpose().to_html()
         }
         return data
 
