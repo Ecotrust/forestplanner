@@ -2033,7 +2033,7 @@ class Membership(models.Model):
 
         subject = 'Update: Forest Planner Carbon Group Membership'
         from_addr = settings.DEFAULT_FROM_EMAIL
-        to_addr = [self.applicant.email]
+        to_addr = self.applicant.email
         fail_silently=True
 
         content= "Dear Forest Planner User, \r\n\r\n"
