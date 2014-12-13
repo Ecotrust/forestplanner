@@ -3,8 +3,10 @@ from fabric.api import *
 vars = {
     'app_dir': '/usr/local/apps/land_owner_tools/lot',
     'venv': '/usr/local/venv/lot',
-    'sitename': 'localhost:8080'
+    'sitename': 'localhost:8080',
+    'branch': 'master'
 }
+
 
 env.forward_agent = True
 env.key_filename = '~/.vagrant.d/insecure_private_key'
@@ -22,6 +24,23 @@ def dev():
     env.hosts = servers
     return servers
 
+def prod_dev():
+    try:
+        if fab_vars_exists:
+            if DEV_BRANCH:
+                vars['branch'] = DEV_BRANCH
+            if DEV_SITENAME:
+                vars['sitename'] = DEV_SITENAME
+            if DEV_SERVER:
+                servers = DEV_SERVER
+            else:
+                servers = ['vagrant@127.0.0.1:2222']
+            env.hosts = servers
+            return servers
+        else:
+            raise Exception("\nERROR: Cannot import file fab_vars.py. Have you created one from the template fab_vars.py.template?\n")
+    except Exception as inst:
+        print inst
 
 def stage():
     """ Use production server settings """
@@ -45,6 +64,7 @@ def prod():
     """ Use production server settings """
     try:
         if fab_vars_exists:
+            vars['branch'] = PROD_BRANCH
             env.key_filename = AWS_KEY_FILENAME_PROD
             servers = AWS_PUBLIC_DNS_PROD
             env.hosts = servers
@@ -153,9 +173,26 @@ def runserver():
 
 
 def update():
-    """ Sync with master git repo """
-    run('cd %(app_dir)s && git fetch && git merge origin/master' % vars)
+    """ Sync with correct branch in git repo """
+    with settings(
+        warn_only=True
+    ):
+        if run('cd %(app_dir)s && \
+            git fetch && \
+            git show-ref --verify --quiet ref/heads/%(branch)s' % vars):
+                run('cd %(app_dir)s && \
+                    git checkout %(branch)s && \
+                    git merge origin/%(branch)s' % vars)
+        else:
+            run('cd %(app_dir)s && \
+                    git checkout -b %(branch)s origin/%(branch)s && \
+                    git merge origin/%(branch)s' % vars)
 
+def branch():
+    run('cd %(app_dir)s && \
+            git fetch && \
+            git checkout -b %(branch)s && \
+            git merge origin/%(branch)s' % vars)
 
 def _install_starspan():
     run('mkdir -p ~/src && cd ~/src && \
