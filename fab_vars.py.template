@@ -1,14 +1,24 @@
 KEY_FILENAME = 'YOUR PRIVATE KEY FOR VAGRANT LOCAL DEV'
 
+DEV_SITENAME = False
+DEV_SERVER = False  # Like the PUBLIC_DNS vars below, present as a list like ['vagrant@127.0.0.1:2222']
+DEV_BRANCH = 'v1.0production'
+
 AWS_KEY_FILENAME_STAGE = ['C:/YOUR_FILE.pem']
+AWS_KEY_FILENAME_PROD = ['C:/YOUR_FILE.pem']
 AWS_PUBLIC_DNS_STAGE = ['user@PUBLIC_DNS']
+AWS_PUBLIC_DNS_PROD = ['user@PUBLIC_DNS']
 AWS_SITENAME_STAGE = 'foo.bar.org'
+AWS_SITENAME_PROD = 'bar.org'
 AWS_VARS_STAGE = {
     'num_cpus': 1,
     'shmmax': '268435456',  # 1/2 system memory in bytes
     'postgres_shared_buffers': '128MB'  # 1/4 system memory in MB
 }
+AWS_VARS_PROD = {
+    'num_cpus': 1,
+    'shmmax': '268435456',  # 1/2 system memory in bytes
+    'postgres_shared_buffers': '128MB'  # 1/4 system memory in MB
+}
+PROD_BRANCH = 'v1.0production'
 
-AWS_KEY_FILENAME_PROD = ['C:/YOUR_FILE.pem']
-AWS_PUBLIC_DNS_PROD = ['user@PUBLIC_DNS']
-AWS_SITENAME_STAGE = 'bar.org'
