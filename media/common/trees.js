@@ -48,7 +48,6 @@ function init() {
 
     var esriLayers = [
       ["Topo map", 'World_Topo_Map'],
-      ["USGS Topo Quads", 'USA_Topo_Maps'],
       ["Satellite Imagery", 'World_Imagery']
     ];
 
@@ -65,6 +64,22 @@ function init() {
         lyr.shortName = lyrShortName;
         map.addLayer(lyr);
     }
+
+    var topoQuadLayer = new OpenLayers.Layer.XYZ( 'USGS Topo Quads',
+        "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
+        {
+            sphericalMercator: true,
+            resolutions: [
+                156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508,2.388657133579254,1.194328566789627,0.5971642833948135
+            ],
+            serverResolutions: [
+                156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508
+            ],
+            attribution: "Basemaps by ESRI"
+        }
+    );
+    topoQuadLayer.shortName = 'USA_Topo_Maps';
+    map.addLayer(topoQuadLayer);
 
     var tileServerLayers = [
         [ "Streams", "LOT_streams"],
