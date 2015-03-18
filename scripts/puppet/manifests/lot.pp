@@ -240,7 +240,8 @@ exec { "load cleangeometry template1":
 }
 
 python::venv::isolate { "/usr/local/venv/lot":
-  subscribe => [Package['python-mapnik'], Package['build-essential']]
+  subscribe => [Package['python-mapnik'], Package['build-essential']],
+  requirements => "/vagrant/requirements_frozen.txt",
 }
 
 file { "settings_local.py":

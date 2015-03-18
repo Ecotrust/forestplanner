@@ -3,7 +3,7 @@ geopy==0.95.1
 selenium
 scipy
 python-memcached>=1.48
-pandas>=0.10.1
+pandas==0.11.0
 xlrd
 
 # Don't use git master; see Vagrantfile for example of how to use a local dev madrona 

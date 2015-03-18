@@ -8,7 +8,11 @@ var currentStep = 1;
 var steps = [undefined]; // start with a blank to make it 1-indexed
 
 function init() {
-    map = new OpenLayers.Map();
+    map = new OpenLayers.Map('map', 
+        {
+            projection: new OpenLayers.Projection('EPSG:3857')
+        }
+    );
     var switcher = new OpenLayers.Control.LayerSwitcher({'div':OpenLayers.Util.getElement('layerswitcher')});
     map.addControl(switcher);
 
@@ -44,6 +48,7 @@ function init() {
 
     var esriLayers = [
       ["Topo map", 'World_Topo_Map'],
+      ["USGS Topo Quads", 'USA_Topo_Maps'],
       ["Satellite Imagery", 'World_Imagery']
     ];
 
@@ -117,6 +122,22 @@ function init() {
             $('#soil-legend').remove();
         }
     });
+
+     var soilsWMS = new OpenLayers.Layer.WMS( "Soil Survey WMS",
+        "http://sdmdataaccess.nrcs.usda.gov/Spatial/SDM.wms",
+        {
+            layers: 'MapunitPoly',
+            transparent: true
+        }
+        , {
+            isBaseLayer: false,
+            attribution: "USDA NRCS",
+            visibility: false
+        }
+    );
+    map.addLayer(soilsWMS);
+
+    map.setCenter(new OpenLayers.LonLat(0, 0), 7);
 
     for (var i=map.layers.length-1; i>=0; --i) {
         map.layers[i].animationEnabled = true;
