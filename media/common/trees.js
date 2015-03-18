@@ -62,7 +62,7 @@ function init() {
             }
         );
         lyr.shortName = lyrShortName;
-        map.addLayer(lyr);
+        map.addLayer(lyr); 
     }
 
     var topoQuadLayer = new OpenLayers.Layer.XYZ( 'USGS Topo Quads',
