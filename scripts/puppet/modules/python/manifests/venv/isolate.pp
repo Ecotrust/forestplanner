@@ -28,17 +28,17 @@ define python::venv::isolate($ensure=present,
     exec { "python::venv $root":
       command => "/usr/bin/virtualenv --system-site-packages -p `which python2.7` ${root}",
       creates => $root,
-      notify => Exec["update distribute and pip in $root"],
+      # notify => Exec["update distribute and pip in $root"],
       require => [File[$root_parent],
                   Package["python-virtualenv"]],
     }
 
     # Some newer Python packages require an updated distribute
     # from the one that is in repos on most systems:
-    exec { "update distribute and pip in $root":
-      command => "$root/bin/pip install -U distribute pip",
-      refreshonly => true,
-    }
+    # exec { "update distribute and pip in $root":
+    #   command => "$root/bin/pip install -U distribute pip",
+    #   refreshonly => true,
+    # }
 
     if $requirements {
       python::pip::requirements { $requirements:
