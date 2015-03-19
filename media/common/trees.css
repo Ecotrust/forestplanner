@@ -38,6 +38,7 @@ h2{
     bottom: 2px !important;
     font-size: 9px;
     line-height: 11px;
+    background-color: gray;
 }
 .olControlAttribution a {
     color: #eeeeee;
@@ -66,6 +67,16 @@ h2{
     font-family: 'Lucida Grande', Verdana, Geneva, Lucida, Arial, Helvetica, sans-serif;
     padding: 6px;
     border-radius: 5px;
+}
+
+.olImageLoadError { 
+    /* when OL encounters a 404, don't display the pink image */
+    display: none !important;
+}
+
+#legend-list .well {
+	overflow-y: auto;
+	height: 400px;
 }
 
 #customZoom {
