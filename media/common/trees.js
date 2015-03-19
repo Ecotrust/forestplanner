@@ -33,7 +33,7 @@ function init() {
         "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
         "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
         "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-    var baseAerial = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
+    var baseAerial = new OpenLayers.Layer.OSM("Aerial Imagery",
         arrayAerial, {attribution:"MapQuest"});
     map.addLayer(baseAerial);
 
@@ -42,59 +42,46 @@ function init() {
         "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
         "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    var baseOSM = new OpenLayers.Layer.OSM("Mapquest Open Street Map",
+    var baseOSM = new OpenLayers.Layer.OSM("Street Map",
         arrayOSM, {attribution:"Mapquest, OpenStreetMap"});
     map.addLayer(baseOSM);
 
     var esriLayers = [
-      ["Topo map", 'World_Topo_Map'],
+      ["Topo map (Digital)", 'World_Topo_Map', 'USGS'],
+      ["Topo map (Quads)", 'World_Topo_Map', 'USGS'],
       ["Satellite Imagery", 'World_Imagery']
     ];
 
     for (var i=esriLayers.length-1; i>=0; --i) {
         var lyrLongName = esriLayers[i][0];
         var lyrShortName = esriLayers[i][1];
+        var attribution = "Basemaps by ESRI";
+        if (esriLayers[i].length > 2) {
+            attribution = attribution + ', ' + esriLayers[i][2];
+        }
+
+        var config = {
+            sphericalMercator: true,
+            attribution: attribution
+        };
+
+        if (esriLayers[i][0] == "Topo map (Quads)") {
+            config.resolutions = [156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508,2.388657133579254,1.194328566789627,0.5971642833948135];
+            config.serverResolutions = [156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508];
+        }
+
         var lyr = new OpenLayers.Layer.XYZ( lyrLongName,
             "http://server.arcgisonline.com/ArcGIS/rest/services/"+ lyrShortName +"/MapServer/tile/${z}/${y}/${x}",
-            {
-                sphericalMercator: true,
-                attribution: "Basemaps by ESRI"
-            }
+            config
         );
         lyr.shortName = lyrShortName;
         map.addLayer(lyr); 
     }
 
-    var topoQuadLayer = new OpenLayers.Layer.XYZ( 'USGS Topo Quads',
-        "http://server.arcgisonline.com/ArcGIS/rest/services/USA_Topo_Maps/MapServer/tile/${z}/${y}/${x}",
-        {
-            sphericalMercator: true,
-            resolutions: [
-                156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508,2.388657133579254,1.194328566789627,0.5971642833948135
-            ],
-            serverResolutions: [
-                156543.03390625,78271.516953125,39135.7584765625,19567.87923828125,9783.939619140625,4891.9698095703125,2445.9849047851562,1222.9924523925781,611.4962261962891,305.74811309814453,152.87405654907226,76.43702827453613,38.218514137268066,19.109257068634033,9.554628534317017,4.777314267158508
-            ],
-            attribution: "Basemaps by ESRI"
-        }
-    );
-    topoQuadLayer.shortName = 'USA_Topo_Maps';
-    map.addLayer(topoQuadLayer);
-
     var tileServerLayers = [
-        [ "Streams", "LOT_streams"],
-        [ "Stream Buffers", "LOT_streambuffers"],
-        [ "Steep Slopes", "LOT_steepslopes"],
-        [ "Watersheds", "LOT_watersheds"],
-        [ "Conservation Easements", "LOT_natconseasedb"],
-        [ "Critical Stream Habitat", "Crithab_streams"],
         [ "Wetlands", "LOT_wetlands"],
-        [ "Protected Areas", "LOT_protareas"],
-        [ "PLSS", "LOT_plss"],
-        [ "Parcels", "LOT_parcels"],
-        [ "USFS Mill Facilities", "USFSMillFacilities"],
-        [ "Public Land Critical Habitat", "Crithab"],
-        [ "Counties", "LOT_counties"]
+        [ "Stream Buffers", "LOT_streambuffers"],
+        [ "Streams", "LOT_streams"]
     ];
 
     for (var i=tileServerLayers.length-1; i>=0; --i) {
@@ -121,13 +108,13 @@ function init() {
         });
     }
 
-    var soils = new OpenLayers.Layer.XYZ( "Soil Survey",
+    var soils = new OpenLayers.Layer.XYZ( "Soil Types (Names)",
         "http://server.arcgisonline.com/ArcGIS/rest/services/Specialty/Soil_Survey_Map/MapServer/tile/${z}/${y}/${x}",
         {sphericalMercator: true,
          isBaseLayer: false,
          visibility: false,
          opacity: 0.75,
-         attribution: "ESRI, USDA Natural Resources Conservation Service"} 
+         attribution: "ESRI, USDA NRCS"} 
     );
     map.addLayer(soils);
     soils.events.register('visibilitychanged', soils, function(evt) {
@@ -138,7 +125,7 @@ function init() {
         }
     });
 
-     var soilsWMS = new OpenLayers.Layer.WMS( "Soil Survey WMS",
+     var soilsWMS = new OpenLayers.Layer.WMS( "Soil Types (Codes)",
         "http://sdmdataaccess.nrcs.usda.gov/Spatial/SDM.wms",
         {
             layers: 'MapunitPoly',
@@ -151,6 +138,47 @@ function init() {
         }
     );
     map.addLayer(soilsWMS);
+
+    var tileServerLayers2 = [
+        [ "Conservation Easements", "LOT_natconseasedb"],
+        [ "Critical Habitat (Public Land)", "Crithab"],
+        [ "Critical Stream Habitat", "Crithab_streams"],
+        [ "Land Ownership", "LOT_protareas"],
+        [ "Mill Facilities", "USFSMillFacilities", "USFS"],
+        [ "Watershed Boundaries", "LOT_watersheds"],
+        [ "Counties", "LOT_counties"],
+        [ "Township and Range", "LOT_plss"],
+        [ "Tax Lots (where available)", "LOT_parcels"],
+        [ "Steep Slopes (>40%)", "LOT_steepslopes"]
+    ];
+
+    for (var i=tileServerLayers2.length-1; i>=0; --i) {
+        var lyrLongName = tileServerLayers2[i][0];
+        var lyrShortName = tileServerLayers2[i][1];
+        var arrayTile = [
+            "http://a.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://b.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://c.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+            "http://d.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
+        ];
+        var attribution = "Ecotrust"
+        if (tileServerLayers2[i].length > 2){
+            attribution = tileServerLayers2[i][2];
+        }
+        var lyr = new OpenLayers.Layer.XYZ( lyrLongName, arrayTile,
+            {sphericalMercator: true, isBaseLayer: false, visibility: false, attribution:attribution}
+        );
+        lyr.shortName = lyrShortName;
+        map.addLayer(lyr);
+        lyr.events.register('visibilitychanged', lyr, function(evt) {
+            if (this.visibility) {
+                $('#legend').append('<div id="' + this.shortName + '-legend">' +
+                    '<img src="/media/img/legends/' + this.shortName + '.png">');
+            } else {
+                $('#' + this.shortName + '-legend').remove();
+            }
+        });
+    }
 
     map.setCenter(new OpenLayers.LonLat(0, 0), 7);
 
