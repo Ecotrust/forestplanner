@@ -48,7 +48,7 @@ function init() {
 
     var esriLayers = [
       ["Topo map (Digital)", 'World_Topo_Map', 'USGS'],
-      ["Topo map (Quads)", 'World_Topo_Map', 'USGS'],
+      ["Topo map (Quads)", 'USA_Topo_Maps', 'USGS'],
       ["Satellite Imagery", 'World_Imagery']
     ];
 
