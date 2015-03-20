@@ -178,6 +178,7 @@ def update():
         warn_only=True
     ):
         if run('cd %(app_dir)s && \
+            git stash && \
             git fetch && \
             git show-ref --verify --quiet ref/heads/%(branch)s' % vars):
                 run('cd %(app_dir)s && \
@@ -187,6 +188,8 @@ def update():
             run('cd %(app_dir)s && \
                     git checkout -b %(branch)s origin/%(branch)s && \
                     git merge origin/%(branch)s' % vars)
+        run ('cd %(app_dir)s && \
+            git stash apply' % vars)
 
 def branch():
     run('cd %(app_dir)s && \
