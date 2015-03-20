@@ -46,6 +46,7 @@ def stage():
     """ Use production server settings """
     try:
         if fab_vars_exists:
+            vars['branch'] = STAGE_BRANCH
             if AWS_KEY_FILENAME_STAGE:
                 env.key_filename = AWS_KEY_FILENAME_STAGE
             else:
