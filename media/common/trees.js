@@ -28,26 +28,28 @@ function init() {
 
     map.addControl(new OpenLayers.Control.ScaleLine());
 
-    var ghyb = new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID, 'sphericalMercator':true});
-    map.addLayer(ghyb);
+    var googHybrid = new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID, 'sphericalMercator':true, attribution: "Basemap by Google"});
+    map.addLayer(googHybrid);
+    var googStreet = new OpenLayers.Layer.Google("Street Map", {type: google.maps.MapTypeId.ROAD, 'sphericalMercator':true, attribution: "Basemap by Google"});
+    map.addLayer(googStreet);
 
-    var arrayAerial = [
-        "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-    var baseAerial = new OpenLayers.Layer.OSM("Aerial Imagery",
-        arrayAerial, {attribution:"MapQuest"});
-    map.addLayer(baseAerial);
+    // var arrayAerial = [
+    //     "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //     "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //     "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
+    //     "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
+    // var baseAerial = new OpenLayers.Layer.OSM("Aerial Imagery",
+    //     arrayAerial, {attribution:"MapQuest"});
+    // map.addLayer(baseAerial);
 
-    var arrayOSM = [
-        "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-        "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-        "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
-        "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
-    var baseOSM = new OpenLayers.Layer.OSM("Street Map",
-        arrayOSM, {attribution:"Mapquest, OpenStreetMap"});
-    map.addLayer(baseOSM);
+    // var arrayOSM = [
+    //     "http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //     "http://otile2.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //     "http://otile3.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg",
+    //     "http://otile4.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.jpg"];
+    // var baseOSM = new OpenLayers.Layer.OSM("Street Map",
+    //     arrayOSM, {attribution:"Mapquest, OpenStreetMap"});
+    // map.addLayer(baseOSM);
 
     var esriLayers = [
       ["Topo map (Digital)", 'World_Topo_Map', 'USGS'],
