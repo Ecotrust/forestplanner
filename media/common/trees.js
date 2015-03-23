@@ -28,6 +28,9 @@ function init() {
 
     map.addControl(new OpenLayers.Control.ScaleLine());
 
+    var ghyb = new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID, 'sphericalMercator':true});
+    map.addLayer(ghyb);
+
     var arrayAerial = [
         "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
         "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
