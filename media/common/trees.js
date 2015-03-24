@@ -28,9 +28,22 @@ function init() {
 
     map.addControl(new OpenLayers.Control.ScaleLine());
 
-    var googHybrid = new OpenLayers.Layer.Google("Google Hybrid", {type: google.maps.MapTypeId.HYBRID, 'sphericalMercator':true, attribution: "Basemap by Google"});
+    var googHybrid = new OpenLayers.Layer.Google("Google Hybrid", {
+        type: google.maps.MapTypeId.HYBRID, 
+        'sphericalMercator':true, 
+        numZoomLevels: 23,
+        MAX_ZOOM_LEVEL: 22,
+        attribution: "Basemap by Google",
+
+    });
     map.addLayer(googHybrid);
-    var googStreet = new OpenLayers.Layer.Google("Street Map", {type: google.maps.MapTypeId.ROAD, 'sphericalMercator':true, attribution: "Basemap by Google"});
+    var googStreet = new OpenLayers.Layer.Google("Street Map", {
+        type: google.maps.MapTypeId.ROAD, 
+        'sphericalMercator':true, 
+        numZoomLevels: 23,
+        MAX_ZOOM_LEVEL: 22,
+        attribution: "Basemap by Google"
+    });
     map.addLayer(googStreet);
 
     // var arrayAerial = [
