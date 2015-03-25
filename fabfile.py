@@ -51,6 +51,8 @@ def stage():
                 env.key_filename = AWS_KEY_FILENAME_STAGE
             else:
                 env.key_filename = None
+            if STAGE_BRANCH:
+                vars['branch'] = STAGE_BRANCH
             servers = AWS_PUBLIC_DNS_STAGE
             env.hosts = servers
             vars['sitename'] = AWS_SITENAME_STAGE
@@ -180,7 +182,7 @@ def update():
     ):
         if run('cd %(app_dir)s && \
             git fetch && \
-            git show-ref --verify --quiet ref/heads/%(branch)s' % vars):
+            git show-ref --verify --quiet refs/heads/%(branch)s' % vars):
                 run('cd %(app_dir)s && \
                     git checkout %(branch)s && \
                     git merge origin/%(branch)s' % vars)
