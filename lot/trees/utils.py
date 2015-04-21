@@ -1,4 +1,4 @@
-from trees.models import Stand, ForestProperty, IdbSummary
+from trees.models import Stand, ForestProperty, IdbSummary, Strata, FVSAggregate
 from django.contrib.gis.gdal import DataSource
 from django.contrib.gis.gdal.error import OGRIndexError
 from django.conf import settings
@@ -95,7 +95,15 @@ class StandImporter:
         else:
             self.forest_property = forest_property
 
+        # special case for user-inventory situation
+        # if there is a condid field, it is implicitly required.
+        use_condid = False
+        if 'condid' in layer.fields:
+            use_condid = True
+            valid_condids = FVSAggregate.valid_condids()
+
         stands = []
+        stratum = {}
         for feature in layer:
             stand = Stand(
                 user=self.user,
@@ -111,6 +119,29 @@ class StandImporter:
                     except OGRIndexError:
                         pass
 
+            # If we're doing user-inventory, each feature must contain
+            # integer condids that refer to valid fvsaggregate records.
+            if use_condid:
+                condid = feature.get('condid')
+
+                if condid not in valid_condids:
+                    raise Exception('Error: {} is not a valid condid (check fvsaggregate table)'.format(condid))
+
+                if condid in stratum.keys():
+                    # use cached
+                    strata = stratum[condid]
+                else:
+                    # create it
+                    kwargs = condid_strata(condid, self.forest_property.uid)
+                    strata = Strata(user=self.user, name=condid, **kwargs)
+                    strata.save(skip_validation=True)  # no need for NN validation
+                    self.forest_property.add(strata)
+                    stratum[condid] = strata
+
+                stand.cond_id = condid
+                stand.locked_cond_id = condid
+                stand.strata = strata
+
             stand.full_clean()
             stands.append(stand)
             del stand
@@ -120,6 +151,29 @@ class StandImporter:
             self.forest_property.add(stand)
             if pre_impute:
                 stand.geojson()
+
+
+def condid_strata(condid, forest_property_uid=''):
+    """
+    Given a condition id (cond_id),
+    Returns a dictionary of properties used to construct a strata
+    based on the available data in fvsaggregate
+    """
+    # TODO
+    stand_list = {
+        'property': forest_property_uid,
+        'classes': [
+            ('N/A', 1, 1, 1),
+        ]
+    }
+    age = 0.0
+    tpa = 0.0
+
+    return {
+        'stand_list': stand_list,
+        'search_tpa': tpa,
+        'search_age': age
+    }
 
 
 def calculate_adjacency(qs, threshold):
@@ -337,7 +391,7 @@ def create_scenariostands(the_scenario):
         raise ScenarioNotRunnable(
             "%s has stands without cond_id or is otherwise unrunnable" % the_scenario.uid)
 
-    # Avoid use of IN? 
+    # Avoid use of IN?
     # Doesn't seem to improve performance much
     # orig_combo_sql = """
     #      SELECT id AS stand_id, NULL AS constraint_id, geometry_final AS geom
@@ -563,7 +617,7 @@ def terrain_zonal(geom):
     import math
     import os
 
-    tdir = settings.TERRAIN_DIR 
+    tdir = settings.TERRAIN_DIR
 
     def get_raster_stats(rastername):
         raster_path = os.path.join(tdir, rastername)
@@ -598,7 +652,6 @@ def terrain_zonal(geom):
     terrain = (elevation, slope, aspect, cost)
 
     if any(x is None or math.isnan(x) for x in terrain):
-        # fail silently so as not to distrupt NN 
+        # fail silently so as not to distrupt NN
         terrain = (0, 0, 0, 0)
     return terrain
-

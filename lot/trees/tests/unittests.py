@@ -1,4 +1,6 @@
 import os
+import shutil
+import gzip
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
@@ -8,12 +10,11 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from json import loads, dumps
 from madrona.features import *
-from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
-from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx
+from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx, FVSAggregate
 from trees.utils import StandImporter
+from django.core.management import call_command
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 g1 = cntr.buffer(75)
@@ -447,11 +448,6 @@ class ImputeTest(TestCase):
 
 
 class StandImportTest(TestCase):
-    '''
-    TODO test bad shapefiles (other geom types, bad mapping dict, projection)
-    TODO assert that mapped attributes are populated
-    TODO strata from shp
-    '''
     def setUp(self):
         import_rasters()
         d = os.path.dirname(__file__)
@@ -459,14 +455,18 @@ class StandImportTest(TestCase):
             'testdata', 'test_stands.shp'))
         self.bad_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands_bad.shp'))
+        self.condid_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'test_stands_condid.shp'))
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
 
-    def test_shp_exists(self):
+    def test_shps_exists(self):
         self.assertTrue(os.path.exists(self.shp_path), self.shp_path)
+        self.assertTrue(os.path.exists(self.bad_shp_path), self.bad_shp_path)
+        self.assertTrue(os.path.exists(self.condid_shp_path), self.condid_shp_path)
 
     def test_importer_py(self):
         self.assertEqual(len(Stand.objects.all()), 0)
@@ -628,6 +628,65 @@ class StandImportTest(TestCase):
         new_stand = ForestProperty.objects.get(name="Another Property")
         self.assertEqual(len(new_stand.feature_set()), 37)
 
+
+class UserInventoryTest(TestCase):
+    def setUp(self):
+        import_rasters()
+        d = os.path.dirname(__file__)
+        self.condid_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'test_stands_condid.shp'))
+        self.datagz = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'userinventory', 'data.db.gz'))
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
+
+    def _populate_fvsaggregate(self):
+        xs = (9820, 11307, 11311, 34157)
+        for x in xs:
+            FVSAggregate.objects.create(cond=x, offset=0, year=2013,
+                                        var="WC", rx=1, site=2)
+
+    def test_importer_badcondid(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        s = StandImporter(self.user)
+        with self.assertRaises(Exception):
+            # haven't populated the fvsaggregate table so upload is invalid
+            s.import_ogr(self.condid_shp_path, new_property_name="Locked Property")
+
+    def test_importer_condid(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+
+        self._populate_fvsaggregate()
+        s = StandImporter(self.user)
+        s.import_ogr(self.condid_shp_path, new_property_name="Locked Property")
+
+        new_property = ForestProperty.objects.get(name="Locked Property")
+        self.assertEqual(len(new_property.feature_set(feature_classes=[Stand])), 37)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.is_locked]), 37)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.cond_id is None]), 0)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.cond_id != x.locked_cond_id]), 0)
+        self.assertTrue(new_property.is_locked)
+
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.strata is None]), 0)
+
+        self.assertEqual(len(Strata.objects.all()), 4)
+
+    def _extract_gz(self, zipfile):
+        tmpfile = '/tmp/forestplanner_test_data.db'
+        with open(tmpfile, "wb") as tmp:
+            shutil.copyfileobj(gzip.open(zipfile), tmp)
+        return tmpfile
+
+    def test_import_gyb(self):
+        tmpdata_db = self._extract_gz(self.datagz)
+        call_command('import_gyb', tmpdata_db, verbosity=2, interactive=False)
 
 class GrowthYieldTest(TestCase):
     '''

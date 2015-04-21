@@ -264,6 +264,10 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             # got new strata - time to recalc nearest neighbor!
             self.cond_id = None
 
+        # cond_id should always == locked_cond_id if is_locked
+        if self.is_locked:
+            self.cond_id = self.locked_cond_id
+
         super(Stand, self).save(*args, **kwargs)
         # Cheesy hack allows the app to pause long enough
         # to hopefully get the terrain variables calculated
@@ -1644,11 +1648,13 @@ class Strata(DirtyFieldsMixin, Feature):
                       select='single'),
         )
 
-    def clean(self):
+    def clean(self, skip_validation=False):
         """
         Ensure that the stand list is valid and gives us some candidates
         this shows up in the form as form.non_field_errors
         """
+        if skip_validation:
+            return True
 
         if 'classes' not in self.stand_list or 'property' not in self.stand_list:
             raise ValidationError("Not a valid stand list object. " +
@@ -1679,7 +1685,13 @@ class Strata(DirtyFieldsMixin, Feature):
 
     def save(self, *args, **kwargs):
         # Depending on what changed, trigger recalc of stand info
-        self.clean()
+        skip_validation = kwargs.pop('skip_validation', False)
+        rerun = kwargs.pop('rerun', True)
+        if skip_validation or not rerun:
+            self.clean(skip_validation=True)
+        else:
+            self.clean()
+
         recalc_required = False
         dirty = self.get_dirty_fields()
         if 'stand_list' in dirty.keys() or 'search_age' in dirty.keys() or \
@@ -2013,6 +2025,11 @@ class FVSAggregate(models.Model):
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
 
+    @classmethod
+    def valid_condids(klass):
+        # TODO, more advanced testing for validity beyond mere presence of the id?
+        return [x['cond'] for x in klass.objects.values('cond').distinct()]
+
     class Meta:
         unique_together = (("cond", "offset", "var", "year", "site", "rx"))
 
@@ -2137,11 +2154,11 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     and invalidate the stand's caches
     '''
-    instance = kwargs['instance']
-    for stand in instance.stand_set.all():
-        #print "Invalidating stand", stand, "after deleting strata ", instance
+    strata = kwargs['instance']
+    for stand in strata.stand_set.all():
+        #print "Invalidating stand", stand, "after deleting strata ", strata
         stand.invalidate_cache()
-    instance.stand_set.all().update(
+    strata.stand_set.all().update(
         cond_id=None, strata=None,
         nn_savetime=datetime_to_unix(datetime.datetime.now())
     )
