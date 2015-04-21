@@ -1,13 +1,15 @@
+from __future__ import print_function
 import os
+import sqlite3
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
-import sqlite3
 
 
 def get_gyb_rows(db_path, fields, arraysize=1000):
     '''
     Fetches GYB data from the sqlite db
-    An iterator that uses fetchmany to keep memory usage down
+    yields rows as a python dict
+    uses fetchmany to keep memory usage down
     '''
     sql = "SELECT {} FROM trees_fvsaggregate;".format(
         ', '.join(['"{}"'.format(x) for x in fields]))
@@ -17,12 +19,15 @@ def get_gyb_rows(db_path, fields, arraysize=1000):
     cursor = conn.cursor()
     cursor.execute(sql)
 
+    i = 0
     while True:
         results = cursor.fetchmany(arraysize)
         if not results:
             break
         for result in results:
+            i += 1
             yield dict(result)
+        print("inserted {} rows...".format(i))
 
 
 class Command(BaseCommand):
@@ -60,7 +65,8 @@ class Command(BaseCommand):
 
         pg_fieldnames = [x[0] for x in pg_fields]
 
-        # django is allowed to have two extra fields, special cases described below
+        # postgres schema is only allowed to deviate from gyb as follows...
+        # special cases described in match_case function below
         assert set(pg_fieldnames) - set([x.lower() for x in gyb_fieldnames]) == set(['pp_btl', 'lp_btl'])
 
         pg_insert_cols = ", ".join(['"{}"'.format(f) for f in pg_fieldnames])
@@ -85,8 +91,6 @@ class Command(BaseCommand):
 
         query_template = """INSERT INTO trees_fvsaggregate ({})
             VALUES ({});""".format(pg_insert_cols, gyb_values_template)
-
-        print query_template
 
         pgcursor = connection.cursor()
         try:
