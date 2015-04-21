@@ -71,7 +71,7 @@ def list_species_sizecls(request, property_uid):
 
         # filter
         if count <= 10:
-            continue 
+            continue
         if species in ignore_species:
             continue
         if 'unknown' in species.lower():
@@ -124,7 +124,7 @@ def intro(request):
     Intro/Help Page
     '''
     return render_to_response(
-        'common/intro.html', 
+        'common/intro.html',
         context_instance=RequestContext(request))
 
 def about(request):
@@ -132,7 +132,7 @@ def about(request):
     Generic About Page
     '''
     return render_to_response(
-        'common/about.html', 
+        'common/about.html',
         context_instance=RequestContext(request))
 
 def documentation(request):
@@ -140,7 +140,7 @@ def documentation(request):
     Generic Documentation Page
     '''
     return render_to_response(
-        'common/documentation.html', 
+        'common/documentation.html',
         context_instance=RequestContext(request))
 
 def user_property_list(request):
@@ -230,20 +230,21 @@ def upload_stands(request):
             # Import
             from trees.utils import StandImporter
             fp = None
-            try:
-                s = StandImporter(request.user)
+            # try:
+            s = StandImporter(request.user)
 
-                if new_prop_name:
-                    s.import_ogr(ogr_path,
-                                 new_property_name=new_prop_name, pre_impute=True)
-                else:
-                    try:
-                        fp = ForestProperty.objects.get(pk=prop_pk)
-                    except ForestProperty.DoesNotExist:
-                        return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
-                    s.import_ogr(ogr_path, forest_property=fp, pre_impute=True)
-            except Exception as err:
-                return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
+            if new_prop_name:
+                s.import_ogr(ogr_path,
+                             new_property_name=new_prop_name,
+                             pre_impute=True)
+            else:
+                try:
+                    fp = ForestProperty.objects.get(pk=prop_pk)
+                except ForestProperty.DoesNotExist:
+                    return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
+                s.import_ogr(ogr_path, forest_property=fp, pre_impute=True)
+            # except Exception as err:
+            #     return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
 
             if not fp:
                 fp = ForestProperty.objects.filter(
@@ -325,8 +326,8 @@ def geosearch(request):
 
     searches = [
         geocoders.GeoNames(),
-        geocoders.OpenMapQuest(), 
-        geocoders.Yahoo(app_id=settings.APP_NAME), 
+        geocoders.OpenMapQuest(),
+        geocoders.Yahoo(app_id=settings.APP_NAME),
         geocoders.Bing(api_key=settings.BING_API_KEY),
         # these are tried in reverse order, fastest first
         # TODO thread them and try them as they come in.
@@ -343,7 +344,7 @@ def geosearch(request):
                 d = distance.distance(loc, centerloc).miles
                 if d < max_dist:
                     # TODO maybe compile these and return the closest to map center?
-                    # print g, p, loc 
+                    # print g, p, loc
                     place = p
                     lat = loc[0]
                     lon = loc[1]
@@ -620,7 +621,7 @@ def carbongroup_dashboard(request, instance):
                 'group': instance,
                 'manager_of_carbongroup': True
             },
-            context_instance=RequestContext(request)) 
+            context_instance=RequestContext(request))
 
     else:
         return HttpResponse('You do not have permission to view this page.', status=401)
@@ -638,7 +639,7 @@ def manage_carbongroups_entry(request):
     groups = CarbonGroup.objects.filter(user=request.user)
 
     if len(groups) == 0:
-        return HttpResponse("You are not a manager of a carbon aggregation group", 
+        return HttpResponse("You are not a manager of a carbon aggregation group",
             status=403)
     # elif len(groups) == 1:
     #     # if groups contains only a single group
@@ -649,11 +650,11 @@ def manage_carbongroups_entry(request):
     return render_to_response(
         'common/manage_carbongroups_entry.html',
         {
-            'user': request.user, 
+            'user': request.user,
             'groups': groups,
             'manager_of_carbongroup': True
         },
-        context_instance=RequestContext(request)) 
+        context_instance=RequestContext(request))
 
 
 def browse_carbongroups(request):
@@ -707,9 +708,9 @@ def browse_carbongroups(request):
 def map(request, template_name='common/map_ext.html', extra_context={}):
     """
     Main application window
-    Replaces madrona.common.views.map 
+    Replaces madrona.common.views.map
     """
-    from trees.models import CarbonGroup 
+    from trees.models import CarbonGroup
 
     member_of_sharing_group = False
     user = request.user

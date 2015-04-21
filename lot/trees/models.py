@@ -200,15 +200,19 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         except:
             strata = None
 
+        cond_id = None
+        cond_age = None
+        cond_stand_list = []
         if self.cond_id:
             cond_id = self.cond_id
-            cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
-            cond_stand_list = list(x.treelist for x in
-                                  TreeliveSummary.objects.filter(cond_id=cond_id))
-        else:
-            cond_id = None
-            cond_age = None
-            cond_stand_list = []
+            if self.is_locked:
+                # create some placeholders, TODO is this safe?
+                cond_age = None
+                cond_stand_list = [['N/A', -1, 1, 1]]
+            else:
+                cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
+                cond_stand_list = list(x.treelist for x in
+                                      TreeliveSummary.objects.filter(cond_id=cond_id))
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -1625,6 +1629,7 @@ class Strata(DirtyFieldsMixin, Feature):
         dct['uid'] = self.uid
         dct['pk'] = self.pk
         rmfields = ['_state', 'object_id', 'content_type_id',
+                    '_content_type_cache', '_user_cache', '_collection_cache',
                     'date_modified', 'date_created', '_original_state']
         for fld in rmfields:
             try:

@@ -644,9 +644,11 @@ class UserInventoryTest(TestCase):
         self.prop1.save()
 
     def _populate_fvsaggregate(self):
-        xs = (9820, 11307, 11311, 34157)
-        for x in xs:
-            FVSAggregate.objects.create(cond=x, offset=0, year=2013,
+        # Just fake it for now; faster than importing full test gyb dataset
+        # this is sufficient so long as FVSAggregate.valid_condids() says so
+        condids = (9820, 11307, 11311, 34157)
+        for condid in condids:
+            FVSAggregate.objects.create(cond=condid, offset=0, year=2013,
                                         var="WC", rx=1, site=2)
 
     def test_importer_badcondid(self):
@@ -675,7 +677,6 @@ class UserInventoryTest(TestCase):
 
         self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
                               if x.strata is None]), 0)
-
         self.assertEqual(len(Strata.objects.all()), 4)
 
     def _extract_gz(self, zipfile):
@@ -687,6 +688,18 @@ class UserInventoryTest(TestCase):
     def test_import_gyb(self):
         tmpdata_db = self._extract_gz(self.datagz)
         call_command('import_gyb', tmpdata_db, verbosity=2, interactive=False)
+
+    def test_importer_preimpute(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+
+        self._populate_fvsaggregate()
+
+        s = StandImporter(self.user)
+        s.import_ogr(self.condid_shp_path, new_property_name="Locked Property", pre_impute=True)
+
+        new_property = ForestProperty.objects.get(name="Locked Property")
+        self.assertEqual(len(new_property.feature_set(feature_classes=[Stand])), 37)
+
 
 class GrowthYieldTest(TestCase):
     '''
