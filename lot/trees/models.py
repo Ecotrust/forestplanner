@@ -78,9 +78,9 @@ def postgres_now():
 
 def handle_cost_error(e, cost_args, standid):
     '''
-    Handle errors in the cost model so as not to overwhelm admin emails  
+    Handle errors in the cost model so as not to overwhelm admin emails
     '''
-    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid) 
+    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid)
 
     import traceback
     trace = traceback.format_exc()
@@ -257,7 +257,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             self.cond_id = None
 
         super(Stand, self).save(*args, **kwargs)
-        # Cheesy hack allows the app to pause long enough 
+        # Cheesy hack allows the app to pause long enough
         # to hopefully get the terrain variables calculated
         # TODO .. this is going to slow down shapefile imports
         # why not just run the terrain zonal syncronously rather than deal with celery???
@@ -927,7 +927,7 @@ class Scenario(Feature):
 class CarbonGroup(PolygonFeature):
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
-    excluded_properties = models.ManyToManyField('ForestProperty', 
+    excluded_properties = models.ManyToManyField('ForestProperty',
         related_name='excludedproperties_set', blank=True)
     private = models.BooleanField(default=False)
 
@@ -952,7 +952,7 @@ class CarbonGroup(PolygonFeature):
 
     def get_properties(self):
         all_properties = self.forestproperty_set.all()
-        return [x for x in all_properties 
+        return [x for x in all_properties
             if (
                 x not in self.excluded_properties.all() and
                 x.user in self.get_accepted_users()
@@ -1720,7 +1720,7 @@ class ConditionVariantLookup(models.Model):
     (which is easier to generate in ArcGIS based on variant buffers)
 
     However, it is more difficult to maintain referential integrity so the
-    check_integrity management command should be used 
+    check_integrity management command should be used
     whenever FVSVariant, IdbSummary or this table is updated
     """
     cond_id = models.BigIntegerField(db_index=True)
@@ -1994,6 +1994,9 @@ class FVSAggregate(models.Model):
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
 
+    class Meta:
+        unique_together = (("cond", "offset", "var", "year", "site", "rx"))
+
 membership_status_choices = (
     ('pending', 'Pending'),
     ('accepted', 'Accepted'),
@@ -2022,7 +2025,7 @@ class Membership(models.Model):
         self.reason = reason
         self.save()
         self.email_status_update()
-        
+
     def revoke(self, reason):
         self.status = 'revoked'
         self.reason = reason
