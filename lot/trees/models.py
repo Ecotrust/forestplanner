@@ -1110,6 +1110,17 @@ class ForestProperty(FeatureCollection):
         return gj
 
     @property
+    def is_locked(self):
+        '''
+        Boolean.
+        If any stands are locked, the entire property is
+        '''
+        for stand in self.feature_set(feature_classes=[Stand]):
+            if stand.is_locked:
+                return True
+        return False
+
+    @property
     def is_runnable(self):
         '''
         Boolean.
