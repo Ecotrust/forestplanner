@@ -10,7 +10,7 @@ import json
 class StandForm(SpatialFeatureForm):
     class Meta(SpatialFeatureForm.Meta):
         model = Stand
-        exclude = ('sharing_groups', 'content_type', 'object_id', 'elevation', 'name',
+        exclude = ('sharing_groups', 'content_type', 'object_id', 'elevation', 'name', 'locked_cond_id',
                    'imputed', 'aspect', 'slope', 'cond_id', 'strata', 'cost', 'nn_savetime', 'rast_savetime')
 
 
