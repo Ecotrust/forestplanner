@@ -230,21 +230,21 @@ def upload_stands(request):
             # Import
             from trees.utils import StandImporter
             fp = None
-            # try:
-            s = StandImporter(request.user)
+            try:
+                s = StandImporter(request.user)
 
-            if new_prop_name:
-                s.import_ogr(ogr_path,
-                             new_property_name=new_prop_name,
-                             pre_impute=True)
-            else:
-                try:
-                    fp = ForestProperty.objects.get(pk=prop_pk)
-                except ForestProperty.DoesNotExist:
-                    return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
-                s.import_ogr(ogr_path, forest_property=fp, pre_impute=True)
-            # except Exception as err:
-            #     return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
+                if new_prop_name:
+                    s.import_ogr(ogr_path,
+                                 new_property_name=new_prop_name,
+                                 pre_impute=True)
+                else:
+                    try:
+                        fp = ForestProperty.objects.get(pk=prop_pk)
+                    except ForestProperty.DoesNotExist:
+                        return HttpResponse('<p class="label label-important">Could not find forest property %s</p>' % prop_pk, status=404)
+                    s.import_ogr(ogr_path, forest_property=fp, pre_impute=True)
+            except Exception as err:
+                return HttpResponse('<p class="label label-important">Error importing stands:\n%s</p>' % (err,), status=500)
 
             if not fp:
                 fp = ForestProperty.objects.filter(
