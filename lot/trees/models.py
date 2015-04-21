@@ -141,12 +141,31 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         form_template = "trees/stand_form.html"
         manipulators = []
 
+    def preimpute(self):
+        '''
+        async computation of terrain variables
+        Usually save() does the trick but when your condid is not nullable (for e.g. locked stands)
+        you might need an alternate mechanism to fire it off.
+        Technically locked stands (stand associated with custom user inventory)
+        won't need terrain variables, no NearestNeighbor to worry about.
+        ... but terrain info is nice to have anyways.
+        '''
+        savetime = datetime_to_unix(postgres_now())
+        impute_rasters.delay(self.id, savetime)
+
+
     def get_cond_id(self, force=False):
         '''
         Synchronous computation of nearest neighbor or just return what we've got
         Prefer instead:
+          savetime = datetime_to_unix(postgres_now())
           impute_nearest_neighbor.delay(stand_id, savetime)
         '''
+        if self.is_locked:
+            # is_locked trumps force==True
+            assert self.cond_id == self.locked_cond_id
+            return self.cond_id
+
         if self.cond_id and not force:
             return self.cond_id
 
@@ -171,7 +190,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             return None
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
-    #@property
     @cachemethod("Stand_%(id)s_geojson")
     def geojson(self, srid=None):
         '''
@@ -212,7 +230,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             else:
                 cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
                 cond_stand_list = list(x.treelist for x in
-                                      TreeliveSummary.objects.filter(cond_id=cond_id))
+                                       TreeliveSummary.objects.filter(cond_id=cond_id))
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -2031,8 +2049,10 @@ class FVSAggregate(models.Model):
     start_tpa = models.IntegerField(null=True, blank=True)
 
     @classmethod
+    @cachemethod("fvsaggregate_valid_condids")
     def valid_condids(klass):
         # TODO, more advanced testing for validity beyond mere presence of the id?
+        # TODO, when does this cached value get cleared?
         return [x['cond'] for x in klass.objects.values('cond').distinct()]
 
     class Meta:

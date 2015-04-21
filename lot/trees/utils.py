@@ -150,7 +150,9 @@ class StandImporter:
             stand.save()
             self.forest_property.add(stand)
             if pre_impute:
-                stand.geojson()
+                stand.preimpute()
+
+        return True
 
 
 def condid_strata(condid, forest_property_uid=''):
