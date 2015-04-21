@@ -67,6 +67,12 @@ def impute_nearest_neighbor(stand_results, savetime):
         exc = Exception("Cant run nearest neighbor; Stand %s does not exist." % stand_id)
         raise impute_nearest_neighbor.retry(exc=exc)
 
+    if stand.is_locked:
+        assert stand.cond_id == stand.locked_cond_id
+        return {
+            'stand_id': stand_id,
+            'cond_id': stand.cond_id}
+
     # Do we have the required attributes yet?
     if not (stand.strata and stand.elevation and stand.aspect and stand.slope and stand.geometry_final):
         # if not, retry it
