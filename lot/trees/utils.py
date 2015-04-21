@@ -150,6 +150,9 @@ class StandImporter:
             stand.save()
             self.forest_property.add(stand)
             if pre_impute:
+                # Technically locked stands won't need terrain variables
+                # ... but terrain info is nice to have anyways for all stands.
+                # Note the work is done asynchronously to ensure fast uploads
                 stand.preimpute()
 
         return True

@@ -144,10 +144,9 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     def preimpute(self):
         '''
         async computation of terrain variables
-        Usually save() does the trick but when your condid is not nullable (for e.g. locked stands)
+        Usually self.save() does the trick but when your condid is already set (for e.g. locked stands)
         you might need an alternate mechanism to fire it off.
-        Technically locked stands (stand associated with custom user inventory)
-        won't need terrain variables, no NearestNeighbor to worry about.
+        Technically locked stands won't need terrain variables (no NearestNeighbor to worry about)
         ... but terrain info is nice to have anyways.
         '''
         savetime = datetime_to_unix(postgres_now())
