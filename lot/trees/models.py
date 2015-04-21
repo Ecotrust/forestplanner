@@ -128,6 +128,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     strata = models.ForeignKey("Strata", blank=True, default=None,
                                null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
+    locked_cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     elevation = models.FloatField(null=True, blank=True)
     slope = models.FloatField(null=True, blank=True)
     aspect = models.FloatField(null=True, blank=True)
@@ -152,6 +153,13 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         savetime = datetime_to_unix(postgres_now())
         res = impute_nearest_neighbor(self.id, savetime)
         return res['cond_id']
+
+    @property
+    def is_locked(self):
+        if self.locked_cond_id is None:
+            return False
+        else:
+            return True
 
     @property
     def acres(self):
