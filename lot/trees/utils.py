@@ -95,65 +95,73 @@ class StandImporter:
         else:
             self.forest_property = forest_property
 
-        # special case for user-inventory situation
-        # if there is a condid field, it is implicitly required.
-        use_condid = False
-        if 'condid' in layer.fields:
-            use_condid = True
-            variant = self.forest_property.variant
-            valid_condids = FVSAggregate.valid_condids(variant)
+        try:
+            # special case for user-inventory situation
+            # if there is a condid field, it is implicitly required.
+            use_condid = False
+            if 'condid' in layer.fields:
+                use_condid = True
+                variant = self.forest_property.variant
+                valid_condids = FVSAggregate.valid_condids(variant)
 
-        stands = []
-        stratum = {}
-        for feature in layer:
-            stand = Stand(
-                user=self.user,
-                name=str(datetime_to_unix(datetime.datetime.now())),
-                geometry_orig=feature.geom.geos)
+            stands = []
+            stratum = {}
+            for feature in layer:
+                stand = Stand(
+                    user=self.user,
+                    name=str(datetime_to_unix(datetime.datetime.now())),
+                    geometry_orig=feature.geom.geos)
 
-            for fname in self.optional_fields:
-                if fname in field_mapping.keys():
-                    try:
-                        stand.__dict__[fname] = feature.get(
-                            field_mapping[fname])
-                    except OGRIndexError:
-                        pass
+                for fname in self.optional_fields:
+                    if fname in field_mapping.keys():
+                        try:
+                            stand.__dict__[fname] = feature.get(
+                                field_mapping[fname])
+                        except OGRIndexError:
+                            pass
 
-            # If user inventory case, check each feature which must contain integer condids
-            # that refer to valid fvsaggregate records for that variant
-            if use_condid:
-                condid = feature.get('condid')
+                # If user inventory case, check each feature which must contain integer condids
+                # that refer to valid fvsaggregate records for that variant
+                if use_condid:
+                    condid = feature.get('condid')
 
-                if condid not in valid_condids:
-                    raise Exception('Condition id {} is not valid for the {} variant (check fvsaggregate table)'.format(condid, variant))
+                    if condid not in valid_condids:
+                        raise Exception('Condition id {} is not valid for the {} variant (check fvsaggregate table)'.format(condid, variant))
 
-                if condid in stratum.keys():
-                    # use cached
-                    strata = stratum[condid]
-                else:
-                    # create it
-                    kwargs = condid_strata(condid, self.forest_property.uid)
-                    strata = Strata(user=self.user, name=condid, **kwargs)
-                    strata.save(skip_validation=True)  # no need for NN validation
-                    self.forest_property.add(strata)
-                    stratum[condid] = strata
+                    if condid in stratum.keys():
+                        # use cached
+                        strata = stratum[condid]
+                    else:
+                        # create it
+                        kwargs = condid_strata(condid, self.forest_property.uid)
+                        strata = Strata(user=self.user, name=condid, **kwargs)
+                        strata.save(skip_validation=True)  # no need for NN validation
+                        self.forest_property.add(strata)
+                        stratum[condid] = strata
 
-                stand.cond_id = condid
-                stand.locked_cond_id = condid
-                stand.strata = strata
+                    stand.cond_id = condid
+                    stand.locked_cond_id = condid
+                    stand.strata = strata
 
-            stand.full_clean()
-            stands.append(stand)
-            del stand
+                stand.full_clean()
+                stands.append(stand)
+                del stand
 
-        for stand in stands:
-            stand.save()
-            self.forest_property.add(stand)
-            if pre_impute:
-                # Technically locked stands won't need terrain variables
-                # ... but terrain info is nice to have anyways for all stands.
-                # Note the work is done asynchronously to ensure fast uploads
-                stand.preimpute()
+            for stand in stands:
+                stand.save()
+                self.forest_property.add(stand)
+                if pre_impute:
+                    # Technically locked stands won't need terrain variables
+                    # ... but terrain info is nice to have anyways for all stands.
+                    # Note the work is done asynchronously to ensure fast uploads
+                    stand.preimpute()
+        except:
+            # Any failures? Rollback and re-raise...
+            for stand in stands:
+                stand.delete()
+            if new_property_name:
+                self.forest_property.delete()
+            raise
 
         return True
 
