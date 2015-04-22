@@ -2048,7 +2048,7 @@ class FVSAggregate(models.Model):
         key = "fvsaggregate_valid_condids_var{}".format(variant.code)
         res = cache.get(key)
         if res is None:
-            res = [x['cond'] for x in klass.objects.filter(var=variant).values('cond').distinct()]
+            res = [x['cond'] for x in klass.objects.filter(var=variant.code).values('cond').distinct()]
             cache.set(key, res, 60 * 60 * 24 * 365)
         return res
 
