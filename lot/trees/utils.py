@@ -100,7 +100,8 @@ class StandImporter:
         use_condid = False
         if 'condid' in layer.fields:
             use_condid = True
-            valid_condids = FVSAggregate.valid_condids()
+            variant = self.forest_property.variant
+            valid_condids = FVSAggregate.valid_condids(variant)
 
         stands = []
         stratum = {}
@@ -109,7 +110,6 @@ class StandImporter:
                 user=self.user,
                 name=str(datetime_to_unix(datetime.datetime.now())),
                 geometry_orig=feature.geom.geos)
-                # geometry_final=feature.geom.geos)
 
             for fname in self.optional_fields:
                 if fname in field_mapping.keys():
@@ -119,13 +119,13 @@ class StandImporter:
                     except OGRIndexError:
                         pass
 
-            # If we're doing user-inventory, each feature must contain
-            # integer condids that refer to valid fvsaggregate records.
+            # If user inventory case, check each feature which must contain integer condids
+            # that refer to valid fvsaggregate records for that variant
             if use_condid:
                 condid = feature.get('condid')
 
                 if condid not in valid_condids:
-                    raise Exception('Error: {} is not a valid condid (check fvsaggregate table)'.format(condid))
+                    raise Exception('Condition id {} is not valid for the {} variant (check fvsaggregate table)'.format(condid, variant))
 
                 if condid in stratum.keys():
                     # use cached

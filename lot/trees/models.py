@@ -146,12 +146,9 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         async computation of terrain variables
         Usually self.save() does the trick but when your condid is already set (for e.g. locked stands)
         you might need an alternate mechanism to fire it off.
-        Technically locked stands won't need terrain variables (no NearestNeighbor to worry about)
-        ... but terrain info is nice to have anyways.
         '''
         savetime = datetime_to_unix(postgres_now())
         impute_rasters.delay(self.id, savetime)
-
 
     def get_cond_id(self, force=False):
         '''
@@ -1097,7 +1094,6 @@ class ForestProperty(FeatureCollection):
     carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True)
     shared_scenario = models.ForeignKey(Scenario, null=True, blank=True)
 
-    #@property
     def geojson(self, srid=None):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -1107,7 +1103,6 @@ class ForestProperty(FeatureCollection):
             acres = round(self.acres, 0)
         else:
             acres = None
-
         d = {
             'uid': self.uid,
             'id': self.id,
@@ -2048,11 +2043,14 @@ class FVSAggregate(models.Model):
     start_tpa = models.IntegerField(null=True, blank=True)
 
     @classmethod
-    @cachemethod("fvsaggregate_valid_condids")
-    def valid_condids(klass):
-        # TODO, more advanced testing for validity beyond mere presence of the id?
-        # TODO, when does this cached value get cleared?
-        return [x['cond'] for x in klass.objects.values('cond').distinct()]
+    def valid_condids(klass, variant):
+        # TODO, more advanced testing for validity beyond mere presence of the cond in the variant?
+        key = "fvsaggregate_valid_condids_var{}".format(variant.code)
+        res = cache.get(key)
+        if res is None:
+            res = [x['cond'] for x in klass.objects.filter(var=variant).values('cond').distinct()]
+            cache.set(key, res, 60 * 60 * 24 * 365)
+        return res
 
     class Meta:
         unique_together = (("cond", "offset", "var", "year", "site", "rx"))
