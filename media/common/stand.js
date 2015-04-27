@@ -35,7 +35,7 @@ function standsViewModel() {
   // this list is model for pagination controls
   self.paginationList = ko.computed(function () {
     var list = [], displayIndex = 1, listIndex = 0;
-    
+
     for (listIndex=0; listIndex < self.standList().length; listIndex++) {
       if (listIndex % self.listDisplayCount === 0 && Math.abs(listIndex - self.listStart()) < 5 * self.listDisplayCount) {
         list.push({'displayIndex': 1 + (listIndex/self.listDisplayCount), 'listIndex': listIndex });
@@ -76,7 +76,7 @@ function standsViewModel() {
     //app.updateUrl();
     self.showStandPanels(false);
     app.properties.viewModel.showPropertyPanels(true);
-	
+
     //this is breaking tab switching. seems to be working without it!  uh oh?
     //map.removeLayer(self.property_layer);
     map.removeLayer(self.stand_layer);
@@ -126,6 +126,10 @@ function standsViewModel() {
         event.preventDefault();
       });
     });
+  };
+
+  self.showEditButtons = function() {
+    return !(self.property.is_locked());
   };
 
   self.finAddStand = function () {
@@ -300,7 +304,7 @@ function standsViewModel() {
       self.showDrawPanel(false);
       app.stands.geometry = feature.geometry.toString();
       self.showStandForm("create");
-      // Calling this has ripple effects on the properties interface: 
+      // Calling this has ripple effects on the properties interface:
       //   app.saveFeature(feature);
       // Instead, we just directly perform the relevant part of saveFeature
       app.newGeometry = feature.geometry.toString();
@@ -341,7 +345,7 @@ function standsViewModel() {
         self.selectFeatureById(feature.feature.data.uid, true);
       },
       'featureadded': function(feature) {
-        
+
         // var featureViewModel = ko.mapping.fromJS(feature.feature.data);
         // console.log('loading ' + feature.feature.data.name);
         // // save a reference to the feature in the viewmodel
@@ -359,7 +363,7 @@ function standsViewModel() {
     self.selectControl.onBeforeSelect = function (feature) {
      // debugger;
     };
-    
+
     // reenable click and drag in vectors
     self.selectControl.handlers.feature.stopDown = false;
     map.addControl(self.selectControl);
@@ -414,13 +418,13 @@ function standsViewModel() {
 
     app.drawFeature.featureAdded = app.stands.featureAdded;
     self.property_layer.addFeatures(property.feature.clone());
-    
+
     // update breadcrumbs
     app.breadCrumbs.breadcrumbs.removeAll();
     app.breadCrumbs.breadcrumbs.push({name: 'Properties', url: '/properties', action: self.cancelManageStands});
     app.breadCrumbs.breadcrumbs.push({url: 'stands/' + property.id(), name: property.name() + ' Stands', action: null});
     //app.updateUrl();
-    
+
     map.zoomToExtent(property.bbox());
     // TODO get this url from workspace doc
     var key = 'stand_' +  property.uid();

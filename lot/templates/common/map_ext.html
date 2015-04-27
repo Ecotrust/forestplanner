@@ -3,19 +3,19 @@
 
 {% if not user.is_authenticated %}
   {% block bodyclass %}no-auth{% endblock %}
-{% endif %}  
+{% endif %}
 
 {% block content %}
-					
+
 					<!-- Homepage is only for visitors not logged in.  -->
 					{% if not user.is_authenticated %}
-          
+
 					<div class="row-fluid">
             <div id="home-html">
 
 
 							<div>
-								
+
 								<div class="home-intro">
 									<header class="hero">
 										<h1>Forest Planner</h1>
@@ -30,19 +30,19 @@
 
 									<div class="clearfix btn-bar">
 
-                    <a class="btn btn-large btn-primary" href="/trees/about-the-forest-planner"> 
+                    <a class="btn btn-large btn-primary" href="/trees/about-the-forest-planner">
                       <span>Learn More </span>
-											<span class="accessibility">about the Forest Planner</span> 
+											<span class="accessibility">about the Forest Planner</span>
                       <!--<i class="icon-arrow-right icon-white"></i>-->
                     </a>
                     <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
 											<!--<i class="icon-user icon-white"></i> -->
-                      Get Started</a>	
+                      Get Started</a>
 									</div>
 
 								</div>
-							</div> 
-							
+							</div>
+
 
             </div>
 					</div>
@@ -77,11 +77,11 @@
                     <span class="tab-num">4</span>
                     Evaluate Future Scenarios</a>
                 </li>
-                <!--                  
+                <!--
                 //  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
                 apply bindings to the tabs in a callback. doing it on doc.ready for now.
                 or ko.observable set when this is ready
-                <li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
+                <li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind="
                   css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
                   app.properties.viewModel.selectedProperty().stand_summary.total()}">Evaluate Future Scenarios</a></li>
                   -->
@@ -98,11 +98,11 @@
 
         <div class="row-fluid">
           <div class="span5">
-            <div id="property-html" data-bind="visible: showPropertyPanels" > 
+            <div id="property-html" data-bind="visible: showPropertyPanels" >
 
 
                 <div class="well clearfix" style="display:none;" data-bind="visible: propertyList().length === 0 &&
-                  showNoPropertiesHelp"> 
+                  showNoPropertiesHelp">
                     <!-- data-bind="if: showNoPropertiesHelp"> -->
                     <h2>Create Properties</h2>
                     <p><em>You currently have no properties under management.</em></p>
@@ -112,7 +112,7 @@
                         <p>Alternatively, you can upload GIS data for your property.</p>
                             <button href="#" class="btn" data-bind="click: startUpload, disable: preventUpdates">
                                 <i class="icon-upload"></i> Upload GIS Data</button>
-                            <button href="#" class="btn btn-success  pull-right" 
+                            <button href="#" class="btn btn-success  pull-right"
                                 data-bind="click: startAddDrawing, disable: preventUpdates">Draw Property Boundary</button>
                     </div> <!-- no properties -->
                 </div><!-- end of no properties -->
@@ -135,9 +135,9 @@
                   </div>
 
                   <ul class="property-list" data-bind="visible: propertyList().length > 0,foreach: propertyList">
-                    <li class="property-box clearfix well" 
+                    <li class="property-box clearfix well"
                         data-bind="
-                          css: { active: $data === $parent.selectedProperty()}, 
+                          css: { active: $data === $parent.selectedProperty()},
                           click: $parent.selectProperty
                     ">
                       <h3  data-bind="text: name"></h3>
@@ -158,16 +158,16 @@
                           <dl class="hide more dl-horizontal">
                             <dt>Number of Stands</dt>
 														<dd>
-															<span data-bind="text: stand_summary.with_strata"></span> 
-															of <span data-bind="text: stand_summary.total"></span> with strata 
+															<span data-bind="text: stand_summary.with_strata"></span>
+															of <span data-bind="text: stand_summary.total"></span> with strata
 														</dd>
 														<dd>
-															<span data-bind="text: stand_summary.with_condition"></span> 
-															of <span data-bind="text: stand_summary.total"></span> with condition 
+															<span data-bind="text: stand_summary.with_condition"></span>
+															of <span data-bind="text: stand_summary.total"></span> with condition
 														</dd>
 														<dd>
-															<span data-bind="text: stand_summary.with_terrain"></span> 
-															of <span data-bind="text: stand_summary.total"></span> with terrain 
+															<span data-bind="text: stand_summary.with_terrain"></span>
+															of <span data-bind="text: stand_summary.total"></span> with terrain
 														</dd>
 
 													</dl>
@@ -175,21 +175,21 @@
                         <div class="span6" data-bind="visible:$data === $parent.selectedProperty()">
 
                           <!--
-                            <button class="btn btn-info center" 
+                            <button class="btn btn-info center"
                               data-bind="click: $parent.selectProperty,
                               css: { active: $data === $parent.selectedProperty()}
                               ">Select</button>
                           -->
-                            
+
                           <div class="btn-group pull-right">
-                            <button id="delete-button" class="btn btn-mini" 
+                            <button id="delete-button" class="btn btn-mini"
                               data-bind="click: $parent.showDeleteDialog"><i class="icon-remove"></i> Delete </button>
-                            <button class="btn btn-mini"  
+                            <button class="btn btn-mini"
                               data-bind="click: $parent.showEditForm, disable: $parent.preventUpdates">
                               <i class="icon-edit"></i> Edit </button>
                           </div>
 
-                          <button data-bind="click: $parent.editStands" style="clear: both; margin-top: 4px;" class="btn btn-mini pull-right">Create or Edit Stands <i class="icon-arrow-right"></i></button> 
+                          <button data-bind="click: $parent.editStands" style="clear: both; margin-top: 4px;" class="btn btn-mini pull-right">Create or Edit Stands <i class="icon-arrow-right"></i></button>
 
                         </div> <!-- /.span6 -->
                       </div> <!-- /.row-fluid inner li -->
@@ -208,9 +208,9 @@
                     </li>
                   </ul>
 
-                  <a class="btn btn-primary btn-large" 
+                  <a class="btn btn-primary btn-large"
                     data-bind="visible: selectedProperty(), attr: { href: '#stands/' + app.selectedPropertyUID()}">
-                    <strong>Next</strong>: Create or edit stands for 
+                    <strong>Next</strong>: Create or edit stands for
                     <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
                     <i class="icon-arrow-right"></i>
                   </a>
@@ -223,32 +223,32 @@
                     <div style="display:none" data-bind="visible: showUploadPanel">
                       <h2>Upload stands</h2>
                       <p> File upload </p>
-                      <ul> 
+                      <ul>
                           <li> A .zip file containing an ESRI Shapefile </li>
                           <li> Projected to Web Mercator coordinates </li>
                           <li> Shapefile contains polygons of all stands comprising the property</li>
                       </ul>
                       <div class="well">
-                      <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data"> 
+                      <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data">
                             <input type="hidden" name="MAX_FILE_SIZE" value="100000">
-                            <p> 
+                            <p>
                                 <label for="upload-propertyname">
                                     <span id="upload-propertyname-required" class="label label-important"
-                                        style="display:none;"> 
-                                        Required 
-                                        <i class="icon-exclamation-sign icon-white"></i> 
+                                        style="display:none;">
+                                        Required
+                                        <i class="icon-exclamation-sign icon-white"></i>
                                     </span>
                                     &nbsp; New Property Name
                                 </label>
                                 <input type="text" id="upload-propertyname" name="new_property_name" size="10"/>
                             </p>
-                            <p> 
+                            <p>
                                 <span id="upload-file-required" class="label label-important"
-                                    style="display:none;"> 
-                                    Required 
-                                    <i class="icon-exclamation-sign icon-white"></i> 
+                                    style="display:none;">
+                                    Required
+                                    <i class="icon-exclamation-sign icon-white"></i>
                                 </span>
-                                <input type="file" id="upload-file" name="ogrfile" size="10"/> 
+                                <input type="file" id="upload-file" name="ogrfile" size="10"/>
                             </p>
                             <div class="pull-right">
                                 <a href="#" class="btn" data-bind="click: cancelUpload">Cancel</a>
@@ -333,7 +333,7 @@
                     <div>
                         <ul class="nav nav-tabs nav-stacked" data-bind="foreach: scenarioList">
                             <li data-bind="click: $parent.toggleFeature, css: { active: $parent.selectedFeatures.indexOf($data) != -1  }">
-                            <a href="#"> 
+                            <a href="#">
                                 <i style="width:14px; height:14px; padding-right: 6px;" class="icon-ok"
                                    data-bind="css: { 'icon-white': $parent.selectedFeatures.indexOf($data) == -1 }"></i>
                                 <span data-bind="text: fields.name">
@@ -351,10 +351,10 @@
                            Create a New Scenario to evaluate.
                        </p>
                     </div>
-                    <div>  
+                    <div>
                       <header class="clearfix">
                         <div class="btn-grouppull-right">
-                          <button class="btn btn-mini" data-bind="click: reloadScenarios"> 
+                          <button class="btn btn-mini" data-bind="click: reloadScenarios">
                             <i class="icon-repeat"></i> Refresh
                           </button>
 
@@ -389,12 +389,12 @@
                         <table class="table table-condensed table-hover table-bordered">
                         <tbody data-bind="foreach: scenarioList">
                             <tr class="scenario-row" data-bind="click: $parent.toggleFeature">
-                                <td data-bind="css:{ 'highlighted-scenario': $parent.selectedFeatures.indexOf($data) !== -1 }"> 
+                                <td data-bind="css:{ 'highlighted-scenario': $parent.selectedFeatures.indexOf($data) !== -1 }">
                                     <div class="pull-right btn-group">
-                                        <button href="#" id="delete-button" class="btn btn-mini" 
+                                        <button href="#" id="delete-button" class="btn btn-mini"
                                             data-bind="click: $parent.showDeleteDialog">
                                             <i class="icon-remove"></i>Delete</button>
-                                        <button class="btn btn-mini" href="#" 
+                                        <button class="btn btn-mini" href="#"
                                             data-bind="click: $parent.editFeature, visible: fields.property_is_runnable, css: {'btn-danger': !fields.is_runnable || fields.needs_rerun }">
                                             <i class="icon-edit" data-bind="css: {'icon-white': !fields.is_runnable || fields.needs_rerun }"></i>
                                             Edit
@@ -402,7 +402,7 @@
                                     </div>
 
                                     <div class="pull-left" style="margin: 12px; padding:2px; border:1px #ddd solid">
-                                        <i style="width:14px; height:14px;" 
+                                        <i style="width:14px; height:14px;"
                                            class="icon-ok"
                                            data-bind="css: { 'icon-white': $parent.selectedFeatures.indexOf($data) == -1 }">
                                         </i>
@@ -412,22 +412,22 @@
                                     <p>
                                     <div class="scenario-details" style="padding-left: 8px; padding-right: 8px;">
                                       <!--
-                                        <div data-bind="visible: !fields.is_running" > 
+                                        <div data-bind="visible: !fields.is_running" >
                                             <div class="alert alert-danger" data-bind="visible: !fields.property_is_runnable" >
                                                 <i class="icon-exclamation-sign icon-white"></i>
-                                                All stands must be 
+                                                All stands must be
                                                 <a data-bind="click: $parent.manageVegetationTypes,
                                                   clickBubble: false">
                                                   assigned a forest type</a> to proceed.
                                             </div>
                                             <div data-bind="visible: fields.property_is_runnable">
-                                                <div class="alert" data-bind="visible: !fields.is_runnable" > 
+                                                <div class="alert" data-bind="visible: !fields.is_runnable" >
                                                     <i class="icon-exclamation-sign icon-white"></i>
                                                     Scenario needs to be updated; Please <strong data-bind="click:
                                                       $parent.editFeature">Edit</strong> and apply a Rx to all stands (Step 2).
                                                 </div>
-                                                <div data-bind="visible: fields.is_runnable" > 
-                                                    <div class="alert" data-bind="visible: fields.needs_rerun" > 
+                                                <div data-bind="visible: fields.is_runnable" >
+                                                    <div class="alert" data-bind="visible: fields.needs_rerun" >
                                                         <i class="icon-exclamation-sign icon-white"></i>
                                                         Stands have changed since scenario was created; Please <strong
                                                           data-bind="click: $parent.editFeature">Edit</strong> and re-Submit.
@@ -436,7 +436,7 @@
                                             </div>
                                         </div>
                                        -->
-                                        <div class="alert alert-info" data-bind="visible: fields.is_running" > 
+                                        <div class="alert alert-info" data-bind="visible: fields.is_running" >
                                             <i class="icon-refresh icon-white"></i>
                                             Scenario is currently in the task queue. Check back and hit Refresh in a few seconds.
                                         </div>
@@ -450,8 +450,8 @@
                     </div>
                 </div>
                 <div class="well" style="font-size:85%; font-style:italic;">
-                  <i class="icon-warning-sign"></i> These maps and graphs are based on modeling of forest inventory plots similar to your stands; 
-                  they do not show the values that would be returned if your own inventory data was modeled. 
+                  <i class="icon-warning-sign"></i> These maps and graphs are based on modeling of forest inventory plots similar to your stands;
+                  they do not show the values that would be returned if your own inventory data was modeled.
                   To find out more about how we calculate these values, please visit the <a href="/trees/documentation">documentation</a>.
                 </div>
               </div>
@@ -500,11 +500,11 @@
                 <!--<h2>Stand Boundaries</h2>-->
                 <div data-bind="visible: showStandList">
 
-                  <div class="btn-bar clearfix">
+                  <div class="btn-bar clearfix" data-bind="visible: showEditButtons()">
                     <!--
                       <button class="btn tool-tip" data-toggle="tooltip" title="If you already have GIS data..."><i class="icon-upload"></i> Upload Stands</button>
                       <button class="btn tool-tip" data-bind="click: cancelManageStands"><i class="icon-arrow-left"></i> Back to Properties</button>
-                      <a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..." 
+                      <a class="btn tool-tip" href="#" data-toggle="tooltip" title="Stand groups are ..."
                         data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
                         <i class="icon-repeat"></i> Define Stand Groups</a>
                       -->
@@ -513,12 +513,16 @@
                       <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                   </div>
 
+                  <div class="btn-bar clearfix" data-bind="visible: !showEditButtons()">
+                     <em>This property's stands are linked to custom forest inventory data and cannot be edited.</em>
+                  </div>
+
                   <div class="loading" data-bind="visible: showProgressBar">
                     <h3>Loading...</h3>
                   </div>
-                  <!-- 
+                  <!--
                   <div class="progress progress-striped active" data-bind="visible: showProgressBar">
-                    <div class="bar" style="width: 100%"></div> 
+                    <div class="bar" style="width: 100%"></div>
                     <div class="bar" data-bind="style: { width: progressBarWidth() }"></div>
                   </div>
                   -->
@@ -527,10 +531,10 @@
                   <div data-bind="if: standList().length > 0">
                   <div class="row-fluid">
                     <div class="well">
-                        <div class="pull-right btn-group">
-                            <button href="#" id="delete-button" class="btn btn-mini" 
+                        <div class="pull-right btn-group" data-bind="visible: showEditButtons()">
+                            <button href="#" id="delete-button" class="btn btn-mini"
                                 data-bind="click: showDeleteDialog"><i class="icon-remove"></i> Delete</button>
-                            <button class="btn btn-mini" href="#" 
+                            <button class="btn btn-mini" href="#"
                                 data-bind="click: editStand">
                                 <i class="icon-edit"></i> Edit</button>
                         </div>
@@ -580,7 +584,7 @@
                   </div>
                   <p>When you've finished adding all of your stands...</p>
                   <a data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" class="btn btn-primary btn-large">
-                    <strong>Next</strong>: Define forest types for 
+                    <strong>Next</strong>: Define forest types for
                     <strong><em data-bind="text: app.selectedPropertyName()"></em></strong>
                     <i class="icon-arrow-right"></i>
                   </a>
@@ -683,7 +687,7 @@
               </a>
               <div id="legend-container">
                     <div class="clearfix"></div>
-                    <div id="legend-list" class="collapse"> 
+                    <div id="legend-list" class="collapse">
                       <div class="well">
                         <div style="opacity:1.0;" id="layerswitcher"></div>
                         <div id="legend"></div>
@@ -711,20 +715,20 @@
                             <a href="#scenario-revenue-tab-content" id="scenario-revenue-tab" data-toggle="tab">Revenues</a>
                         </li>
                     </ul>
-                    
+
                     <div class="tab-content no-overflow">
 
                         <div class="tab-pane fade active in" id="scenario-charts-tab-content">
                             <div>
                                 <select id="chart-metrics-select" class="selectpicker"></select>
-                                <p class="muted" style="margin: 25px; font-size: 16pt;" 
+                                <p class="muted" style="margin: 25px; font-size: 16pt;"
                                    data-bind="visible: scenarioList().length > 0 && selectedFeatures().length === 0">
                                     Select one or more scenarios to evaluate.
-                                </p>  
-                                <p class="muted" style="margin: 25px; font-size: 18pt;" 
+                                </p>
+                                <p class="muted" style="margin: 25px; font-size: 18pt;"
                                    data-bind="visible: scenarioList().length == 0">
                                     Loading Scenarios...
-                                </p>  
+                                </p>
                             </div>
                             <p id="chart-scenario-text" class="info-help info text-info well well-small"></p>
                             <div id="chart-scenario" class="chart"></div>
@@ -741,8 +745,8 @@
                                     <div class="span9">
                                         <div class="row-fluid">
                                             <div class="span5">
-                                                <span class="pull-right"> 
-                                                  <input class="input-mini slidervalue year-slider-value" 
+                                                <span class="pull-right">
+                                                  <input class="input-mini slidervalue year-slider-value"
                                                       type="text" name="year-slider" id="field-year-slider" />
                                                 </span>
                                             </div>
@@ -753,7 +757,7 @@
                                             </div>
                                             <div class="span5" style="margin:10px 0;">
                                                 <div class="slider" id="slider-year-slider">
-                                                </div> 
+                                                </div>
                                             </div>
                                             <div class="span1">
                                               <button id="timemap-forward" class="pull-left btn btn-link">
@@ -776,7 +780,7 @@
                                         <p> This scenario doesn't have valid modeling results... </p>
                                     </div>
                                     <div id="timemap-legend-container">
-                                          <a id="timemap-legend-button" style="color:black;" class="pull-right" 
+                                          <a id="timemap-legend-button" style="color:black;" class="pull-right"
                                              data-toggle="collapse" data-target="#timemap-legend-meta">
                                               <i class="icon-align-justify icon-white"></i>
                                           </a>
@@ -805,8 +809,8 @@
                                         <option data-bind="value: pk, text: fields.name"></option>
                                     </select>
                                     <!--
-                                    <select data-bind="options: selectedFeatures, 
-                                                       optionsText: 'fields.name', 
+                                    <select data-bind="options: selectedFeatures,
+                                                       optionsText: 'fields.name',
                                                        optionsValue: 'pk'"></select>
                                     -->
                                 </div>
@@ -819,7 +823,7 @@
                               <strong>Harvest and transportation costs for each scenario.</strong>
                             </p>
                             <div id="cash1">
-                              <select id="cash-select-scenario1" 
+                              <select id="cash-select-scenario1"
                                       class="btn"
                                       data-bind="foreach: selectedFeatures">
                                   <option data-bind="value: pk, text: fields.name"></option>
@@ -837,7 +841,7 @@
                               <strong>Gross timber revenues under each scenario.</strong>
                             </p>
                             <div id="revenue1">
-                              <select id="revenue-select-scenario1" 
+                              <select id="revenue-select-scenario1"
                                       class="btn"
                                       data-bind="foreach: selectedFeatures">
                                   <option data-bind="value: pk, text: fields.name"></option>
@@ -852,7 +856,7 @@
 
                     </div>
               </div> <!-- end scenario-outputs -->
-              
+
 						</div><!-- /.outer-map -->
               {% endif %}
 					</div> <!-- /.span7 (right UI) -->
@@ -894,9 +898,9 @@
     <script src="{{MEDIA_URL}}common/js/jquery.scrollTo-1.3.3-min.js"></script>
     <script src="{{MEDIA_URL}}common/js/jquery.easing.1.3.js"></script>
     <script src="{{MEDIA_URL}}common/js/decisiontree.js"></script>
-    <script src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
-    <script src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
-    <script src="{{MEDIA_URL}}support/bootstrap-select/bootstrap-select.min.js"></script> 
+    <script src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script>
+    <script src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script>
+    <script src="{{MEDIA_URL}}support/bootstrap-select/bootstrap-select.min.js"></script>
 
     {% load compressed %}
     <script type="text/javascript">
@@ -908,7 +912,7 @@
             onShow: function (callback) {
                 callback();
                 //madrona.formCallbacks.push(callback);
-            }, 
+            },
             formCallbacks: [],
             features: {}
         };
@@ -956,7 +960,7 @@
 					 "{{MEDIA_URL}}/img/forest_photos/forest-clouds-866-full-sat.jpg",
 					 "{{MEDIA_URL}}/img/forest_photos/walkers-205-full-sat.jpg",
 					 "{{MEDIA_URL}}/img/forest_photos/Nursery-log-1-full-sat.jpg",
-           // by John David Nelson 
+           // by John David Nelson
            // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
 					 "{{MEDIA_URL}}/img/forest_photos/pine-jondavidnelson.jpg"
 					], {duration: 6000, fade: 1000});

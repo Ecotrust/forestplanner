@@ -1109,6 +1109,7 @@ class ForestProperty(FeatureCollection):
             'name': self.name,
             'user_id': self.user.pk,
             'acres': acres,
+            'is_locked': self.is_locked,
             'location': self.location,
             'stand_summary': self.stand_summary,
             'variant': self.variant.fvsvariant.strip(),
