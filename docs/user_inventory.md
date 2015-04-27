@@ -38,8 +38,7 @@ as a document for end users (unless they care deeply about the details).
 The shapefile import functionality allows users or site administrators to create
 a new property and populate it with stands corresponding to the polygons in the shapefile. This can be accessed by the user through the web interface (The "Upload" functionality). We will focus on the programmatic interface as per the intended audience.
 
- The programmatic
-interface includes two components:
+ The programmatic interface includes two components:
 
 * `lot.trees.views.upload_stands` is a django view which accepts an HTTP request, handles the uploaded file and, assuming the data are valid, creates a `ForestProperty` and `Stands` for the user based on the uploaded file. There is also an option to populate an existing `ForestProperty` though it is not exposed through the web interface.
 

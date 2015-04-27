@@ -68,7 +68,12 @@ def impute_nearest_neighbor(stand_results, savetime):
         raise impute_nearest_neighbor.retry(exc=exc)
 
     if stand.is_locked:
-        assert stand.cond_id == stand.locked_cond_id
+        if stand.cond_id != stand.locked_cond_id:
+            # should never happen; fix it here
+            stand_qs.filter(nn_savetime__lt=savetime).update(
+                cond_id=stand.locked_cond_id, nn_savetime=savetime)
+            stand.invalidate_cache()
+
         return {
             'stand_id': stand_id,
             'cond_id': stand.cond_id}
@@ -106,12 +111,10 @@ def impute_nearest_neighbor(stand_results, savetime):
     # Take the top match
     cond_id = int(ps[0].name)
 
-    # just confirm that it exists
-    # TODO confirm that cond_id exists in the fvsaggregate table
-    IdbSummary.objects.get(cond_id=cond_id)
+    # TODO confirm that cond_id exists in the idbsummary and fvsaggregate tables?
 
     # update the database
-    # stuff might have changed, we dont want a wholesale update of all fields like save()
+    # stuff might have changed, we don't want a wholesale update of all fields like save()
     # use the timestamp to make sure we don't clobber a more recent request
     stand_qs.filter(nn_savetime__lt=savetime).update(cond_id=cond_id, nn_savetime=savetime)
 
