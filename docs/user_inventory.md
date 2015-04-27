@@ -3,7 +3,7 @@
 
 Author: Matthew Perry <perrygeo@gmail.com>
 
-Date: Mar 23, 2015
+Date: May 15, 2015
 
 ## Introduction
 
@@ -78,7 +78,7 @@ On importing user's stands, we need to confirm that there exist valid records fo
     pn = FVSVariant.objects.get(code="PN")  # get pacific northwest variant
     FVSAggregate.valid_condids(pn)
 
-This returns a list of all "valid" condids for this variant. At this point, validity is defined loosely - it currently just creates a list of condids with that variant. More advanced logic (e.g. checking that they have all necessary rxs, etc) can be added as required. Until then, it's up to the site administrators to ensure that any data added to the fvsaggregate table is done cleanly.
+This returns a list of all "valid" condids for this variant. At this point, validity is defined loosely - it currently just returns a list of condids for that variant. More advanced logic (e.g. checking that they have all necessary rxs, offsets, etc.) may be added as required. Until then, it's up to the site administrators to ensure that any data added to the fvsaggregate table is done cleanly.
 
 Because the query may be very computationally expensive, this method is cached. Therefore it is required to clear the cache when new data is added. This can be done using Redis directly:
 
@@ -112,14 +112,14 @@ Similarly, the `ForestProperty` model will also have an additional `is_locked` p
 
 ### User interface
 
-In the stand editing and creation UI (Step 2), we disallow creation of new stands for locked properties. This is accomplished by hiding the create buttons if property is locked and will not necessarily be enforced at the HTTP or Python API level.
+In the stand editing and creation UI (Step 2), we disallow creation of new stands for locked properties. This is accomplished by hiding the editing buttons (create, edit, delete) if property is locked and will not necessarily be enforced at the HTTP or Python API level.
 
 In the forest type UI (Step 3), we continue to show forest types - in the case of locked properties this **TODO may be condids?** -  but will issue a highly visible warning that any changes will not override the custom inventory (ie. it is useless to edit forest types)
 
 
-### import_gyb management command
+### `import_gyb` management command
 
-Since the growth-yield-batch system will be used to perform growth and yield modeling, forest planner contains a python function and a wrapper django management command, `import_gyb`, to facilitate loading data.
+Since the [growth-yield-batch](https://github.com/Ecotrust/growth-yield-batch) (GYB) system will be used to perform growth and yield modeling, forest planner contains a python function and a wrapper django management command, `import_gyb`, to facilitate loading data.
 
 The command takes a single required argument:
 
@@ -135,7 +135,7 @@ An example usage of the command would be:
 python manage.py import_gyb gyb_data/final/data.db
 ```
 
-## Loading data from custom user inventory
+## Example workflow, Loading data from custom user inventory
 
 When Forest Planner site administrators receive inventory data/spatial data from a qualified user, that data must be processed and imported into the system. Depending on the quality of the source data, this can involve different steps and effort may be highly variable depending on data quality.
 
@@ -158,11 +158,6 @@ The implications of this design decision are handled by the `import_gyb` managem
 
 Related to offsets, the GYB system will not (by default) apply offsets to Grow-Only prescriptions, assumed to be `rx == 1`. The forest planner, when applying offsets to scenariostands in `trees.tasks.schedule_harvest`, will set offset to zero for any grow-only stands. So, under normal usage, this should not be an issue. If, for whatever reason, the scenariostands with rx 1 get assigned a non-zero offset and the gyb data is missing non-zero offsets for rx 1, the SQL joins will drop those stands entirely.
 
-### Example Workflow
-workflow docs for David and Ryan re: importing from gyb,
+The forestplanner data model assumes that if a property contains a locked stand, the entire property will be treated as such. If a property ever comes to such a state (mixed locked and unlocked stands), the behavior is undefined and may result in bugs. As discussed in the "User Interface" section above, the UI will dissallow this by preventing user from adding stands to locked properties - but it is not enforced at the database or API level.
 
-### Discussion of ongoing maintenance and potential issues
-
-mixing locked and unlocked stands (property would appear locked)
-
-
+As more rows are added to the fvsaggregate table, database maintenance will become important to ensure continued fast query times. In particular, table statistics should be updated with `VACUUM ANALYZE` so that the postgres query planner can do it's magic most effectively. In some cases, using `CLUSTER` may even be warranted.
