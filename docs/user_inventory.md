@@ -114,8 +114,7 @@ Similarly, the `ForestProperty` model will also have an additional `is_locked` p
 
 In the stand editing and creation UI (Step 2), we disallow creation of new stands for locked properties. This is accomplished by hiding the editing buttons (create, edit, delete) if property is locked and will not necessarily be enforced at the HTTP or Python API level.
 
-In the forest type UI (Step 3), we continue to show forest types - in the case of locked properties this **TODO may be condids?** -  but will issue a highly visible warning that any changes will not override the custom inventory (ie. it is useless to edit forest types)
-
+In the forest type UI (Step 3), we continue to show forest types which, in the case of locked properties, will be named by the condition id. Users may not edit stands or forest types (no create, edit, apply, or delete) and will be notified as such.
 
 ### `import_gyb` management command
 
