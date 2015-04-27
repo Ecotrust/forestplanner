@@ -648,8 +648,8 @@ class UserInventoryTest(TestCase):
         # this is sufficient so long as FVSAggregate.valid_condids() says so
         condids = (9820, 11307, 11311, 34157)
         for condid in condids:
-            FVSAggregate.objects.create(cond=condid, offset=0, year=2013,
-                                        var="WC", rx=1, site=2)
+            FVSAggregate.objects.create(cond=condid, offset=0, year=2013, age=32,
+                                        var="WC", rx=1, site=2, start_tpa=231)
 
     def test_importer_badcondid(self):
         self.assertEqual(len(Stand.objects.all()), 0)
@@ -699,6 +699,14 @@ class UserInventoryTest(TestCase):
 
         new_property = ForestProperty.objects.get(name="Locked Property")
         self.assertEqual(len(new_property.feature_set(feature_classes=[Stand])), 37)
+
+    def test_condid_strata(self):
+        from trees.utils import condid_strata
+        self._populate_fvsaggregate()
+
+        st = condid_strata(9820)
+        self.assertEqual(st['search_tpa'], 231)
+        self.assertEqual(st['search_age'], 32)
 
 
 class GrowthYieldTest(TestCase):

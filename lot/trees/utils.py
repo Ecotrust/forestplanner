@@ -172,7 +172,9 @@ def condid_strata(condid, forest_property_uid=''):
     Returns a dictionary of properties used to construct a strata
     based on the available data in fvsaggregate
     """
-    # TODO
+    # Take the growonly 2013 for this condition
+    fa = FVSAggregate.objects.filter(cond=condid, year=2013, rx=1)[0]
+
     stand_list = {
         'property': forest_property_uid,
         'classes': [
@@ -184,8 +186,8 @@ def condid_strata(condid, forest_property_uid=''):
 
     return {
         'stand_list': stand_list,
-        'search_tpa': tpa,
-        'search_age': age
+        'search_tpa': fa.start_tpa,
+        'search_age': fa.age
     }
 
 
