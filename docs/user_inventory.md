@@ -149,6 +149,16 @@ The general process, as it applies to any user inventory regardless of data qual
 5. Import the growth and yield results into the forest planner database using the `import_gyb` command.
 6. Upload spatial data to an internal account and perform manual QA/QC using the web interface to ensure that stands and inventory have been successfully linked and that scenario calculations are accurate.
 
+### Data Analysis Caveats
+
+This section highlights some of the quirks in the forest planner data model that should be kept in mind while preparing user inventory data.
+
+In the forest planner, temporal **offsets** are encoded as integers from 0 to 4 where an offset of 1 indicates a 5-year delay in harvest. However, the growth-yield-batch system encodes offsets as integers representing the actual number of years. While the later is more flexible and more widely applicable outside the context of the forest planner, the former is more strict and ensures that growth and yield data conform to a standard pattern of offsets.
+
+The implications of this design decision are handled by the `import_gyb` management command but if you choose another route for loading fvs data, you must handle this by dividing the gyb offset by 5 and ensuring forestplanner offset is an integer between 0 to 4, inclusive. Failure to do so will lead to all sorts of indeterminate bugs and inaccuracies.
+
+Related to offsets, the GYB system will not (by default) apply offsets to Grow-Only prescriptions, assumed to be `rx == 1`. The forest planner, when applying offsets to scenariostands in `trees.tasks.schedule_harvest`, will set offset to zero for any grow-only stands. So, under normal usage, this should not be an issue. If, for whatever reason, the scenariostands with rx 1 get assigned a non-zero offset and the gyb data is missing non-zero offsets for rx 1, the SQL joins will drop those stands entirely.
+
 ### Example Workflow
 workflow docs for David and Ryan re: importing from gyb,
 
