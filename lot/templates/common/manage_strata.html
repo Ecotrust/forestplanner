@@ -29,11 +29,11 @@
 				<span class="tab-num">4</span>
 				Evaluate Future Scenarios</a>
 		</li>
-		<!--									
+		<!--
 				//  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
 				apply bindings to the tabs in a callback. doing it on doc.ready for now.
 				or ko.observable set when this is ready
-				<li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind=" 
+				<li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind="
 					css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
 					app.properties.viewModel.selectedProperty().stand_summary.total()}">Evaluate Future Scenarios</a></li>
 					-->
@@ -53,14 +53,18 @@
 
 		<div class="span5">
       <!--<h2> Define Forest Types </h2>-->
-      
-      <div class="row-fluid btn-bar clearfix">
 
-      	<img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Forest types describe the composition of one or more of your stands, including the age, species, diameter classes, and number of trees per acre. Each forest type may be applied to one or more stands."></i> 
+      <div class="row-fluid btn-bar clearfix" data-bind="visible: !app.strata.property_is_locked">
+
+      	<img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Forest types describe the composition of one or more of your stands, including the age, species, diameter classes, and number of trees per acre. Each forest type may be applied to one or more stands."></i>
 
         <button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i>
             New Forest Type</button>
       </div>
+
+                  <div class="btn-bar clearfix" data-bind="visible: app.strata.property_is_locked">
+                     <em>This property's stands are linked to custom forest inventory data and cannot be edited.</em>
+                  </div>
 
 			<div class="well">
 
@@ -79,11 +83,11 @@
 										To apply a forest type to a stand, select a stand on the map and click the &ldquo;apply&rdquo; button on the
 										associated forest type. You can select multiple stands simply by clicking.
 								</p>
-							
+
 
 								<div class="next-button-wrap" data-bind="if: appliedStrataTotal() == standTotal">
 										<a class="btn btn-primary btn-large" data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
-                    <strong>Next</strong>: Evaluate Future Scenarios for 
+                    <strong>Next</strong>: Evaluate Future Scenarios for
                     <strong><em data-bind="text: app.strata.property_name"></em></strong>
                     <i class="icon-arrow-right"></i>
                   </a>
@@ -111,7 +115,7 @@
 											<dd data-bind="text: attributes.search_tpa"></dd>
 											<dt>Stand Age:</dt>
 											<dd data-bind="text: attributes.search_age"></dd>
-											<dt class="show-trees" data-bind="click: toggleTrees, 
+											<dt class="show-trees" data-bind="click: toggleTrees,
 												text: showTrees() ? '- Hide Trees' : '+ Show Trees'"></dt>
 											<dd class="dd-treelist" data-bind=" visible: showTrees">
 												<ul class="unstyled tree-list" data-bind="foreach: standList">
@@ -135,7 +139,7 @@
 									</div>
 								</div>
 
-								<div class="btn-group veg-type-btns" data-bind="visible: confirmDelete() === false">
+								<div class="btn-group veg-type-btns" data-bind="visible: confirmDelete() === false && !app.strata.property_is_locked">
 									<button class="btn btn-mini" title="Apply this forest type to any selected stands" data-bind="click: $parent.applyStrata">apply</button>
 									<button class="btn btn-mini" title="Edit this forest type" data-bind="click: $parent.editStratum">edit</button>
 									<button class="btn btn-mini" title="Delete this forest type" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
@@ -155,7 +159,7 @@
 			</div><!-- /.well -->
 
 
-			
+
 		</div>
 
 		<div class="span7">
@@ -169,7 +173,7 @@
                 </a>
                 <div id="legend-container">
                     <div class="clearfix"></div>
-                    <div id="legend-list" class="collapse"> 
+                    <div id="legend-list" class="collapse">
                       <div class="well">
                         <div style="opacity:1.0;" id="not-a-layerswitcher"></div>
                         <div id="legend"></div>
@@ -204,11 +208,11 @@
 						<p>We should have some help text here.</p>
 					</div>
 					-->
-					
+
 					<div>
 
 						<div data-bind="with: activeStratum" class="row-fluid">
-						
+
 							<div class="span6">
 								<div>
 									<h2 data-bind="visible: !editMode()">Create a Forest Type</h2>
@@ -237,9 +241,9 @@
 
 					 </div> <!-- /.row-fluid /with: activeStratum -->
 
-           <div class="alert-error well" style="font-weight: bold; white-space: pre-wrap" 
+           <div class="alert-error well" style="font-weight: bold; white-space: pre-wrap"
              data-bind="visible: vegetationTypeError(), text: vegetationTypeError"></div>
-           
+
            <div data-bind="with: activeStratum" class="row-fluid">
              <table class="table table-bordered stand-table">
 
@@ -292,13 +296,13 @@
 										 </div>
 									 </td>
 								 </tr>
-								
+
 
 								 <tr data-bind="visible: isEditing()">
 									 <td>
 										 <span>
 											 <label class="accessibility">Select a Species <br> <span data-bind="text: species"></span></label>
-											 <select style="width: 95%" data-bind="options: app.strata.treeSpecies, value: species,  
+											 <select style="width: 95%" data-bind="options: app.strata.treeSpecies, value: species,
 												 select2: {placeholder: 'Add a Species',  speciesData: species()}" >
 											 </select>
 										 </span>
@@ -311,9 +315,9 @@
 									 <td>
 										 <div class="row-fluid">
 											 <label class="accessibility">Percentage of Stand</label>
-											 <input name="percentage" class="input-mini span3" 
-												data-bind="value: percentage, 
-												valueUpdate: 'keyup', 
+											 <input name="percentage" class="input-mini span3"
+												data-bind="value: percentage,
+												valueUpdate: 'keyup',
 												css:{error: !percentageIsValid() }"
 												/> %
 											 <div class="help-inline alert-error" data-bind="visible: !percentageIsValid(), text:
@@ -323,9 +327,9 @@
 									-->
 										<td>
 											 <label class="accessibility">Trees per Acre</label>
-											 <input name="tpa" class="input-mini span3" 
+											 <input name="tpa" class="input-mini span3"
 												data-bind="value: tpa, valueUpdate: 'keyup' "
-												/> 
+												/>
 										</td>
 									 <td>
 										 <!--
@@ -338,13 +342,13 @@
 										 <span> <!-- /click:updateTree, -->
 											 <button class="btn btn-mini btn-success disabled" data-bind="click: $parent.saveTreee,
 													css: {
-													'enabled': species().length && !isNaN(parseFloat( tpa() )), 
-													'disabled': !species().length || isNaN(parseFloat( tpa() )) 
+													'enabled': species().length && !isNaN(parseFloat( tpa() )),
+													'disabled': !species().length || isNaN(parseFloat( tpa() ))
 													},
 													enable: species().length && !isNaN(parseFloat( tpa() ))" >
 													Save Species
 												</button>
-										 </span>	
+										 </span>
 									 </td>
 								 </tr>
 								 <!-- /ko -->
@@ -386,7 +390,7 @@
 
 
                 <!--</div> [> /if activeStratum <]-->
-        
+
       <!-- end partial -->
 
 {% endblock content %}
@@ -394,12 +398,12 @@
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/jquery.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/json2.js"></script> <!-- for the benefit of older IEs -->
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
-		<script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script> 
+		<script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script>
     <!--<script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.2.1.debug.js"></script>-->
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/knockout-custom-bindings.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/select2.js"></script>
-    
+
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-carousel.js"></script>
@@ -425,8 +429,8 @@
       }
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
-          background-color: inherit;            
-            
+          background-color: inherit;
+
         }
 
 				.stand-table th {
@@ -453,7 +457,7 @@
           bottom: 15px;
           z-index: 2000;
         }
-        
+
         .strata-list {
           z-index: 2000;
           margin-top: 10px;
@@ -474,7 +478,7 @@
             /*height: 100px;
             float: left;
             z-index: 2000;*/
-            
+
           }
 			  .stratum-box + .stratum-box		{ border-top: none; }
 			  .strata-list .stratum-box:hover	{ border: 1px solid #444; }
@@ -484,7 +488,7 @@
           border: 1px solid #DD5240;
           color: #DD5240;
           border-radius: 3px;
-          padding: 2px 5px 5px 6px;     
+          padding: 2px 5px 5px 6px;
           max-width: 60%;
           text-align: center;
         }
@@ -506,7 +510,7 @@
             line-height: 5px;
 						margin-bottom: 5px;
           }
-		  .strata-list .stratum-box .dl-horizontal dd, 
+		  .strata-list .stratum-box .dl-horizontal dd,
 			.strata-list .stratum-box .dl-horizontal dt{
 				float: left;
 				width: auto;
@@ -553,7 +557,7 @@
           .span6 .alert-error{
             margin-bottom: 10px;
             padding: 5px;
-          }   
+          }
 			.progress+.help-inline, .next-button-wrap{
 				margin-top: -1em;
 				margin-bottom: 2em;
@@ -570,7 +574,7 @@
             onShow: function (callback) {
                 callback();
                 //madrona.formCallbacks.push(callback);
-            }, 
+            },
             formCallbacks: [],
             features: {}
         };
@@ -582,7 +586,7 @@
         };
 
 
-		
+
 
         {% if user.is_authenticated %}
         $.get('/features/{{user.username}}/workspace-owner.json', function (data) {
@@ -594,7 +598,7 @@
         });
 
 
-        
+
 
         {% endif %}
 
@@ -607,6 +611,7 @@
         app.strata = {
             property_id: "{{ property_id }}",
             property_name: "{{ property_name }}",
+            property_is_locked: {% if property_is_locked %}true{% else %}false{% endif %},
             color: ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'],
 						treeSpecies : ko.observableArray(),
 						sizeClasses : []
@@ -623,18 +628,18 @@
 
             // app.breadCrumbs.breadcrumbs.push({url: 'stands/', action: null});
             // app.updateUrl();
-   
+
             ko.applyBindings(app.strata.viewModel);
 
             // $( "#map" ).droppable({
             //   drop: function (event, ui) {
-            //       app.strata.viewModel.applyStrata(ui.draggable.data('sid'))  
+            //       app.strata.viewModel.applyStrata(ui.draggable.data('sid'))
             //     }
             // });
 
             // add controls, save references
             app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-                { 
+                {
                     "clickout": false,
                     "multiple": true,
                     "toggle": true,
@@ -644,7 +649,7 @@
                 });
 
 							map.render('map');
-							map.updateSize();    
+							map.updateSize();
 							map.zoomToExtent(app.property_layer.getDataExtent());
 
 							$('.info-help').find('strong')
@@ -662,10 +667,10 @@
 									$t.text(' Read More...');
 								}
 							});
-		
+
 
             // reenable click and drag in vectors
-            map.addControl(app.selectFeature); 
+            map.addControl(app.selectFeature);
             app.selectFeature.activate();
 
         }
@@ -690,13 +695,13 @@
             self.species = ko.observable(options[0]);
             self.tpa = ko.observable('22');
             if (options[1] && options[2]) {
-              self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join(' to '));  
+              self.sizeClass = ko.observable([options[1] + '"', options[2] + '"'].join(' to '));
             } else {
               self.sizeClass = ko.observable();
             }
 
             if (options[3]) {
-              self.tpa = ko.observable(parseInt(options[3], 10));  
+              self.tpa = ko.observable(parseInt(options[3], 10));
             } else {
               self.tpa = ko.observable();
             }
@@ -709,7 +714,7 @@
 
             self.percentageIsValid = ko.observable(true);
             self.percentageIsValidMsg = ko.observable('');
-            
+
             self.index = ko.computed(function () {
                 var self = this;
                 return stratum.standList.indexOf(this);
@@ -719,12 +724,12 @@
               // delay the chart update for a bit
               if (chartTimer) {
                 clearTimeout(chartTimer);
-              } 
+              }
               chartTimer = setTimeout(function () {
-                app.strata.chartStandList(self.stratum.displayStandList());    
+                app.strata.chartStandList(self.stratum.displayStandList());
               }, 500);
-            
-              
+
+
             };
 
 
@@ -783,14 +788,14 @@
             self.currentStand = ko.observable();
             self.confirmDelete = ko.observable(false);
             self.editMode = ko.observable(false);
-            self.editTrees = ko.observable(false); 
+            self.editTrees = ko.observable(false);
 
             self.standList = ko.observableArray();
 
-            self.species = ko.observable(); 
-            self.sizeClass = ko.observable(); 
-            self.percentage = ko.observable(); 
-            self.tpa = ko.observable(); 
+            self.species = ko.observable();
+            self.sizeClass = ko.observable();
+            self.percentage = ko.observable();
+            self.tpa = ko.observable();
 
 						self.totalTpa = ko.computed(function(){
 							var totalTpa = 0;
@@ -848,9 +853,9 @@
 							return canSave;
 						});
 
-						self.recalculateDisplayStandList = ko.observable();	
+						self.recalculateDisplayStandList = ko.observable();
 
-						
+
             // display a computed standlist with a dummy last item
             // to show the remaining percentage
 						//called on keyup when model changes at all
@@ -859,7 +864,7 @@
               var displayStandList = [], totalPercentage = 0, msg;
 
 							// cheap hax. When saving a standlist member, we ping recalculateDisplayStandList so displayStandlist
-							// updates itself. without it, we don't get the remaining % species placeholder added again. 
+							// updates itself. without it, we don't get the remaining % species placeholder added again.
 							self.recalculateDisplayStandList();
 
               $.each(self.standList(), function (i, stand) {
@@ -878,21 +883,21 @@
 									  stand.percentage(100 - (totalPercentage-stand.percentage() ) );
 
                     // let them know and keep on editing
-                    stand.percentageIsValid(false);                   
+                    stand.percentageIsValid(false);
                     stand.percentageIsValidMsg(msg);
 										stand.editTree()
 
 
 									} else {
-										stand.percentageIsValid(true);                   
+										stand.percentageIsValid(true);
 									}
 
                 }
 								*/
-									displayStandList.push(stand);  
+									displayStandList.push(stand);
               });
 
-              //if (totalPercentage < 100 ) { 
+              //if (totalPercentage < 100 ) {
 
 								if ( app.strata.viewModel.activeStratum() && ( app.strata.viewModel.activeStratum().attributes.name() == self.attributes.name() ) ){
 									// species name, sizeclass lower bound, upper bound, percentage
@@ -907,11 +912,11 @@
 										if( app.strata.viewModel.activeStratum().attributes.uid == self.attributes.uid ){
 											// self.standList.push(placeHolder);
 										}
-								} 
+								}
 
 								//self.currentStand(placeHolder);
 								//self.currentStand().updateChart();
-																	
+
              // }
 
               return displayStandList;
@@ -967,7 +972,7 @@
 									//hey count, pay attention.
 									app.strata.viewModel.setAppliedStrataTotal();
 								}
-							});	
+							});
 						};
 
 						self.addSpecies = function (stand, event) {
@@ -979,7 +984,7 @@
 							//sizes = '24" to 36"' - remove quotes and split
 							sizes = self.sizeClass().replace(/(")/g, "").split(" to ");
 
-							// 139% sure there is a better way. 
+							// 139% sure there is a better way.
 							attrs[0] = self.species();
 							attrs[1] = sizes[0];
 							attrs[2] = sizes[1];
@@ -1030,13 +1035,13 @@
 							},
 							update: function(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 								//$(element).trigger('change');
-								
+
                 if ( !self.currentStand() ) {
 									var stand = new standViewModel(self);
                   self.currentStand(stand);
 								}
 
-								
+
 							}
 						};
 
@@ -1059,7 +1064,7 @@
           self.searchTerm = ko.observable();
           // list of strata
           self.strataList = ko.observableArray();
-					self.vegetationTypeError = ko.observable(null);	
+					self.vegetationTypeError = ko.observable(null);
           self.standTotal = app.stand_layer.features.length;
 
 					// n of Y stands applied
@@ -1070,7 +1075,7 @@
           	$.each(app.stand_layer.features, function (i, stand) {
 							if (stand.attributes.strata !== null ) {
 								total = total + 1;
-							}	
+							}
 						});
 						self.appliedStrataTotal(total);
 
@@ -1089,17 +1094,17 @@
           self.filteredStrataList = ko.computed(function () {
             var strataList = this, filteredStrataList = [],
               searchTerm;
-            
+
             if (self.searchTerm()) {
               searchTerm = self.searchTerm().toLowerCase();
-					
+
               // filter the strata list
               $.each(strataList(), function (i, strata) {
 
                 // if (strata.attributes.name().toLowerCase().indexOf(searchTerm) !== -1 || strata.attributes.stand_list().toLowerCase().indexOf(searchTerm) !== -1) {
                 if (strata.attributes.name().toLowerCase().indexOf(searchTerm) !== -1) {
                   filteredStrataList.push(strata);
-                } 
+                }
               });
             } else {
               filteredStrataList = strataList();
@@ -1114,36 +1119,36 @@
           self.activeStratum.subscribe(function (activeStratum) {
 
             if (activeStratum && activeStratum.standList().length) {
-              app.strata.chartStandList(activeStratum.displayStandList());  
+              app.strata.chartStandList(activeStratum.displayStandList());
             } else { // no active stratum, so set cached chart data to null
               app.strata.chartData = null;
             }
-            
+
           });
 
           self.strataList.subscribe(function(){
           	self.setAppliedStrataTotal();
           });
-          
+
           self.rubberBandActive = ko.observable(false);
 
           app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-            { 
+            {
               "clickout": false,
               "multiple": true,
               "toggle": true,
               "selectStyle": map_styles.strataSelect
             });
-            
+
           app.selectFeatureBox = new OpenLayers.Control.SelectFeature(app.stand_layer,
-            { 
+            {
               "clickout": false,
               "multiple": true,
               "toggle": true,
               "box": true,
               "selectStyle": map_styles.strataShiftSelect
-            }); 
-          
+            });
+
           $(document).on('keydown', function (e) {
             if (e.shiftKey && !self.rubberBandActive()) {
               self.rubberBandActive(true);
@@ -1151,7 +1156,7 @@
               app.selectFeatureBox.activate();
             }
           });
-          
+
           $(document).on('keyup', function (e) {
               if (self.rubberBandActive()) {
                 self.rubberBandActive(false);
@@ -1159,9 +1164,9 @@
                 app.selectFeature.activate();
               }
           });
-          
-          map.addControl(app.selectFeature); 
-          map.addControl(app.selectFeatureBox); 
+
+          map.addControl(app.selectFeature);
+          map.addControl(app.selectFeatureBox);
 
           self.editStratum = function (stratum) {
             // var duplicateStratum = new stratumViewModel(ko.toJS(stratum.attributes));
@@ -1205,21 +1210,21 @@
 
 							// add and remove a temporary warning
 							$('[data-sid="'+stratum_id+'"]').prepend('<div class="alert-error">'+msg+'</div>')
-							.find('.alert-error').each(function(){ 
+							.find('.alert-error').each(function(){
 								$t = $(this);
 								window.setTimeout(function(){
 								$t.fadeOut(1300, function(){
 									$t.remove();
-								}); 
+								});
 								}, 5000);
 							});
 
 							return;
 						}
-						
+
 						// apply strata to selected stands
 						$.each(app.stand_layer.selectedFeatures, function (i, feature) {
-							// don't count features already counted 
+							// don't count features already counted
 							if (!feature.attributes.strata){
 								// var currentTotal = self.appliedStrataTotal();
 								// self.appliedStrataTotal(currentTotal+1);
@@ -1244,7 +1249,7 @@
 
 
 					self.saveStrata = function (data, event) {
-						
+
 
             var self = this, postData,
                 // stratum = self.activeStratum(),
@@ -1253,7 +1258,7 @@
 								$target = 	$(event.target),
 								$targetText = $target.text();
 
-						
+
             if ( ! stratum.canSave() ) {
               self.vegetationTypeError("Please include a name and age for this Forest Type.");
               return;
@@ -1266,7 +1271,7 @@
             if (stratum.editMode()) {
               url = "/features/strata/{uid}/".replace('{uid}', stratum.attributes.uid);
             }
-           
+
 						stratum.attributes.search_tpa( stratum.totalTpa() );
             postData = ko.mapping.toJS(stratum.attributes);
 
@@ -1277,18 +1282,18 @@
 
                     if (stand.species() && stand.sizeClass() && stand.tpa()) {
 												sizes = stand.sizeClass().replace(/(")/g, "").split(" to ");
-												/*											
+												/*
                         return [[
-                          stand.species(), 
-                          parseInt(sizes[0], 10), 
-                          parseInt(sizes[1], 10), 
+                          stand.species(),
+                          parseInt(sizes[0], 10),
+                          parseInt(sizes[1], 10),
                           parseInt( (Math.ceil( (stand.percentage()/100*stratum.attributes.search_tpa()) * 10 ) / 10).toFixed(2), 10)
                         ]];
                         */
                         return [[
-                          stand.species(), 
-                          parseInt(sizes[0], 10), 
-                          parseInt(sizes[1], 10), 
+                          stand.species(),
+                          parseInt(sizes[0], 10),
+                          parseInt(sizes[1], 10),
                           parseInt( stand.tpa() )
                         ]];
                     }
@@ -1301,7 +1306,7 @@
                 traditional: true,
                 datatype: 'json',
                 data: postData,
-                success: function (response) { 
+                success: function (response) {
 
 										if( typeof(response) == "string" ) {
 											response = jQuery.parseJSON(response);
@@ -1317,15 +1322,15 @@
                       app.strata.associateStandWithProperty(app.strata.property_uid, strata_uid);
                       self.activeStratum().attributes.stand_list = postData.stand_list;
                       self.activeStratum().attributes.uid = strata_uid;
-                      self.strataList.push(self.activeStratum());  
+                      self.strataList.push(self.activeStratum());
                     }
                     self.activeStratum(null);
                     self.vegetationTypeError(null);
 										map.render('map');
 
-                    
+
                 },
-                error: function (response) { 
+                error: function (response) {
                   var msg = "";
                   if(response.status == 400){
 										//@TODO er, ko. -wm
@@ -1342,9 +1347,9 @@
                     msg += " via the about page above. thank you.";
                     self.vegetationTypeError(msg);
                   }
-                }, 
+                },
 								complete: function (){
-									$target.removeClass('loading').text($targetText); 
+									$target.removeClass('loading').text($targetText);
 								}
 
             });
@@ -1352,20 +1357,20 @@
 
           return self;
         };
-    
+
 
 
         app.strata.deleteStratum = function (strata_uid, cb) {
           var url = "/features/generic-links/links/delete/{strata_uid}/".replace('{strata_uid}', strata_uid);
-          
+
           return $.ajax({
               url: url,
               type: "DELETE",
               traditional: true,
-              success: function (response) { 
+              success: function (response) {
                 cb();
               },
-              error: function (response) { 
+              error: function (response) {
                 //debugger;
               }
           });
@@ -1373,16 +1378,16 @@
 
         app.strata.applyStrataToStand = function (strata_uid, stand_uid_list) {
           var url = "/features/strata/links/add-stands/{strata_uid}/".replace('{strata_uid}', strata_uid);
-          
+
           return $.ajax({
               url: url,
               type: "POST",
               data: { 'stands': stand_uid_list.join() },
               traditional: true,
-              success: function (response) { 
+              success: function (response) {
                 //debugger;
               },
-              error: function (response) { 
+              error: function (response) {
                 //debugger;
               }
           });
@@ -1390,7 +1395,7 @@
 
         app.strata.associateStandWithProperty = function (property_uid, strata_uid) {
           var url = "/features/forestproperty/{property_uid}/add/{strata_uid}";
-          
+
           url = url.replace('{property_uid}', app.strata.property_id);
           url = url.replace('{strata_uid}', strata_uid);
 
@@ -1398,11 +1403,11 @@
               url: url,
               type: "POST",
               traditional: true,
-              success: function (response) { 
-                  
+              success: function (response) {
+
               },
-              error: function (response) { 
-                  
+              error: function (response) {
+
               }
           });
         }
@@ -1433,7 +1438,7 @@
 
             $.get('/features/generic-links/links/geojson/{uid}/'.replace('{uid}', app.strata.property_id), function (data) {
                 app.property_layer.addFeatures(app.geojson_format.read(data));
-                
+
             }),
             $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', app.strata.property_id), function (data) {
                 //var styleMap = map_styles.stand;
@@ -1450,7 +1455,7 @@
                   }
                 });
                 map.addLayer(app.stand_layer);
-                app.stand_layer.addFeatures(app.geojson_format.read(data));  
+                app.stand_layer.addFeatures(app.geojson_format.read(data));
             })
         ).then(function () {
             app.strata.init();
@@ -1470,12 +1475,12 @@
         var chart, chartData, chartDataUpdated = true;
         if (app.strata.chartTimer) {
 
-        }  
+        }
         chartData = $.map(standList, function (stand) {
           var sizeClass = stand.sizeClass() ? (' ' + stand.sizeClass()): null;
           if (stand.percentage()) {
             return [
-              [ 
+              [
                 stand.species() +  ' ' + sizeClass,
                 parseInt(stand.percentage(),10)
               ]
@@ -1528,20 +1533,20 @@
                     name: 'Percentage',
                     data: chartData
                 }]
-            
-            });  
-          }, 300); 
+
+            });
+          }, 300);
         }
       };
 
 
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
-    
+
     {% compressed_js 'application' %}
 
     <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
-        
+
 
     <script src="{{ MEDIA_URL }}common/js/strata.js"></script>
 

@@ -105,9 +105,12 @@ def manage_strata(request, property_uid):
     if isinstance(forestproperty, HttpResponse):
         return forestproperty
     name = forestproperty.name
+    is_locked = forestproperty.is_locked
     return render_to_response(
         'common/manage_strata.html',
-        {'property_id': property_uid, 'property_name': name},
+        {'property_id': property_uid,
+         'property_name': name,
+         'property_is_locked': is_locked},
         context_instance=RequestContext(request))
 
 
