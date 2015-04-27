@@ -159,12 +159,18 @@ def schedule_harvest(scenario_id):
     # TODO prep scheduler, run it, parse the outputs
     #
     # INSTEAD just assign random offset to every scenariostand
-
     # construct scheduler results dict eventually stored as output_scheduler_results
     # (not used currently except to check scenario status so it must exist)
     offsets = {}
     for sstand in scenariostands:
-        random_offset = random.randint(0, 4)
+        if sstand.rx_internal_num == 1:
+            # Special case, offset for rx=1 (Grow Only)
+            # should always be zero
+            random_offset = 0
+        else:
+            # Otherwise, randomly assign offset index, 0 to 4
+            random_offset = random.randint(0, 4)
+
         offsets[sstand.id] = random_offset
         sstand.offset = random_offset
         sstand.save()
