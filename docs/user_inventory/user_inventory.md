@@ -37,16 +37,33 @@ First, we will assume that the user or client in question already has a valid fo
 
 The general process, as it applies to any user inventory regardless of data quality, proceeds as follows:
 
-## Merge branch and get environment set up
+## Development environment set up
 
+**TODO** :: remove branch once this has been merged with master.
+
+For initial testing, you'll need to be on the `user_inventory` branch of the `forestplanner` repository.
+```
 git fetch
 git checkout user_inventory
+```
 
+To confirm that the installation is running properly, fire up the virtual machine and run
+```
+python manage.py test trees.UserInventoryTest
+```
+
+You'll also want to install the growth-yield-batch system.
+
+```
+git clone git@github.com:Ecotrust/growth-yield-batch.git@git
+```
+
+And finally you'll need to build the FVS binaries according to [the wiki guide](https://github.com/Ecotrust/growth-yield-batch/wiki/Building-FVS-binaries-on-Linux).
 
 ## Assign Unique condition ids
 First, we must ensure that each plot in the user inventory is assigned a globally unique **condition id** or `condid`. They must not conflict with public inventory condids or with any other user's condids including their own. Unique condids are crucial to the system and determining them for each plot within a user's inventory is an important first step. Remember that condid is an integer and, if it is desired to have *identifiable* ids, it is the responsibility of the site admin to develop and implement a system for managing ids in such a manner.
 
-For example, let's say our user has 2 forest inventory plots, which they named A1 and A2. We need integer values, so we could renamed them to `condid` 1 and 2 - but that may well conflict with existing plots in the database. We need *unique* integers so we may choose to assign a numeric scale such that this user reserves a slot of one thousand ids, from 223,000 through 224,000. Thus their two plots might be 223001 and 223002.
+For example, let's say our user has 2 forest inventory plots, which they named A1 and A2. We need integer values, so we could renamed them to `condid` 1 and 2 - but that may well conflict with existing plots in the database. We need *unique* integers so we may choose to assign a numeric scale such that this user reserves a slot of one thousand ids, from 223,000 through 224,000. Thus their two plots might be assigned the condids 223001 and 223002.
 
 After deriving the unique condids, you must continue to use them in both the inventory data and spatial data throughout the process. In other words, it's worth taking a few minutes to get it right and do the proper bookkeeping to avoid id collisions.
 
@@ -63,21 +80,41 @@ Once the data is complete, the component files of the shapefile are zipped into 
 
 Processing inventory data for use with the [growth-yield-batch](https://github.com/Ecotrust/growth-yield-batch) system will require variable levels of technical effort depending on the quality of the user's data.
 
-The result __condid__.fvs must conform to the FVS sample design and fileformat used by the keyfiles (specified in input_formats.txt)
-Also need .rx
-Also need .site  (ONLY ONE!)
-Also need .std file, one line STDINFO from FVS
+Each condition must be represented by four files:
 
+* `.fvs` file with treelists; must conform to the FVS sample design and file format used by the keyfiles. For example, see the specification in [input_formats.txt](https://github.com/Ecotrust/growth-yield-batch/blob/master/projects/ForestPlanner/rx/include/inputs_formats.txt)
+* `.rx` file defining which variants and projections to run; usually single line `PN,*` or similar
+* `.site` file defining variant and site class; e.g. `PN,2`. Make sure site classes are well defined in your config.json (see next section) and that they are semantically consistent across the whole forest planner database.
+* `.std` file, one line STDINFO from FVS; see FVS manual and [example](https://github.com/Ecotrust/growth-yield-batch/blob/master/projects/ForestPlanner/cond/113.std)
+
+Depending on the format and organization of the user's inventory data, manipulating data to match the GYB design will be a critical step in ensuring the accuracy of the resulting data. There is no automated method to do this at the moment; it will inevitably require human decision making, though after some practice and standardization I believe the process could be streamlined.
 
 ## Run growth-yield-batch model
 
-The rxs for each variant must be identical or practically identical - small changes to FVS keyfiles are OK as long as the intent of the prescription is unaltered.
+The prescriptions (rxs) used in the growth and yield modeling of the user's stands must match almost exactly the rxs currently in the forest planner. Small changes to FVS keyfiles are OK as long as the intent of the prescription is unaltered.
 
-point to standard forest planner config.json
+The configuration of the batch lives in `config.json`. You probably won't have to edit [the default configuration](https://github.com/Ecotrust/growth-yield-batch/blob/master/projects/ForestPlanner/config.json) unless you want to add a different site class or redefine a site class for a particular property. The public inventory data in the forest planner is represented with the following site classes:
 
-Run batch --cores blah
 
-Finally, open the resulting data.db and run some queries to ensure data quality control.
+ Variant | Site Class
+-----+------
+ PN  |    2
+ CA  |    4
+ SO  |    4
+ BM  |    4
+ WC  |    2
+ EC  |    4
+
+
+It's important to note that the forest planner assumes only **one site class** per condition per variant. Technically you *can* import the same data run under multiple site classes but it is to be avoided and will yield innacurate scenario results.
+
+With the configuration set, we can run the GYB batch:
+
+    export NUMCORES=`sysctl -n hw.ncpu`
+    build_keys.py
+    batch_fvs.py --cores $NUMCORES
+
+As the batch is running, cd to the same directory and run `status_fvs.sh` to check the progress. Open the resulting data.db and run some queries to ensure data quality control.
 
 
 ## Import into Forest Planner database
@@ -88,13 +125,19 @@ python manage.py import_gyb gyb_data/final/data.db
 ```
 
 ## Upload Spatial data
-Upload spatial data to an internal account and perform manual QA/QC using the web interface to ensure that stands and inventory have been successfully linked and that scenario calculations are accurate.
+
+Upload spatial data to an internal account and perform manual QA/QC using the web interface to ensure that stands and inventory have been successfully linked and that scenario calculations are accurate. Then optionally upload directly to the user's account; You can do this through the web interface (if you have web access to their account) or directly in the django shell
 
 ```
-<code></code>
+from django.contrib.auth.models import User
+from trees.utils import StandImporter
+
+user = User.objects.get(username="mperry")
+s = StandImporter(user)
+s.import_ogr('/tmp/stands.shp', new_property_name="Matt's Property")
 ```
 
-or manual testing
+The stands will be checked and condids will be validated on import.
 
 ## General Caveats
 
@@ -123,6 +166,11 @@ As more rows are added to the fvsaggregate table, database maintenance will beco
 
 
 
+
+
+
+
+![Forest Planner Inventory Workflow, public and custom](workflows.png)
 
 
 
@@ -180,11 +228,6 @@ We must ensure that locked stands are never disassociated with their inventory; 
 Notably, this allows database administrators to run the nearest neighbor on *all* stands (e.g. during a large data migration involving new public inventory) without worrying how it might affect locked stands.
 
 
-
-
-
-
-![Forest Planner Inventory Workflow, public and custom](userinventory_planning.png)
 
 
 
