@@ -372,6 +372,7 @@ function scenarioViewModel(options) {
             $("div#scenario-form-metacontainer").show();
             $("#scenario-outputs").hide();
             $("#map").show();
+            window.dispatchEvent(new Event('resize'));
         } else {
             $("div#scenario-form-metacontainer").hide();
             $("#scenario-outputs").show();
