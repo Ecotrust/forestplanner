@@ -1,12 +1,14 @@
 ---
-title: Using Custom Inventory Data in the Ecotrust Forest Planner
-author: Matthew Perry
-date: May 15, 2015
+title: 'Ecotrust Forest Planner: Custom Inventory Data'
+author: 'Matthew Perry'
+date: 'May 15, 2015'
 abstract:
 
-    The Ecotrust Forest Planner allows users to map their forest properties and evaluate future scenarios based on a database of growth and yield data. In typical usage, a user enters their forest type which is matched against the public forest inventory plots. The most similar public plot is selected as a proxy, a process is known as *Nearest Neighbor*.
+    'The Ecotrust Forest Planner allows users to map their forest properties and evaluate future scenarios through a web application. The scenario results are based on a database of growth and yield data derived from public forest inventory plots. In normal usage, a user enters their forest types manually which are then matched against the database and the most similar public plot is selected as a proxy, a process is known as the nearest neighbor.
 
-    This document outlines new functionality for incorporating custom inventory data, effectively bypassing the nearest neighbor. This gives users access to scenario results based on growth and yield modeling of their own site inventory data rather than of the nearest public plot. This document is intended for forest planner site administrators and covers the technical design and workflow of the new functionality.
+    The new functionality described in this document allows for the import of custom inventory data, effectively bypassing the nearest neighbor. This gives users access to scenario results based on growth and yield modeling of their own site inventory data rather than of the nearest public plot.
+
+    This document is intended for forest planner site administrators and covers the technical design and workflow of the new functionality.'
 ---
 
 # Introduction
@@ -52,7 +54,7 @@ To confirm that the installation is running properly, fire up the virtual machin
 python manage.py test trees.UserInventoryTest
 ```
 
-You'll also want to install the growth-yield-batch system.
+You'll also want to install the growth-yield-batch system, either locally or on another workstation other than your dev virtual machine.
 
 ```
 git clone git@github.com:Ecotrust/growth-yield-batch.git@git
@@ -61,11 +63,20 @@ git clone git@github.com:Ecotrust/growth-yield-batch.git@git
 And finally you'll need to build the FVS binaries according to [the wiki guide](https://github.com/Ecotrust/growth-yield-batch/wiki/Building-FVS-binaries-on-Linux).
 
 ## Assign Unique condition ids
-First, we must ensure that each plot in the user inventory is assigned a globally unique **condition id** or `condid`. They must not conflict with public inventory condids or with any other user's condids including their own. Unique condids are crucial to the system and determining them for each plot within a user's inventory is an important first step. Remember that condid is an integer and, if it is desired to have *identifiable* ids, it is the responsibility of the site admin to develop and implement a system for managing ids in such a manner.
+First, we must ensure that each plot in the user inventory is assigned a globally unique **condition id** or `condid`. They must not conflict with public inventory condids or with any other user's condids. Unique condids are crucial to the system and determining them for each plot within a user's inventory is an important first step. Remember that condid is an integer and, if it is desired to have *identifiable* ids, it is the responsibility of the site admin to develop and implement a system for managing ids in such a manner.
 
-For example, let's say our user has 2 forest inventory plots, which they named A1 and A2. We need integer values, so we could renamed them to `condid` 1 and 2 - but that may well conflict with existing plots in the database. We need *unique* integers so we may choose to assign a numeric scale such that this user reserves a slot of one thousand ids, from 223,000 through 224,000. Thus their two plots might be assigned the condids 223001 and 223002.
+As an example of such a system, we may choose to assign a numeric scale such that this user reserves a slot of condids; We might assign condid ranges starting at condid $C+(u*n)$ where:
 
-After deriving the unique condids, you must continue to use them in both the inventory data and spatial data throughout the process. In other words, it's worth taking a few minutes to get it right and do the proper bookkeeping to avoid id collisions.
+* $C$ is a constant starting condid. For $condid>C$, all ids are assumed to belong to a user. For $condid<C$,  they are reserved for public inventory condids.
+* $u$ is the forest planner user id.
+* $n$ is the maximum number of allowable condids per user.
+
+For example, our user may have 20 forest inventory plots, which they named $A1$ through $A20$. We need integer values, so we could renamed them to condid $1$ through $20$ - but that may well conflict with existing plots in the database. We need unique integers so we might assign $C=1000000$, $n=1000$.
+Let's say our user id $u=19$, that would give us a starting id of $1000000 + (19 * 1000) = 1019000$. Thus our user's condids could range from $1019001$ to $1019020$.
+
+It's important to understand that the system suggested above is not the only option; there are tradeoffs and other approaches that may be more suitable. Consider this carefully as it must be set globally and enforced through policy and practice, not software.
+
+After deriving the unique condids, you must continue to use them in both the inventory data and spatial data throughout the process. The approach suggested in this document is to run the growth and yield modeling with native condids (e.g. 1 through 20) and then alter the growth and yield data *and* the spatial data just before import to conform to the chosen forest planner condid system.
 
 
 ## Create linked spatial data
@@ -80,12 +91,13 @@ Once the data is complete, the component files of the shapefile are zipped into 
 
 Processing inventory data for use with the [growth-yield-batch](https://github.com/Ecotrust/growth-yield-batch) system will require variable levels of technical effort depending on the quality of the user's data.
 
-Each condition must be represented by four files:
+Each condition must be represented by five files:
 
 * `.fvs` file with treelists; must conform to the FVS sample design and file format used by the keyfiles. For example, see the specification in [input_formats.txt](https://github.com/Ecotrust/growth-yield-batch/blob/master/projects/ForestPlanner/rx/include/inputs_formats.txt)
 * `.rx` file defining which variants and projections to run; usually single line `PN,*` or similar
 * `.site` file defining variant and site class; e.g. `PN,2`. Make sure site classes are well defined in your config.json (see next section) and that they are semantically consistent across the whole forest planner database.
 * `.std` file, one line STDINFO from FVS; see FVS manual and [example](https://github.com/Ecotrust/growth-yield-batch/blob/master/projects/ForestPlanner/cond/113.std)
+* `.cli` file, technically not needed - if included, just leave blank.
 
 Depending on the format and organization of the user's inventory data, manipulating data to match the GYB design will be a critical step in ensuring the accuracy of the resulting data. There is no automated method to do this at the moment; it will inevitably require human decision making, though after some practice and standardization I believe the process could be streamlined.
 
@@ -106,16 +118,27 @@ The configuration of the batch lives in `config.json`. You probably won't have t
  EC  |    4
 
 
-It's important to note that the forest planner assumes only **one site class** per condition per variant. Technically you *can* import the same data run under multiple site classes but it is to be avoided and will yield innacurate scenario results.
+It's important to note that the forest planner assumes only **one site class** per condition per variant. From a database constraint perspective, you're allowed to import the same plot data run under multiple site classes but it is to be avoided and will yield inaccurate scenario results.
 
 With the configuration set, we can run the GYB batch:
 
-    export NUMCORES=`sysctl -n hw.ncpu`
+    cd growth-yield-batch/projects/userinventory_test
+    export PATH=/Users/mperry/projects/forestplanner/growth-yield-batch/scripts:$PATH
+
     build_keys.py
-    batch_fvs.py --cores $NUMCORES
+    batch_fvs.py --cores 4
 
 As the batch is running, cd to the same directory and run `status_fvs.sh` to check the progress. Open the resulting data.db and run some queries to ensure data quality control.
 
+## Reminder: ensure unique condids
+
+If you're run the growth and yield modeling with native, user-defined plot ids, you'll need to convert them to forest planner condids before importing. This applies to both the growth and yield data *and* the spatial data.
+
+To update the condids in the GYB output, you can make a copy of the database and alter the column with sqlite SQL query:
+
+    UPDATE trees_fvsaggregate SET cond = cond + 1019000
+
+The spatial data must be updated in a similar manner, resulting in a `condid` column with the same id scheme.
 
 ## Import into Forest Planner database
 Import the growth and yield results into the forest planner database using the `import_gyb` command.
@@ -123,6 +146,8 @@ Import the growth and yield results into the forest planner database using the `
 ```
 python manage.py import_gyb gyb_data/final/data.db
 ```
+
+When uploading new data, be aware that you may need to clear some caches - see the "FVSAggregate model" section below. You many also need to rerun database statistics in order to improve performance after particularly large imports.
 
 ## Upload Spatial data
 
