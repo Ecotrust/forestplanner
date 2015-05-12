@@ -607,14 +607,29 @@
             app.helpText($(text).find('#intro-vegetation')[0].outerHTML);
         });
 
+        // call array.cycle(x) to extend the array to x elements
+        // by cycling through. if x < length, return original array
+        Array.prototype.cycle = function(val){
+            var l = this.length;
+            if(l < val){
+                for(var i = val-1-l; i >= 0; i--){
+                    this[i+l] = this[i % l];
+                }
+            }
+            return this;
+        };
+
+        var colorRamp = ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'];
+        colorRamp = colorRamp.cycle(50); // support up to 50 forest types
+
         // to go into strata.js
         app.strata = {
             property_id: "{{ property_id }}",
             property_name: "{{ property_name }}",
             property_is_locked: {% if property_is_locked %}true{% else %}false{% endif %},
-            color: ['D8E2A7','DA9C90','D2A379','CCC266','ADD071','6AC247','339936','267373','349D7F','449FC1','6A86CD','7971D0','AB81D5','C79FDF','EBC6EC'],
-                        treeSpecies : ko.observableArray(),
-                        sizeClasses : []
+            color: colorRamp,
+            treeSpecies : ko.observableArray(),
+            sizeClasses : []
         };
 
         app.strata.colorMap = {};
