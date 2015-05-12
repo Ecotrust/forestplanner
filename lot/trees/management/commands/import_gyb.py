@@ -30,7 +30,7 @@ def get_gyb_rows(db_path, fields, arraysize=1000):
             # Special case, adjust semantics of offset
             # Offset from GYB is integer years
             # Offset in FP is integer in set(0,1,2,3,4) where offset=1 is 5 years, etc
-            res['offset'] = int(res['offset'] / 5)
+            res['offset'] = int(res['offset']) / 5
             yield res
         print("inserted {} rows...".format(i))
 
