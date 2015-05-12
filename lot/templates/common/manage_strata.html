@@ -115,7 +115,7 @@
                                             <dd data-bind="text: attributes.search_tpa"></dd>
                                             <dt>Stand Age:</dt>
                                             <dd data-bind="text: attributes.search_age"></dd>
-                                            <dt class="show-trees" data-bind="click: toggleTrees,
+                                            <dt class="show-trees" data-bind="visible: !app.strata.property_is_locked, click: toggleTrees,
                                                 text: showTrees() ? '- Hide Trees' : '+ Show Trees'"></dt>
                                             <dd class="dd-treelist" data-bind=" visible: showTrees">
                                                 <ul class="unstyled tree-list" data-bind="foreach: standList">
