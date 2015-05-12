@@ -1,5 +1,6 @@
 *.pyc
 lot/settings_local.py
+lot/data.db
 *.log
 *.pid
 *.orig
