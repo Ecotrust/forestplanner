@@ -192,7 +192,7 @@ $(document).ready(function() {
             try {
                 attr = feature.attributes.results[selectedTimeMapMetric][yearIndex];
             } catch(e) {
-                console.error("Scenariostand missing " + selectedTimeMapMetric);
+                console.error("ScenarioStand missing " + selectedTimeMapMetric);
                 return "#ccc";
             }
 
