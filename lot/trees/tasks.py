@@ -4,8 +4,9 @@ import json
 import datetime
 import random
 
+DELAY = 0.5
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)  # retry up to 5 times, 5 seconds apart
 def impute_rasters(stand_id, savetime):
     # import here to avoid circular dependencies
     from trees.utils import terrain_zonal
@@ -47,7 +48,7 @@ def impute_rasters(stand_id, savetime):
     return res
 
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)  # retry up to 5 times, 5 seconds apart
 def impute_nearest_neighbor(stand_results, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
@@ -123,7 +124,7 @@ def impute_nearest_neighbor(stand_results, savetime):
     return {'stand_id': stand_id, 'cond_id': cond_id}
 
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
     from trees.models import Scenario, ScenarioNotRunnable
@@ -154,6 +155,7 @@ def schedule_harvest(scenario_id):
     try:
         scenariostands = fake_scenariostands(scenario)
     except ScenarioNotRunnable:
+        print "****************\n" * 20
         raise schedule_harvest.retry(max_retries=2)
 
     #

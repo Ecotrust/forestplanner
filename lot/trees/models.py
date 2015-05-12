@@ -1199,7 +1199,6 @@ class ForestProperty(FeatureCollection):
                           input_age_class=10,
                           )
             s1.save()
-            s1.run()
 
         if Scenario.objects.filter(input_property=self, name="Conventional Even-Aged").count() == 0:
             rxs = Rx.objects.filter(internal_type='CI', variant=self.variant)
@@ -1220,7 +1219,6 @@ class ForestProperty(FeatureCollection):
                           input_age_class=1,
                           )
             s2.save()
-            s2.run()
 
         return True
 
@@ -1923,10 +1921,13 @@ class SpatialConstraint(models.Model):
 class ScenarioStand(PolygonFeature):
     """
     Populated as the scenario is created (tasks.schedule_harvest)
-    The result of a spatial intersection between
+    ScenarioStands were intended to be the result of a spatial intersection b/t
       1. Stands for this scenario
       2. All SpatialConstraints chosen for this scenario
     The Rx from #2 takes precedence over the Rx from #1.
+
+    BUT... we currently just copy the stands 1:1 to scenariostands
+    see trees.utils.fake_scenariostands
     """
     # geometry_final = inherited from PolygonFeature
     # assert that all cond_ids are present or make FK?
