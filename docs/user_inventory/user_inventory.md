@@ -136,7 +136,7 @@ If you're run the growth and yield modeling with native, user-defined plot ids, 
 
 To update the condids in the GYB output, you can make a copy of the database and alter the column with sqlite SQL query:
 
-    UPDATE trees_fvsaggregate SET cond = cond + 1019000
+    UPDATE trees_fvsaggregate SET cond = cond + 1195000;
 
 The spatial data must be updated in a similar manner, resulting in a `condid` column with the same id scheme.
 
