@@ -649,7 +649,7 @@ class UserInventoryTest(TestCase):
         condids = (9820, 11307, 11311, 34157)
         for condid in condids:
             FVSAggregate.objects.create(cond=condid, offset=0, year=2013, age=32,
-                                        var="WC", rx=1, site=2, start_tpa=231)
+                                        var="PN", rx=1, site=2, start_tpa=231)
 
     def test_importer_badcondid(self):
         self.assertEqual(len(Stand.objects.all()), 0)
