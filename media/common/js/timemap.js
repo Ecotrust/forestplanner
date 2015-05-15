@@ -78,7 +78,7 @@ var refreshTimeMap = function (f1, f2) {
                 standScenario2.redraw();
                 $("#loading-timemap1").fadeOut();
             } else {
-                // go fetch it 
+                // go fetch it
                 var geojson_url = "/features/generic-links/links/geojson/trees_scenario_" + opt +"/";
                 $.get( geojson_url, function(data) {
                     if (data.features.length) {
@@ -112,7 +112,7 @@ var refreshTimeMap = function (f1, f2) {
                 standScenario2.redraw();
                 $("#loading-timemap2").fadeOut();
             } else {
-                // go fetch it 
+                // go fetch it
                 var geojson_url2 = "/features/generic-links/links/geojson/trees_scenario_" + opt2 +"/";
                 $.get( geojson_url2, function(data) {
                     if (data.features.length) {
@@ -188,8 +188,11 @@ $(document).ready(function() {
         getColour: function(feature) {
             var color;
 
-            var attr = feature.attributes.results[selectedTimeMapMetric][yearIndex];
-            if (!attr) {
+            var attr;
+            try {
+                attr = feature.attributes.results[selectedTimeMapMetric][yearIndex];
+            } catch(e) {
+                console.error("ScenarioStand missing " + selectedTimeMapMetric);
                 return "#ccc";
             }
 

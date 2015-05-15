@@ -1,7 +1,7 @@
 var timemapColorRamp = ["#EDF8E9", "#BAE4B3", "#74C476", "#31A354", "#006D2C"];
 
 
-var stand_style = {    
+var stand_style = {
     graphicZIndex: 1,
     fillColor: "white",
     fillOpacity: 0.3,
@@ -39,7 +39,7 @@ var selected_prop_style = {
 
 var selected_stand_style = {
     graphicZIndex: 9999,
-    fillColor: "#44FF00", //"#FFA000",    
+    fillColor: "#44FF00", //"#FFA000",
     fillOpacity: 0.4,
     strokeWidth: 5,
     strokeOpacity: 0.7,
@@ -70,7 +70,7 @@ var temp_symbolizer_style = {
         strokeOpacity: 1,
         strokeColor: "#44ff00"
     }
-}
+};
 
 var time_map_template = {
     fillOpacity: 0.8,
@@ -80,8 +80,8 @@ var time_map_template = {
 };
 
 var map_styles = {
-    
-drawn: 
+
+drawn:
     new OpenLayers.StyleMap({
         "default": new OpenLayers.Style(null, {
             rules: [
@@ -102,7 +102,7 @@ drawn:
         })
     }),
 
-forestProperty: 
+forestProperty:
     new OpenLayers.StyleMap({
     "default": new OpenLayers.Style(null, {
         rules: [
@@ -146,7 +146,7 @@ stand:
 
 standProperty:
     new OpenLayers.StyleMap(property_style),
-    
+
 scenarios:
     new OpenLayers.StyleMap({
         "default": new OpenLayers.Style({
@@ -154,7 +154,7 @@ scenarios:
             fillOpacity: "${getOpacity}", //0.7,
             strokeWidth: 1,
             strokeOpacity: 1,
-            strokeColor: '#fff' 
+            strokeColor: '#fff'
 
         }, {
             // Rules go here.
@@ -169,9 +169,9 @@ scenarios:
         }),
         "select": selected_stand_style
     }),
-    
+
 strataSelect: selected_stand_style,
-    
+
 strataShiftSelect: selected_stand_style
 
 };

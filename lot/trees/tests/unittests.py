@@ -1,4 +1,6 @@
 import os
+import shutil
+import gzip
 from django.test import TestCase
 from django.test.client import Client
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
@@ -8,12 +10,11 @@ from django.core.exceptions import ValidationError
 from django.conf import settings
 from json import loads, dumps
 from madrona.features import *
-from madrona.features.models import Feature, PointFeature, LineFeature, PolygonFeature, FeatureCollection
-from madrona.features.forms import FeatureForm
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
-from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx
+from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx, FVSAggregate
 from trees.utils import StandImporter
+from django.core.management import call_command
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842474.0 5280123.1)')
 g1 = cntr.buffer(75)
@@ -22,11 +23,12 @@ g1.transform(settings.GEOMETRY_DB_SRID)
 single_p1 = g1.buffer(1000)
 p1 = MultiPolygon(single_p1)
 
+
 def import_rasters():
     d = os.path.dirname(__file__)
-    rast_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+    rast_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
         'testdata'))
-    # Here we'll need to create dummy rasterdatasets for everything 
+    # Here we'll need to create dummy rasterdatasets for everything
     # in the IMPUTE_RASTERS setting
     elev = RasterDataset.objects.create(name="elevation",
             filepath=os.path.join(rast_path,'elevation.tif'), type='continuous')
@@ -39,8 +41,9 @@ def import_rasters():
     slope = RasterDataset.objects.create(name="slope",
             filepath=os.path.join(rast_path,'slope.tif'), type='continuous')
 
+
 class StandTest(TestCase):
-    ''' 
+    '''
     Basic tests for adding stands
     '''
 
@@ -51,18 +54,19 @@ class StandTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
 
     def test_add_stand(self):
-        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         # geometry_final will be set with manipulator
         stand1.save()
 
     def test_delete_stand(self):
-        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
-        stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
+        stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1)
         stand1.save()
         stand2.save()
         self.assertEqual(len(Stand.objects.all()), 2)
         Stand.objects.filter(name="My Stand2").delete()
         self.assertEqual(len(Stand.objects.all()), 1)
+
 
 class ForestPropertyTest(TestCase):
     '''
@@ -74,7 +78,7 @@ class ForestPropertyTest(TestCase):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
 
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         self.stand1.save()
 
     def test_create_property(self):
@@ -121,7 +125,7 @@ class ForestPropertyTest(TestCase):
 
 class RESTTest(TestCase):
     '''
-    Basic tests of the REST API 
+    Basic tests of the REST API
     A bit of a dup of the features tests but more concise and specific
     '''
 
@@ -131,14 +135,14 @@ class RESTTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.options = Stand.get_options()
         self.create_url = self.options.get_create_form()
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         self.stand1.save()
         self.stand1_form_url = self.options.get_update_form(self.stand1.pk)
         self.stand1_url = self.stand1.get_absolute_url()
         enable_sharing()
 
     def test_submit_not_authenticated(self):
-        response = self.client.post(self.create_url, 
+        response = self.client.post(self.create_url,
             {'name': "My Test", 'user': 1})
         self.assertEqual(response.status_code, 401)
 
@@ -162,7 +166,7 @@ class RESTTest(TestCase):
     def test_post(self):
         self.client.login(username='featuretest', password='pword')
         response = self.client.post(self.stand1_url, {
-            'name': 'My New Name', 
+            'name': 'My New Name',
             'geometry_orig': self.stand1.geometry_orig.wkt,
         })
         self.assertEqual(response.status_code, 200, response.content)
@@ -174,7 +178,7 @@ class RESTTest(TestCase):
         response = self.client.delete(self.stand1_url)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(Stand.objects.filter(pk=self.stand1.pk).count(), 0)
-        
+
     def test_show(self):
         self.client.login(username='featuretest', password='pword')
         response = self.client.get(self.stand1_url)
@@ -184,6 +188,7 @@ class RESTTest(TestCase):
     def test_unauthorized(self):
         response = self.client.get(self.stand1_url)
         self.assertEqual(response.status_code, 401)
+
 
 class UserPropertyListTest(TestCase):
     '''
@@ -205,7 +210,7 @@ class UserPropertyListTest(TestCase):
         url = reverse('trees-user_property_list')
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.status_code, 200)
         plist = loads(response.content)
         self.assertEquals(plist['features'], [])
         self.assertEquals(plist['bbox'], settings.DEFAULT_EXTENT, plist)
@@ -214,9 +219,10 @@ class UserPropertyListTest(TestCase):
         prop1.save()
 
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.status_code, 200)
         plist = loads(response.content)
         self.assertEquals(plist['features'][0]['properties']['name'], 'My Property')
+
 
 class PropertyStandListTest(TestCase):
     '''
@@ -232,9 +238,9 @@ class PropertyStandListTest(TestCase):
         self.baduser = User.objects.create_user(
             'baduser', 'baduser@madrona.org', password='pword')
 
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         self.stand1.save()
-        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1)
         self.stand2.save()
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
@@ -260,20 +266,20 @@ class PropertyStandListTest(TestCase):
         link = self.prop1.options.get_link('Property Stands GeoJSON')
         url = link.reverse(self.prop1)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 403) 
+        self.assertEqual(response.status_code, 403)
 
     def test_jsonlist(self):
         self.client.login(username='featuretest', password='pword')
         link = self.prop1.options.get_link('Property Stands GeoJSON')
         url = link.reverse(self.prop1)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.status_code, 200)
         stand_list = loads(response.content)
         self.assertEquals(stand_list['features'][0]['properties']['name'], 'My Stand', stand_list)
 
         self.prop1.add(self.stand2)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 200) 
+        self.assertEqual(response.status_code, 200)
         stand_list = loads(response.content)
         names = [stand['properties']['name'] for stand in stand_list['features']]
         names.sort()
@@ -298,7 +304,7 @@ class ManipulatorsTest(TestCase):
                 5751848.1591448,-13738982.554637 5741643.81587))"
 
     def test_clean_badgeom(self):
-        self.stand1 = Stand(user=self.user, name="Bad Stand", geometry_orig=self.bad_ewkt) 
+        self.stand1 = Stand(user=self.user, name="Bad Stand", geometry_orig=self.bad_ewkt)
         self.stand1.save()
         self.assertTrue(self.stand1.geometry_final.valid)
 
@@ -313,9 +319,9 @@ class SpatialTest(TestCase):
         import_rasters()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         self.stand1.save()
-        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1) 
+        self.stand2 = Stand(user=self.user, name="My Stand2", geometry_orig=g1)
         self.stand2.save()
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
@@ -359,7 +365,7 @@ class SpatialTest(TestCase):
         self.assertTrue('application/json' in response['Content-Type'])
         d = loads(response.content)
         self.assertEquals(d['features'][0]['properties']['name'], 'My Stand')
-        
+
     def test_property_json_url(self):
         self.client.login(username='featuretest', password='pword')
         link = self.stand1.options.get_link('GeoJSON')
@@ -410,12 +416,12 @@ class ImputeTest(TestCase):
         settings.CELERY_ALWAYS_EAGER = True  # force syncronous execution of celery tasks
         import_rasters()
         g2 = GEOSGeometry(
-            'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' % 
+            'SRID=3857;POLYGON((%(x1)s %(y1)s, %(x2)s %(y1)s, %(x2)s %(y2)s, %(x1)s %(y2)s, %(x1)s %(y1)s))' %
             {'x1': -13841975, 'y1': 5308646, 'x2': -13841703, 'y2': 5308927})
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g2) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g2)
         self.stand1.save()
         self.pk1 = self.stand1.pk
 
@@ -442,38 +448,37 @@ class ImputeTest(TestCase):
 
 
 class StandImportTest(TestCase):
-    '''
-    TODO test bad shapefiles (other geom types, bad mapping dict, projection)
-    TODO assert that mapped attributes are populated
-    TODO strata from shp
-    '''
     def setUp(self):
         import_rasters()
         d = os.path.dirname(__file__)
-        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands.shp'))
-        self.bad_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        self.bad_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands_bad.shp'))
+        self.condid_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'test_stands_condid.shp'))
         self.client = Client()
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
 
-    def test_shp_exists(self):
+    def test_shps_exists(self):
         self.assertTrue(os.path.exists(self.shp_path), self.shp_path)
+        self.assertTrue(os.path.exists(self.bad_shp_path), self.bad_shp_path)
+        self.assertTrue(os.path.exists(self.condid_shp_path), self.condid_shp_path)
 
     def test_importer_py(self):
         self.assertEqual(len(Stand.objects.all()), 0)
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
         s = StandImporter(self.user)
-        s.import_ogr(self.shp_path, forest_property=self.prop1) 
+        s.import_ogr(self.shp_path, forest_property=self.prop1)
 
         self.assertEqual(len(Stand.objects.all()), 37)
         # from the default 'name' field this time
-        self.assertEqual(len(Stand.objects.filter(name='001A')), 0) 
-        self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 0)
+        self.assertEqual(len(Stand.objects.filter(name='277')), 1)
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
     def test_importer_py_newproperty(self):
@@ -481,12 +486,12 @@ class StandImportTest(TestCase):
         self.assertEqual(len(self.prop1.feature_set()), 0)
 
         s = StandImporter(self.user)
-        s.import_ogr(self.shp_path, new_property_name="Another Property") 
+        s.import_ogr(self.shp_path, new_property_name="Another Property")
 
         self.assertEqual(len(Stand.objects.all()), 37)
         # from the default 'name' field this time
-        self.assertEqual(len(Stand.objects.filter(name='001A')), 0) 
-        self.assertEqual(len(Stand.objects.filter(name='277')), 1) 
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 0)
+        self.assertEqual(len(Stand.objects.filter(name='277')), 1)
         self.assertEqual(len(self.prop1.feature_set()), 0)
         new_stand = ForestProperty.objects.get(name="Another Property")
         self.assertEqual(len(new_stand.feature_set()), 37)
@@ -497,12 +502,12 @@ class StandImportTest(TestCase):
 
         s = StandImporter(self.user)
         field_mapping = {'name': 'STAND_TEXT'}
-        s.import_ogr(self.shp_path, field_mapping, forest_property=self.prop1) 
+        s.import_ogr(self.shp_path, field_mapping, forest_property=self.prop1)
 
         self.assertEqual(len(Stand.objects.all()), 37)
         # from the 'STAND_TEXT' field this time
-        self.assertEqual(len(Stand.objects.filter(name='001A')), 1) 
-        self.assertEqual(len(Stand.objects.filter(name='277')), 0) 
+        self.assertEqual(len(Stand.objects.filter(name='001A')), 1)
+        self.assertEqual(len(Stand.objects.filter(name='277')), 0)
         self.assertEqual(len(self.prop1.feature_set()), 37)
 
     def test_importer_multi(self):
@@ -552,7 +557,7 @@ class StandImportTest(TestCase):
         self.client.login(username='featuretest', password='pword')
         self.assertEqual(len(self.prop1.feature_set()), 0)
         d = os.path.dirname(__file__)
-        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands.zip'))
         f = open(ogr_path)
         url = reverse('trees-upload_stands')
@@ -565,7 +570,7 @@ class StandImportTest(TestCase):
     def test_importer_http_unauth(self):
         self.assertEqual(len(self.prop1.feature_set()), 0)
         d = os.path.dirname(__file__)
-        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands.zip'))
         f = open(ogr_path)
         url = reverse('trees-upload_stands')
@@ -578,7 +583,7 @@ class StandImportTest(TestCase):
         self.client.login(username='featuretest', password='pword')
         self.assertEqual(len(self.prop1.feature_set()), 0)
         d = os.path.dirname(__file__)
-        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands_noname.zip'))
         f = open(ogr_path)
         url = reverse('trees-upload_stands')
@@ -595,7 +600,7 @@ class StandImportTest(TestCase):
         self.client.login(username='featuretest', password='pword')
         self.assertEqual(len(self.prop1.feature_set()), 0)
         d = os.path.dirname(__file__)
-        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands_bad.zip'))
         f = open(ogr_path)
         url = reverse('trees-upload_stands')
@@ -611,7 +616,7 @@ class StandImportTest(TestCase):
         self.client.login(username='featuretest', password='pword')
         self.assertEqual(len(self.prop1.feature_set()), 0)
         d = os.path.dirname(__file__)
-        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        ogr_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands.zip'))
         f = open(ogr_path)
         url = reverse('trees-upload_stands')
@@ -624,9 +629,89 @@ class StandImportTest(TestCase):
         self.assertEqual(len(new_stand.feature_set()), 37)
 
 
+class UserInventoryTest(TestCase):
+    def setUp(self):
+        import_rasters()
+        d = os.path.dirname(__file__)
+        self.condid_shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'test_stands_condid.shp'))
+        self.datagz = os.path.abspath(os.path.join(d, '..', 'fixtures',
+            'testdata', 'userinventory', 'data.db.gz'))
+        self.client = Client()
+        self.user = User.objects.create_user(
+            'featuretest', 'featuretest@madrona.org', password='pword')
+        self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
+        self.prop1.save()
+
+    def _populate_fvsaggregate(self):
+        # Just fake it for now; faster than importing full test gyb dataset
+        # this is sufficient so long as FVSAggregate.valid_condids() says so
+        condids = (9820, 11307, 11311, 34157)
+        for condid in condids:
+            FVSAggregate.objects.create(cond=condid, offset=0, year=2013, age=32,
+                                        var="PN", rx=1, site=2, start_tpa=231)
+
+    def test_importer_badcondid(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+        s = StandImporter(self.user)
+        with self.assertRaises(Exception):
+            # haven't populated the fvsaggregate table so upload is invalid
+            s.import_ogr(self.condid_shp_path, new_property_name="Locked Property")
+
+    def test_importer_condid(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+
+        self._populate_fvsaggregate()
+        s = StandImporter(self.user)
+        s.import_ogr(self.condid_shp_path, new_property_name="Locked Property")
+
+        new_property = ForestProperty.objects.get(name="Locked Property")
+        self.assertEqual(len(new_property.feature_set(feature_classes=[Stand])), 37)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.is_locked]), 37)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.cond_id is None]), 0)
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.cond_id != x.locked_cond_id]), 0)
+        self.assertTrue(new_property.is_locked)
+
+        self.assertEqual(len([x for x in new_property.feature_set(feature_classes=[Stand])
+                              if x.strata is None]), 0)
+        self.assertEqual(len(Strata.objects.all()), 4)
+
+    def _extract_gz(self, zipfile):
+        tmpfile = '/tmp/forestplanner_test_data.db'
+        with open(tmpfile, "wb") as tmp:
+            shutil.copyfileobj(gzip.open(zipfile), tmp)
+        return tmpfile
+
+    def test_import_gyb(self):
+        tmpdata_db = self._extract_gz(self.datagz)
+        call_command('import_gyb', tmpdata_db, verbosity=2, interactive=False)
+
+    def test_importer_preimpute(self):
+        self.assertEqual(len(Stand.objects.all()), 0)
+
+        self._populate_fvsaggregate()
+
+        s = StandImporter(self.user)
+        s.import_ogr(self.condid_shp_path, new_property_name="Locked Property", pre_impute=True)
+
+        new_property = ForestProperty.objects.get(name="Locked Property")
+        self.assertEqual(len(new_property.feature_set(feature_classes=[Stand])), 37)
+
+    def test_condid_strata(self):
+        from trees.utils import condid_strata
+        self._populate_fvsaggregate()
+
+        st = condid_strata(9820)
+        self.assertEqual(st['search_tpa'], 231)
+        self.assertEqual(st['search_age'], 32)
+
+
 class GrowthYieldTest(TestCase):
     '''
-    # Test via python API 
+    # Test via python API
     self.prop = ForestProperty(..)
     self.prop.run_gy()
 
@@ -638,14 +723,15 @@ class GrowthYieldTest(TestCase):
     '''
     pass
 
+
 class AdjacencyTest(TestCase):
     '''
     Test that stand adjacency can be reliably determined
     self.prop = ForestProperty(..)
-    adj = self.prop.adjacency 
+    adj = self.prop.adjacency
     # @property method with caching
-    # returns what? list or txt or file handle? 
-    # does it also check for slivers or overlap? 
+    # returns what? list or txt or file handle?
+    # does it also check for slivers or overlap?
 
     needs fixture
     '''
@@ -656,10 +742,10 @@ class AdjacencyTest(TestCase):
         self.prop1.save()
 
         d = os.path.dirname(__file__)
-        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures', 
+        self.shp_path = os.path.abspath(os.path.join(d, '..', 'fixtures',
             'testdata', 'test_stands.shp'))
         s = StandImporter(self.user)
-        s.import_ogr(self.shp_path, forest_property=self.prop1) 
+        s.import_ogr(self.shp_path, forest_property=self.prop1)
 
     def test_adjacency(self):
         '''
@@ -682,9 +768,10 @@ class AdjacencyTest(TestCase):
         for adj_stand in adj_stands:
             self.assertTrue(adj_stand.pk in adj[test_stand.pk])
 
+
 class SchedulerTest(TestCase):
     '''
-    # Test via python API 
+    # Test via python API
     self.prop.schedule()
 
     # Test via REST API
@@ -698,9 +785,10 @@ class SchedulerTest(TestCase):
     '''
     pass
 
+
 class OutputsTest(TestCase):
     '''
-    After GY and Scheduling, parse the tree list and 
+    After GY and Scheduling, parse the tree list and
     generate/store as json data associated with
     the stand or property as appropos
 
@@ -732,10 +820,11 @@ class OutputsTest(TestCase):
 
     def test_yield(self):
         '''
-        self.prop.generate('yield_over_time') 
+        self.prop.generate('yield_over_time')
         self.assertTrue(self.prop.outputs.yield['2085'] == 28000)
         '''
         pass
+
 
 class LocationTest(TestCase):
     fixtures = ['test_counties.json',]
@@ -757,9 +846,10 @@ class LocationTest(TestCase):
         g2 = cntr.buffer(75)
         g2.transform(settings.GEOMETRY_DB_SRID)
         p2 = MultiPolygon(g2)
-        self.prop1.geometry_final = p2 
+        self.prop1.geometry_final = p2
         self.prop1.save()
         self.assertEqual(self.prop1.location, (None, None))
+
 
 class VariantTest(TestCase):
 
@@ -780,17 +870,18 @@ class VariantTest(TestCase):
         g2 = cntr.buffer(75)
         g2.transform(settings.GEOMETRY_DB_SRID)
         p2 = MultiPolygon(g2)
-        self.prop1.geometry_final = p2 
+        self.prop1.geometry_final = p2
         self.prop1.save()
         self.assertEqual(self.prop1.variant, self.other)
 
+
 class SearchTest(TestCase):
-    
+
     def setUp(self):
         self.searches = [
             ('Tyron Creek', 200, [-13654114.0, 5688345.48]),
             ('41.12345;-81.98765', 200, [-9126823, 5030567]),
-            ('39.3 N 76.4 W', 200, [-8504809, 4764735]), 
+            ('39.3 N 76.4 W', 200, [-8504809, 4764735]),
             ('KJHASBUNCHOFNONSENSEDOIHJJDHSGF', 404, None),
         ]
 
@@ -815,6 +906,7 @@ class SearchTest(TestCase):
                 for a, b in zip(content['center'], search[2]):
                     self.assertAlmostEquals(a, b, delta=50)  # within 50 meters of expected
 
+
 class ScenarioTest(TestCase):
 
     def setUp(self):
@@ -823,11 +915,11 @@ class ScenarioTest(TestCase):
         self.user = User.objects.create_user(
             'featuretest', 'featuretest@madrona.org', password='pword')
 
-        self.stand1 = Stand(user=self.user, name="My Stand 1", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand 1", geometry_orig=g1)
         self.stand1.save()
-        self.stand2 = Stand(user=self.user, name="My Stand 2", geometry_orig=g1) 
+        self.stand2 = Stand(user=self.user, name="My Stand 2", geometry_orig=g1)
         self.stand2.save()
-        self.stand3 = Stand(user=self.user, name="My Stand 3 (not on property)", geometry_orig=g1) 
+        self.stand3 = Stand(user=self.user, name="My Stand 3 (not on property)", geometry_orig=g1)
         self.stand3.save()
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
@@ -843,7 +935,7 @@ class ScenarioTest(TestCase):
         enable_sharing()
 
     def test_create_scenario(self):
-        s1 = Scenario(user=self.user, name="My Scenario", 
+        s1 = Scenario(user=self.user, name="My Scenario",
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
@@ -853,7 +945,7 @@ class ScenarioTest(TestCase):
         self.assertEquals(Scenario.objects.get(name="My Scenario").input_target_boardfeet, 2000.0)
 
     def test_scenario_results(self):
-        s1 = Scenario(user=self.user, name="My Scenario", 
+        s1 = Scenario(user=self.user, name="My Scenario",
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
@@ -867,7 +959,7 @@ class ScenarioTest(TestCase):
     def test_post(self):
         self.client.login(username='featuretest', password='pword')
         response = self.client.post(self.create_url, {
-            'name': "My Scenario", 
+            'name': "My Scenario",
             'input_target_boardfeet': 2000,
             'input_target_carbon': 1,
             'input_age_class': 1,
@@ -876,11 +968,11 @@ class ScenarioTest(TestCase):
             'input_rxs': dumps({self.stand1.pk: self.rx1, self.stand2.pk: self.rx2}),
         })
         self.assertEqual(response.status_code, 201)
-        
+
     def test_post_invalid_rx(self):
         self.client.login(username='featuretest', password='pword')
         response = self.client.post(self.create_url, {
-            'name': "My Scenario", 
+            'name': "My Scenario",
             'input_target_boardfeet': 2000,
             'input_target_carbon': 1,
             'input_age_class': 1,
@@ -893,7 +985,7 @@ class ScenarioTest(TestCase):
     def test_post_invalid_stand(self):
         self.client.login(username='featuretest', password='pword')
         response = self.client.post(self.create_url, {
-            'name': "My Scenario", 
+            'name': "My Scenario",
             'input_target_boardfeet': 2000,
             'input_target_carbon': 1,
             'input_age_class': 1,
@@ -904,7 +996,7 @@ class ScenarioTest(TestCase):
         self.assertEqual(response.status_code, 400, response.content)
 
     def test_json_results(self):
-        s1 = Scenario(user=self.user, name="My Scenario", 
+        s1 = Scenario(user=self.user, name="My Scenario",
                 input_target_boardfeet=2000,
                 input_target_carbon=1,
                 input_property=self.prop1,
@@ -947,7 +1039,7 @@ class NearestPlotPyTest(TestCase):
             'featuretest', 'featuretest@madrona.org', password='pword')
         self.prop1 = ForestProperty(user=self.user, name="My Property", geometry_final=p1)
         self.prop1.save()
-        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1) 
+        self.stand1 = Stand(user=self.user, name="My Stand", geometry_orig=g1)
         self.stand1.save()
         self.stand1.add_to_collection(self.prop1)
 
@@ -963,7 +1055,7 @@ class NearestPlotPyTest(TestCase):
         return strata
 
     def test_bad_stand_list(self):
-        stand_list = [ ('Douglas-fir', 2, 4, 145), ] 
+        stand_list = [ ('Douglas-fir', 2, 4, 145), ]
         strata = Strata(user=self.user, name="My Strata", search_age=30.0, search_tpa=120.0, stand_list=stand_list)
         with self.assertRaises(ValidationError):
             strata.save()
@@ -1010,8 +1102,8 @@ class NearestPlotRestTest(TestCase):
         old_count = ForestProperty.objects.count()
         url = "/features/forestproperty/form/"
         response = self.client.post( url,
-            {   
-                'name': 'test property', 
+            {
+                'name': 'test property',
                 'geometry_final': p1.wkt,  # multipolygon required
             }
         )
@@ -1022,10 +1114,10 @@ class NearestPlotRestTest(TestCase):
         #### Step 2. Create the stand
         old_count = Stand.objects.count()
         url = "/features/stand/form/"
-        response = self.client.post( url, 
-            {   
-                'name': 'test stand', 
-                'geometry_orig': g1.wkt, 
+        response = self.client.post( url,
+            {
+                'name': 'test stand',
+                'geometry_orig': g1.wkt,
             }
         )
         self.assertEqual(response.status_code, 201, response.content)
@@ -1041,9 +1133,9 @@ class NearestPlotRestTest(TestCase):
         #### Step 3. Create the strata
         old_count = Strata.objects.count()
         url = "/features/strata/form/"
-        response = self.client.post( url, 
+        response = self.client.post( url,
             {
-                'name': 'test strata', 
+                'name': 'test strata',
                 'search_tpa': 160,
                 'search_age': 40,
                 'stand_list': u'{"property": "%s", "classes":[["Douglas-fir",2,4,145]]}' % prop1.uid
@@ -1057,14 +1149,14 @@ class NearestPlotRestTest(TestCase):
         #### Step 3b. Associate the strata with the property
         url = "/features/forestproperty/%s/add/%s" % (prop1.uid, strata1.uid)
         response = self.client.post( url,
-            {}   
+            {}
         )
         self.assertEqual(response.status_code, 200, response.content)
 
         #### Step 4. Add the stand to a strata
         url = "/features/strata/links/add-stands/%s/" % strata1.uid
-        response = self.client.post( url, 
-            { 'stands': ",".join([stand1.uid]) }   
+        response = self.client.post( url,
+            { 'stands': ",".join([stand1.uid]) }
         )
         self.assertEqual(response.status_code, 200, response.content)
         stand1b = get_feature_by_uid(uid)

@@ -78,9 +78,9 @@ def postgres_now():
 
 def handle_cost_error(e, cost_args, standid):
     '''
-    Handle errors in the cost model so as not to overwhelm admin emails  
+    Handle errors in the cost model so as not to overwhelm admin emails
     '''
-    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid) 
+    costlog_path = os.path.join(settings.COSTLOG_DIR, "%s.txt" % standid)
 
     import traceback
     trace = traceback.format_exc()
@@ -128,6 +128,7 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     strata = models.ForeignKey("Strata", blank=True, default=None,
                                null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
+    locked_cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     elevation = models.FloatField(null=True, blank=True)
     slope = models.FloatField(null=True, blank=True)
     aspect = models.FloatField(null=True, blank=True)
@@ -140,18 +141,40 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         form_template = "trees/stand_form.html"
         manipulators = []
 
+    def preimpute(self):
+        '''
+        async computation of terrain variables
+        Usually self.save() does the trick but when your condid is already set (for e.g. locked stands)
+        you might need an alternate mechanism to fire it off.
+        '''
+        savetime = datetime_to_unix(postgres_now())
+        impute_rasters.delay(self.id, savetime)
+
     def get_cond_id(self, force=False):
         '''
         Synchronous computation of nearest neighbor or just return what we've got
         Prefer instead:
+          savetime = datetime_to_unix(postgres_now())
           impute_nearest_neighbor.delay(stand_id, savetime)
         '''
+        if self.is_locked:
+            # is_locked trumps force==True
+            assert self.cond_id == self.locked_cond_id
+            return self.cond_id
+
         if self.cond_id and not force:
             return self.cond_id
 
         savetime = datetime_to_unix(postgres_now())
         res = impute_nearest_neighbor(self.id, savetime)
         return res['cond_id']
+
+    @property
+    def is_locked(self):
+        if self.locked_cond_id is None:
+            return False
+        else:
+            return True
 
     @property
     def acres(self):
@@ -163,7 +186,6 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             return None
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
-    #@property
     @cachemethod("Stand_%(id)s_geojson")
     def geojson(self, srid=None):
         '''
@@ -192,15 +214,19 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         except:
             strata = None
 
+        cond_id = None
+        cond_age = None
+        cond_stand_list = []
         if self.cond_id:
             cond_id = self.cond_id
-            cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
-            cond_stand_list = list(x.treelist for x in
-                                  TreeliveSummary.objects.filter(cond_id=cond_id))
-        else:
-            cond_id = None
-            cond_age = None
-            cond_stand_list = []
+            if self.is_locked:
+                # create some placeholders, TODO is this safe?
+                cond_age = None
+                cond_stand_list = [['N/A', -1, 1, 1]]
+            else:
+                cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
+                cond_stand_list = list(x.treelist for x in
+                                       TreeliveSummary.objects.filter(cond_id=cond_id))
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -256,8 +282,12 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
             # got new strata - time to recalc nearest neighbor!
             self.cond_id = None
 
+        # cond_id should always == locked_cond_id if is_locked
+        if self.is_locked:
+            self.cond_id = self.locked_cond_id
+
         super(Stand, self).save(*args, **kwargs)
-        # Cheesy hack allows the app to pause long enough 
+        # Cheesy hack allows the app to pause long enough
         # to hopefully get the terrain variables calculated
         # TODO .. this is going to slow down shapefile imports
         # why not just run the terrain zonal syncronously rather than deal with celery???
@@ -927,7 +957,7 @@ class Scenario(Feature):
 class CarbonGroup(PolygonFeature):
     members = models.ManyToManyField(User, related_name='members_set', through='Membership')
     description = models.TextField()
-    excluded_properties = models.ManyToManyField('ForestProperty', 
+    excluded_properties = models.ManyToManyField('ForestProperty',
         related_name='excludedproperties_set', blank=True)
     private = models.BooleanField(default=False)
 
@@ -952,7 +982,7 @@ class CarbonGroup(PolygonFeature):
 
     def get_properties(self):
         all_properties = self.forestproperty_set.all()
-        return [x for x in all_properties 
+        return [x for x in all_properties
             if (
                 x not in self.excluded_properties.all() and
                 x.user in self.get_accepted_users()
@@ -1064,7 +1094,6 @@ class ForestProperty(FeatureCollection):
     carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True)
     shared_scenario = models.ForeignKey(Scenario, null=True, blank=True)
 
-    #@property
     def geojson(self, srid=None):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -1074,13 +1103,13 @@ class ForestProperty(FeatureCollection):
             acres = round(self.acres, 0)
         else:
             acres = None
-
         d = {
             'uid': self.uid,
             'id': self.id,
             'name': self.name,
             'user_id': self.user.pk,
             'acres': acres,
+            'is_locked': self.is_locked,
             'location': self.location,
             'stand_summary': self.stand_summary,
             'variant': self.variant.fvsvariant.strip(),
@@ -1100,6 +1129,17 @@ class ForestProperty(FeatureCollection):
               "properties": %s
         }""" % (geom_json, dumps(d))
         return gj
+
+    @property
+    def is_locked(self):
+        '''
+        Boolean.
+        If any stands are locked, the entire property is
+        '''
+        for stand in self.feature_set(feature_classes=[Stand]):
+            if stand.is_locked:
+                return True
+        return False
 
     @property
     def is_runnable(self):
@@ -1159,7 +1199,6 @@ class ForestProperty(FeatureCollection):
                           input_age_class=10,
                           )
             s1.save()
-            s1.run()
 
         if Scenario.objects.filter(input_property=self, name="Conventional Even-Aged").count() == 0:
             rxs = Rx.objects.filter(internal_type='CI', variant=self.variant)
@@ -1180,7 +1219,6 @@ class ForestProperty(FeatureCollection):
                           input_age_class=1,
                           )
             s2.save()
-            s2.run()
 
         return True
 
@@ -1602,6 +1640,7 @@ class Strata(DirtyFieldsMixin, Feature):
         dct['uid'] = self.uid
         dct['pk'] = self.pk
         rmfields = ['_state', 'object_id', 'content_type_id',
+                    '_content_type_cache', '_user_cache', '_collection_cache',
                     'date_modified', 'date_created', '_original_state']
         for fld in rmfields:
             try:
@@ -1625,11 +1664,13 @@ class Strata(DirtyFieldsMixin, Feature):
                       select='single'),
         )
 
-    def clean(self):
+    def clean(self, skip_validation=False):
         """
         Ensure that the stand list is valid and gives us some candidates
         this shows up in the form as form.non_field_errors
         """
+        if skip_validation:
+            return True
 
         if 'classes' not in self.stand_list or 'property' not in self.stand_list:
             raise ValidationError("Not a valid stand list object. " +
@@ -1660,7 +1701,13 @@ class Strata(DirtyFieldsMixin, Feature):
 
     def save(self, *args, **kwargs):
         # Depending on what changed, trigger recalc of stand info
-        self.clean()
+        skip_validation = kwargs.pop('skip_validation', False)
+        rerun = kwargs.pop('rerun', True)
+        if skip_validation or not rerun:
+            self.clean(skip_validation=True)
+        else:
+            self.clean()
+
         recalc_required = False
         dirty = self.get_dirty_fields()
         if 'stand_list' in dirty.keys() or 'search_age' in dirty.keys() or \
@@ -1720,7 +1767,7 @@ class ConditionVariantLookup(models.Model):
     (which is easier to generate in ArcGIS based on variant buffers)
 
     However, it is more difficult to maintain referential integrity so the
-    check_integrity management command should be used 
+    check_integrity management command should be used
     whenever FVSVariant, IdbSummary or this table is updated
     """
     cond_id = models.BigIntegerField(db_index=True)
@@ -1874,10 +1921,13 @@ class SpatialConstraint(models.Model):
 class ScenarioStand(PolygonFeature):
     """
     Populated as the scenario is created (tasks.schedule_harvest)
-    The result of a spatial intersection between
+    ScenarioStands were intended to be the result of a spatial intersection b/t
       1. Stands for this scenario
       2. All SpatialConstraints chosen for this scenario
     The Rx from #2 takes precedence over the Rx from #1.
+
+    BUT... we currently just copy the stands 1:1 to scenariostands
+    see trees.utils.fake_scenariostands
     """
     # geometry_final = inherited from PolygonFeature
     # assert that all cond_ids are present or make FK?
@@ -1994,6 +2044,19 @@ class FVSAggregate(models.Model):
     start_total_ft3 = models.IntegerField(null=True, blank=True)
     start_tpa = models.IntegerField(null=True, blank=True)
 
+    @classmethod
+    def valid_condids(klass, variant):
+        # TODO, more advanced testing for validity beyond mere presence of the cond in the variant?
+        key = "fvsaggregate_valid_condids_var{}".format(variant.code)
+        res = cache.get(key)
+        if res is None or res == []:
+            res = [x['cond'] for x in klass.objects.filter(var=variant.code).values('cond').distinct()]
+            cache.set(key, res, 60 * 60 * 24 * 365)
+        return res
+
+    class Meta:
+        unique_together = (("cond", "offset", "var", "year", "site", "rx"))
+
 membership_status_choices = (
     ('pending', 'Pending'),
     ('accepted', 'Accepted'),
@@ -2022,7 +2085,7 @@ class Membership(models.Model):
         self.reason = reason
         self.save()
         self.email_status_update()
-        
+
     def revoke(self, reason):
         self.status = 'revoked'
         self.reason = reason
@@ -2115,11 +2178,11 @@ def delete_strata_handler(sender, *args, **kwargs):
     When a strata is deleted, make sure to set all stand's cond_id to null
     and invalidate the stand's caches
     '''
-    instance = kwargs['instance']
-    for stand in instance.stand_set.all():
-        #print "Invalidating stand", stand, "after deleting strata ", instance
+    strata = kwargs['instance']
+    for stand in strata.stand_set.all():
+        #print "Invalidating stand", stand, "after deleting strata ", strata
         stand.invalidate_cache()
-    instance.stand_set.all().update(
+    strata.stand_set.all().update(
         cond_id=None, strata=None,
         nn_savetime=datetime_to_unix(datetime.datetime.now())
     )

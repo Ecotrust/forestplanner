@@ -4,8 +4,9 @@ import json
 import datetime
 import random
 
+DELAY = 0.5
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)  # retry up to 5 times, 5 seconds apart
 def impute_rasters(stand_id, savetime):
     # import here to avoid circular dependencies
     from trees.utils import terrain_zonal
@@ -47,7 +48,7 @@ def impute_rasters(stand_id, savetime):
     return res
 
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)  # retry up to 5 times, 5 seconds apart
 def impute_nearest_neighbor(stand_results, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
@@ -66,6 +67,17 @@ def impute_nearest_neighbor(stand_results, savetime):
     except (Stand.DoesNotExist, IndexError):
         exc = Exception("Cant run nearest neighbor; Stand %s does not exist." % stand_id)
         raise impute_nearest_neighbor.retry(exc=exc)
+
+    if stand.is_locked:
+        if stand.cond_id != stand.locked_cond_id:
+            # should never happen; fix it here
+            stand_qs.filter(nn_savetime__lt=savetime).update(
+                cond_id=stand.locked_cond_id, nn_savetime=savetime)
+            stand.invalidate_cache()
+
+        return {
+            'stand_id': stand_id,
+            'cond_id': stand.cond_id}
 
     # Do we have the required attributes yet?
     if not (stand.strata and stand.elevation and stand.aspect and stand.slope and stand.geometry_final):
@@ -100,12 +112,10 @@ def impute_nearest_neighbor(stand_results, savetime):
     # Take the top match
     cond_id = int(ps[0].name)
 
-    # just confirm that it exists
-    # TODO confirm that cond_id exists in the fvsaggregate table
-    IdbSummary.objects.get(cond_id=cond_id)
+    # TODO confirm that cond_id exists in the idbsummary and fvsaggregate tables?
 
     # update the database
-    # stuff might have changed, we dont want a wholesale update of all fields like save()
+    # stuff might have changed, we don't want a wholesale update of all fields like save()
     # use the timestamp to make sure we don't clobber a more recent request
     stand_qs.filter(nn_savetime__lt=savetime).update(cond_id=cond_id, nn_savetime=savetime)
 
@@ -114,7 +124,7 @@ def impute_nearest_neighbor(stand_results, savetime):
     return {'stand_id': stand_id, 'cond_id': cond_id}
 
 
-@task(max_retries=5, default_retry_delay=5)  # retry up to 5 times, 5 seconds apart
+@task(max_retries=5, default_retry_delay=DELAY)
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
     from trees.models import Scenario, ScenarioNotRunnable
@@ -145,6 +155,7 @@ def schedule_harvest(scenario_id):
     try:
         scenariostands = fake_scenariostands(scenario)
     except ScenarioNotRunnable:
+        print "****************\n" * 20
         raise schedule_harvest.retry(max_retries=2)
 
     #
@@ -153,12 +164,18 @@ def schedule_harvest(scenario_id):
     # TODO prep scheduler, run it, parse the outputs
     #
     # INSTEAD just assign random offset to every scenariostand
-
     # construct scheduler results dict eventually stored as output_scheduler_results
     # (not used currently except to check scenario status so it must exist)
     offsets = {}
     for sstand in scenariostands:
-        random_offset = random.randint(0, 4)
+        if sstand.rx_internal_num == 1:
+            # Special case, offset for rx=1 (Grow Only)
+            # should always be zero
+            random_offset = 0
+        else:
+            # Otherwise, randomly assign offset index, 0 to 4
+            random_offset = random.randint(0, 4)
+
         offsets[sstand.id] = random_offset
         sstand.offset = random_offset
         sstand.save()
