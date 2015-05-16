@@ -2046,13 +2046,26 @@ class FVSAggregate(models.Model):
 
     @classmethod
     def valid_condids(klass, variant):
-        # TODO, more advanced testing for validity beyond mere presence of the cond in the variant?
         key = "fvsaggregate_valid_condids_var{}".format(variant.code)
         res = cache.get(key)
         if res is None or res == []:
-            res = [x['cond'] for x in klass.objects.filter(var=variant.code).values('cond').distinct()]
-            cache.set(key, res, 60 * 60 * 24 * 365)
+            qry = {
+                'var': variant.code,
+                'rx': 1,
+                'offset': 0,
+                'year': 2013
+            }
+            res = [x['cond'] for x in
+                   klass.objects.filter(**qry).values('cond').distinct()]
+
+            cache.set(key, res, 60 * 60 * 24 * 7)  # 1 week
         return res
+
+    @classmethod
+    def recache(klass):
+        cache.delete_pattern('fvsaggregate_valid_condids_*')
+        for variant in FVSVariant.objects.all():
+            klass.valid_condids(variant)
 
     class Meta:
         unique_together = (("cond", "offset", "var", "year", "site", "rx"))
@@ -2063,6 +2076,7 @@ membership_status_choices = (
     ('declined', 'Declined'),
     ('revoked', 'Revoked')
 )
+
 
 class Membership(models.Model):
     applicant = models.ForeignKey(User)

@@ -3,6 +3,7 @@ import os
 import sqlite3
 from django.core.management.base import BaseCommand, CommandError
 from django.db import connection, transaction
+from trees.models import FVSAggregate
 
 
 def get_gyb_rows(db_path, fields, arraysize=1000):
@@ -103,3 +104,6 @@ class Command(BaseCommand):
                 pgcursor.executemany(query_template, get_gyb_rows(db_path, gyb_fieldnames))
         finally:
             pgcursor.close()
+
+        print("Recaching valid_condids.")
+        FVSAggregate.recache()
