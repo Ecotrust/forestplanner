@@ -41,16 +41,11 @@ The general process, as it applies to any user inventory regardless of data qual
 
 ## Development environment set up
 
-**TODO** :: remove branch once this has been merged with master.
+As of 15 May, 2015, the functionality is available on the `master` branch of the `forestplanner` repository (https://github.com/Ecotrust/ForestPlanner). It is assumed that a working dev environment is set up; if not refer to the docs in the wiki. To confirm that the user inventory functionality is running properly, fire up the virtual machine and run
 
-For initial testing, you'll need to be on the `user_inventory` branch of the `forestplanner` repository.
 ```
-git fetch
-git checkout user_inventory
-```
-
-To confirm that the installation is running properly, fire up the virtual machine and run
-```
+python manage.py install_media
+python manage.py migrate trees
 python manage.py test trees.UserInventoryTest
 ```
 
@@ -147,7 +142,7 @@ Import the growth and yield results into the forest planner database using the `
 python manage.py import_gyb gyb_data/final/data.db
 ```
 
-When uploading new data, be aware that you may need to clear some caches - see the "FVSAggregate model" section below. You many also need to rerun database statistics in order to improve performance after particularly large imports.
+After importing new data, the import_gyb command will recache the list of valid condids automatically. Additionally, you may need to do some postgres tuning to refresh database statistics or recluster in order to improve performance after particularly large imports.
 
 ## Upload Spatial data
 
@@ -301,7 +296,7 @@ On importing user's stands, we need to confirm that there exist valid records fo
 
 This returns a list of all "valid" condids for this variant. At this point, validity is defined loosely - it currently just returns a list of condids for that variant. More advanced logic (e.g. checking that they have all necessary rxs, offsets, etc.) may be added as required. Until then, it's up to the site administrators to ensure that any data added to the fvsaggregate table is done cleanly.
 
-Because the query may be very computationally expensive, this method is cached. Therefore it is required to clear the cache when new data is added. This can be done using Redis directly:
+Because the query may be very computationally expensive, this method is cached. The caching is done on import via the `imoprt_gyb` command. If it is required to clear the cache manually, use `manage.py clear_cache` or using Redis directly:
 
     $ redis-cli
     redis 127.0.0.1:6379> select 1
@@ -312,12 +307,6 @@ Because the query may be very computationally expensive, this method is cached. 
     (integer) 1
     redis 127.0.0.1:6379[1]> keys *valid_condids*
     (empty list or set)
-
-
-
-
-
-
 
 
 ## User interface
