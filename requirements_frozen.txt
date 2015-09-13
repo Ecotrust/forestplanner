@@ -11,7 +11,7 @@ PyYAML==3.10
 Twisted==11.1.0
 
 
-Shapely==1.2.17
+Shapely==1.4.4
 South==1.0.2
 
 amqp==1.0.11
@@ -77,6 +77,8 @@ python-debian==0.1.21ubuntu1
 python-memcached==1.51
 python-openid==2.2.5
 pytz==2013b
+rasterstats==0.5
+
 redis==2.7.5
 requests==1.2.3
 requests-oauthlib==0.3.1
@@ -97,6 +99,7 @@ zope.interface==3.6.1
 
 #Landscape-Client==12.05
 #PAM==0.4.2
+#Shapely==1.2.17
 #South==0.7.6
 #Twisted-Core==11.1.0
 #Twisted-Names==11.1.0

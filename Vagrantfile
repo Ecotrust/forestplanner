@@ -1,6 +1,6 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
- 
+
 Vagrant::Config.run do |config|
   # All Vagrant configuration is done here. The most common configuration
   # options are documented and commented below. For a complete reference,
@@ -36,6 +36,7 @@ Vagrant::Config.run do |config|
   config.vm.forward_port 443, 8443
   config.vm.forward_port 8000, 8000
   config.vm.forward_port 5432, 5433
+  config.vm.forward_port 5555, 5555
 
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
@@ -48,7 +49,7 @@ Vagrant::Config.run do |config|
     # then vagrant ssh,
     #   source /usr/local/venv/lot/bin/activate
     #   pip uninstall madrona
-    #   cd /usr/local/src/madrona 
+    #   cd /usr/local/src/madrona
     #   python setup.py develop
   end
 
