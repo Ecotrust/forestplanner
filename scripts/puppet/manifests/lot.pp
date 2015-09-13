@@ -143,6 +143,10 @@ package {'supervisor':
     ensure => "latest"
 }
 
+package {'swig':
+    ensure => "latest"
+}
+
 class {'nullmailer':
     adminaddr => "forestplanner@ecotrust.org",
     remoterelay => "mail.ecotrust.org"
@@ -154,7 +158,7 @@ package {'sysstat': ensure => "latest"}
 package {'iotop': ensure => "latest"}
 
 
-# use uwsgi packages but only for the config system; binary is out of date! 
+# use uwsgi packages but only for the config system; binary is out of date!
 # see https://code.djangoproject.com/ticket/20537
 package {'uwsgi': ensure => "latest"}
 exec { "uwsgi":
@@ -194,7 +198,7 @@ file { "/etc/nginx/sites-enabled/default":
    require => Package['nginx-full']
 }
 
-sysctl { "kernel.shmmax": 
+sysctl { "kernel.shmmax":
    value => $shmmax
 }
 
