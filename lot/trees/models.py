@@ -394,9 +394,9 @@ class Scenario(Feature):
                     SUM(a.after_ba * ss.acres)/ SUM(ss.acres) as ba, -- area-weighted average ba
                     SUM(a.after_tpa * ss.acres)/ SUM(ss.acres) as tpa,  -- area-weighted average tpa
                     SUM(a.after_total_ft3 * ss.acres) as standing_vol,
-                    SUM(CASE WHEN firehzd = 4 then ss.acres else 0 end) as fire, -- number of acres in high fire risk
-                    SUM(CASE WHEN pp_btl >= 9 OR lp_btl = 14 then ss.acres else 0 end) as pine_btl, -- number of acres in high pine btl
-                    SUM(CASE WHEN es_btl >= 9 then ss.acres else 0 end) as es_btl -- number of acres in high es btl
+                    SUM(CASE WHEN firehzd = 10 then ss.acres else 0 end) as fire, -- number of acres in high fire risk
+                    SUM(CASE WHEN pp_btl >= 7.5 OR lp_btl = 7.5 then ss.acres else 0 end) as pine_btl, -- number of acres in high pine btl
+                    SUM(CASE WHEN es_btl >= 7.5 then ss.acres else 0 end) as es_btl -- number of acres in high es btl
                 FROM
                     trees_fvsaggregate a
                 JOIN
