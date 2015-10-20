@@ -35,18 +35,24 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
     """
     Given a stand list and a variant code,
     return a list of IdbSummary instances that are potential candidate matches
+    The stand_list values come from the user when defining forest type.
     """
     cursor = connection.cursor()
 
     dfs = []
 
+    # Key is used for caching only
     key = "Candidates_" + "_".join([str(item) for sublist in stand_list
                                     for item in sublist] +
                                    [variant, str(min_candidates)])
+
     res = cache.get(key)
     if res is not None:
         return res
 
+
+    # For each species_mindbh_maxdbh...
+    # "sc": "Species Class"?
     for sc in stand_list:
 
         sql = """
@@ -81,9 +87,12 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
             raise NearestNeighborError(
                 "No matches for %s, %s to %s in" % (sc[0], sc[1], sc[2]))
 
+
+        # df is condition ids that match sql query of each (single species + dbh range)
         df = pd.DataFrame(rows)
         df.index = df['cond_id']
         del df['cond_id']
+        #dfs is collection of df lists of cond ids
         dfs.append(df)
 
     if len(dfs) == 0:
@@ -91,12 +100,14 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
     elif len(dfs) == 1:
         sdfs = dfs
     else:
+        #sdfs is queries sorted by number of matches (species + dbh-range) returned
         sdfs = sorted(dfs, key=lambda x: len(x), reverse=True)
 
     enough = False
     while not enough:
         if len(sdfs) == 0:
             raise NearestNeighborError("The stand list provided does not yield enough matches.")
+        #cadidates are cond_ids with all (species + dbh range) represented
         candidates = pd.concat(sdfs, axis=1, join="inner")
         if verbose:
             print len(candidates)
@@ -191,7 +202,7 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
 
     inputs:
       - site_cond: dict of site conditions (elevation, aspect, slope, lat, lon)
-      - stand_list: list of tuples; [("speciesname", min_dbh, max_dbh, tpa),...] 
+      - stand_list: list of tuples; [("speciesname", min_dbh, max_dbh, tpa),...]
       - variant: 2-letter variant code to filter by
       - weight_dict: dict, weighting for each input_param. assumes 1 if not in dict.
 
