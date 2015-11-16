@@ -35,7 +35,7 @@ Vagrant::Config.run do |config|
   config.vm.forward_port 80, 8080
   config.vm.forward_port 443, 8443
   config.vm.forward_port 8000, 8000
-  config.vm.forward_port 5432, 5433
+  config.vm.forward_port 5432, 5434
   config.vm.forward_port 5555, 5555
 
   # Share an additional folder to the guest VM. The first argument is

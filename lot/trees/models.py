@@ -1747,6 +1747,8 @@ class TreeliveSummary(models.Model):
     total_ba_ft2_ac = models.FloatField(null=True, blank=True)
     count_speciessizeclasses = models.IntegerField(null=True, blank=True)
     pct_of_totalba = models.FloatField(null=True, blank=True)
+    variant = models.CharField(max_length=10, blank=True, null=True, default=None)
+    fvs_spp_code = models.CharField(max_length=10, blank=True, null=True, default=None)
 
     class Meta:
         db_table = u'treelive_summary'

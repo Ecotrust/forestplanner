@@ -31,3 +31,5 @@ celeryflower-passwords
 geofu/*
 .vimrc
 .ackrc
+docs/*
+docs/output/*
