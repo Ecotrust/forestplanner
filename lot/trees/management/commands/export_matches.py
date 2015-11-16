@@ -68,3 +68,4 @@ class Command(BaseCommand):
                 writer.writerow(match_dict)
 
         print 'Misses: %s' % str(miss_count)
+        print 'Output can be found at %s' % out_location
