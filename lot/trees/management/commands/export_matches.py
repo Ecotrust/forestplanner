@@ -13,7 +13,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        CANDIDATES_DESIRED = 4  # How many candidates would you like?
+        CANDIDATES_DESIRED = 10  # How many candidates would you like?
         MAX_ITERATIONS = 0      # <1 for 'run all'
 
         match_dicts = []
@@ -53,7 +53,6 @@ class Command(BaseCommand):
                             'certainty': match['_certainty']
                         })
                 except:
-                    import ipdb; ipdb.set_trace()
                     print 'FAIL'
             else:
                 miss_count += 1
