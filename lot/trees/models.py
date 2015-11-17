@@ -307,7 +307,12 @@ class JSONField(models.TextField):
 
         if isinstance(value, basestring):
             # if it's a string
-            return loads(value)
+            try:
+                return loads(value)
+            except:
+                # this fix is for when importing fixtures
+                import ast
+                return ast.literal_eval(value)
         else:
             # if it's not yet saved and is still a python data structure
             return value
