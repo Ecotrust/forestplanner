@@ -18,6 +18,7 @@ class Command(BaseCommand):
 
         match_dicts = []
         miss_count = 0
+        no_strata_count = 0
 
         def meters_to_feet(meters):
             return meters * 3.2808399
@@ -56,6 +57,9 @@ class Command(BaseCommand):
                     print 'FAIL'
             else:
                 miss_count += 1
+                if not strata:
+                    no_strata_count += 1
+
 
 
         out_location = '%s/../docs/output/matching_conditions.csv' % settings.BASE_DIR
@@ -68,4 +72,5 @@ class Command(BaseCommand):
                 writer.writerow(match_dict)
 
         print 'Misses: %s' % str(miss_count)
+        print 'Strata Misses: %s' % str(no_strata_count)
         print 'Output can be found at %s' % out_location
