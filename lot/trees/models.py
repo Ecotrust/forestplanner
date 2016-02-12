@@ -225,8 +225,10 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
                 cond_stand_list = [['N/A', -1, 1, 1]]
             else:
                 cond_age = IdbSummary.objects.get(cond_id=cond_id).age_dom
+                prop = ForestProperty.objects.get(id=self.object_id)
+                variant = prop.variant.code
                 cond_stand_list = list(x.treelist for x in
-                                       TreeliveSummary.objects.filter(cond_id=cond_id))
+                                       TreeliveSummary.objects.filter(cond_id=cond_id, variant=variant))
 
         if self.acres:
             acres = round(self.acres, 1)
@@ -1764,8 +1766,11 @@ class TreeliveSummary(models.Model):
                 int(self.calc_dbh_class + 1), self.sumoftpa]
 
     def __unicode__(self):
-        return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (
-            self.cond_id, self.fia_forest_type_name, self.calc_dbh_class, self.sumoftpa, self.pct_of_totalba)
+
+        # return u"cond::%s (%s %d in X %d tpa) %s %% total BA" % (
+        return u"cond::%s (%s %s in)" % (
+            self.cond_id, self.fia_forest_type_name, str(self.calc_dbh_class))
+            # self.cond_id, self.fia_forest_type_name, self.calc_dbh_class, self.sumoftpa, self.pct_of_totalba)
 
 
 class ConditionVariantLookup(models.Model):

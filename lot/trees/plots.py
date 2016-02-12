@@ -47,8 +47,9 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
                                    [variant, str(min_candidates)])
 
     res = cache.get(key)
-    if res is not None:
-        return res
+    # TODO: uncomment to turn caching back on!!!
+    # if res is not None:
+    #     return res
 
     common_species_lookup = {
         "Vine maple": {"WC": "CH", "BM": "OH", "CA": "OH", "EC": "VN", "SO": "CH", "COMMON_NAME": "Vine maple", "PN": "CH"},
@@ -494,12 +495,14 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
                 AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
                 AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
             FROM treelive_summary, trees_conditionvariantlookup as cvl
-            WHERE fvs_spp_code = %(fvsspecies)s
-            AND variant = %(variant_code)s
-            AND cvl.cond_id = treelive_summary.cond_id  --join
-            AND cvl.variant_code = %(variant_code)s
-            AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
-            AND pct_of_totalba is not null
+            WHERE
+                treelive_summary.fvs_spp_code = %(fvsspecies)s
+                AND treelive_summary.variant = %(variant_code)s
+                AND cvl.cond_id = treelive_summary.cond_id  --join
+                AND cvl.variant_code = %(variant_code)s
+                AND treelive_summary.calc_dbh_class >= %(lowsize)s
+                AND treelive_summary.calc_dbh_class < %(highsize)s
+                AND treelive_summary.pct_of_totalba is not null
             GROUP BY treelive_summary.COND_ID
         """
         inputs = {
@@ -583,14 +586,29 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
                 SUM(SumOfTPA) as "NONSPEC_TPA",
                 SUM(SumOfBA_FT2_AC) as "NONSPEC_BA"
             FROM treelive_summary
-            WHERE fia_forest_type_name NOT IN (%s)
-            AND pct_of_totalba is not null
+            WHERE
+                fvs_spp_code NOT IN (%(spp_code_list)s)
+                AND variant = %(variant_code)s
+                AND pct_of_totalba is not null
             GROUP BY COND_ID
         """
+        # fia_forest_type_name NOT IN (%s)
+        # treelive_summary.fvs_spp_code = %(fvsspecies)s
+        # AND treelive_summary.variant = %(variant_code)s
         species_list = [sc[0] for sc in stand_list]
-        in_p = ', '.join(['%s'] * len(stand_list))
-        sql = sql % in_p
-        cursor.execute(sql, species_list)
+        spp_code_list = [common_species_lookup[sc[0]][variant] for sc in stand_list]
+        sqlized_code_list = ', '.join(spp_code_list)
+        inputs = {
+            'species': sc[0],
+            'spp_code_list': sqlized_code_list,
+            'variant_code': variant
+        }
+        # import ipdb
+        # ipdb.set_trace()
+        # in_p = ', '.join(['%s'] * len(stand_list))
+        # sql = sql % in_p
+        # cursor.execute(sql, species_list)
+        cursor.execute(sql, inputs)
         rows = dictfetchall(cursor, classname)
 
         df = pd.DataFrame(rows)
@@ -693,9 +711,9 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
 
     # Add site conditions
     input_params.update(site_cond)
-
-    if not weight_dict:
-        weight_dict = {}
+    #
+    # if not weight_dict:
+    #     weight_dict = {}
 
     nearest = nearest_plots(input_params, plotsummaries, weight_dict, k, verbose)
 
