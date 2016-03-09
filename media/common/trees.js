@@ -116,6 +116,14 @@ function init() {
         );
         lyr.shortName = lyrShortName;
         map.addLayer(lyr);
+
+        //stream buffers need to be a lower index than streams
+        if (lyrShortName === 'LOT_streambuffers') {
+            map.setLayerIndex(lyr, 1);
+        } else if (lyrShortName === 'LOT_streams') {
+            map.setLayerIndex(lyr, 10);
+        }
+
         lyr.events.register('visibilitychanged', lyr, function(evt) {
             if (this.visibility) {
                 $('#legend').append('<div id="' + this.shortName + '-legend">' +
