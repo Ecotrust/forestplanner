@@ -26,6 +26,10 @@ var geosearch = function () {
             },
             "error": function (response) {
                 if (response.status === 404) {
+                    response.responseText = "Sorry, we were unable to find the location '" + 
+                                            self.searchTerm() +  
+                                            "'. Please try again."
+                    response.header = "Search Error:";
                     self.showError(true);
                 }
                 self.showSpinner(false);

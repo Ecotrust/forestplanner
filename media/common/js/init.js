@@ -258,7 +258,10 @@ app.globalErrorHandling = function () {
         if (request.responseText.split('>').length > 1){
             response = request.responseText.split('>')[1].split('<')[0];
         }
-        app.flash(response);
+        if (request.hasOwnProperty('header')){
+            var header = request.header;
+        }
+        app.flash(response, header);
         // TODO parse out human-readable text from complex html error responses?
 	});
 
