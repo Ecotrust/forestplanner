@@ -247,7 +247,10 @@ app.standUploadFormInit = function () {
 };
 
 app.globalErrorHandling = function () {
-	$('body').prepend('<div id="flash" class="alert fade in" style="display: none"><h4></h4><div></div><a class="close" href="#">&times;</a>');
+	$('body').prepend("<div id='flash' class='alert fade in' style='display: none'>" + 
+                       "<h4></h4><ul><li><div id='msg-main'></div></li>" +
+                       "<li><div id='email-msg'></div></li></ul>" +
+                       "<a class='close' href='#'>&times;</a>");
 	app.$flash = $('#flash');
 
 	$(document).ajaxError(function (event, request, settings, exception) {
@@ -273,10 +276,15 @@ app.flash = function (message, header, flashType) {
 	// bs: alert-error, alert-warning,
 	var type = flashType || 'alert-error',
 		hdr = header || 'Oops',
-		msg = message || '';
+		msg = message || '',
+        emailHelp = 'If you need more assistance, please let us know how you came across ' + 
+                    'this error or how we may be able to fix it. Feel free to send us an e-mail at ' +
+                    '<a style="color:white;font-weight:bold;" href="mailto:help@forestplanner.ecotrust.org">' +
+                    'help@forestplanner.ecotrust.org</a> and describe what happened.';
 
 	app.$flash.addClass(type).slideDown(200)
-		.find('div').text(msg).end()
+		.find('#msg-main').text(msg).end()
+        .find('#email-msg').html(emailHelp).end()
 		.find('h4').text(hdr);
 
 	// $(window).scrollTop(0);
