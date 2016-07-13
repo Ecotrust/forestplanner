@@ -212,13 +212,12 @@ $(document).ready(function() {
     var style = new OpenLayers.Style(template, {context: context});
     var styleMap = new OpenLayers.StyleMap({'default': style});
 
-    var arrayAerial = [
-        "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile2.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile3.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
-        "http://otile4.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg"];
-    var aerial1 = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
-        arrayAerial, {attribution:"MapQuest"});
+    var aerial1 = new OpenLayers.Layer.XYZ( "Satellite Base Map",
+        "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}.jpg",
+        {sphericalMercator: true,
+         opacity: 1.0,
+         attribution: "ESRI" }
+    );
 
     timemap1.addLayer(aerial1);
     standScenario1 = new OpenLayers.Layer.Vector("Scenario Stands",  {
@@ -227,8 +226,13 @@ $(document).ready(function() {
     });
     timemap1.addLayer(standScenario1);
 
-    var aerial2 = new OpenLayers.Layer.OSM("MapQuest Open Aerial",
-        arrayAerial, {attribution:"MapQuest"});
+    var aerial2 = new OpenLayers.Layer.XYZ( "Satellite Base Map 2",
+        "http://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/${z}/${y}/${x}.jpg",
+        {sphericalMercator: true,
+         opacity: 1.0,
+         attribution: "ESRI" }
+    );
+
     timemap2.addLayer(aerial2);
     standScenario2 = new OpenLayers.Layer.Vector("Scenario Stands",  {
         renderers: app.renderer,
