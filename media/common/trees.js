@@ -187,11 +187,7 @@ function init() {
             "http://c.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
             "http://d.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
         ];
-        if tileServerLayers2[i] == "Tax Lots (where available)" {
-          var attribution = "Ecotrust, © Oregon Metro www.oregonmetro.gov/rlis, Data provided by permission of King County";
-        } else {
-          var attribution = "Ecotrust";
-        }
+        var attribution = "Ecotrust";
         if (tileServerLayers2[i].length > 2){
             attribution = tileServerLayers2[i][2];
         }
