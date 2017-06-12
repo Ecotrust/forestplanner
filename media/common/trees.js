@@ -29,8 +29,8 @@ function init() {
     map.addControl(new OpenLayers.Control.ScaleLine());
 
     var googHybrid = new OpenLayers.Layer.Google("Google Hybrid", {
-        type: google.maps.MapTypeId.HYBRID, 
-        'sphericalMercator':true, 
+        type: google.maps.MapTypeId.HYBRID,
+        'sphericalMercator':true,
         numZoomLevels: 23,
         MAX_ZOOM_LEVEL: 22,
         attribution: "Basemap by Google",
@@ -38,8 +38,8 @@ function init() {
     });
     map.addLayer(googHybrid);
     var googStreet = new OpenLayers.Layer.Google("Street Map", {
-        type: google.maps.MapTypeId.ROAD, 
-        'sphericalMercator':true, 
+        type: google.maps.MapTypeId.ROAD,
+        'sphericalMercator':true,
         numZoomLevels: 23,
         MAX_ZOOM_LEVEL: 22,
         attribution: "Basemap by Google"
@@ -93,7 +93,7 @@ function init() {
             config
         );
         lyr.shortName = lyrShortName;
-        map.addLayer(lyr); 
+        map.addLayer(lyr);
     }
 
     var tileServerLayers = [
@@ -140,7 +140,7 @@ function init() {
          isBaseLayer: false,
          visibility: false,
          opacity: 0.75,
-         attribution: "ESRI, USDA NRCS"} 
+         attribution: "ESRI, USDA NRCS"}
     );
     map.addLayer(soils);
     soils.events.register('visibilitychanged', soils, function(evt) {
@@ -187,7 +187,11 @@ function init() {
             "http://c.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
             "http://d.tiles.ecotrust.org/tiles/" + lyrShortName + "/${z}/${x}/${y}.png",
         ];
-        var attribution = "Ecotrust"
+        if tileServerLayers2[i] == "Tax Lots (where available)" {
+          var attribution = "Ecotrust, © Oregon Metro www.oregonmetro.gov/rlis, Data provided by permission of King County";
+        } else {
+          var attribution = "Ecotrust";
+        }
         if (tileServerLayers2[i].length > 2){
             attribution = tileServerLayers2[i][2];
         }
@@ -212,7 +216,7 @@ function init() {
         map.layers[i].animationEnabled = true;
     }
 
-    app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});               
+    app.markers = new OpenLayers.Layer.Markers("search", {displayInLayerSwitcher: false});
     map.addLayer(app.markers);
 
     // Add stands
@@ -220,22 +224,22 @@ function init() {
     app.renderer = (renderer) ? [renderer] : OpenLayers.Layer.Vector.prototype.renderers;
 
     new_features = new OpenLayers.Layer.Vector("New Features", {
-        renderers: app.renderer, 
+        renderers: app.renderer,
         styleMap: map_styles.drawn,
         displayInLayerSwitcher: false
     }
     );
     map.addLayer(new_features);
     app.new_features = new_features;
-    
+
 
     app.geojson_format = new OpenLayers.Format.GeoJSON(),
     app.property_layer = new OpenLayers.Layer.Vector("My Properties",  {
-        renderers: app.renderer, 
+        renderers: app.renderer,
         styleMap: map_styles.forestProperty
     });
     app.stand_layer = new OpenLayers.Layer.Vector("Stands",  {
-        renderers: app.renderer, 
+        renderers: app.renderer,
         styleMap: map_styles.forestProperty
     });
     map.addLayer(app.property_layer);
@@ -243,10 +247,10 @@ function init() {
     // add controls, save references
     app.selectFeature = new OpenLayers.Control.SelectFeature(app.property_layer,
         { "clickout": false});
-    
+
     // reenable click and drag in vectors
-    app.selectFeature.handlers.feature.stopDown = false; 
-    
+    app.selectFeature.handlers.feature.stopDown = false;
+
     map.addControl(app.selectFeature);
     app.modifyFeature = new OpenLayers.Control.ModifyFeature(app.property_layer);
     map.addControl(app.modifyFeature);
@@ -254,7 +258,7 @@ function init() {
     // activate select now
     app.selectFeature.activate();
 
-    // 
+    //
     // Snapping control for drawing properties
     //
     existing_snap = new OpenLayers.Control.Snapping({
@@ -289,4 +293,3 @@ function init() {
       $form.find('input:visible').first().focus();
     };
 } //end init
-
