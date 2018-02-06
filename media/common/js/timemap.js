@@ -257,11 +257,13 @@ $(document).ready(function() {
     var field = $('#field-year-slider');
     var slidy = $('#slider-year-slider');
     var yearIndex = 0;
+    var date = new Date();
+    var year = date.getFullYear();
 
     onChange = function() {
         field.val(slidy.slider('value'));
         var val = field.val();
-        yearIndex = Math.floor((parseInt(val, 10) - 2013)/5);
+        yearIndex = Math.floor((parseInt(val, 10) - year)/5);
         if (standScenario1) {
             standScenario1.redraw();
         }
@@ -271,8 +273,8 @@ $(document).ready(function() {
     };
     slidy.slider({
         range: 'min',
-        min : 2013,
-        max : 2108,
+        min : year,
+        max : year + 100,
         step : 5,
         change : onChange,
         slide : onChange
