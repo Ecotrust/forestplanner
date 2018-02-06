@@ -580,10 +580,16 @@ def forestproperty_myrx(request, instance):
 #     return HttpResponse(res_json, mimetype='application/json', status=200)
 
 def scenario_cash_flow(request, instance):
+    from datetime import datetime
+    years = range(datetime.now().year, datetime.now().year+100, 5)
     data = instance.output_cash_metrics
+    data['years'] = years
     return HttpResponse(json.dumps(data), mimetype="text/javascript")
 
 
 def scenario_revenue(request, instance):
+    from datetime import datetime
+    years = range(datetime.now().year, datetime.now().year+100, 5)
     data = instance.output_revenue_metrics
+    data['years'] = years
     return HttpResponse(json.dumps(data), mimetype="text/javascript")

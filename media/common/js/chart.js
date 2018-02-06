@@ -192,6 +192,8 @@ var refreshCharts = function(){
   var scenarioData = [];
   var scenarioLabels = [];
   var metric = chartMetrics[selectedMetric];
+  var date = new Date();
+  var year_min = date.getFullYear();
 
   $.each(app.scenarios.viewModel.selectedFeatures(), function() {
     var newData = [];
@@ -208,6 +210,11 @@ var refreshCharts = function(){
 
     if (newData.length === 0) {
         newData = [[null]];
+    } else {
+        for (var i = 0; i < newData.length; i++) {
+            var step_date = year_min + (i * 5);
+            newData[i][0] = '' + step_date + newData[i][0].substring(4);
+        }
     }
 
     scenarioData.push(newData);

@@ -72,6 +72,10 @@ var refreshRevenue = function() {
     dataType: 'json'
   }).done(function(data) {
     if (data && data['years']) {
+      var date = new Date();
+      for(var i = 0; i < data['years'].length; i++) {
+          data['years'][i] = date.getFullYear() + (i * 5);
+      }
       revenueChartOptions.axes.xaxis.ticks = data['years'];
       var dataSeries = [
          data['gross'],
