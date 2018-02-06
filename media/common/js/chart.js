@@ -252,6 +252,15 @@ var refreshCharts = function(){
   }
 
   if (scenarioData.length > 0) {
+    var date = new Date();
+    var year_min = date.getFullYear();
+    var year_max = date.getFullYear() + 101;
+    for (var i = 0; i < scenarioData[0].length; i++) {
+        var step_date = year_min + (i * 5);
+        scenarioData[0][i][0] = '' + step_date + scenarioData[0][i][0].substring(4);
+    }
+    var date_min = 'Jan 01, ' + year_min + ' 8:00AM';
+    var date_max = 'Jan 01, ' + year_max + ' 8:00AM';
     scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
         //title: metric.title,
         series: scenarioLabels,
@@ -260,8 +269,8 @@ var refreshCharts = function(){
               label: "Year",
               renderer: $.jqplot.DateAxisRenderer,
               tickOptions: {formatString:'%Y'},
-              min:'Jan 01, 2010 8:00AM',
-              max:'Jan 01, 2111 8:00AM',
+              min:date_min,
+              max:date_max,
               tickInterval:'10 years',
               pad: 0
             },
