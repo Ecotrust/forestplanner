@@ -36,7 +36,7 @@ function init() {
         attribution: "Basemap by Google",
 
     });
-    map.addLayer(googHybrid);
+    // map.addLayer(googHybrid);
     var googStreet = new OpenLayers.Layer.Google("Street Map", {
         type: google.maps.MapTypeId.ROAD, 
         'sphericalMercator':true, 
@@ -44,7 +44,32 @@ function init() {
         MAX_ZOOM_LEVEL: 22,
         attribution: "Basemap by Google"
     });
-    map.addLayer(googStreet);
+    //map.addLayer(googStreet);
+
+    var MapBoxHybrid = new OpenLayers.Layer.XYZ(
+      "Hybrid",
+      [
+        "http://a.tiles.mapbox.com/v4/mapbox.streets-satellite/${z}/${x}/${y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA",
+        "http://b.tiles.mapbox.com/v4/mapbox.streets-satellite/${z}/${x}/${y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA",
+        "http://c.tiles.mapbox.com/v4/mapbox.streets-satellite/${z}/${x}/${y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA",
+        "http://d.tiles.mapbox.com/v4/mapbox.streets-satellite/${z}/${x}/${y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA"
+      ], {
+          attribution: "<div style='background-color:#CCC; padding: 3px 8px; margin-bottom: 2px;'>Tiles &copy; <a href='http://mapbox.com/'>MapBox</a></div>",
+          sphericalMercator: true,
+          wrapDateLine: true,
+          textColor: "white",
+          numZoomLevels: 20,
+      });
+    map.addLayer(MapBoxHybrid);
+    esriTopo = new OpenLayers.Layer.XYZ("ESRI Physical", "http://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/${z}/${y}/${x}", {
+        sphericalMercator: true,
+        isBaseLayer: true,
+        numZoomLevels: 20,
+        attribution: "Sources: Esri, DeLorme, NAVTEQ, TomTom, Intermap, iPC, USGS, FAO, NPS, NRCAN, GeoBase, and others",
+        buffer: 3,
+        textColor: "black"
+    });
+    map.addLayer(esriTopo);
 
     // var arrayAerial = [
     //     "http://otile1.mqcdn.com/tiles/1.0.0/sat/${z}/${x}/${y}.jpg",
