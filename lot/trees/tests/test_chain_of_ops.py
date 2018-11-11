@@ -166,7 +166,7 @@ response = client.post(url,
                        'search_tpa': 160,
                        'search_age': 40,
                        'stand_list': u'{"classes":[["Red alder",5,10,50],["Douglas-fir",10,15,10]]}'
-                       # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
+                       # see https://github.com/Ecotrust/forestplanner/wiki/Stand-List
                        }
                        )
 assert(response.status_code == 201)

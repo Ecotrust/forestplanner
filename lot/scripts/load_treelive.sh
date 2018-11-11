@@ -18,8 +18,8 @@ while [[ "$complete" -le "0" ]]; do
     echo "--ITERATION: $iteration_count--"
     echo "-------------------------------"
     echo "-------------------------------"
-    # iteration_count=`/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/test_100.py "$iteration_count"`
-    iteration_count=`/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/load_new_conditions.py "$iteration_count"`
+    # iteration_count=`/usr/local/venv/lot/bin/python /usr/local/apps/forestplanner/lot/test_100.py "$iteration_count"`
+    iteration_count=`/usr/local/venv/lot/bin/python /usr/local/apps/forestplanner/lot/load_new_conditions.py "$iteration_count"`
     result=$?
     echo "$iteration_count"
     iteration_count=`echo "$iteration_count" | sed -e '$!d'`

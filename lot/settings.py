@@ -20,7 +20,7 @@ INSTALLED_APPS += (
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'land_owner_tools',
+        'NAME': 'forestplanner',
         'USER': 'postgres',
     }
 }
@@ -47,7 +47,7 @@ COMPRESS_JS['application']['source_filenames'] = (
     'common/stand.js',
     'common/scenario.js'
 )
-MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
+MEDIA_ROOT = '/usr/local/apps/forestplanner/mediaroot/'
 MEDIA_URL = '/media/'
 STATIC_URL = '/media/'
 

@@ -23,7 +23,7 @@ class Command(BaseCommand):
             ('http://labs.ecotrust.org/forestplanner/data/fvsspecies.json.gz', FVSSpecies),
             # fvs variant and rx are handled via initial_data.json fixture for trees app
             # fvsaggregate and others handled manually
-            # See https://github.com/Ecotrust/land_owner_tools/wiki/Fixture-management
+            # See https://github.com/Ecotrust/forestplanner/wiki/Fixture-management
         ]
 
         #### Step 1: Fetch data bundles

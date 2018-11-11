@@ -9,7 +9,7 @@ DATABASES = {
 }
 
 # This should be a local folder created for use with the install_media command 
-MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
+MEDIA_ROOT = '/usr/local/apps/forestplanner/mediaroot/'
 MEDIA_URL = '$url_base/media/'
 STATIC_URL = '$url_base/media/'
 

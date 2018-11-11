@@ -3,12 +3,12 @@
 ; ==============================================
 
 [program:celerymon]
-command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celerymon
-directory=/usr/local/apps/land_owner_tools/lot
+command=/usr/local/venv/lot/bin/python /usr/local/apps/forestplanner/lot/manage.py celerymon
+directory=/usr/local/apps/forestplanner/lot
 user=<%= user %>
 numprocs=1
-stdout_logfile=/usr/local/apps/land_owner_tools/logs/celerymon.log
-stderr_logfile=/usr/local/apps/land_owner_tools/logs/celerymon.log
+stdout_logfile=/usr/local/apps/forestplanner/logs/celerymon.log
+stderr_logfile=/usr/local/apps/forestplanner/logs/celerymon.log
 autostart=true
 autorestart=true
 startsecs=10

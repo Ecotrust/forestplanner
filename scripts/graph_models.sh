@@ -1,1 +1,1 @@
-python manage.py graph_models trees --pygraphviz -g -o /usr/local/apps/land_owner_tools/docs/model_graph.png
+python manage.py graph_models trees --pygraphviz -g -o /usr/local/apps/forestplanner/docs/model_graph.png
