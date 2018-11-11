@@ -40,7 +40,7 @@ Vagrant::Config.run do |config|
   # Share an additional folder to the guest VM. The first argument is
   # an identifier, the second is the path on the guest to mount the
   # folder, and the third is the path on the host to the actual folder.
-  config.vm.share_folder "v-app", "/usr/local/apps/land_owner_tools", "./", mount_options: ["dmode=775,fmode=664"]
+  config.vm.share_folder "v-app", "/usr/local/apps/forestplanner", "./", mount_options: ["dmode=775,fmode=664"]
 
   # To use a local copy of madrona:
   if File.directory?("../madrona")

@@ -1,4 +1,4 @@
-# Forest Scenario Planner
+# Forest Planner
 ## An Online Tool for Forest Management Scenario Planning
 
 Ecotrust has created the Forest Planner to give forest management scenario planning capacity to all Oregon and Washington land managers. Users will be able to visualize alternative management scenarios on their lands and receive immediate feedback on how their decisions might pay off in terms of timber harvests and financial returns, as well as public benefits like carbon storage and ecosystem services. 

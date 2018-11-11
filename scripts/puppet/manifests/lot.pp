@@ -5,7 +5,7 @@ if $group == undef {
     $group = 'vagrant'
 }
 if $project_dir == undef {
-    $project_dir = '/usr/local/apps/land_owner_tools'
+    $project_dir = '/usr/local/apps/forestplanner'
 }
 if $settings_template == undef {
     $settings_template = "settings_template.py.erb"

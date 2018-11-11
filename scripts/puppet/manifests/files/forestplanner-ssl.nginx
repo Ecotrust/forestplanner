@@ -16,7 +16,7 @@ server {
         rewrite  ^/(.*)$  https://localhost:8443/$1 permanent;
     }
     location /media/  {
-        alias /usr/local/apps/land_owner_tools/mediaroot/;
+        alias /usr/local/apps/forestplanner/mediaroot/;
     }
 }
 
@@ -55,6 +55,6 @@ server {
         include uwsgi_params;
     }
     location /media/  {
-        alias /usr/local/apps/land_owner_tools/mediaroot/;
+        alias /usr/local/apps/forestplanner/mediaroot/;
     }
 }

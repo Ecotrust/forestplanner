@@ -1,7 +1,7 @@
 from fabric.api import *
 
 vars = {
-    'app_dir': '/usr/local/apps/land_owner_tools/lot',
+    'app_dir': '/usr/local/apps/forestplanner/lot',
     'venv': '/usr/local/venv/lot',
     'sitename': 'localhost:8080',
     'branch': 'master'
@@ -167,7 +167,7 @@ def install_media():
 
 def copy_media():
     """ Just copy the basic front end stuff. Speed! """
-    run('rsync -rtvu /usr/local/apps/land_owner_tools/media/common/ /usr/local/apps/land_owner_tools/mediaroot/common' % vars)
+    run('rsync -rtvu /usr/local/apps/forestplanner/media/common/ /usr/local/apps/forestplanner/mediaroot/common' % vars)
 
 
 def runserver():
@@ -262,9 +262,9 @@ def provision():
         facter_postgres_shared_buffers=%s \
         facter_shmmax=%s \
         facter_pgsql_base=/var/lib/postgresql/ puppet apply \
-        --templatedir=/usr/local/apps/land_owner_tools/scripts/puppet/manifests/files \
-        --modulepath=/usr/local/apps/land_owner_tools/scripts/puppet/modules \
-        /usr/local/apps/land_owner_tools/scripts/puppet/manifests/lot.pp
+        --templatedir=/usr/local/apps/forestplanner/scripts/puppet/manifests/files \
+        --modulepath=/usr/local/apps/forestplanner/scripts/puppet/modules \
+        /usr/local/apps/forestplanner/scripts/puppet/manifests/lot.pp
         """ % (env.host,
                num_cpus,
                postgres_shared_buffers,

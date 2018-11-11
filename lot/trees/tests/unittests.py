@@ -1139,7 +1139,7 @@ class NearestPlotRestTest(TestCase):
                 'search_tpa': 160,
                 'search_age': 40,
                 'stand_list': u'{"property": "%s", "classes":[["Douglas-fir",2,4,145]]}' % prop1.uid
-                # see https://github.com/Ecotrust/land_owner_tools/wiki/Stand-List
+                # see https://github.com/Ecotrust/forestplanner/wiki/Stand-List
             }
         )
         self.assertEqual(response.status_code, 201, response.content)

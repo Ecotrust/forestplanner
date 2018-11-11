@@ -4,12 +4,12 @@
 ; ==============================================
 
 [program:celeryflower]
-command=/usr/local/venv/lot/bin/python /usr/local/apps/land_owner_tools/lot/manage.py celery flower --url_prefix=flower
-directory=/usr/local/apps/land_owner_tools/lot
+command=/usr/local/venv/lot/bin/python /usr/local/apps/forestplanner/lot/manage.py celery flower --url_prefix=flower
+directory=/usr/local/apps/forestplanner/lot
 user=<%= user %>
 numprocs=1
-stdout_logfile=/usr/local/apps/land_owner_tools/logs/celeryflower.log
-stderr_logfile=/usr/local/apps/land_owner_tools/logs/celeryflower.log
+stdout_logfile=/usr/local/apps/forestplanner/logs/celeryflower.log
+stderr_logfile=/usr/local/apps/forestplanner/logs/celeryflower.log
 autostart=true
 autorestart=true
 startsecs=10

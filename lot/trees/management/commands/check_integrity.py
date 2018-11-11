@@ -110,5 +110,5 @@ class Command(BaseCommand):
         print "check_integrity summary: %d violations that should be addressed" % self.errors
         print
         print " For further discussion on integrity_errors, see:"
-        print " https://github.com/Ecotrust/land_owner_tools/wiki/IDB-data-processing#potential-check_integrity-errors"
+        print " https://github.com/Ecotrust/forestplanner/wiki/IDB-data-processing#potential-check_integrity-errors"
         print

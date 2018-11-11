@@ -1,6 +1,6 @@
 import sys
 from django.core.management import setup_environ
-appdir = '/usr/local/apps/land_owner_tools/lot'
+appdir = '/usr/local/apps/forestplanner/lot'
 sys.path.append(appdir)
 import settings
 setup_environ(settings)

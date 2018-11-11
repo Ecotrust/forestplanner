@@ -1,6 +1,6 @@
 import sys
 import os
-appdir = '/usr/local/apps/land_owner_tools/lot'
+appdir = '/usr/local/apps/forestplanner/lot'
 sys.path.append(appdir)
 os.chdir(appdir)
 sitedir = '/usr/local/venv/lot/lib/python2.7/site-packages'

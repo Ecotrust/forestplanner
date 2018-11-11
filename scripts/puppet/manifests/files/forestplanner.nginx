@@ -50,7 +50,7 @@ server {
     }
     error_page 503 @maintenance;
     location @maintenance {
-        root /usr/local/apps/land_owner_tools/media;
+        root /usr/local/apps/forestplanner/media;
         rewrite ^(.*)$ /maintenance.html break;
     }
     ### End Maintenance mode
@@ -61,7 +61,7 @@ server {
     }
 
     location /media/  {
-        alias /usr/local/apps/land_owner_tools/mediaroot/;
+        alias /usr/local/apps/forestplanner/mediaroot/;
     }
     
     location /flower/ {
@@ -69,6 +69,6 @@ server {
         proxy_pass http://localhost:5555;
         rewrite  ^/flower/(.*)  /$1 break;
         auth_basic "Restricted";
-        auth_basic_user_file  /usr/local/apps/land_owner_tools/celeryflower-passwords;
+        auth_basic_user_file  /usr/local/apps/forestplanner/celeryflower-passwords;
     }
 }
