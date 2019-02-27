@@ -1,0 +1,86 @@
+[
+  {
+    "pk": 1, 
+    "model": "trees.treelivesummary", 
+    "fields": {
+      "cond_id": 1,
+      "total_ba_ft2_ac": 14.369999999999999, 
+      "fia_forest_type_name": "Douglas-fir", 
+      "avgofht_ft": 4.25, 
+      "avgofage_bh": 20.0, 
+      "count_speciessizeclasses": 1, 
+      "plot_id": 3, 
+      "sumofba_ft2_ac": 14.369999999999999, 
+      "avgoftpa": 72.75, 
+      "calc_tree_count": 2, 
+      "calc_dbh_class": 2.0, 
+      "avgofdbh_in": 21.0, 
+      "sumoftpa": 145.50999999999999, 
+      "pct_of_totalba": 100.0, 
+      "avgofba_ft2_ac": 7.1799999999999997
+    }
+  }, 
+  {
+    "pk": 2, 
+    "model": "trees.treelivesummary", 
+    "fields": {
+      "cond_id": 2,
+      "total_ba_ft2_ac": 23.640000000000001, 
+      "fia_forest_type_name": "Douglas-fir", 
+      "avgofht_ft": 36.090000000000003, 
+      "avgofage_bh": 52.0, 
+      "count_speciessizeclasses": 1, 
+      "plot_id": 3, 
+      "sumofba_ft2_ac": 23.640000000000001, 
+      "avgoftpa": 3.3199999999999998, 
+      "calc_tree_count": 1, 
+      "calc_dbh_class": 10.0, 
+      "avgofdbh_in": 111.0, 
+      "sumoftpa": 3.3199999999999998, 
+      "pct_of_totalba": 100.0, 
+      "avgofba_ft2_ac": 23.640000000000001
+    }
+  }, 
+  {
+    "pk": 3, 
+    "model": "trees.treelivesummary", 
+    "fields": {
+      "cond_id": 3,
+      "total_ba_ft2_ac": 14.369999999999999, 
+      "fia_forest_type_name": "Oregon white oak", 
+      "avgofht_ft": 4.25, 
+      "avgofage_bh": 20.0, 
+      "count_speciessizeclasses": 1, 
+      "plot_id": 3, 
+      "sumofba_ft2_ac": 14.369999999999999, 
+      "avgoftpa": 72.75, 
+      "calc_tree_count": 2, 
+      "calc_dbh_class": 2.0, 
+      "avgofdbh_in": 21.0, 
+      "sumoftpa": 145.50999999999999, 
+      "pct_of_totalba": 100.0, 
+      "avgofba_ft2_ac": 7.1799999999999997
+    }
+  }, 
+  {
+    "pk": 4, 
+    "model": "trees.treelivesummary", 
+    "fields": {
+      "cond_id": 3,
+      "total_ba_ft2_ac": 112.93000000000001, 
+      "fia_forest_type_name": "Scotch pine", 
+      "avgofht_ft": 10.390000000000001, 
+      "avgofage_bh": 26.0, 
+      "count_speciessizeclasses": 2, 
+      "plot_id": 4, 
+      "sumofba_ft2_ac": 22.600000000000001, 
+      "avgoftpa": 38.049999999999997, 
+      "calc_tree_count": 1, 
+      "calc_dbh_class": 10.0, 
+      "avgofdbh_in": 60.0, 
+      "sumoftpa": 38.049999999999997, 
+      "pct_of_totalba": 20.010000000000002, 
+      "avgofba_ft2_ac": 22.600000000000001
+    }
+  }
+]

@@ -1,0 +1,433 @@
+<html>
+    <head>
+       <script src="http://code.jquery.com/jquery-1.8.3.min.js"></script>
+       <script src="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/jquery.dataTables.min.js"></script>
+       <script src="http://openlayers.org/dev/OpenLayers.js"></script>
+       <script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/js/bootstrap.min.js"></script>
+       <script type="text/javascript" src="/media/common/js/json2.js"></script>
+       <link rel="stylesheet" href="http://ajax.aspnetcdn.com/ajax/jquery.dataTables/1.9.4/css/jquery.dataTables.css" />
+       <link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.2.2/css/bootstrap-combined.min.css" rel="stylesheet">
+        <script>
+            var params;
+            var cats;
+            var map;
+            var divHeight =  $(window).height() - 150; 
+            // where 150 is the fixed height of everything above and below the table, 
+            // adjust until no vertical scrolling on the page.
+
+
+            OpenLayers.Control.Click = OpenLayers.Class(OpenLayers.Control, {                
+                defaultHandlerOptions: {
+                    'single': true,
+                    'double': false,
+                    'pixelTolerance': 0,
+                    'stopSingle': false,
+                    'stopDouble': false
+                },
+                initialize: function(options) {
+                    this.handlerOptions = OpenLayers.Util.extend(
+                        {}, this.defaultHandlerOptions
+                    );
+                    OpenLayers.Control.prototype.initialize.apply(
+                        this, arguments
+                    ); 
+                    this.handler = new OpenLayers.Handler.Click(
+                        this, {
+                            'click': this.trigger
+                        }, this.handlerOptions
+                    );
+                }, 
+                trigger: function(e) {
+                    var pntMerc = map.getLonLatFromPixel(e.xy);
+                    var lonlat =  pntMerc.transform(
+                        map.getProjectionObject(),
+                        new OpenLayers.Projection("EPSG:4326")
+                    );
+                    $('input#longitude_fuzz').val(lonlat.lon);
+                    $('input#latitude_fuzz').val(lonlat.lat);
+                    //alert("You clicked near " + lonlat.lat + " N, " + + lonlat.lon + " E");
+                }
+            });
+
+            // based on
+            // http://stackoverflow.com/questions/1184624/convert-form-data-to-js-object-with-jquery
+            $.fn.serializeObject = function()
+            {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name] !== undefined) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        if (this.value)
+                            o[this.name].push(this.value);
+                    } else {
+                        if (this.value)
+                            o[this.name] = this.value;
+                    }
+                });
+                return o;
+            };
+            $.fn.serializeNNObject = function()
+            {
+                var o = {};
+                var a = this.serializeArray();
+                $.each(a, function() {
+                    if (o[this.name] !== undefined) {
+                        if (!o[this.name].push) {
+                            o[this.name] = [o[this.name]];
+                        }
+                        if (this.value)
+                            o[this.name].push(parseFloat(this.value));
+                    } else {
+                        if (this.value)
+                            o[this.name] = parseFloat(this.value);
+                    }
+                });
+                return o;
+            };
+
+            $(document).ready(function() {
+                map = new OpenLayers.Map('map');
+
+                var layer = new OpenLayers.Layer.XYZ( "National Geographic Base Map",
+                    "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/${z}/${y}/${x}",
+                    {sphericalMercator: true, 
+                    opacity: 0.65,
+                    attribution: "National Geographic, Esri"}
+                );
+                map.addLayer(layer);
+                map.setCenter(
+                    new OpenLayers.LonLat(-123.147, 44.472).transform(
+                        new OpenLayers.Projection("EPSG:4326"),
+                        map.getProjectionObject()
+                    ), 6
+                );  
+
+                var click = new OpenLayers.Control.Click();
+                map.addControl(click);
+                click.activate();
+ 
+                $('input.nn').popover( {
+                    'trigger': 'focus',
+                    'placement': 'left'
+                });
+                $('table#top-plots').dataTable( {
+                    "bLengthChange": false,
+                    "bFilter": false,
+                    "bInfo": true,
+                    "bAutoWidth": false,
+                    "bPaginate": false,
+                    "sScrollY": divHeight + "px",
+                    "bScrollCollapse": true,
+                    "aaSorting": [[ 1, "desc" ]]                    
+                } );
+                $('button.submit').click( function(e) {
+                    e.preventDefault();
+                    var inputParams = $('form#nn').serializeNNObject();
+                    categories = $('form#cat').serializeObject();
+                    location.href = "/trees/nearest_plots/?categories=" + JSON.stringify(categories) + "&input_params=" + JSON.stringify(inputParams); 
+                });
+                $('button.clear').click( function(e) {
+                    e.preventDefault();
+                    $("input[type=text], textarea").val("");
+                });
+                {% if for_type_names_json %}
+                $('#for_type_name').typeahead({
+                    source: {{for_type_names_json|safe}}
+                });
+                {% endif %}
+                {% if for_type_secdry_names_json %}
+                $('#for_type_secdry_name').typeahead({
+                    source: {{for_type_secdry_names_json|safe}}
+                });
+                {% endif %}
+
+                // restore fields
+                params = OpenLayers.Util.getParameters().input_params;
+                if ($.isArray(params)) {
+                    params = JSON.parse(params.join());
+                } else if (params) {
+                    params = JSON.parse(params);
+                }
+                if (params) {
+                    $.each(params, function(k, val) {
+                        $('#' + k).val(val); 
+                    });
+                } 
+
+                cats = OpenLayers.Util.getParameters().categories;
+                if ($.isArray(cats)) {
+                    cats = JSON.parse(cats.join());
+                } else if (cats) {
+                    cats = JSON.parse(cats);
+                } 
+                if (cats) {
+                    $.each(cats, function(k, val) {
+                        $('#' + k).val(val); 
+                    });
+                }
+
+                // Show results
+                resultsMap = new OpenLayers.Map('results-map');
+                var layer = new OpenLayers.Layer.XYZ( "National Geographic Base Map",
+                    "http://server.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer/tile/${z}/${y}/${x}",
+                    {sphericalMercator: true, 
+                    opacity: 0.65,
+                    attribution: "National Geographic, Esri"}
+                );
+                resultsMap.addLayer(layer);
+                resultsMap.setCenter(
+                    new OpenLayers.LonLat(-123.147, 44.472).transform(
+                        new OpenLayers.Projection("EPSG:4326"),
+                        resultsMap.getProjectionObject()
+                    ), 6
+                );  
+
+                var pointList = [];
+                var newPoint;
+                var pointFeature;
+                var epsg4326 = new OpenLayers.Projection('EPSG:4326');
+                var epsg900913 = new OpenLayers.Projection('EPSG:900913');
+                {% for coord in plot_coords %} 
+                newPoint = new OpenLayers.Geometry.Point({{coord.0}}, {{coord.1}});
+                newPoint.transform(epsg4326, epsg900913)
+                pointFeature = new OpenLayers.Feature.Vector(newPoint, {'id': {{coord.2}} });
+                pointList.push(pointFeature);
+                {% endfor %}
+
+                var styleMap = new OpenLayers.StyleMap(
+                    OpenLayers.Util.applyDefaults({
+                            fillColor: "green", 
+                            label: "${id}",
+                            labelAlign: "lb",
+                            labelXOffset: "5",
+                            labelYOffset: "5",
+                            fontColor: "#000000",
+                            fontSize: "11px",
+                            fillOpacity: 1, 
+                            strokeColor: "black" 
+                        },
+                        OpenLayers.Feature.Vector.style["default"]
+                    )
+                );
+
+                var vectorLayer = new OpenLayers.Layer.Vector("Simple Geometry", { styleMap: styleMap });
+                vectorLayer.addFeatures(pointList);
+                resultsMap.addLayer(vectorLayer);
+
+                // Add marker for query point
+                if (params && params.longitude_fuzz && params.latitude_fuzz) {
+                    var lonLat = new OpenLayers.LonLat(params.longitude_fuzz, params.latitude_fuzz).transform(
+                        new OpenLayers.Projection("EPSG:4326"), // transform from WGS 1984
+                        map.getProjectionObject() // to Spherical Mercator Projection
+                    );
+
+                    var markers = new OpenLayers.Layer.Markers( "Markers" );
+                    resultsMap.addLayer(markers);
+
+                    markers.addMarker(new OpenLayers.Marker(lonLat));
+                }
+
+                resultsMap.zoomToExtent(resultsMap.layers[1].getDataExtent());
+                //resultsMap.setOptions({restrictedExtent: resultsMap.layers[1].getDataExtent()});
+            } );
+        </script>
+        <style>
+            .form-horizontal .control-label {
+                width: 220px !important;
+            }
+            .form-horizontal .controls {
+                margin-left: 240px !important;
+            }
+            .popover-content {
+                font-size: 10pt !important;
+            }
+            #stand-note {
+                margin-left: 14px; 
+                font-size: 8pt;
+            }
+            #search-plot {
+                font-weight: bold;
+                font-style: italic;
+            }
+            .form-horizontal input {
+                margin-bottom: 6px;
+            }
+            input[type="text"] {
+                height: 30px;
+                width: 106px;
+            }
+
+            .olcontrolattribution {
+                display: none !important;
+            }
+            #results-map {
+                border: 1px solid grey; 
+                height: 400px;
+                width: 800px;
+            }
+            .smallmap {
+                border: 1px solid grey; 
+                height: 330px;
+            }
+            .control-group {
+                margin-bottom: 0px !important;
+            }
+            .add-on {
+                width: 50px !important;
+                font-size: 9pt !important;
+                text-align: right !important;
+            }
+            .underline {
+                border-bottom: 1px #ccc solid;
+                margin-bottom: 4px;
+            }
+            body {
+                margin: 12px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="well" id="input">
+            <div class="row-fluid">
+                <span class="span6 underline">
+                    <h4> Site Conditions (Stand)</h4>
+                </span>
+                <span class="span6 underline">
+                    <h4> Forest Type (Stratum)</h4>
+                </span>
+            </div>
+            <div class="row-fluid">
+                <span class="span6">
+                    <p class="alert" id="stand-note">
+                        Note: In the Forest Planner, data in this column will 
+                        be populated automatically based on the location of the stand 
+                    </p>
+                </span>
+                <span class="span6">
+                    <form class="form-horizontal" id="cat">
+                        <div class="control-group">
+                            <label class="control-label" for="for_type_name">Forest Type</label>
+                            <div class="controls">
+                                <input type="text" class="span12" name="for_type_name" id="for_type_name">
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label" for="for_type_secdry_name">Secondary Forest Type</label>
+                            <div class="controls">
+                                <input type="text" class="span12" name="for_type_secdry_name" id="for_type_secdry_name">
+                            </div>
+                        </div>
+                    </form>
+                </span>
+            </div>
+            <div class="row-fluid">
+                <form class="form-horizontal" id="nn">
+                    <span class="span6">
+                        <div id="map" class="smallmap"></div>
+                        <br>
+
+                        {% for v in field_dict.stands %}
+                        <div class="control-group">
+                            <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
+                            <div class="controls">
+                                <div class="input-append">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}} (weight: {{v.weight}})">
+                                    <span class="add-on">{{v.units}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+
+                    </span>
+                    <span class="span6">
+                        {% for v in field_dict.numerics %}
+                        <div class="control-group">
+                            <label class="control-label" for="{{v.attr}}">{{v.name}}</label>
+                            <div class="controls">
+                                <div class="input-append">
+                                    <input class="nn" type="text" name="{{v.attr}}" id="{{v.attr}}" title="{{v.name}} ({{v.units}})" data-content="{{v.desc}} (weight: {{v.weight}})">
+                                    <span class="add-on">{{v.units}}</span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                        <hr>
+                        <div class="control-group">
+                            <div class="controls">
+                                <button type="submit" class="btn submit">Submit</button>
+                                <button class="btn clear">Clear</button>
+                            </div>
+                        </div>
+                    </span>
+                </form>
+            </div>
+        </div>
+        {% if plots or num_candidates == 0 %}
+        <br>
+        <br>
+        <div class="well" id="output">
+            {% if num_candidates == 0 %}
+            <div class="alert alert-error">
+                <h3>No matching plots for that forest type...</h3>
+                {% for k,v in categories.items %}
+                <p> {{k}}: {{v}}</p>
+                {% endfor %}
+            </div>
+            {% else %}
+            <h3> Nearest Neighbor Search Results </h3>
+            <div>
+                <p class="small">Top 10 potential plots out of {{num_candidates}} candidates. Search plot in <strong>bold</strong>.</p>
+                <div id="results-map"></div>
+                <div>
+                    <table id="top-plots">
+                        <thead>
+                            <tr>
+                                <th> Condition ID </th>
+                                <th> Certainty </th>
+                                {% for k in pprint_keys %}
+                                <th> 
+                                    {{k}}
+                                </th> 
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr id="search-plot">
+                                <td> -- </td>
+                                <!-- <td> {{category_string}} </td> -->
+                                <td style="font-size: 0px;"> 100 </td>
+                                {% for k,v in input_params.items %}
+                                    {% if k not in hidden_cols %}
+                                    <td>
+                                        {{v}}
+                                    </td>
+                                    {% endif %}
+                                {% endfor %}
+                                {% for k in additional_cols %}
+                                    {% if k not in input_params.keys %}
+                                    <td style="font-size: 0px;"> 0 </td> 
+                                    {% endif %}
+                                {% endfor %}
+                            </tr>
+                            {% for plot in plots %} 
+                            <tr> 
+                                {% for v in plot %}
+                                <td> 
+                                    {{v}}
+                                </td> 
+                                {% endfor %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table> 
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </body>
+</html>
+

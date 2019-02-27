@@ -1,0 +1,64 @@
+[
+  {
+    "pk": 1, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "elevation", "full_name": "elevation", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/elevation.tif"
+    }
+  }
+  ,
+  {
+    "pk": 2, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "aspect", "full_name": "aspect", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/aspect.tif"
+    }
+  }
+  ,
+  {
+    "pk": 3, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "cos_aspect", "full_name": "cos_aspect", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/cos_aspect.tif"
+    }
+  }
+  ,
+  {
+    "pk": 4, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "sin_aspect", "full_name": "sin_aspect", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/sin_aspect.tif"
+    }
+  }
+  ,
+  {
+    "pk": 5, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "slope", "full_name": "slope", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/slope.tif"
+    }
+  }
+  ,
+  {
+    "pk": 7, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "continuous", "name": "cost", "full_name": "cost", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/slope.tif"
+    }
+  }
+  ,
+  {
+    "pk": 6, 
+    "model": "raster_stats.rasterdataset", 
+    "fields": {
+      "type": "categorical", "name": "gnn", "full_name": "gnn", 
+      "filepath": "/usr/local/apps/murdock/lot/fixtures/testdata/gnn.tif"
+    }
+  }
+]

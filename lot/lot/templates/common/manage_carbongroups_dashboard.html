@@ -1,0 +1,89 @@
+{% extends 'common/base.html' %}
+{% load url from future %}
+
+{% block content %}
+
+<div class="well">
+
+<h2><strong>{{group.name}}</strong> </h2>
+<h4> Review Carbon Aggregation Group</h4>
+<p> Description: {{group.description}} </p>
+
+
+<h4> Properties ({{group.get_properties|length}})</h4>
+<ul>
+{% for prop in group.get_properties %}
+{% if not prop in group.excluded_properties %}
+  <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='ignore'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Ignore"></form>
+    <ul>
+        <li>
+          shared scenario: <strong>{{ prop.shared_scenario }}</strong>
+          {% if prop.shared_scenario.has_property_metrics %}
+          <div class="alert alert-success">
+            Scenario is ready to go.
+          </div>
+          {% else %}
+          <div class="alert">
+            <strong>Warning!</strong>
+            This scenario is not included in the calculations below 
+            due to it's incomplete status:
+            <ul>
+              <li>runnable: {{prop.shared_scenario.is_runnable}}</li>
+              <li>needs_rerun: {{prop.shared_scenario.needs_rerun}}</li>
+              <li>is_running: {{prop.shared_scenario.is_running}}</li>
+              <li>has_property_metrics: {{prop.shared_scenario.has_property_metrics}}</li>
+            </ul>
+          </div>
+          {% endif %}
+        </li>
+    </ul>
+  </li>
+{% else %}
+    <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='include'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Include"></form> </li>
+{% endif %}
+{% endfor %}
+</ul>
+
+<h4> Aggregate Stats </h4>
+<ul>
+{% with group.aggregate_stats as stats %}
+{% for stat, val in stats.items %}
+  <li> {{ stat }}: {{val|safe}} </li>
+{% endfor %}
+{% endwith %}
+</ul>
+
+<h4> Group Members ({{group.get_accepted_users|length}})</h4>
+<ul>
+{% for member in group.get_accepted_users %}
+  <li> {{ member.username }} </li>
+{% endfor %}
+</ul>
+
+<h4> Pending Members ({{group.get_pending_users|length}})</h4>
+<ul>
+{% for member in group.get_pending_users %}
+  <li> 
+    {{ member.username }} 
+    <form action="#" method="POST">
+        <input name="user_id" value={{ member.id }} type="hidden">
+        Change status: <select name="membership_status" id="{{member.id}}_status">
+            <option value='pending' selected=true>------</option>
+            <option value='accepted'>Accept</option>
+            <option value='declined'>Decline</option>
+        </select>
+        Reason: <textarea name='reason' placeholder="Please give a reason if declining a request."></textarea>
+        <input type="submit" value="submit">
+    <form>
+  </li>
+{% endfor %}
+</ul>
+
+</div>
+
+{% endblock content %}
+
+
+
+
+

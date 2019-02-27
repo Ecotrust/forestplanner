@@ -1,0 +1,199 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account %}
+{% load url from future %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Log In" %}</h2>
+
+    {% if socialaccount.providers  %}
+    <div class="well">
+        <p>
+            <h4>Option 1 <span class="text-info">(<em>recommended</em>)</span></h4> Sign in with one of your existing third party accounts.
+        </p>
+        <div class="socialaccount_ballot">
+            <ul class="socialaccount_providers">
+                {% include "socialaccount/snippets/provider_list.html" %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="well clearfix">
+        <h4>Option 2</h4>
+        <p>
+             If you've set up Forest Planner account with a password, sign in here.
+        </p>
+        <form class="form-horizontal login" method="POST" action="/auth/login/">
+            
+          <div class="control-group">
+            <label class="control-label" for="id_login">Username</label>
+            <div class="controls">
+              <input type="text" class="input-medium" placeholder="Username or e-mail" name="login" id="id_login">
+              <span class="help-inline">Please include your username or email</span>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="id_password">Password</label>
+            <div class="controls">
+              <input type="password" class="input-medium" placeholder="Password" name="password" id="id_password">
+              <span class="help-inline">Please include your password</span>
+            </div>
+          </div>
+
+          <div class="control-group ">
+            <div class="controls">
+              <label class="checkbox" for="id_remember">
+                <input type="checkbox" name="remember" id="id_remember">
+                Remember Me</label>
+            </div>
+          </div>
+            
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" id="sign-in-submit" class="btn">Log In</button>
+            </div>
+          </div>
+
+        </form>
+
+        <div class="pull-right">
+          <a href="/auth/signup/">Need an account?</a> <span class="muted">|</span> 
+          <a href="/auth/password/reset">Forget your info?</a> <span class="muted">|</span> 
+          <a href="#tos" id="tos-link">Terms of Service</a>
+        </div>
+
+        
+          <div id="tos">
+
+            <br><hr>
+            <h4>Forest Planner Terms of Service</h4>
+
+            {% include "tos.html" %}
+
+
+          </div>
+
+    </div>
+{% endblock content %}
+
+
+{% block scripts %}
+    <script src="//cdnjs.cloudflare.com/ajax/libs/jquery-backstretch/2.0.3/jquery.backstretch.min.js"></script>
+
+
+<script>
+	/* homepage */
+		$(document).ready(function(){
+
+      $('#tos').hide();
+
+      if($.backstretch !== undefined){
+				 $.backstretch([
+					 "/media/img/forest_photos/forest-clouds-866-full-sat.jpg",
+					 "/media/img/forest_photos/walkers-205-full-sat.jpg",
+					 "/media/img/forest_photos/Nursery-log-1-full-sat.jpg",
+					 // "/media/img/forest_photos/hills-0038-full-sat.jpg",
+           // by John David Nelson 
+           // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
+					 "/media/img/forest_photos/pine-jondavidnelson.jpg"
+					], {duration: 6000, fade: 1000});
+      }
+
+        // instead of messing with the base login template
+        $('.offset3').removeClass('well');
+
+        $('#tos-link').click(function(){
+          $('#tos').slideToggle();
+        });
+
+        /*
+        $('#id_tos').change(function() {
+            if ( $(this).is(':checked') ) {
+                $('#sign-in-submit').removeAttr('disabled');
+            } else {
+                $('#sign-in-submit').attr('disabled', 'disabled');
+            }
+        });
+        */
+
+        $('.login').submit(validateLogin);
+
+    });
+
+function validateLogin(){
+    var $els = $('#id_tos, #id_login, #id_password'),
+        invalid = [],
+        pos;
+
+    $.each($els, function(i, el){
+      if ( $(el).is('#id_tos') ) {
+        if ( !el.checked ) {
+          $(el).closest('.control-group').addClass('error');
+          invalid.push(el);
+        } else{
+          $(el).closest('.control-group').removeClass('error');
+        }
+      } else if ($(el).val() === ""){ 
+        $(el).closest('.control-group').addClass('error');
+        invalid.push(el);
+      } else {
+        $(el).closest('.control-group').removeClass('error');
+      }
+    });
+
+    if(invalid.length){
+      return false;
+    } 
+}
+
+
+
+
+</script>
+{% endblock scripts %}
+
+{% block styles %}
+<style type="text/css">
+    .well{
+      background-color: rgba(254, 254, 254, 0.95);
+    }
+    h2{
+      color: #fff;
+    }
+    #tos{
+      /* padding: 5px; */
+    }
+    .socialaccount_providers {
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+    }
+      .socialaccount_providers a{
+        background-color: transparent; 
+        background-image: url('/media/img/lot-sprite.png');
+        background-position: 0 0; 
+        background-repeat: no-repeat;
+        display: block;
+        height: 29px;
+        margin-bottom: 1em;
+        text-indent: -9999em;
+        width: 162px;
+      }
+      .socialaccount_providers .google{
+        background-position: 0 -40px;
+      }
+
+    .form-horizontal .help-inline {
+      display: none;
+    }
+    .form-horizontal .error .help-inline{
+      display: inline-block;
+    }
+</style>
+{% endblock styles %}
+

@@ -1,0 +1,65 @@
+{% extends "account/base.html" %}
+
+{% load i18n %}
+{% load account %}
+{% load url from future %}
+
+{% block head_title %}{% trans "Sign In" %}{% endblock %}
+
+{% block content %}
+    <h2>{% trans "Log In" %}</h2>
+
+    {% if socialaccount.providers  %}
+    <div class="well">
+        <p>
+            <h4>Option 1 <span class="text-info">(<em>recommended</em>)</span></h4> Sign in with one of your existing third party accounts.
+        </p>
+        <div class="socialaccount_ballot">
+            <ul class="socialaccount_providers">
+                {% include "socialaccount/snippets/provider_list.html" %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="well">
+        <h4>Option 2</h4>
+        <p>
+             If you've set up Forest Planner account with a password, sign in here.
+        </p>
+    <form class="form-horizontal login" method="POST" action="/auth/login/">
+            
+              <div class="control-group">
+                <label class="control-label" for="login">Login</label>
+                <div class="controls">
+                    <input type="text" class="input-medium" placeholder="Username or e-mail" name="login" id="id_login">
+                </div>
+              </div>
+            
+              <div class="control-group">
+                <label class="control-label" for="password">Password</label>
+                <div class="controls">
+                    <input type="password" class="input-medium" placeholder="Password" name="password" id="id_password">
+                </div>
+              </div>
+            
+              <div class="control-group">
+                <label class="control-label" for="remember">Remember Me</label>
+                <div class="controls">
+                    <input type="checkbox" name="remember" id="id_remember">
+                </div>
+              </div>
+            
+          <div class="control-group">
+            <div class="controls">
+              <button type="submit" class="btn">Sign in</button>
+            </div>
+          </div>
+        </form>
+        <div class="pull-right">
+        <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
+        <a href="/auth/password/reset">Forget your info?</a> 
+        </div>
+    </div>
+{% endblock %}
+

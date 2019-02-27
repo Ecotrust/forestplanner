@@ -1,0 +1,15 @@
+{
+  "tree_list": [
+    ["Douglas-fir", 6, 12, 120],
+    ["Douglas-fir", 12, 24, 75]
+  ],
+  "variant": "CA",
+  "plot_attrs": {
+    "calc_aspect": 278.2,
+    "elev_ft": 1338.0,
+    "latitude_fuzz": 42.394,
+    "longitude_fuzz": -123.882,
+    "calc_slope": 59.5,
+    "stand_age": 45.0
+  }
+}

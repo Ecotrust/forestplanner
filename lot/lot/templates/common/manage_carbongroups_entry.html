@@ -1,0 +1,22 @@
+{% extends 'common/base.html' %}
+{% load url from future %}
+
+{% block content %}
+
+
+<div class="hero-unit">
+<h3>Select a Carbon Aggregation Group</h3>
+<ul>
+{% for group in groups %}
+<li> <a href="/features/carbongroup/links/dashboard/trees_carbongroup_{{group.id}}/">
+    {{ group.name }}</a> </li>
+{% endfor %}
+</ul>
+</div>
+
+{% endblock content %}
+
+
+
+
+

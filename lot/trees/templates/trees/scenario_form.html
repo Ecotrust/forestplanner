@@ -1,0 +1,264 @@
+{% block panel %}
+<style>
+.tab-content {
+    background-color: white;
+    padding: 12px;
+}
+.btn-controls {
+    padding: 5px;
+}
+.content {
+    line-height: 1;
+    font-size: 12pt;
+    font-weight: bold;
+}
+.btn-group {
+    margin: 5px;
+}
+#scenario-form li strong{
+	display: block;
+	color: #999;
+}
+</style>
+
+{% if form.non_field_errors %}
+<div class="alert alert-error"> 
+    <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
+    {{form.non_field_errors}}
+</div>
+{% endif %}
+
+<form class="form-horizontal" id="scenario-form" method="POST">
+
+    <ul class="nav nav-tabs" id="myTab">
+        <li class="active">
+		<a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab"><strong>Step 1</strong> Spatial Constraints</a>
+        </li>
+        <li>
+            <a href="#scenario-edit-rx-content" id="scenario-edit-rx-tab" data-toggle="tab"><strong>Step 2</strong> Silvicultural Prescriptions</a>
+        </li>
+        <li>
+            <a href="#scenario-review-content" id="scenario-review-tab" data-toggle="tab"><strong>Step 3</strong> Review</a>
+        </li>
+    </ul>
+    
+    <div class="tab-content">
+
+        <div class="tab-pane active" id="scenario-edit-spatial-content">
+
+            <p class="info text-info well well-small">
+                Turn on map layers to visualize potential management constraints.
+                <!-- 
+                <br><br> 
+                For example, knowing where streams and conservation
+                easements exist can help you decide on appropriate management activities for 
+                a given stand. 
+                <br><br> 
+                Note: These spatial constraint maps are <em>not</em> legal boundaries and are presented
+                for reference only.
+                -->
+            </p>
+
+            <div class="control-group" style="margin-left:40px;">
+                <div id="constraint-layers">
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Streams" name="Streams" type="checkbox" 
+                    value="Streams" class="constraint-input"><p>Streams</p></label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Wetlands" name="Wetlands" type="checkbox" 
+                    value="Wetlands" class="constraint-input"><p>Wetlands</p></label>
+
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Conservation Easements" name="Conservation Easements" type="checkbox" 
+                    value="Conservation Easements" class="constraint-input"><p>Conservation Easements</p></label>
+
+                    <!-- TODO -->
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_Streams" name="Stream Buffers" type="checkbox" 
+                    value="Stream Buffers" class="constraint-input"><p>Stream Buffers</p></label>
+                    
+                    <label class="checkbox" style="vertical-align: baseline;">
+                    <input id="SpatialConstraints_input_SteepSlopes" name="Steep Slopes" type="checkbox" 
+                    value="Steep Slopes" class="constraint-input"><p>Steep Slopes</p></label>
+
+                </div>
+            </div>
+            <div class="control-group pull-right">
+                <div class="controls">
+                    <button class="btn btn-success" data-bind="click: function() { $('#scenario-edit-rx-tab').click(); }"> Next step &gt;&gt; </button>
+                </div>
+            </div>
+
+        </div>
+
+        <script>
+            $("input.constraint-input").change(function() {
+                //$("div.dataLayersDiv > input[name='" + this.name + "']").toggle();
+                var layers = map.getLayersByName(this.name);
+                if (layers.length) { 
+                    var layer = layers[0];
+                    layer.setVisibility($(this).is(':checked'));
+                } else {
+                    console.log('Checkbox has no OL layer by this name (check this.name).', this);
+                }
+            });
+        </script>
+
+        <div class="tab-pane" id="scenario-edit-rx-content">
+                
+            <p class="info text-info well well-small">
+                Choose and apply management prescriptions to each stand on your property.
+                <!--
+                <br><br> 
+                For example, you may want to consder the effects of thinning every 20 years in certain areas.
+                By creating a prescription and applying to the desired stands, the Forest Planner can model 
+                the future effects of growth and harvest yield.
+                <br><br> 
+                Note: If you <em>don't</em> apply a management prescription to a stand, it is assumed to be "Grow Only",
+                i.e. not actively managed. 
+                -->
+            </p>
+            <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
+                <form>
+                  <fieldset>
+                    <legend data-bind="visible: ! myrx_id">New Prescription</legend>
+                    <legend data-bind="visible: myrx_id">Update <span data-bind="text: name"></span></legend>
+                    <p data-bind="visible: $parent.decisionOutput">
+                        <ul data-bind="foreach: $parent.decisionOutput">
+                            <li>
+                                <span data-bind="text: $data"></span>
+                            </li>
+                        </ul>
+                    </p>
+                    <br data-bind="visible: ! $parent.decisionOutput()"/>
+					<div class="control-group" data-bind="css: { error: $parent.nameRequired() }">
+                      <label><strong>Name</strong></label>
+					  <label class="help-block" data-bind="visible: $parent.nameRequired()">Please name your presription</label> 
+                      <div>
+                        <input type="text" class="input-xlarge" data-bind="value: name">
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <div class="control-group hidden">  <!-- hide form element but still submit something using js -->
+                      <label><strong>Description</strong></label>
+                      <div>
+                        <input type="text" class="input-xlarge" data-bind="value: description">
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <div class="control-group" data-bind="visible: myrx_id">
+                      <label>Update Management Style</label>
+                      <div>
+                        <button class="btn btn-block" data-bind="click: $parent.updateManagementStyle">Update</button>
+                        <!--<p class="help-block">Supporting help text</p>-->
+                      </div>
+                    </div>
+                    <div class="btn-group">
+                        <a class="btn" data-bind="click: $parent.cancel">Cancel</a>
+                        <button class="btn btn-success" data-bind="click: $parent.saveRx">Save Prescription</button>
+                    </div>
+                  </fieldset>
+                </form>
+            </div>
+            <div data-bind="visible: ! (newRx() || selectedRx())">
+                <table class="table table-condensed table-bordered">
+                    <tbody data-bind="foreach: prescriptionList">
+                        <tr class="scenario-row" 
+                            data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
+                            <td> 
+                                <span data-bind="text: name">RX Name</span>
+                                <!-- <span data-bind="text: description">RX Description</span> -->
+                                <div class="pull-right btn-group" data-bind="visible: confirmDelete">
+                                  <button class="btn" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                  <button class="btn" data-bind="click: $parent.deleteRx">ok</button>
+                                </div>
+                                <div class="pull-right btn-group" data-bind="visible: ! confirmDelete()">
+                                    <button href="#" class="btn" data-bind="click: $parent.applyRx">
+                                        Apply</button>
+                                    <!--
+                                    TODO info tooltip containing rx description
+                                    <button type="button" class="btn rx-popover" data-toggle="popover" data-placement="top"
+                                        rel="popover" data-content="It's so simple to create a tooltop for my website!" data-original-title="Twitter Bootstrap Popover"
+                                        <i class="icon-info-sign"></i></button>
+                                    -->
+                                    <button class="btn" data-bind="enable: editable, click: function () { confirmDelete(true) }">
+                                        <i class="icon-remove"></i></button>
+                                    <button class="btn" data-bind="enable: editable, click: $parent.updateRx">
+                                        <i class="icon-edit"></i></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div class="btn-group pull-left btn-controls">
+                    <a class="btn" data-bind="click: addNewRx">
+                       <i class="icon-plus-sign"></i>
+                       Add New Prescription
+                    </a>
+                
+                </div>            
+                <i class="icon-info-sign pull-left silvicultural-definition-icon" title="Silvicultural prescriptions are practices to apply to one or more stands across your property.  Choose any new prescriptions you are interested in and then apply them to each of the stand(s) you want to see managed that way.  You can apply different prescriptions to different stands within a management scenario."></i> 
+            </div>
+            <div data-bind="visible: newRx">
+                <div id="decisiontree-loading">
+                    <h4 class="muted">Loading...</h4>
+                </div>
+                <div id="tree-window">
+                    <div id="tree-slider"></div>
+                </div>
+                <p data-bind="visible: decisionOutput">
+                    <ul data-bind="foreach: decisionOutput">
+                        <li data-bind="text: $data"></li>
+                    </ul>
+                </p>
+                <br data-bind="visible: ! decisionOutput()"/>
+                <div class="pull-left">
+                    <button class='btn' data-bind="click: function () { newRx(false); decisionOutput.removeAll(); }" style="margin-top: 10px">Cancel</button>
+                </div>
+            </div>
+            <div class="control-group pull-right" data-bind="visible: ! (newRx() || selectedRx())">
+                <div class="controls">
+                    <button class="btn btn-success" data-bind="click: function() { $('#scenario-review-tab').click(); }"> Next step &gt;&gt; </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="tab-pane" id="scenario-review-content">
+            <div>
+                <div class="well">
+                    <ul class="unstyled">
+                        <li><span data-bind="text: nWithRx"></span> stands with specified management prescriptions.</li>
+                        <li data-bind="visible: remainder() > 0"><span data-bind="text: remainder()"></span> remaining stands will 
+                            default to the "Grow Only" prescription</li>
+                    </ul>
+                </div>
+                <div class="">
+                    {% for hidden in form.hidden_fields %}
+                        {{hidden.errors}} 
+                        {{hidden}}
+                    {% endfor %}
+
+                    {% for field in form.visible_fields %}
+                    <div class="control-group">
+                        {{field.errors}} 
+                        <label for="{{field.auto_id}}"> 
+                            <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
+                        <div>
+                        {{ field }}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="control-group pull-right">
+                <div class="controls btn-group">
+                    <button class="btn cancel">Cancel</button>
+                    <button class="btn btn-success submit">Save Scenario</button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</form>
+{% endblock panel %}
