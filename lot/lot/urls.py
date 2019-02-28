@@ -6,7 +6,7 @@ from django.conf import settings
 from madrona.features.views import workspace
 from django.views.static import serve
 from trees.views import map
-admin.autodiscover()
+# admin.autodiscover()
 
 urlpatterns = [
     # '',
@@ -18,7 +18,7 @@ urlpatterns = [
 
     url(r'^$', map, name='map'),
 
-    path(r'/?', include('madrona.common.urls')),
+    path(r'', include('madrona.common.urls')),
     path(r'^trees/', include('trees.urls')),
     path(r'^auth/', include('allauth.urls')),
     url(
@@ -26,6 +26,7 @@ urlpatterns = [
         TemplateView.as_view(template_name = 'account/profile.html'),
         "auth_profile"
     ),
+    path('admin/', admin.site.urls),
 ]
 
 if settings.DEBUG:

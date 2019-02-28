@@ -9,19 +9,19 @@ DATABASES = {
     }
 }
 
-# This should be a local folder created for use with the install_media command 
+# This should be a local folder created for use with the install_media command
 MEDIA_ROOT = '/usr/local/apps/murdock/mediaroot/'
 MEDIA_URL = '/media/'
-STATIC_URL = '/media/'
+STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/'
 
 POSTGIS_TEMPLATE='template1'
 DEBUG = True
-TEMPLATE_DEBUG = DEBUG 
+TEMPLATE_DEBUG = DEBUG
 
 ADMINS = (
         ('Madrona', 'madrona@ecotrust.org')
-        ) 
+        )
 SERVER_EMAIL = 'forestplanner@ecotrust.org'
 
 import logging

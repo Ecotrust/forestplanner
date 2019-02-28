@@ -42,19 +42,20 @@ GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '
 # ------------------------------------------------------------------------------
 # Media
 # ------------------------------------------------------------------------------
-COMPRESS_CSS['application']['source_filenames'] = (
-    'common/trees.css',
-)
-COMPRESS_JS['application']['source_filenames'] = (
-    'common/styles.js',
-    'common/trees.js',
-    'common/property.js',
-    'common/stand.js',
-    'common/scenario.js'
-)
-MEDIA_ROOT = '/usr/local/apps/land_owner_tools/mediaroot/'
+# COMPRESS_CSS['application']['source_filenames'] = (
+#     'common/trees.css',
+# )
+# COMPRESS_JS['application']['source_filenames'] = (
+#     'common/styles.js',
+#     'common/trees.js',
+#     'common/property.js',
+#     'common/stand.js',
+#     'common/scenario.js'
+# )
+MEDIA_ROOT = '/usr/local/apps/forestplanner/media/'
+MEDIA_ROOT = '/usr/local/apps/forestplanner/static/'
 MEDIA_URL = '/media/'
-STATIC_URL = '/media/'
+STATIC_URL = '/static/'
 
 # ------------------------------------------------------------------------------
 # Logging
@@ -196,6 +197,35 @@ VARIANT_BASELINES = {
 # ------------------------------------------------------------------------------
 SITE_ID=1
 
+MIDDLEWARE_CLASSES += (
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+            ],
+        },
+    },
+]
+
+WSGI_APPLICATION = 'lot.wsgi.application'
+
+try:
+    MIDDLEWARE += MIDDLEWARE_CLASSES
+except NameError as e:
+    MIDDLEWARE = MIDDLEWARE_CLASSES
+
+
 # ------------------------------------------------------------------------------
 # Local settings
 # ------------------------------------------------------------------------------
@@ -213,4 +243,4 @@ if DEBUG:
         # 'django_pdb',
         'django_extensions',
     )
-    MIDDLEWARE_CLASSES += ('django_pdb.middleware.PdbMiddleware',)
+    # MIDDLEWARE_CLASSES += ('django_pdb.middleware.PdbMiddleware',)
