@@ -9,7 +9,7 @@ from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from json import loads, dumps
-from madrona.features import *
+from madrona.features.views import get_feature_by_uid
 from madrona.common.utils import kml_errors, enable_sharing
 from madrona.raster_stats.models import RasterDataset
 from trees.models import Stand, Strata, ForestProperty, County, FVSVariant, Scenario, Rx, FVSAggregate
@@ -1177,4 +1177,3 @@ class NearestPlotRestTest(TestCase):
         self.assertEqual(response.status_code, 200, response.content)
         stand1b = get_feature_by_uid(uid)
         self.assertEqual(stand1b.strata, None)
-

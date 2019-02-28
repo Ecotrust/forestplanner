@@ -10,10 +10,12 @@ import operator
 import numpy as np
 import pandas as pd
 from django.contrib.gis.db import models
+from django.db.models import Manager as GeoManager
 from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
+from django.contrib.postgres.fields import JSONField
 from json import dumps, loads
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
@@ -125,8 +127,7 @@ class DirtyFieldsMixin(object):
 
 @register
 class Stand(DirtyFieldsMixin, PolygonFeature):
-    strata = models.ForeignKey("Strata", blank=True, default=None,
-                               null=True, on_delete=models.SET_NULL)
+    strata = models.ForeignKey("Strata", blank=True, default=None, null=True, on_delete=models.SET_NULL)
     cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     locked_cond_id = models.BigIntegerField(blank=True, null=True, default=None)
     elevation = models.FloatField(null=True, blank=True)
@@ -294,42 +295,42 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
         # time.sleep(0.2)
 
 
-class JSONField(models.TextField):
-    """JSONField is a generic textfield that neatly serializes/unserializes
-    JSON objects seamlessly"""
-    # Used so to_python() is called
-    __metaclass__ = models.SubfieldBase
-
-    def to_python(self, value):
-        """Convert our string value to JSON after we load it from the DB"""
-        if value == "" or value is None:
-            return None
-
-        if isinstance(value, basestring):
-            # if it's a string
-            try:
-                return loads(value)
-            except:
-                # this fix is for when importing fixtures
-                import ast
-                return ast.literal_eval(value)
-        else:
-            # if it's not yet saved and is still a python data structure
-            return value
-
-    def get_db_prep_save(self, value, *args, **kwargs):
-        """Convert our JSON object to a string before we save"""
-        if value == "":
-            return None
-        if isinstance(value, dict):
-            value = dumps(value, cls=DjangoJSONEncoder)
-
-        return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
+# class JSONField(models.TextField):
+#     """JSONField is a generic textfield that neatly serializes/unserializes
+#     JSON objects seamlessly"""
+#     # Used so to_python() is called
+#     __metaclass__ = models.SubfieldBase
+#
+#     def to_python(self, value):
+#         """Convert our string value to JSON after we load it from the DB"""
+#         if value == "" or value is None:
+#             return None
+#
+#         if isinstance(value, basestring):
+#             # if it's a string
+#             try:
+#                 return loads(value)
+#             except:
+#                 # this fix is for when importing fixtures
+#                 import ast
+#                 return ast.literal_eval(value)
+#         else:
+#             # if it's not yet saved and is still a python data structure
+#             return value
+#
+#     def get_db_prep_save(self, value, *args, **kwargs):
+#         """Convert our JSON object to a string before we save"""
+#         if value == "":
+#             return None
+#         if isinstance(value, dict):
+#             value = dumps(value, cls=DjangoJSONEncoder)
+#
+#         return super(JSONField, self).get_db_prep_save(value, *args, **kwargs)
 
 # http://south.readthedocs.org/en/latest/customfields.html#extending-
 # introspection
-from south.modelsinspector import add_introspection_rules
-add_introspection_rules([], ["^trees\.models\.JSONField"])
+# from south.modelsinspector import add_introspection_rules
+# add_introspection_rules([], ["^trees\.models\.JSONField"])
 
 
 class ScenarioNotRunnable(Exception):
@@ -343,7 +344,7 @@ class Scenario(Feature):
     """
     description = models.TextField(
         default="", null=True, blank=True, verbose_name="Description/Notes")
-    input_property = models.ForeignKey('ForestProperty')
+    input_property = models.ForeignKey('ForestProperty', on_delete=models.CASCADE)
     input_target_boardfeet = models.FloatField(
         verbose_name='Target Boardfeet', null=True, blank=True,
         help_text="Target an even flow of timber")
@@ -1096,8 +1097,8 @@ class ForestProperty(FeatureCollection):
     geometry_final = models.MultiPolygonField(
         srid=settings.GEOMETRY_DB_SRID, null=True, blank=True,
         verbose_name="Forest Property MultiPolygon Geometry")
-    carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True)
-    shared_scenario = models.ForeignKey(Scenario, null=True, blank=True)
+    carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True, default=None, on_delete=models.SET_DEFAULT)
+    shared_scenario = models.ForeignKey(Scenario, null=True, blank=True, default=None, on_delete=models.SET_DEFAULT)
 
     def geojson(self, srid=None):
         '''
@@ -1791,7 +1792,7 @@ class County(models.Model):
     cnty_fips = models.IntegerField()
     st_fips = models.IntegerField()
     geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
+    objects = GeoManager()
 
 
 class FVSVariant(models.Model):
@@ -1800,7 +1801,7 @@ class FVSVariant(models.Model):
     decision_tree_xml = models.TextField(default="")
     #decision_tree_xml is validated in the admin.py form
     geom = models.MultiPolygonField(srid=3857)
-    objects = models.GeoManager()
+    objects = GeoManager()
 
     def __unicode__(self):
         return u'%s (%s)' % (self.fvsvariant, self.code)
@@ -1863,7 +1864,7 @@ RX_TYPE_CHOICES = (
 
 
 class Rx(models.Model):
-    variant = models.ForeignKey(FVSVariant)
+    variant = models.ForeignKey(FVSVariant, on_delete=models.CASCADE)
     internal_name = models.TextField()
     internal_desc = models.TextField()
     # type used to identify e.g. the industrial prescription for a variant
@@ -1884,7 +1885,7 @@ class Rx(models.Model):
 @register
 class MyRx(Feature):
     # name  (inherited)
-    rx = models.ForeignKey(Rx)
+    rx = models.ForeignKey(Rx, on_delete=models.CASCADE)
     description = models.TextField(default="")
 
     @property
@@ -1916,9 +1917,9 @@ SpatialConstraintCategories = [
 
 class SpatialConstraint(models.Model):
     geom = models.PolygonField(srid=3857)
-    default_rx = models.ForeignKey(Rx)
+    default_rx = models.ForeignKey(Rx, on_delete=models.CASCADE)
     category = models.CharField(max_length=2, choices=SpatialConstraintCategories)
-    objects = models.GeoManager()
+    objects = GeoManager()
 
     def __unicode__(self):
         return u"SpatialConstraint %s %s" % (self.category, self.geom.wkt[:80])
@@ -1939,11 +1940,11 @@ class ScenarioStand(PolygonFeature):
     # geometry_final = inherited from PolygonFeature
     # assert that all cond_ids are present or make FK?
     cond_id = models.BigIntegerField()
-    rx = models.ForeignKey(Rx)
+    rx = models.ForeignKey(Rx, on_delete=models.CASCADE)
     rx_internal_num = models.IntegerField(null=True, blank=True)
-    scenario = models.ForeignKey(Scenario)
-    stand = models.ForeignKey(Stand)
-    constraint = models.ForeignKey(SpatialConstraint, null=True)
+    scenario = models.ForeignKey(Scenario, on_delete=models.CASCADE)
+    stand = models.ForeignKey(Stand, on_delete=models.CASCADE)
+    constraint = models.ForeignKey(SpatialConstraint, null=True, blank=True, default=None, on_delete=models.SET_DEFAULT)
     acres = models.FloatField()
     offset = models.IntegerField(default=0)
 
@@ -2086,8 +2087,8 @@ membership_status_choices = (
 
 
 class Membership(models.Model):
-    applicant = models.ForeignKey(User)
-    group = models.ForeignKey(CarbonGroup)
+    applicant = models.ForeignKey(User, on_delete=models.CASCADE)
+    group = models.ForeignKey(CarbonGroup, on_delete=models.CASCADE)
     date_requested = models.DateTimeField(auto_now_add=True)
     date_modified = models.DateTimeField(auto_now=True)
     status = models.CharField(max_length=10, choices=membership_status_choices, default="pending")
@@ -2155,7 +2156,7 @@ class TimberPrice(models.Model):
     """
     Average price for types of timber in different regions
     """
-    variant = models.ForeignKey(FVSVariant)
+    variant = models.ForeignKey(FVSVariant, on_delete=models.CASCADE)
     timber_type = models.CharField(max_length=10, choices=timber_choices)
     price = models.FloatField()
 

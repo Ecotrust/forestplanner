@@ -5,7 +5,7 @@ from django.template import RequestContext
 from django.shortcuts import render_to_response
 from madrona.common.utils import get_logger
 from madrona.features.views import get_object_for_viewing
-from madrona.features import user_sharing_groups
+from madrona.features.views import user_sharing_groups
 from geopy import geocoders
 from geopy.point import Point
 from trees.models import Stand

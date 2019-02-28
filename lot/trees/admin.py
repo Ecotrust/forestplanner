@@ -18,6 +18,7 @@ admin.site.register(CarbonGroup)
 class FVSVariantAdminForm(forms.ModelForm):
     class Meta:
         model = FVSVariant
+        fields = ('fvsvariant', 'code')
 
     def clean_decision_tree_xml(self):
         import xml.etree.ElementTree as ET

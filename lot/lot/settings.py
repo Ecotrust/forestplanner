@@ -195,9 +195,7 @@ VARIANT_BASELINES = {
 # Local settings
 # ------------------------------------------------------------------------------
 try:
-    print("---------IMPORTING LOCAL SETTINGS----------")
     from .local_settings import *
-    print("=========LOCAL SETTINGS IMPORTED===========")
 except ImportError:
     print(
         "we recommend using a local settings file; "\
@@ -206,8 +204,6 @@ except ImportError:
     pass
 
 if DEBUG:
-    print("++++++DEBUG SETTINGS+++++++++")
-    print(str(INSTALLED_APPS))
     INSTALLED_APPS += (
         # 'django_pdb',
         'django_extensions',
