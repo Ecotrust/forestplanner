@@ -1,8 +1,10 @@
-from django.conf.urls import *
+from django.conf.urls import url, include
+from django.urls import path
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.conf import settings
 from madrona.features.views import workspace
+from django.views.static import serve
 from trees.views import map
 admin.autodiscover()
 
@@ -16,9 +18,9 @@ urlpatterns = [
 
     url(r'^$', map, name='map'),
 
-    (r'', include('madrona.common.urls')),
-    (r'^trees/', include('trees.urls')),
-    (r'^auth/', include('allauth.urls')),
+    path(r'/?', include('madrona.common.urls')),
+    path(r'^trees/', include('trees.urls')),
+    path(r'^auth/', include('allauth.urls')),
     url(
         r'^auth/profile/',
         TemplateView.as_view(template_name = 'account/profile.html'),
@@ -30,7 +32,7 @@ if settings.DEBUG:
     urlpatterns += [
         url(
             r'^media/(?P<path>.*)$',
-            'django.views.static.serve',
-            {'document_root': settings.MEDIA_ROOT, 'show_indexes': True}
+            serve,
+            kwargs={'document_root': settings.MEDIA_ROOT, 'show_indexes': True},
         ),
     ]

@@ -1,18 +1,16 @@
-from django.conf.urls.defaults import *
+from django.conf.urls import url
 from trees.views import *
 from django.conf import settings
-from django.views.generic.simple import redirect_to
+from django.views.generic import RedirectView
 
-urlpatterns = patterns(
-    '',
-
+urlpatterns = [
     # Pages
     url(r'^stand_list/$',  # "test_nearest_neighbor"?
         stand_list_nn, name='trees-standlist'),
     url(r'^stands/$',
         manage_stands, name='trees-manage_stands'),
     url(r'^strata/$', # Just in case you land there without a property
-        redirect_to, {'url': '/'}),
+        RedirectView.as_view(url='/')),
     url(r'^strata/(?P<property_uid>\w+)$',
         manage_strata, name='trees-manage_strata'),
     url(r'^scenario/(?P<property_uid>\w+)$',
@@ -22,7 +20,7 @@ urlpatterns = patterns(
     url(r'^about', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
         about, name='about'),
     url(r'^documentation$', # /about, /about/, /about-the-forest-scenario-planner, /about-your-mom
-        documentation, name='documentation'),    
+        documentation, name='documentation'),
     url(r'^manage_carbongroups/$',
         manage_carbongroups_entry, name='trees-manage_carbongroups'),
     url(r'^browse_carbongroups/$',
@@ -39,4 +37,4 @@ urlpatterns = patterns(
         user_property_list, name='trees-user_property_list'),
     url(r'^upload_stands/$',
         upload_stands, name='trees-upload_stands'),
-)
+]
