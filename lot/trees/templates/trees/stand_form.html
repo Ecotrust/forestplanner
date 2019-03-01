@@ -1,4 +1,4 @@
-{% extends "common/panel.html" %}
+{% extends "lot/common/panel.html" %}
 {% block title %}{{title}}{% endblock %}
 
 {% block panel %}
@@ -6,20 +6,20 @@
 {% if form.media %} {{ form.media }} {% endif %}
 <h1>{{title}}</h1>
 
-{% if is_spatial %} 
+{% if is_spatial %}
 
     <div class="step" id="step1" style="padding-bottom: 40px;">
         <p class="step-text"><i>Step 1 of 2 </i>
         <div id="PanelGeometry"></div>
     </div>
-     
+
     <div class="step" id="step2">
-        <p class="step-text"><i>Step 2 of 2 </i> 
+        <p class="step-text"><i>Step 2 of 2 </i>
         <div id="PanelAttributes">
-            
+
 {% endif %}
 
-<form id="featureform" action="{{action}}" method="post"> 
+<form id="featureform" action="{{action}}" method="post">
 {% if json %}
     <div style="display:none;" class="json">{{json}}</div>
 {% endif %}
@@ -41,10 +41,10 @@
         {{ field.errors }}
         {% if field.help_text %}
             <p class="help_text">
-                {{ field.help_text|safe }}            
-            </p>            
+                {{ field.help_text|safe }}
+            </p>
         {% endif %}
-        {{ field }}            
+        {{ field }}
     </div>
 {% endfor %}
   <p><input type="submit" value="submit"></p>
@@ -55,7 +55,7 @@
     </div>
 {% endif %}
 
-        
+
 <div class="wizard_nav" style="width:100%">
     <a href="#" class="button" style="float:left;" onclick="this.blur(); return false;" id="button_prev"><span>&lt; Previous</span></a>
     <a href="#" class="button" style="float:right;" onclick="this.blur(); return false;" id="button_next"><span>Next &gt;</span></a>

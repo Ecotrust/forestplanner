@@ -93,7 +93,7 @@ def manage_stands(request):
     '''
     Stand management view
     '''
-    return render(request, 'common/manage_stands.html', {})
+    return render(request, 'lot/common/manage_stands.html', {})
 
 
 def manage_strata(request, property_uid):
@@ -107,7 +107,7 @@ def manage_strata(request, property_uid):
     is_locked = forestproperty.is_locked
     return render(
         request,
-        'common/manage_strata.html',
+        'lot/common/manage_strata.html',
         {'property_id': property_uid,
          'property_name': name,
          'property_is_locked': is_locked})
@@ -119,7 +119,7 @@ def manage_scenario(request, property_uid):
     '''
     return render(
         request,
-        'common/manage_scenario.html',
+        'lot/common/manage_scenario.html',
         {'property_id': property_uid}
     )
 
@@ -129,7 +129,7 @@ def intro(request):
     '''
     return render(
         request,
-        'common/intro.html',
+        'lot/common/intro.html',
         {}
     )
 
@@ -139,7 +139,7 @@ def about(request):
     '''
     return render(
         request,
-        'common/about.html',
+        'lot/common/about.html',
         {}
     )
 
@@ -149,7 +149,7 @@ def documentation(request):
     '''
     return render(
         request,
-        'common/documentation.html',
+        'lot/common/documentation.html',
         {}
     )
 
@@ -627,7 +627,7 @@ def carbongroup_dashboard(request, instance):
 
         return render(
             request,
-            'common/manage_carbongroups_dashboard.html',
+            'lot/common/manage_carbongroups_dashboard.html',
             {
                 'group': instance,
                 'manager_of_carbongroup': True
@@ -660,7 +660,7 @@ def manage_carbongroups_entry(request):
 
     return render(
         request,
-        'common/manage_carbongroups_entry.html',
+        'lot/common/manage_carbongroups_entry.html',
         {
             'user': request.user,
             'groups': groups,
@@ -708,7 +708,7 @@ def browse_carbongroups(request):
 
     return render(
         request,
-        'common/browse_carbongroups.html',
+        'lot/common/browse_carbongroups.html',
         {
             'user': request.user,
             'membership_groups': membership_groups,
@@ -718,7 +718,7 @@ def browse_carbongroups(request):
         }
     )
 
-def map(request, template_name='common/map_ext.html', extra_context={}):
+def map(request, template_name='lot/common/map_ext.html', extra_context={}):
     """
     Main application window
     Replaces madrona.common.views.map
@@ -748,5 +748,4 @@ def map(request, template_name='common/map_ext.html', extra_context={}):
         template_name,
         context
     )
-
     return response

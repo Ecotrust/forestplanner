@@ -1,5 +1,5 @@
+{% load static %}
 <!DOCTYPE html>
-{% load url from future %}
 <html lang="en">
   <head>
     <meta charset="utf-8">
@@ -17,7 +17,7 @@
           if (re.exec(ua) != null)
           rv = parseFloat( RegExp.$1 );
       }
- 
+
       var version = rv;
       if ( version <= 11 && version > -1)
       {
@@ -26,13 +26,13 @@
     </script>
 
     <!-- Styles -->
-    <link href="{{MEDIA_URL}}common/bootstrap.spacelab.css" rel="stylesheet"> 
-    <link href="{{MEDIA_URL}}support/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    <link href="{% static 'common/bootstrap.spacelab.css' %}" rel="stylesheet">
+    <link href="{% static 'support/bootstrap/css/bootstrap-responsive.css' %}" rel="stylesheet">
 	{% if user.is_authenticated %}
-    <link href="{{MEDIA_URL}}theme/default/style.css" rel="stylesheet">
-    <link href="{{MEDIA_URL}}support/select2.css" rel="stylesheet">
+    <link href="{% static 'theme/default/style.css' %}" rel="stylesheet">
+    <link href="{% static 'support/select2.css' %}" rel="stylesheet">
 	{% endif %}
-    <link rel="stylesheet" type="text/css" href="{{MEDIA_URL}}common/trees.css">
+    <link rel="stylesheet" type="text/css" href="{% static 'common/trees.css' %}">
     {% block styles %}{% endblock styles %}
 
     <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
@@ -70,7 +70,7 @@
             {% if user.is_authenticated %}
             <div class="btn-group pull-right">
               <a href="#" data-toggle="dropdown" class="btn dropdown-toggle">
-                <i class="icon-user"></i> 
+                <i class="icon-user"></i>
                 {% if user.first_name and user.last_name %}
                   {{ user.first_name }} {{ user.last_name }}
                 {% else %}
@@ -79,7 +79,7 @@
                 <span class="caret"></span>
               </a>
               <ul class="dropdown-menu">
-                <li><a href="{% url 'auth_profile' %}">My Profile</a></li> 
+                <li><a href="{% url 'auth_profile' %}">My Profile</a></li>
                 <li><a href="{% url 'account_change_password' %}">Manage Password</a></li>
                 <li><a href="{% url 'socialaccount_connections' %}">Manage External Accounts</a></li>
                 <li class="divider"></li>
@@ -95,17 +95,17 @@
             {% if show_help %}
             <button type="button" class="btn btn-warning pull-right help-button" data-bind:"click: displayHelp" data-toggle="collapse" href="#help-collapse">Help</button>
             {% endif %}
-            
+
             {% else %}
 
             {% load socialaccount %}
             <div class="btn-group pull-right">
               <a href="{% url 'account_login' %}" class="btn dropdown-toggle">
-                <i class="icon-user"></i> 
+                <i class="icon-user"></i>
                 <span>Log In</span>
               </a>
             </div>
-            {% endif %} 
+            {% endif %}
 
           </div><!--/.nav-collapse -->
         </div>
@@ -125,15 +125,15 @@
             </div>
             <div class="modal-body">
                 <p>
-                    Ecotrust has created the Forest Planner to give all Oregon and Washington 
-                    land managers forest management scenario planning capacity. You will be able to <em>visualize 
-                    alternative management scenarios</em> on your lands and receive immediate feedback on 
+                    Ecotrust has created the Forest Planner to give all Oregon and Washington
+                    land managers forest management scenario planning capacity. You will be able to <em>visualize
+                    alternative management scenarios</em> on your lands and receive immediate feedback on
                     <em>how decisions might pay off</em> in terms of timber harvests and financial returns, as well as
                     <em>public benefits</em> like carbon storage and ecosystem services.
                 </p>
 
                 <hr>
-                
+
                 <h3>Using the Forest Planner Tool</h3>
                 <ul>
                     <li>Identify their properties on an interactive map </li>
@@ -142,7 +142,7 @@
                     <li>Define management prescriptions</li>
                     <li>Specify timber and carbon market prices</li>
                 </ul>
-                    
+
                 <h3>Scenario Planning Tool Outputs:</h3>
                 <ul>
                     <li>Graphs of timber volume and financial returns generated over time</li>
@@ -180,17 +180,17 @@
     <div class="scripts-gathered-to-clean-up-firebug">
 
         <!-- Scripts -->
-        <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/jquery.js"></script>
+        <script type="text/javascript" src="{% static 'support/bootstrap/js/jquery.js' %}"></script>
     	{% if user.is_authenticated %}
-        <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap.2-32.min.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}common/js/json2.js"></script> <!-- for the benefit of older IEs -->
-        <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.form.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout-2.1.0.js"></script>
-        <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
+        <script type="text/javascript" src="{% static 'support/bootstrap.2-32.min.js' %}"></script>
+        <script type="text/javascript" src="{% static 'common/js/json2.js' %}"></script> <!-- for the benefit of older IEs -->
+        <script type="text/javascript" src="{% static 'common/js/jquery.form.js' %}"></script>
+        <script type="text/javascript" src="{% static 'common/js/knockout-2.1.0.js' %}"></script>
+        <script type="text/javascript" src="{% static 'common/js/knockout.mapping-latest.js' %}"></script>
     	{% endif %}
 
         {% block scripts %}{% endblock scripts %}
-        
+
         <script>
             $('#navlink-about, .home-about').click( function() {
                 $('#about-dialog').modal('show');

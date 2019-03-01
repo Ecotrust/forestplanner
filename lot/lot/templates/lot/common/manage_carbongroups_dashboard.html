@@ -1,4 +1,4 @@
-{% extends 'common/base.html' %}
+{% extends 'lot/common/base.html' %}
 {% load url from future %}
 
 {% block content %}
@@ -25,7 +25,7 @@
           {% else %}
           <div class="alert">
             <strong>Warning!</strong>
-            This scenario is not included in the calculations below 
+            This scenario is not included in the calculations below
             due to it's incomplete status:
             <ul>
               <li>runnable: {{prop.shared_scenario.is_runnable}}</li>
@@ -63,8 +63,8 @@
 <h4> Pending Members ({{group.get_pending_users|length}})</h4>
 <ul>
 {% for member in group.get_pending_users %}
-  <li> 
-    {{ member.username }} 
+  <li>
+    {{ member.username }}
     <form action="#" method="POST">
         <input name="user_id" value={{ member.id }} type="hidden">
         Change status: <select name="membership_status" id="{{member.id}}_status">
@@ -82,8 +82,3 @@
 </div>
 
 {% endblock content %}
-
-
-
-
-

@@ -1,10 +1,10 @@
-{% extends 'common/base.html' %}
+{% extends 'lot/common/base.html' %}
 {% load url from future %}
 {% block bodyclass %}about-page{% endblock %}
 
 
 {% block content %}
-					
+
 
 <div class="row-fluid">
   <aside class="span3">
@@ -26,7 +26,7 @@
 
       <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
         <!--<i class="icon-user icon-white"></i> -->
-        Get Started</a>	
+        Get Started</a>
     </nav>
 
   </aside>
@@ -47,7 +47,7 @@
         In general, we encourage you to use the Forest Planner to visualize trends and outcomes comparing different management scenarios rather than focusing on the specific outputs for any single year or management scenario.
       </p>
 	  <p>
-		This information may be helpful for evaluating different management alternatives and for management planning purposes, but should not be considered as an operations plan.  
+		This information may be helpful for evaluating different management alternatives and for management planning purposes, but should not be considered as an operations plan.
 	  </p>
 	  <p>
 		<strong>Using the Forest Planner is not a substitute for consulting with a qualified forester.  Before implementing any management activities on your property, we strongly encourage you to develop a sustainable forest management plan in consultation with a qualified forester.</strong>
@@ -314,12 +314,12 @@
             position = $target.offset().top,
             $nav = $('#sidenav');
 
-        // 'active' hocus pocos 
+        // 'active' hocus pocos
         $nav.find('.active').removeClass('active');
         $t.closest('li').addClass('active');
 
-        
-        // prevent the occasional pre animation jump 
+
+        // prevent the occasional pre animation jump
         evt.preventDefault();
 
         // deal with the fixed position header and the first container getting truncated
@@ -330,8 +330,8 @@
         // scroll to the container
         jQuery('html, body').animate({
           scrollTop: position
-        }, { 
-          duration: 1500, 
+        }, {
+          duration: 1500,
           easing: "easeInOutQuint",
           complete: function() {
             // since we are preventing default

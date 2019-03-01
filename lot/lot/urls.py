@@ -16,17 +16,18 @@ urlpatterns = [
     url(r'^features/(?P<username>.+)/workspace-owner.json', workspace, kwargs={"is_owner": True}, name='workspace-owner-json'),
     url(r'^features/(?P<username>.+)/workspace-shared.json', workspace, kwargs={"is_owner": False}, name='workspace-shared-json'),
 
-    url(r'^$', map, name='map'),
+    url(r'', map, name='map'),
+    url(r'^map/?$', map, name='map'),
 
-    path(r'', include('madrona.common.urls')),
     path(r'^trees/', include('trees.urls')),
     path(r'^auth/', include('allauth.urls')),
     url(
         r'^auth/profile/',
         TemplateView.as_view(template_name = 'account/profile.html'),
-        "auth_profile"
+        name="auth_profile"
     ),
     path('admin/', admin.site.urls),
+    path(r'', include('madrona.common.urls')),
 ]
 
 if settings.DEBUG:

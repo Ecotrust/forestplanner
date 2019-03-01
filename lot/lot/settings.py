@@ -34,6 +34,7 @@ DATABASES = {
 # Paths
 # ------------------------------------------------------------------------------
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+ROOT_DIR = os.path.dirname(os.path.dirname(BASE_DIR))
 FIXTURE_DIRS = (os.path.join(BASE_DIR, 'fixtures'),)
 TEMPLATE_DIRS = (os.path.realpath(os.path.join(os.path.dirname(__file__), 'templates').replace('\\', '/')), )
 FEATURE_FILE_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', 'feature_files'))
@@ -52,10 +53,21 @@ GIS_DATA_ROOT = os.path.realpath(os.path.join(os.path.dirname(__file__), '..', '
 #     'common/stand.js',
 #     'common/scenario.js'
 # )
-MEDIA_ROOT = '/usr/local/apps/forestplanner/media/'
-MEDIA_ROOT = '/usr/local/apps/forestplanner/static/'
+try:
+    STATICFILES_DIRS += [
+        "%s%s" % (os.path.join(ROOT_DIR, 'media'), os.sep),
+        str(STATIC_ROOT),   # This comes from madrona's default_settings
+    ]
+except Exception as e:
+    STATICFILES_DIRS = [
+        "%s%s" % (os.path.join(ROOT_DIR, 'media'), os.sep),
+    ]
+
+MEDIA_ROOT = "%s%s" % (os.path.join(ROOT_DIR, 'lot', 'media'), os.sep)
+STATIC_ROOT = "%s%s" % (os.path.join(ROOT_DIR, 'static'), os.sep)
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
+
 
 # ------------------------------------------------------------------------------
 # Logging
@@ -205,7 +217,7 @@ MIDDLEWARE_CLASSES += (
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': TEMPLATE_DIRS,
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [

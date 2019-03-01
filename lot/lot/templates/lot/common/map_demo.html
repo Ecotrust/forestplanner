@@ -1,4 +1,4 @@
-{% extends 'common/map.html' %}
+{% extends 'lot/common/map.html' %}
 
 {% block scripts %}
 {% endblock %}
@@ -25,7 +25,7 @@
             border-collapse: collapse;
             text-align: left;
             font-size: 9px;
-            margin: 10px; 
+            margin: 10px;
         }
         th
         {
@@ -40,11 +40,11 @@
             padding: 6px 8px;
         }
         .loading{
-            top: -244px; 
-            left: 384px; 
+            top: -244px;
+            left: 384px;
             position: relative;
             display: block;
-            background-image: url('/media/common/images/ajax-loader-dark.gif'); 
+            background-image: url('/media/common/images/ajax-loader-dark.gif');
             background-repeat: no-repeat;
             width: 32px;
             height: 32px;
@@ -145,7 +145,7 @@
             map = new OpenLayers.Map('map');
             map.addControl(new OpenLayers.Control.LayerSwitcher());
             map.addControl(new OpenLayers.Control.MousePosition());
-            
+
             var gphy = new OpenLayers.Layer.Google(
                 "Google Physical",
                 {type: google.maps.MapTypeId.TERRAIN}
@@ -163,7 +163,7 @@
 
             map.setCenter(new OpenLayers.LonLat(-123.85, 41.45).transform(
                 new OpenLayers.Projection("EPSG:4326"), map.getProjectionObject()), 12);
-            
+
             for (var i=map.layers.length-1; i>=0; --i) {
                 map.layers[i].animationEnabled = true;
             };
@@ -180,10 +180,10 @@
                                 {fillColor: "green", fillOpacity: 1, strokeColor: "black"},
                                         OpenLayers.Feature.Vector.style["default"]));
 
-            processed_stands = new OpenLayers.Layer.Vector("Processed Stands", 
+            processed_stands = new OpenLayers.Layer.Vector("Processed Stands",
                     {
-                        renderers: renderer, 
-                        style: { 'fillColor': '#00ff00', 'fillOpacity': 0.4, 
+                        renderers: renderer,
+                        style: { 'fillColor': '#00ff00', 'fillOpacity': 0.4,
                                  'strokeColor': 'white', 'strokeOpacity': 0.7 }
                     }
             );
@@ -221,7 +221,7 @@
                     $(this).hide();
                 })
             ;
-            
+
             $('#nav_next').live('click', function(e) {
                 e.preventDefault();
                 gotoStep(currentStep + 1, currentStep);
@@ -245,20 +245,20 @@
                     var f;
                     var stands_json = [];
                     for ( var i=0; i<len; ++i ){
-                        f = stands.features[i]; 
+                        f = stands.features[i];
                         stands_json.push(geojson_format.write(f));
                     }
 
-                    console.log("Submit Polygons to server"); 
+                    console.log("Submit Polygons to server");
                     $.ajax({
-                        url: "/trees/stands/", 
+                        url: "/trees/stands/",
                         type: 'POST',
-                        data: { 'stands': stands_json }, 
+                        data: { 'stands': stands_json },
                         success: function(data) {
                             processed_stands.removeAllFeatures();
                             stands.removeAllFeatures();
                             processed_stands.addFeatures(geojson_format.read(data));
-                            $('#stand_attributes').html( 
+                            $('#stand_attributes').html(
                                 '<table>' +
                                 '<tr><th>Attribute</th><th>Value</th></tr>' +
                                 '<tr><td>area</td><td>' + data['features'][0]['properties']['area'] + '</td></tr>' +
@@ -273,9 +273,9 @@
                         dataType: 'json',
                         async: true
                     })
-                    .error( function(e) { 
+                    .error( function(e) {
                         console.log(e);
-                        alert("An error occured trying to record stand data... Please try again."); 
+                        alert("An error occured trying to record stand data... Please try again.");
                         continue_steps = false;
                     });
                 } else if (to == 2) {
@@ -297,7 +297,7 @@
                 step = steps[to];
                 if (step === undefined) {
                     return false;
-                } 
+                }
                 currentStep = to;
                 if (currentStep <= 1) {
                     $('#nav_prev').addClass('nav_disabled');
@@ -328,7 +328,7 @@
 {% endblock %}
 
 {% block body %}
-        
+
     <div class="container">
         <h1 id="title"> Forestry Land Owner's Tool Demo</h1>
         <div class="themap">
@@ -348,10 +348,10 @@
                 </div>
 
                 <div class="step" id="step2" title="Step 2: Delineate Stand">
-                    <p> 
-                    Next, delineate the parcel into individual stands of trees. 
-                    Draw a line on the map that defines the edge or boundary of a stand and continue clicking in a clockwise direction 
-                    until you've mapped the stand.  When you're done, double click on the final point. 
+                    <p>
+                    Next, delineate the parcel into individual stands of trees.
+                    Draw a line on the map that defines the edge or boundary of a stand and continue clicking in a clockwise direction
+                    until you've mapped the stand.  When you're done, double click on the final point.
                     </p>
                     <p> Repeat for as many stands as necessary </p>
                     <p class="todo"> Add, Edit, Delete, Management controls for multiple stands. </p>
@@ -387,4 +387,3 @@
          </div>
     </div>
 {% endblock %}
-
