@@ -1,5 +1,5 @@
 {% extends 'common/base.html' %}
-{% load url from future %}
+{% load static %}
 
 {% block content %}
 <div class="row-fluid">
@@ -24,24 +24,24 @@
 <div class="row-fluid" id="scenarios-html">
   <div class="span12">
     <div class="row-fluid">
-      <div class="span5"> 
+      <div class="span5">
         <div class="well">
           <h1>Manage Scenarios</h1>
               <table class="table table-condensed table-striped table-hover table-bordered">
                 <tbody data-bind="foreach: scenarioList">
                     <tr class="scenario-row" rel="popover">
-                        <td> 
+                        <td>
                             <h5> <span data-bind="text: fields.name"><span> </h5>
                             <span data-bind="text: fields.description"></span>
                             <div class="pull-right">
-                                <button href="#" id="delete-button" class="btn btn-mini" 
+                                <button href="#" id="delete-button" class="btn btn-mini"
                                     data-bind="click: $parent.showDeleteDialog">
                                     <i class="icon-remove"></i></button>
-                                <button class="btn btn-mini" href="#" 
+                                <button class="btn btn-mini" href="#"
                                     data-bind="click: $parent.editFeature">
                                     <i class="icon-edit"></i></button>
                                 <!--
-                                <button class="btn btn-mini" href="#" 
+                                <button class="btn btn-mini" href="#"
                                     data-bind="click: ">
                                     <i class="icon-info-sign"></i></button>
                                 -->
@@ -73,13 +73,13 @@
                         <td class="hide scenario-details">
                         -->
                             <!--
-                            <dd data-bind="text: fields.input_rxs"></dd> 
+                            <dd data-bind="text: fields.input_rxs"></dd>
                             <span data-bind="text: chartColors[0]"></span>
-                            <span data-bind="text: $index"></span> 
+                            <span data-bind="text: $index"></span>
                             <span data-bind="text: chartColors[$index]"></span>
-                            <span><div style="height: 20px; width: 20px; border: 1px grey solid;" 
+                            <span><div style="height: 20px; width: 20px; border: 1px grey solid;"
                                     data-bind="style: {backgroundColor: chartColors[$index]}"></div></span>
-                            <span data-bind="text: fields.output_scheduler_results"></span> 
+                            <span data-bind="text: fields.output_scheduler_results"></span>
                             -->
                     </tr>
                 </tbody>
@@ -96,7 +96,7 @@
     </div>
   </div>
 </div>
-      
+
 
 {% endblock content %}
 {% block scripts %}
@@ -107,7 +107,7 @@
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/knockout.mapping-latest.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/knockout-custom-bindings.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/select2.js"></script>
-    
+
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tab.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-tooltip.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}support/bootstrap/js/bootstrap-carousel.js"></script>
@@ -126,11 +126,11 @@
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.highlighter.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}jqplot/plugins/jqplot.enhancedLegendRenderer.min.js"></script>
     <script type="text/javascript" src="{{MEDIA_URL}}common/js/chart.js"></script>
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script> 
-    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script> 
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
-    {% load compressed %}
+    {% load compress %}
     <style>
       h1 {
         margin-bottom: 10px;
@@ -143,7 +143,7 @@
         .stand-table tr.active,
         .table tbody tr:hover td, .table tbody tr:hover th {
             background-color: #E4AF87 !important;
-            
+
         }
         .stand-table tr.active {
             font-weight: bold;
@@ -151,7 +151,7 @@
         #map {
             height: 500px;
         }
-        
+
         .strata-list {
           z-index: 2000;
           margin-top: 10px;
@@ -169,7 +169,7 @@
             float: left;
             z-index: 2000;
             position: relative;
-            
+
           }
           .strata-list .stratum-box h4 {
               font-size: 16px;
@@ -182,7 +182,7 @@
           .strata-list .stratum-box p {
             line-height: 5px;
           }
-          
+
           .strata-list .stratum-box:hover {
             border: 1px solid #444;
           }
@@ -214,7 +214,7 @@
             onShow: function (callback) {
                 callback();
                 //madrona.formCallbacks.push(callback);
-            }, 
+            },
             formCallbacks: [],
             features: {}
         };
@@ -235,7 +235,7 @@
         });
 
 
-        
+
 
         {% endif %}
 
@@ -249,39 +249,39 @@
         </script>
         <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
         <script>
-        
+
         app.scenarios.init = function () {
-          
+
           app.scenarios.viewModel = new scenarioViewModel2();
           ko.applyBindings(app.scenarios.viewModel, document.getElementById('scenarios-html'));
 
-         
-         
+
+
 
 
           app.selectFeature = new OpenLayers.Control.SelectFeature(app.stand_layer,
-              { 
+              {
                   "clickout": false,
                   "multiple": true,
                   "toggle": true
               });
-          
+
           // reenable click and drag in vectors
-          app.selectFeature.handlers.feature.stopDown = false; 
-          
+          app.selectFeature.handlers.feature.stopDown = false;
+
           map.addControl(app.selectFeature);
           app.selectFeature.activate();
         };
 
         function scenarioViewModel2 () {
           var self = this;
-          
+
           self.scenarioList = ko.mapping.fromJS(app.scenarios.data);
           return self;
         }
 
-        
-        
+
+
 
 
     $.when(
@@ -290,10 +290,10 @@
         }),
         $.get('/features/generic-links/links/geojson/{uid}/'.replace('{uid}', app.scenarios.property_id), function (data) {
             map.render('map');
-            map.updateSize();    
+            map.updateSize();
             app.property_layer.addFeatures(app.geojson_format.read(data));
             map.zoomToExtent(app.property_layer.getDataExtent());
-            
+
         }),
         $.get('/features/forestproperty/links/property-stands-geojson/{property_id}/'.replace('{property_id}', app.scenarios.property_id), function (data) {
             app.stand_layer = new OpenLayers.Layer.Vector("Stands", {
@@ -303,20 +303,20 @@
 
             app.stand_layer.styleMap.default = new OpenLayers.Style({
               fillColor: "blue",
-              
+
 
             }, {
               // Rules go here.
               context: {
-                
+
               }
             });
 
             map.addLayer(app.stand_layer);
-            app.stand_layer.addFeatures(app.geojson_format.read(data));  
+            app.stand_layer.addFeatures(app.geojson_format.read(data));
         })
     ).then(function () {
-        
+
         app.scenarios.init();
     });
 
@@ -324,10 +324,23 @@
 
     </script>
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
-    
-    {% compressed_js 'application' %}
 
-    
+    {% compress js %}
+    <!-- <script type="text/javascript" src="{% static "common/js/test/lib/tmpl.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/test/lib/ge_utility_lib_patches.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/test/tools/measure_tool.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/test/layout/panel.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/test/map/googleLayers.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/js/test/map/geocoder.js" %}"></script>
+    <script type="text/javascript" src="{% static "manipulators/js/test/manipulators.js" %}"></script> -->
+    <script type="text/javascript" src="{% static "common/styles.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/trees.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/property.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/stand.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/scenario.js" %}"></script>
+    {% endcompress %}
+
+
 
     <!--
     <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>

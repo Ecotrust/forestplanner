@@ -2,7 +2,7 @@ from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.template import RequestContext
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from madrona.common.utils import get_logger
 from madrona.features.views import get_object_for_viewing
 from madrona.features.views import user_sharing_groups
@@ -93,8 +93,7 @@ def manage_stands(request):
     '''
     Stand management view
     '''
-    return render_to_response('common/manage_stands.html', {},
-                              context_instance=RequestContext(request))
+    return render(request, 'common/manage_stands.html', {})
 
 
 def manage_strata(request, property_uid):
@@ -106,45 +105,53 @@ def manage_strata(request, property_uid):
         return forestproperty
     name = forestproperty.name
     is_locked = forestproperty.is_locked
-    return render_to_response(
+    return render(
+        request,
         'common/manage_strata.html',
         {'property_id': property_uid,
          'property_name': name,
-         'property_is_locked': is_locked},
-        context_instance=RequestContext(request))
+         'property_is_locked': is_locked})
 
 
 def manage_scenario(request, property_uid):
     '''
     Scenario management view
     '''
-    return render_to_response(
-        'common/manage_scenario.html', {'property_id': property_uid},
-        context_instance=RequestContext(request))
+    return render(
+        request,
+        'common/manage_scenario.html',
+        {'property_id': property_uid}
+    )
 
 def intro(request):
     '''
     Intro/Help Page
     '''
-    return render_to_response(
+    return render(
+        request,
         'common/intro.html',
-        context_instance=RequestContext(request))
+        {}
+    )
 
 def about(request):
     '''
     Generic About Page
     '''
-    return render_to_response(
+    return render(
+        request,
         'common/about.html',
-        context_instance=RequestContext(request))
+        {}
+    )
 
 def documentation(request):
     '''
     Generic Documentation Page
     '''
-    return render_to_response(
+    return render(
+        request,
         'common/documentation.html',
-        context_instance=RequestContext(request))
+        {}
+    )
 
 def user_property_list(request):
     '''
@@ -153,7 +160,7 @@ def user_property_list(request):
     # import down here to avoid circular dependency
     from trees.models import ForestProperty
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponse('You must be logged in.', status=401)
 
     user_fps = ForestProperty.objects.filter(user=request.user)
@@ -180,7 +187,7 @@ def upload_stands(request):
     import tempfile
     import zipfile
 
-    if not request.user.is_authenticated():
+    if not request.user.is_authenticated:
         return HttpResponse('You must be logged in.', status=401)
 
     if request.method == 'POST':
@@ -482,7 +489,7 @@ def stand_list_nn(request):
                       )
         )
     out.append("</table>")
-    return render_to_response("trees/stand_list_nn.html", locals())
+    return render(request, "trees/stand_list_nn.html", locals())
 
 
 def add_stands_to_strata(request, instance):
@@ -595,7 +602,7 @@ def scenario_revenue(request, instance):
 
 
 def carbongroup_dashboard(request, instance):
-    if request.user.is_authenticated() and instance.user == request.user:
+    if request.user.is_authenticated and instance.user == request.user:
         if request.method == 'POST':
             from trees.models import Membership, ForestProperty
             data = request.POST.dict()
@@ -618,13 +625,14 @@ def carbongroup_dashboard(request, instance):
                 instance.save()
 
 
-        return render_to_response(
+        return render(
+            request,
             'common/manage_carbongroups_dashboard.html',
             {
                 'group': instance,
                 'manager_of_carbongroup': True
-            },
-            context_instance=RequestContext(request))
+            }
+        )
 
     else:
         return HttpResponse('You do not have permission to view this page.', status=401)
@@ -634,7 +642,7 @@ def manage_carbongroups_entry(request):
     '''
     Carbon Group management starting point
     '''
-    if not request.user.is_authenticated() or request.user.is_anonymous():
+    if not request.user.is_authenticated or request.user.is_anonymous():
         return HttpResponse("Not authenticated", status=401)
 
     # get list of CarbonGroups managed by this user
@@ -650,14 +658,15 @@ def manage_carbongroups_entry(request):
     #     gid = groups[0].id
     #     return HttpResponseRedirect("/features/carbongroup/links/manage-group/trees_carbongroup_{}/".format(gid))
 
-    return render_to_response(
+    return render(
+        request,
         'common/manage_carbongroups_entry.html',
         {
             'user': request.user,
             'groups': groups,
             'manager_of_carbongroup': True
-        },
-        context_instance=RequestContext(request))
+        }
+    )
 
 
 def browse_carbongroups(request):
@@ -666,7 +675,7 @@ def browse_carbongroups(request):
     '''
     from django.contrib.auth.models import User
     from trees.models import CarbonGroup, Membership
-    if not request.user.is_authenticated() or request.user.is_anonymous():
+    if not request.user.is_authenticated or request.user.is_anonymous():
         return HttpResponse("Not authenticated", status=401)
 
     if request.method == 'POST':
@@ -697,7 +706,8 @@ def browse_carbongroups(request):
     else:
         manager_of_carbongroup = False
 
-    return render_to_response(
+    return render(
+        request,
         'common/browse_carbongroups.html',
         {
             'user': request.user,
@@ -705,8 +715,8 @@ def browse_carbongroups(request):
             'other_public_groups': other_public_groups,
             'membership_status': membership_status,
             'manager_of_carbongroup': manager_of_carbongroup
-        },
-        context_instance=RequestContext(request))
+        }
+    )
 
 def map(request, template_name='common/map_ext.html', extra_context={}):
     """
@@ -717,22 +727,26 @@ def map(request, template_name='common/map_ext.html', extra_context={}):
 
     member_of_sharing_group = False
     user = request.user
-    if user.is_authenticated() and user_sharing_groups(user):
+    if user.is_authenticated and user_sharing_groups(user):
         member_of_sharing_group = True
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         manager_of_carbongroup = CarbonGroup.objects.filter(user=user).count() > 0
     else:
         manager_of_carbongroup = False
 
-    context = RequestContext(request,{
+    context = {
         'session_key': request.session.session_key,
         'member_of_sharing_group': member_of_sharing_group,
         'manager_of_carbongroup': manager_of_carbongroup,
         'show_help': True
-    })
+    }
 
     context.update(extra_context)
-    response = render_to_response(template_name, context)
+    response = render(
+        request,
+        template_name,
+        context
+    )
 
     return response

@@ -1,5 +1,5 @@
 {% extends 'common/base.html' %}
-{% load url from future %}
+{% load static %}
 
 {% if not user.is_authenticated %}
   {% block bodyclass %}no-auth{% endblock %}
@@ -906,7 +906,7 @@
     <script src="{{MEDIA_URL}}common/js/jquery.ui.slider.js"></script>
     <script src="{{MEDIA_URL}}support/bootstrap-select/bootstrap-select.min.js"></script>
 
-    {% load compressed %}
+    {% load compress %}
     <script type="text/javascript">
 
         // if console is undefined, use an empty function so console.log wont break old browsers
@@ -943,7 +943,13 @@
     <script type="text/javascript" src="{{MEDIA_URL}}features/js/workspace.js"></script>
     <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script>
     <script src="{{ MEDIA_URL }}OpenLayers.js"></script>
-    {% compressed_js 'application' %}
+    {% compress js %}
+    <script type="text/javascript" src="{% static "common/styles.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/trees.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/property.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/stand.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/scenario.js" %}"></script>
+    {% endcompress %}
 
     <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
     <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
