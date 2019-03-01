@@ -112,7 +112,9 @@ MILL_SHAPEFILE = os.path.realpath(os.path.join(os.path.dirname(__file__),
 # ------------------------------------------------------------------------------
 # Redis sessions and caching
 # ------------------------------------------------------------------------------
-SESSION_ENGINE = 'redis_sessions.session'
+# SESSION_ENGINE = 'redis_sessions.session'
+SESSION_ENGINE = "django.contrib.sessions.backends.cache"
+SESSION_CACHE_ALIAS = "default"
 SESSION_REDIS_HOST = 'localhost'
 SESSION_REDIS_PORT = 6379
 SESSION_REDIS_DB = 0
@@ -120,7 +122,7 @@ SESSION_REDIS_DB = 0
 CACHES = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": "127.0.0.1:6379:1",
+        "LOCATION": "redis://127.0.0.1:6379/1",
         "OPTIONS": {
             "CLIENT_CLASS": "django_redis.client.DefaultClient",
         }

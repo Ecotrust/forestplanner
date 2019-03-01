@@ -1,5 +1,5 @@
-from django.conf.urls import url, include
-from django.urls import path
+from django.conf.urls import url
+from django.urls import path, include, re_path
 from django.contrib import admin
 from django.views.generic import TemplateView
 from django.conf import settings
@@ -11,28 +11,28 @@ from trees.views import map
 urlpatterns = [
     # '',
 
+    re_path(r'^trees/', include('trees.urls')),
     # Looser pattern matching for workspace username (as opposed to \w+)
     # Already in madrona 4.2dev+ but just in case we're still running <=4.1
-    url(r'^features/(?P<username>.+)/workspace-owner.json', workspace, kwargs={"is_owner": True}, name='workspace-owner-json'),
-    url(r'^features/(?P<username>.+)/workspace-shared.json', workspace, kwargs={"is_owner": False}, name='workspace-shared-json'),
+    re_path(r'^features/(?P<username>.+)/workspace-owner.json', workspace, kwargs={"is_owner": True}, name='workspace-owner-json'),
+    re_path(r'^features/(?P<username>.+)/workspace-shared.json', workspace, kwargs={"is_owner": False}, name='workspace-shared-json'),
 
-    url(r'', map, name='map'),
-    url(r'^map/?$', map, name='map'),
+    re_path(r'^map/?$', map, name='map'),
 
-    path(r'^trees/', include('trees.urls')),
-    path(r'^auth/', include('allauth.urls')),
-    url(
+    re_path(r'^auth/', include('allauth.urls')),
+    re_path(
         r'^auth/profile/',
         TemplateView.as_view(template_name = 'account/profile.html'),
         name="auth_profile"
     ),
-    path('admin/', admin.site.urls),
-    path(r'', include('madrona.common.urls')),
+    re_path('admin/', admin.site.urls),
+    re_path(r'$', map, name='map'),
+    re_path(r'', include('madrona.common.urls')),
 ]
 
 if settings.DEBUG:
     urlpatterns += [
-        url(
+        re_path(
             r'^media/(?P<path>.*)$',
             serve,
             kwargs={'document_root': settings.MEDIA_ROOT, 'show_indexes': True},

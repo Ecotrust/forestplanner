@@ -1,6 +1,6 @@
 function propertiesViewModel () {
   var self = this;
-  // TODO: make function to map properties with test  
+  // TODO: make function to map properties with test
   self.showPropertyPanels = ko.observable(false);
   self.propertyList = ko.observableArray();
   self.showEditPanel = ko.observable(false);
@@ -18,27 +18,27 @@ function propertiesViewModel () {
     var bbox = OpenLayers.Bounds.fromArray(property.bbox());
     // TODO: Make active!
     if (! self.preventUpdates()) {
-      if (event) {     
+      if (event) {
           $(event.target).closest('tr');
           // .addClass('active')
-          // .siblings().removeClass('active');         
+          // .siblings().removeClass('active');
           app.selectFeature.unselectAll();
           app.selectFeature.select(property.feature);
-      } 
+      }
       // set the selected property for the viewmodel
       self.selectedProperty(property);
 
-	  
+
       //for global tabs
       app.selectedPropertyName(self.selectedProperty().name());
       app.selectedPropertyUID(self.selectedProperty().uid());
 
       app.updateUrlProperty(self.selectedProperty().uid());
-	  
+
       self.showDetailPanel(true);
       //zoom the map to the selected property
       map.zoomToExtent(bbox);
-      
+
     }
 
   };
@@ -85,7 +85,7 @@ function propertiesViewModel () {
     var formUrl = '/features/forestproperty/{uid}/form/'.replace('{uid}', self.selectedProperty().uid());
     $.get(formUrl, function (data) {
       var $form = $(data).find('form');
-        
+
       self.cleanupForm($form);
       // show the form in the panel
       self.showDetailPanel(false);
@@ -128,9 +128,9 @@ function propertiesViewModel () {
 
     $.get(formUrl, function (data) {
       var $form = $(data).find('form');
-      
+
       self.cleanupForm($form);
-      
+
       // show the form in a modal
       self.showDetailPanel(false);
       self.showCreatePanel(true);
@@ -272,7 +272,7 @@ function propertiesViewModel () {
           window.location.hash = "#properties";
         }
 
-        map.updateSize();    
+        map.updateSize();
       }
     });
   };
@@ -296,7 +296,7 @@ function propertiesViewModel () {
   };
 
   self.afterUploadSuccess = function(data) {
-    var property; // undefined ~> new 
+    var property; // undefined ~> new
     self.updateOrCreateProperty(data, property);
     self.showEditPanel(false);
     self.showCreatePanel(false);
@@ -331,7 +331,7 @@ function propertiesViewModel () {
 		return;
 	}
 	if(self.selectedProperty() == undefined){
-		self.selectedProperty(self.propertyList()[0]);  
+		self.selectedProperty(self.propertyList()[0]);
 	}
     if (app.stands.viewModel) {
       app.stands.viewModel.reloadStands(self.selectedProperty());
@@ -345,7 +345,7 @@ function propertiesViewModel () {
 		  app.stands.viewModel.initialize(self.selectedProperty());
 		}
     }
-	
+
 	//for global tabs
 	app.selectedPropertyName(self.selectedProperty().name());
 
@@ -353,7 +353,7 @@ function propertiesViewModel () {
     app.stands.viewModel.showStandPanels(true);
     self.showPropertyPanels(false);
   };
-  
+
   self.manageScenarios = function (self, event) {
 	  if(self.propertyList()[0] == undefined){
 		alert('Please create a property first!');
@@ -388,15 +388,15 @@ function propertiesViewModel () {
     return $.when(self.loadPropertiesFromServer).then(function(data){
 
       self.showPropertyPanels(true);
-      
-      app.bounds = OpenLayers.Bounds.fromArray(data.features.length > 0 
+
+      app.bounds = OpenLayers.Bounds.fromArray(data.features.length > 0
                 ? data.bbox
                 : [-13954802.50397, 5681411.4375898, -13527672.389972, 5939462.8450446]);
 
       map.zoomToExtent(app.bounds);
 
       // bind event to selected feature
-      app.properties.featureAdded = function (feature) { 
+      app.properties.featureAdded = function (feature) {
         app.drawFeature.deactivate();
         self.showDrawHelpPanel(false);
         app.saveFeature(feature);
@@ -433,17 +433,15 @@ function propertiesViewModel () {
           }
         }
       });
-  
+
       // add the features to the map and trigger the callbacks
       if (data.features.length) {
-        app.property_layer.addFeatures(app.geojson_format.read(data));        
-      } 
+        app.property_layer.addFeatures(app.geojson_format.read(data));
+      }
       app.onResize();
       self.zoomToExtent();
-	  
+
     });
 
  };
 }
-
-

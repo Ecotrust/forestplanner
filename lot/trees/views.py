@@ -1,6 +1,6 @@
 from django.contrib.gis.geos import GEOSGeometry
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.template import RequestContext
 from django.shortcuts import render
 from madrona.common.utils import get_logger
@@ -85,8 +85,7 @@ def list_species_sizecls(request, property_uid):
             'size_classes': relevant_classes,
         })
 
-    return HttpResponse(json.dumps(res),
-                        mimetype='application/json', status=200)
+    return JsonResponse(json.dumps(res), status=200)
 
 
 def manage_stands(request):
@@ -169,13 +168,18 @@ def user_property_list(request):
     except:
         bb = settings.DEFAULT_EXTENT
 
-    gj = """{ "type": "FeatureCollection",
-    "bbox": [%s, %s, %s, %s],
-    "features": [
-    %s
-    ]}""" % (bb[0], bb[1], bb[2], bb[3], ', '.join([fp.geojson() for fp in user_fps]))
+    gj = {
+        "type": "FeatureCollection",
+        "bbox": [
+            bb[0],
+            bb[1],
+            bb[2],
+            bb[3]
+        ],
+        "features": [fp.geojson() for fp in user_fps]
+    }
 
-    return HttpResponse(gj, mimetype='application/json', status=200)
+    return JsonResponse(gj, status=200)
 
 
 def upload_stands(request):
@@ -259,8 +263,8 @@ def upload_stands(request):
             if not fp:
                 fp = ForestProperty.objects.filter(
                     name=new_prop_name).latest('date_modified')
-            res = HttpResponse(json.dumps({'X-Madrona-Select': fp.uid}),
-                               status=201, mimetype='application/json')
+            res = JsonResponse(json.dumps({'X-Madrona-Select': fp.uid}),
+                               status=201)
             return res
     else:
         form = UploadStandsForm()
@@ -273,7 +277,7 @@ def geojson_forestproperty(request, instance):
     '''
     Generic view to represent all Properties as GeoJSON
     '''
-    return HttpResponse(instance.feature_set_geojson(), mimetype='application/json', status=200)
+    return JsonResponse(instance.feature_set_geojson(), status=200)
 
 
 def forestproperty_scenarios(request, instance):
@@ -290,10 +294,10 @@ def forestproperty_scenarios(request, instance):
 
     if len(scenarios) == 0:
         # this should never happen
-        return HttpResponse("[]", mimetype='application/json', status=200)
+        return JsonResponse("[]", status=200)
 
     res_json = json.dumps([x.property_level_dict for x in scenarios])
-    return HttpResponse(res_json, mimetype='application/json', status=200)
+    return JsonResponse(res_json, status=200)
 
 
 def geojson_features(request, instances):
@@ -301,10 +305,10 @@ def geojson_features(request, instances):
     Generic view to represent Stands as GeoJSON
     '''
     featxt = ', '.join([i.geojson for i in instances])
-    return HttpResponse("""{ "type": "FeatureCollection",
+    return JsonResponse("""{ "type": "FeatureCollection",
       "features": [
        %s
-      ]}""" % featxt, mimetype='application/json', status=200)
+      ]}""" % featxt, status=200)
 
 
 @cache_page(60 * 60 * 24 * 365)
@@ -380,7 +384,7 @@ def geosearch(request):
             'center': (cntr[0], cntr[1]),
         }
         json_loc = json.dumps(loc)
-        return HttpResponse(json_loc, mimetype='application/json', status=200)
+        return JsonResponse(json_loc, status=200)
     else:
         loc = {
             'status': 'failed',
@@ -390,7 +394,7 @@ def geosearch(request):
             'center': None,
         }
         json_loc = json.dumps(loc)
-        return HttpResponse(json_loc, mimetype='application/json', status=404)
+        return JsonResponse(json_loc, status=404)
 
 
 def stand_list_nn(request):
@@ -552,7 +556,7 @@ def forestproperty_status(request, instance):
     /features/forestproperty/links/property-status/trees_forestproperty_<id>/
     """
     res_json = json.dumps(instance.status)
-    return HttpResponse(res_json, mimetype='application/json', status=200)
+    return JsonResponse(res_json, status=200)
 
 
 @cache_page(60 * 60 * 24 * 365)
@@ -581,7 +585,7 @@ def forestproperty_myrx(request, instance):
     instance.check_or_create_default_myrxs()
     myrxs = instance.feature_set(feature_classes=[MyRx, ])
     res_json = json.dumps([x._dict for x in myrxs])
-    return HttpResponse(res_json, mimetype='application/json', status=200)
+    return JsonResponse(res_json, status=200)
 
 
 # def forestproperty_potential_species(request, instance):
@@ -589,7 +593,7 @@ def forestproperty_myrx(request, instance):
 #     /features/forestproperty/links/property-status/trees_forestproperty_<id>/
 #     """
 #     res_json = json.dumps(instance.status)
-#     return HttpResponse(res_json, mimetype='application/json', status=200)
+#     return JsonResponse(res_json, status=200)
 
 def scenario_cash_flow(request, instance):
     data = instance.output_cash_metrics
@@ -642,7 +646,7 @@ def manage_carbongroups_entry(request):
     '''
     Carbon Group management starting point
     '''
-    if not request.user.is_authenticated or request.user.is_anonymous():
+    if not request.user.is_authenticated or request.user.is_anonymous:
         return HttpResponse("Not authenticated", status=401)
 
     # get list of CarbonGroups managed by this user
@@ -675,7 +679,7 @@ def browse_carbongroups(request):
     '''
     from django.contrib.auth.models import User
     from trees.models import CarbonGroup, Membership
-    if not request.user.is_authenticated or request.user.is_anonymous():
+    if not request.user.is_authenticated or request.user.is_anonymous:
         return HttpResponse("Not authenticated", status=401)
 
     if request.method == 'POST':
