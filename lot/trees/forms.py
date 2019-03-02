@@ -2,7 +2,7 @@ from madrona.features.forms import FeatureForm, SpatialFeatureForm
 from django import forms
 from trees.models import Stand, Strata, ForestProperty, Scenario, ScenarioStand, MyRx, Rx, CarbonGroup, Membership
 #from madrona.analysistools.widgets import SliderWidget
-from django.forms.util import flatatt
+from django.forms.utils import flatatt
 from django.utils.safestring import mark_safe
 import json
 

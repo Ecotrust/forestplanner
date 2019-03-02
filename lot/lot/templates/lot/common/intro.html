@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block bodyclass %}help-page{% endblock %}
 
 
 {% block content %}
-					
+
 
 <div class="row-fluid">
   <aside class="span3">
@@ -22,39 +23,43 @@
 
       <a class="btn btn-large btn-success" href="{% url 'account_login' %}" id="signin">
         <!--<i class="icon-user icon-white"></i> -->
-        Get Started</a>	
+        Get Started</a>
     </nav>
 
   </aside>
 
   <section class="span9" id="main" aria-role="main">
-  
+
     <div class="content">
     <h1>Welcome</h1>
-	
+
 	<section id="intro">
 		<p class="intro">On the Forest Scenario Planner website, you will be guided through four major steps.  Completing these steps will allow you to do side-by-side comparisons of different management scenarios for your property:</p>
 		<ol class="steps">
 			<li><h3>Step 1: Map your property boundary</h3>
-			<img src="/media/img/help/walkthrough_clip_image002.png" alt="" width="280" height="13"></li>
+			<img src="{% static 'img/help/walkthrough_clip_image002.png' %}" alt="" width="280" height="13"></li>
 			<li><h3>Step 2: Map the management units (forest stands) within your property</h3>
-			<img src="/media/img/help/walkthrough_clip_image004.png" alt="" width="32" height="13"><img src="/media/img/help/walkthrough_clip_image006.png" alt="" width="209" height="13"></li>
+			<img src="{% static 'img/help/walkthrough_clip_image004.png' %}" alt="" width="32" height="13">
+      <img src="{% static 'img/help/walkthrough_clip_image006.png' %}" alt="" width="209" height="13"></li>
 			<li><h3>Step 3: Describe the type of forest found in each stand</h3>
-			<img src="/media/img/help/walkthrough_clip_image008.png" alt="" width="34" height="13"><img src="/media/img/help/walkthrough_clip_image010.png" alt="" width="82" height="13"><img src="/media/img/help/walkthrough_clip_image012.png" alt="" width="137" height="13"></li>
+			<img src="{% static 'img/help/walkthrough_clip_image008.png' %}" alt="" width="34" height="13">
+      <img src="{% static 'img/help/walkthrough_clip_image010.png' %}" alt="" width="82" height="13">
+      <img src="{% static 'img/help/walkthrough_clip_image012.png' %}" alt="" width="137" height="13"></li>
 			<li><h3>Step 4: Create and visualize one or more property-level management scenarios</h3>
-			<img src="/media/img/help/walkthrough_clip_image014.png" alt="" width="31" height="13"><img src="/media/img/help/walkthrough_clip_image016.png" alt="" width="194" height="13"></li>
+			<img src="{% static 'img/help/walkthrough_clip_image014.png' %}" alt="" width="31" height="13">
+      <img src="{% static 'img/help/walkthrough_clip_image016.png' %}" alt="" width="194" height="13"></li>
 		</ol>
 	</section>
-	
+
 	<section id="intro-property">
-		<img src="/media/img/help/walkthrough_clip_image018.png" alt="" width="470" height="20"><br>
-		
+		<img src="{% static 'img/help/walkthrough_clip_image018.png' %}" alt="" width="470" height="20"><br>
+
 		<h3>Step 1: Map your property boundary.</h3>
 		<p>You will have two options to draw your property boundary:</p>
 		<ol class="steps">
 			<li>
 				<h4>Option 1: Draw your property boundary by hand.</h4>
-				<img src="/media/img/help/walkthrough_clip_image020.png" alt="" width="208" height="161">
+				<img src="{% static 'img/help/walkthrough_clip_image020.png' %}" alt="" width="208" height="161">
 			</li>
 			<li>
 				<h4>Option 2: Upload a GIS shapefile with your property and forest stands.</h4>
@@ -64,13 +69,14 @@
 	</section>
 
 	<section id="intro-stands">
-		<img src="/media/img/help/walkthrough_clip_image022.png" alt="" width="58" height="22"><img src="/media/img/help/walkthrough_clip_image024.png" alt="" width="392" height="22"><br>
+		<img src="{% static 'img/help/walkthrough_clip_image022.png' %}" alt="" width="58" height="22">
+    <img src="{% static 'img/help/walkthrough_clip_image024.png' %}" alt="" width="392" height="22"><br>
 		<h3>Step 2: Map the management units (forest stands) within your property</h3>
 		<p>You will have two options to divide your property into forest stands:</p>
 		<ol class="steps">
 		<li>
 			<h4>Option 1: Draw your stand boundaries by hand.</h4>
-			<img src="/media/img/help/walkthrough_clip_image026.png" alt="" width="209" height="161">
+			<img src="{% static 'img/help/walkthrough_clip_image026.png' %}" alt="" width="209" height="161">
 		</li>
 		<li>
 			<h4>Option 2: Upload GIS data </h4>
@@ -79,19 +85,22 @@
 	</section>
 
 	<section id="intro-vegetation">
-		<p><img src="/media/img/help/walkthrough_clip_image028.png" alt="" width="58" height="22"><img src="/media/img/help/walkthrough_clip_image030.png" alt="" width="143" height="22"><img src="/media/img/help/walkthrough_clip_image032.png" alt="" width="238" height="22"></p>
+		<p><img src="{% static 'img/help/walkthrough_clip_image028.png' %}" alt="" width="58" height="22">
+      <img src="{% static 'img/help/walkthrough_clip_image030.png' %}" alt="" width="143" height="22">
+      <img src="{% static 'img/help/walkthrough_clip_image032.png' %}" alt="" width="238" height="22"></p>
 		<h3>Step 3: Describe the type of forest found in each stand</h3>
 		<p>You will define each type of forest that occurs on your property and then apply them to each stand on your property.</p>
 		<ol>
 			<li>For each forest type you create, you will give a name, age, and a list of the tree species, diameter class, and number of trees per acre.<br>
-				<img src="/media/img/help/walkthrough_clip_image034.png" alt="" width="256" height="99"></li>
+				<img src="{% static 'img/help/walkthrough_clip_image034.png' %}" alt="" width="256" height="99"></li>
 			<li>All the forest types you have created will appear like a painter&rsquo;s palette to the left of your stand map.  Click on one or more stands in the map, and then apply the appropriate forest type.<br>
-				<img src="/media/img/help/walkthrough_clip_image036.png" alt="" width="353" height="104"></li>
+				<img src="{% static 'img/help/walkthrough_clip_image036.png' %}" alt="" width="353" height="104"></li>
 		</ol>
 	</section>
-	
+
 	<section id="intro-scenarios">
-		<p><img src="/media/img/help/walkthrough_clip_image038.png" alt="" width="54" height="22"><img src="/media/img/help/walkthrough_clip_image040.png" alt="" width="348" height="22"></p>
+		<p><img src="{% static 'img/help/walkthrough_clip_image038.png' %}" alt="" width="54" height="22">
+      <img src="{% static 'img/help/walkthrough_clip_image040.png' %}" alt="" width="348" height="22"></p>
 		<h3>Step 4: Create and visualize one or more property-level management scenarios</h3>
 		<p>Each scenario represents the combination of management prescriptions you choose to apply to each stand across your property. To create each scenario, you will:</p>
 		<ol>
@@ -100,29 +109,29 @@
 			<li>Select each stand on your property and apply the prescription you want.</li>
 			<li>Give your scenario a name, and description (optional).</li>
 		</ol>
-		<p><img src="/media/img/help/walkthrough_clip_image042.png" alt="" width="338" height="151"></p>
+		<p><img src="{% static 'img/help/walkthrough_clip_image042.png' %}" alt="" width="338" height="151"></p>
 	</section>
 
 	<section id="">
 		<p>Once you have completed these 4 steps, you will be able to see side-by-side graphs and maps comparing any management scenarios you created.</p>
 		<p>For example, you can see how many boardfeet would be harvested under each scenario, or how much carbon would be stored in your trees.  You can also compare estimates of some of the major costs and revenues in each scenario.</p>
-		<p><img src="/media/img/help/walkthrough_clip_image044.png" alt="" width="434" height="202"></p>
+		<p><img src="{% static 'img/help/walkthrough_clip_image044.png' %}" alt="" width="434" height="202"></p>
 	</section>
 
 	<section id="">
 		<p>You can also see maps that will show you timber stocking, yields, carbons storage, etc. for a snapshot in time over the next 100 years.</p>
-		<p><img src="/media/img/help/walkthrough_clip_image046.png" alt="" width="434" height="200"></p>
+		<p><img src="{% static 'img/help/walkthrough_clip_image046.png' %}" alt="" width="434" height="200"></p>
 	</section>
 
 	<section id="">
 		<p>If at any point you are not sure what to do, check in the information box to see advice and links to short videos showing how to use that page.</p>
-		<p><img src="/media/img/help/getting-help.png" alt="" width="690" height="316">
+		<p><img src="{% static 'img/help/getting-help.png' %}" alt="" width="690" height="316">
 		</p>
 	</section>
-	
+
 <!-- end .content --></div>
-  
-  
+
+
   </section> <!-- /#main -->
 
 </div>
@@ -199,12 +208,12 @@
             position = $target.offset().top,
             $nav = $('#sidenav');
 
-        // 'active' hocus pocos 
+        // 'active' hocus pocos
         $nav.find('.active').removeClass('active');
         $t.closest('li').addClass('active');
 
-        
-        // prevent the occasional pre animation jump 
+
+        // prevent the occasional pre animation jump
         evt.preventDefault();
 
         // deal with the fixed position header and the first container getting truncated
@@ -215,8 +224,8 @@
         // scroll to the container
         jQuery('html, body').animate({
           scrollTop: position
-        }, { 
-          duration: 1500, 
+        }, {
+          duration: 1500,
           easing: "easeInOutQuint",
           complete: function() {
             // since we are preventing default

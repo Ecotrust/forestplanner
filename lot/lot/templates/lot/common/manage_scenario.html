@@ -1,4 +1,4 @@
-{% extends 'lot/common/base.html' %}
+{% static '{% extends 'lot/common/base.html' %}
 {% load static %}
 
 {% block content %}
@@ -62,7 +62,7 @@
                                 </div>
                                 <!--
                                 <div>
-                                    <img src="/media/img/temp_rx.jpg" size="width:300px;" class="img-polaroid"/>
+                                    <img src="{% static 'img/temp_rx.jpg' %}" size="width:300px;" class="img-polaroid"/>
                                 </div>
                                 -->
                             </div>
@@ -247,7 +247,7 @@
 
 
         </script>
-        <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
+        <script src="{% static 'common/js/breadcrumbs.js' %}"></script>
         <script>
 
         app.scenarios.init = function () {
@@ -343,10 +343,10 @@
 
 
     <!--
-    <script src="{{ MEDIA_URL }}common/js/hash_routing.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/geosearch.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/init.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/breadcrumbs.js"></script>
-    <script src="{{ MEDIA_URL }}common/js/timemap.js"></script>
+    <script src="{% static 'common/js/hash_routing.js' %}"></script>
+    <script src="{% static 'common/js/geosearch.js' %}"></script>
+    <script src="{% static 'common/js/init.js' %}"></script>
+    <script src="{% static 'common/js/breadcrumbs.js' %}"></script>
+    <script src="{% static 'common/js/timemap.js' %}"></script>
     -->
 {% endblock scripts %}

@@ -212,6 +212,7 @@ VARIANT_BASELINES = {
 SITE_ID=1
 
 MIDDLEWARE_CLASSES += (
+    'django.middleware.csrf.CsrfViewMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )

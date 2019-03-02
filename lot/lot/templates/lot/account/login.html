@@ -2,6 +2,7 @@
 
 {% load i18n %}
 {% load account %}
+{% load static %}
 
 
 {% block head_title %}{% trans "Sign In" %}{% endblock %}
@@ -28,7 +29,8 @@
              If you've set up Forest Planner account with a password, sign in here.
         </p>
         <form class="form-horizontal login" method="POST" action="/auth/login/">
-            
+          {% csrf_token %}
+
           <div class="control-group">
             <label class="control-label" for="id_login">Username</label>
             <div class="controls">
@@ -52,7 +54,7 @@
                 Remember Me</label>
             </div>
           </div>
-            
+
           <div class="control-group">
             <div class="controls">
               <button type="submit" id="sign-in-submit" class="btn">Log In</button>
@@ -62,12 +64,12 @@
         </form>
 
         <div class="pull-right">
-          <a href="/auth/signup/">Need an account?</a> <span class="muted">|</span> 
-          <a href="/auth/password/reset">Forget your info?</a> <span class="muted">|</span> 
+          <a href="/auth/signup/">Need an account?</a> <span class="muted">|</span>
+          <a href="/auth/password/reset">Forget your info?</a> <span class="muted">|</span>
           <a href="#tos" id="tos-link">Terms of Service</a>
         </div>
 
-        
+
           <div id="tos">
 
             <br><hr>
@@ -94,13 +96,13 @@
 
       if($.backstretch !== undefined){
 				 $.backstretch([
-					 "/media/img/forest_photos/forest-clouds-866-full-sat.jpg",
-					 "/media/img/forest_photos/walkers-205-full-sat.jpg",
-					 "/media/img/forest_photos/Nursery-log-1-full-sat.jpg",
-					 // "/media/img/forest_photos/hills-0038-full-sat.jpg",
-           // by John David Nelson 
+					 "{% static 'img/forest_photos/forest-clouds-866-full-sat.jpg' %}",
+					 "{% static 'img/forest_photos/walkers-205-full-sat.jpg' %}",
+					 "{% static 'img/forest_photos/Nursery-log-1-full-sat.jpg' %}",
+					 // "{% static 'img/forest_photos/hills-0038-full-sat.jpg' %}",
+           // by John David Nelson
            // http://www.flickr.com/photos/jondavidnelson/6009713015/sizes/l/in/photostream/
-					 "/media/img/forest_photos/pine-jondavidnelson.jpg"
+					 "{% static 'img/forest_photos/pine-jondavidnelson.jpg' %}"
 					], {duration: 6000, fade: 1000});
       }
 
@@ -138,7 +140,7 @@ function validateLogin(){
         } else{
           $(el).closest('.control-group').removeClass('error');
         }
-      } else if ($(el).val() === ""){ 
+      } else if ($(el).val() === ""){
         $(el).closest('.control-group').addClass('error');
         invalid.push(el);
       } else {
@@ -148,7 +150,7 @@ function validateLogin(){
 
     if(invalid.length){
       return false;
-    } 
+    }
 }
 
 
@@ -174,9 +176,9 @@ function validateLogin(){
       padding: 0;
     }
       .socialaccount_providers a{
-        background-color: transparent; 
-        background-image: url('/media/img/lot-sprite.png');
-        background-position: 0 0; 
+        background-color: transparent;
+        background-image: url("{% static 'img/lot-sprite.png' %}");
+        background-position: 0 0;
         background-repeat: no-repeat;
         display: block;
         height: 29px;
@@ -196,4 +198,3 @@ function validateLogin(){
     }
 </style>
 {% endblock styles %}
-

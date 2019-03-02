@@ -1,4 +1,5 @@
 {% extends 'lot/common/map.html' %}
+{% load static %}
 
 {% block scripts %}
 {% endblock %}
@@ -10,10 +11,10 @@
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5/jquery.min.js" type="text/javascript" charset="utf-8"></script>
     <!-- <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script> -->
-    <script src="/media/OpenLayers.js"></script>
+    <script src="{% static 'OpenLayers.js' %}"></script>
 
-    <link rel="stylesheet" href="/media/google.css" type="text/css">
-    <link rel="stylesheet" href="/media/style2.css" type="text/css">
+    <link rel="stylesheet" href="{% static 'google.css' %}" type="text/css">
+    <link rel="stylesheet" href="{% static 'style2.css' %}" type="text/css">
     <style type="text/css">
         #tree_live_results {
             height:250px;
@@ -44,7 +45,7 @@
             left: 384px;
             position: relative;
             display: block;
-            background-image: url('/media/common/images/ajax-loader-dark.gif');
+            background-image: url("{% static 'common/images/ajax-loader-dark.gif' %}");
             background-repeat: no-repeat;
             width: 32px;
             height: 32px;
@@ -55,7 +56,7 @@
             background-position: 8px center;
             color: #00529B;
             font-size: 8pt;
-            background-image: url('/media/img/todo.gif');
+            background-image: url("{% static 'img/todo.gif' %}");
         }
         li {
             text-decoration: none;
@@ -212,7 +213,7 @@
                 .hide()
                 .ajaxStart(function() {
                     controls['poly'].deactivate();
-                    var loading_html = '<img src="/media/common/images/ajax-loader.gif" />';
+                    var loading_html = '<img src="{% static 'common/images/ajax-loader.gif' %}" />';
                     $('#stand_attributes').html(loading_html);
                     $('#tree_live_results').html(loading_html);
                     $(this).show();
@@ -375,7 +376,7 @@
                 </div>
                 <div class="step" id="step5" title="Step 5: Run G&Y Model">
                     <p class="todo"> Fire off growth and yield model and present the results</p>
-                    <img src="/media/common/images/svs.png" width="360"/>
+                    <img src="{% static 'common/images/svs.png' %}" width="360"/>
                 </div>
             </div>
 

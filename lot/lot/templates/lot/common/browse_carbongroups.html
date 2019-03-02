@@ -12,6 +12,7 @@
     {{group.description}}
     <div class="pull-right">
         <form method='POST' action='#'>
+            {% csrf_token %}
             <input name="group_id" type='hidden' value="{{group.id}}">
             <input name="user_id" type='hidden' value="{{user.id}}">
             <input name="action" type='hidden' value="leave">
@@ -29,6 +30,7 @@
 <div class="well">
     <div class="pull-right">
         <form method='POST' action='#'>
+            {% csrf_token %}
             <input name="group_id" type='hidden' value="{{group.id}}">
             <input name="user_id" type='hidden' value="{{user.id}}">
             <input name="action" type='hidden' value="join">

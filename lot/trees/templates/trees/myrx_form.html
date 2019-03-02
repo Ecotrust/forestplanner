@@ -9,6 +9,7 @@
 {% if form.errors %}<div> {{form.errors}} </div> {% endif %}
 
 <form id="featureform" action="{{action}}" method="post">
+  {% csrf_token %}
     <!-- <p class="instructions">Provide a name to identify your feature: </p> -->
 {% for field in form.visible_fields %}
     <div class="field{% if field.field.required %} required{% endif %}">

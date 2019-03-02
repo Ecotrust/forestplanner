@@ -22,14 +22,14 @@
 </style>
 
 {% if form.non_field_errors %}
-<div class="alert alert-error"> 
+<div class="alert alert-error">
     <!-- !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! -->
     {{form.non_field_errors}}
 </div>
 {% endif %}
 
 <form class="form-horizontal" id="scenario-form" method="POST">
-
+  {% csrf_token %}
     <ul class="nav nav-tabs" id="myTab">
         <li class="active">
 		<a href="#scenario-edit-spatial-content" id="scenario-edit-spatial-tab" data-toggle="tab"><strong>Step 1</strong> Spatial Constraints</a>
@@ -41,19 +41,19 @@
             <a href="#scenario-review-content" id="scenario-review-tab" data-toggle="tab"><strong>Step 3</strong> Review</a>
         </li>
     </ul>
-    
+
     <div class="tab-content">
 
         <div class="tab-pane active" id="scenario-edit-spatial-content">
 
             <p class="info text-info well well-small">
                 Turn on map layers to visualize potential management constraints.
-                <!-- 
-                <br><br> 
+                <!--
+                <br><br>
                 For example, knowing where streams and conservation
-                easements exist can help you decide on appropriate management activities for 
-                a given stand. 
-                <br><br> 
+                easements exist can help you decide on appropriate management activities for
+                a given stand.
+                <br><br>
                 Note: These spatial constraint maps are <em>not</em> legal boundaries and are presented
                 for reference only.
                 -->
@@ -62,24 +62,24 @@
             <div class="control-group" style="margin-left:40px;">
                 <div id="constraint-layers">
                     <label class="checkbox" style="vertical-align: baseline;">
-                    <input id="SpatialConstraints_input_Streams" name="Streams" type="checkbox" 
+                    <input id="SpatialConstraints_input_Streams" name="Streams" type="checkbox"
                     value="Streams" class="constraint-input"><p>Streams</p></label>
 
                     <label class="checkbox" style="vertical-align: baseline;">
-                    <input id="SpatialConstraints_input_Wetlands" name="Wetlands" type="checkbox" 
+                    <input id="SpatialConstraints_input_Wetlands" name="Wetlands" type="checkbox"
                     value="Wetlands" class="constraint-input"><p>Wetlands</p></label>
 
                     <label class="checkbox" style="vertical-align: baseline;">
-                    <input id="SpatialConstraints_input_Conservation Easements" name="Conservation Easements" type="checkbox" 
+                    <input id="SpatialConstraints_input_Conservation Easements" name="Conservation Easements" type="checkbox"
                     value="Conservation Easements" class="constraint-input"><p>Conservation Easements</p></label>
 
                     <!-- TODO -->
                     <label class="checkbox" style="vertical-align: baseline;">
-                    <input id="SpatialConstraints_input_Streams" name="Stream Buffers" type="checkbox" 
+                    <input id="SpatialConstraints_input_Streams" name="Stream Buffers" type="checkbox"
                     value="Stream Buffers" class="constraint-input"><p>Stream Buffers</p></label>
-                    
+
                     <label class="checkbox" style="vertical-align: baseline;">
-                    <input id="SpatialConstraints_input_SteepSlopes" name="Steep Slopes" type="checkbox" 
+                    <input id="SpatialConstraints_input_SteepSlopes" name="Steep Slopes" type="checkbox"
                     value="Steep Slopes" class="constraint-input"><p>Steep Slopes</p></label>
 
                 </div>
@@ -96,7 +96,7 @@
             $("input.constraint-input").change(function() {
                 //$("div.dataLayersDiv > input[name='" + this.name + "']").toggle();
                 var layers = map.getLayersByName(this.name);
-                if (layers.length) { 
+                if (layers.length) {
                     var layer = layers[0];
                     layer.setVisibility($(this).is(':checked'));
                 } else {
@@ -106,17 +106,17 @@
         </script>
 
         <div class="tab-pane" id="scenario-edit-rx-content">
-                
+
             <p class="info text-info well well-small">
                 Choose and apply management prescriptions to each stand on your property.
                 <!--
-                <br><br> 
+                <br><br>
                 For example, you may want to consder the effects of thinning every 20 years in certain areas.
-                By creating a prescription and applying to the desired stands, the Forest Planner can model 
+                By creating a prescription and applying to the desired stands, the Forest Planner can model
                 the future effects of growth and harvest yield.
-                <br><br> 
+                <br><br>
                 Note: If you <em>don't</em> apply a management prescription to a stand, it is assumed to be "Grow Only",
-                i.e. not actively managed. 
+                i.e. not actively managed.
                 -->
             </p>
             <div data-bind="visible: ! newRx() && selectedRx(), with: selectedRx">
@@ -134,7 +134,7 @@
                     <br data-bind="visible: ! $parent.decisionOutput()"/>
 					<div class="control-group" data-bind="css: { error: $parent.nameRequired() }">
                       <label><strong>Name</strong></label>
-					  <label class="help-block" data-bind="visible: $parent.nameRequired()">Please name your presription</label> 
+					  <label class="help-block" data-bind="visible: $parent.nameRequired()">Please name your presription</label>
                       <div>
                         <input type="text" class="input-xlarge" data-bind="value: name">
                         <!--<p class="help-block">Supporting help text</p>-->
@@ -164,9 +164,9 @@
             <div data-bind="visible: ! (newRx() || selectedRx())">
                 <table class="table table-condensed table-bordered">
                     <tbody data-bind="foreach: prescriptionList">
-                        <tr class="scenario-row" 
+                        <tr class="scenario-row"
                             data-bind="style: { 'background': color }, event: { mouseleave: function () { confirmDelete(false) } }">
-                            <td> 
+                            <td>
                                 <span data-bind="text: name">RX Name</span>
                                 <!-- <span data-bind="text: description">RX Description</span> -->
                                 <div class="pull-right btn-group" data-bind="visible: confirmDelete">
@@ -196,9 +196,9 @@
                        <i class="icon-plus-sign"></i>
                        Add New Prescription
                     </a>
-                
-                </div>            
-                <i class="icon-info-sign pull-left silvicultural-definition-icon" title="Silvicultural prescriptions are practices to apply to one or more stands across your property.  Choose any new prescriptions you are interested in and then apply them to each of the stand(s) you want to see managed that way.  You can apply different prescriptions to different stands within a management scenario."></i> 
+
+                </div>
+                <i class="icon-info-sign pull-left silvicultural-definition-icon" title="Silvicultural prescriptions are practices to apply to one or more stands across your property.  Choose any new prescriptions you are interested in and then apply them to each of the stand(s) you want to see managed that way.  You can apply different prescriptions to different stands within a management scenario."></i>
             </div>
             <div data-bind="visible: newRx">
                 <div id="decisiontree-loading">
@@ -229,20 +229,20 @@
                 <div class="well">
                     <ul class="unstyled">
                         <li><span data-bind="text: nWithRx"></span> stands with specified management prescriptions.</li>
-                        <li data-bind="visible: remainder() > 0"><span data-bind="text: remainder()"></span> remaining stands will 
+                        <li data-bind="visible: remainder() > 0"><span data-bind="text: remainder()"></span> remaining stands will
                             default to the "Grow Only" prescription</li>
                     </ul>
                 </div>
                 <div class="">
                     {% for hidden in form.hidden_fields %}
-                        {{hidden.errors}} 
+                        {{hidden.errors}}
                         {{hidden}}
                     {% endfor %}
 
                     {% for field in form.visible_fields %}
                     <div class="control-group">
-                        {{field.errors}} 
-                        <label for="{{field.auto_id}}"> 
+                        {{field.errors}}
+                        <label for="{{field.auto_id}}">
                             <strong>{{ field.label }}</strong><p class="muted">{{field.help_text}}</p></label>
                         <div>
                         {{ field }}

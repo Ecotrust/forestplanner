@@ -1,11 +1,12 @@
+{% load static %}
 <form class="form-search" id="geosearch-form" data-bind="submit: geoSearch">
     <div class="control-group" data-bind="css: { error: showError }">
-        <div class="controls"> 
+        <div class="controls">
             <span class="help-inline" data-bind="visible: showError">Please try again.</span>
-            <input type="text" id="input-geosearch" class="input-large search-query" 
+            <input type="text" id="input-geosearch" class="input-large search-query"
                    placeholder="search by placename" data-bind="value: searchTerm">
             <button class="btn btn-mini" type="submit">Search</button>
-            <img src="{{ MEDIA_URL }}img/ajax-loader.gif" data-bind="visible: showSpinner">
+            <img src="{% static 'img/ajax-loader.gif' %}" data-bind="visible: showSpinner">
         </div>
     </div>
 </form>

@@ -4,9 +4,9 @@
 {% block head %}
     <script src="http://geojs.googlecode.com/files/geo-0.1.2.pack.js" type="text/javascript" charset="utf-8"></script>
     <script src="http://earth-api-utility-library.googlecode.com/svn/trunk/extensions/dist/extensions.pack.js" type="text/javascript" charset="utf-8"></script>
-	<link rel="stylesheet" href="{{MEDIA_URL}}common/js/lib/qunit/qunit.css" type="text/css" media="screen">
-	<script type="text/javascript" src="{{MEDIA_URL}}common/js/lib/qunit/qunit.js"></script>
-	<script type="text/javascript" src="{{MEDIA_URL}}common/js/test/qunit_extensions.js"></script>
+	<link rel="stylesheet" href="{% static 'common/js/lib/qunit/qunit.css' %}" type="text/css" media="screen">
+	<script type="text/javascript" src="{% static 'common/js/lib/qunit/qunit.js' %}"></script>
+	<script type="text/javascript" src="{% static 'common/js/test/qunit_extensions.js' %}"></script>
     {% load compress %}
     {% compress js %}
     <script type="text/javascript" src="{% static "common/styles.js" %}"></script>

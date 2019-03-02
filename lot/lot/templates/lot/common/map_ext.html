@@ -123,7 +123,7 @@
 
                   <div class="row-fluid btn-bar clearfix">
 
-                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Your property boundary can include forest and non-forest areas.  If your property has non-contiguous parcels, you must either upload a pre-existing GIS file or draw each portion of your land as if it were a separate property."></i></span>
+                    <img src="{% static 'common/img/info-icon.png' %}" class="pull-right definition-icon" title="Your property boundary can include forest and non-forest areas.  If your property has non-contiguous parcels, you must either upload a pre-existing GIS file or draw each portion of your land as if it were a separate property."></i></span>
 
                     <a class="btn pull-right btn-success" href="#" data-bind="click: startAddDrawing, disable: preventUpdates">
                       <i class="icon-plus-sign icon-white"></i> Draw New Property
@@ -230,6 +230,7 @@
                       </ul>
                       <div class="well">
                       <form id="uploadForm" action="{% url 'trees-upload_stands' %}" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
                             <input type="hidden" name="MAX_FILE_SIZE" value="100000">
                             <p>
                                 <label for="upload-propertyname">
@@ -358,7 +359,7 @@
                             <i class="icon-repeat"></i> Refresh
                           </button>
 
-                          <span style="font-size: 20px;"><img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Scenarios are a unique combination of management prescriptions applied to the forested stands across your property.  Create each scenario to focus on one or more objectives or approaches to management (e.g., a scenario with long rotations, or a combination of thinning strategies)."></i></span>
+                          <span style="font-size: 20px;"><img src="{% static 'common/img/info-icon.png' %}" class="pull-right definition-icon" title="Scenarios are a unique combination of management prescriptions applied to the forested stands across your property.  Create each scenario to focus on one or more objectives or approaches to management (e.g., a scenario with long rotations, or a combination of thinning strategies)."></i></span>
 
                           <a href="#" class="btn btn-success pull-right" data-bind="click: newScenarioStart">
                             <i class="icon-plus-sign icon-white"></i> New Scenario
@@ -508,7 +509,7 @@
                         data-bind="attr: { href: '/trees/strata/' + app.selectedPropertyUID() }" >
                         <i class="icon-repeat"></i> Define Stand Groups</a>
                       -->
-                    <img src="/media/common/img/info-icon.png" class="pull-right definition-icon" title="Stands are the forested management units for your property.  Do not map non-forest areas within your property as stands: leave them blank.  Define each stand as an area you would manage in the same way.  Turn on layers in the map, such as steep slope areas or streams to help distinguish areas that should be managed differently.">
+                    <img src="{% static 'common/img/info-icon.png' %}" class="pull-right definition-icon" title="Stands are the forested management units for your property.  Do not map non-forest areas within your property as stands: leave them blank.  Define each stand as an area you would manage in the same way.  Turn on layers in the map, such as steep slope areas or streams to help distinguish areas that should be managed differently.">
                     <button class="btn btn-success pull-right" href="#" data-bind="click: addStandStart, visible: standList().length">
                       <i class="icon-plus-sign icon-white"></i> Draw a New Stand</button>
                   </div>

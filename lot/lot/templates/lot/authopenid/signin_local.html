@@ -28,28 +28,29 @@
              If you've set up Forest Planner account with a password, sign in here.
         </p>
     <form class="form-horizontal login" method="POST" action="/auth/login/">
-            
+        {% csrf_token %}
+
               <div class="control-group">
                 <label class="control-label" for="login">Login</label>
                 <div class="controls">
                     <input type="text" class="input-medium" placeholder="Username or e-mail" name="login" id="id_login">
                 </div>
               </div>
-            
+
               <div class="control-group">
                 <label class="control-label" for="password">Password</label>
                 <div class="controls">
                     <input type="password" class="input-medium" placeholder="Password" name="password" id="id_password">
                 </div>
               </div>
-            
+
               <div class="control-group">
                 <label class="control-label" for="remember">Remember Me</label>
                 <div class="controls">
                     <input type="checkbox" name="remember" id="id_remember">
                 </div>
               </div>
-            
+
           <div class="control-group">
             <div class="controls">
               <button type="submit" class="btn">Sign in</button>
@@ -57,9 +58,8 @@
           </div>
         </form>
         <div class="pull-right">
-        <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span> 
-        <a href="/auth/password/reset">Forget your info?</a> 
+        <a href="/auth/signup/">Need to register?</a> <span class="muted">|</span>
+        <a href="/auth/password/reset">Forget your info?</a>
         </div>
     </div>
 {% endblock %}
-

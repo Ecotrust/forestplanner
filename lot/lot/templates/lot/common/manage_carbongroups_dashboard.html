@@ -14,7 +14,7 @@
 <ul>
 {% for prop in group.get_properties %}
 {% if not prop in group.excluded_properties %}
-  <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='ignore'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Ignore"></form>
+  <li> <form method="POST" action="#">{% csrf_token %}{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='ignore'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Ignore"></form>
     <ul>
         <li>
           shared scenario: <strong>{{ prop.shared_scenario }}</strong>
@@ -39,7 +39,7 @@
     </ul>
   </li>
 {% else %}
-    <li> <form method="POST" action="#">{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='include'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Include"></form> </li>
+    <li> <form method="POST" action="#">{% csrf_token %}{{ prop.name }} (<em>{{ prop.user.username }}</em>) &nbsp;&nbsp;&nbsp;&nbsp;<input type='hidden' name='action' value='include'><input name='property_id' type='hidden' value='{{ prop.id }}'><input class='btn' type='submit' value="Include"></form> </li>
 {% endif %}
 {% endfor %}
 </ul>
@@ -66,6 +66,7 @@
   <li>
     {{ member.username }}
     <form action="#" method="POST">
+        {% csrf_token %}
         <input name="user_id" value={{ member.id }} type="hidden">
         Change status: <select name="membership_status" id="{{member.id}}_status">
             <option value='pending' selected=true>------</option>

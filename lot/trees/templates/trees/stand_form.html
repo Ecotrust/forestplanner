@@ -20,6 +20,7 @@
 {% endif %}
 
 <form id="featureform" action="{{action}}" method="post">
+  {% csrf_token %}
 {% if json %}
     <div style="display:none;" class="json">{{json}}</div>
 {% endif %}
