@@ -26,8 +26,8 @@ urlpatterns = [
         name="auth_profile"
     ),
     re_path('admin/', admin.site.urls),
-    re_path(r'$', map, name='map'),
-    re_path(r'', include('madrona.common.urls')),
+    re_path(r'^/?$', map, name='map'),
+    re_path(r'^', include('madrona.common.urls')),
 ]
 
 if settings.DEBUG:
