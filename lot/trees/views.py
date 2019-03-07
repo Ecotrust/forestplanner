@@ -277,7 +277,7 @@ def geojson_forestproperty(request, instance):
     '''
     Generic view to represent all Properties as GeoJSON
     '''
-    return JsonResponse(instance.feature_set_geojson(), status=200)
+    return JsonResponse(json.loads(instance.feature_set_geojson()), status=200, safe=False)
 
 
 def forestproperty_scenarios(request, instance):
