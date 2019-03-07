@@ -131,23 +131,28 @@ CACHES = {
 
 # ------------------------------------------------------------------------------
 # Celery
+# Newer versions of Celery (4.0+) do not use Kombu or transport
+# These settings are being re-written in accordance with:
+# https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
 # ------------------------------------------------------------------------------
-BROKER_URL = 'redis://localhost:6379/0'
-BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-CELERY_ALWAYS_EAGER = False
-CELERY_DISABLE_RATE_LIMITS = True
-from datetime import timedelta
-CELERYBEAT_SCHEDULE = {
-    'sweep_for_errors': {
-        'task': 'sweep_for_errors',
-        'schedule': timedelta(seconds=600),
-        'args': None
-    },
-}
-CELERY_TIMEZONE = 'UTC'
-import djcelery
-djcelery.setup_loader()
+# BROKER_URL = 'redis://localhost:6379/0'
+# CELERY_BROKER_URL = 'amqp://localhost'
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+# BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+# CELERY_ALWAYS_EAGER = False
+# CELERY_DISABLE_RATE_LIMITS = True
+# from datetime import timedelta
+# CELERYBEAT_SCHEDULE = {
+#     'sweep_for_errors': {
+#         'task': 'sweep_for_errors',
+#         'schedule': timedelta(seconds=600),
+#         'args': None
+#     },
+# }
+# CELERY_TIMEZONE = 'UTC'
+# import djcelery
+# djcelery.setup_loader()
 
 # ------------------------------------------------------------------------------
 # Allauth
