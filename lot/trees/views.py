@@ -176,7 +176,7 @@ def user_property_list(request):
             bb[2],
             bb[3]
         ],
-        "features": [fp.geojson() for fp in user_fps]
+        "features": [json.loads(fp.geojson()) for fp in user_fps]
     }
 
     return JsonResponse(gj, status=200)
