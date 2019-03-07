@@ -1,3 +1,3 @@
-from .celery import app as celery_app
+from .celery import app1 as celery_lot, app2 as celery_trees
 
-__all__ = ['celery_app']
+__all__ = ['celery_lot', 'celery_trees']
