@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
 
-        try: 
+        try:
             shp_path = args[0]
             assert os.path.exists(shp_path)
         except (AssertionError, IndexError):
@@ -25,11 +25,11 @@ class Command(BaseCommand):
 
         ds = DataSource(shp_path)
         layer = ds[0]
-        
-        if layer.srs.srid != settings.GEOMETRY_DB_SRID:
-            print "WARNING: Shapefile must be in Web Mercator. If it's not, the results will not be good."
 
-        try: 
+        if layer.srs.srid != settings.GEOMETRY_DB_SRID:
+            print("WARNING: Shapefile must be in Web Mercator. If it's not, the results will not be good.")
+
+        try:
             namefld = args[1]
         except (IndexError):
             raise CommandError("Specify shapefile and name field\ne.g. python manage.py import_demo_stands my_stands.shp NAMEFIELD \"My Property\" \nChoice are %s" % (', '.join(layer.fields),))
@@ -47,10 +47,10 @@ class Command(BaseCommand):
         except User.DoesNotExist:
             user = User.objects.create_user('demo', 'mperry@ecotrust.org', password='demo')
 
-        print "Importing stands..."
+        print("Importing stands...")
         field_mapping = {'name': namefld}
         s = StandImporter(user)
-        s.import_ogr(shp_path, field_mapping, new_property_name=property_name, pre_impute=True) 
+        s.import_ogr(shp_path, field_mapping, new_property_name=property_name, pre_impute=True)
 
         prop = ForestProperty.objects.filter(name=property_name).latest('date_modified')
-        print "%d stands imported from %s" % (len(prop.feature_set()), shp_path)
+        print("%d stands imported from %s" % (len(prop.feature_set()), shp_path))

@@ -499,7 +499,7 @@ def create_scenariostands(the_scenario):
     """ % {
         'orig_combo_sql': orig_combo_sql
     }
-    print sql
+    print(sql)
 
     # pre-clean
     ScenarioStand.objects.filter(scenario=the_scenario).delete()
@@ -512,7 +512,7 @@ def create_scenariostands(the_scenario):
 
     # loop through output identity polygons and
     # and create corresponding ScenarioStands
-    print "Looping through results..."
+    print("Looping through results...")
     for row in cursor.fetchall():
 
         # [x[0] for x in cursor.description]

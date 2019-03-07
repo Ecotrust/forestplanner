@@ -30,7 +30,7 @@ def cleanup():
     except DoesNotExist:
         owner2 = False
     try:
-        manager = User.objects.get(username='testManager') 
+        manager = User.objects.get(username='testManager')
     except DoesNotExist:
         manager = False
 
@@ -68,33 +68,33 @@ def cleanup():
 
 if __name__ == "__main__":
 
-    print ""
+    print("")
 
     #--------------------------------------------------------------------------#
-    print "Prepare test environment"
-    #--------------------------------------------------------------------------#  
+    print("Prepare test environment")
+    #--------------------------------------------------------------------------#
     cleanup()
 
     #--------------------------------------------------------------------------#
-    print "Create Users"
-    #--------------------------------------------------------------------------#  
+    print("Create Users")
+    #--------------------------------------------------------------------------#
     owner = User.objects.create_user('testOwner', 'testOwner@ecotrust.org', password='test')
     owner2 = User.objects.create_user('testOwner2', 'testOwner2@ecotrust.org', password='test')
-    manager = User.objects.create_user('testManager', 'testManager@ecotrust.org', password='test')  
+    manager = User.objects.create_user('testManager', 'testManager@ecotrust.org', password='test')
 
     #--------------------------------------------------------------------------#
-    print "Create Group"
+    print("Create Group")
     #--------------------------------------------------------------------------#
     testCarbonGroup, created = CarbonGroup.objects.get_or_create(user=manager, name='test', user=manager, description='Demo test group', private=False)
     testCarbonGroup2, created = CarbonGroup.objects.get_or_create(user=manager, name='test2', user=manager, description='Second demo test group', private=False)
     assert(len(CarbonGroup.objects.filter(user=manager))==2)
 
     #--------------------------------------------------------------------------#
-    # print "Assign Manager"  #Can this happen in "Create Group"?
+    # print("Assign Manager"  #Can this happen in "Create Group"?)
     #--------------------------------------------------------------------------#
 
     #--------------------------------------------------------------------------#
-    print "Associate User with Group"   
+    print("Associate User with Group")
     #--------------------------------------------------------------------------#
     # testCarbonGroup.members.add(owner)
     testCarbonGroup.request_membership(owner)
@@ -108,7 +108,7 @@ if __name__ == "__main__":
     assert(owner_memberships[0].status=='accepted')
 
     #--------------------------------------------------------------------------#
-    print "Decline a membership request"   
+    print("Decline a membership request")
     #--------------------------------------------------------------------------#
 
     owner2_memberships = [x for x in memberships if x.applicant == owner2]
@@ -118,18 +118,18 @@ if __name__ == "__main__":
     assert(owner2_memberships[0].reason=='You smell.')
 
     #--------------------------------------------------------------------------#
-    print "Load Property and Scenario"
+    print("Load Property and Scenario")
     #--------------------------------------------------------------------------#
     ### Load a json file?
     ownerProperty = ForestProperty.objects.create(
-        name='testProperty', 
-        user=owner, 
+        name='testProperty',
+        user=owner,
         geometry_final="MULTIPOLYGON (((-13649324.9062920007854700 5701104.7213275004178286, -13649329.6836060006171465 5700851.5236713001504540, -13649016.7695209998637438 5700846.7463570004329085, -13649324.9062920007854700 5701104.7213275004178286)))"
     )
 
     ownerScenario = Scenario.objects.create(
-        input_age_class=0, 
-        input_target_carbon=True, 
+        input_age_class=0,
+        input_target_carbon=True,
         name='Grow Only',
         # output_scheduler_results="{u'3135': 2, u'3134': 2, u'3137': 0, u'3136': 0, u'3133': 4, u'3139': 3, u'3138': 4}",
         output_scheduler_results="{}",
@@ -142,14 +142,14 @@ if __name__ == "__main__":
     )
 
     owner2Property = ForestProperty.objects.create(
-        name='testProperty', 
-        user=owner2, 
+        name='testProperty',
+        user=owner2,
         geometry_final="MULTIPOLYGON (((-13649324.9062920007854700 5701104.7213275004178286, -13649329.6836060006171465 5700851.5236713001504540, -13649016.7695209998637438 5700846.7463570004329085, -13649324.9062920007854700 5701104.7213275004178286)))"
     )
 
     owner2Scenario = Scenario.objects.create(
-        input_age_class=0, 
-        input_target_carbon=True, 
+        input_age_class=0,
+        input_target_carbon=True,
         name='Grow Only',
         # output_scheduler_results="{u'3135': 2, u'3134': 2, u'3137': 0, u'3136': 0, u'3133': 4, u'3139': 3, u'3138': 4}",
         output_scheduler_results="{}",
@@ -162,7 +162,7 @@ if __name__ == "__main__":
     )
 
     #--------------------------------------------------------------------------#
-    print "Update Property With Group and Shared Scenario"
+    print("Update Property With Group and Shared Scenario")
     #--------------------------------------------------------------------------#
 
     ownerProperty.share_with_group(testCarbonGroup, owner)
@@ -187,7 +187,7 @@ if __name__ == "__main__":
     assert(len(testCarbonGroup.get_properties()) == 2)
 
     #--------------------------------------------------------------------------#
-    print "Request group Users, Properties, Scenarios"
+    print("Request group Users, Properties, Scenarios")
     #--------------------------------------------------------------------------#
     ### Check for users, properties, scenarios
     #check that we see both accepted memberships
@@ -207,16 +207,16 @@ if __name__ == "__main__":
     assert(owner2Property in groupProperties)
     assert(testCarbonGroup.manager == manager)
     assert(testCarbonGroup.user == manager)
-    
+
     #--------------------------------------------------------------------------#
-    print "Manager ignores a property"
+    print("Manager ignores a property")
     #--------------------------------------------------------------------------#
     testCarbonGroup.reject_property(owner2Property)
     assert(len(testCarbonGroup.get_properties())==1)
     assert(testCarbonGroup.get_properties()[0] == ownerProperty)
 
     #--------------------------------------------------------------------------#
-    print "Manager changes membership status to denied"
+    print("Manager changes membership status to denied")
     #--------------------------------------------------------------------------#
     owner2_memberships = testCarbonGroup.membership_set.filter(applicant=owner2)
     assert(len(owner2_memberships) == 1)
@@ -233,7 +233,7 @@ if __name__ == "__main__":
     assert(len(testCarbonGroup.get_properties()) == 0)
 
     #--------------------------------------------------------------------------#
-    print "Clean up"
+    print("Clean up")
     #--------------------------------------------------------------------------#
     ### Remove everything added by the fixture.
     cleanup()

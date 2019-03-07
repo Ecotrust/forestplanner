@@ -26,7 +26,7 @@ def info(type, value, tb):
     import traceback
     import ipdb
     traceback.print_exception(type, value, tb)
-    print
+    print()
     ipdb.pm()
 sys.excepthook = info
 
@@ -95,7 +95,7 @@ if __name__ == "__main__":
     geoms, p1 = get_geoms()
 
     #--------------------------------------------------------------------------#
-    print "Create Property"
+    print("Create Property")
     #--------------------------------------------------------------------------#
     url = "/features/forestproperty/form/"
     response = client.post(
@@ -110,7 +110,7 @@ if __name__ == "__main__":
     prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 
     #--------------------------------------------------------------------------#
-    print "Create the stands"
+    print("Create the stands")
     #--------------------------------------------------------------------------#
     url = "/features/stand/form/"
     stands = []
@@ -121,7 +121,7 @@ if __name__ == "__main__":
         stands.append(Stand.objects.get(id=uid.split("_")[2]))
 
     #--------------------------------------------------------------------------#
-    print "Associate the stand with the property"
+    print("Associate the stand with the property")
     #--------------------------------------------------------------------------#
     url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
     response = client.post(url, {})
@@ -133,12 +133,12 @@ if __name__ == "__main__":
     steps = 0
     while prop1.stand_summary['with_terrain'] != NUM_STANDS:
         steps += 1
-        print "Waiting for terrain..."
-        print prop1.stand_summary
+        print("Waiting for terrain...")
+        print(prop1.stand_summary)
         time.sleep(1)
 
     #--------------------------------------------------------------------------#
-    print "Create a scenario. Try to run it (should return False; not enough info)"
+    print("Create a scenario. Try to run it (should return False; not enough info)")
     #--------------------------------------------------------------------------#
     assert(prop1.stand_summary['with_strata'] == 0)
     assert(prop1.stand_summary['with_condition'] == 0)
@@ -167,7 +167,7 @@ if __name__ == "__main__":
     assert(scenario1.needs_rerun is True)
 
     #--------------------------------------------------------------------------#
-    print "Change geometry"
+    print("Change geometry")
     #--------------------------------------------------------------------------#
     st = Stand.objects.get(id=stands[0].id)
     old = st.elevation
@@ -175,16 +175,16 @@ if __name__ == "__main__":
     st.save()
     assert(prop1.stand_summary['with_terrain'] == NUM_STANDS - 1)
     while prop1.stand_summary['with_terrain'] < NUM_STANDS:
-        print "Waiting for terrain..."
-        print prop1.stand_summary
+        print("Waiting for terrain...")
+        print(prop1.stand_summary)
         time.sleep(1)
 
     st = Stand.objects.get(id=stands[0].id)
-    print st.elevation, "vs old", old
+    print(st.elevation, "vs old", old)
     assert(st.elevation != old)
 
     #--------------------------------------------------------------------------#
-    print "Create the strata"
+    print("Create the strata")
     #--------------------------------------------------------------------------#
     old_count = Strata.objects.count()
     url = "/features/strata/form/"
@@ -204,7 +204,7 @@ if __name__ == "__main__":
     strata1 = Strata.objects.get(id=uid.split("_")[2])
 
     #--------------------------------------------------------------------------#
-    print "Associate the strata with the property"
+    print("Associate the strata with the property")
     #--------------------------------------------------------------------------#
     url = "/features/forestproperty/%s/add/%s" % (prop1.uid, strata1.uid)
     response = client.post(url, {})
@@ -212,36 +212,36 @@ if __name__ == "__main__":
     assert(prop1.stand_summary['with_strata'] == 0)
 
     #--------------------------------------------------------------------------#
-    print "Add stands to the strata"
+    print("Add stands to the strata")
     #--------------------------------------------------------------------------#
     url = "/features/strata/links/add-stands/%s/" % strata1.uid
     response = client.post(url,
                            {'stands': ",".join([x.uid for x in stands])}
                            )
     assert(response.status_code == 200)
-    print prop1.stand_summary
+    print(prop1.stand_summary)
     assert(prop1.stand_summary['with_strata'] == NUM_STANDS)
     while not scenario1.is_runnable:
-        print "Waiting for scenario to become runnable..."
+        print("Waiting for scenario to become runnable...")
         time.sleep(4)
 
-    print "We should be able to run() the scenario here."
+    print("We should be able to run() the scenario here.")
     assert(scenario1.is_runnable is True)
     scenario1.run()
     i = 0
     while scenario1.needs_rerun:
         if i > 5:
-            print "Waiting too damn long. What's up?"
-            ipdb.set_trace()
-        print "Waiting for %s results..." % scenario1.uid
+            print("Waiting too damn long. What's up?")
+            # ipdb.set_trace()
+        print("Waiting for %s results..." % scenario1.uid)
         # need to requery !
         scenario1 = Scenario.objects.get(id=scenario1.id)
         time.sleep(2)
         i += 1
-    print scenario1.uid, scenario1.output_scheduler_results
+    print(scenario1.uid, scenario1.output_scheduler_results)
 
     #--------------------------------------------------------------------------#
-    print "Delete a stand"
+    print("Delete a stand")
     #--------------------------------------------------------------------------#
     url = "/features/generic-links/links/delete/%s/" % stands[0].uid
     response = client.delete(url)
@@ -250,29 +250,29 @@ if __name__ == "__main__":
     scenario1 = Scenario.objects.get(id=scenario1.id)
     assert(scenario1.is_runnable is True)
     assert(scenario1.needs_rerun is True)
-    print scenario1.uid
+    print(scenario1.uid)
     scenario1.run()
     while scenario1.needs_rerun:
-        print "Waiting for scheduler results..."
+        print("Waiting for scheduler results...")
         scenario1 = Scenario.objects.get(id=scenario1.id)
         time.sleep(2)
 
     #--------------------------------------------------------------------------#
-    print "Change geometry"
+    print("Change geometry")
     #--------------------------------------------------------------------------#
     st = Stand.objects.get(id=stands[1].id)
     old = st.elevation
     st.geometry_final = geoms[1].buffer(20).wkt
     st.save()  # WARNING: This may set the scenario to stale but a previously-started scenario.run() could clobber it
-    print prop1.stand_summary
+    print(prop1.stand_summary)
     while prop1.stand_summary['with_terrain'] < NUM_STANDS - 1:
-        print "Waiting for terrain..."
-        print prop1.stand_summary
+        print("Waiting for terrain...")
+        print(prop1.stand_summary)
         time.sleep(1)
 
     while prop1.stand_summary['with_condition'] < NUM_STANDS - 1:
-        print "Waiting for nearest..."
-        print prop1.stand_summary
+        print("Waiting for nearest...")
+        print(prop1.stand_summary)
         time.sleep(1)
 
     st = Stand.objects.get(id=stands[1].id)
@@ -282,13 +282,13 @@ if __name__ == "__main__":
     assert(scenario1.needs_rerun)
     scenario1.run()
     while scenario1.needs_rerun:
-        print "Waiting for scenario results..."
+        print("Waiting for scenario results...")
         # need to requery !
         scenario1 = Scenario.objects.get(id=scenario1.id)
         time.sleep(2)
 
     #--------------------------------------------------------------------------#
-    print "Create another stand"
+    print("Create another stand")
     #--------------------------------------------------------------------------#
     url = "/features/stand/form/"
     response = client.post(url, {'name': 'test stand', 'geometry_orig': geoms[0].wkt})
@@ -297,14 +297,14 @@ if __name__ == "__main__":
     stands[0] = Stand.objects.get(id=uid.split("_")[2])
 
     #--------------------------------------------------------------------------#
-    print "Associate with property"
+    print("Associate with property")
     #--------------------------------------------------------------------------#
     url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
     response = client.post(url, {})
     assert(response.status_code == 200)
 
     #--------------------------------------------------------------------------#
-    print "Add to strata"
+    print("Add to strata")
     #--------------------------------------------------------------------------#
     url = "/features/strata/links/add-stands/%s/" % strata1.uid
     response = client.post(
@@ -314,8 +314,8 @@ if __name__ == "__main__":
     assert(response.status_code == 200)
 
     while prop1.stand_summary['with_condition'] < NUM_STANDS:
-        print "Waiting for nearest..."
-        print prop1.stand_summary
+        print("Waiting for nearest...")
+        print(prop1.stand_summary)
         time.sleep(2.5)
 
     assert(prop1.stand_summary['total'] == NUM_STANDS)
@@ -330,26 +330,26 @@ if __name__ == "__main__":
     i = 0
     while scenario1.needs_rerun:
         if i > 5:
-            print "Waiting too long."
-        print "Waiting for scenario results..."
+            print("Waiting too long.")
+        print("Waiting for scenario results...")
         # need to requery !
         scenario1 = Scenario.objects.get(id=scenario1.id)
         time.sleep(2)
         i += 1
 
     #--------------------------------------------------------------------------#
-    print "Edit the strata, should force re-calc of nearest neighbor"
+    print("Edit the strata, should force re-calc of nearest neighbor")
     #--------------------------------------------------------------------------#
     strata1.search_tpa += 50
     strata1.save()
     assert(prop1.stand_summary['with_condition'] == 0)
     while prop1.stand_summary['with_condition'] < NUM_STANDS:
-        print "Waiting for nearest..."
-        print prop1.stand_summary
+        print("Waiting for nearest...")
+        print(prop1.stand_summary)
         time.sleep(3)
 
     #--------------------------------------------------------------------------#
-    print "Delete the Strata"
+    print("Delete the Strata")
     #--------------------------------------------------------------------------#
     url = "/features/generic-links/links/delete/%s/" % strata1.uid
     response = client.delete(url)
@@ -359,7 +359,7 @@ if __name__ == "__main__":
     assert(scenario1.is_runnable is False)
     assert(prop1.stand_summary['with_condition'] == 0)
 
-    print
-    print "SUCCESS!"
-    print
-    print "... ignore the following GEOS error ... "
+    print("")
+    print("SUCCESS!")
+    print("")
+    print("... ignore the following GEOS error ... ")

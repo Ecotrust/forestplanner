@@ -358,7 +358,7 @@ def geosearch(request):
                 d = distance.distance(loc, centerloc).miles
                 if d < max_dist:
                     # TODO maybe compile these and return the closest to map center?
-                    # print g, p, loc
+                    # print(g, p, loc)
                     place = p
                     lat = loc[0]
                     lon = loc[1]

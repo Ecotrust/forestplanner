@@ -12,9 +12,7 @@ from trees.utils import terrain_zonal
 
 if __name__ == "__main__":
     shp = os.path.join(thisdir, 'data', 'test_shapes2.shp')
-    ds = DataSource(shp) 
+    ds = DataSource(shp)
     lyr = ds[0]
     for feat in lyr:
-    	print feat['id'], terrain_zonal(feat.geom)
-
-
+    	print(feat['id'], terrain_zonal(feat.geom))

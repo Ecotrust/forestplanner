@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def violation(self, msg):
         self.errors += 1
-        print msg
+        print(msg)
 
     def handle(self, *args, **options):
 
@@ -77,7 +77,7 @@ class Command(BaseCommand):
                 try:
                     Rx.objects.get(internal_name=rx_name)
                     rxs_covered.append(rx_name)
-                    #print rx_name, "covered"
+                    #print(rx_name, "covered")
                 except Rx.DoesNotExist:
                     self.violation("Variant %s decision_tree_xml references Rx with internal_name %s that does't exist" % (variant, rx_name))
 
@@ -106,9 +106,9 @@ class Command(BaseCommand):
         # in FVSVariant, Rx and IdbSummary/TreeliveSummary/FVSAggregate
         #
 
-        print
-        print "check_integrity summary: %d violations that should be addressed" % self.errors
-        print
-        print " For further discussion on integrity_errors, see:"
-        print " https://github.com/Ecotrust/land_owner_tools/wiki/IDB-data-processing#potential-check_integrity-errors"
-        print
+        print("")
+        print("check_integrity summary: %d violations that should be addressed" % self.errors)
+        print("")
+        print(" For further discussion on integrity_errors, see:")
+        print(" https://github.com/Ecotrust/land_owner_tools/wiki/IDB-data-processing#potential-check_integrity-errors")
+        print("")

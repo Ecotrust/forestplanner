@@ -18,7 +18,7 @@ from shapely import wkt
 
 cntr = GEOSGeometry('SRID=3857;POINT(-13842500.0 5280100.0)')
 
-NUM_STANDS = 10 * 10 
+NUM_STANDS = 10 * 10
 geoms = []
 for i in range(int(NUM_STANDS**0.5)):
     cntr.set_y(cntr.y - 150)
@@ -75,7 +75,7 @@ except Scenario.DoesNotExist:
 
 ##### Create the property
 url = "/features/forestproperty/form/"
-print url
+print(url)
 response = client.post(url,
                        {
                        'name': 'test property',
@@ -88,7 +88,7 @@ prop1 = ForestProperty.objects.get(id=uid.split("_")[2])
 
 #### Create the stands
 url = "/features/stand/form/"
-print url
+print(url)
 stands = []
 for g in geoms:
     response = client.post(url, {'name': 'test stand', 'geometry_orig': g.wkt})
@@ -103,7 +103,7 @@ for stand in stands:
 
 #### Associate the stand with the property
 url = "/features/forestproperty/%s/add/%s" % (prop1.uid, ','.join([x.uid for x in stands]))
-print url
+print(url)
 response = client.post(url, {})
 assert(response.status_code == 200)
 
@@ -134,11 +134,11 @@ if SpatialConstraint.objects.all().count() < 1:
 #### Create a scenario.
 
 url = "/features/scenario/form/"
-print url
+print(url)
 rxs = {}
 for stand in stands:
     rxs[stand.id] = rx0.id
-print rxs
+print(rxs)
 
 response = client.post(url, {
     'name': "My Scenario",
@@ -150,16 +150,16 @@ response = client.post(url, {
     'input_rxs': json.dumps(rxs),
 })
 #import ipdb; ipdb.set_trace()
-print response.content
+print(response.content)
 assert(response.status_code == 201)
 uid = json.loads(response.content)['X-Madrona-Select']
 scenario1 = Scenario.objects.get(id=uid.split("_")[2])
 
 
-print "Creating identity"
+print("Creating identity")
 from trees.utils import create_scenariostands
 import time
 x = time.time()
 scenariostands = create_scenariostands(scenario1)
-print time.time() - x
-print "%d scenariostands created" % scenariostands.count()
+print(time.time() - x)
+print("%d scenariostands created" % scenariostands.count())

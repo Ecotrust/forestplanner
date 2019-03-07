@@ -542,13 +542,13 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
         #cadidates are cond_ids with all (species + dbh range) represented
         candidates = pd.concat(sdfs, axis=1, join="inner")
         if verbose:
-            print len(candidates)
+            print(len(candidates))
         if len(candidates) < min_candidates:
             aa = sdfs.pop()  # remove the one with smallest number
             if verbose:
-                print "Popping", [x.replace("BAA_", "")
+                print("Popping", [x.replace("BAA_", "")
                                   for x in aa.columns.tolist()
-                                  if x.startswith('BAA_')][0]
+                                  if x.startswith('BAA_')][0])
 
             continue
         else:
@@ -660,7 +660,7 @@ def get_nearest_neighbors(site_cond, stand_list, variant, weight_dict=None, k=10
         ba_dict[key] = est_ba
 
     if verbose:
-        print "----- estimated total basal area", total_ba
+        print("----- estimated total basal area", total_ba)
 
     # query for candidates
     candidates = get_candidates(stand_list, variant, verbose=verbose)
@@ -842,13 +842,13 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         ps.append(pseries)
 
     if verbose:
-        print "".join(["%-32s" % ("| " + x) for x in headers[::4]])
-        print " "*8 + "".join(["%-32s" % ("| " + x) for x in headers[1::4]])
-        print " "*16 + "".join(["%-32s" % ("| " + x) for x in headers[2::4]])
-        print " "*24 + "".join(["%-32s" % ("| " + x) for x in headers[3::4]])
-        print "|-------" * (len(headers) + 1)
+        print("".join(["%-32s" % ("| " + x) for x in headers[::4]]))
+        print(" "*8 + "".join(["%-32s" % ("| " + x) for x in headers[1::4]]))
+        print(" "*16 + "".join(["%-32s" % ("| " + x) for x in headers[2::4]]))
+        print(" "*24 + "".join(["%-32s" % ("| " + x) for x in headers[3::4]]))
+        print("|-------" * (len(headers) + 1))
 
         for td in table_data:
-            print "".join(["%8s" % str(x) for x in td[0]]), td[1]
+            print("".join(["%8s" % str(x) for x in td[0]]), td[1])
 
     return ps, num_candidates

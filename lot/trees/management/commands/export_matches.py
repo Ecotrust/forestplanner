@@ -9,7 +9,7 @@ class Command(BaseCommand):
 
     def violation(self, msg):
         self.errors += 1
-        print msg
+        print(msg)
 
     def handle(self, *args, **options):
 
@@ -54,7 +54,7 @@ class Command(BaseCommand):
                             'certainty': match['_certainty']
                         })
                 except:
-                    print 'FAIL'
+                    print('FAIL')
             else:
                 miss_count += 1
                 if not strata:
@@ -71,6 +71,6 @@ class Command(BaseCommand):
             for match_dict in match_dicts:
                 writer.writerow(match_dict)
 
-        print 'Misses: %s' % str(miss_count)
-        print 'Strata Misses: %s' % str(no_strata_count)
-        print 'Output can be found at %s' % out_location
+        print('Misses: %s' % str(miss_count))
+        print('Strata Misses: %s' % str(no_strata_count))
+        print('Output can be found at %s' % out_location)

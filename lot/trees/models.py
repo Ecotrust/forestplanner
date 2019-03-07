@@ -119,7 +119,7 @@ class DirtyFieldsMixin(object):
     def get_dirty_fields(self):
         new_state = self._as_dict()
         if self._original_state:
-            return dict([(key, value) for key, value in self._original_state.iteritems()
+            return dict([(key, value) for key, value in self._original_state.items()
                          if value != new_state[key]])
         else:
             return {}

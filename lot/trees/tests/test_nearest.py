@@ -25,13 +25,13 @@ if __name__ == "__main__":
                     match = True
                     break
             if not match:
-                print "\tskipping", json_path
-                continue    
+                print("\tskipping", json_path)
+                continue
 
-        print json_path
+        print(json_path)
 
         txt = open(json_path, 'r').read()
-        print txt
+        print(txt)
         # {
         #   "tree_list": [
         #     ["Douglas-fir", 2, 6, 100],
@@ -62,36 +62,36 @@ if __name__ == "__main__":
             k=20,
             verbose=True)
 
-        print ".... Total Candidates: ", num_candidates
-        print
-        print "----- Top candidate"
+        print(".... Total Candidates: ", num_candidates)
+        print("")
+        print("----- Top candidate")
         pseries = ps[0]
-        #print pseries
+        #print(pseries)
         cond_id = pseries.name
-        print "ID::", cond_id
-        print "Certainty::", pseries['_certainty']
-        print "NN Distance::", pseries['_kdtree_distance']
-        print "NONSPEC_TPA::", pseries['NONSPEC_TPA']
-        print "NONSPEC_BA::", pseries['NONSPEC_BA']
-        print "PLOT_BA::", pseries['PLOT_BA']
-        print "TOTAL_TPA::", pseries['TOTAL_TPA']
-        print "TOTAL_PCTBA::", pseries['TOTAL_PCTBA']
+        print("ID::", cond_id)
+        print("Certainty::", pseries['_certainty'])
+        print("NN Distance::", pseries['_kdtree_distance'])
+        print("NONSPEC_TPA::", pseries['NONSPEC_TPA'])
+        print("NONSPEC_BA::", pseries['NONSPEC_BA'])
+        print("PLOT_BA::", pseries['PLOT_BA'])
+        print("TOTAL_TPA::", pseries['TOTAL_TPA'])
+        print("TOTAL_PCTBA::", pseries['TOTAL_PCTBA'])
 
         idb = IdbSummary.objects.get(cond_id=cond_id)
-        print "calc_aspect::", idb.calc_aspect
-        print "elev_ft::", idb.elev_ft
-        print "latitude_fuzz::", idb.latitude_fuzz
-        print "longitude_fuzz::", idb.longitude_fuzz
-        print "calc_slope::", idb.calc_slope
-        print "stand_age::", idb.stand_age
-        print 
+        print("calc_aspect::", idb.calc_aspect)
+        print("elev_ft::", idb.elev_ft)
+        print("latitude_fuzz::", idb.latitude_fuzz)
+        print("longitude_fuzz::", idb.longitude_fuzz)
+        print("calc_slope::", idb.calc_slope)
+        print("stand_age::", idb.stand_age)
+        print("")
 
         orig_treelist = data['tree_list'][:]
         matched_treelist = dict([((x[0], x[1], x[2]), 0) for x in orig_treelist])
 
 
         for tree in TreeliveSummary.objects.filter(cond_id=pseries.name):
-            # print tree
+            # print(tree)
             # import ipdb; ipdb.set_trace()
             speced = False
             for tle in orig_treelist:
@@ -102,7 +102,7 @@ if __name__ == "__main__":
                     speced = True
                     break
             if not speced:
-                matched_treelist[("" + tree.fia_forest_type_name, 
+                matched_treelist[("" + tree.fia_forest_type_name,
                     tree.calc_dbh_class, tree.calc_dbh_class)] = tree.sumoftpa
 
         total_expected = 0
@@ -119,9 +119,9 @@ if __name__ == "__main__":
             if expected == 0:
                 startd = ''
             else:
-                startd = '%s to' % int(k[1]) 
-            print "%20s" % k[0], "%5s" % startd,  "%2s" % int(k[2]), '" ', "%3s" % int(v), 'tpa', "(expected %3s)" % expected
+                startd = '%s to' % int(k[1])
+            print("%20s" % k[0], "%5s" % startd,  "%2s" % int(k[2]), '" ', "%3s" % int(v), 'tpa', "(expected %3s)" % expected)
 
-        # print orig_treedict
-        print "-" * 80
-        print ' ' * 31 , "%4s" % int(total_observed), 'tpa', "(expected %4s)" % total_expected 
+        # print(orig_treedict)
+        print("-" * 80)
+        print(' ' * 31 , "%4s" % int(total_observed), 'tpa', "(expected %4s)" % total_expected )
