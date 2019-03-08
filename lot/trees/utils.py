@@ -1,6 +1,6 @@
 from trees.models import Stand, ForestProperty, IdbSummary, Strata, FVSAggregate
 from django.contrib.gis.gdal import DataSource
-from django.contrib.gis.gdal.error import OGRIndexError
+from django.contrib.gis.gdal.error import GDALException
 from django.conf import settings
 from madrona.common.utils import get_logger
 from django.db.models import Min, Max, Avg
@@ -117,7 +117,7 @@ class StandImporter:
                         try:
                             stand.__dict__[fname] = feature.get(
                                 field_mapping[fname])
-                        except OGRIndexError:
+                        except GDALException as e:
                             pass
 
                 # If user inventory case, check each feature which must contain integer condids
