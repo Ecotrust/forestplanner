@@ -10,7 +10,7 @@ DATABASES = {
 }
 
 # This should be a local folder created for use with the install_media command
-MEDIA_ROOT = '/usr/local/apps/murdock/mediaroot/'
+MEDIA_ROOT = '/usr/local/apps/forestplanner/mediaroot/'
 MEDIA_URL = '/media/'
 STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/'
@@ -29,6 +29,9 @@ logging.getLogger('django.db.backends').setLevel(logging.ERROR)
 import os
 LOG_FILE = os.path.join(os.path.dirname(__file__),'..','trees.log')
 
-ALLOWED_HOSTS = ['.forestplanner.ecotrust.org']
+ALLOWED_HOSTS = [
+  '.forestplanner.ecotrust.org',
+  'localhost',
+]
 
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
