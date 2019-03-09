@@ -63,6 +63,11 @@ except Exception as e:
         "%s%s" % (os.path.join(ROOT_DIR, 'media'), os.sep),
     ]
 
+STATICFILES_DIRS += [
+    "%s%s" % (os.path.join(ROOT_DIR, 'lot', 'lot', 'static'), os.sep),
+    # "%s%s" % (os.path.join(ROOT_DIR, 'lot', 'trees', 'static'), os.sep),
+]
+
 MEDIA_ROOT = "%s%s" % (os.path.join(ROOT_DIR, 'lot', 'media'), os.sep)
 STATIC_ROOT = "%s%s" % (os.path.join(ROOT_DIR, 'static'), os.sep)
 MEDIA_URL = '/media/'

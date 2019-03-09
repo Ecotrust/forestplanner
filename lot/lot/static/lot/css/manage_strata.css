@@ -1,0 +1,149 @@
+h1 {
+  margin-bottom: 10px;
+}
+
+#chart-container {
+  height: 300px;
+  width: 100%;
+}
+  .stand-table tr.active,
+  .table tbody tr:hover td, .table tbody tr:hover th {
+    background-color: inherit;
+
+  }
+
+          .stand-table th {
+              width: 10%;
+          }
+              .stand-table .species-col{
+                  width: 25%;
+              }
+              .stand-table .tpa-col{
+                  width: 10%;
+              }
+  .stand-table tr.active {
+      font-weight: bold;
+  }
+  #map {
+      height: 500px;
+  }
+  .map_wrapper {
+    position: relative;
+  }
+  .map_wrapper .btn {
+    position: absolute;
+    left: 15px;
+    bottom: 15px;
+    z-index: 2000;
+  }
+
+  .strata-list {
+    z-index: 2000;
+    margin-top: 10px;
+    height: 400px;
+    overflow-y: auto;
+
+  }
+    .strata-list .stratum-box {
+      border: 1px solid #aaa;
+      // padding: 5px 5% 0;
+      padding: 0 5% 0;
+      position: relative;
+            width: 86%;
+
+      /*border-radius: 10px;
+      margin: 10px;
+      width: 40%;
+      /*height: 100px;
+      float: left;
+      z-index: 2000;*/
+
+    }
+        .stratum-box + .stratum-box       { border-top: none; }
+        .strata-list .stratum-box:hover   { border: 1px solid #444; }
+        .stratum-box + .stratum-box:hover { margin-top: -1px; }
+  .stratum-box .alert-error{
+    background-color: #f2f2f2;
+    border: 1px solid #DD5240;
+    color: #DD5240;
+    border-radius: 3px;
+    padding: 2px 5px 5px 6px;
+    max-width: 60%;
+    text-align: center;
+  }
+    .strata-list .stratum-box h4 {
+             /*
+             max-width: 65%;
+        font-size: 16px;
+        margin-left: -5px;
+        margin-bottom: 10px;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+            */
+    }
+    .strata-list .stratum-box .row-fluid{
+        font-size: 80%;
+    }
+    .strata-list .stratum-box p { /* no more */
+      line-height: 5px;
+                  margin-bottom: 5px;
+    }
+    .strata-list .stratum-box .dl-horizontal dd,
+      .strata-list .stratum-box .dl-horizontal dt{
+          float: left;
+          width: auto;
+          line-height: 1.4;
+          margin-left: 5px;
+    }
+      .strata-list .show-trees:hover {
+          cursor: pointer;
+      }
+    .strata-list .stratum-box .dl-horizontal dt{
+        clear: both;
+          margin-left: 0;
+    }
+    .strata-list .stratum-box.ui-draggable-dragging .btn {
+      opacity: 0;
+    }
+    .strata-list .veg-type-btns {
+      opacity: 0;
+      position: absolute;
+      right: 10px;
+      top: 10px;
+    }
+              .strata-list .veg-type-btns p{
+                  font-size: 0.9em;
+                  margin-bottom: 8px;
+                  text-align: center;
+              }
+    .strata-list .stratum-box:hover .veg-type-btns {
+      opacity: .8;
+    }
+    .strata-list .stratum-box dl {
+      //margin-top: -6px;
+                  margin-bottom: 13px;
+    }
+    .strata-list .stratum-box .tree-list li {
+      /* margin-left: 5px; */
+    }
+    .dl-horizontal dt {
+      text-align: left;
+    }
+              .dd-treelist {
+                  clear: both;
+              }
+    .span6 .alert-error{
+      margin-bottom: 10px;
+      padding: 5px;
+    }
+      .progress+.help-inline, .next-button-wrap{
+          margin-top: -1em;
+          margin-bottom: 2em;
+      }
+.scenario-row dl {
+  margin-top: 0px;
+}
+    #filter-stand-group {
+        width: 40%;
+    }
