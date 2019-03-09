@@ -627,7 +627,7 @@ def fake_scenariostands(the_scenario):
 
 
 def terrain_zonal(geom):
-    from rasterstats import raster_stats
+    from rasterstats import zonal_stats as raster_stats
     from django.conf import settings
     import math
     import os

@@ -1,14 +1,21 @@
-import celery
-from celery import shared_task
+from __future__ import absolute_import, unicode_literals
+from celery import shared_task, Celery
 from django.core.cache import cache
+from django.conf import settings
 import json
 import datetime
 import random
+import os
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lot.settings')
+
+celery = Celery('tasks', broker=settings.CELERY_BROKER_URL)
 
 DELAY = 0.5
 
-@shared_task(name="trees.tasks.impute_rasters")
+@shared_task
 def impute_rasters(stand_id, savetime):
+    print("IMPUTE RASTERS CELERY!")
     # import here to avoid circular dependencies
     from trees.utils import terrain_zonal
     from trees.models import Stand
@@ -49,7 +56,7 @@ def impute_rasters(stand_id, savetime):
     return res
 
 
-@shared_task(max_retries=5, default_retry_delay=DELAY)  # retry up to 5 times, 5 seconds apart
+@shared_task
 def impute_nearest_neighbor(stand_results, savetime):
     # import here to avoid circular dependencies
     from trees.models import Stand, IdbSummary
@@ -125,7 +132,7 @@ def impute_nearest_neighbor(stand_results, savetime):
     return {'stand_id': stand_id, 'cond_id': cond_id}
 
 
-@shared_task(max_retries=5, default_retry_delay=DELAY)
+@shared_task
 def schedule_harvest(scenario_id):
     # import here to avoid circular dependencies
     from trees.models import Scenario, ScenarioNotRunnable

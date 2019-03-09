@@ -135,13 +135,13 @@ CACHES = {
 # These settings are being re-written in accordance with:
 # https://simpleisbetterthancomplex.com/tutorial/2017/08/20/how-to-use-celery-with-django.html
 # ------------------------------------------------------------------------------
-# BROKER_URL = 'redis://localhost:6379/0'
+BROKER_URL = 'redis://localhost:6379/0'
 # CELERY_BROKER_URL = 'amqp://localhost'
-CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://localhost:6379'
 # BROKER_TRANSPORT_OPTIONS = {'visibility_timeout': 43200}  # 12 hours
-# CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
-# CELERY_ALWAYS_EAGER = False
-# CELERY_DISABLE_RATE_LIMITS = True
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ALWAYS_EAGER = False
+CELERY_DISABLE_RATE_LIMITS = True
 # from datetime import timedelta
 # CELERYBEAT_SCHEDULE = {
 #     'sweep_for_errors': {
@@ -150,9 +150,17 @@ CELERY_BROKER_URL = 'redis://localhost:6379/0'
 #         'args': None
 #     },
 # }
-# CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'UTC'
 # import djcelery
 # djcelery.setup_loader()
+
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TASK_SERIALIZER = 'json'
+
+INSTALLED_APPS += (
+    'celery',
+)
 
 # ------------------------------------------------------------------------------
 # Allauth
