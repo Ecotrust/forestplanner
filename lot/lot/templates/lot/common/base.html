@@ -8,6 +8,9 @@
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <script type="text/javascript" src="{% static 'support/bootstrap/js/jquery.js' %}"></script>
+    <script type="text/javascript" src="{% static 'common/js/django_csrf.js' %}"></script>
+
     <script type="text/javascript">
       var rv = -1;
       if (navigator.appName == 'Microsoft Internet Explorer')
@@ -180,7 +183,7 @@
     <div class="scripts-gathered-to-clean-up-firebug">
 
         <!-- Scripts -->
-        <script type="text/javascript" src="{% static 'support/bootstrap/js/jquery.js' %}"></script>
+
     	{% if user.is_authenticated %}
         <script type="text/javascript" src="{% static 'support/bootstrap.2-32.min.js' %}"></script>
         <script type="text/javascript" src="{% static 'common/js/json2.js' %}"></script> <!-- for the benefit of older IEs -->
