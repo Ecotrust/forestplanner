@@ -1372,12 +1372,13 @@
                 //get the actual available species
                 $.getJSON("/trees/variant/" + app.strata.property_id + "/species_sizecls.json", function(data) {
                     //should probably be done server side.
-                    data.sort(function(a, b) {
+                    classes = data.classes;
+                    classes.sort(function(a, b) {
                         if (a.species < b.species) return -1;
                         if (a.species > b.species) return 1;
                         return 0;
                     });
-                    $.each(data, function(i, tree) {
+                    $.each(classes, function(i, tree) {
                         var sizes = $.map(tree.size_classes, function(a, i) {
                             //return [[a.min, a.max]];
                             return a.min.toString() + '" to ' + a.max.toString() + '"';

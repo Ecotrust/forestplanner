@@ -85,7 +85,7 @@ def list_species_sizecls(request, property_uid):
             'size_classes': relevant_classes,
         })
 
-    return JsonResponse(json.dumps(res), status=200)
+    return JsonResponse({'classes':res})
 
 
 def manage_stands(request):
@@ -507,14 +507,14 @@ def add_stands_to_strata(request, instance):
         stand.strata = instance
         stand.save()
     instance.save()
-    return HttpResponse("Stands %r added to %s" % (stands, instance.uid), mimetype='text/html', status=200)
+    return HttpResponse("Stands %r added to %s" % (stands, instance.uid), content_type='text/html', status=200)
 
 
 def forestproperty_strata_list(request, instance):
     from trees.models import Strata
     slist = sorted(instance.feature_set(feature_classes=[Strata]),
                    key=lambda x: x.date_created, reverse=False)
-    return HttpResponse(json.dumps([x._dict for x in slist]), mimetype="text/javascript")
+    return HttpResponse(json.dumps([x._dict for x in slist]), content_type="text/javascript")
 
 
 def run_scenario(request, instance):
@@ -548,7 +548,7 @@ def run_scenario(request, instance):
         except ScenarioNotRunnable:
             status = "Not-runnable"
 
-    return HttpResponse(status, mimetype="text/javascript")
+    return HttpResponse(status, content_type="text/javascript")
 
 
 def forestproperty_status(request, instance):
@@ -573,7 +573,7 @@ def variant_decision_xml(request, variant_id):
         return HttpResponse('<?xml version="1.0"?>' +
                             '<error>Variant %s does not exist</error>' % variant_id, status=404)
 
-    return HttpResponse(variant.decision_tree_xml, mimetype='application/xml', status=200)
+    return HttpResponse(variant.decision_tree_xml, content_type='application/xml', status=200)
 
 
 def forestproperty_myrx(request, instance):
@@ -597,12 +597,12 @@ def forestproperty_myrx(request, instance):
 
 def scenario_cash_flow(request, instance):
     data = instance.output_cash_metrics
-    return HttpResponse(json.dumps(data), mimetype="text/javascript")
+    return HttpResponse(json.dumps(data), content_type="text/javascript")
 
 
 def scenario_revenue(request, instance):
     data = instance.output_revenue_metrics
-    return HttpResponse(json.dumps(data), mimetype="text/javascript")
+    return HttpResponse(json.dumps(data), content_type="text/javascript")
 
 
 def carbongroup_dashboard(request, instance):
