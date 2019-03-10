@@ -258,6 +258,15 @@ try:
 except NameError as e:
     MIDDLEWARE = MIDDLEWARE_CLASSES
 
+# ------------------------------------------------------------------------------
+# Py3/Dj2 Overhaul Workarounds
+# ------------------------------------------------------------------------------
+
+# In 2015 we made better NN matching, but required DB migration and an extra script (load_new_conditions.py) to be run.
+# To migrate our new code to the servers, which never got this update, we need
+# to work around this code.
+USE_FIA_NN_MATCHING = True
+
 
 # ------------------------------------------------------------------------------
 # Local settings

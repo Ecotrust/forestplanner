@@ -5,6 +5,7 @@ import math
 import pandas as pd
 from django.db import connection
 from django.core.cache import cache
+from django.conf import settings
 from madrona.common.utils import get_logger
 logger = get_logger()
 
@@ -485,23 +486,41 @@ def get_candidates(stand_list, variant, min_candidates=1, verbose=False):
     # "sc": "Species Class"?
     for sc in stand_list:
 
-        sql = """
-            SELECT
-                treelive_summary.COND_ID,
-                SUM(SumOfTPA) as "TPA__",
-                SUM(SumOfBA_FT2_AC) as "BAA__",
-                SUM(pct_of_totalba) as "PCTBA__",
-                AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
-                AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
-            FROM treelive_summary, trees_conditionvariantlookup as cvl
-            WHERE fvs_spp_code = %(fvsspecies)s
-            AND variant = %(variant_code)s
-            AND cvl.cond_id = treelive_summary.cond_id  --join
-            AND cvl.variant_code = %(variant_code)s
-            AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
-            AND pct_of_totalba is not null
-            GROUP BY treelive_summary.COND_ID
-        """
+        if settings.USE_FIA_NN_MATCHING:
+            sql = """
+                SELECT
+                    treelive_summary.COND_ID,
+                    SUM(SumOfTPA) as "TPA__",
+                    SUM(SumOfBA_FT2_AC) as "BAA__",
+                    SUM(pct_of_totalba) as "PCTBA__",
+                    AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
+                    AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
+                FROM treelive_summary, trees_conditionvariantlookup as cvl
+                WHERE fia_forest_type_name = %(species)s
+                AND cvl.cond_id = treelive_summary.cond_id  --join
+                AND cvl.variant_code = %(variant_code)s
+                AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
+                AND pct_of_totalba is not null
+                GROUP BY treelive_summary.COND_ID
+            """
+        else:
+            sql = """
+                SELECT
+                    treelive_summary.COND_ID,
+                    SUM(SumOfTPA) as "TPA__",
+                    SUM(SumOfBA_FT2_AC) as "BAA__",
+                    SUM(pct_of_totalba) as "PCTBA__",
+                    AVG(COUNT_SPECIESSIZECLASSES) as "PLOTCLASSCOUNT__",
+                    AVG(TOTAL_BA_FT2_AC) as "PLOTBA__"
+                FROM treelive_summary, trees_conditionvariantlookup as cvl
+                WHERE fvs_spp_code = %(fvsspecies)s
+                AND variant = %(variant_code)s
+                AND cvl.cond_id = treelive_summary.cond_id  --join
+                AND cvl.variant_code = %(variant_code)s
+                AND calc_dbh_class >= %(lowsize)s AND calc_dbh_class < %(highsize)s
+                AND pct_of_totalba is not null
+                GROUP BY treelive_summary.COND_ID
+            """
         inputs = {
             'species': sc[0],
             'fvsspecies': common_species_lookup[sc[0]][variant],

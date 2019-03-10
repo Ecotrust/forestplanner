@@ -1693,7 +1693,7 @@ class Strata(DirtyFieldsMixin, Feature):
         except:
             raise ValidationError("Cannot look up variant from stand list.property")
 
-        from plots import get_candidates, NearestNeighborError
+        from .plots import get_candidates, NearestNeighborError
         min_candidates = 1
         try:
             candidates = get_candidates(self.stand_list['classes'], variant.code, min_candidates)

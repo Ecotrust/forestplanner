@@ -1,5 +1,6 @@
 import os, sys
-os.environ['DJANGO_SETTINGS_MODULE']='settings'
+# os.environ['DJANGO_SETTINGS_MODULE']='settings'
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lot.settings')
 # import django
 # import settings
 from trees.plots import *
@@ -11,11 +12,13 @@ import gc
 
 # NEW_CVLU_FILE="../docs/New_NN/COND_VAR_Lookup.csv"
 # NEW_TLSUM_FILE="../docs/New_NN/TREELIVE_SUMMARY_2015-11-19.csv"
-NEW_TLSUM_FILE="../docs/New_NN/TREELIVE_SUMMARY_2015-12-15.csv"
+# NEW_TLSUM_FILE="../docs/New_NN/TREELIVE_SUMMARY_2015-12-15.csv"
+NEW_TLSUM_FILE="../docs/TREELIVE_SUMMARY_2015-12-15.csv"
 
-# print 'please truncate the ConditionVariantLookup table using a database tool now. Press c to continue'
+
+# print('please truncate the ConditionVariantLookup table using a database tool now. Press c to continue')
 # ipdb.set_trace()
-# print "Importing new condition variant lookup table"
+# print("Importing new condition variant lookup table")
 # with open(NEW_CVLU_FILE, 'rb') as cvlu:
 #     reader = csv.DictReader(cvlu)
 #     for row in reader:
@@ -25,11 +28,11 @@ NEW_TLSUM_FILE="../docs/New_NN/TREELIVE_SUMMARY_2015-12-15.csv"
 #                 variant_code=row['FVSVARIANT']
 #             )
 #         except:
-#             print "ERROR: On row - %s" % str(row)
+#             print("ERROR: On row - %s" % str(row))
 
-# print 'please truncate the TreeliveSummary table using a database tool now. Press c to continue'
+# print('please truncate the TreeliveSummary table using a database tool now. Press c to continue')
 # ipdb.set_trace()
-print 'Importing new treelive summary file'
+print('Importing new treelive summary file')
 done = False
 terminated = False
 error = False
@@ -38,7 +41,7 @@ if len(sys.argv) >= 2 and sys.argv[1].isdigit():
 else:
     # import ipdb
     # ipdb.set_trace()
-    print "ERROR: Incorrect arguments passed: %s" % str(sys.argv)
+    print("ERROR: Incorrect arguments passed: %s" % str(sys.argv))
     # return(False, False, True, index)
     sys.exit(1)
     # start_index = 3770000
@@ -75,15 +78,15 @@ def import_csv(start_index):
                     if index > 0 and index % 10000 == 0:
                         loop_end = datetime.datetime.now()
                         loop_time = loop_end - start
-                        print "%s records done. Rate: %s/second -- %s" % (str(index), str(10000/loop_time.total_seconds()), loop_end.timetz().isoformat())
+                        print("%s records done. Rate: %s/second -- %s" % (str(index), str(10000/loop_time.total_seconds()), loop_end.timetz().isoformat()))
                         gc.collect()
-                        # print str(loop_time.total_seconds())
+                        # print(str(loop_time.total_seconds()))
                         if loop_time.total_seconds() > 90:
-                            # print 'Too slow! Halting for restart at row %s, %s' % (str(index), loop_end.timetz().isoformat())
-                            # print '%s' % str(index)
+                            # print('Too slow! Halting for restart at row %s, %s' % (str(index), loop_end.timetz().isoformat()))
+                            # print('%s' % str(index))
                             gc.collect()
                             # break
-                            # print "%s" % str(index)
+                            # print("%s" % str(index))
                             # sys.exit(0)
 
                             return (False, True, False, index)
@@ -96,7 +99,7 @@ def import_csv(start_index):
                     #     break
                 except:
                     # import ipdb; ipdb.set_trace()
-                    print "ERROR: On row - %s" % str(row)
+                    print("ERROR: On row - %s" % str(row))
                     return (False, False, True, index)
     return (True, False, False, index)
 
@@ -104,11 +107,11 @@ while not done and not terminated and not error:
     (done, terminated, error, start_index) = import_csv(start_index)
 
 if terminated:
-    print "%s" % start_index
+    print("%s" % start_index)
 if done:
-    # print 'Complete! %s records inserted.' % str(start_index)
-    print 'done'
+    # print('Complete! %s records inserted.' % str(start_index))
+    print('done')
 if error:
     sys.exit(1)
-#     print "ERROR: Near %s" % str(start_index)
+#     print("ERROR: Near %s" % str(start_index))
 sys.exit(0)

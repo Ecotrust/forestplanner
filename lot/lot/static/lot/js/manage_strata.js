@@ -669,7 +669,13 @@ function stratumViewModel (options) {
                 })
             });
 
-            $.ajax({
+            $.ajax(
+              {
+                beforeSend: function(xhr, settings) {
+                    if (!csrfSafeMethod(settings.type) && !this.crossDomain) {
+                        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+                    }
+                },
                 url: url,
                 type: "post",
                 traditional: true,
