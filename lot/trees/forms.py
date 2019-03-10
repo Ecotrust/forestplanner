@@ -28,10 +28,10 @@ class HiddenJSONInput(forms.HiddenInput):
     instead of
         <input value="{u'key': value}">
     """
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         if value is None:
             value = ''
-        final_attrs = self.build_attrs(attrs, type=self.input_type, name=name)
+        final_attrs = self.build_attrs(attrs, extra_attrs={'type':self.input_type, 'name':name})
         # Only add the 'value' attribute if a value is non-empty.
         if value != '':
             final_attrs['value'] = json.dumps(value)

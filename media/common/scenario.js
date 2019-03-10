@@ -524,7 +524,7 @@ function scenarioViewModel(options) {
                 dataType: "JSON",
                 success: function(res) {
                     app.scenarios.data = {
-                        myrxList: res
+                        myrxList: res.myrxs
                     };
                 }
             })

@@ -584,7 +584,7 @@ def forestproperty_myrx(request, instance):
     from trees.models import MyRx
     instance.check_or_create_default_myrxs()
     myrxs = instance.feature_set(feature_classes=[MyRx, ])
-    res_json = json.dumps([x._dict for x in myrxs])
+    res_json = { 'myrxs': [x._dict for x in myrxs] }
     return JsonResponse(res_json, status=200)
 
 
