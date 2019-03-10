@@ -254,8 +254,8 @@ function scenarioViewModel(options) {
 
     self.loadScenarios = function(property) {
         self.property = property;
-		
-		// we need a property. 
+
+		// we need a property.
 		// Better if we showed something about scenarios but for now, this is better than a dead app!
 		if (self.property === undefined) {
 			alert('Please create a property first!');
@@ -268,7 +268,7 @@ function scenarioViewModel(options) {
 
         map.zoomToExtent(property.bbox());
         var process = function(data) {
-            self.scenarioList(data);
+            self.scenarioList(data.scenario_list);
             if (data[0]) {
                 self.selectedFeatures.push(data[0]); // select the first one
             }
@@ -469,7 +469,7 @@ function scenarioViewModel(options) {
                 success: function(data, textStatus, jqXHR) {
                     // Setup the form
                     $('#scenario-form-container').html(data);
-                    
+
                     $('#scenario-form-container').find('button.cancel').click(function(e) {
                         e.preventDefault();
                         self.showScenarioList(true);
@@ -500,7 +500,7 @@ function scenarioViewModel(options) {
                                 $('#scenario-form-saving').remove();
                                 if (jqXHR.status >= 400 && jqXHR.status < 500) {
                                     // if there is a 4xx error
-                                    // assume madrona returns a form with error msgs 
+                                    // assume madrona returns a form with error msgs
                                     data = $(jqXHR.responseText);
                                     errors = data.find(".errorlist > *");
                                     errorHtml = "";
@@ -517,7 +517,7 @@ function scenarioViewModel(options) {
                     alert(errorThrown);
                 }
             }),
-            // #3 - load the list of myrxs 
+            // #3 - load the list of myrxs
             $.ajax({
                 url: '/features/forestproperty/links/property-myrx-json/' + app.properties.viewModel.selectedProperty().uid() + '/',
                 type: "GET",
@@ -551,7 +551,7 @@ function scenarioViewModel(options) {
                      myrx = app.scenarios.formViewModel.prescriptionList()[i];
                      myrx_colors[myrx.rx_id] = myrx.color;
                 }
-                // Apply to correct color for each polygon and add to inputRxs 
+                // Apply to correct color for each polygon and add to inputRxs
                 for (var i = app.rx_stand_layer.features.length - 1; i >= 0; i--) {
                     stand_feature = app.rx_stand_layer.features[i];
                     stand_id = stand_feature.data.uid.split("_")[2];

@@ -296,7 +296,7 @@ def forestproperty_scenarios(request, instance):
         # this should never happen
         return JsonResponse("[]", status=200)
 
-    res_json = json.dumps([x.property_level_dict for x in scenarios])
+    res_json = {'scenario_list': [x.property_level_dict for x in scenarios]}
     return JsonResponse(res_json, status=200)
 
 
