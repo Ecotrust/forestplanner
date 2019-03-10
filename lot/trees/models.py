@@ -565,7 +565,7 @@ class Scenario(Feature):
                 annual_revenue[year] += revenue
 
         def ordered_revenue(x, years):
-            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            sorted_x = sorted(x.items(), key=operator.itemgetter(0))
             return [rev for year, rev in sorted_x if year in years]
 
         rev = dict(annual_revenue)
@@ -733,7 +733,7 @@ class Scenario(Feature):
 
         # Costs
         def ordered_costs(x):
-            sorted_x = sorted(x.iteritems(), key=operator.itemgetter(0))
+            sorted_x = sorted(x.items(), key=operator.itemgetter(0))
             return [z[1] for z in sorted_x]
 
         data = {}
