@@ -844,7 +844,9 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         if np.isinf(t[1]):
             continue
         try:
-            pseries = plotsummaries.irow(t[0])
+            # Pandas deprecated irow in favor of iloc instead:
+            # http://pandas.pydata.org/pandas-docs/version/0.19.2/generated/pandas.DataFrame.irow.html
+            pseries = plotsummaries.iloc[t[0]]
             if verbose:
                 sp = [round(x, 2) for x in list(scaled_points[t[0]])]
                 table_data.append((sp, 'scaled/weighted candidate %s' % pseries.name))
@@ -854,9 +856,12 @@ def nearest_plots(input_params, plotsummaries, weight_dict=None, k=10, verbose=T
         # certainty of 0 -> distance is furthest possible
         # certainty of 1 -> the point matches exactly
         # sqrt of ratio taken to exagerate small diffs
-        pseries = pseries.set_value('_kdtree_distance', t[1])
-        pseries = pseries.set_value(
-            '_certainty', 1.0 - ((t[1] / max_dist) ** 0.5))
+
+        # set_value is also deprecated in pandas
+        # pseries = pseries.set_value('_kdtree_distance', t[1])
+        pseries.loc['_kdtree_distance'] = t[1]
+        # pseries = pseries.set_value('_certainty', 1.0 - ((t[1] / max_dist) ** 0.5))
+        pseries.loc['_certainty'] = 1.0 - ((t[1] / max_dist) ** 0.5)
 
         ps.append(pseries)
 
