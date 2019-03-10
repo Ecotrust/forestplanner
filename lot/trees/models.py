@@ -6,6 +6,7 @@ import datetime
 import math
 import random
 import time
+import six
 import operator
 import numpy as np
 import pandas as pd
@@ -17,6 +18,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.postgres.fields import JSONField
 from json import dumps, loads
+from json.decoder import JSONDecodeError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.conf import settings
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
@@ -97,6 +99,15 @@ def handle_cost_error(e, cost_args, standid):
         with open(costlog_path, 'w') as fh:
             fh.write(message)
 
+
+def parse_json_field(value):
+    if isinstance(value, six.string_types):
+        try:
+            return loads(value)
+        except JSONDecodeError as e:
+            return {}
+    else:
+        return value
 
 class DirtyFieldsMixin(object):
     """
@@ -738,13 +749,14 @@ class Scenario(Feature):
 
     @property
     def property_level_dict(self):
+        input_rxs = parse_json_field(self.input_rxs)
         d = {
             'pk': self.pk,
             'model': 'trees.scenario',
             'fields': {
                 'description': self.description,
                 'input_property': self.input_property.pk,
-                'input_rxs': self.input_rxs,
+                'input_rxs': input_rxs,
                 'input_target_boardfeet': self.input_target_boardfeet,
                 'input_age_class': self.input_age_class,
                 'input_target_carbon': self.input_target_carbon,
@@ -761,10 +773,11 @@ class Scenario(Feature):
 
     @property
     def needs_rerun(self):
-        if not self.output_scheduler_results:
+        output_scheduler_results = parse_json_field(self.output_scheduler_results)
+        if not output_scheduler_results:
             return True
 
-        results = self.output_scheduler_results
+        results = output_scheduler_results
 
         # make sure we have exactly the same IDs
         sstand_ids = [int(x.id) for x in self.scenariostand_set.all()]
@@ -795,7 +808,8 @@ class Scenario(Feature):
 
     @property
     def is_runnable(self):
-        stands_w_rx = [x for x in self.input_rxs.keys()]
+        input_rxs = parse_json_field(self.input_rxs)
+        stands_w_rx = [x for x in input_rxs.keys()]
         for stand in self.stand_set():
             if not stand.cond_id:
                 logger.debug("%s not runnable; %s does not have .cond_id" % (self.uid, stand.uid))
@@ -877,7 +891,7 @@ class Scenario(Feature):
         """
         this shows up in the form as form.non_field_errors
         """
-        inrx = self.input_rxs
+        inrx = parse_json_field(self.input_rxs)
 
         if not inrx:
             inrx = {}
@@ -911,9 +925,10 @@ class Scenario(Feature):
         if it's missing any stand keys,
             add them with the default rx_id for the variant
         """
+        input_rxs = parse_json_field(self.input_rxs)
         default_rx = self.input_property.variant.default_rx
-        new_input_rxs = self.input_rxs.copy()
-        stands_w_rx = [x for x in self.input_rxs.keys()]
+        new_input_rxs = input_rxs.copy()
+        stands_w_rx = [x for x in input_rxs.keys()]
         for stand in self.stand_set():
             if not (stand.id in stands_w_rx or str(stand.id) in stands_w_rx):
                 #scenario not runnable; stand not in self.input_rxs
@@ -1678,17 +1693,19 @@ class Strata(DirtyFieldsMixin, Feature):
         if skip_validation:
             return True
 
-        if 'classes' not in self.stand_list or 'property' not in self.stand_list:
+        stand_list = parse_json_field(self.stand_list)
+
+        if 'classes' not in stand_list or 'property' not in stand_list:
             raise ValidationError("Not a valid stand list object. " +
                                   "Looking for \"{'property': 'trees_forestproperty_<id>', " +
                                   "classes': [(species, min_dbh, max_dbh, tpa),...]}\".")
 
-        for cls in self.stand_list['classes']:
+        for cls in stand_list['classes']:
             if len(cls) != 4:
                 raise ValidationError("Each stand list class needs 4 entries: species, min_dbh, max_dbh, tpa")
 
         try:
-            fp = get_feature_by_uid(self.stand_list['property'])
+            fp = get_feature_by_uid(stand_list['property'])
             variant = fp.variant
         except:
             raise ValidationError("Cannot look up variant from stand list.property")
@@ -1696,7 +1713,7 @@ class Strata(DirtyFieldsMixin, Feature):
         from .plots import get_candidates, NearestNeighborError
         min_candidates = 1
         try:
-            candidates = get_candidates(self.stand_list['classes'], variant.code, min_candidates)
+            candidates = get_candidates(stand_list['classes'], variant.code, min_candidates)
         except NearestNeighborError:
             raise ValidationError("Stand list did not return enough candidate plots.")
 

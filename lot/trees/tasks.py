@@ -142,7 +142,7 @@ def schedule_harvest(scenario_id):
     try:
         scenario_qs = Scenario.objects.filter(id=scenario_id)
         scenario = scenario_qs[0]
-    except:
+    except Exception as e:
         raise schedule_harvest.retry()
 
     current_task.update_state(state='PROGRESS', meta={'current': 50})
