@@ -874,7 +874,13 @@ class Scenario(Feature):
             stand_dict['properties']['results'] = stand_results
             stand_data.append(stand_dict)
 
-        gj = dumps(stand_data, indent=2)
+        try:
+            gj = dumps(stand_data, indent=2)
+        except TypeError as e:
+            # json.dumps does not handle DECIMAL values, which may be present in stand_data
+            # simplejson.dumps handles it natively.
+            import simplejson
+            gj = simplejson.dumps(stand_data, indent=2)
         # madrona doesn't expect an array/list of features here
         # we have to hack it by removing the []
         if gj.startswith("["):
