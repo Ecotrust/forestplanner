@@ -35,3 +35,5 @@ geofu/*
 .ackrc
 docs/*
 docs/output/*
+apps/*
+lot/lot/fixtures/downloads/

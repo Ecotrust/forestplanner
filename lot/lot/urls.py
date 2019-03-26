@@ -10,7 +10,7 @@ from trees.views import map
 
 urlpatterns = [
     # '',
-
+    path('discovery/', include('discovery.urls')),
     re_path(r'^trees/', include('trees.urls')),
     # Looser pattern matching for workspace username (as opposed to \w+)
     # Already in madrona 4.2dev+ but just in case we're still running <=4.1
