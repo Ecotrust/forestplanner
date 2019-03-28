@@ -38,3 +38,4 @@ docs/output/*
 apps/*
 lot/lot/fixtures/downloads/
 lot/discovery/local_settings.py
+static/*
