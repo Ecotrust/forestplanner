@@ -14,11 +14,13 @@
 
     {% block styles %}
       <link rel="stylesheet" href="{% static 'discovery/css/discovery.css' %}">
+      <link rel="stylesheet" href="{% static 'discovery/dependencies/bootstrap-4.3.1-dist/css/bootstrap.min.css' %}">
     {% endblock styles %}
 
     {% block extra_styles %}{% endblock extra_styles %}
 
     {% block head_scripts %}
+      <script type="text/javascript" src="{% static 'discovery/dependencies/bootstrap-4.3.1-dist/js/bootstrap.min.js' %A}"></script>
       <!-- <script type="text/javascript" src="{% static 'common/js/django_csrf.js' %}"></script> -->
       <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
       <!--[if lt IE 9]>
@@ -29,99 +31,20 @@
 
   <body class="{% block bodyclass %}{% endblock %}">
 
-    {% block header %}
-      
-    {% endblock header %}
+    <header>
+      {% block header %}{% endblock header %}
+    </header>
 
-    <div class="container-fluid">
-
+    <main>
       {% block pre-content %}{% endblock pre-content %}
       {% block content %}{% endblock content %}
       {% block post-content %}{% endblock post-content %}
+    </main>
 
-        <div class="modal fade" id="about-dialog" style="display:none">
-            <div class="modal-header">
-                <a class="close" data-dismiss="modal">×</a>
-                <!-- TODO: Change copy -->
-                <h3>About the Forest Planner</h3>
-            </div>
-            <div class="modal-body">
-                <p>
-                    Ecotrust has created the Forest Planner to give all Oregon and Washington
-                    land managers forest management scenario planning capacity. You will be able to <em>visualize
-                    alternative management scenarios</em> on your lands and receive immediate feedback on
-                    <em>how decisions might pay off</em> in terms of timber harvests and financial returns, as well as
-                    <em>public benefits</em> like carbon storage and ecosystem services.
-                </p>
+    <footer>
+      {% block footer %}{% endblock footer %}
+    </footer>
 
-                <hr>
-
-                <h3>Using the Forest Planner Tool</h3>
-                <ul>
-                    <li>Identify their properties on an interactive map </li>
-                    <li>Use preloaded Forest Inventory Analysis data (FIA) or upload their own cruise data.</li>
-                    <li>Designate forest management areas or stands</li>
-                    <li>Define management prescriptions</li>
-                    <li>Specify timber and carbon market prices</li>
-                </ul>
-
-                <h3>Scenario Planning Tool Outputs:</h3>
-                <ul>
-                    <li>Graphs of timber volume and financial returns generated over time</li>
-                    <li>Optimized harvest schedule</li>
-                    <li>Maps of standing timber volume, species and age class over time</li>
-                    <li>Visualize potential to realize carbon credits and ecosystem-based incentives over time</li>
-                </ul>
-
-                <h3>Additional Features</h3>
-                <ul>
-                    <li>Secure and confidentially store and manage data and scenario runs</li>
-                    <li>Share scenarios between collaborators to explore collaborative decision making among forest landowners and managers</li>
-                </ul>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn" data-dismiss="modal">Continue</a>
-            </div>
-        </div>
-
-        <div class="modal fade" id="help-dialog" style="display:none">
-            <div class="modal-header">
-                <a class="close" data-dismiss="modal">×</a>
-                <h3>Help</h3>
-            </div>
-            <div class="modal-body">
-                <p>You can't parse [X]HTML with regex. Because HTML can't be parsed by regex. Regex is not a tool that can be used to correctly parse HTML. As I have answered in HTML-and-regex questions here so many times before, the use of regex will not allow you to consume HTML. Regular expressions are a tool that is insufficiently sophisticated to understand the constructs employed by HTML. HTML is not a regular language and hence cannot be parsed by regular expressions. Regex queries are not equipped to break down HTML into its meaningful parts. so many times but it is not getting to me. Even enhanced irregular regular expressions as used by Perl are not up to the task of parsing HTML. You will never make me crack. HTML is a language of sufficient complexity that it cannot be parsed by regular expressions. Even Jon Skeet cannot parse HTML using regular expressions. Every time you attempt to parse HTML with regular expressions, the unholy child weeps the blood of virgins, and Russian hackers pwn your webapp. Parsing HTML with regex summons tainted souls into the realm of the living. HTML and regex go together like love, marriage, and ritual infanticide. The &lt;center&gt; cannot hold it is too late. The force of regex and HTML together in the same conceptual space will destroy your mind like so much watery putty. If you parse HTML with regex you are giving in to Them and their blasphemous ways which doom us all to inhuman toil for the One whose Name cannot be expressed in the Basic Multilingual Plane, he comes. HTML-plus-regexp will liquify the n​erves of the sentient whilst you observe, your psyche withering in the onslaught of horror. Rege̿̔̉x-based HTML parsers are the cancer that is killing StackOverflow <i>it is too late it is too late we cannot be saved</i> the trangression of a chi͡ld ensures regex will consume all living tissue (except for HTML which it cannot, as previously prophesied) <i>dear lord help us how can anyone survive this scourge</i> using regex to parse HTML has doomed humanity to an eternity of dread torture and security holes <i>using rege</i>x as a tool to process HTML establishes a brea<i>ch between this world</i> and the dread realm of c͒ͪo͛ͫrrupt entities (like SGML entities, but <i>more corrupt) a mere glimp</i>se of the world of reg​<strong>ex parsers for HTML will ins</strong>​tantly transport a p<i>rogrammer's consciousness i</i>nto a w<i>orl</i>d of ceaseless screaming, he comes<span style="text-decoration: line-through;">>, the pestilent sl</span>ithy regex-infection wil​<strong>l devour your HT</strong>​ML parser, application and existence for all time like Visual Basic only worse <i>he comes he com</i>es <i>do not fi</i>​ght h<strong>e com̡e̶s, ̕h̵i</strong>​s un̨ho͞ly radiańcé de<i>stro҉ying all enli̍̈́̂̈́ghtenment, HTML tags <strong>lea͠ki̧n͘g fr̶ǫm ̡yo​͟ur eye͢s̸ ̛l̕ik͏e liq</strong>​uid p</i>ain, the song of re̸gular exp​re<span style="text-decoration: line-through;">>ssion parsing </span>will exti<i>​nguish the voices of mor​<strong>tal man from the sp</strong>​here I can see it can you see ̲͚̖͔̙î̩́t̲͎̩̱͔́̋̀ it is beautiful t​</i>he f<code>inal snuf</code>fing o<i>f the lie​<strong>s of Man ALL IS LOŚ͖̩͇̗̪̏̈́T A</strong></i><strong>LL I​S L</strong>OST th<i>e pon̷y he come</i>s he c̶̮om<span style="text-decoration: line-through;">>es he co</span><strong><span style="text-decoration: line-through;">>me</span>s t<i>he</i> ich​</strong>or permeat<i>es al</i>l MY FAC<i>E MY FACE ᵒh god n<strong>o NO NOO̼</strong></i><strong>O​O N</strong>Θ stop t<i>he an​*̶͑̾̾​̅ͫ͏̙̤g͇̫͛͆̾ͫ̑͆l͖͉̗̩̳̟̍ͫͥͨ</i>e̠̅s<code> ͎a̧͈͖r̽̾̈́͒͑e</code> n<strong>​ot rè̑ͧ̌aͨl̘̝̙̃ͤ͂̾̆ ZA̡͊͠͝LGΌ ISͮ̂҉̯͈͕̹̘̱ T</strong>O͇̹̺ͅƝ̴ȳ̳ TH̘<strong>Ë͖́̉ ͠P̯͍̭O̚​N̐Y̡ H̸̡̪̯ͨ͊̽̅̾̎Ȩ̬̩̾͛ͪ̈́̀́͘ ̶̧̨̱̹̭̯ͧ̾ͬC̷̙̲̝͖ͭ̏ͥͮ͟Oͮ͏̮̪̝͍M̲̖͊̒ͪͩͬ̚̚͜Ȇ̴̟̟͙̞ͩ͌͝</strong>S̨̥̫͎̭ͯ̿̔̀ͅ</p>
-            </div>
-            <div class="modal-footer">
-                <a href="#" class="btn" data-dismiss="modal">Continue</a>
-            </div>
-        </div>
-
-    </div> <!-- /.container-fluid -->
-
-    <div class="scripts-gathered-to-clean-up-firebug">
-
-        <!-- Scripts -->
-
-    	{% if user.is_authenticated %}
-        <!-- TODO: do we need these scripts and/or can we update versions -->
-        <script type="text/javascript" src="{% static 'support/bootstrap.2-32.min.js' %}"></script>
-        <script type="text/javascript" src="{% static 'common/js/json2.js' %}"></script> <!-- for the benefit of older IEs -->
-        <script type="text/javascript" src="{% static 'common/js/jquery.form.js' %}"></script>
-        <script type="text/javascript" src="{% static 'common/js/knockout-2.1.0.js' %}"></script>
-        <script type="text/javascript" src="{% static 'common/js/knockout.mapping-latest.js' %}"></script>
-    	{% endif %}
-
-        {% block scripts %}{% endblock scripts %}
-
-        <script>
-            $('#navlink-about, .home-about').click( function() {
-                $('#about-dialog').modal('show');
-            });
-            $('#navlink-help').click( function() {
-                $('#help-dialog').modal('show');
-            });
-        </script>
-    </div> <!-- script cleanup -->
+    {% block foot_scripts %}{% endblock foot_scripts %}
   </body>
 </html>
