@@ -27,6 +27,14 @@ def reset(request):
     context = {}
     return render(request, 'discovery/account/reset.html', context)
 
+# account password reset and username recovery page
+def properties(request):
+    context = {
+        # Todo: add username condition and value
+        'username': 'username',
+    }
+    return render(request, 'discovery/properties.html', context)
+
 # overwrite static content in lot app about.html
 def about(request):
     context = {}
