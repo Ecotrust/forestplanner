@@ -1,0 +1,32 @@
+{% extends 'discovery/common/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1>Welcome back</h1>
+    </div>
+    <div class="row">
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Choose a username">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Choose a password">
+            <small id="passwordHelp" class="form-text text-muted">Specs on what is required for password</small>
+          </div>
+          <button type="submit" class="btn btn-primary">Get Started</button>
+          <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="">Terms of Service</a>.</small>
+        </form>
+    </div>
+    <div class="row mt-">
+        <a href="/discovery/account/login/">Log in to an existing account</a>
+    </div>
+</div>
+{% endblock content %}

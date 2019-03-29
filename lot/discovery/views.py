@@ -3,8 +3,6 @@ from django.shortcuts import render
 # Create your views here.
 from django.http import HttpResponse
 
-# Will probably need to edit this view
-# TODO: need to discuss what to do about static content in base.html; see see template comments
 def index(request):
     context = {}
     return render(request, 'discovery/common/base.html', context)
@@ -13,6 +11,21 @@ def index(request):
 def landing(request):
     context = {}
     return render(request, 'discovery/landing.html', context)
+
+# account login page
+def login(request):
+    context = {}
+    return render(request, 'discovery/account/login.html', context)
+
+# account register page
+def login(request):
+    context = {}
+    return render(request, 'discovery/account/login.html', context)
+
+# account password reset and username recovery page
+def login(request):
+    context = {}
+    return render(request, 'discovery/account/login.html', context)
 
 # overwrite static content in lot app about.html
 def about(request):

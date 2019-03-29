@@ -6,6 +6,15 @@
   /* reserve for responsiveness */
 }
 
+.landing-container-row section {
+  flex-direction: column;
+}
+
+.landing-container-row section .btn {
+  align-self: start;
+  margin-top: 1rem;
+}
+
 #main-nav {
 
 }

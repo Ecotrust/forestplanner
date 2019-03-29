@@ -1,0 +1,35 @@
+{% extends 'discovery/common/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1>Welcome to Forest Planner</h1>
+    </div>
+    <div class="row">
+        <form>
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" class="form-control" id="username" placeholder="Enter username">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Enter password">
+          </div>
+          <div class="form-group form-check">
+            <input type="checkbox" class="form-check-input" id="exampleCheck1">
+            <label class="form-check-label" for="exampleCheck1">Remember Me</label>
+          </div>
+          <button type="submit" class="btn btn-primary">Log in</button>
+        </form>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <a href="/discovery/account/register/">Create an account</a>
+        </div>
+        <div class="col">
+            <a href="/discovery/account/recover/">Forgot username or password</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
