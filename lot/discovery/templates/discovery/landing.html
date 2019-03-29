@@ -1,24 +1,34 @@
 {% extends 'discovery/common/base.html' %}
+{% load static %}
+{% load flatblocks %}
 
 {% block bodyclass %}h-100{% endblock bodyclass %}
 {% block headerclass %}fixed-top{% endblock headerclass %}
 
 {% block content %}
 <div class="vh-100 landing-container">
-    <div class="d-flex h-50 align-items-stretch">
-        <section class="d-flex flex-fill bg-primary text-light align-items-center justify-content-center">
-            <div>One</div>
+    <div class="d-flex h-50 align-items-stretch landing-container-row">
+        <section class="d-flex col-md-6 bg-primary text-light align-items-center justify-content-center">
+            <div>
+                {% flatblock "landing-one" evaluated=True %}
+            </div>
         </section>
-        <section class="d-flex flex-fill bg-dark text-light align-items-center justify-content-center">
-            <div>Two</div>
+        <section class="d-flex col-md-6 bg-dark text-light align-items-center justify-content-center">
+            <div>
+                {% flatblock "landing-two" evaluated=True %}
+            </div>
         </section>
     </div>
-    <div class="d-flex h-50 align-items-stretch">
-        <section class="d-flex flex-fill bg-secondary text-light align-items-center justify-content-center">
-            <div>Three</div>
+    <div class="d-flex h-50 align-items-stretch landing-container-row">
+        <section class="d-flex col-md-6 bg-secondary text-light align-items-center justify-content-center">
+            <div>
+                {% flatblock "landing-three" evaluated=True %}
+            </div>
         </section>
-        <section class="d-flex flex-fill bg-info text-light align-items-center justify-content-center">
-            <div>Four</div>
+        <section class="d-flex col-md-6 bg-info text-light align-items-center justify-content-center">
+            <div>
+                {% flatblock "landing-four" evaluated=True %}
+            </div>
         </section>
     </div>
 </div>
