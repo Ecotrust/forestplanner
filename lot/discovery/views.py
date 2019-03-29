@@ -28,12 +28,12 @@ def reset(request):
     return render(request, 'discovery/account/reset.html', context)
 
 # account password reset and username recovery page
-def properties(request):
+def stands(request):
     context = {
         # Todo: add username condition and value
         'username': 'username',
     }
-    return render(request, 'discovery/properties.html', context)
+    return render(request, 'discovery/stands.html', context)
 
 # find your forest page
 def find_your_forest(request):
