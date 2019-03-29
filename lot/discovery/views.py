@@ -35,6 +35,11 @@ def properties(request):
     }
     return render(request, 'discovery/properties.html', context)
 
+# find your forest page
+def find_your_forest(request):
+    context = {}
+    return render(request, 'discovery/account/find_your_forest.html', context)
+
 # overwrite static content in lot app about.html
 def about(request):
     context = {}

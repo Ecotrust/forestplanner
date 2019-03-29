@@ -11,5 +11,6 @@ urlpatterns = [
     path('account/register/', views.register, name='register'),
     path('account/reset/', views.reset, name='reset'),
     path('properties/', views.properties, name='properties'),
+    path('find_your_forest/', views.find_your_forest, name='find_your_forest'),
     path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]
