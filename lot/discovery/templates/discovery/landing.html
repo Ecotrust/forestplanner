@@ -1,0 +1,25 @@
+{% extends 'discovery/common/base.html' %}
+
+{% block bodyclass %}h-100{% endblock bodyclass %}
+{% block headerclass %}fixed-top{% endblock headerclass %}
+
+{% block content %}
+<div class="vh-100 landing-container">
+    <div class="d-flex h-50 align-items-stretch">
+        <section class="d-flex flex-fill bg-primary text-light align-items-center justify-content-center">
+            <div>One</div>
+        </section>
+        <section class="d-flex flex-fill bg-dark text-light align-items-center justify-content-center">
+            <div>Two</div>
+        </section>
+    </div>
+    <div class="d-flex h-50 align-items-stretch">
+        <section class="d-flex flex-fill bg-secondary text-light align-items-center justify-content-center">
+            <div>Three</div>
+        </section>
+        <section class="d-flex flex-fill bg-info text-light align-items-center justify-content-center">
+            <div>Four</div>
+        </section>
+    </div>
+</div>
+{% endblock content %}
