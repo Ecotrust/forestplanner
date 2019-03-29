@@ -18,14 +18,14 @@ def login(request):
     return render(request, 'discovery/account/login.html', context)
 
 # account register page
-def login(request):
+def register(request):
     context = {}
-    return render(request, 'discovery/account/login.html', context)
+    return render(request, 'discovery/account/register.html', context)
 
 # account password reset and username recovery page
-def login(request):
+def reset(request):
     context = {}
-    return render(request, 'discovery/account/login.html', context)
+    return render(request, 'discovery/account/reset.html', context)
 
 # overwrite static content in lot app about.html
 def about(request):
