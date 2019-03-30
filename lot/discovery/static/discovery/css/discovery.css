@@ -1,3 +1,6 @@
+/* ===================================
+  Landing Page
+=================================== */
 .landing-container {
   padding-top: 56px;
 }
@@ -13,6 +16,25 @@
 .landing-container-row section .btn {
   align-self: start;
   margin-top: 1rem;
+}
+
+/* ===================================
+  Modal
+=================================== */
+
+.modal-body {
+  overflow: hidden;
+}
+
+.close {
+  position: fixed;
+  right: 1rem;
+  top: 1rem;
+  z-index: 9;
+}
+
+.side-image {
+  overflow: hidden;
 }
 
 #main-nav {

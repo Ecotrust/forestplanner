@@ -12,33 +12,36 @@
 {% block content %}
   <div class="container">
     <div class="card-deck mt-4 pb-4">
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Property name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
+      <!-- Todo: add dataset values for property data for loading into modal -->
+      <a rel="button" class="btn btn-primary" data-toggle="modal" data-target="#stand-modal" data-property="{{ property }}" data-img="http://placehold.it/444x297/">
+        <div class="card">
+          <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Property name</h5>
+            <p class="card-text">Date created</p>
+            <p class="card-text">Forest type</p>
+            <p class="card-text">1234 acres</p>
+          </div>
         </div>
-      </div>
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Property name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
+      </a>
+        <div class="card">
+          <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Property name</h5>
+            <p class="card-text">Date created</p>
+            <p class="card-text">Forest type</p>
+            <p class="card-text">1234 acres</p>
+          </div>
         </div>
-      </div>
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Property name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
+        <div class="card">
+          <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
+          <div class="card-body">
+            <h5 class="card-title">Property name</h5>
+            <p class="card-text">Date created</p>
+            <p class="card-text">Forest type</p>
+            <p class="card-text">1234 acres</p>
+          </div>
         </div>
-      </div>
     </div>
     <div class="card-deck mt-4 pb-4">
       <div class="card">
@@ -70,4 +73,37 @@
       </div>
     </div>
   </div>
+
+  <div class="modal fade" id="stand-modal" tabindex="-1" role="dialog" aria-labelledby="stand-modal" aria-hidden="true">
+    <div class="modal-dialog m-0 mw-100" role="document">
+      <div class="modal-content vh-100 border-0">
+        <div class="modal-body p-0">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+          <div class="row align-items-stretch h-100">
+            <div class="col-6">
+              <h5 class="modal-title"></h5>
+              <a href="" class="btn btn-bg-dark">Select this property</a>
+            </div>
+            <div class="col-6 side-image">
+              <img src="" class="modal-image mh-100 w-100"/>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    $('#stand-modal').on('show.bs.modal', function (event) {
+      var button = $(event.relatedTarget); // Button that triggered the modal
+      var propertyName = button.data('property'); // Extract info from data-* attributes
+      var propertyImg = button.data('img');
+      // If necessary, you could initiate an AJAX request here (and then do the updating in a callback).
+      var modal = $(this);
+      modal.find('.modal-title').text('Property Name: ' + propertyName);
+      modal.find('.modal-image').attr('src', propertyImg);
+    })
+  </script>
 {% endblock content %}
