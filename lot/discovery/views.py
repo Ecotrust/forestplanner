@@ -27,17 +27,38 @@ def reset(request):
     context = {}
     return render(request, 'discovery/account/reset.html', context)
 
+# support new layout for user stand/properties profiles
+def stand_profile(request):
+    context = {
+        # Todo: add username condition and value
+        'username': 'username',
+        'title': 'properties',
+        # use button_text and button_action together
+        'button_text': '+ Add a new property',
+        'button_action': '',
+    }
+    return render(request, 'discovery/common/grid.html', context)
+
 # account password reset and username recovery page
 def stands(request):
     context = {
         # Todo: add username condition and value
         'username': 'username',
+        'title': 'properties',
+        # use button_text and button_action together
+        'button_text': '+ Add a new property',
+        'button_action': '',
     }
-    return render(request, 'discovery/stands.html', context)
+    return render(request, 'discovery/common/grid.html', context)
 
 # find your forest page
 def find_your_forest(request):
-    context = {}
+    context = {
+        'title': 'Find Your Forest',
+        # use button_text and button_action together
+        'button_text': 'WATCH TUTORIAL',
+        'button_action': '',
+    }
     return render(request, 'discovery/find_your_forest.html', context)
 
 # overwrite static content in lot app about.html
@@ -54,8 +75,3 @@ def about(request):
 def documentation(request):
     context = {}
     return render(request, 'discovery/common/documentation.html', context)
-
-# support new layout for user stand/properties profiles
-def stand_profile(request):
-    context = {}
-    return render(request, 'discovery/stand_profile.html', context)

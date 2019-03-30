@@ -1,25 +1,17 @@
-{% extends 'discovery/common/base.html' %}
-
-{% block pre-content %}
-  <div class="container">
-    <div class="row m-2 mb-4 mt-4 align-items-center justify-content-around">
-      <h1 class="display-3">Find Your Forest</h1>
-      <a href="" class="btn btn-outline-dark">+ Watch Tutorial</a>
-    </div>
-  </div>
-{% endblock pre-content %}
+{% extends 'discovery/page.html' %}
+{% load flatblocks %}
 
 {% block content %}
   <div class="container">
-    <div class="row align-items-center justify-content-around">
-      <p4>Text describing options to select an existing forest or to map your own. Consectetur adipiscing elit lorem ipsum dolor sit amet, consectetur adipiscing elit. Forest Planner is a lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+    <div class="row align-items-center justify-content-start">
+      {% flatblock "find-your-forest" evaluated=True %}
     </div>
   </div>
 {% endblock content %}
 
 {% block post-content %}
   <div class="container">
-    <div class="row m-2 mb-4 mt-4 align-items-center justify-content-around">
+    <div class="row mb-4 mt-4 align-items-center justify-content-start">
       <a href="/discovery/stands/" class="btn btn-outline-dark">Choose an existing property</a>
       <a href="" class="btn btn-outline-dark">Map your own property</a>
     </div>
