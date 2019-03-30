@@ -38,7 +38,7 @@ def stands(request):
 # find your forest page
 def find_your_forest(request):
     context = {}
-    return render(request, 'discovery/account/find_your_forest.html', context)
+    return render(request, 'discovery/find_your_forest.html', context)
 
 # overwrite static content in lot app about.html
 def about(request):
