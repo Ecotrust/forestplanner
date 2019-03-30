@@ -48,6 +48,8 @@
       {% block footer %}{% endblock footer %}
     </footer>
 
-    {% block foot_scripts %}{% endblock foot_scripts %}
+    {% block foot_scripts %}
+      <script type="text/javascript" src="{% static 'discovery/js/discovery.js' %}"></script>
+    {% endblock foot_scripts %}
   </body>
 </html>

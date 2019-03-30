@@ -41,6 +41,11 @@ def find_your_forest(request):
     return render(request, 'discovery/find_your_forest.html', context)
 
 # overwrite static content in lot app about.html
+def map(request):
+    context = {}
+    return render(request, 'discovery/map.html', context)
+
+# overwrite static content in lot app about.html
 def about(request):
     context = {}
     return render(request, 'discovery/common/about.html', context)
