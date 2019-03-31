@@ -55,11 +55,17 @@ def stands(request):
 def find_your_forest(request):
     context = {
         'title': 'Find Your Forest',
+        'flatblock_slug': 'find-your-forest',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
+        # specific for action buttons template
+        'act_btn_one_text': 'Choose an existing property',
+        'act_btn_one_action': '/discovery/stands/',
+        'act_btn_two_text': 'Map your own property',
+        'act_btn_two_action': '',
     }
-    return render(request, 'discovery/find_your_forest.html', context)
+    return render(request, 'discovery/common/action_buttons.html', context)
 
 # overwrite static content in lot app about.html
 def map(request):
