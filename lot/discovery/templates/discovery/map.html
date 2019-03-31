@@ -1,1 +1,31 @@
-{% extends 'discovery/common/base.html' %}
+{% extends 'discovery/page.html' %}
+
+{% block pre-content %}
+  <!-- container for pre content + content block
+        allows for page split with map -->
+  <div class="container">
+    <!-- row for pre content + content block
+          allows for page split with map -->
+    <div class="row">
+      <!-- col for pre content + content block
+            allows for page split with map -->
+      <div class="col">
+        {{ block.super }}
+{% endblock pre-content %}
+
+{% block content %}
+        {{ block.super }}
+      </div>
+      <!-- end col for pre content and content block -->
+
+      <!-- col for map -->
+      <div class="col">
+        <h1>Hi</h1>
+      </div>
+      <!-- end col for map -->
+      
+    </div>
+    <!-- end row for pre content and content block -->
+  </div>
+  <!-- end container for pre content and content block -->
+{% endblock content %}

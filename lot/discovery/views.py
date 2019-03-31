@@ -63,13 +63,19 @@ def find_your_forest(request):
         'act_btn_one_text': 'Choose an existing property',
         'act_btn_one_action': '/discovery/stands/',
         'act_btn_two_text': 'Map your own property',
-        'act_btn_two_action': '',
+        'act_btn_two_action': '/discovery/map/',
     }
     return render(request, 'discovery/common/action_buttons.html', context)
 
 # overwrite static content in lot app about.html
 def map(request):
-    context = {}
+    context = {
+        'title': 'Map your property',
+        'flatblock_slug': 'map-your-property',
+        # use button_text and button_action together
+        'button_text': 'WATCH TUTORIAL',
+        'button_action': '',
+    }
     return render(request, 'discovery/map.html', context)
 
 # overwrite static content in lot app about.html
