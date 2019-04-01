@@ -20,11 +20,36 @@
       <!-- col for pre content + content block
             allows for page split with map -->
       <div class="col">
-        {{ block.super }}
+        <!-- start cross content block col -->
+        <div class="row justify-content-center">
+          <div class="col-9">
+            {{ block.super }}
 {% endblock pre-content %}
 
 {% block content %}
-        {{ block.super }}
+            {{ block.super }}
+          </div>
+        </div>
+        <!-- end cross content block row -->
+        <div class="row justify-content-center">
+          <div class="col-9">
+            <div class="input-group">
+              <input type="text" class="form-control" placeholder="Locate your region" aria-label="Locate your region" aria-describedby="locate-region">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary" type="button" id="locate-region">Go</button>
+              </div>
+            </div>
+            <small id="locate-region-help" class="form-text text-muted">Search using place name or zip code</small>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <div class="col-9">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" id="inputGroupFile03" aria-describedby="inputGroupFileAddon03">
+              <label class="custom-file-label" for="inputGroupFile03">Upload GIS Data</label>
+            </div>
+          </div>
+        </div>
       </div>
       <!-- end col for pre content and content block -->
 
