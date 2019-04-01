@@ -67,6 +67,22 @@ def find_your_forest(request):
     }
     return render(request, 'discovery/common/action_buttons.html', context)
 
+# collect and enter data page
+def collect_data(request):
+    context = {
+        'title': 'Collect data',
+        'flatblock_slug': 'collect-data',
+        # use button_text and button_action together
+        'button_text': 'WATCH TUTORIAL',
+        'button_action': '',
+        # specific for action buttons template
+        'act_btn_one_text': 'Download a stand table PDF template',
+        'act_btn_one_action': '',
+        'act_btn_two_text': 'Download tree list spreadsheet template ',
+        'act_btn_two_action': '',
+    }
+    return render(request, 'discovery/common/action_buttons.html', context)
+
 # overwrite static content in lot app about.html
 def map(request):
     context = {

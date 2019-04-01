@@ -13,5 +13,6 @@ urlpatterns = [
     path('stands/', views.stands, name='stands'),
     path('find_your_forest/', views.find_your_forest, name='find_your_forest'),
     path('map/', views.map, name='map'),
+    path('collect_data/', views.collect_data, name='collect_data'),
     path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]
