@@ -1,0 +1,9 @@
+#content-map-wrap,
+#map-wrap-row {
+    height: calc(100vh - 56px);
+}
+
+.map {
+  height: 100%;
+  width: 100%;
+}

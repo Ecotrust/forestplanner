@@ -28,6 +28,8 @@
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
       <![endif]-->
     {% endblock head_scripts %}
+
+    {% block extra_head_scripts %}{% endblock extra_head_scripts %}
   </head>
 
   <body class="{% block bodyclass %}{% endblock %}">
@@ -51,5 +53,8 @@
     {% block foot_scripts %}
       <script type="text/javascript" src="{% static 'discovery/js/discovery.js' %}"></script>
     {% endblock foot_scripts %}
+
+    {% block extra_foot_scripts %}{% endblock extra_foot_scripts %}
+
   </body>
 </html>

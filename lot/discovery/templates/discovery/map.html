@@ -1,12 +1,22 @@
 {% extends 'discovery/page.html' %}
+{% load static %}
+
+{% block extra_styles %}
+  <link rel="stylesheet" href="{% static 'discovery/dependencies/openlayers/ol-5.3.0.min.css' %}">
+  <link rel="stylesheet" href="{% static 'discovery/css/map.css' %}">
+{% endblock extra_styles %}
+
+{% block extra_head_scripts %}
+  <script type="text/javascript" src="{% static 'discovery/dependencies/openlayers/ol-5.3.0.min.js' %}"></script>
+{% endblock extra_head_scripts %}
 
 {% block pre-content %}
   <!-- container for pre content + content block
         allows for page split with map -->
-  <div class="container">
+  <div class="container-fluid">
     <!-- row for pre content + content block
           allows for page split with map -->
-    <div class="row">
+    <div id="content-map-wrap" class="row justify-content-stretch">
       <!-- col for pre content + content block
             allows for page split with map -->
       <div class="col">
@@ -20,12 +30,18 @@
 
       <!-- col for map -->
       <div class="col">
-        <h1>Hi</h1>
+        <div id="map-wrap-row" class="row justify-content-stretch">
+          <div id="map" class="map"></div>
+        </div>
       </div>
       <!-- end col for map -->
-      
+
     </div>
     <!-- end row for pre content and content block -->
   </div>
   <!-- end container for pre content and content block -->
 {% endblock content %}
+
+{% block extra_foot_scripts %}
+  <script type="text/javascript" src="{% static 'discovery/js/map.js' %}"></script>
+{% endblock extra_foot_scripts %}
