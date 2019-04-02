@@ -130,7 +130,7 @@ def enter_stand_table(request):
         'step_btn_action': '',
         'step_btn_text': 'View forest profile',
     }
-    return render(request, 'discovery/common/action_buttons.html', context)
+    return render(request, 'discovery/common/data_table.html', context)
 
 # overwrite static content in lot app about.html
 def map(request):

@@ -1,0 +1,23 @@
+{% extends 'discovery/page.html' %}
+
+{% block extra_styles %}
+  <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
+{% endblock extra_styles %}
+
+{% block post-content %}
+
+{% endblock post-content %}
+
+{% block footer %}
+  {% if use_step_btn %}
+  <div class="container">
+    <div class="row mb-4 mt-4 align-items-center justify-content-start">
+      <a href="{{ step_btn_action }}" class="btn btn-dark">{{ step_btn_text }}</a>
+    </div>
+  </div>
+  {% endif %}
+{% endblock footer %}
+
+{% block extra_foot_scripts %}
+  <script type="text/javascript" src="DataTables/datatables.min.js"></script>
+{% endblock extra_foot_scripts %}
