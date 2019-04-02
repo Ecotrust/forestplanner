@@ -33,6 +33,8 @@
   </head>
 
   <body class="{% block bodyclass %}{% endblock %}">
+    <!-- accessibility option for screen readers only -->
+    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
 
     <header class="{% block headerclass %}{% endblock %}">
       {% block header %}
