@@ -14,5 +14,6 @@ urlpatterns = [
     path('find_your_forest/', views.find_your_forest, name='find_your_forest'),
     path('map/', views.map, name='map'),
     path('collect_data/', views.collect_data, name='collect_data'),
+    path('enter_data/', views.enter_data, name='enter_data'),
     path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]
