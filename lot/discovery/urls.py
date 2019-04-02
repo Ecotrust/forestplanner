@@ -15,5 +15,6 @@ urlpatterns = [
     path('map/', views.map, name='map'),
     path('collect_data/', views.collect_data, name='collect_data'),
     path('enter_data/', views.enter_data, name='enter_data'),
+    path('enter_stand_table/', views.enter_stand_table, name='enter_stand_table'),
     path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]

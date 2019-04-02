@@ -86,7 +86,7 @@ def collect_data(request):
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': True,
-        'step_btn_action': '',
+        'step_btn_action': '/discovery/enter_data/',
         'step_btn_text': 'Enter data now',
     }
     return render(request, 'discovery/common/action_buttons.html', context)
@@ -103,11 +103,29 @@ def enter_data(request):
         'act_btn_one_text': 'Upload a new tree list',
         'act_btn_one_action': '',
         'act_btn_two_text': 'Enter a new stand table',
-        'act_btn_two_action': '/',
+        'act_btn_two_action': '/discovery/enter_stand_table/',
         # cta below action buttons options
         ## should this button be displayed
         ### Todo: may change to insert a disabled parameter
         ### see comment #1 : https://xd.adobe.com/view/f5cb1927-f0b7-4642-5232-f30339f78d62-83fa/screen/e8c2b162-e3c5-450f-a39e-bb71e177f1fa/Enter-data
+        'use_step_btn': True,
+        'step_btn_action': '',
+        'step_btn_text': 'View forest profile',
+    }
+    return render(request, 'discovery/common/action_buttons.html', context)
+
+# enter new stand table page
+def enter_stand_table(request):
+    context = {
+        'title': 'Enter stand table',
+        'flatblock_slug': 'enter-stand-table',
+        # use button_text and button_action together
+        'button_text': 'WATCH TUTORIAL',
+        'button_action': '',
+        # specific for data entry template
+
+        # cta below action buttons options
+        ## should this button be displayed
         'use_step_btn': True,
         'step_btn_action': '',
         'step_btn_text': 'View forest profile',
