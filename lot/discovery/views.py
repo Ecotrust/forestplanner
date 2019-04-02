@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.http import HttpResponse
@@ -9,8 +9,11 @@ def index(request):
 
 # landing page for non logged in users
 def landing(request):
-    context = {}
-    return render(request, 'discovery/landing.html', context)
+    if request.user.is_authenticated:
+        return redirect('/discovery/stand_profile/')
+    else:
+        context = {}
+        return render(request, 'discovery/landing.html', context)
 
 # account login page
 def login(request):
@@ -60,7 +63,7 @@ def find_your_forest(request):
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
         # specific for action buttons template
-        'act_btn_one_text': 'Choose an existing property',
+        'act_btn_one_text': 'Choose an pre canned property',
         'act_btn_one_action': '/discovery/stands/',
         'act_btn_two_text': 'Map your own property',
         'act_btn_two_action': '/discovery/map/',
@@ -86,7 +89,7 @@ def collect_data(request):
 # overwrite static content in lot app about.html
 def map(request):
     context = {
-        'title': 'Map your property',
+        'title': 'Map your forest stand',
         'flatblock_slug': 'map-your-property',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
