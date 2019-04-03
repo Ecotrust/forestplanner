@@ -1,4 +1,13 @@
 /* ===================================
+  Header
+=================================== */
+header {
+  /* to accomadate fixed position navbar
+    prevents content from running under */
+  height: 56px;
+}
+
+/* ===================================
   Landing Page
 =================================== */
 .landing-container {
