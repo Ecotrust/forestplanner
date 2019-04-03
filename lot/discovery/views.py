@@ -4,8 +4,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse
 
 def index(request):
-    context = {}
-    return render(request, 'discovery/common/base.html', context)
+    return redirect('/discovery/landing/')
 
 # landing page for non logged in users
 def landing(request):
