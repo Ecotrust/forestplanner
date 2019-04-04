@@ -32,12 +32,11 @@ def reset(request):
 # support new layout for user stand/properties profiles
 def stand_profile(request):
     context = {
-        # Todo: add username condition and value
-        'username': 'username',
-        'title': 'properties',
+        'username': request.user.username,
+        'title': 'stands',
         # use button_text and button_action together
         'button_text': '+ Add a new property',
-        'button_action': '',
+        'button_action': '/discovery/map/',
     }
     return render(request, 'discovery/common/grid.html', context)
 
@@ -45,8 +44,8 @@ def stand_profile(request):
 def stands(request):
     context = {
         # Todo: add username condition and value
-        'username': 'username',
-        'title': 'properties',
+        'username': request.user.username,
+        'title': 'stands',
         # use button_text and button_action together
         'button_text': '+ Add a new property',
         'button_action': '',
