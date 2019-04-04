@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from trees.views import manage_strata
 
 # Create your views here.
 from django.http import HttpResponse
@@ -21,7 +22,9 @@ def login(request):
 
 # account register page
 def register(request):
-    context = {}
+    context = {
+        'register': register,
+    }
     return render(request, 'discovery/account/register.html', context)
 
 # account password reset and username recovery page
@@ -91,6 +94,7 @@ def collect_data(request):
 
 # enter data page
 def enter_data(request):
+    manage_strata
     context = {
         'title': 'Enter data',
         'flatblock_slug': 'enter-data',
