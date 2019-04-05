@@ -1,11 +1,453 @@
 {% extends 'discovery/page.html' %}
+{% load static %}
 
 {% block extra_styles %}
-  <link rel="stylesheet" type="text/css" href="DataTables/datatables.min.css"/>
+  <link rel="stylesheet" type="text/css" href="{% static 'discovery/dependencies/DataTables/datatables.min.css' %}"/>
 {% endblock extra_styles %}
 
 {% block post-content %}
 
+<div class="row-fluid">
+
+    <ul class="nav nav-tabs" id="global-tabs">
+        <li>
+            <a data-bind="attr: { href: '/#properties/' + app.strata.property_id }">
+                <span class="tab-num">1</span>
+                Properties<span style="display:none" data-bind="visible: app.strata.property_name !== '' ">: </span>
+                <span class="property-name" data-bind="text: app.strata.property_name"></span>
+            </a>
+        </li>
+        <li>
+            <a data-bind="attr: { href: '/#stands/' + app.strata.property_id }">
+                <span class="tab-num">2</span>
+                Define Stand Boundaries</a>
+        </li>
+        <li class="active">
+            <a>
+                <span class="tab-num">3</span>
+                Define Forest Types</a>
+        </li>
+        <li>
+            <a data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
+                <span class="tab-num">4</span>
+                Evaluate Future Scenarios</a>
+        </li>
+        <!--
+                //  @TODO app.properties.viewModel.selectedProperty() doesn't exist yet. Will need to
+                apply bindings to the tabs in a callback. doing it on doc.ready for now.
+                or ko.observable set when this is ready
+                <li data-bind="css: {active: app.state('scenarios') }"><a href="#scenarios" data-bind="
+                    css: {disabled: app.properties.viewModel.selectedProperty().stand_summary.with_condition() <
+                    app.properties.viewModel.selectedProperty().stand_summary.total()}">Evaluate Future Scenarios</a></li>
+                    -->
+    </ul>
+    <div id="help-collapse" class="accordion-body collapse">
+      <div class="accordion-inner well">
+        <button type="button" class="close" data-toggle='collapse' href='#help-collapse' aria-hidden="true">&times;</button>
+        <div data-bind="html: app.helpText"></div>
+        <div class="pull-right" id="hide-help"><a data-toggle='collapse' href='#help-collapse'>Hide Help</a></div>
+      </div>
+    </div>
+</div>
+
+
+<div data-bind="if: !activeStratum()">
+    <div class="row-fluid">
+
+        <div class="span5">
+      <!--<h2> Define Forest Types </h2>-->
+
+      <div class="row-fluid btn-bar clearfix" data-bind="visible: !app.strata.property_is_locked">
+
+        <img src="{% static 'common/img/info-icon.png' %}" class="pull-right definition-icon" title="Forest types describe the composition of one or more of your stands, including the age, species, diameter classes, and number of trees per acre. Each forest type may be applied to one or more stands."></i>
+
+        <button class="btn btn-success pull-right" data-bind="click: createStratum"><i class="icon-plus icon-white"></i>
+            New Forest Type</button>
+      </div>
+
+                  <div class="btn-bar clearfix" data-bind="visible: app.strata.property_is_locked">
+                    <div class="well" style="font-size:85%; font-style:italic;">
+                      <i class="icon-warning-sign"></i>
+                      This property's stands are linked to custom forest
+                      inventory data and cannot be edited
+                    </div>
+                  </div>
+
+            <div class="well">
+
+                <!-- strata list -->
+                <div class="row-fluid">
+                    <div class="span12" data-bind="visible: strataList().length && ! activeStratum()" style="display: none" >
+
+                        <div class="row-fluid">
+                                <p>You have applied forest types to <span data-bind="text: appliedStrataTotal"></span> of <span
+                                    data-bind="text: standTotal"></span> stands.</p>
+                                <div class="progress">
+                                    <div class="bar bar-success" data-bind="style: { width: (appliedStrataTotal()/standTotal)*100+'%' }"></div>
+                                </div>
+
+                                <p class="help-inline" data-bind="if: appliedStrataTotal() !== standTotal">
+                                        To apply a forest type to a stand, select a stand on the map and click the &ldquo;apply&rdquo; button on the
+                                        associated forest type. You can select multiple stands simply by clicking.
+                                </p>
+
+
+                                <div class="next-button-wrap" data-bind="if: appliedStrataTotal() == standTotal">
+                                        <a class="btn btn-primary btn-large" data-bind="attr: { href: '/#scenarios/' + app.strata.property_id }">
+                    <strong>Next</strong>: Evaluate Future Scenarios for
+                    <strong><em data-bind="text: app.strata.property_name"></em></strong>
+                    <i class="icon-arrow-right"></i>
+                  </a>
+                                </div>
+
+                        </div>
+
+                        <div class="row-fluid">
+                            <div class="form-inline">
+                                    <label for="filter-stand-group">Filter Forest Types</label>
+                                    <input id="filter-stand-group" type="text" class="search-query" placeholder="Search" data-bind="value: searchTerm, valueUpdate: 'keyup'">
+                                    <button class="btn btn-mini" data-bind="visible: searchTerm, click: clearStandFilter ">Clear Filter</button>
+                            </div>
+                        </div>
+
+                        <div class="row-fluid strata-list" data-bind="foreach: filteredStrataList()">
+                            <div class="stratum-box" data-bind="attr: { 'data-color': color(), 'data-sid': attributes.uid }, style: { 'background': color() }, event: { mouseleave: function () { confirmDelete(false) } }">
+                                <div class="row-fluid">
+                                    <div class="span5">
+                                        <h4><span data-bind="text: attributes.name"></span></h4>
+                                    </div>
+                                    <div class="span7">
+                                        <dl class="dl-horizontal">
+                                            <dt>Trees Per Acre:</dt>
+                                            <dd data-bind="text: attributes.search_tpa"></dd>
+                                            <dt>Stand Age:</dt>
+                                            <dd data-bind="text: attributes.search_age"></dd>
+                                            <dt class="show-trees" data-bind="visible: !app.strata.property_is_locked, click: toggleTrees,
+                                                text: showTrees() ? '- Hide Trees' : '+ Show Trees'"></dt>
+                                            <dd class="dd-treelist" data-bind=" visible: showTrees">
+                                                <ul class="unstyled tree-list" data-bind="foreach: standList">
+                                                    <li data-bind="visible: species">
+                                                    <span data-bind="text: sizeClass"></span>
+                                                    <span data-bind="text: species"></span>
+                                                    (<span data-bind="text: tpa"></span> tpa)
+                                                    </li>
+                                                </ul>
+                                            </dd>
+                                        </dl>
+                                    </div>
+                                    </div>
+
+                                <div class="veg-type-btns" data-bind="visible: confirmDelete">
+                                    <p class="sure">Are you sure?</p>
+                                    <!--<p>Delete this forest type?</p> too long! -->
+                                    <div class="btn-group">
+                                        <button class="btn btn-mini" data-bind="click: function () { confirmDelete(false) }">cancel</button>
+                                        <button class="btn btn-mini btn-danger" data-bind="click: deleteStratum">delete</button>
+                                    </div>
+                                </div>
+
+                                <div class="btn-group veg-type-btns" data-bind="visible: confirmDelete() === false && !app.strata.property_is_locked">
+                                    <button class="btn btn-mini" title="Apply this forest type to any selected stands" data-bind="click: $parent.applyStrata">apply</button>
+                                    <button class="btn btn-mini" title="Edit this forest type" data-bind="click: $parent.editStratum">edit</button>
+                                    <button class="btn btn-mini" title="Delete this forest type" data-bind="click: function () { confirmDelete(true) }"><i class="icon-remove"></i></button>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- property has no strata -->
+                <div data-bind="visible: !strataList().length && ! activeStratum()" style="display: none">
+                    You have not yet defined any forest types. You can <a data-bind="click: createStratum">add one now</a>.
+                </div>
+
+            </div><!-- /.well -->
+
+
+
+        </div>
+
+        <div class="span7">
+            <div class="outermap well"> <!-- map_wrapper"> -->
+                <!--
+                HAVING A TOUGH TIME GETTING THIS TO WORK.
+                SHOWS UP BUT DOES NOT SYNC WITH MAP!
+
+                <a id="legend-button" data-toggle="collapse" data-target="#legend-list">
+                  <i class="icon-align-justify icon-white" style="margin-top: 2px;"></i>
+                </a>
+                <div id="legend-container">
+                    <div class="clearfix"></div>
+                    <div id="legend-list" class="collapse">
+                      <div class="well">
+                        <div style="opacity:1.0;" id="not-a-layerswitcher"></div>
+                        <div id="legend"></div>
+                      </div>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                -->
+                <div id="map"></div>
+            </div>
+        </div>
+
+    </div>
+</div><!-- /!activeStratum() -->
+
+
+
+
+<!-- ======================= Edit Stand Group ================== -->
+
+<div class="edit-stand-group" data-bind="if: activeStratum()" >
+    <div class="row-fluid">
+
+        <div class="span12">
+            <div class="well">
+
+                <div data-bind="visible: activeStratum()" style="display: none">
+
+                    <!--
+                    <div data-bind="visible: !activeStratum().standList().length"  style="display: none">
+                        <h2>Enter Stand Group Information</h2>
+                        <p>We should have some help text here.</p>
+                    </div>
+                    -->
+
+                    <div>
+
+                        <div data-bind="with: activeStratum" class="row-fluid">
+
+                            <div class="span6">
+                                <div>
+                                    <h2 data-bind="visible: !editMode()">Create a Forest Type</h2>
+                                    <h2 data-bind="visible: editMode()">Editing Forest Type: <i data-bind="text: attributes.name"></i></h2>
+                                    <label>Name Your Forest Type</label>
+                                    <input type="text" class="span8" placeholder="Name" autofocus data-bind="value: attributes.name, valueUpdate: 'keyup'"/>
+                                    <div class="row-fluid">
+                                        <!--
+                                            <p data-bind="text: totalTpa()"></p>
+                                        <div class="span4">
+                                            <label>Trees Per Acre</label>
+                                            <input type="text" class="input-mini" data-bind="value: attributes.search_tpa, valueUpdate: 'keyup'">
+                                        </div>
+                                        -->
+                                        <div class="span4">
+                                            <label>Stand Age (in years)</label>
+                                            <input type="text" class="input-mini" data-bind="value: attributes.search_age, valueUpdate: 'keyup'">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div> <!-- /.span5 -->
+
+                            <div class="span6">
+                                <div id="chart-container"></div>
+                            </div>
+
+                     </div> <!-- /.row-fluid /with: activeStratum -->
+
+           <div class="alert-error well" style="font-weight: bold; white-space: pre-wrap"
+             data-bind="visible: vegetationTypeError(), text: vegetationTypeError"></div>
+
+           <div data-bind="with: activeStratum" class="row-fluid">
+             <table class="table table-bordered stand-table">
+
+                             <thead>
+                 <tr>
+                   <th class="species-col">Species</th>
+                   <th class="size-class-col">Size Class</th>
+                                     <th class="percentage-col">Density <br />(trees per acre)</th>
+                   <th class="tpa-col">Percentage</th>
+                   <th class="actions-col"></th>
+                 </tr>
+                             </thead>
+
+                             <tbody>
+
+                                 <!-- ko foreach: displayStandList -->
+                                 <tr data-bind="visible: !isEditing()">
+                                     <td>
+                                         <span data-bind=" text: species"></span>
+                                     </td>
+                                     <td>
+                                         <span data-bind=" text: sizeClass"></span>
+                                     </td>
+                                         <td>
+                                         <span data-bind="text: tpa"></span>
+                                     </td>
+                                     <td>
+                                         <!-- ko if: percentage() / percentage() == 1 -->
+                                         <span data-bind="text: percentage() + '%'"></span>
+                                         <!-- /ko -->
+                                     </td>
+                                     <!--
+                                     <td>
+                                         <span data-bind="
+                                             visible: $parent.attributes.search_tpa(),
+                                             text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>
+                                     </td>
+                                    -->
+                                     <td>
+                                         <div class="btn-group" data-bind="visible: speciesConfirmDelete() === false">
+                                             <button class="btn btn-mini btn-primary" data-bind="click: editTree">Edit</button>
+                                             <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(true) } ">Delete</button>
+                                         </div>
+                                         <div data-bind="visible: speciesConfirmDelete">
+                                             <p class="sure">Are you sure?</p>
+                                             <div class="btn-group">
+                                                 <button class="btn btn-mini" data-bind="click: function () { speciesConfirmDelete(false) } ">Cancel</button>
+                                                 <button class="btn btn-mini btn-danger" data-bind="click:  $parent.removeSpecies">Delete</button>
+                                                </div>
+                                         </div>
+                                     </td>
+                                 </tr>
+
+
+                                 <tr data-bind="visible: isEditing()">
+                                     <td>
+                                         <span>
+                                             <label class="accessibility">Select a Species <br> <span data-bind="text: species"></span></label>
+                                             <select style="width: 95%" data-bind="options: app.strata.treeSpecies, value: species,
+                                                 select2: {placeholder: 'Add a Species',  speciesData: species()}" >
+                                             </select>
+                                         </span>
+                                     </td>
+                                     <td>
+                                         <span><select style="width: 90%" data-bind="options: sizeClasses, value: sizeClass, select2:
+                                                 {placeholder: '' }"></select></span>
+                                     </td>
+                                     <!--
+                                     <td>
+                                         <div class="row-fluid">
+                                             <label class="accessibility">Percentage of Stand</label>
+                                             <input name="percentage" class="input-mini span3"
+                                                data-bind="value: percentage,
+                                                valueUpdate: 'keyup',
+                                                css:{error: !percentageIsValid() }"
+                                                /> %
+                                             <div class="help-inline alert-error" data-bind="visible: !percentageIsValid(), text:
+                                                 percentageIsValidMsg() "></div>
+                                         </div>
+                                     </td>
+                                    -->
+                                        <td>
+                                             <label class="accessibility">Trees per Acre</label>
+                                             <input name="tpa" class="input-mini span3"
+                                                data-bind="value: tpa, valueUpdate: 'keyup' "
+                                                />
+                                        </td>
+                                     <td>
+                                         <!--
+                                         <span data-bind="
+                                             visible: $parent.attributes.search_tpa(),
+                                             text: (percentage()/100*$root.activeStratum().attributes.search_tpa()).toFixed(0)"></span>%
+                                             -->
+                                     </td>
+                                     <td>
+                                         <span> <!-- /click:updateTree, -->
+                                             <button class="btn btn-mini btn-success disabled" data-bind="click: $parent.saveTreee,
+                                                    css: {
+                                                    'enabled': species().length && !isNaN(parseFloat( tpa() )),
+                                                    'disabled': !species().length || isNaN(parseFloat( tpa() ))
+                                                    },
+                                                    enable: species().length && !isNaN(parseFloat( tpa() ))" >
+                                                    Save Species
+                                                </button>
+                                         </span>
+                                     </td>
+                                 </tr>
+                                 <!-- /ko -->
+
+
+                             </tbody>
+
+                         </table>
+                     </div> <!-- /.row-fluid /with: activeStratum -->
+
+
+                     <!-- data-bind="with: activeStratum" ::::: enable:app.strata.viewModel.activeStratum().canSave() -->
+                         <div  class="btn-group pull-right">
+                             <button class="btn btn-large" data-bind="click: cancel">cancel</button>
+                             <button class="btn btn-large btn-success" id="btn-save-strata"
+                                 data-bind="click: saveStrata">
+                                 <i class="icon-check icon-white"></i> Save Forest Type</button>
+                         </div>
+                         <div class="clearfix"></div>
+
+                 </div><!--  -->
+
+             </div> <!-- / visible: activeStratum -->
+
+         </div> <!-- /.well -->
+     </div> <!-- /.span12 -->
+
+    </div> <!-- /.row-fluid -->
+</div> <!-- /.edit-stand-group -->
+
+<!-- ======================= /End Edit Stand Group ================== -->
+
+
+
+
+
+
+
+
+
+                <!--</div> [> /if activeStratum <]-->
+
+      <!-- end partial -->
+
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/jquery.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'common/js/json2.js' %}"></script> <!-- for the benefit of older IEs --> -->
+    <!-- <script type="text/javascript" src="{% static 'common/js/jquery.form.js' %}"></script> -->
+        <script type="text/javascript" src="{% static 'common/js/knockout-2.1.0.js' %}"></script>
+    <!--<script type="text/javascript" src="{% static 'common/js/knockout-2.2.1.debug.js' %}"></script>-->
+    <script type="text/javascript" src="{% static 'common/js/knockout.mapping-latest.js' %}"></script>
+    <script type="text/javascript" src="{% static 'support/knockout-custom-bindings.js' %}"></script>
+    <!-- <script type="text/javascript" src="{% static 'support/select2.js' %}"></script> -->
+
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-tab.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-tooltip.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-carousel.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-button.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-popover.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-modal.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-dropdown.js' %}"></script> -->
+    <!-- <script type="text/javascript" src="{% static 'support/bootstrap/js/bootstrap-transition.js' %}"></script> -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <!-- <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script> -->
+
+    <!--[if lt IE 9]><script language="javascript" type="text/javascript" src="{% static '/jqplot/excanvas.js' %}"></script><![endif]-->
+    <!-- <script src="http://maps.google.com/maps/api/js?v=3.5&amp;sensor=false"></script> -->
+    <!-- <script src="{% static 'OpenLayers.js' %}"></script> -->
+
+    <link href="{% static 'lot/css/manage_strata.css' %}" rel="stylesheet">
+    <script type="text/javascript">
+      context = {
+        user: {
+          is_authenticated: {% if user.is_authenticated %}true{% else %}false{% endif %},
+          username: "{{ user.username}}"
+        },
+        property_id: "{{ property_id }}",
+        property_name: "{{ property_name }}",
+        property_is_locked: {% if property_is_locked %}true{% else %}false{% endif %}
+      }
+    </script>
+    <script type="text/javascript" src="{% static 'lot/js/manage_strata.js' %}"></script>
+
+    <script type="text/javascript" src="{% static 'features/js/workspace.js' %}"></script>
+    <script type="text/javascript" src="{% static "common/styles.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/trees.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/property.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/stand.js" %}"></script>
+    <script type="text/javascript" src="{% static "common/scenario.js" %}"></script>
+
+    <script src="{% static 'common/js/hash_routing.js' %}"></script>
+    <script src="{% static 'common/js/strata.js' %}"></script>
+    <script src="{% static 'common/js/breadcrumbs.js' %}"></script>
 {% endblock post-content %}
 
 {% block footer %}
@@ -19,5 +461,5 @@
 {% endblock footer %}
 
 {% block extra_foot_scripts %}
-  <script type="text/javascript" src="DataTables/datatables.min.js"></script>
+  <script type="text/javascript" src="{% static 'discovery/dependencies/DataTables/datatables.min.js' %}"></script>
 {% endblock extra_foot_scripts %}

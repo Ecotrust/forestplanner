@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from trees.views import manage_strata
+from trees.views import manage_strata as trees_manage_strata
 
 # Create your views here.
 from django.http import HttpResponse
@@ -94,7 +94,6 @@ def collect_data(request):
 
 # enter data page
 def enter_data(request):
-    manage_strata
     context = {
         'title': 'Enter data',
         'flatblock_slug': 'enter-data',
@@ -118,6 +117,7 @@ def enter_data(request):
 
 # enter new stand table page
 def enter_stand_table(request):
+    manage_table = tree_table(request, 'trees_forestproperty_1')
     context = {
         'title': 'Enter stand table',
         'flatblock_slug': 'enter-stand-table',
@@ -131,8 +131,14 @@ def enter_stand_table(request):
         'use_step_btn': True,
         'step_btn_action': '',
         'step_btn_text': 'View forest profile',
+        'manage_table': manage_table,
     }
     return render(request, 'discovery/common/data_table.html', context)
+
+def tree_table(request, property_uid):
+    manage_req = trees_manage_strata(request, property_uid)
+    print(manage_req)
+    return manage_req.getvalue()
 
 # overwrite static content in lot app about.html
 def map(request):
