@@ -1,5 +1,5 @@
 from django.urls import path
-
+from trees.views import *
 from . import views
 
 urlpatterns = [
@@ -14,5 +14,6 @@ urlpatterns = [
     path('collect_data/', views.collect_data, name='collect_data'),
     path('enter_data/', views.enter_data, name='enter_data'),
     path('enter_stand_table/', views.enter_stand_table, name='enter_stand_table'),
+    path('strata/(?P<property_uid>\w+)$', views.manage_strata, name='trees-manage_strata'),
     path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]

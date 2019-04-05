@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from trees.views import manage_strata as trees_manage_strata
+from madrona.features.views import get_object_for_viewing
 
 # Create your views here.
 from django.http import HttpResponse
@@ -117,7 +117,7 @@ def enter_data(request):
 
 # enter new stand table page
 def enter_stand_table(request):
-    manage_table = tree_table(request, 'trees_forestproperty_1')
+    # manage_table = tree_table(request, 'trees_forestproperty_1')
     context = {
         'title': 'Enter stand table',
         'flatblock_slug': 'enter-stand-table',
@@ -131,14 +131,27 @@ def enter_stand_table(request):
         'use_step_btn': True,
         'step_btn_action': '',
         'step_btn_text': 'View forest profile',
-        'manage_table': manage_table,
+        # TODO: Add real values for property
+        # 'manage_table': manage_table,
     }
     return render(request, 'discovery/common/data_table.html', context)
 
-def tree_table(request, property_uid):
-    manage_req = trees_manage_strata(request, property_uid)
-    print(manage_req)
-    return manage_req.getvalue()
+def manage_strata(request, property_uid):
+    '''
+    Strata management view
+    '''
+    forestproperty = get_object_for_viewing(request, property_uid)
+    if isinstance(forestproperty, HttpResponse):
+        return forestproperty
+    name = forestproperty.name
+    is_locked = forestproperty.is_locked
+    return render(
+        request,
+        'discovery/common/strata.html',
+        {'property_id': property_uid,
+         'property_name': name,
+         'property_is_locked': is_locked})
+
 
 # overwrite static content in lot app about.html
 def map(request):
