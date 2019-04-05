@@ -20,6 +20,7 @@
     {% block extra_styles %}{% endblock extra_styles %}
 
     {% block head_scripts %}
+      <!-- some dependencies -->
       <script type="text/javascript" src="{% static 'discovery/dependencies/jquery-3.3.1.min.js' %}"></script>
       <script type="text/javascript" src="{% static 'discovery/dependencies/bootstrap-4.3.1-dist/js/bootstrap.min.js' %}" async></script>
       <!-- <script type="text/javascript" src="{% static 'common/js/django_csrf.js' %}"></script> -->
@@ -27,6 +28,9 @@
       <!--[if lt IE 9]>
         <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
       <![endif]-->
+
+      <!-- some useful functions from forestplanner -->
+      <script type="text/javascript" src="{% static 'common/js/django_csrf.js' %}"></script>
     {% endblock head_scripts %}
 
     {% block extra_head_scripts %}{% endblock extra_head_scripts %}

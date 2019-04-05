@@ -6,6 +6,7 @@
 {% endblock extra_styles %}
 
 {% block post-content %}
+  {% csrf_token %}
   {% include 'discovery/common/strata.html' %}
 {% endblock %}
 
