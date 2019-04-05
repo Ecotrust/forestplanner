@@ -324,7 +324,10 @@ def geosearch(request):
     try:
         txt = unicode(request.GET['search'])
     except:
-        return HttpResponseBadRequest()
+        try:
+            txt = str(request.GET['search'])
+        except:
+            return HttpResponseBadRequest()
 
     searchtype = lat = lon = None
     place = txt
@@ -338,10 +341,12 @@ def geosearch(request):
     centerloc = Point("45.54 N 120.64 W")
     max_dist = 315  # should be everything in WA and Oregon
 
+    # import ipdb; ipdb.set_trace()
+
     searches = [
-        geocoders.GeoNames(),
-        geocoders.OpenMapQuest(),
-        geocoders.Yahoo(app_id=settings.APP_NAME),
+        # geocoders.GeoNames(),
+        # geocoders.OpenMapQuest(),
+        # geocoders.Yahoo(app_id=settings.APP_NAME),
         geocoders.Bing(api_key=settings.BING_API_KEY),
         # these are tried in reverse order, fastest first
         # TODO thread them and try them as they come in.
@@ -383,8 +388,8 @@ def geosearch(request):
             'latlon': [lat, lon],
             'center': (cntr[0], cntr[1]),
         }
-        json_loc = json.dumps(loc)
-        return JsonResponse(json_loc, status=200)
+        # json_loc = json.dumps(loc)
+        return JsonResponse(loc, status=200)
     else:
         loc = {
             'status': 'failed',
