@@ -109,7 +109,7 @@ def enter_data(request):
         ### Todo: may change to insert a disabled parameter
         ### see comment #1 : https://xd.adobe.com/view/f5cb1927-f0b7-4642-5232-f30339f78d62-83fa/screen/e8c2b162-e3c5-450f-a39e-bb71e177f1fa/Enter-data
         'use_step_btn': True,
-        'step_btn_action': '',
+        'step_btn_action': '/discovery/forest_profile/',
         'step_btn_text': 'View forest profile',
     }
     return render(request, 'discovery/common/action_buttons.html', context)
@@ -127,12 +127,12 @@ def enter_stand_table(request):
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': True,
-        'step_btn_action': '',
+        'step_btn_action': '/discovery/forest_profile/',
         'step_btn_text': 'View forest profile',
     }
     return render(request, 'discovery/common/data_table.html', context)
 
-# overwrite static content in lot app about.html
+# view for web map of property
 def map(request):
     context = {
         'title': 'Map your forest stand',
@@ -142,6 +142,17 @@ def map(request):
         'button_action': '',
     }
     return render(request, 'discovery/map.html', context)
+
+# forest profile page
+def forest_profile(request):
+    context = {
+        'title': 'Forest profile',
+        'flatblock_slug': 'forest-profile',
+        # use button_text and button_action together
+        'button_text': 'WATCH TUTORIAL',
+        'button_action': '',
+    }
+    return render(request, 'discovery/forest_profile.html', context)
 
 # overwrite static content in lot app about.html
 def about(request):
