@@ -7,12 +7,15 @@
 {% endblock extra_styles %}
 
 {% block content %}
+  {% block cardcontainer %}
   <div class="container">
     <div class="card-deck">
       {% for data in grid_data %}
+        {% block card %}
         <div class="card stand-wrap">
           <!-- Todo: add dataset values for property data for loading into modal -->
-          <a data-toggle="modal" data-target="#stand-modal">
+          <a data-toggle="modal" data-target="#stand-modal"
+              data-img="{% if data.splash_image %}{{ data.splash_image }}{% endif %}">
             <img src="{{ data.image }}" class="card-img-top" alt="{{ data.labels.0.value }}">
             <div class="card-body">
               {% for label in data.labels %}
@@ -32,24 +35,26 @@
             </div>
           </a>
         </div>
+        {% endblock %} <!-- card -->
       {% endfor %}
     </div>
   </div>
+  {% endblock %} <!-- cardcontainer -->
 
   <div class="modal fade" id="stand-modal" tabindex="-1" role="dialog" aria-labelledby="stand-modal" aria-hidden="true">
-    <div class="modal-dialog m-0 mw-100" role="document">
-      <div class="modal-content vh-100 border-0">
-        <div class="modal-body p-0">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
-          <div class="row align-items-stretch h-100">
+          <div class="row align-items-stretch">
             <div class="col-6">
               <h5 class="modal-title"></h5>
               <a href="/discovery/map/" class="btn btn-dark">Select this stand</a>
             </div>
             <div class="col-6 side-image">
-              <img src="" class="modal-image mh-100 w-100"/>
+              <img src="" class="modal-image"/>
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 
 # Create your views here.
 from django.http import HttpResponse
+from django.conf import settings
 
 def index(request):
     return redirect('/discovery/landing/')
@@ -38,6 +39,7 @@ def stand_profile(request):
         {
             # 'image': "/media/stands/discovery_discoverystand_1/thumbnail.png",
             'image': "http://placehold.it/450x300/",
+            'splash_image': settings.DEFAULT_STAND_SPLASH,
             'labels': [
                 {
                     'label': 'title',
