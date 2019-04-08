@@ -1,6 +1,7 @@
 {% extends 'discovery/common/base.html' %}
 {% load static %}
 {% load i18n %}
+{% load account %}
 
 {% block content %}
 <div class="container">
@@ -8,7 +9,7 @@
         <h1>Welcome to {{ title }}</h1>
     </div>
     <div class="row">
-        <form class="signup" id="signup_form" method="post" action="{% url 'account_signup' %}">
+        <form class="signup" id="signup_form" method="post" action="/auth/signup/">
             {% csrf_token %}
             {% if redirect_field_value %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
@@ -35,7 +36,7 @@
         </form>
     </div>
     <div class="row mt-4 mb-4">
-        <a href="/discovery/account/login/">Log in to an existing account</a>
+        <a href="/discovery/auth/login/">Log in to an existing account</a>
     </div>
     <div class="row mt-4">
         <div id="tos">
