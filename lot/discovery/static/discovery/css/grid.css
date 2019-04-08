@@ -1,0 +1,13 @@
+.card-deck .card {
+  max-width: 20vw;
+  min-width: 200px;
+  margin-bottom: 1rem;
+}
+
+.card-title {
+  text-align: center;
+}
+
+.grid-label-label {
+  font-weight: bold;
+}

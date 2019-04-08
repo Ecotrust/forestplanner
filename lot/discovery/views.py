@@ -33,9 +33,87 @@ def reset(request):
 
 # support new layout for user stand/properties profiles
 def stand_profile(request):
+    from datetime import date
+    dummy_data = [
+        {
+            # 'image': "/media/stands/discovery_discoverystand_1/thumbnail.png",
+            'image': "http://placehold.it/450x300/",
+            'labels': [
+                {
+                    'label': 'title',
+                    'value': 'Stand 1'
+                }, {
+                    'label': 'Modified',
+                    'value': date.today()
+                }, {
+                    'label': 'Location',
+                    'value': 'Gilliam County, OR'
+                },{
+                    'label': 'Area',
+                    'value': 1234,
+                    'posttext': 'acres'
+                },
+            ],
+        }, {
+            'image': "http://placehold.it/450x300/",
+            'labels': [
+                {
+                    'label': 'title',
+                    'value': 'Stand 2'
+                }, {
+                    'label': 'Modified',
+                    'value': date.today()
+                }, {
+                    'label': 'Location',
+                    'value': 'Sherman County, OR'
+                },{
+                    'label': 'Area',
+                    'value': 4321,
+                    'posttext': 'acres'
+                },
+            ],
+        }, {
+            'image': "http://placehold.it/450x300/",
+            'labels': [
+                {
+                    'label': 'title',
+                    'value': 'Stand 3'
+                }, {
+                    'label': 'Modified',
+                    'value': date.today()
+                }, {
+                    'label': 'Location',
+                    'value': 'Clark County, WA'
+                },{
+                    'label': 'Area',
+                    'value': 543,
+                    'posttext': 'acres'
+                },
+            ],
+        }, {
+            'image': "http://placehold.it/450x300/",
+            'labels': [
+                {
+                    'label': 'title',
+                    'value': 'Stand 4'
+                }, {
+                    'label': 'Modified',
+                    'value': date.today()
+                }, {
+                    'label': 'Location',
+                    'value': 'Douglas County, WA'
+                },{
+                    'label': 'Area',
+                    'value': 1234,
+                    'posttext': 'acres'
+                },
+            ],
+        },
+    ]
     context = {
-        'username': request.user.username,
+        'user': request.user,
         'title': 'stands',
+        'grid_data': dummy_data,
         # use button_text and button_action together
         'button_text': '+ Add a new property',
         'button_action': '/discovery/map/',
@@ -46,7 +124,7 @@ def stand_profile(request):
 def stands(request):
     context = {
         # Todo: add username condition and value
-        'username': request.user.username,
+        'user': request.user,
         'title': 'stands',
         # use button_text and button_action together
         'button_text': '+ Add a new property',
