@@ -1,32 +1,49 @@
 {% extends 'discovery/common/base.html' %}
 {% load static %}
+{% load i18n %}
+{% load account %}
 
 {% block content %}
 <div class="container">
     <div class="row">
-        <h1>Welcome to Forest Planner</h1>
+        <h1>Welcome to {{ title }}</h1>
     </div>
     <div class="row">
-        <form>
-          <div class="form-group">
-            <label for="exampleInputEmail1">Email address</label>
-            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
-          </div>
-          <div class="form-group">
-            <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" placeholder="Choose a username">
-          </div>
-          <div class="form-group">
-            <label for="exampleInputPassword1">Password</label>
-            <input type="password" class="form-control" id="exampleInputPassword1" placeholder="Choose a password">
-            <small id="passwordHelp" class="form-text text-muted">Specs on what is required for password</small>
-          </div>
-          <button type="submit" class="btn btn-primary">Get Started</button>
-          <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="">Terms of Service</a>.</small>
+        <form class="signup" id="signup_form" method="post" action="/auth/signup/">
+            {% csrf_token %}
+            {% if redirect_field_value %}
+                <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
+            {% endif %}
+              <div class="form-group">
+                <label for="id_email">Email address</label>
+                <input type="email" class="form-control" id="id_email" name="email" placeholder="Enter email">
+              </div>
+              <div class="form-group">
+                <label for="id_username">Username</label>
+                <input type="text" class="form-control" id="id_username" name="username" placeholder="Choose a username">
+              </div>
+              <div class="form-group">
+                <label for="id_password1">Password</label>
+                <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Choose a password">
+              </div>
+              <div class="form-group">
+                <label for="id_password2">Password</label>
+                <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Repeat password">
+              </div>
+              <button type="submit" class="btn btn-primary">Get Started</button>
+              <!-- TODO: Add link to terms of service -->
+              <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="#tos">Terms of Service</a>.</small>
         </form>
     </div>
-    <div class="row mt-">
-        <a href="/discovery/account/login/">Log in to an existing account</a>
+    <div class="row mt-4 mb-4">
+        <a href="/discovery/auth/login/">Log in to an existing account</a>
+    </div>
+    <div class="row mt-4">
+        <div id="tos">
+            <h3>Terms of Service</h3>
+            <p>The Forest Planner has been developed by Ecotrust to provide information regarding predicted outcomes from a variety for different forest management practices.  The Forest Planner incorporates data provided by the user along with data, models, and processes from a variety of private, local, state, and federal agencies and non-governmental organizations.  Ecotrust makes no warranty, nor assumes any legal liability for the accuracy, completeness or usefulness of the information contained in the Forest Planner.  Ecotrust does not assume responsibility or liability for any direct, indirect or consequential damages from the use of the Forest Planner.  The user of this application assumes all responsibility and risk for the use of the information for any decision made as a result of this information, available from this server and the Internet in general. The user alone is responsible for the application and interpretation of this information and is responsible for use consistent with an appropriate level of caution.</p>
+            <p>The Forest Planner is not a substitute for consultation with a qualified forester.  Users are strongly encouraged to develop a written management plan including consultation with a qualified forester before implementing any forest management activities in the field.</p>
+        </div>
     </div>
 </div>
 {% endblock content %}
