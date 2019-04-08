@@ -1,68 +1,38 @@
 {% extends 'discovery/page.html' %}
+{% load static %}
+
+{% block extra_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'discovery/css/grid.css' %}">
+{% endblock extra_styles %}
 
 {% block content %}
   <div class="container">
-    <div class="card-deck mt-4 pb-4">
+    <div class="card-deck">
+      {% for data in grid_data %}
         <div class="card stand-wrap">
           <!-- Todo: add dataset values for property data for loading into modal -->
-          <a rel="button" class="btn p-0 border-0" data-toggle="modal" data-target="#stand-modal" data-property="{{ property }}" data-img="http://placehold.it/444x297/">
-            <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
+          <a data-toggle="modal" data-target="#stand-modal">
+            <img src="{{ data.image }}" class="card-img-top" alt="{{ data.labels.0.value }}">
             <div class="card-body">
-              <h5 class="card-title">Stand name</h5>
-              <p class="card-text">Date created</p>
-              <p class="card-text">Forest type</p>
-              <p class="card-text">1234 acres</p>
+              {% for label in data.labels %}
+                {% if label.label == "title" %}
+                  <h5 class="card-title">{{ label.value}}</h5>
+                {% else %}
+                  <span class="card-text">
+                    <span class="grid-label-label">{{ label.label }}:</span>
+                    <span class="grid-label-value">
+                      {% if label.pretext %}{{ label.pretext }}{% endif %}
+                      {{ label.value }}
+                      {% if label.posttext %}{{ label.posttext }}{% endif %}
+                    </span>
+                  </span><br />
+                {% endif %}
+              {% endfor %}
             </div>
           </a>
         </div>
-      </a>
-        <div class="card stand-wrap">
-          <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Stand name</h5>
-            <p class="card-text">Date created</p>
-            <p class="card-text">Forest type</p>
-            <p class="card-text">1234 acres</p>
-          </div>
-        </div>
-        <div class="card stand-wrap">
-          <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-          <div class="card-body">
-            <h5 class="card-title">Stand name</h5>
-            <p class="card-text">Date created</p>
-            <p class="card-text">Forest type</p>
-            <p class="card-text">1234 acres</p>
-          </div>
-        </div>
-    </div>
-    <div class="card-deck mt-4 pb-4">
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Stand name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
-        </div>
-      </div>
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Stand name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
-        </div>
-      </div>
-      <div class="card">
-        <img src="http://placehold.it/444x297/" class="card-img-top" alt="...">
-        <div class="card-body">
-          <h5 class="card-title">Stand name</h5>
-          <p class="card-text">Date created</p>
-          <p class="card-text">Forest type</p>
-          <p class="card-text">1234 acres</p>
-        </div>
-      </div>
+      {% endfor %}
     </div>
   </div>
 
