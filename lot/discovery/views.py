@@ -31,6 +31,11 @@ def reset(request):
     context = {}
     return render(request, 'discovery/account/reset.html', context)
 
+# account profile page
+def user_profile(request):
+    context = {}
+    return render(request, 'discovery/account/profile.html', context)
+
 # support new layout for user stand/properties profiles
 def stand_profile(request):
     context = {
