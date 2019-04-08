@@ -22,7 +22,8 @@ def login(request):
 # account register page
 def register(request):
     context = {
-        'register': register,
+        # 'register': register,
+        'title': 'Forest Discovery',
     }
     return render(request, 'discovery/account/register.html', context)
 
