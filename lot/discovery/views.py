@@ -128,7 +128,7 @@ def stand_profile(request):
         },
         # use button_text and button_action together
         'button_text': '+ Add a new property',
-        'button_action': '/discovery/map/',
+        'button_action': '/discovery/find_your_forest/',
     }
     return render(request, 'discovery/common/grid.html', context)
 
