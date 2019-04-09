@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block extra_styles %}
-  <link rel="stylesheet" href="{% static 'discovery/dependencies/openlayers/ol-5.3.0.min.css' %}">
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'discovery/dependencies/ol/ol-5.3.0.min.css' %}">
   <link rel="stylesheet" href="{% static 'discovery/css/map.css' %}">
 {% endblock extra_styles %}
 
 {% block extra_head_scripts %}
-  <script type="text/javascript" src="{% static 'discovery/dependencies/openlayers/ol-5.3.0.min.js' %}"></script>
+  <script type="text/javascript" src="{% static 'discovery/dependencies/ol/ol-5.3.0.min.js' %}"></script>
 {% endblock extra_head_scripts %}
 
 {% block pre-content %}

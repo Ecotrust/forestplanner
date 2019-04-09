@@ -2,12 +2,13 @@
 {% load static %}
 
 {% block extra_styles %}
+  {{ block.super }}
   <link rel="stylesheet" type="text/css" href="{% static 'discovery/dependencies/DataTables/datatables.min.css' %}"/>
 {% endblock extra_styles %}
 
 {% block post-content %}
   {% csrf_token %}
-  
+
 {% endblock %}
 
 {% block footer %}
