@@ -7,3 +7,49 @@
   height: 100%;
   width: 100%;
 }
+
+#map-legend-wrapper {
+  bottom: 0.5rem;
+  background-color: white;
+  padding: 0.5rem;
+  border-radius: 0.5rem;
+  position: fixed;
+  max-height: 45vh;
+  max-width: 25vw;
+  display: none;
+}
+
+.legend-box-header {
+  cursor: pointer;
+}
+.legend-box-header:hover {
+  color: #555;
+}
+
+.legend-box-header:hover:after {
+  font-size: 0.8rem;
+  /* font-family: Fontawesome; */
+  /* content: '\f077'; */
+  content: 'hide';
+  font-weight: 300;
+  padding: 0.1rem;
+  border: 1px solid;
+  border-radius: 0.2rem;
+  margin: 0.5rem;
+  bottom: 0.3rem;
+  position: relative;
+}
+
+.legend-box-header.collapsed:hover:after {
+  /* content: '\f078'; */
+  content: 'show';
+}
+
+#map-legend {
+  overflow-y: auto;
+  max-height: 32vh;
+}
+
+#map-legend div img {
+  max-width: 100%;
+}

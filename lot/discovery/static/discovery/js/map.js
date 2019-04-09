@@ -1,3 +1,5 @@
+var overlayGroupName = "Overlays";
+
 var map = new ol.Map({
   target: 'map',
   layers: [
@@ -35,7 +37,7 @@ var map = new ol.Map({
         new ol.layer.Tile({
           title: 'Hybrid',
           source: new ol.source.XYZ({
-            url: 'http://a.tiles.mapbox.com/v4/mapbox.streets-satellite/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA',
+            url: 'http://{a-d}.tiles.mapbox.com/v4/mapbox.streets-satellite/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA',
             attributions: "Tiles &copy; <a href='http://mapbox.com/'>MapBox</a>"
           }),
           name: 'Hybrid',
@@ -44,8 +46,45 @@ var map = new ol.Map({
       ],
     }),
     new ol.layer.Group({
-      title: 'Overlays',
-      layers: []
+      title: overlayGroupName,
+      layers: [
+        new ol.layer.Tile({
+          title: 'Wetlands',
+          source: new ol.source.XYZ({
+            url: 'http://{a-d}.tiles.ecotrust.org/tiles/LOT_wetlands/{z}/{x}/{y}.png'
+          }),
+          name: 'Wetlands',
+          legend: {
+            id: 'wetland-legend',
+            image: '/media/img/legends/LOT_wetlands.png'
+          },
+          visible: false
+        }),
+        new ol.layer.Tile({
+          title: 'Stream Buffers',
+          source: new ol.source.XYZ({
+            url: 'http://{a-d}.tiles.ecotrust.org/tiles/LOT_streambuffers/{z}/{x}/{y}.png'
+          }),
+          name: 'Stream Buffers',
+          legend: {
+            id: 'stream-buffers-legend',
+            image: '/media/img/legends/LOT_streambuffers.png'
+          },
+          visible: false
+        }),
+        new ol.layer.Tile({
+          title: 'Streams',
+          source: new ol.source.XYZ({
+            url: 'http://{a-d}.tiles.ecotrust.org/tiles/LOT_streams/{z}/{x}/{y}.png'
+          }),
+          name: 'Streams',
+          legend: {
+            id: 'streams-legend',
+            image: '/media/img/legends/LOT_streams.png'
+          },
+          visible: false
+        })
+      ]
     })
   ],
   view: new ol.View({
@@ -67,3 +106,26 @@ initExtent4326 = [-124,43,-117.4,48];
 [xmax,ymax] = ol.proj.fromLonLat([initExtent4326[2],initExtent4326[3]]);
 var initExtent = [xmin,ymin,xmax,ymax];
 map.getView().fit(initExtent , map.getSize());
+
+// Show/Hide legend in legend panel when toggling overlay visibility
+var layer_groups = map.getLayers().getArray();
+for (var i = 0; i < layer_groups.length; i++) {
+  if (layer_groups[i].get('title') == overlayGroupName) {
+    overlays = layer_groups[i].getLayers().getArray();
+    for (var j = 0; j < overlays.length; j++) {
+      overlays[j].on('change:visible', function(e) {
+        if (e.oldValue) {
+          $('#' + e.target.get('legend').id).remove();
+        } else {
+          $('#map-legend').append('<div id="' + e.target.get('legend').id + '">' +
+            '<img src="' + e.target.get('legend').image + '">');
+        }
+        if ($('#map-legend').html() == '') {
+          $('#map-legend-wrapper').hide();
+        } else {
+          $('#map-legend-wrapper').show();
+        }
+      });
+    }
+  }
+}

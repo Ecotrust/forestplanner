@@ -42,7 +42,7 @@
               <!-- TODO: saw you were looking at the 'geosearch' section of API doc. I also see that locally that isn't working ( http://localhost:8000/trees/geosearch/ doesn't work, but the link in the doc to 'forestplanner.ecotrust.org' does)
 
               go ahead and hardcode to forestplanner for testing purposes, but make a note (ticket?) to pull that back out, later. -->
-              <input type="text" class="form-control" placeholder="Locate your region" aria-label="Locate your region" aria-describedby="locate-region">
+              <input type="text" class="form-control" placeholder="Locate your region" aria-label="Search by place name" aria-describedby="locate-region">
               <div class="input-group-append">
                 <button class="btn btn-outline-secondary" type="button" id="locate-region">Go</button>
               </div>
@@ -72,6 +72,10 @@
       <div class="col">
         <div id="map-wrap-row" class="row justify-content-stretch">
           <div id="map" class="map"></div>
+        </div>
+        <div id="map-legend-wrapper">
+          <h3 class="legend-box-header" data-toggle="collapse" data-target="#map-legend">Legend</h3>
+          <div id="map-legend" class="collapse show"></div>
         </div>
       </div>
       <!-- end col for map -->
