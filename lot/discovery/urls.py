@@ -17,5 +17,4 @@ urlpatterns = [
     path('enter_data/', views.enter_data, name='enter_data'),
     path('enter_stand_table/', views.enter_stand_table, name='enter_stand_table'),
     path('forest_profile/', views.forest_profile, name='forest_profile'),
-    path('stand_profile/', views.stand_profile, name='stand_profile'),
 ]

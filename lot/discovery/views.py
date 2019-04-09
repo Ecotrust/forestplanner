@@ -10,7 +10,7 @@ def index(request):
 # landing page for non logged in users
 def landing(request):
     if request.user.is_authenticated:
-        return redirect('/discovery/stand_profile/')
+        return redirect('/discovery/stands/')
     else:
         context = {}
         return render(request, 'discovery/landing.html', context)
@@ -38,83 +38,39 @@ def user_profile(request):
     context = {}
     return render(request, 'discovery/account/profile.html', context)
 
-# support new layout for user stand/properties profiles
-def stand_profile(request):
+# Display user's existing stands
+def stands(request):
     from datetime import date
     dummy_data = [
         {
-            # 'image': "/media/stands/discovery_discoverystand_1/thumbnail.png",
             'image': settings.DEFAULT_STAND_IMAGE,
             'splash_image': settings.DEFAULT_STAND_SPLASH,
             'labels': [
-                {
-                    'label': 'title',
-                    'value': 'Stand 1'
-                }, {
-                    'label': 'Modified',
-                    'value': date.today()
-                }, {
-                    'label': 'Location',
-                    'value': 'Gilliam County, OR'
-                },{
-                    'label': 'Area',
-                    'value': 1234,
-                    'posttext': 'acres'
-                },
+                {'label': 'title', 'value': 'Stand 1'},
+                {'label': 'Modified', 'value': date.today()},
+                {'label': 'Location', 'value': 'Gilliam County, OR'},
+                {'label': 'Area', 'value': 1234, 'posttext': 'acres'},
             ],
         }, {
-            # 'image': "http://placehold.it/450x300/",
             'labels': [
-                {
-                    'label': 'title',
-                    'value': 'Stand 2'
-                }, {
-                    'label': 'Modified',
-                    'value': date.today()
-                }, {
-                    'label': 'Location',
-                    'value': 'Sherman County, OR'
-                },{
-                    'label': 'Area',
-                    'value': 4321,
-                    'posttext': 'acres'
-                },
+                {'label': 'title', 'value': 'Stand 2'},
+                {'label': 'Modified', 'value': date.today()},
+                {'label': 'Location', 'value': 'Sherman County, OR'},
+                {'label': 'Area', 'value': 4321, 'posttext': 'acres'},
             ],
         }, {
-            'image': "http://placehold.it/450x300/",
             'labels': [
-                {
-                    'label': 'title',
-                    'value': 'Stand 3'
-                }, {
-                    'label': 'Modified',
-                    'value': date.today()
-                }, {
-                    'label': 'Location',
-                    'value': 'Clark County, WA'
-                },{
-                    'label': 'Area',
-                    'value': 543,
-                    'posttext': 'acres'
-                },
+                {'label': 'title', 'value': 'Stand 3'},
+                {'label': 'Modified', 'value': date.today()},
+                {'label': 'Location', 'value': 'Clark County, WA'},
+                {'label': 'Area', 'value': 543, 'posttext': 'acres'},
             ],
         }, {
-            'image': "http://placehold.it/450x300/",
             'labels': [
-                {
-                    'label': 'title',
-                    'value': 'Stand 4'
-                }, {
-                    'label': 'Modified',
-                    'value': date.today()
-                }, {
-                    'label': 'Location',
-                    'value': 'Douglas County, WA'
-                },{
-                    'label': 'Area',
-                    'value': 1234,
-                    'posttext': 'acres'
-                },
+                {'label': 'title', 'value': 'Stand 4'},
+                {'label': 'Modified', 'value': date.today()},
+                {'label': 'Location', 'value': 'Douglas County, WA'},
+                {'label': 'Area', 'value': 1234, 'posttext': 'acres'},
             ],
         },
     ]
@@ -129,18 +85,6 @@ def stand_profile(request):
         # use button_text and button_action together
         'button_text': '+ Add a new property',
         'button_action': '/discovery/find_your_forest/',
-    }
-    return render(request, 'discovery/common/grid.html', context)
-
-# account password reset and username recovery page
-def stands(request):
-    context = {
-        # Todo: add username condition and value
-        'user': request.user,
-        'title': 'stands',
-        # use button_text and button_action together
-        'button_text': '+ Add a new property',
-        'button_action': '',
     }
     return render(request, 'discovery/common/grid.html', context)
 
