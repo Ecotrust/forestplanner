@@ -40,16 +40,15 @@
         <!-- end cross content block row -->
         <div class="row justify-content-center">
           <div class="col-9">
-            <div class="input-group">
-              <!-- TODO: saw you were looking at the 'geosearch' section of API doc. I also see that locally that isn't working ( http://localhost:8000/trees/geosearch/ doesn't work, but the link in the doc to 'forestplanner.ecotrust.org' does)
-
-              go ahead and hardcode to forestplanner for testing purposes, but make a note (ticket?) to pull that back out, later. -->
-              <input type="text" class="form-control" placeholder="Locate your region" aria-label="Search by place name" aria-describedby="locate-region">
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary" type="button" id="locate-region">Go</button>
+            <form id="search-place-form">
+              <div class="input-group">
+                <input id="search-place-input" type="text" class="form-control" placeholder="Search by place name" aria-label="Search by place name" aria-describedby="locate-region">
+                <div class="input-group-append">
+                  <button class="btn btn-outline-secondary" type="submit" id="search-place-btn">Search</button>
+                </div>
               </div>
-            </div>
-            <small id="locate-region-help" class="form-text text-muted">Search using place name or zip code</small>
+              <small id="locate-region-help" class="form-text text-muted">Search using place name or zip code</small>
+            </form>
           </div>
         </div>
         <div class="row justify-content-center">

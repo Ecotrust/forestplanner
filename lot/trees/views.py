@@ -398,8 +398,8 @@ def geosearch(request):
             'extent': None,
             'center': None,
         }
-        json_loc = json.dumps(loc)
-        return JsonResponse(json_loc, status=404)
+        # json_loc = json.dumps(loc)
+        return JsonResponse(loc, status=404)
 
 
 def stand_list_nn(request):
