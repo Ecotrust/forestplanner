@@ -272,6 +272,10 @@ USE_FIA_NN_MATCHING = True
 # ------------------------------------------------------------------------------
 # Discovery settings
 # ------------------------------------------------------------------------------
+INSTALLED_APPS += (
+    'django.contrib.flatpages',
+)
+
 try:
     from discovery.settings import *
 except ImportError as e:
