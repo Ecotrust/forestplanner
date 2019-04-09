@@ -1,11 +1,16 @@
 {% extends 'discovery/common/base.html' %}
-{% load flatblocks %}
+{% load flatblocks static %}
+
+{% block extra_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'discovery/css/page.css' %}">
+{% endblock %}
 
 {% block pre-content %}
   <div class="container">
-    <div class="row mb-4 mt-4 align-items-center justify-content-between">
+    <div class="row page-title-row">
       {% if title %}
-        <h1 class="display-3">{% if user.username %}{{ user.username }}{% endif %} {{ title }}</h1>
+        <h1 class="page-title">{{ title|title }}</h1>
       {% endif %}
       {% if button_text %}
         <a href="{{ button_action }}" class="btn btn-outline-dark">{{ button_text }}</a>
