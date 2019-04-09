@@ -1,0 +1,21 @@
+{% extends "discovery/common/base.html" %}
+{% load static %}
+
+{% block title %}ForestDiscovery: {{ flatpage.title }}{% endblock %}
+
+{% block site_style %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'discovery/css/flatpages.css' %}" />
+{% endblock site_style %}
+
+{% block content %}
+<div class="container">
+  <div class="row-fluid">
+    <div class="col">
+      <div class="flatpage_content">
+        {{ flatpage.content|safe }}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

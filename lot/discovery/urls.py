@@ -1,6 +1,7 @@
-from django.urls import path
-from trees.views import *
+from django.urls import path, re_path, include
 from . import views
+from trees import views as trees_views
+# from django.contrib.flatpages import views as flat_views
 
 urlpatterns = [
     path('', views.index, name='index'),
@@ -17,4 +18,5 @@ urlpatterns = [
     path('enter_data/', views.enter_data, name='enter_data'),
     path('enter_stand_table/', views.enter_stand_table, name='enter_stand_table'),
     path('forest_profile/', views.forest_profile, name='forest_profile'),
+    path('pages/', include('django.contrib.flatpages.urls')),
 ]
