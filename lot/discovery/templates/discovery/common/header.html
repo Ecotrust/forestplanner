@@ -3,7 +3,25 @@
     <span class="navbar-toggler-icon"></span>
   </button>
   <a class="navbar-brand" href="#">Forest Planner</a>
-  <a class="login btn btn-sm btn-outline-dark" href="/discovery/auth/login/">Login</a>
+  {% if user.is_authenticated %}
+    <ul class="nav profile-nav">
+      <li class="nav-item dropdown">
+        {% if user.first_name and user.last_name %}
+          <a class="nav-link btn btn-sm btn-outline-dark dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{ user.first_name }} {{ user.last_name }}</a>
+        {% else %}
+          <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}</a>
+        {% endif %}
+        <div class="dropdown-menu">
+          <a class="dropdown-item" href="/discovery/auth/profile/">My Profile</a>
+          <a class="dropdown-item" href="{% url 'account_change_password' %}">Manage Password</a>
+          <div class="dropdown-divider"></div>
+          <a class="dropdown-item" href="{% url 'user_signout' %}?next=/discovery/">Log Out</a>
+        </div>
+      </li>
+    </ul>
+  {% else %}
+    <a class="login btn btn-sm btn-outline-dark" href="/discovery/auth/login/">Login</a>
+  {% endif %}
   <div class="collapse navbar-collapse" id="navbarNav">
   <ul class="navbar-nav">
     <li class="nav-item active">
