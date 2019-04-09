@@ -1,3 +1,9 @@
+var drawSource = new ol.source.Vector({wrapX: false});
+
+var drawVector = new ol.layer.Vector({
+  source: drawSource
+});
+
 var overlayGroupName = "Overlays";
 
 var map = new ol.Map({
@@ -85,7 +91,8 @@ var map = new ol.Map({
           visible: false
         })
       ]
-    })
+    }),
+    drawVector
   ],
   view: new ol.View({
     center: ol.proj.fromLonLat([-121.9, 45.5]),
@@ -129,3 +136,27 @@ for (var i = 0; i < layer_groups.length; i++) {
     }
   }
 }
+
+drawInteraction = new ol.interaction.Draw({
+  source: drawSource,
+  type: "Polygon"
+});
+
+drawInteraction.on('drawend', function(e) {
+  stopDrawing();
+  standDrawn(e);
+})
+
+drawModify = new ol.interaction.Modify(
+  {
+    source: drawSource
+  }
+);
+
+drawSnap = new ol.interaction.Snap(
+  {
+    source: drawSource
+  }
+);
+
+startDrawing();
