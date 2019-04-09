@@ -17,26 +17,32 @@ def landing(request):
 
 # account login page
 def login(request):
+    # TODO: write to handle wrong email address or password on login
+    # if request.method == 'POST':
+        # return django.contrib.auth.views.login()
+    # else:
     context = {}
     return render(request, 'discovery/account/login.html', context)
 
-# account register page
-def register(request):
+# account register / signup page
+def signup(request):
     context = {
-        # 'register': register,
         'title': 'Forest Discovery',
     }
-    return render(request, 'discovery/account/register.html', context)
+    return render(request, 'discovery/account/signup.html', context)
 
 # account password reset and username recovery page
-def reset(request):
+def password_reset(request):
     context = {}
-    return render(request, 'discovery/account/reset.html', context)
+    return render(request, 'discovery/account/password_reset.html', context)
 
 # account profile page
 def user_profile(request):
-    context = {}
-    return render(request, 'discovery/account/profile.html', context)
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % ('/discovery/auth/login/', request.path))
+    else:
+        context = {}
+        return render(request, 'discovery/account/profile.html', context)
 
 # Display user's existing stands
 def stands(request):
