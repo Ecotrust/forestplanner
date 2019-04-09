@@ -17,6 +17,10 @@ def landing(request):
 
 # account login page
 def login(request):
+    # TODO: write to handle wrong email address or password on login
+    # if request.method == 'POST':
+        # return django.contrib.auth.views.login()
+    # else:
     context = {}
     return render(request, 'discovery/account/login.html', context)
 
@@ -34,8 +38,11 @@ def password_reset(request):
 
 # account profile page
 def user_profile(request):
-    context = {}
-    return render(request, 'discovery/account/profile.html', context)
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % ('/discovery/auth/login/', request.path))
+    else:
+        context = {}
+        return render(request, 'discovery/account/profile.html', context)
 
 # Display user's existing stands
 def stands(request):
