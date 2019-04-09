@@ -23,7 +23,7 @@
   </div>
   {% endif %}
   <div class="row">
-    <form class="login" method="POST" action="/auth/login/">
+    <form class="login" method="POST" action="/auth/login/?next=/discovery/">
       {% csrf_token %}
       <div class="form-group">
         <label for="username">Username</label>
@@ -56,28 +56,4 @@
 {% endblock content %}
 
 {% block extra_foot_scripts %}
-
-<script>
-  $(document).ready(function(){
-    $('.login').submit(validateLogin);
-  });
-
-  function validateLogin(){
-    var $els = $('#id_login, #id_password'),
-    invalid = [];
-
-    $.each($els, function(i, el){
-      if ($(el).val() === ""){
-        $(el).closest('.control-group').addClass('error');
-        invalid.push(el);
-      } else {
-        $(el).closest('.control-group').removeClass('error');
-      }
-    });
-
-    if(invalid.length){
-      return false;
-    }
-  }
-</script>
 {% endblock extra_foot_scripts %}
