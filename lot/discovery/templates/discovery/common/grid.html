@@ -15,8 +15,14 @@
         <div class="card stand-wrap">
           <!-- Todo: add dataset values for property data for loading into modal -->
           <a data-toggle="modal" data-target="#stand-modal"
-              data-img="{% if data.splash_image %}{{ data.splash_image }}{% endif %}">
-            <img src="{{ data.image }}" class="card-img-top" alt="{{ data.labels.0.value }}">
+              data-img="{% if data.splash_image %}{{ data.splash_image }}{% else %}{{ grid_defaults.splash_image }}{% endif %}">
+            <span class="card-img-top-wrapper">
+              {% if data.image %}
+                <img src="{{ data.image }}" class="card-img-top" alt="{{ data.labels.0.value }}">
+              {% else %}
+                <img src="{{ grid_defaults.image }}" class="card-img-top">
+              {% endif %}
+            </span>
             <div class="card-body">
               {% for label in data.labels %}
                 {% if label.label == "title" %}

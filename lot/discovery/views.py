@@ -44,7 +44,7 @@ def stand_profile(request):
     dummy_data = [
         {
             # 'image': "/media/stands/discovery_discoverystand_1/thumbnail.png",
-            'image': "http://placehold.it/450x300/",
+            'image': settings.DEFAULT_STAND_IMAGE,
             'splash_image': settings.DEFAULT_STAND_SPLASH,
             'labels': [
                 {
@@ -63,7 +63,7 @@ def stand_profile(request):
                 },
             ],
         }, {
-            'image': "http://placehold.it/450x300/",
+            # 'image': "http://placehold.it/450x300/",
             'labels': [
                 {
                     'label': 'title',
@@ -122,6 +122,10 @@ def stand_profile(request):
         'user': request.user,
         'title': 'stands',
         'grid_data': dummy_data,
+        'grid_defaults': {
+            'image': settings.DEFAULT_STAND_IMAGE,
+            'splash_image': settings.DEFAULT_STAND_SPLASH,
+        },
         # use button_text and button_action together
         'button_text': '+ Add a new property',
         'button_action': '/discovery/map/',

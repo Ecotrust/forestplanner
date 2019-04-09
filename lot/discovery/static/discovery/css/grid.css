@@ -4,6 +4,19 @@
   margin-bottom: 1rem;
 }
 
+.card-img-top-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    height: 35%;
+}
+.card-img-top {
+    flex-shrink: 0;
+    min-width: 100%;
+    min-height: 100%
+}
+
 .card-title {
   text-align: center;
 }
