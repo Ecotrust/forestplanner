@@ -20,13 +20,12 @@ def login(request):
     context = {}
     return render(request, 'discovery/account/login.html', context)
 
-# account register page
-def register(request):
+# account register / signup page
+def signup(request):
     context = {
-        # 'register': register,
         'title': 'Forest Discovery',
     }
-    return render(request, 'discovery/account/register.html', context)
+    return render(request, 'discovery/account/signup.html', context)
 
 # account password reset and username recovery page
 def reset(request):
