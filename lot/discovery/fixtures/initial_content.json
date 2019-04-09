@@ -79,5 +79,20 @@
     "header": "Enter Stand Table",
     "content": "A stand table is a lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor sit amet, consectetur adipiscing elit."
   }
+},
+{
+  "model": "flatpages.flatpage",
+  "pk": 1,
+  "fields": {
+    "url": "/tos/",
+    "title": "Terms of Service",
+    "content": "<h1>Terms of Service</h1>\r\n\r\n<p>ForestPlanner and Forest Discovery have&nbsp;been developed by Ecotrust to provide information regarding predicted outcomes from a variety for different forest management practices. The Forest Planner incorporates data provided by the user along with data, models, and processes from a variety of private, local, state, and federal agencies and non-governmental organizations.</p>\r\n\r\n<ul>\r\n\t<li>Ecotrust makes no warranty, nor assumes any legal liability for the accuracy, completeness or usefulness of the information contained in the Forest Planner.</li>\r\n\t<li>Ecotrust does not assume responsibility or liability for any direct, indirect or consequential damages from the use of the Forest Planner.</li>\r\n\t<li>The user of this application assumes all responsibility and risk for the use of the information for any decision made as a result of this information, available from this server and the Internet in general.</li>\r\n\t<li>The user alone is responsible for the application and interpretation of this information and is responsible for use consistent with an appropriate level of caution.</li>\r\n</ul>\r\n\r\n<p>The Forest Planner is not a substitute for consultation with a qualified forester. Users are strongly encouraged to develop a written management plan including consultation with a qualified forester before implementing any forest management activities in the field.</p>",
+    "enable_comments": false,
+    "template_name": "",
+    "registration_required": false,
+    "sites": [
+      1
+    ]
+  }
 }
 ]

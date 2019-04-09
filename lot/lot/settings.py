@@ -274,6 +274,7 @@ USE_FIA_NN_MATCHING = True
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += (
     'django.contrib.flatpages',
+    'ckeditor',
 )
 
 try:

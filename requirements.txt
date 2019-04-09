@@ -17,6 +17,7 @@ defusedxml>=0.5.0
 Django>=2.1.7
 django-allauth>=0.39.0
 django-appconf>=1.0.2
+django-ckeditor>=5.6.1
 django-compressor>=2.2
 django-extensions>=2.1.6
 django-flatblocks>=0.9.4
