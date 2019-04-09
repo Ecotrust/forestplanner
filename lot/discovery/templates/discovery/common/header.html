@@ -13,7 +13,7 @@
         {% endif %}
         <div class="dropdown-menu">
           <a class="dropdown-item" href="/discovery/auth/profile/">My Profile</a>
-          <a class="dropdown-item" href="/discovery{% url 'account_change_password' %}">Manage Password</a>
+          <a class="dropdown-item" href="{% url 'account_change_password' %}">Manage Password</a>
           <div class="dropdown-divider"></div>
           <a class="dropdown-item" href="{% url 'user_signout' %}?next=/discovery/">Log Out</a>
         </div>

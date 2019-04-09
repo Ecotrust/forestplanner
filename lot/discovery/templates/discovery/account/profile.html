@@ -1,6 +1,7 @@
-{% extends 'discovery/common/base.html' %}
+{% extends 'account/base.html' %}
 {% block content %}
-  {% if user %}
+
+{% if user %}
     <h2>Account info for <em>{{user.username}}</em></h2>
     <table class="table">
       <tr>

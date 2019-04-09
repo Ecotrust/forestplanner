@@ -11,7 +11,6 @@ urlpatterns = [
     path('auth/login/', views.login, name='login'),
     path('auth/signup/', views.signup, name='signup'),
     path('auth/profile/', views.user_profile, name='user_profile'),
-    path('auth/password/change/', views.password_reset, name='password_reset'),
     path('stands/', views.stands, name='stands'),
     path('find_your_forest/', views.find_your_forest, name='find_your_forest'),
     path('map/', views.map, name='map'),
