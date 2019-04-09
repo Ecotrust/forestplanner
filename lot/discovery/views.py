@@ -28,9 +28,9 @@ def signup(request):
     return render(request, 'discovery/account/signup.html', context)
 
 # account password reset and username recovery page
-def reset(request):
+def password_reset(request):
     context = {}
-    return render(request, 'discovery/account/reset.html', context)
+    return render(request, 'discovery/account/password_reset.html', context)
 
 # account profile page
 def user_profile(request):
