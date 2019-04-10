@@ -20,6 +20,7 @@ updateStandGeomField = function() {
   var standGeom = drawSource.getFeatures()[0].getGeometry();
   var wktFormat = new ol.format.WKT();
   $('#stand-wkt-input').val(wktFormat.writeGeometry(standGeom));
+  $('#stand-form').change();
 }
 
 standDrawn = function(e) {

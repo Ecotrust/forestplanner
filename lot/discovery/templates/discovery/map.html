@@ -85,19 +85,18 @@
             <div class="row">
               <button onclick="restartDrawing()" id="restart-drawing-button">Start Over</button>
             </div>
-            <div class="row map-form-row">
-              <div class="col">
-                  <input id="stand-name-input" type="text" class="form-control" placeholder="Name your stand" aria-label="Name your stand" aria-describedby="stand-name">
-                  <small id="stand-name-help" class="form-text text-muted">You can edit your stand later if needed.</small>
+              <div class="row map-form-row">
+                <div class="col">
+                  {{ DISCOVERYSTAND_FORM }}
+                  <form id="stand-form">
+                    <input id="stand-name-input" type="text" class="form-control" placeholder="Name your stand" aria-label="Name your stand" aria-describedby="stand-name">
+                    <small id="stand-name-help" class="form-text text-muted">You can edit your stand later if needed.</small>
+                    <textarea id="stand-wkt-input" style="width:100%; display:none"></textarea>
+                  </form>
+                </div>
               </div>
-            </div>
-            <div class="row map-form-row">
-              <div class="col">
-                  <textarea id="stand-wkt-input" style="width:100%; display:none"></textarea>
-              </div>
-            </div>
             <div class="row">
-              <button id="collect-data-advance-button" class="btn btn-dark">Save Stand and Collect Data <i class="far fa-arrow-alt-circle-right"></i></button>
+              <button id="collect-data-advance-button" class="btn btn-dark disabled">Save Stand and Collect Data <i class="far fa-arrow-alt-circle-right"></i></button>
             </div>
           </div>
         </div>

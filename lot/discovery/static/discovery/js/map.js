@@ -163,4 +163,48 @@ drawSnap = new ol.interaction.Snap(
   }
 );
 
+standFormValid = function() {
+  response = '';
+  if ($('#stand-name-input').val() == '') {
+    response += 'Please give your stand a name.\n';
+  }
+  if ($('#stand-wkt-input').val() == '') {
+    response += 'No drawing detected. Please "Start Over".\n';
+  }
+  return response;
+};
+
+standFormChange = function() {
+  response = standFormValid();
+  if (response == '') {
+    $('#collect-data-advance-button').removeClass('disabled');
+  } else {
+    $('#collect-data-advance-button').addClass('disabled');
+  }
+};
+
+standFormSubmitted = function(e) {
+  e.preventDefault();
+  response = standFormValid();
+  if (response == '') {
+    $.ajax({
+      url: '/features/discoveryStand/form/',
+      data: $('#stand-form').data(),
+      success: function(data){
+        alert("Submit success!");
+      },
+      error: function(data){
+        alert("Submit error!");;
+      }
+    });
+  } else {
+    alert(response);
+  }
+}
+
 startDrawing();
+
+$('#stand-form').on('change', standFormChange);
+$('#stand-name-input').on('change', standFormChange);
+$('#stand-wkt-input').on('change', standFormChange);
+$('#collect-data-advance-button').on('click', standFormSubmitted);
