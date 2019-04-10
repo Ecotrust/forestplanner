@@ -145,13 +145,17 @@ drawInteraction = new ol.interaction.Draw({
 drawInteraction.on('drawend', function(e) {
   stopDrawing();
   standDrawn(e);
-})
+});
 
 drawModify = new ol.interaction.Modify(
   {
     source: drawSource
   }
 );
+
+drawModify.on('modifyend', function(e) {
+  standModified(e);
+});
 
 drawSnap = new ol.interaction.Snap(
   {

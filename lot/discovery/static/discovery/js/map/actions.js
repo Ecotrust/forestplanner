@@ -16,13 +16,25 @@ $('#search-place-form').submit(function(e){
   });
 });
 
+updateStandGeomField = function() {
+  var standGeom = drawSource.getFeatures()[0].getGeometry();
+  var wktFormat = new ol.format.WKT();
+  $('#stand-wkt-input').val(wktFormat.writeGeometry(standGeom));
+}
+
 standDrawn = function(e) {
-  console.log('map drawn. ' + e);
   // show slide10 content
+  $('.pre-draw').hide();
+  $('.post-draw').show();
   // activate editing
   map.addInteraction(drawModify);
   map.addInteraction(drawSnap);
   // prepare to populate fields and submit form when user clicks finish button
+  setTimeout(function() {updateStandGeomField();}, 50);
+}
+
+standModified = function(e) {
+  setTimeout(function() {updateStandGeomField();}, 50);
 }
 
 clearDrawing = function() {
@@ -32,9 +44,18 @@ clearDrawing = function() {
 startDrawing = function() {
   map.removeInteraction(drawModify);
   map.removeInteraction(drawSnap);
+  $('.post-draw').hide();
+  $('.pre-draw').show();
   map.addInteraction(drawInteraction);
 }
 
 stopDrawing = function() {
   map.removeInteraction(drawInteraction);
+}
+
+restartDrawing = function() {
+  clearDrawing();
+  $("#stand-name-input").val(null);
+  $("#stand-wkt-input").val(null);
+  startDrawing();
 }

@@ -178,7 +178,7 @@ def map(request):
         'title': 'Map your forest stand',
         'flatblock_slug': 'map-your-property',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
+        # 'button_text': 'Help',
         'button_action': '',
     }
     return render(request, 'discovery/map.html', context)

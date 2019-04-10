@@ -1,3 +1,30 @@
+.post-draw {
+  display: none;
+}
+
+.enable-gis-upload {
+  display: none;
+}
+
+.map-flatblock-container {
+  padding: 1.5rem;
+}
+
+.map-form-row {
+  justify-content: center;
+}
+
+#restart-drawing-button {
+  float: right;
+  margin-right: 4rem;
+  margin-left: auto;
+  margin-bottom: 2rem;
+}
+
+#collect-data-advance-button {
+  margin-top: 10rem;
+}
+
 #content-map-wrap,
 #map-wrap-row {
     height: calc(100vh - 56px);

@@ -1,5 +1,5 @@
 {% extends 'discovery/page.html' %}
-{% load static %}
+{% load flatblocks static %}
 
 {% block extra_styles %}
   {{ block.super }}
@@ -34,11 +34,24 @@
 {% endblock pre-content %}
 
 {% block content %}
-            {{ block.super }}
+            <div class="container map-flatblock-container pre-draw">
+              <div class="row">
+                <div class="col">
+                  {% flatblock "map-your-stand" evaluated=True %}
+                </div>
+              </div>
+            </div>
+            <div class="container map-flatblock-container post-draw">
+              <div class="row">
+                <div class="col">
+                  {% flatblock "edit-your-stand" evaluated=True %}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <!-- end cross content block row -->
-        <div class="row justify-content-center">
+        <div class="row pre-draw map-form-row">
           <div class="col-9">
             <form id="search-place-form">
               <div class="input-group">
@@ -51,8 +64,8 @@
             </form>
           </div>
         </div>
-        <div class="row justify-content-center">
-          <div class="col-9">
+        <div class="row pre-draw justify-content-center">
+          <div class="col-9 enable-gis-upload">
             <div class="input-group">
               <div class="custom-file">
                 <input type="file" class="custom-file-input" id="inputGroupFile03" aria-describedby="inputGroupFileAddon03">
@@ -66,6 +79,28 @@
             <a href="/discovery/collect_data/" class="btn btn-dark">Collect + enter data</a>
           </div>
         </div>
+
+        <div class="post-draw">
+          <div class="row">
+            <button onclick="restartDrawing()" id="restart-drawing-button">Start Over</button>
+          </div>
+          <div class="row map-form-row">
+            <div class="col">
+                <input id="stand-name-input" type="text" class="form-control" placeholder="Name your stand" aria-label="Name your stand" aria-describedby="stand-name">
+                <small id="stand-name-help" class="form-text text-muted">You can edit your stand later if needed.</small>
+            </div>
+          </div>
+          <div class="row map-form-row">
+            <div class="col">
+                <input id="stand-wkt-input" type="textarea">
+            </div>
+          </div>
+          <div class="row">
+            <button id="collect-data-advance-button" class="btn btn-dark">Save Stand and Collect Data <i class="far fa-arrow-alt-circle-right"></i></button>
+          </div>
+        </div>
+
+
       </div>
       <!-- end col for pre content and content block -->
 

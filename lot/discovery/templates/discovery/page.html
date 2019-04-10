@@ -9,11 +9,17 @@
 {% block pre-content %}
   <div class="container">
     <div class="row page-title-row">
-      {% if title %}
-        <h1 class="page-title">{{ title|title }}</h1>
-      {% endif %}
       {% if button_text %}
-        <a href="{{ button_action }}" class="btn btn-outline-dark">{{ button_text }}</a>
+        <div class="col-8">
+          <h1 class="page-title">{{ title|title }}</h1>
+        </div>
+        <div class="col-4">
+          <a href="{{ button_action }}" class="btn btn-outline-dark">{{ button_text }}</a>
+        </div>
+      {% else %}
+      <div class="col">
+        <h1 class="page-title">{{ title|title }}</h1>
+      </div>
       {% endif %}
     </div>
   </div>
@@ -21,10 +27,12 @@
 
 {% block content %}
   <div class="container">
-    <div class="row align-items-center justify-content-start">
-      {% if flatblock_slug %}
-        {% flatblock flatblock_slug evaluated=True %}
-      {% endif %}
+    <div class="row">
+      <div class="col">
+        {% if flatblock_slug %}
+          {% flatblock flatblock_slug evaluated=True %}
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock content %}
