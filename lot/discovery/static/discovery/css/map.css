@@ -6,8 +6,12 @@
   display: none;
 }
 
+.page-title-row .col {
+  padding-left: 0;
+}
+
 .map-flatblock-container {
-  padding: 1.5rem;
+  padding: 1.5rem 0;
 }
 
 .map-form-row {
@@ -16,9 +20,14 @@
 
 #restart-drawing-button {
   float: right;
-  margin-right: 4rem;
+  /* margin-right: 4rem; */
   margin-left: auto;
   margin-bottom: 2rem;
+}
+
+#post-draw-form {
+  justify-content: center;
+  display: flex;
 }
 
 #collect-data-advance-button {
