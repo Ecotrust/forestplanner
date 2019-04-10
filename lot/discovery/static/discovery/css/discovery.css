@@ -12,6 +12,27 @@ header {
   right: 0;
 }
 
+#navbarNav {
+  max-width: 35vw;
+  position: fixed;
+  top: 49px;
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border: 1px solid gray;
+  border-radius: 0.2rem;
+}
+
+.navbar-nav .nav-link {
+  padding: 0.2rem 0.5rem;
+}
+
+.navbar-nav .nav-link:hover {
+  /* padding: 0 0.5rem; */
+  border-radius: 0.3rem;
+  color: black;
+  background: #DDD;
+}
+
 /* ===================================
   Landing Page
 =================================== */
