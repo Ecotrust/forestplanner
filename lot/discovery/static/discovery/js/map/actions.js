@@ -19,7 +19,7 @@ $('#search-place-form').submit(function(e){
 updateStandGeomField = function() {
   var standGeom = drawSource.getFeatures()[0].getGeometry();
   var wktFormat = new ol.format.WKT();
-  $('#stand-wkt-input').val(wktFormat.writeGeometry(standGeom));
+  $('#id_geometry_final').val(wktFormat.writeGeometry(standGeom));
   $('#stand-form').change();
 }
 
@@ -56,7 +56,7 @@ stopDrawing = function() {
 
 restartDrawing = function() {
   clearDrawing();
-  $("#stand-name-input").val(null);
-  $("#stand-wkt-input").val(null);
+  $("#id_name").val(null);
+  $("#id_geometry_final").val(null);
   startDrawing();
 }

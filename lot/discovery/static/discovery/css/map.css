@@ -6,6 +6,12 @@
   display: none;
 }
 
+.overflow-panel {
+  height: calc(100vh - 56px - 5rem);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
 .page-title-row .col {
   padding-left: 0;
 }
@@ -30,8 +36,16 @@
   display: flex;
 }
 
+span.helptext {
+    color: #6c757d;
+    font-size: 0.8rem;
+    margin-top: -1rem;
+    position: absolute;
+}
+
 #collect-data-advance-button {
-  margin-top: 10rem;
+  bottom: 2rem;
+  position: fixed;
 }
 
 #content-map-wrap,

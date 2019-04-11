@@ -1,8 +1,9 @@
-from django.shortcuts import render, redirect
-
 # Create your views here.
 from django.http import HttpResponse
 from django.conf import settings
+from django.shortcuts import render, redirect
+from madrona.features import get_feature_by_uid
+from discovery.forms import DiscoveryStandForm
 
 def index(request):
     return redirect('/discovery/landing/')
@@ -173,13 +174,21 @@ def enter_stand_table(request):
     return render(request, 'discovery/common/data_table.html', context)
 
 # view for web map of property
-def map(request):
+def map(request, discovery_stand_uid=None):
+    if discovery_stand_uid:
+        discovery_stand = get_feature_by_uid(discovery_stand_uid)
+        form = discovery_stand.form()
+    else:
+        form = DiscoveryStandForm()
+    form_user = request.user
+    form.fields['user'].initial = form_user
     context = {
         'title': 'Map your forest stand',
         'flatblock_slug': 'map-your-property',
         # use button_text and button_action together
         # 'button_text': 'Help',
         'button_action': '',
+        'DISCOVERYSTAND_FORM': form,
     }
     return render(request, 'discovery/map.html', context)
 

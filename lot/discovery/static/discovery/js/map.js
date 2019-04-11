@@ -165,10 +165,10 @@ drawSnap = new ol.interaction.Snap(
 
 standFormValid = function() {
   response = '';
-  if ($('#stand-name-input').val() == '') {
+  if ($('#id_name').val() == '') {
     response += 'Please give your stand a name.\n';
   }
-  if ($('#stand-wkt-input').val() == '') {
+  if ($('#id_geometry_final').val() == '') {
     response += 'No drawing detected. Please "Start Over".\n';
   }
   return response;
@@ -188,8 +188,9 @@ standFormSubmitted = function(e) {
   response = standFormValid();
   if (response == '') {
     $.ajax({
-      url: '/features/discoveryStand/form/',
-      data: $('#stand-form').data(),
+      url: '/features/discoverystand/form/',
+      data: $('#stand-form').serialize(),
+      method: 'POST',
       success: function(data){
         alert("Submit success!");
       },
@@ -205,6 +206,6 @@ standFormSubmitted = function(e) {
 startDrawing();
 
 $('#stand-form').on('change', standFormChange);
-$('#stand-name-input').on('change', standFormChange);
-$('#stand-wkt-input').on('change', standFormChange);
+$('#id_name').on('change', standFormChange);
+$('#id_geometry_final').on('change', standFormChange);
 $('#collect-data-advance-button').on('click', standFormSubmitted);
