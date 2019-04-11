@@ -66,5 +66,26 @@ class DiscoveryStand(Feature):
                 non_field_errors += "%s: %s. " % (key, e.message_dict[key])
             return non_field_errors
 
+    def to_grid(self):
+        from django.conf import settings
+        from datetime import date
+        out_dict = {}
+        if self.image:
+            out_dict['image'] = self.image
+        else:
+            out_dict['image'] = settings.DEFAULT_STAND_IMAGE
+        if self.splash_image:
+            out_dict['splash_image'] = self.splash_image
+        else:
+            out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
+        out_dict['labels'] = [
+            {'label': 'title', 'value': self.name},
+            {'label': 'Location', 'value': "%s County, %s" % self.lot_property.location},
+            {'label': 'Area', 'value': int(round(self.lot_property.acres)), 'posttext': 'acres'},
+            {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
+        ]
+
+        return out_dict
+
     class Options:
         form = "discovery.forms.DiscoveryStandForm"

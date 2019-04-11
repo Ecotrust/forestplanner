@@ -47,44 +47,17 @@ def user_profile(request):
 
 # Display user's existing stands
 def stands(request):
+    from discovery.models import DiscoveryStand
     from datetime import date
-    dummy_data = [
-        {
-            'image': settings.DEFAULT_STAND_IMAGE,
-            'splash_image': settings.DEFAULT_STAND_SPLASH,
-            'labels': [
-                {'label': 'title', 'value': 'Stand 1'},
-                {'label': 'Modified', 'value': date.today()},
-                {'label': 'Location', 'value': 'Gilliam County, OR'},
-                {'label': 'Area', 'value': 1234, 'posttext': 'acres'},
-            ],
-        }, {
-            'labels': [
-                {'label': 'title', 'value': 'Stand 2'},
-                {'label': 'Modified', 'value': date.today()},
-                {'label': 'Location', 'value': 'Sherman County, OR'},
-                {'label': 'Area', 'value': 4321, 'posttext': 'acres'},
-            ],
-        }, {
-            'labels': [
-                {'label': 'title', 'value': 'Stand 3'},
-                {'label': 'Modified', 'value': date.today()},
-                {'label': 'Location', 'value': 'Clark County, WA'},
-                {'label': 'Area', 'value': 543, 'posttext': 'acres'},
-            ],
-        }, {
-            'labels': [
-                {'label': 'title', 'value': 'Stand 4'},
-                {'label': 'Modified', 'value': date.today()},
-                {'label': 'Location', 'value': 'Douglas County, WA'},
-                {'label': 'Area', 'value': 1234, 'posttext': 'acres'},
-            ],
-        },
-    ]
+
+    stands = []
+    for stand in DiscoveryStand.objects.filter(user=request.user):
+        stands.append(stand.to_grid())
+    
     context = {
         'user': request.user,
         'title': 'stands',
-        'grid_data': dummy_data,
+        'grid_data': stands,
         'grid_defaults': {
             'image': settings.DEFAULT_STAND_IMAGE,
             'splash_image': settings.DEFAULT_STAND_SPLASH,
