@@ -182,7 +182,12 @@ def enter_stand_table(request):
 def map(request, discovery_stand_uid=None):
     if discovery_stand_uid:
         discovery_stand = get_feature_by_uid(discovery_stand_uid)
-        form = discovery_stand.form()
+        form = DiscoveryStandForm({
+            'name': discovery_stand.name,
+            'geometry_final': discovery_stand.get_stand().geometry_final.wkt,
+            'user': request.user.pk,
+            'pk':discovery_stand.pk,
+        })
     else:
         form = DiscoveryStandForm()
     form_user = request.user

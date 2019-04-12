@@ -186,9 +186,14 @@ standFormChange = function() {
 standFormSubmitted = function(e) {
   e.preventDefault();
   response = standFormValid();
+  url = '/features/discoverystand/form/';
+  if (window.location.pathname.indexOf("/discovery/map/") >= 0) {
+    uid = window.location.pathname.split("/discovery/map/")[1];
+    url = '/features/discoverystand/' + uid;
+  }
   if (response == '') {
     $.ajax({
-      url: '/features/discoverystand/form/',
+      url: url,
       data: $('#stand-form').serialize(),
       method: 'POST',
       success: function(data){

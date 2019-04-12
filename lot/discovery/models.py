@@ -28,11 +28,11 @@ class DiscoveryStand(Feature):
             'getContent': '/discovery/modal_content/stand/%s/' % self.uid,
         }
         if self.image:
-            out_dict['image'] = self.image
+            out_dict['image'] = self.image.url
         else:
             out_dict['image'] = settings.DEFAULT_STAND_IMAGE
         if self.splash_image:
-            out_dict['splash_image'] = self.splash_image
+            out_dict['splash_image'] = self.splash_image.url
         else:
             out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
         out_dict['labels'] = [
@@ -49,51 +49,58 @@ class DiscoveryStand(Feature):
         from django.contrib.auth.models import User
         from django.contrib.gis import geos
 
-        try:
-            form = kwargs['form']
-            geometry_final = geos.GEOSGeometry(form.data.pop('geometry_final')[0])
-            if hasattr(self, 'lot_property') and not self.lot_property == None:
-                self.lot_property.geometry_final = geometry_final
-                self.lot_property.save()
-            else:
-                # stupid hack since passing form.data didn't seem to like any value for 'user'
-                data = {
-                    'user': User.objects.get(pk=form.data['user']),
-                    'name': form.data['name'],
-                    'geometry_final': geometry_final
-                }
-                # ForestProperty.geometry_final MUST be MultiPolygon.
-                if isinstance(geometry_final, geos.Polygon):
-                    data['geometry_final'] = geos.MultiPolygon(geometry_final)
-                lot_property = ForestProperty(**data)
-                lot_property.save()
-                self.lot_property = lot_property
+        if 'form' in kwargs.keys():
+            try:
+                form = kwargs['form']
+                if form.data['pk'] and not self.pk == int(form.data['pk']):
+                    DiscoveryStand.objects.get(pk=int(form.data['pk'])).save(*args, **kwargs)
+                else:
+                    geometry_final = geos.GEOSGeometry(form.data.pop('geometry_final')[0])
+                    if hasattr(self, 'lot_property') and not self.lot_property == None:
+                        if isinstance(geometry_final, geos.MultiPolygon):
+                            self.lot_property.geometry_final = geometry_final
+                        else:
+                            self.lot_property.geometry_final = geos.MultiPolygon(geometry_final)
+                        self.lot_property.save()
+                    else:
+                        # stupid hack since passing form.data didn't seem to like any value for 'user'
+                        data = {
+                            'user': User.objects.get(pk=form.data['user']),
+                            'name': form.data['name'],
+                            'geometry_final': geometry_final
+                        }
+                        # ForestProperty.geometry_final MUST be MultiPolygon.
+                        if isinstance(geometry_final, geos.MultiPolygon):
+                            data['geometry_final'] = geometry_final
+                        else:
+                            data['geometry_final'] = geos.MultiPolygon(geometry_final)
+                        lot_property = ForestProperty(**data)
+                        lot_property.save()
+                        self.lot_property = lot_property
 
-            prop_stand = self.get_stand()
-            if not prop_stand:
-                stand_dict = {
-                    'geometry_orig': geometry_final,
-                    'geometry_final': geometry_final,
-                    'user': self.lot_property.user,
-                    'name': self.lot_property.name,
-                }
-                prop_stand = Stand.objects.create(**stand_dict)
-                prop_stand.add_to_collection(self.lot_property) # or self.lot_property.add(prop_stand)
-            else:
-                prop_stand.geometry_orig = geometry_final
-                prop_stand.geometry_final = geometry_final
-            prop_stand.save()
-
-            self.full_clean()
-
+                    prop_stand = self.get_stand()
+                    if not prop_stand:
+                        stand_dict = {
+                            'geometry_orig': geometry_final,
+                            'geometry_final': geometry_final,
+                            'user': self.lot_property.user,
+                            'name': self.lot_property.name,
+                        }
+                        prop_stand = Stand.objects.create(**stand_dict)
+                        prop_stand.add_to_collection(self.lot_property) # or self.lot_property.add(prop_stand)
+                    else:
+                        prop_stand.geometry_orig = geometry_final
+                        prop_stand.geometry_final = geometry_final
+                    prop_stand.save()
+                    self.full_clean()
+                    super(DiscoveryStand, self).save(*args, **kwargs)
+            except ValidationError as e:
+                non_field_errors = ""
+                for key in e.message_dict.keys():
+                    non_field_errors += "%s: %s. " % (key, e.message_dict[key])
+                return non_field_errors
+        else:
             super(DiscoveryStand, self).save(*args, **kwargs)
-        except ValidationError as e:
-            non_field_errors = ""
-            for key in e.message_dict.keys():
-                non_field_errors += "%s: %s. " % (key, e.message_dict[key])
-            return non_field_errors
-
-
 
     class Options:
         form = "discovery.forms.DiscoveryStandForm"

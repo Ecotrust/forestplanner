@@ -126,4 +126,9 @@
 {% block extra_foot_scripts %}
   <script type="text/javascript" src="{% static 'discovery/js/map/actions.js' %}"></script>
   <script type="text/javascript" src="{% static 'discovery/js/map.js' %}"></script>
+  <script>
+    if ($('#id_geometry_final').val().length > 0) {
+      loadDrawn();
+    }
+  </script>
 {% endblock extra_foot_scripts %}

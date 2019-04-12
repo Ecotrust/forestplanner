@@ -34,6 +34,17 @@ standDrawn = function(e) {
   setTimeout(function() {updateStandGeomField();}, 50);
 }
 
+loadDrawn = function() {
+  var wktFormat = new ol.format.WKT();
+  var feature = wktFormat.readFeature($('#id_geometry_final').val(), {
+    dataProjection: 'EPSG:3857',
+    featureProjection: 'EPSG:3857'
+  });
+  drawSource.addFeature(feature);
+  standDrawn(null);
+  map.getView().fit(drawSource.getFeatures()[0].getGeometry().getExtent());
+}
+
 standModified = function(e) {
   setTimeout(function() {updateStandGeomField();}, 50);
 }
