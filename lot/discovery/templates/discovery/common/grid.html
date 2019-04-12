@@ -6,15 +6,20 @@
   <link rel="stylesheet" href="{% static 'discovery/css/grid.css' %}">
 {% endblock extra_styles %}
 
+{% block head_scripts %}
+  {{ block.super }}
+  <!-- define 'gridClickAction' here -->
+{% endblock %} <!-- head_scripts -->
+
 {% block content %}
   {% block cardcontainer %}
   <div class="container">
     <div class="card-deck">
       {% for data in grid_data %}
         {% block card %}
-        <div class="card stand-wrap">
+        <div cardId="{{ data.uid }}" modalsource="{{ data.getContent }}" class="card grid-wrap grid-card">
           <!-- Todo: add dataset values for property data for loading into modal -->
-          <a data-toggle="modal" data-target="#stand-modal"
+          <a data-toggle="modal" data-target="#grid-modal"
               data-img="{% if data.splash_image %}{{ data.splash_image }}{% else %}{{ grid_defaults.splash_image }}{% endif %}">
             <span class="card-img-top-wrapper">
               {% if data.image %}
@@ -47,7 +52,8 @@
   </div>
   {% endblock %} <!-- cardcontainer -->
 
-  <div class="modal fade" id="stand-modal" tabindex="-1" role="dialog" aria-labelledby="stand-modal" aria-hidden="true">
+  {% block grid-modal %}
+  <div class="modal fade" id="grid-modal" tabindex="-1" role="dialog" aria-labelledby="grid-modal" aria-hidden="true">
     <div class="modal-dialog" role="document">
       <div class="modal-content">
         <div class="modal-body">
@@ -67,4 +73,5 @@
       </div>
     </div>
   </div>
+  {% endblock %} <!-- grid-modal -->
 {% endblock content %}

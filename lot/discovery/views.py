@@ -53,7 +53,7 @@ def stands(request):
     stands = []
     for stand in DiscoveryStand.objects.filter(user=request.user):
         stands.append(stand.to_grid())
-    
+
     context = {
         'user': request.user,
         'title': 'stands',
@@ -66,7 +66,39 @@ def stands(request):
         'button_text': '+ Add a new property',
         'button_action': '/discovery/find_your_forest/',
     }
-    return render(request, 'discovery/common/grid.html', context)
+    return render(request, 'discovery/stand_grid.html', context)
+
+def get_modal_content(request, card_type, uid):
+    feature = get_feature_by_uid(uid)
+    if card_type == 'stand':
+        if feature.splash_image.name:
+            splash_image = feature.splash_image.url
+        else:
+            splash_image = settings.DEFAULT_STAND_SPLASH
+        context = {
+            'TITLE': feature.name,
+            'SPLASH_IMAGE': splash_image,
+            'LINKS': [
+                {'href': '/discovery/map/%s/' % uid, 'label': 'Edit Stand',},
+            ]
+        }
+        stand = feature.get_stand()
+        if stand:
+            if not stand.strata:
+                context['LINKS'].append({'href': '/discovery/collect_data/%s/' % uid, 'label': 'Collect Data',})
+            else:
+                context['LINKS'].append({'href': '/discovery/enter_stand_table/%s/' % uid, 'label': 'Edit Tree List',})
+                context['LINKS'].append({'href': '/discovery/forest_profile/%s/' % uid, 'label': 'View Profile',})
+                context['LINKS'].append({'href': '/discovery/compage_outcomes/%s/' % uid, 'label': 'Compare Outcomes',})
+                if feature.lot_property.scenario_set.all().count() > 0:
+                    context['LINKS'].append({'href': '/discovery/compare_outcomes/%s/' % uid, 'label': 'View Report',})
+    else:
+        context = {}
+    return render(
+        request,
+        'discovery/%s/modal.html' % card_type,
+        context
+    )
 
 # find your forest page
 def find_your_forest(request):

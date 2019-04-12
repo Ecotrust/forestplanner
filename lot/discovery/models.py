@@ -12,6 +12,38 @@ class DiscoveryStand(Feature):
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
 
+    def get_stand(self):
+        property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
+        if len(property_stands) == 0:
+            return None
+        if len(property_stands) >= 1:
+            property_stands.sort(key=lambda x: x.geometry_final.area, reverse=True)
+        return property_stands[0]
+
+    def to_grid(self):
+        from django.conf import settings
+        from datetime import date
+        out_dict = {
+            'uid': self.uid,
+            'getContent': '/discovery/modal_content/stand/%s/' % self.uid,
+        }
+        if self.image:
+            out_dict['image'] = self.image
+        else:
+            out_dict['image'] = settings.DEFAULT_STAND_IMAGE
+        if self.splash_image:
+            out_dict['splash_image'] = self.splash_image
+        else:
+            out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
+        out_dict['labels'] = [
+            {'label': 'title', 'value': self.name},
+            {'label': 'Location', 'value': "%s County, %s" % self.lot_property.location},
+            {'label': 'Area', 'value': int(round(self.lot_property.acres)), 'posttext': 'acres'},
+            {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
+        ]
+
+        return out_dict
+
     def save(self, *args, **kwargs):
         from django.core.exceptions import ValidationError
         from django.contrib.auth.models import User
@@ -37,8 +69,8 @@ class DiscoveryStand(Feature):
                 lot_property.save()
                 self.lot_property = lot_property
 
-            property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
-            if len(property_stands) == 0:
+            prop_stand = self.get_stand()
+            if not prop_stand:
                 stand_dict = {
                     'geometry_orig': geometry_final,
                     'geometry_final': geometry_final,
@@ -48,11 +80,6 @@ class DiscoveryStand(Feature):
                 prop_stand = Stand.objects.create(**stand_dict)
                 prop_stand.add_to_collection(self.lot_property) # or self.lot_property.add(prop_stand)
             else:
-                if len(property_stands) == 1:
-                    prop_stand = property_stands[0]
-                else:
-                    property_stands.sort(key=lambda x: x.geometry_final.area, reverse=True)
-                    prop_stand = property_stands[0]
                 prop_stand.geometry_orig = geometry_final
                 prop_stand.geometry_final = geometry_final
             prop_stand.save()
@@ -66,26 +93,7 @@ class DiscoveryStand(Feature):
                 non_field_errors += "%s: %s. " % (key, e.message_dict[key])
             return non_field_errors
 
-    def to_grid(self):
-        from django.conf import settings
-        from datetime import date
-        out_dict = {}
-        if self.image:
-            out_dict['image'] = self.image
-        else:
-            out_dict['image'] = settings.DEFAULT_STAND_IMAGE
-        if self.splash_image:
-            out_dict['splash_image'] = self.splash_image
-        else:
-            out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
-        out_dict['labels'] = [
-            {'label': 'title', 'value': self.name},
-            {'label': 'Location', 'value': "%s County, %s" % self.lot_property.location},
-            {'label': 'Area', 'value': int(round(self.lot_property.acres)), 'posttext': 'acres'},
-            {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
-        ]
 
-        return out_dict
 
     class Options:
         form = "discovery.forms.DiscoveryStandForm"

@@ -1,0 +1,19 @@
+{% extends 'discovery/common/grid.html' %}
+{% load static %}
+
+{% block grid-modal %}
+<div class="modal fade" id="grid-modal" tabindex="-1" role="dialog" aria-labelledby="grid-modal" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div id="grid-modal-body" class="modal-body">
+
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %} <!-- grid-modal -->
+
+{% block extra_foot_scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'discovery/js/stands.js' %}"></script>
+{% endblock extra_foot_scripts %}

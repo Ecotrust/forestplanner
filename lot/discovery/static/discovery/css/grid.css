@@ -4,6 +4,14 @@
   margin-bottom: 1rem;
 }
 
+.grid-card {
+  cursor: pointer;
+}
+
+.grid-card:hover {
+  background-color: rgba(0,0,0,0.2);
+}
+
 .card-img-top-wrapper {
     display: flex;
     justify-content: center;
@@ -23,6 +31,10 @@
 
 .grid-label-label {
   font-weight: bold;
+}
+
+button.close {
+  position: absolute;
 }
 
 .modal-image {

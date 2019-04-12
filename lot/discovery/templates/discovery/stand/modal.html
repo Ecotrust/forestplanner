@@ -1,0 +1,16 @@
+{% load static %}
+
+<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+  <span aria-hidden="true">&times;</span>
+</button>
+<div class="row align-items-stretch">
+  <div class="col-6">
+    <h5 class="modal-title">{{ TITLE }}</h5>
+    {% for link in LINKS %}
+      <a href="{{ link.href }}" class="btn btn-dark">{{ link.label }}</a>
+    {% endfor %}
+  </div>
+  <div class="col-6 side-image">
+    <img src="{{ SPLASH_IMAGE }}" class="modal-image"/>
+  </div>
+</div>
