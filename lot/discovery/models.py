@@ -1,13 +1,126 @@
 from django.db import models
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.features import register, alternate, edit, get_feature_by_uid
-from trees.models import ForestProperty, Stand
+from trees.models import ForestProperty, Stand, FVSSpecies, County
+from django.core.cache import cache
+from django.conf import settings
 
 # Create your models here.
 
+def cachemethod(cache_key, timeout=60 * 60 * 24 * 7):
+    '''
+    http://djangosnippets.org/snippets/1130/
+    default timeout = 1 week
+
+    @property
+    @cachemethod("SomeClass_get_some_result_%(id)s")
+    '''
+    def paramed_decorator(func):
+        def decorated(self, *args):
+            key = cache_key % self.__dict__
+            res = cache.get(key)
+            if res is None:
+                res = func(self, *args)
+                cache.set(key, res, timeout)
+            return res
+        return decorated
+    return paramed_decorator
+
+@register
+class ExampleStand(PolygonFeature):
+    image = models.ImageField(blank=True, null=True, default=None)
+    splash_image = models.ImageField(blank=True, null=True, default=None)
+    age = models.IntegerField()
+
+    @property
+    def acres(self):
+        try:
+            g2 = self.geometry_final.transform(
+                settings.EQUAL_AREA_SRID, clone=True)
+            area_m = g2.area
+        except:
+            return None
+        return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
+
+    @property
+    @cachemethod("ExampleStand_%(id)s_location")
+    def location(self):
+        '''
+        Returns: (CountyName, State)
+        '''
+        geom = self.geometry_final
+        if geom:
+            counties = County.objects.filter(geom__bboverlaps=geom)
+        else:
+            return None
+
+        if not geom.valid:
+            geom = geom.buffer(0)
+        the_size = 0
+        the_county = (None, None)
+        for county in counties:
+            county_geom = county.geom
+            if not county_geom.valid:
+                county_geom = county_geom.buffer(0)
+            if county_geom.intersects(geom):
+                try:
+                    overlap = county_geom.intersection(geom)
+                except Exception as e:
+                    logger.error(self.uid + ": " + str(e))
+                    continue
+                area = overlap.area
+                if area > the_size:
+                    the_size = area
+                    the_county = (county.cntyname.title(), county.stname)
+        return the_county
+
+    def to_grid(self):
+        from datetime import date
+        out_dict = {
+            'uid': self.uid,
+            'getContent': '/discovery/modal_content/stand/%s/' % self.uid,
+        }
+        if self.image:
+            out_dict['image'] = self.image.url
+        else:
+            out_dict['image'] = settings.DEFAULT_STAND_IMAGE
+        if self.splash_image:
+            out_dict['splash_image'] = self.splash_image.url
+        else:
+            out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
+        out_dict['labels'] = [
+            {'label': 'title', 'value': self.name},
+            {'label': 'Location', 'value': "%s County, %s" % self.location},
+            {'label': 'Area', 'value': int(round(self.acres)), 'posttext': 'acres'},
+            {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
+        ]
+
+        return out_dict
+
+    class Options:
+        form = "trees.forms.StandForm"
+        form_template = "trees/stand_form.html"
+        manipulators = []
+
+size_class_choices = (
+    (0, '0" to 2"'),
+    (2, '2" to 6"'),
+    (6, '6" to 12"'),
+    (12, '12" to 24"'),
+    (24, '24" to 36"'),
+    (36, '36" to 48"'),
+    (48, '48" to 70"'),
+    (70, 'Greater than 70"'),
+)
+
+class StandListEntry(models.Model):
+    stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
+    species = models.ForeignKey(FVSSpecies, on_delete="CASCADE")
+    size_class = models.SmallIntegerField(choices = size_class_choices)
+    tpa = models.SmallIntegerField()
+
 @register
 class DiscoveryStand(Feature):
-    from django.conf import settings
     lot_property = models.ForeignKey(ForestProperty, on_delete=models.CASCADE)
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
@@ -21,7 +134,6 @@ class DiscoveryStand(Feature):
         return property_stands[0]
 
     def to_grid(self):
-        from django.conf import settings
         from datetime import date
         out_dict = {
             'uid': self.uid,

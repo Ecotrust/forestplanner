@@ -1,0 +1,28 @@
+{% extends 'gis/openlayers.html' %}
+{% load i18n l10n %}
+
+{% block base_layer %}
+    var base_layer = new ol.layer.Tile({
+        title: 'Hybrid',
+        source: new ol.source.XYZ({
+          url: 'http://{a-d}.tiles.mapbox.com/v4/mapbox.streets-satellite/{z}/{x}/{y}@2x.png?access_token=pk.eyJ1IjoiZWNvdHJ1c3RkZXYiLCJhIjoiY2o1aXE1dmp2MWxjZjJ3bG16MHQ1YnBlaiJ9.tnv1SK2iNlFXHN_78mx5oA',
+          attributions: "Tiles &copy; <a href='http://mapbox.com/'>MapBox</a>"
+        }),
+        name: 'Hybrid'
+    });
+{% endblock %}
+
+{% block options %}
+var options = {
+    base_layer: base_layer,
+    geom_name: '{{ geom_type }}',
+    id: '{{ id }}',
+    map_id: '{{ id }}_map',
+    map_options: map_options,
+    map_srid: {{ map_srid|unlocalize }},
+    name: '{{ name }}',
+    default_lat: 46,
+    default_lon: -120,
+    default_zoom: 6
+};
+{% endblock %}

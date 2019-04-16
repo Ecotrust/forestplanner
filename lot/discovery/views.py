@@ -46,6 +46,31 @@ def user_profile(request):
         context = {}
         return render(request, 'discovery/account/profile.html', context)
 
+@login_required
+def example_stands(request):
+    from discovery.models import ExampleStand
+
+    stands = []
+    for stand in ExampleStand.objects.all():
+        stands.append(stand.to_grid())
+
+    context = {
+        'user': request.user,
+        'title': 'Existing Stands',
+        'grid_data': stands,
+        'grid_defaults': {
+            'image': settings.DEFAULT_STAND_IMAGE,
+            'splash_image': settings.DEFAULT_STAND_SPLASH,
+        },
+        # use button_text and button_action together
+        'button_text': None,
+        'button_action': None,
+        'help_title': "Help",
+        'help_flatblock': 'help-example-stands'
+    }
+
+    return render(request, 'discovery/stand_grid.html', context)
+
 # Display user's existing stands
 @login_required
 def stands(request):
@@ -112,8 +137,8 @@ def find_your_forest(request):
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
         # specific for action buttons template
-        'act_btn_one_text': 'Choose an pre canned property',
-        'act_btn_one_action': '/discovery/stands/',
+        'act_btn_one_text': 'Choose an existing property',
+        'act_btn_one_action': '/discovery/example_stands/',
         'act_btn_two_text': 'Map your own property',
         'act_btn_two_action': '/discovery/map/',
     }

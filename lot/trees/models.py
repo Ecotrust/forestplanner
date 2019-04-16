@@ -1538,6 +1538,8 @@ class FVSSpecies(models.Model):
     WC = models.CharField(max_length=2)
     WS = models.CharField(max_length=2)
 
+    def __str__(self):
+        return "%s (%s)" % (self.common, self.scientific)
 
 class IdbSummary(models.Model):
     plot_id = models.BigIntegerField(null=True, blank=True)
