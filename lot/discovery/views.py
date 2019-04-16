@@ -4,6 +4,7 @@ from django.conf import settings
 from django.shortcuts import render, redirect
 from madrona.features import get_feature_by_uid
 from discovery.forms import DiscoveryStandForm
+from django.contrib.auth.decorators import login_required
 
 def index(request):
     return redirect('/discovery/landing/')
@@ -46,6 +47,7 @@ def user_profile(request):
         return render(request, 'discovery/account/profile.html', context)
 
 # Display user's existing stands
+@login_required
 def stands(request):
     from discovery.models import DiscoveryStand
     from datetime import date
@@ -101,6 +103,7 @@ def get_modal_content(request, card_type, uid):
     )
 
 # find your forest page
+@login_required
 def find_your_forest(request):
     context = {
         'title': 'Find Your Forest',
@@ -117,6 +120,7 @@ def find_your_forest(request):
     return render(request, 'discovery/common/action_buttons.html', context)
 
 # collect data page
+@login_required
 def collect_data(request):
     context = {
         'title': 'Collect data',
@@ -138,6 +142,7 @@ def collect_data(request):
     return render(request, 'discovery/common/action_buttons.html', context)
 
 # enter data page
+@login_required
 def enter_data(request):
     context = {
         'title': 'Enter data',
@@ -161,6 +166,7 @@ def enter_data(request):
     return render(request, 'discovery/common/action_buttons.html', context)
 
 # enter new stand table page
+@login_required
 def enter_stand_table(request):
     context = {
         'title': 'Enter stand table',
@@ -179,6 +185,7 @@ def enter_stand_table(request):
     return render(request, 'discovery/common/data_table.html', context)
 
 # view for web map of property
+@login_required
 def map(request, discovery_stand_uid=None):
     if discovery_stand_uid:
         discovery_stand = get_feature_by_uid(discovery_stand_uid)
@@ -203,6 +210,7 @@ def map(request, discovery_stand_uid=None):
     return render(request, 'discovery/map.html', context)
 
 # forest profile page
+@login_required
 def forest_profile(request):
     context = {
         'title': 'Forest profile',
