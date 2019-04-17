@@ -127,21 +127,10 @@ class ExampleStand(PolygonFeature):
         form_template = "trees/stand_form.html"
         manipulators = []
 
-size_class_choices = (
-    (0, '0" to 2"'),
-    (2, '2" to 6"'),
-    (6, '6" to 12"'),
-    (12, '12" to 24"'),
-    (24, '24" to 36"'),
-    (36, '36" to 48"'),
-    (48, '48" to 70"'),
-    (70, 'Greater than 70"'),
-)
-
 class StandListEntry(models.Model):
     stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
     species = models.CharField(max_length=255)
-    size_class = models.SmallIntegerField(choices = size_class_choices)
+    size_class = models.SmallIntegerField()
     tpa = models.SmallIntegerField()
 
     # TODO: validate unique: stand + species + size_class
