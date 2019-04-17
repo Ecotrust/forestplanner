@@ -17,18 +17,8 @@ import os
 logger = get_logger()
 
 
-@cache_page(60 * 60 * 24 * 365)
-def list_species_sizecls(request, property_uid):
-    '''
-    Provide a json list of all species and available size classes
-    in the specified variant
-    '''
+def get_species_sizecls_json(variant):
     from django.db import connection
-
-    forestproperty = get_object_for_viewing(request, property_uid)
-    if isinstance(forestproperty, HttpResponse):
-        return forestproperty
-    variant = forestproperty.variant
 
     sql = """
     SELECT fia_forest_type_name,
@@ -84,6 +74,22 @@ def list_species_sizecls(request, property_uid):
             'species': species,
             'size_classes': relevant_classes,
         })
+    return res
+
+
+@cache_page(60 * 60 * 24 * 365)
+def list_species_sizecls(request, property_uid):
+    '''
+    Provide a json list of all species and available size classes
+    in the specified variant
+    '''
+
+    forestproperty = get_object_for_viewing(request, property_uid)
+    if isinstance(forestproperty, HttpResponse):
+        return forestproperty
+    variant = forestproperty.variant
+
+    res = get_species_sizecls_json(variant)
 
     return JsonResponse({'classes':res})
 

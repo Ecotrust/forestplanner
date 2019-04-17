@@ -1,38 +1,76 @@
 from django.contrib import admin
-from django.forms import ModelForm
-from discovery.widgets import DiscoOpenLayersWidget
+from django.forms import ModelForm, ChoiceField
+from django.forms.models import BaseInlineFormSet
 
 # Register your models here.
+from discovery.widgets import DiscoOpenLayersWidget
 from discovery.models import DiscoveryStand, ExampleStand, StandListEntry
 from trees.models import FVSSpecies
 
 admin.site.register(DiscoveryStand)
 
-class FVSSpeciesAdmin(admin.ModelAdmin):
-    search_fields = ['common', 'scientific']
+def StandListInlineFormFactory(species_choice_list):
+    class StandListInlineForm(ModelForm):
+        def __init__(self, *args, **kwargs):
+            super(StandListInlineForm, self).__init__(*args, **kwargs)
+            if species_choice_list:
+                self.fields['species'] = ChoiceField(
+                    choices=species_choice_list
+                )
 
-# class StandListInline(admin.StackedInline):
-class StandListInline(admin.TabularInline):
-    model = StandListEntry
-    autocomplete_fields = ['species']
+        class Meta:
+            model = StandListEntry
+            fields = '__all__'
+
+    return StandListInlineForm
+
+def StandListInlineFactory(species_choice_list):
+    # class StandListInline(admin.StackedInline):
+    class StandListInline(admin.TabularInline):
+        model = StandListEntry
+        # autocomplete_fields = ['species']
+        form = StandListInlineFormFactory(species_choice_list)
+
+    return StandListInline
 
 class ExampleStandForm(ModelForm):
     class Meta:
         model = ExampleStand
         widgets = {
-            'geometry_orig': DiscoOpenLayersWidget(),
+            # 'geometry_orig': DiscoOpenLayersWidget(),
             'geometry_final': DiscoOpenLayersWidget(),
         }
-        fields = ['user', 'name', 'geometry_orig', 'image', 'splash_image', 'age']
+        fields = ['user', 'name', 'geometry_orig', 'geometry_final', 'image', 'splash_image', 'age']
 
 
 class ExampleStandAdmin(admin.ModelAdmin):
     form = ExampleStandForm
-    inlines = [
-        StandListInline,
-    ]
+    inlines = []
 
-admin.site.register(FVSSpecies, FVSSpeciesAdmin)
+    # we define inlines with factory to create Inline class with request inside
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        from django.urls import resolve
+        from trees.views import get_species_sizecls_json
+        species_choice_list = None
+        resolved = resolve(request.path_info)
+        examplestand_pk_str = resolved.kwargs.pop('object_id', None)
+        context = {}
+        context.update(extra_context or {})
+        if examplestand_pk_str:
+            examplestand_pk = int(examplestand_pk_str)
+            try:
+                parentstand = ExampleStand.objects.get(pk=examplestand_pk)
+            except Exception as e:
+                parentstand = None
+
+            if parentstand:
+                variant = parentstand.variant
+                choice_json = get_species_sizecls_json(variant)
+                context.update({'choice_json': choice_json})
+                species_choice_list = [('', '----')] + [(x['species'], x['species']) for x in choice_json]
+        self.inlines = (StandListInlineFactory(species_choice_list), )
+        return super(ExampleStandAdmin, self).change_view(request, object_id, form_url, context)
+
 admin.site.register(ExampleStand, ExampleStandAdmin)
 
 

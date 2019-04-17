@@ -1,7 +1,7 @@
 from django.db import models
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature
 from madrona.features import register, alternate, edit, get_feature_by_uid
-from trees.models import ForestProperty, Stand, FVSSpecies, County
+from trees.models import ForestProperty, Stand, County
 from django.core.cache import cache
 from django.conf import settings
 
@@ -74,6 +74,31 @@ class ExampleStand(PolygonFeature):
                     the_county = (county.cntyname.title(), county.stname)
         return the_county
 
+    @property
+    @cachemethod("ExampleStand_%(id)s_variant")
+    def variant(self):
+        '''
+        Returns: Closest FVS variant instance
+        '''
+        from trees.models import FVSVariant
+        geom = self.geometry_final.point_on_surface
+
+        variants = FVSVariant.objects.all()
+
+        min_distance = 99999999999999.0
+        the_variant = None
+        for variant in variants:
+            variant_geom = variant.geom
+            if not variant_geom.valid:
+                variant_geom = variant_geom.buffer(0)
+            dst = variant_geom.distance(geom)
+            if dst == 0.0:
+                return variant
+            if dst < min_distance:
+                min_distance = dst
+                the_variant = variant
+        return the_variant
+
     def to_grid(self):
         from datetime import date
         out_dict = {
@@ -115,9 +140,11 @@ size_class_choices = (
 
 class StandListEntry(models.Model):
     stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
-    species = models.ForeignKey(FVSSpecies, on_delete="CASCADE")
+    species = models.CharField(max_length=255)
     size_class = models.SmallIntegerField(choices = size_class_choices)
     tpa = models.SmallIntegerField()
+
+    # TODO: validate unique: stand + species + size_class
 
 @register
 class DiscoveryStand(Feature):

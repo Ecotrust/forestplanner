@@ -1,0 +1,37 @@
+{% extends 'admin/change_form.html' %}
+{% load static %}
+
+{% block admin_change_form_document_ready %}
+{{ block.super }}
+<!--<script type="text/javascript" src="{% static 'app/formset_handlers.js' %}"></script>-->
+<script>
+  choice_json = {{ choice_json|safe }};
+  debugger;
+  django.jQuery('.field-species select').on('change', function(e) {
+    var species = e.currentTarget.value;
+    var row_id = e.currentTarget.id.split('-')[1];
+    var size_class_selector = django.jQuery('#id_standlistentry_set-'+ row_id + '-size_class');
+    // var size_select_values = [];
+    var size_select_values = {};
+    if (species.length > 0) {
+      var size_classes = choice_json.filter(function(o){return o.species == species;} )[0].size_classes;
+
+      for (var i=0; i < size_classes.length; i++) {
+        // size_select_values.push([size_classes[i].min, size_classes[i].min + '" to ' + size_classes[i].max + '"']);
+        size_select_values[size_classes[i].min.toString()] = size_classes[i].min + '" to ' + size_classes[i].max + '"';
+      }
+    }
+    if(size_class_selector.prop) {
+      var options = size_class_selector.prop('options');
+    } else {
+      var options = size_class_selector.attr('options');
+    }
+    django.jQuery('option', size_class_selector).remove();
+    django.jQuery.each(size_select_values, function(val, text) {
+        options[options.length] = new Option(text, parseInt(val));
+    });
+
+
+  });
+</script>
+{% endblock %}
