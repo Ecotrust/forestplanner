@@ -6,7 +6,6 @@
 <!--<script type="text/javascript" src="{% static 'app/formset_handlers.js' %}"></script>-->
 <script>
   choice_json = {{ choice_json|safe }};
-  debugger;
   django.jQuery('.field-species select').on('change', function(e) {
     var species = e.currentTarget.value;
     var row_id = e.currentTarget.id.split('-')[1];
