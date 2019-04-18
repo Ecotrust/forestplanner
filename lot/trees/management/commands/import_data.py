@@ -34,12 +34,13 @@ class Command(BaseCommand):
         # Rasters
         #
         fname = os.path.join(download_dir, "terrain_rasters.tar.gz")
-        if not os.path.exists(fname):
+        terrain_dirname = os.path.join(download_dir, "terrain")
+        if not os.path.exists(fname) and not os.path.exists(terrain_dirname):
             print("\tGetting terrain raster data")
             url = "http://labs.ecotrust.org/forestplanner/data/terrain_rasters.tar.gz"
             urlretrieve(url, filename=fname)
         else:
-            print("\tSkipping terrain raster download; tar.gz already exists")
+            print("\tSkipping terrain raster download; tar.gz or terrain dir already exists")
 
         #
         # Treelive

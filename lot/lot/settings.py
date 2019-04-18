@@ -20,7 +20,8 @@ BING_API_KEY = "AhYe6O-7ejQ1fsFbztwu7PScwp2b1U1vM47kArB_8P2bZ0jiyJua2ssOLrU4pH70
 INSTALLED_APPS += (
     'discovery.apps.DiscoveryConfig',
     'trees',
-    'madrona.raster_stats'
+    'madrona.raster_stats',
+    'django.contrib.messages',
 )
 
 DATABASES = {
