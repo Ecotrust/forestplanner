@@ -8,7 +8,7 @@ class DiscoveryStandForm(PropertyForm):
     # name = forms.CharField(label=None,
     #                         widget=forms.TextInput(attrs={'placeholder': 'Name your stand'}))
     geometry_final = forms.CharField(widget=forms.HiddenInput)
-    pk = forms.IntegerField(widget=forms.HiddenInput)
+    pk = forms.IntegerField(widget=forms.HiddenInput, required=False)
 
 
     class Meta(PropertyForm.Meta):
