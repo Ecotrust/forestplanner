@@ -32,6 +32,9 @@ class ExampleStand(PolygonFeature):
     splash_image = models.ImageField(blank=True, null=True, default=None)
     age = models.IntegerField()
 
+    def __str__(self):
+        return "%s" % self.name
+
     @property
     def acres(self):
         try:
