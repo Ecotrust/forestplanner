@@ -37,7 +37,7 @@ class ExampleStandForm(ModelForm):
     class Meta:
         model = ExampleStand
         widgets = {
-            # 'geometry_orig': DiscoOpenLayersWidget(),
+            'geometry_orig': DiscoOpenLayersWidget(),
             'geometry_final': DiscoOpenLayersWidget(),
         }
         fields = ['user', 'name', 'geometry_orig', 'geometry_final', 'image', 'splash_image', 'age']
