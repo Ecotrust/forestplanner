@@ -1,0 +1,9 @@
+#!/bin/sh -e
+
+TIME=`/bin/date +20%y/%m/%d-%H:%M:%S`
+
+/usr/sbin/service uwsgi start
+
+/usr/local/apps/forestplanner/lot/deploy/restart_nginx.sh &
+
+exit 0

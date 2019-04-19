@@ -1,0 +1,38 @@
+server {
+        listen 80;
+        listen [::]:80;
+        client_max_body_size 50M;
+
+        server_name _;
+        access_log /var/log/nginx/lot.access.log;
+        error_log /var/log/nginx/lot.error.log;
+
+        location /munin/static/ {
+                alias /etc/munin/static/;
+        }
+
+        location /munin {
+                alias /var/cache/munin/www;
+        }
+
+        location /static {
+                alias /usr/local/apps/forestplanner/static;
+        }
+
+        location /media {
+                alias /usr/local/apps/forestplanner/mediaroot/;
+        }
+
+        location / {
+                uwsgi_pass unix:///tmp/forestplanner-socket;
+                #uwsgi_pass django;
+                include uwsgi_params;
+                #try_files $uri $uri/ =404;
+                include uwsgi_params;
+                uwsgi_read_timeout 300;
+        }
+
+        #location = /favicon.ico {
+        #        alias /usr/local/apps/marineplanner-core/apps/FishPass/fishpass/static/fishpass/img/logo/FISHPass@2x.png;
+        #}
+}

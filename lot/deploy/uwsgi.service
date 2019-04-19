@@ -1,0 +1,14 @@
+[Unit]
+Description=uWSGI Emperor service
+After=syslog.target
+
+[Service]
+ExecStart=/usr/local/apps/forestplanner/env/bin/uwsgi --ini /etc/uwsgi/apps-enabled/forestplanner.ini
+Restart=always
+KillSignal=SIGQUIT
+Type=notify
+StandardError=syslog
+NotifyAccess=all
+
+[Install]
+WantedBy=multi-user.target
