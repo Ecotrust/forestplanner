@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.forms import ModelForm, ChoiceField
 from django.forms.models import BaseInlineFormSet
+from django.forms import widgets as form_widgets
 
 # Register your models here.
 from discovery.widgets import DiscoOpenLayersWidget
@@ -9,27 +10,37 @@ from trees.models import FVSSpecies
 
 admin.site.register(DiscoveryStand)
 
-def StandListInlineFormFactory(species_choice_list):
+def StandListInlineFormFactory(choice_json):
     class StandListInlineForm(ModelForm):
         def __init__(self, *args, **kwargs):
             super(StandListInlineForm, self).__init__(*args, **kwargs)
-            if species_choice_list:
+            if choice_json:
+                species_choice_list = [('', '----')] + [(x['species'], x['species']) for x in choice_json]
                 self.fields['species'] = ChoiceField(
                     choices=species_choice_list
                 )
+                if 'species' in self.initial.keys():
+                    size_classes = [x for x in choice_json if x['species'] == self.initial['species']][0]['size_classes']
+                    size_choices = [(int(x['min']), '%d" to %d"' % (x['min'], x['max'])) for x in size_classes]
+                    self.fields['size_class'] = ChoiceField(
+                        choices = size_choices
+                    )
 
         class Meta:
             model = StandListEntry
+            widgets = {
+                'size_class': form_widgets.Select,
+            }
             fields = '__all__'
 
     return StandListInlineForm
 
-def StandListInlineFactory(species_choice_list):
+def StandListInlineFactory(choice_json):
     # class StandListInline(admin.StackedInline):
     class StandListInline(admin.TabularInline):
         model = StandListEntry
         # autocomplete_fields = ['species']
-        form = StandListInlineFormFactory(species_choice_list)
+        form = StandListInlineFormFactory(choice_json)
 
     return StandListInline
 
@@ -51,7 +62,7 @@ class ExampleStandAdmin(admin.ModelAdmin):
     def change_view(self, request, object_id, form_url='', extra_context=None):
         from django.urls import resolve
         from trees.views import get_species_sizecls_json
-        species_choice_list = None
+        choice_json = None
         resolved = resolve(request.path_info)
         examplestand_pk_str = resolved.kwargs.pop('object_id', None)
         context = {}
@@ -67,8 +78,7 @@ class ExampleStandAdmin(admin.ModelAdmin):
                 variant = parentstand.variant
                 choice_json = get_species_sizecls_json(variant)
                 context.update({'choice_json': choice_json})
-                species_choice_list = [('', '----')] + [(x['species'], x['species']) for x in choice_json]
-        self.inlines = (StandListInlineFactory(species_choice_list), )
+        self.inlines = (StandListInlineFactory(choice_json), )
         return super(ExampleStandAdmin, self).change_view(request, object_id, form_url, context)
 
 admin.site.register(ExampleStand, ExampleStandAdmin)
