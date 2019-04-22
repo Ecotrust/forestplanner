@@ -1,4 +1,8 @@
 from __future__ import absolute_import, unicode_literals
+
+import logging
+logger = logging.getLogger(__name__)
+
 from celery import shared_task, Celery
 from django.core.cache import cache
 from django.conf import settings
@@ -9,7 +13,7 @@ import os
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lot.settings')
 
-celery = Celery('tasks', broker=settings.CELERY_BROKER_URL)
+# celery = Celery('tasks', broker=settings.CELERY_BROKER_URL)
 
 DELAY = 0.5
 

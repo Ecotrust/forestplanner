@@ -24,11 +24,10 @@ server {
         }
 
         location / {
+                include uwsgi_params;
                 uwsgi_pass unix:///tmp/forestplanner-socket;
                 #uwsgi_pass django;
-                include uwsgi_params;
                 #try_files $uri $uri/ =404;
-                include uwsgi_params;
                 uwsgi_read_timeout 300;
         }
 
