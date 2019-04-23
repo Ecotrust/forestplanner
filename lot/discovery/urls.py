@@ -20,7 +20,7 @@ urlpatterns = [
     path('collect_data/', views.collect_data, name='collect_data'),
     path('enter_data/', views.enter_data, name='enter_data'),
     path('enter_stand_table/', views.enter_stand_table, name='enter_stand_table'),
-    path('forest_profile/', views.forest_profile, name='forest_profile'),
+    re_path(r'^forest_profile/((?P<discovery_stand_uid>\w+)/)?$', views.forest_profile, name='forest_profile'),
     path('pages/', include('django.contrib.flatpages.urls')),
     re_path(r'^modal_content/(?P<card_type>\w+)/(?P<uid>\w+)/$', views.get_modal_content, name='discovery-get_modal_content'),
 ]

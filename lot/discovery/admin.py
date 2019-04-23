@@ -21,7 +21,7 @@ def StandListInlineFormFactory(choice_json):
                 )
                 if 'species' in self.initial.keys():
                     size_classes = [x for x in choice_json if x['species'] == self.initial['species']][0]['size_classes']
-                    size_choices = [(int(x['min']), '%d" to %d"' % (x['min'], x['max'])) for x in size_classes]
+                    size_choices = [(str((x['min'], x['max'])), '%d" to %d"' % (x['min'], x['max'])) for x in size_classes]
                     self.fields['size_class'] = ChoiceField(
                         choices = size_choices
                     )

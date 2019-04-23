@@ -134,7 +134,7 @@ class ExampleStand(PolygonFeature):
 class StandListEntry(models.Model):
     stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
     species = models.CharField(max_length=255)
-    size_class = models.SmallIntegerField()
+    size_class = models.CharField(max_length=255)
     tpa = models.SmallIntegerField()
 
     # TODO: validate unique: stand + species + size_class
@@ -145,6 +145,9 @@ class DiscoveryStand(Feature):
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
 
+    def __str__(self):
+        return self.name
+        
     def get_stand(self):
         property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
         if len(property_stands) == 0:
@@ -192,6 +195,32 @@ class DiscoveryStand(Feature):
         lot_property.save()
         return lot_property
 
+    def get_or_create_property_stand(self, geometry_final):
+        from django.contrib.gis import geos
+        try:
+            if not isinstance(geometry_final, geos.Polygon):
+                geometry_final = geos.Polygon(geometry_final)
+        except Exception as e:
+            print(e)
+            pass
+
+        prop_stand = self.get_stand()
+
+        if not prop_stand:
+            stand_dict = {
+                'geometry_orig': geometry_final,
+                'geometry_final': geometry_final,
+                'user': self.lot_property.user,
+                'name': self.lot_property.name,
+            }
+            prop_stand = Stand.objects.create(**stand_dict)
+            prop_stand.add_to_collection(self.lot_property) # or self.lot_property.add(prop_stand)
+        else:
+            prop_stand.geometry_orig = geometry_final
+            prop_stand.geometry_final = geometry_final
+        prop_stand.save()
+        self.full_clean()
+
     def delete(self, *args, **kwargs):
         lot_property = None
         if self.lot_property:
@@ -229,23 +258,8 @@ class DiscoveryStand(Feature):
                         lot_property = self.get_new_lot_property_value(user, name, geometry_final)
                         self.lot_property = lot_property
 
-                    prop_stand = self.get_stand()
+                    self.get_or_create_property_stand(geometry_final)
 
-                    if not prop_stand:
-                        stand_dict = {
-                            'geometry_orig': geometry_final,
-                            'geometry_final': geometry_final,
-                            'user': self.lot_property.user,
-                            'name': self.lot_property.name,
-                        }
-                        prop_stand = Stand.objects.create(**stand_dict)
-                        prop_stand.add_to_collection(self.lot_property) # or self.lot_property.add(prop_stand)
-                    else:
-                        prop_stand.geometry_orig = geometry_final
-                        prop_stand.geometry_final = geometry_final
-                    prop_stand.save()
-                    self.full_clean()
-                    # super(DiscoveryStand, self).save(*args, **kwargs)
             except ValidationError as e:
                 non_field_errors = ""
                 for key in e.message_dict.keys():
@@ -259,6 +273,7 @@ class DiscoveryStand(Feature):
             geometry_final = kwargs.pop('geometry_final')
             lot_property = self.get_new_lot_property_value(self.user, self.name, geometry_final)
             self.lot_property = lot_property
+            self.get_or_create_property_stand(geometry_final)
 
         super(DiscoveryStand, self).save(*args, **kwargs)
 

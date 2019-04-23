@@ -298,10 +298,6 @@ def forestproperty_scenarios(request, instance):
         scenarios = Scenario.objects.filter(
             user=request.user, input_property=instance)
 
-    if len(scenarios) == 0:
-        # this should never happen
-        return JsonResponse("[]", status=200)
-
     res_json = {'scenario_list': [x.property_level_dict for x in scenarios]}
     return JsonResponse(res_json, status=200)
 

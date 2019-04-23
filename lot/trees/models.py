@@ -1665,6 +1665,9 @@ class Strata(DirtyFieldsMixin, Feature):
     additional_desc = models.TextField(blank=True, null=True)
     stand_list = JSONField()  # {'classes': [(species, age class, tpa), ...]}
 
+    def __str__(self):
+        return self.name
+
     @property
     def _dict(self):
         """ Make sure obj._dict is json-serializable """

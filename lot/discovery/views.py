@@ -73,28 +73,49 @@ def example_stands(request):
 
 @login_required
 def create_stand_from_example(request, example_stand_uid):
-    #TODO:
-    #   Create discovery.models.DiscoveryStand
     from discovery.models import DiscoveryStand
-    from discovery.forms import ExampleStandToDiscoveryStandForm
+    from trees.models import Strata
+    import json
     feature = get_feature_by_uid(example_stand_uid)
-    discovery_stand_form = ExampleStandToDiscoveryStandForm({
-        'name': feature.name,
-        'user': request.user.pk,
-        'geometry_final': feature.geometry_final,
-        'image': feature.image,
-        'splash_image': feature.splash_image
-    })
-    # discovery_stand = discovery_stand_form.save()
     discovery_stand = DiscoveryStand.objects.create(user=request.user, name=feature.name)
-    import ipdb; ipdb.set_trace()
     discovery_stand.save(geometry_final=feature.geometry_final)
-    # name, user, geometry_final
-    #   Create trees.models.ForestProperty
-    #   Create trees.models.Stand
+
+    stand_classes = []
+    search_tpa = 0
+    for treelist in feature.standlistentry_set.all():
+        size_class = eval(str(treelist.size_class))
+        if type(size_class) == tuple and len(size_class) > 0:
+            if len(size_class) > 1:
+                min_size = size_class[0]
+                max_size = size_class[1]
+            else:
+                min_size = size_class[0]
+                max_size = size_class[0]
+        elif type(size_class) == int or type(size_class) == float:
+            min_size = int(size_class)
+            max_size = int(size_class)
+        else:
+            min_size = 0
+            max_size = 0
+
+        stand_classes.append([treelist.species, int(min_size), int(max_size), treelist.tpa])
+        search_tpa += treelist.tpa
+    standlist = {
+        'classes': stand_classes,
+        'property': discovery_stand.lot_property.uid
+    }
+
     #   Create trees.models.strata
-    #   On success, direct user to stand profile for their new DiscoveryStand
-    return True
+    strata = Strata.objects.create(user=request.user, name=feature.name, search_age=feature.age, search_tpa=search_tpa, stand_list=json.dumps(standlist))
+    strata.save()
+
+    stand = discovery_stand.get_stand()
+    stand.strata = strata
+    stand.save()
+
+    strata.add_to_collection(discovery_stand.lot_property)
+
+    return forest_profile(request, discovery_stand.uid)
 
 # Display user's existing stands
 @login_required
@@ -283,7 +304,7 @@ def map(request, discovery_stand_uid=None):
 
 # forest profile page
 @login_required
-def forest_profile(request):
+def forest_profile(request, discovery_stand_uid):
     context = {
         'title': 'Forest profile',
         'flatblock_slug': 'forest-profile',
