@@ -148,6 +148,9 @@ class Stand(DirtyFieldsMixin, PolygonFeature):
     nn_savetime = models.FloatField(default=0.0)
     rast_savetime = models.FloatField(default=0.0)
 
+    def __str__(self):
+        return self.name
+
     class Options:
         form = "trees.forms.StandForm"
         form_template = "trees/stand_form.html"

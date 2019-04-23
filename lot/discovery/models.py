@@ -141,7 +141,7 @@ class StandListEntry(models.Model):
 
 @register
 class DiscoveryStand(Feature):
-    lot_property = models.ForeignKey(ForestProperty, on_delete=models.CASCADE)
+    lot_property = models.ForeignKey(ForestProperty, on_delete=models.CASCADE, null=True, blank=True, default=None)
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
 
@@ -176,6 +176,34 @@ class DiscoveryStand(Feature):
 
         return out_dict
 
+    def get_new_lot_property_value(self, user, name, geometry_final):
+        from django.contrib.gis import geos
+        data = {
+            'user': user,
+            'name': name,
+            'geometry_final': geometry_final
+        }
+        # ForestProperty.geometry_final MUST be MultiPolygon.
+        if isinstance(geometry_final, geos.MultiPolygon):
+            data['geometry_final'] = geometry_final
+        else:
+            data['geometry_final'] = geos.MultiPolygon(geometry_final)
+        lot_property = ForestProperty(**data)
+        lot_property.save()
+        return lot_property
+
+    def delete(self, *args, **kwargs):
+        lot_property = None
+        if self.lot_property:
+            lot_property = self.lot_property
+            for stand in self.lot_property.feature_set(feature_classes=[Stand,]):
+                if stand.strata:
+                    stand.strata.delete()
+                stand.delete()
+        super(DiscoveryStand, self).delete(*args, **kwargs)
+        if lot_property:
+            lot_property.delete()
+
     def save(self, *args, **kwargs):
         from django.core.exceptions import ValidationError
         from django.contrib.auth.models import User
@@ -196,21 +224,13 @@ class DiscoveryStand(Feature):
                         self.lot_property.save()
                     else:
                         # stupid hack since passing form.data didn't seem to like any value for 'user'
-                        data = {
-                            'user': User.objects.get(pk=form.data['user']),
-                            'name': form.data['name'],
-                            'geometry_final': geometry_final
-                        }
-                        # ForestProperty.geometry_final MUST be MultiPolygon.
-                        if isinstance(geometry_final, geos.MultiPolygon):
-                            data['geometry_final'] = geometry_final
-                        else:
-                            data['geometry_final'] = geos.MultiPolygon(geometry_final)
-                        lot_property = ForestProperty(**data)
-                        lot_property.save()
+                        user = User.objects.get(pk=form.data['user'])
+                        name = form.data['name']
+                        lot_property = self.get_new_lot_property_value(user, name, geometry_final)
                         self.lot_property = lot_property
 
                     prop_stand = self.get_stand()
+
                     if not prop_stand:
                         stand_dict = {
                             'geometry_orig': geometry_final,
@@ -225,14 +245,22 @@ class DiscoveryStand(Feature):
                         prop_stand.geometry_final = geometry_final
                     prop_stand.save()
                     self.full_clean()
-                    super(DiscoveryStand, self).save(*args, **kwargs)
+                    # super(DiscoveryStand, self).save(*args, **kwargs)
             except ValidationError as e:
                 non_field_errors = ""
                 for key in e.message_dict.keys():
                     non_field_errors += "%s: %s. " % (key, e.message_dict[key])
                 return non_field_errors
-        else:
-            super(DiscoveryStand, self).save(*args, **kwargs)
+        elif 'geometry_final' in kwargs.keys():
+            if not self.user and 'user' in kwargs.keys():
+                self.user = kwargs.pop('user')
+            if not self.name and 'name' in kwargs.keys():
+                name = kwargs.pop('name')
+            geometry_final = kwargs.pop('geometry_final')
+            lot_property = self.get_new_lot_property_value(self.user, self.name, geometry_final)
+            self.lot_property = lot_property
+
+        super(DiscoveryStand, self).save(*args, **kwargs)
 
     class Options:
         form = "discovery.forms.DiscoveryStandForm"

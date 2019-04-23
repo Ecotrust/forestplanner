@@ -7,7 +7,11 @@
   <div class="col-6">
     <h5 class="modal-title">{{ TITLE }}</h5>
     {% for link in LINKS %}
-      <a href="{{ link.href }}" class="btn btn-dark">{{ link.label }}</a>
+      {% if link.class == "delete" %}
+        <a class="btn btn-danger" onclick="deleteRUS('{{ link.href }}')">{{ link.label }}</a>
+      {% else %}
+        <a href="{{ link.href }}" class="btn btn-dark">{{ link.label }}</a>
+      {% endif %}
     {% endfor %}
   </div>
   <div class="col-6 side-image">

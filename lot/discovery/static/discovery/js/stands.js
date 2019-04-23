@@ -12,3 +12,19 @@ $('.grid-card').on('click', function(e) {
     }
   })
 })
+
+deleteRUS = function(action) {
+  var option = confirm("Are you sure you want to delete this stand permanently?");
+  if (option) {
+    $.ajax({
+      url: action,
+      method: 'DELETE',
+      success: function(data) {
+        location.reload();
+      },
+      error: function(data) {
+        alert('Could not delete. (' + data.status + ') ' + data.statusText + ': ' + data.responseText);
+      }
+    });
+  }
+};

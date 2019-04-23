@@ -75,6 +75,21 @@ def example_stands(request):
 def create_stand_from_example(request, example_stand_uid):
     #TODO:
     #   Create discovery.models.DiscoveryStand
+    from discovery.models import DiscoveryStand
+    from discovery.forms import ExampleStandToDiscoveryStandForm
+    feature = get_feature_by_uid(example_stand_uid)
+    discovery_stand_form = ExampleStandToDiscoveryStandForm({
+        'name': feature.name,
+        'user': request.user.pk,
+        'geometry_final': feature.geometry_final,
+        'image': feature.image,
+        'splash_image': feature.splash_image
+    })
+    # discovery_stand = discovery_stand_form.save()
+    discovery_stand = DiscoveryStand.objects.create(user=request.user, name=feature.name)
+    import ipdb; ipdb.set_trace()
+    discovery_stand.save(geometry_final=feature.geometry_final)
+    # name, user, geometry_final
     #   Create trees.models.ForestProperty
     #   Create trees.models.Stand
     #   Create trees.models.strata
@@ -129,6 +144,8 @@ def get_modal_content(request, card_type, uid):
                 context['LINKS'].append({'href': '/discovery/compage_outcomes/%s/' % uid, 'label': 'Compare Outcomes',})
                 if feature.lot_property.scenario_set.all().count() > 0:
                     context['LINKS'].append({'href': '/discovery/compare_outcomes/%s/' % uid, 'label': 'View Report',})
+        context['LINKS'].append({'href': '/features/generic-links/links/delete/%s/' % uid, 'label': 'Delete Stand', 'class':'delete',})
+
     elif card_type == 'example_stand':
         if feature.splash_image.name:
             splash_image = feature.splash_image.url

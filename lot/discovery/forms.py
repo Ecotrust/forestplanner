@@ -26,3 +26,7 @@ class DiscoveryStandForm(PropertyForm):
         self.fields['name'].widget.attrs['placeholder'] = 'Name your stand'
         self.fields['name'].help_text = 'You can edit your stand later if needed.'
         # self.fields['name'].help_text.attrs['class'] = 'form-text text-muted stand-form-help'
+
+class ExampleStandToDiscoveryStandForm(DiscoveryStandForm):
+    image = forms.ImageField(required=False)
+    splash_image = forms.ImageField(required=False)
