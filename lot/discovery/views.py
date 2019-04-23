@@ -71,6 +71,16 @@ def example_stands(request):
 
     return render(request, 'discovery/stand_grid.html', context)
 
+@login_required
+def create_stand_from_example(request, example_stand_uid):
+    #TODO:
+    #   Create discovery.models.DiscoveryStand
+    #   Create trees.models.ForestProperty
+    #   Create trees.models.Stand
+    #   Create trees.models.strata
+    #   On success, direct user to stand profile for their new DiscoveryStand
+    return True
+
 # Display user's existing stands
 @login_required
 def stands(request):
@@ -119,13 +129,33 @@ def get_modal_content(request, card_type, uid):
                 context['LINKS'].append({'href': '/discovery/compage_outcomes/%s/' % uid, 'label': 'Compare Outcomes',})
                 if feature.lot_property.scenario_set.all().count() > 0:
                     context['LINKS'].append({'href': '/discovery/compare_outcomes/%s/' % uid, 'label': 'View Report',})
+    elif card_type == 'example_stand':
+        if feature.splash_image.name:
+            splash_image = feature.splash_image.url
+        else:
+            splash_image = settings.DEFAULT_STAND_SPLASH
+        context = {
+            'TITLE': feature.name,
+            'SPLASH_IMAGE': splash_image,
+            'CONTENT': feature.content,
+            'LINKS': [
+                {'href': '/discovery/example_stands/create_stand/%s/' % uid, 'label': 'Select this Stand',},
+            ],
+        }
     else:
         context = {}
-    return render(
-        request,
-        'discovery/%s/modal.html' % card_type,
-        context
-    )
+    try:
+        return render(
+            request,
+            'discovery/%s/modal.html' % card_type,
+            context
+        )
+    except Exception as e:
+        return render(
+            request,
+            'discovery/stand/modal.html',
+            context
+        )
 
 # find your forest page
 @login_required

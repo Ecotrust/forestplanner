@@ -51,7 +51,7 @@ class ExampleStandForm(ModelForm):
             'geometry_orig': DiscoOpenLayersWidget(),
             'geometry_final': DiscoOpenLayersWidget(),
         }
-        fields = ['user', 'name', 'geometry_orig', 'geometry_final', 'image', 'splash_image', 'age']
+        fields = ['user', 'name', 'content', 'geometry_orig', 'geometry_final', 'image', 'splash_image', 'age']
 
 
 class ExampleStandAdmin(admin.ModelAdmin):

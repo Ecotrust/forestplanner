@@ -31,6 +31,7 @@ class ExampleStand(PolygonFeature):
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
     age = models.IntegerField()
+    content = models.TextField(null=True, blank=True, default=None)
 
     def __str__(self):
         return "%s" % self.name
@@ -46,7 +47,7 @@ class ExampleStand(PolygonFeature):
         return area_m * settings.EQUAL_AREA_ACRES_CONVERSION
 
     @property
-    @cachemethod("ExampleStand_%(id)s_location")
+    # @cachemethod("ExampleStand_%(id)s_location")
     def location(self):
         '''
         Returns: (CountyName, State)
@@ -78,7 +79,7 @@ class ExampleStand(PolygonFeature):
         return the_county
 
     @property
-    @cachemethod("ExampleStand_%(id)s_variant")
+    # @cachemethod("ExampleStand_%(id)s_variant")
     def variant(self):
         '''
         Returns: Closest FVS variant instance
@@ -106,7 +107,7 @@ class ExampleStand(PolygonFeature):
         from datetime import date
         out_dict = {
             'uid': self.uid,
-            'getContent': '/discovery/modal_content/stand/%s/' % self.uid,
+            'getContent': '/discovery/modal_content/example_stand/%s/' % self.uid,
         }
         if self.image:
             out_dict['image'] = self.image.url

@@ -14,6 +14,7 @@ urlpatterns = [
     path('auth/password/change/', views.password_reset, name='password_reset'),
     path('stands/', views.stands, name='stands'),
     path('example_stands/', views.example_stands, name='example_stands'),
+    re_path(r'^example_stands/create_stand/(?P<example_stand_uid>\w+)/$', views.create_stand_from_example, name='create_stand_from_example'),
     path('find_your_forest/', views.find_your_forest, name='find_your_forest'),
     re_path(r'^map/((?P<discovery_stand_uid>\w+)/)?$', views.map, name='map'),
     path('collect_data/', views.collect_data, name='collect_data'),
