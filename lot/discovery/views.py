@@ -214,10 +214,14 @@ def find_your_forest(request):
 
 # collect data page
 @login_required
-def collect_data(request):
+def collect_data(request, discovery_stand_uid):
+    if settings.IMPORT_TREELIST:
+        next_action = '/discovery/enter_data/%s/' % discovery_stand_uid
+    else:
+        next_action = '/discovery/enter_stand_table/%s/' % discovery_stand_uid
     context = {
         'title': 'Collect data',
-        'flatblock_slug': 'collect-data',
+        # 'flatblock_slug': 'collect-data',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
@@ -229,10 +233,10 @@ def collect_data(request):
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': True,
-        'step_btn_action': '/discovery/enter_data/',
+        'step_btn_action': next_action,
         'step_btn_text': 'Enter data now',
     }
-    return render(request, 'discovery/common/action_buttons.html', context)
+    return render(request, 'discovery/collect_data.html', context)
 
 # enter data page
 @login_required
@@ -260,7 +264,7 @@ def enter_data(request):
 
 # enter new stand table page
 @login_required
-def enter_stand_table(request):
+def enter_stand_table(request, discovery_stand_uid):
     context = {
         'title': 'Enter stand table',
         'flatblock_slug': 'enter-stand-table',

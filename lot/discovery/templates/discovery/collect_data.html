@@ -1,0 +1,17 @@
+{% extends 'discovery/common/action_buttons.html' %}
+{% load flatblocks %}
+
+{% block post-content %}
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        {% flatblock "collect-data" evaluated=True %}
+        <a href="{{ act_btn_one_action }}" class="btn btn-outline-dark">{{ act_btn_one_text }}</a>
+      </div>
+      <div class="col">
+        {% flatblock "collect-data-2" evaluated=True %}
+        <a href="{{ act_btn_two_action }}" class="btn btn-outline-dark">{{ act_btn_two_text }}</a>
+      </col>
+    </div>
+  </div>
+{% endblock post-content %}

@@ -199,10 +199,10 @@ standFormSubmitted = function(e) {
       data: $('#stand-form').serialize(),
       method: 'POST',
       success: function(data){
-        alert("Submit success!");
+        window.location = '/discovery/collect_data/' + uid;
       },
       error: function(data){
-        alert("Submit error!");;
+        alert("Submit error! (" + data.status + ") " + + data.statusText + ": " + data.responseText);;
       }
     });
   } else {

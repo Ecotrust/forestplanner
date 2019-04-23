@@ -16,3 +16,5 @@ CKEDITOR_CONFIGS = {
         ],
     }
 }
+
+IMPORT_TREELIST = False
