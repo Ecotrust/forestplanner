@@ -8,3 +8,7 @@
   font-weight: 250;
   line-height: 1.2;
 }
+
+a:not([href]):not([tabindex]) {
+  color: white;
+}

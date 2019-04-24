@@ -300,7 +300,7 @@ def enter_stand_table(request, discovery_stand_uid):
     DiscoveryStandListEntryFormSet = formset_factory(
         DiscoveryStandListEntryForm,
         can_delete=True,
-        extra=2,
+        extra=100,
     )
     if request.method == 'POST':
         POST = request.POST.copy()

@@ -30,7 +30,7 @@
                   </tr>
                 </thead>
                 {% for form in formset %}
-                  <tr>
+                  <tr id="formset-row-{{ forloop.counter0 }}" style="display: none;">
                     {% for field in form.visible_fields %}
                       <td class="field-{{ field.label|lower|slugify }}">
                         {% if forloop.first %}
@@ -48,6 +48,7 @@
                   </tr>
                 {% endfor %}
               </table>
+              <a class="add-button btn btn-success" onclick="addRow()">+ Add Row</a>
             </div>
           </div>
         </form>

@@ -40,8 +40,26 @@ $(document).ready(function() {
         options[options.length] = new Option(text, val);
     });
   });
+
 });
+
+total_forms = parseInt($('#id_form-TOTAL_FORMS').val());
+initial_forms = parseInt($('#id_form-INITIAL_FORMS').val());
+init_show = initial_forms > 2 ? initial_forms + 1 : 3;
+form_show_index = init_show;
+for (var i = 0; i < init_show; i++) {
+  $('#formset-row-' + i).show();
+}
 
 submitForm = function() {
   $('#stand_strata_form').submit();
+}
+
+addRow = function() {
+  if (form_show_index < total_forms) {
+    $('#formset-row-' + form_show_index).show();
+    form_show_index++;
+  } else {
+    alert('Cannot add more rows at this time. Please save and return to this form to add more.');
+  }
 }
