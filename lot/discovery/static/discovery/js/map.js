@@ -199,6 +199,7 @@ standFormSubmitted = function(e) {
       data: $('#stand-form').serialize(),
       method: 'POST',
       success: function(data){
+        var uid = JSON.parse(data)['X-Madrona-Show'];
         window.location = '/discovery/collect_data/' + uid;
       },
       error: function(data){

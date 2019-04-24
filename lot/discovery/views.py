@@ -261,16 +261,34 @@ def enter_data(request):
     }
     return render(request, 'discovery/common/action_buttons.html', context)
 
-def stand_list_form_to_json(form):
+def stand_list_form_to_json(form, prop_uid):
     ret_val = {}
-    # import ipdb; ipdb.set_trace()
+    classes = []
+    for index in range(0, int(form.data['form-TOTAL_FORMS'])):
+        if not form.data['form-%d-species' % index] == '':
+            new_class = [
+                form.data['form-%d-species' % index],
+                int(eval(form.data['form-%d-size_class' % index])[0]),
+                int(eval(form.data['form-%d-size_class' % index])[1]),
+                int(form.data['form-%d-tpa' % index])
+            ]
+            classes.append(new_class)
+    ret_val['classes'] = classes
+    ret_val['property'] = prop_uid
     return ret_val
+
+def get_tpa_from_stand_list(standlist):
+    tpa = 0
+    for class_item in standlist['classes']:
+        tpa += class_item[3]
+    return tpa
 
 # enter new stand table page
 @login_required
 def enter_stand_table(request, discovery_stand_uid):
     from django.forms import formset_factory, ChoiceField
     from discovery.forms import DiscoveryStandListEntryForm
+    from trees.models import Strata
     from trees.views import get_species_sizecls_json
     from django.forms import widgets as form_widgets
 
@@ -285,26 +303,33 @@ def enter_stand_table(request, discovery_stand_uid):
         extra=2,
     )
     if request.method == 'POST':
-        # import ipdb; ipdb.set_trace()
-        stand_age = request.form.pop('age')
-        formset = DiscoveryStandListEntryFormSet(request.POST, request.FILES)
+        POST = request.POST.copy()
+        stand_age = POST.pop('stand_age')
+        if type(stand_age) == list and len(stand_age) == 1:
+            stand_age = int(stand_age[0])
+        formset = DiscoveryStandListEntryFormSet(POST, request.FILES)
         if formset.is_valid():
+            standlist = stand_list_form_to_json(formset, stand.lot_property.uid)
+            search_tpa = get_tpa_from_stand_list(standlist)
             if prop_stand.strata:
-                prop_stand.strata.stand_list = stand_list_form_to_json(formset)
+                prop_stand.strata.name = stand.name
+                prop_stand.strata.stand_list = standlist
+                prop_stand.strata.search_age = stand_age
+                prop_stand.strata.search_tpa = search_tpa
                 prop_stand.strata.save()
             else:
                 # create strata
-                search_tpa = 0
-                # import ipdb; ipdb.set_trace()
-                prop_strata = Strata.objects.create(user=request.user, name=feature.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
+                prop_strata = Strata.objects.create(user=request.user, name=stand.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
                 prop_stand.strata = prop_strata
                 prop_stand.save()
                 prop_strata.add_to_collection(stand.lot_property)
             return forest_profile(request, discovery_stand_uid)
     else:
         initial = False
+        stand_age = None
         if prop_stand and prop_stand.strata:
             initial = []
+            stand_age = int(prop_stand.strata.search_age)
             for list_item in prop_stand.strata.stand_list['classes']:
                 initial.append({
                     'species': list_item[0],
@@ -323,7 +348,7 @@ def enter_stand_table(request, discovery_stand_uid):
             size_classes = [x for x in choice_json if x['species'] == form.initial['species']][0]['size_classes']
             size_choices = [(str((int(x['min']), int(x['max']))), '%d" to %d"' % (x['min'], x['max'])) for x in size_classes]
         else:
-            size_choices = ()
+            size_choices = (('', '(Select a species first)'),)
         form.fields['size_class'] = ChoiceField(choices=size_choices)
     context = {
         'title': 'Enter stand table',
@@ -337,11 +362,12 @@ def enter_stand_table(request, discovery_stand_uid):
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': True,
-        'step_btn_action': '/discovery/forest_profile/',
+        # 'step_btn_action': '#',
         'step_btn_text': 'View forest profile',
+        'stand_age': stand_age,
         'formset': formset,
         'choice_json': choice_json,
-
+        'UID': discovery_stand_uid,
     }
     return render(request, 'discovery/common/data_table.html', context)
 

@@ -10,12 +10,13 @@
   <div class="container">
     <div class="row">
       <div class="col">
-        <form id="stand_strata_form" method="POST">
+        <form id="stand_strata_form" method='POST' action="/discovery/enter_stand_table/{{ UID }}/">
           {% csrf_token %}
+          {{ formset.management_form }}
           <div class="row">
             <div class="age_field_div col">
               <label for="id_stand_age">Age</label>
-              <input type="number" name="stand_age" min="0" id="id_stand_age">
+              <input type="number" name="stand_age" min="0" id="id_stand_age" value={{ stand_age }}>
             </div>
           </div>
           <div class="row">
@@ -60,7 +61,7 @@
   {% if use_step_btn %}
   <div class="container">
     <div class="row mb-4 mt-4 align-items-center justify-content-start">
-      <a href="{{ step_btn_action }}" class="btn btn-dark">{{ step_btn_text }}</a>
+      <a id="strata-submit" onclick="submitForm()" class="btn btn-dark">{{ step_btn_text }}</a>
     </div>
   </div>
   {% endif %}
@@ -70,6 +71,7 @@
   <!-- <script type="text/javascript" src="{% static 'discovery/dependencies/DataTables/datatables.min.js' %}"></script> -->
   <script>
     choice_json = {{ choice_json|safe }};
+    discovery_stand_uid = "{{ UID }}";
   </script>
   <script type="text/javascript" src="{% static 'discovery/js/strata.js' %}"></script>
 {% endblock extra_foot_scripts %}

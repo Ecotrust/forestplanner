@@ -37,7 +37,11 @@ $(document).ready(function() {
     }
     $('option', size_class_selector).remove();
     $.each(size_select_values, function(val, text) {
-        options[options.length] = new Option(text, parseInt(val));
+        options[options.length] = new Option(text, val);
     });
   });
 });
+
+submitForm = function() {
+  $('#stand_strata_form').submit();
+}
