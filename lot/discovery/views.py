@@ -263,21 +263,29 @@ def enter_data(request):
 
 def stand_list_form_to_json(form):
     ret_val = {}
-    import ipdb; ipdb.set_trace()
+    # import ipdb; ipdb.set_trace()
     return ret_val
 
 # enter new stand table page
 @login_required
 def enter_stand_table(request, discovery_stand_uid):
-    from django.forms import formset_factory
+    from django.forms import formset_factory, ChoiceField
     from discovery.forms import DiscoveryStandListEntryForm
+    from trees.views import get_species_sizecls_json
+    from django.forms import widgets as form_widgets
+
     stand = get_feature_by_uid(discovery_stand_uid)
+    choice_json = get_species_sizecls_json(stand.variant)
     prop_stand = stand.get_stand()
     if not prop_stand:
         return map(request, discovery_stand_uid)
-    DiscoveryStandListEntryFormSet = formset_factory(DiscoveryStandListEntryForm, can_delete=True, extra=2)
+    DiscoveryStandListEntryFormSet = formset_factory(
+        DiscoveryStandListEntryForm,
+        can_delete=True,
+        extra=2,
+    )
     if request.method == 'POST':
-        import ipdb; ipdb.set_trace()
+        # import ipdb; ipdb.set_trace()
         stand_age = request.form.pop('age')
         formset = DiscoveryStandListEntryFormSet(request.POST, request.FILES)
         if formset.is_valid():
@@ -287,7 +295,7 @@ def enter_stand_table(request, discovery_stand_uid):
             else:
                 # create strata
                 search_tpa = 0
-                import ipdb; ipdb.set_trace()
+                # import ipdb; ipdb.set_trace()
                 prop_strata = Strata.objects.create(user=request.user, name=feature.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
                 prop_stand.strata = prop_strata
                 prop_stand.save()
@@ -307,6 +315,16 @@ def enter_stand_table(request, discovery_stand_uid):
             formset = DiscoveryStandListEntryFormSet(initial=initial)
         else:
             formset = DiscoveryStandListEntryFormSet()
+
+    species_choice_list = [('', '----')] + [(x['species'], x['species']) for x in choice_json]
+    for form in formset.forms:
+        form.fields['species'] = ChoiceField(choices=species_choice_list)
+        if 'species' in form.initial.keys():
+            size_classes = [x for x in choice_json if x['species'] == form.initial['species']][0]['size_classes']
+            size_choices = [(str((int(x['min']), int(x['max']))), '%d" to %d"' % (x['min'], x['max'])) for x in size_classes]
+        else:
+            size_choices = ()
+        form.fields['size_class'] = ChoiceField(choices=size_choices)
     context = {
         'title': 'Enter stand table',
         'subtitle': stand.name,
@@ -321,7 +339,9 @@ def enter_stand_table(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': '/discovery/forest_profile/',
         'step_btn_text': 'View forest profile',
-        'formset': formset
+        'formset': formset,
+        'choice_json': choice_json,
+
     }
     return render(request, 'discovery/common/data_table.html', context)
 

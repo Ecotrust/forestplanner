@@ -21,10 +21,17 @@
           <div class="row">
             <div class="stand_list_form_div col">
               <table>
+                <thead>
+                  <tr>
+                    <th>Species</th>
+                    <th>Size Class</th>
+                    <th>Trees Per Acre (TPA)</th>
+                  </tr>
+                </thead>
                 {% for form in formset %}
                   <tr>
                     {% for field in form.visible_fields %}
-                      <td>
+                      <td class="field-{{ field.label|lower|slugify }}">
                         {% if forloop.first %}
                             {% for hidden in form.hidden_fields %}
                                 {{ hidden }}
@@ -60,6 +67,9 @@
 {% endblock footer %}
 
 {% block extra_foot_scripts %}
-  <script type="text/javascript" src="{% static 'discovery/dependencies/DataTables/datatables.min.js' %}"></script>
+  <!-- <script type="text/javascript" src="{% static 'discovery/dependencies/DataTables/datatables.min.js' %}"></script> -->
+  <script>
+    choice_json = {{ choice_json|safe }};
+  </script>
   <script type="text/javascript" src="{% static 'discovery/js/strata.js' %}"></script>
 {% endblock extra_foot_scripts %}

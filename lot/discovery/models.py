@@ -145,9 +145,34 @@ class DiscoveryStand(Feature):
     image = models.ImageField(blank=True, null=True, default=None)
     splash_image = models.ImageField(blank=True, null=True, default=None)
 
+    @property
+    # @cachemethod("DiscoveryStand_%(id)s_variant")
+    def variant(self):
+        '''
+        Returns: Closest FVS variant instance
+        '''
+        from trees.models import FVSVariant
+        geom = self.lot_property.geometry_final.point_on_surface
+
+        variants = FVSVariant.objects.all()
+
+        min_distance = 99999999999999.0
+        the_variant = None
+        for variant in variants:
+            variant_geom = variant.geom
+            if not variant_geom.valid:
+                variant_geom = variant_geom.buffer(0)
+            dst = variant_geom.distance(geom)
+            if dst == 0.0:
+                return variant
+            if dst < min_distance:
+                min_distance = dst
+                the_variant = variant
+        return the_variant
+
     def __str__(self):
         return self.name
-        
+
     def get_stand(self):
         property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
         if len(property_stands) == 0:
