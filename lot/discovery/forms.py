@@ -2,7 +2,6 @@ from django import forms
 from discovery.models import DiscoveryStand
 from trees.forms import PropertyForm
 
-
 class DiscoveryStandForm(PropertyForm):
 
     # name = forms.CharField(label=None,
@@ -30,3 +29,8 @@ class DiscoveryStandForm(PropertyForm):
 class ExampleStandToDiscoveryStandForm(DiscoveryStandForm):
     image = forms.ImageField(required=False)
     splash_image = forms.ImageField(required=False)
+
+class DiscoveryStandListEntryForm(forms.Form):
+    species = forms.CharField()
+    size_class = forms.CharField()
+    tpa = forms.FloatField()

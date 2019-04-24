@@ -7,7 +7,45 @@
 {% endblock extra_styles %}
 
 {% block post-content %}
-  {% csrf_token %}
+  <div class="container">
+    <div class="row">
+      <div class="col">
+        <form id="stand_strata_form" method="POST">
+          {% csrf_token %}
+          <div class="row">
+            <div class="age_field_div col">
+              <label for="id_stand_age">Age</label>
+              <input type="number" name="stand_age" min="0" id="id_stand_age">
+            </div>
+          </div>
+          <div class="row">
+            <div class="stand_list_form_div col">
+              <table>
+                {% for form in formset %}
+                  <tr>
+                    {% for field in form.visible_fields %}
+                      <td>
+                        {% if forloop.first %}
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                        {% endif %}
+                        {% if forloop.last %}
+                          {{ field.label }}
+                        {% endif %}
+                        {{ field.errors.as_ul }}
+                        {{ field }}
+                      </td>
+                    {% endfor %}
+                  </tr>
+                {% endfor %}
+              </table>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
 {% endblock %}
 

@@ -11,6 +11,9 @@
     <div class="row page-title-row">
       {% if button_text %}
         <div class="col-8">
+          {% if subtitle %}
+            <h2 class="page-subtitle">{{ subtitle|title }}</h2>
+          {% endif %}
           <h1 class="page-title">{{ title|title }}</h1>
         </div>
         <div class="col-4">
@@ -18,6 +21,9 @@
         </div>
       {% else %}
       <div class="col">
+        {% if subtitle %}
+          <h2 class="page-subtitle">{{ subtitle|title }}</h2>
+        {% endif %}
         <h1 class="page-title">{{ title|title }}</h1>
       </div>
       {% endif %}

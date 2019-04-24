@@ -261,11 +261,55 @@ def enter_data(request):
     }
     return render(request, 'discovery/common/action_buttons.html', context)
 
+def stand_list_form_to_json(form):
+    ret_val = {}
+    import ipdb; ipdb.set_trace()
+    return ret_val
+
 # enter new stand table page
 @login_required
 def enter_stand_table(request, discovery_stand_uid):
+    from django.forms import formset_factory
+    from discovery.forms import DiscoveryStandListEntryForm
+    stand = get_feature_by_uid(discovery_stand_uid)
+    prop_stand = stand.get_stand()
+    if not prop_stand:
+        return map(request, discovery_stand_uid)
+    DiscoveryStandListEntryFormSet = formset_factory(DiscoveryStandListEntryForm, can_delete=True, extra=2)
+    if request.method == 'POST':
+        import ipdb; ipdb.set_trace()
+        stand_age = request.form.pop('age')
+        formset = DiscoveryStandListEntryFormSet(request.POST, request.FILES)
+        if formset.is_valid():
+            if prop_stand.strata:
+                prop_stand.strata.stand_list = stand_list_form_to_json(formset)
+                prop_stand.strata.save()
+            else:
+                # create strata
+                search_tpa = 0
+                import ipdb; ipdb.set_trace()
+                prop_strata = Strata.objects.create(user=request.user, name=feature.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
+                prop_stand.strata = prop_strata
+                prop_stand.save()
+                prop_strata.add_to_collection(stand.lot_property)
+            return forest_profile(request, discovery_stand_uid)
+    else:
+        initial = False
+        if prop_stand and prop_stand.strata:
+            initial = []
+            for list_item in prop_stand.strata.stand_list['classes']:
+                initial.append({
+                    'species': list_item[0],
+                    'size_class': str((list_item[1], list_item[2])),
+                    'tpa': list_item[3]
+                })
+        if initial:
+            formset = DiscoveryStandListEntryFormSet(initial=initial)
+        else:
+            formset = DiscoveryStandListEntryFormSet()
     context = {
         'title': 'Enter stand table',
+        'subtitle': stand.name,
         'flatblock_slug': 'enter-stand-table',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
@@ -277,6 +321,7 @@ def enter_stand_table(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': '/discovery/forest_profile/',
         'step_btn_text': 'View forest profile',
+        'formset': formset
     }
     return render(request, 'discovery/common/data_table.html', context)
 
