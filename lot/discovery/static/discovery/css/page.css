@@ -12,3 +12,8 @@
 a:not([href]):not([tabindex]) {
   color: white;
 }
+
+a:not([href]):not([tabindex]).btn:hover {
+  color: aqua;
+  cursor: pointer;
+}
