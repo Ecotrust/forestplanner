@@ -17,3 +17,12 @@ a:not([href]):not([tabindex]).btn:hover {
   color: aqua;
   cursor: pointer;
 }
+
+.error-messages {
+  border: 3px solid red;
+  color: red;
+  background-color: #FFDDDD;
+  border-radius: 0.7rem;
+  padding: 1rem;
+  margin: 1rem;
+}

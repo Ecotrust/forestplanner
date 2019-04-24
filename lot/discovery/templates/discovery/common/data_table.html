@@ -10,6 +10,16 @@
   <div class="container">
     <div class="row">
       <div class="col">
+        {% if error_msgs|length > 0 %}
+          <div class="error-messages">
+            <h4>Errors:</h4>
+            <ul>
+              {% for e_message in error_msgs %}
+                <li>{{ e_message}}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
         <form id="stand_strata_form" method='POST' action="/discovery/enter_stand_table/{{ UID }}/">
           {% csrf_token %}
           {{ formset.management_form }}

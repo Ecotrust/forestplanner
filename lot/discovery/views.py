@@ -265,7 +265,7 @@ def stand_list_form_to_json(form, prop_uid):
     ret_val = {}
     classes = []
     for index in range(0, int(form.data['form-TOTAL_FORMS'])):
-        if not form.data['form-%d-species' % index] == '':
+        if not form.data['form-%d-species' % index] == '' and not ('form-%d-DELETE' % index in form.data.keys() and form.data['form-%d-DELETE' % index] == 'on'):
             new_class = [
                 form.data['form-%d-species' % index],
                 int(eval(form.data['form-%d-size_class' % index])[0]),
@@ -292,6 +292,7 @@ def enter_stand_table(request, discovery_stand_uid):
     from trees.views import get_species_sizecls_json
     from django.forms import widgets as form_widgets
 
+    error_msgs = []
     stand = get_feature_by_uid(discovery_stand_uid)
     choice_json = get_species_sizecls_json(stand.variant)
     prop_stand = stand.get_stand()
@@ -310,36 +311,42 @@ def enter_stand_table(request, discovery_stand_uid):
         formset = DiscoveryStandListEntryFormSet(POST, request.FILES)
         if formset.is_valid():
             standlist = stand_list_form_to_json(formset, stand.lot_property.uid)
-            search_tpa = get_tpa_from_stand_list(standlist)
-            if prop_stand.strata:
-                prop_stand.strata.name = stand.name
-                prop_stand.strata.stand_list = standlist
-                prop_stand.strata.search_age = stand_age
-                prop_stand.strata.search_tpa = search_tpa
-                prop_stand.strata.save()
+            if not standlist['classes'] == []:
+                search_tpa = get_tpa_from_stand_list(standlist)
+                if prop_stand.strata:
+                    prop_stand.strata.name = stand.name
+                    prop_stand.strata.stand_list = standlist
+                    prop_stand.strata.search_age = stand_age
+                    prop_stand.strata.search_tpa = search_tpa
+                    prop_stand.strata.save()
+                else:
+                    # create strata
+                    prop_strata = Strata.objects.create(user=request.user, name=stand.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
+                    prop_stand.strata = prop_strata
+                    prop_stand.save()
+                    prop_strata.add_to_collection(stand.lot_property)
+                return forest_profile(request, discovery_stand_uid)
             else:
-                # create strata
-                prop_strata = Strata.objects.create(user=request.user, name=stand.name, search_age=stand_age, search_tpa=search_tpa, stand_list=standlist)
-                prop_stand.strata = prop_strata
-                prop_stand.save()
-                prop_strata.add_to_collection(stand.lot_property)
-            return forest_profile(request, discovery_stand_uid)
+                error_msgs.append("You must provide at least 1 stand table record.")
+        if len(error_msgs) == 0:
+            error_msgs.append("Unknown error occurred. Please double check your form.")
+
+    # If method is GET or POST failed
+    initial = False
+    stand_age = None
+    if prop_stand and prop_stand.strata:
+        initial = []
+        stand_age = int(prop_stand.strata.search_age)
+        for list_item in prop_stand.strata.stand_list['classes']:
+            initial.append({
+                'species': list_item[0],
+                'size_class': str((list_item[1], list_item[2])),
+                'tpa': list_item[3]
+            })
+    if initial:
+        formset = DiscoveryStandListEntryFormSet(initial=initial)
     else:
-        initial = False
-        stand_age = None
-        if prop_stand and prop_stand.strata:
-            initial = []
-            stand_age = int(prop_stand.strata.search_age)
-            for list_item in prop_stand.strata.stand_list['classes']:
-                initial.append({
-                    'species': list_item[0],
-                    'size_class': str((list_item[1], list_item[2])),
-                    'tpa': list_item[3]
-                })
-        if initial:
-            formset = DiscoveryStandListEntryFormSet(initial=initial)
-        else:
-            formset = DiscoveryStandListEntryFormSet()
+        formset = DiscoveryStandListEntryFormSet()
 
     species_choice_list = [('', '----')] + [(x['species'], x['species']) for x in choice_json]
     for form in formset.forms:
@@ -368,6 +375,7 @@ def enter_stand_table(request, discovery_stand_uid):
         'formset': formset,
         'choice_json': choice_json,
         'UID': discovery_stand_uid,
+        'error_msgs': error_msgs,
     }
     return render(request, 'discovery/common/data_table.html', context)
 
