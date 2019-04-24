@@ -75,7 +75,6 @@ def example_stands(request):
 def create_stand_from_example(request, example_stand_uid):
     from discovery.models import DiscoveryStand
     from trees.models import Strata
-    import json
     feature = get_feature_by_uid(example_stand_uid)
     discovery_stand = DiscoveryStand.objects.create(user=request.user, name=feature.name)
     discovery_stand.save(geometry_final=feature.geometry_final)
@@ -106,7 +105,7 @@ def create_stand_from_example(request, example_stand_uid):
     }
 
     #   Create trees.models.strata
-    strata = Strata.objects.create(user=request.user, name=feature.name, search_age=feature.age, search_tpa=search_tpa, stand_list=json.dumps(standlist))
+    strata = Strata.objects.create(user=request.user, name=feature.name, search_age=feature.age, search_tpa=search_tpa, stand_list=standlist)
     strata.save()
 
     stand = discovery_stand.get_stand()

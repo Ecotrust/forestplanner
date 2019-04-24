@@ -101,6 +101,12 @@ def impute_nearest_neighbor(stand_results, savetime):
     variant = stand.collection.variant.code
 
     stand_list = stand.strata.stand_list
+    if type(stand_list) == str:
+        try:
+            stand_list = eval(stand_list)
+        except Exception as e:
+            print(e)
+            pass
     geom = stand.geometry_final.transform(4326, clone=True)
     site_cond = {
         'latitude_fuzz': geom.centroid[1],
