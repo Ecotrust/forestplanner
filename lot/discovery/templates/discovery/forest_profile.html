@@ -1,1 +1,19 @@
 {% extends 'discovery/page.html' %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      {% for column in profile_columns%}
+        <div class="col">
+          <h3>{{ column.title }}</h3>
+          {% for entry in column.entries %}
+            <div>
+              {% if entry.label %}<b>{{ entry.label }}</b>:{% endif %}
+              {{ entry.value }}
+            </div>
+          {% endfor %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endblock content %}

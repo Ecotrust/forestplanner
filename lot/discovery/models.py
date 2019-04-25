@@ -258,6 +258,63 @@ class DiscoveryStand(Feature):
         if lot_property:
             lot_property.delete()
 
+    def get_basal_area(self):
+        total_ba = 0
+        species_dict = {}
+        stand = self.get_stand()
+        if stand and stand.strata and 'classes' in stand.strata.stand_list.keys():
+            treelist = stand.strata.stand_list['classes']
+            for entry in treelist:
+                species = entry[0]
+                dbh = (entry[1]+entry[2])/2
+                tpa = entry[3]
+                # BA = pi * (DBH/2)**2 / 144, which can be simplified to BA = 0.005454 * DBH**2
+                entry_ba = 0.005454 * dbh**2 * tpa
+                if species in species_dict.keys():
+                    species_dict[species] += entry_ba
+                else:
+                    species_dict[species] = entry_ba
+                total_ba += entry_ba
+        else:
+            return None
+        return {'total': total_ba, 'species': species_dict}
+
+    def get_forest_type(self, basal_area=None):
+        if not basal_area:
+            basal_area = self.get_basal_area
+        if basal_area:
+            species_composition = {
+                'hardwood': 0,
+                'softwood': 0,
+                'unknown': 0,
+                'predominant': False,
+                'prevalent': [],
+            }
+
+            for species in basal_area['species'].keys():
+                percent_ba = basal_area['species'][species]/basal_area['total']
+                if percent_ba >= 0.75:
+                    species_composition['predominant'] = species
+                elif percent_ba >= 0.25:
+                    species_composition['prevalent'].append(species)
+                if species in settings.HARD_SOFTWOOD_LOOKUP.keys():
+                    species_composition[settings.HARD_SOFTWOOD_LOOKUP[species]] += percent_ba
+                else:
+                    species_composition['unknown'] += percent_ba
+            if species_composition['predominant']:
+                forest_type = species_composition['predominant']
+            elif len(species_composition['prevalent']) > 0:
+                forest_type = '%s mix' % ' / '.join(species_composition['prevalent'])
+            elif species_composition['hardwood'] >= species_composition['softwood'] and species_composition['hardwood'] >= species_composition['unknown']:
+                forest_type = 'Hardwood mix'
+            elif species_composition['softwood'] >= species_composition['hardwood'] and species_composition['softwood'] >= species_composition['unknown']:
+                forest_type = 'Softwood mix'
+            else:
+                forest_type = 'Mix'
+        else:
+            forest_type = "Unknown"
+        return forest_type
+
     def save(self, *args, **kwargs):
         from django.core.exceptions import ValidationError
         from django.contrib.auth.models import User

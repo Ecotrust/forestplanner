@@ -407,12 +407,46 @@ def map(request, discovery_stand_uid=None):
 # forest profile page
 @login_required
 def forest_profile(request, discovery_stand_uid):
+    stand = get_feature_by_uid(discovery_stand_uid)
+    profile_columns = []
+    # Forest Type
+    forest_type_col = {
+        'title': 'Forest Type',
+        'entries': []
+    }
+    # get total basal area
+    basal_area = stand.get_basal_area()
+    # get predominant species by basal area
+    #  Or "mix" with species w/ gte 25% BA
+    #  Or "[hard/soft]wood mix"
+    forest_type = stand.get_forest_type(basal_area)
+    forest_type_col['entries'].append({
+        'label': False,
+        'value': forest_type
+    })
+    profile_columns.append(forest_type_col)
+
+    # Tree Size
+    # TODO:
+    # Get QMD
+    # Get "Size Class"
+
+    # Stocking
+    # Get Basal Area (from above)
+    # Get TPA (from strata)
+
+    # Structure
+    #   Need more input from DD
+
+
+
     context = {
         'title': 'Forest profile',
         'flatblock_slug': 'forest-profile',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
+        'profile_columns': profile_columns
     }
     return render(request, 'discovery/forest_profile.html', context)
 
