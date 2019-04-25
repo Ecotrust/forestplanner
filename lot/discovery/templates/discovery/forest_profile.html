@@ -15,8 +15,8 @@
         <div class="col profile-column">
           <h3>{{ column.title }}</h3>
           {% for entry in column.entries %}
-            <div>
-              {% if entry.label %}<b>{{ entry.label }}</b>:{% endif %}
+            <div class="profile-col-entry">
+              {% if entry.label %}{{ entry.label }}{% endif %}
               {{ entry.value|safe }}
             </div>
           {% endfor %}

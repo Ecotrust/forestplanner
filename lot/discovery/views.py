@@ -441,7 +441,7 @@ def forest_profile(request, discovery_stand_uid):
                 'value': stand_stats['tree_size']['size_class']
             },
             {
-                'label': 'Quadratic Mean Diameter (QMD)',
+                'label': 'Quadratic Mean Diameter (QMD) =',
                 'value': '%.1f"' % round(stand_stats['tree_size']['qmd'],1)
             },
         ]

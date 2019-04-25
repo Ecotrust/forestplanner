@@ -19,7 +19,7 @@ $(document).ready(function() {
       width = 150,
       height = 150,
       radius = Math.min(width, height) / 2,
-      g = svg.append("g").attr("transform", "translate(" + ((width / 2) + 75) + "," + ((height / 2) + 35) + ")");
+      g = svg.append("g").attr("transform", "translate(" + ((width / 2) + 75) + "," + ((height / 2) + 75) + ")");
 
   var color = d3.schemeCategory10;
 
@@ -35,6 +35,10 @@ $(document).ready(function() {
 
   label = d3.arc()
               .innerRadius(radius - 80)
+              .outerRadius(radius);
+
+  percent = d3.arc()
+              .innerRadius(20)
               .outerRadius(radius);
 
   //Generate groups
@@ -61,8 +65,16 @@ $(document).ready(function() {
           // pythagorean theorem for hypotenuse
           var h = Math.sqrt(x*x + y*y);
           var labelr = radius + 20;
-          return "translate(" + (x/h * labelr) + "," + (y/h * labelr) + ")"
+          return "translate(" + (x/h * labelr) + "," + (y/h * labelr) + ")";
       })
       .text(function(d) {return d.data.label});
+
+  arc.append("text")
+    .attr("transform", function(d) {
+      return "translate(" + percent.centroid(d) + ")";
+    })
+    .text(function(d) {
+      return (parseFloat(d.data.value)/stand_stats.basal_area_dict.total*100).toFixed(1) + "%";
+    })
 
 });
