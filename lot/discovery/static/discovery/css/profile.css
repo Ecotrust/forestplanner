@@ -5,3 +5,19 @@
 .profile-columns-row>div:not(:first-child) {
   border-left: 1px solid black;
 }
+
+#species-pie-chart svg {
+  margin:auto;
+  display:inherit;
+}
+
+.arc text {
+    font: 14px sans-serif;
+    text-anchor: middle;
+    fill: black;
+    z-index: 10;
+}
+
+.arc path {
+    stroke: #fff;
+}

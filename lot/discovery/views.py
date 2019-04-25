@@ -424,6 +424,10 @@ def forest_profile(request, discovery_stand_uid):
         'label': False,
         'value': forest_type
     })
+    forest_type_col['entries'].append({
+        'label': False,
+        'value': '<div><svg width="300" height="300" id="species-pie-chart"></svg></div>'
+    })
     profile_columns.append(forest_type_col)
 
     # Tree Size
@@ -478,7 +482,8 @@ def forest_profile(request, discovery_stand_uid):
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
         'button_action': '',
-        'profile_columns': profile_columns
+        'profile_columns': profile_columns,
+        'stand_stats': stand_stats,
     }
     return render(request, 'discovery/forest_profile.html', context)
 
