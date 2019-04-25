@@ -19,7 +19,7 @@ $(document).ready(function() {
       width = 150,
       height = 150,
       radius = Math.min(width, height) / 2,
-      g = svg.append("g").attr("transform", "translate(" + ((width / 2) + 75) + "," + ((height / 2) + 75) + ")");
+      g = svg.append("g").attr("transform", "translate(" + 150 + "," + 110 + ")");
 
   var color = d3.schemeCategory10;
 

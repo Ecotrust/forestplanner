@@ -426,7 +426,7 @@ def forest_profile(request, discovery_stand_uid):
     })
     forest_type_col['entries'].append({
         'label': False,
-        'value': '<div><svg width="300" height="300" id="species-pie-chart"></svg></div>'
+        'value': '<svg id="species-pie-chart"></svg>'
     })
     profile_columns.append(forest_type_col)
 

@@ -15,9 +15,10 @@
   font-size: 1.2rem;
 }
 
-#species-pie-chart svg {
-  margin:auto;
-  display:inherit;
+#species-pie-chart {
+  width: 300px;
+  height: 210px;
+  margin: -1.7rem;
 }
 
 .arc text {
