@@ -52,7 +52,14 @@ for (var i = 0; i < init_show; i++) {
 }
 
 submitForm = function() {
-  $('#stand_strata_form').submit();
+  $.ajax({
+    type: "POST",
+    url: $('#stand_strata_form').attr('action'),
+    data: $('#stand_strata_form').serialize(),
+    success: function(data){
+      window.location = "/discovery/forest_profile/" + discovery_stand_uid + "/"
+    }
+  });
 }
 
 addRow = function() {

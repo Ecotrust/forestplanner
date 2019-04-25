@@ -325,7 +325,7 @@ def enter_stand_table(request, discovery_stand_uid):
                     prop_stand.strata = prop_strata
                     prop_stand.save()
                     prop_strata.add_to_collection(stand.lot_property)
-                return forest_profile(request, discovery_stand_uid)
+                return HttpResponse(status=204)
             else:
                 error_msgs.append("You must provide at least 1 stand table record.")
         if len(error_msgs) == 0:
@@ -415,11 +415,11 @@ def forest_profile(request, discovery_stand_uid):
         'entries': []
     }
     # get total basal area
-    basal_area = stand.get_basal_area()
+    stand_stats = stand.get_stand_stats()
     # get predominant species by basal area
     #  Or "mix" with species w/ gte 25% BA
     #  Or "[hard/soft]wood mix"
-    forest_type = stand.get_forest_type(basal_area)
+    forest_type = stand_stats['forest_type']
     forest_type_col['entries'].append({
         'label': False,
         'value': forest_type
@@ -427,10 +427,24 @@ def forest_profile(request, discovery_stand_uid):
     profile_columns.append(forest_type_col)
 
     # Tree Size
-    # TODO:
     # Get QMD
     # Get "Size Class"
+    tree_size_col = {
+        'title': 'Tree Size',
+        'entries': [
+            {
+                'label': False,
+                'value': stand_stats['tree_size']['size_class']
+            },
+            {
+                'label': 'Quadratic Mean Diameter (QMD)',
+                'value': '%s"' % "%.1f" % round(stand_stats['tree_size']['qmd'],1)
+            },
+        ]
+    }
+    profile_columns.append(tree_size_col)
 
+    # TODO:
     # Stocking
     # Get Basal Area (from above)
     # Get TPA (from strata)

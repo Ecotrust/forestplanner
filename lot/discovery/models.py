@@ -258,31 +258,40 @@ class DiscoveryStand(Feature):
         if lot_property:
             lot_property.delete()
 
-    def get_basal_area(self):
+    def get_stand_stats(self):
         total_ba = 0
         species_dict = {}
         stand = self.get_stand()
-        if stand and stand.strata and 'classes' in stand.strata.stand_list.keys():
-            treelist = stand.strata.stand_list['classes']
-            for entry in treelist:
-                species = entry[0]
-                dbh = (entry[1]+entry[2])/2
-                tpa = entry[3]
-                # BA = pi * (DBH/2)**2 / 144, which can be simplified to BA = 0.005454 * DBH**2
-                entry_ba = 0.005454 * dbh**2 * tpa
-                if species in species_dict.keys():
-                    species_dict[species] += entry_ba
-                else:
-                    species_dict[species] = entry_ba
-                total_ba += entry_ba
+        if stand and stand.strata:
+            if 'classes' in stand.strata.stand_list.keys():
+                treelist = stand.strata.stand_list['classes']
+                for entry in treelist:
+                    species = entry[0]
+                    dbh = (entry[1]+entry[2])/2
+                    tpa = entry[3]
+                    # BA = pi * (DBH/2)**2 / 144, which can be simplified to BA = 0.005454 * DBH**2
+                    entry_ba = 0.005454 * dbh**2 * tpa
+                    if species in species_dict.keys():
+                        species_dict[species] += entry_ba
+                    else:
+                        species_dict[species] = entry_ba
+                    total_ba += entry_ba
+                basal_area_dict = {'total': total_ba, 'species': species_dict}
+            else:
+                basal_area_dict = None
+            stand_tpa = stand.strata.search_tpa
         else:
-            return None
-        return {'total': total_ba, 'species': species_dict}
+            stand_tpa = None
 
-    def get_forest_type(self, basal_area=None):
-        if not basal_area:
-            basal_area = self.get_basal_area
-        if basal_area:
+        return {
+            'tpa': stand_tpa,
+            'basal_area_dict': basal_area_dict,
+            'forest_type': self.get_forest_type(basal_area_dict),
+            'tree_size': self.get_tree_size(basal_area_dict['total'], stand_tpa),
+        }
+
+    def get_forest_type(self, basal_area_dict=None):
+        if basal_area_dict:
             species_composition = {
                 'hardwood': 0,
                 'softwood': 0,
@@ -291,8 +300,8 @@ class DiscoveryStand(Feature):
                 'prevalent': [],
             }
 
-            for species in basal_area['species'].keys():
-                percent_ba = basal_area['species'][species]/basal_area['total']
+            for species in basal_area_dict['species'].keys():
+                percent_ba = basal_area_dict['species'][species]/basal_area_dict['total']
                 if percent_ba >= 0.75:
                     species_composition['predominant'] = species
                 elif percent_ba >= 0.25:
@@ -314,6 +323,32 @@ class DiscoveryStand(Feature):
         else:
             forest_type = "Unknown"
         return forest_type
+
+    def get_tree_size(self, basal_area, tpa):
+        import math
+        if basal_area and tpa:
+            qmd = math.sqrt((basal_area/tpa)/0.005454)
+            if qmd < 1:
+                size_class = "Nonstocked"
+            elif qmd < 5:
+                size_class = "Seedling/Sapling"
+            elif qmd < 10:
+                size_class = "Small Tree"
+            elif qmd < 15:
+                size_class = "Medium Tree"
+            elif qmd < 20:
+                size_class = "Large Tree"
+            elif qmd >= 20:
+                size_class = "Very Large Tree"
+            else:
+                size_class = "Unknown"
+        else:
+            qmd = "Unknown"
+            size_class = "Unknown"
+        return {
+            'qmd': qmd,
+            'size_class': size_class
+        }
 
     def save(self, *args, **kwargs):
         from django.core.exceptions import ValidationError
