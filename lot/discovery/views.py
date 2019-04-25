@@ -438,7 +438,7 @@ def forest_profile(request, discovery_stand_uid):
             },
             {
                 'label': 'Quadratic Mean Diameter (QMD)',
-                'value': '%s"' % "%.1f" % round(stand_stats['tree_size']['qmd'],1)
+                'value': '%.1f"' % round(stand_stats['tree_size']['qmd'],1)
             },
         ]
     }
@@ -448,11 +448,28 @@ def forest_profile(request, discovery_stand_uid):
     # Stocking
     # Get Basal Area (from above)
     # Get TPA (from strata)
+    stocking_col = {
+        'title': 'Stocking',
+        'entries': [
+            {
+                'label': None,
+                'value': "%.1f ft<sup>2</sup>/ac basal area (BA)" % round(stand_stats['basal_area_dict']['total'],1)
+            },
+            {
+                'label': None,
+                'value': "%s trees per acre (TPA)" % stand_stats['tpa']
+            }
+        ]
+    }
+    profile_columns.append(stocking_col)
 
     # Structure
     #   Need more input from DD
-
-
+    structure_col = {
+        'title': 'Structure',
+        'entries': []
+    }
+    profile_columns.append(structure_col)
 
     context = {
         'title': 'Forest profile',

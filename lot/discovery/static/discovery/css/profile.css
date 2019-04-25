@@ -1,0 +1,7 @@
+.profile-columns-row {
+  margin-top: 2rem;
+}
+
+.profile-columns-row>div:not(:first-child) {
+  border-left: 1px solid black;
+}

@@ -1,15 +1,23 @@
 {% extends 'discovery/page.html' %}
+{% load static %}
+
+{% block extra_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'discovery/css/profile.css' %}"/>
+{% endblock extra_styles %}
+
 
 {% block content %}
+  {{ block.super }}
   <div class="container">
-    <div class="row">
+    <div class="row profile-columns-row">
       {% for column in profile_columns%}
-        <div class="col">
+        <div class="col profile-column">
           <h3>{{ column.title }}</h3>
           {% for entry in column.entries %}
             <div>
               {% if entry.label %}<b>{{ entry.label }}</b>:{% endif %}
-              {{ entry.value }}
+              {{ entry.value|safe }}
             </div>
           {% endfor %}
         </div>

@@ -284,7 +284,7 @@ class DiscoveryStand(Feature):
             stand_tpa = None
 
         return {
-            'tpa': stand_tpa,
+            'tpa': int(stand_tpa),
             'basal_area_dict': basal_area_dict,
             'forest_type': self.get_forest_type(basal_area_dict),
             'tree_size': self.get_tree_size(basal_area_dict['total'], stand_tpa),
