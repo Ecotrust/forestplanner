@@ -362,7 +362,7 @@ def enter_stand_table(request, discovery_stand_uid):
         'subtitle': stand.name,
         'flatblock_slug': 'enter-stand-table',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
+        'button_text': 'Help',
         'button_action': '',
         # specific for data entry template
 

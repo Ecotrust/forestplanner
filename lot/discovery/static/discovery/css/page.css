@@ -9,7 +9,7 @@
   line-height: 1.2;
 }
 
-a:not([href]):not([tabindex]) {
+a:not([href]):not([tabindex]).btn {
   color: white;
 }
 
