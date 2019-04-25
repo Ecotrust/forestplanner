@@ -456,6 +456,7 @@ def forest_profile(request, discovery_stand_uid):
 
     context = {
         'title': 'Forest profile',
+        'subtitle': stand.name,
         'flatblock_slug': 'forest-profile',
         # use button_text and button_action together
         'button_text': 'WATCH TUTORIAL',
