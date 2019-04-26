@@ -1,1 +1,13 @@
-{% extends 'discovery/common/base.html' %}
+{% extends 'discovery/page.html' %}
+{% load flatblocks static %}
+
+
+{% block footer %}
+  {% if use_step_btn %}
+  <div class="container">
+    <div class="row mb-4 mt-4 align-items-center justify-content-start">
+      <a href="{{ step_btn_action }}" class="btn btn-dark">{{ step_btn_text }}</a>
+    </div>
+  </div>
+  {% endif %}
+{% endblock footer %}

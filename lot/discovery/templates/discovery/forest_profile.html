@@ -6,7 +6,6 @@
   <link rel="stylesheet" type="text/css" href="{% static 'discovery/css/profile.css' %}"/>
 {% endblock extra_styles %}
 
-
 {% block content %}
   {{ block.super }}
   <div class="container">
@@ -25,6 +24,16 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block footer %}
+  {% if use_step_btn %}
+  <div class="container">
+    <div class="row mb-4 mt-4 align-items-center justify-content-start">
+      <a href="{{ step_btn_action }}" class="btn btn-dark">{{ step_btn_text }}</a>
+    </div>
+  </div>
+  {% endif %}
+{% endblock footer %}
 
 {% block extra_foot_scripts %}
   {{ block.super }}

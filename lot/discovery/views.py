@@ -480,12 +480,50 @@ def forest_profile(request, discovery_stand_uid):
         'subtitle': stand.name,
         'flatblock_slug': 'forest-profile',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
+        'button_text': 'Help',
         'button_action': '',
         'profile_columns': profile_columns,
         'stand_stats': stand_stats,
+        'use_step_btn': True,
+        'step_btn_action': '/discovery/compare_scenarios/%s/' % discovery_stand_uid,
+        'step_btn_text': 'Compare Outcomes',
     }
     return render(request, 'discovery/forest_profile.html', context)
+
+@login_required
+def compare_scenarios(request, discovery_stand_uid):
+    stand = get_feature_by_uid(discovery_stand_uid)
+    context = {
+        'title': 'Compare Management Outcomes',
+        'subtitle': stand.name,
+        'flatblock_slug': 'compare-outcomes',
+        # use button_text and button_action together
+        'button_text': 'Help',
+        'button_action': '',
+        # cta below action buttons options
+        ## should this button be displayed
+        'use_step_btn': True,
+        'step_btn_action': '/discovery/report/%s' % discovery_stand_uid,
+        'step_btn_text': 'View Forest Report',
+    }
+    return render(request, 'discovery/compare_outcomes.html', context)
+
+def report(request, discovery_stand_uid):
+    stand = get_feature_by_uid(discovery_stand_uid)
+    context = {
+        'title': 'Report',
+        'subtitle': stand.name,
+        'flatblock_slug': 'report-block',
+        # use button_text and button_action together
+        'button_text': 'Help',
+        'button_action': '',
+        # cta below action buttons options
+        ## should this button be displayed
+        'use_step_btn': False,
+        'step_btn_action': '',
+        'step_btn_text': '',
+    }
+    return render(request, 'discovery/report.html', context)
 
 # overwrite static content in lot app about.html
 def about(request):
