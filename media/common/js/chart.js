@@ -252,6 +252,9 @@ var refreshCharts = function(){
   }
 
   if (scenarioData.length > 0) {
+    var d = new Date();
+    currentYear = d.getFullYear()+1;
+    endYear = currentYear + 100;
     scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
         //title: metric.title,
         series: scenarioLabels,
@@ -260,8 +263,8 @@ var refreshCharts = function(){
               label: "Year",
               renderer: $.jqplot.DateAxisRenderer,
               tickOptions: {formatString:'%Y'},
-              min:'Jan 01, 2010 8:00AM',
-              max:'Jan 01, 2111 8:00AM',
+              min:'Jan 01, ' + currentYear + ' 8:00AM',
+              max:'Jan 01, ' + endYear + ' 8:00AM',
               tickInterval:'10 years',
               pad: 0
             },

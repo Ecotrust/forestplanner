@@ -437,14 +437,24 @@ class Scenario(Feature):
         cursor.execute(sql)
         desc = cursor.description
         cum_harvest = 0
+        iteration = 0
         for rawrow in cursor.fetchall():
             row = dict(zip([col[0] for col in desc], rawrow))
-            date = "%d-12-31 11:59PM" % row['year']
+            orig_year = row['year']
+            if iteration == 0:
+                from datetime import datetime
+                current_year = datetime.now().year
+                year_diff = current_year - orig_year
+            report_year = orig_year + year_diff
+            # date = "%d-12-31 11:59PM" % row['year']
+            date = "%d-12-31 11:59PM" % report_year
             for key in [x for x in row.keys() if x != 'year']:
                 d[key].append([date, row[key]])
 
             cum_harvest += row['harvested_timber']
             d['cum_harvest'].append([date, cum_harvest])
+
+            iteration += 1
 
         return {'__all__': d}
 
