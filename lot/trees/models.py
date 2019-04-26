@@ -382,6 +382,9 @@ class Scenario(Feature):
     def __unicode__(self):
         return self.name
 
+    def __str__(self):
+        return self.name
+
     def constraint_set(self):
         scs = self.spatial_constraints.split(",")
         return SpatialConstraint.objects.filter(

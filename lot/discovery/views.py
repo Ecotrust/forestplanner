@@ -492,7 +492,10 @@ def forest_profile(request, discovery_stand_uid):
 
 @login_required
 def compare_outcomes(request, discovery_stand_uid):
+    import json
     stand = get_feature_by_uid(discovery_stand_uid)
+    scenarios = stand.lot_property.scenario_set.all()
+    scenario_list = [x.property_level_dict for x in scenarios]
     context = {
         'title': 'Compare Management Outcomes',
         'subtitle': stand.name,
@@ -505,6 +508,8 @@ def compare_outcomes(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': '/discovery/report/%s' % discovery_stand_uid,
         'step_btn_text': 'View Forest Report',
+        'scenario_list': scenario_list,
+        'scenario_list_json': json.dumps(scenario_list),
     }
     return render(request, 'discovery/compare_outcomes.html', context)
 

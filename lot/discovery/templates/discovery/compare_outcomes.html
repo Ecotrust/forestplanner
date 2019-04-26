@@ -1,6 +1,43 @@
 {% extends 'discovery/page.html' %}
 {% load flatblocks static %}
 
+{% block extra_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" type="text/css" href="{% static 'discovery/css/compare.css' %}"/>
+{% endblock extra_styles %}
+
+{% block content %}
+  <div class="container">
+    <div class="row">
+      <div class="col" id="scenario-list-col">
+        {% if flatblock_slug %}
+          {% flatblock flatblock_slug evaluated=True %}
+        {% endif %}
+        <table>
+          {% for scenario in scenario_list %}
+            <tr>
+              <td>
+                <input type="checkbox" id="scenario-checkbox-{{ scenario.pk }}" value="{{ scenario.pk }}">
+              </td>
+              <td>
+                {{ scenario.fields.name }}
+                <div class="css_tooltip">
+                  <i class="info-icon icon-info-sign field-tooltip"></i>
+                  <span class="tooltiptext css_tooltip-right">
+                    {{ scenario.fields.description | safe }}
+                  </span>
+                </div>
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+      <div class="col" id="metrics-col">
+
+      </div>
+    </div>
+  </div>
+{% endblock content %}
 
 {% block footer %}
   {% if use_step_btn %}
@@ -11,3 +48,12 @@
   </div>
   {% endif %}
 {% endblock footer %}
+
+{% block extra_foot_scripts %}
+  {{ block.super }}
+  <script type="text/javascript" src="{% static 'discovery/dependencies/d3/d3.min.js' %}"></script>
+  <script type="text/javascript">
+    scenario_list = JSON.parse('{{ scenario_list_json|safe }}');
+  </script>
+  <script type="text/javascript" src="{% static 'discovery/js/compare.js' %}"></script>
+{% endblock extra_foot_scripts %}
