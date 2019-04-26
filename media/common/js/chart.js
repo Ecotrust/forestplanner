@@ -253,8 +253,8 @@ var refreshCharts = function(){
 
   if (scenarioData.length > 0) {
     var d = new Date();
-    currentYear = d.getFullYear()+1;
-    endYear = currentYear + 100;
+    currentYear = d.getFullYear()-1;
+    endYear = currentYear + 101;
     scenarioPlot = $.jqplot('chart-scenario', scenarioData, $.extend(globalChartOptions, {
         //title: metric.title,
         series: scenarioLabels,
