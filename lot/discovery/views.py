@@ -161,9 +161,9 @@ def get_modal_content(request, card_type, uid):
             else:
                 context['LINKS'].append({'href': '/discovery/enter_stand_table/%s/' % uid, 'label': 'Edit Tree List',})
                 context['LINKS'].append({'href': '/discovery/forest_profile/%s/' % uid, 'label': 'View Profile',})
-                context['LINKS'].append({'href': '/discovery/compage_outcomes/%s/' % uid, 'label': 'Compare Outcomes',})
+                context['LINKS'].append({'href': '/discovery/compare_outcomes/%s/' % uid, 'label': 'Compare Outcomes',})
                 if feature.lot_property.scenario_set.all().count() > 0:
-                    context['LINKS'].append({'href': '/discovery/compare_outcomes/%s/' % uid, 'label': 'View Report',})
+                    context['LINKS'].append({'href': '/discovery/report/%s/' % uid, 'label': 'View Report',})
         context['LINKS'].append({'href': '/features/generic-links/links/delete/%s/' % uid, 'label': 'Delete Stand', 'class':'delete',})
 
     elif card_type == 'example_stand':
@@ -485,13 +485,13 @@ def forest_profile(request, discovery_stand_uid):
         'profile_columns': profile_columns,
         'stand_stats': stand_stats,
         'use_step_btn': True,
-        'step_btn_action': '/discovery/compare_scenarios/%s/' % discovery_stand_uid,
+        'step_btn_action': '/discovery/compare_outcomes/%s/' % discovery_stand_uid,
         'step_btn_text': 'Compare Outcomes',
     }
     return render(request, 'discovery/forest_profile.html', context)
 
 @login_required
-def compare_scenarios(request, discovery_stand_uid):
+def compare_outcomes(request, discovery_stand_uid):
     stand = get_feature_by_uid(discovery_stand_uid)
     context = {
         'title': 'Compare Management Outcomes',

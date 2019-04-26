@@ -21,7 +21,7 @@ urlpatterns = [
     path('enter_data/', views.enter_data, name='enter_data'),
     re_path(r'^enter_stand_table/((?P<discovery_stand_uid>\w+)/)?$', views.enter_stand_table, name='enter_stand_table'),
     re_path(r'^forest_profile/((?P<discovery_stand_uid>\w+)/)?$', views.forest_profile, name='forest_profile'),
-    re_path(r'^compare_scenarios/((?P<discovery_stand_uid>\w+)/)?$', views.compare_scenarios, name='compare_scenarios'),
+    re_path(r'^compare_outcomes/((?P<discovery_stand_uid>\w+)/)?$', views.compare_outcomes, name='compare_outcomes'),
     re_path(r'^report/((?P<discovery_stand_uid>\w+)/)?$', views.report, name='report'),
     re_path(r'^modal_content/(?P<card_type>\w+)/(?P<uid>\w+)/$', views.get_modal_content, name='discovery-get_modal_content'),
     path('pages/', include('django.contrib.flatpages.urls')),
