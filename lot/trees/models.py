@@ -1950,7 +1950,7 @@ class Rx(models.Model):
         return u"Rx %s" % (self.internal_name)
 
     def __str__(self):
-        return u"Rx %s" % (self.internal_name)
+        return u"%s: %s" % (self.internal_name, self.brief_description)
 
     @property
     def internal_num(self):
@@ -1977,9 +1977,7 @@ class Rx(models.Model):
         qa_list.append(qa)
         return qa_list
 
-
-    @property
-    def description(self):
+    def get_description_list(self):
         if self.internal_type == 'GO':
             return "Grow Only"
         import xml.etree.ElementTree as ET
@@ -1988,8 +1986,31 @@ class Rx(models.Model):
         rx_index = rx_names.index(self.internal_name)
         rx_branch = [branch for branch in root.findall('branch') if 'fork' not in [x.tag for x in list(branch)]][rx_index]
         rx_xml_id = rx_branch.get('id')
-        qa_list = self.xml_get_question_answer_text(rx_xml_id, root, [])
-        return ', '.join(qa_list)
+        return self.xml_get_question_answer_text(rx_xml_id, root, [])
+
+    @property
+    def description(self):
+        return ', '.join(self.get_description_list())
+
+    @property
+    def brief_description(self):
+        description_list = self.get_description_list()
+        if type(description_list) == str:
+            return description_list
+        brief_description_list = []
+        for description in description_list:
+            split_description = description.split(' : ')
+            if len(split_description) < 2:
+                brief_description_list.append(description)
+            else:
+                if 'Would you like to include pre-commercial thinning' in split_description[0] and split_description[1].lower() in ['yes', 'no']:
+                    if split_description[1].lower() == 'yes':
+                         brief_description_list.append('include pre-commercial thinning')
+                    else:
+                        brief_description_list.append('no pre-commercial thinning')
+                else:
+                    brief_description_list.append(split_description[1])
+        return ', '.join(brief_description_list)
 
 
 @register

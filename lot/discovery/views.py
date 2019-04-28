@@ -496,6 +496,7 @@ def compare_outcomes(request, discovery_stand_uid):
     stand = get_feature_by_uid(discovery_stand_uid)
     scenarios = stand.lot_property.scenario_set.all()
     scenario_list = [x.property_level_dict for x in scenarios]
+    # import ipdb; ipdb.set_trace()
     context = {
         'title': 'Compare Management Outcomes',
         'subtitle': stand.name,

@@ -5,7 +5,7 @@ from django.forms import widgets as form_widgets
 
 # Register your models here.
 from discovery.widgets import DiscoOpenLayersWidget
-from discovery.models import DiscoveryStand, ExampleStand, StandListEntry
+from discovery.models import DiscoveryStand, ExampleStand, StandListEntry, DiscoveryScenario, DiscoveryRx
 from trees.models import FVSSpecies
 
 admin.site.register(DiscoveryStand)
@@ -83,6 +83,15 @@ class ExampleStandAdmin(admin.ModelAdmin):
 
 admin.site.register(ExampleStand, ExampleStandAdmin)
 
+class DiscoveryRxInline(admin.TabularInline):
+    model = DiscoveryRx
+
+class DiscoveryScenarioAdmin(admin.ModelAdmin):
+    inlines = [
+        DiscoveryRxInline
+    ]
+
+admin.site.register(DiscoveryScenario, DiscoveryScenarioAdmin)
 
 # blatantly ripped off from Anatolij at https://stackoverflow.com/a/18559785/706797
 from django.contrib.flatpages.admin import FlatPageAdmin

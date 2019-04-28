@@ -396,3 +396,23 @@ class DiscoveryStand(Feature):
 
     class Options:
         form = "discovery.forms.DiscoveryStandForm"
+
+class DiscoveryScenario(models.Model):
+    name = models.CharField(max_length=255, help_text="The name of the scenario to be created")
+    description = models.TextField(blank=True, null=True, default=None, help_text='The description to be displayed in the tooltip for selecting scenarios created from this')
+    show = models.BooleanField(default=False, help_text="This scenario is ready to be shown as an option for all appropriate stands")
+    default = models.BooleanField(default=False, help_text="This scenario should be selected automatically for display on compare page")
+
+    def __str__(self):
+        return self.name
+
+class DiscoveryRx(models.Model):
+    from trees.models import FVSVariant, Rx
+    discovery_scenario = models.ForeignKey(DiscoveryScenario, on_delete="CASCADE")
+    variant = models.ForeignKey(FVSVariant, on_delete="CASCADE")
+    rx = models.ForeignKey(Rx, on_delete="CASCADE")
+
+    def __str__(self):
+        return str('%s - %s - %s' % (str(self.discovery_scenario), str(self.variant), str(self.rx)))
+
+    
