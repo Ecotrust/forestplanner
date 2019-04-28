@@ -7,7 +7,7 @@ admin.site.register(Stand)
 admin.site.register(Scenario)
 admin.site.register(ForestProperty)
 admin.site.register(ScenarioStand)
-admin.site.register(Rx)
+# admin.site.register(Rx)
 admin.site.register(MyRx)
 admin.site.register(SpatialConstraint)
 admin.site.register(County)
@@ -18,7 +18,8 @@ admin.site.register(CarbonGroup)
 class FVSVariantAdminForm(forms.ModelForm):
     class Meta:
         model = FVSVariant
-        fields = ('fvsvariant', 'code')
+        fields = ('fvsvariant', 'code', 'geom', 'decision_tree_xml')
+
 
     def clean_decision_tree_xml(self):
         import xml.etree.ElementTree as ET
@@ -47,6 +48,7 @@ class FVSVariantAdminForm(forms.ModelForm):
 
 class FVSVariantAdmin(admin.ModelAdmin):
     form = FVSVariantAdminForm
+    readonly_fields = ['geom', 'decision_tree_xml']
 
 
 admin.site.register(FVSVariant, FVSVariantAdmin)
@@ -65,3 +67,10 @@ class TimberPriceAdmin(admin.ModelAdmin):
     ordering = ['variant', 'timber_type']
 
 admin.site.register(TimberPrice, TimberPriceAdmin)
+
+class RxAdmin(admin.ModelAdmin):
+    list_display = ('variant', 'internal_name', 'internal_desc', 'internal_type')
+    list_filter = ['variant', 'internal_name', 'internal_desc', 'internal_type']
+    ordering = ['variant', 'internal_name', 'internal_desc', 'internal_type']
+
+admin.site.register(Rx, RxAdmin)

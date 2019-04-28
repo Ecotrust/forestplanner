@@ -1265,6 +1265,35 @@ class ForestProperty(FeatureCollection):
 
         return True
 
+    def create_default_discovery_scenarios(self):
+        from discovery.models import DiscoveryScenario
+        if not self.is_runnable:
+            return
+
+        for scenarioTemplate in DiscoveryScenario.objects.filter(show=True):
+            rxs = scenarioTemplate.discoveryrx_set.filter(variant=self.variant)
+            if not rxs.count() > 0:
+                return
+
+            rx = rxs[0]
+            in_rxs = {}
+            for stand in self.feature_set(feature_classes=[Stand]):
+                in_rxs[stand.id] = rx.id
+
+            if Scenario.objects.filter(input_property=self, input_rxs=in_rxs).count() == 0:
+                s1 = Scenario(user=self.user,
+                              input_property=self,
+                              name="Grow Only",
+                              description="No management activities; allow natural regeneration for entire time period.",
+                              input_target_boardfeet=0,
+                              input_target_carbon=True,
+                              input_rxs=in_rxs,
+                              input_age_class=10,
+                              )
+                s1.save()
+
+        return True
+
     @property
     def stand_summary(self):
         '''
@@ -1850,6 +1879,9 @@ class FVSVariant(models.Model):
     def __unicode__(self):
         return u'%s (%s)' % (self.fvsvariant, self.code)
 
+    def __str__(self):
+        return u'%s (%s)' % (self.fvsvariant, self.code)
+
     @property
     def default_rx(self):
         """
@@ -1917,6 +1949,9 @@ class Rx(models.Model):
     def __unicode__(self):
         return u"Rx %s" % (self.internal_name)
 
+    def __str__(self):
+        return u"Rx %s" % (self.internal_name)
+
     @property
     def internal_num(self):
         """
@@ -1924,6 +1959,37 @@ class Rx(models.Model):
         Assumes a 2 char preceding variant code
         """
         return int(self.internal_name[2:])
+
+    # Recusive function to get list of question/answer strings defining the Rx
+    def xml_get_question_answer_text(self, rx_xml_id, tree, qa_list=[]):
+        nodes = len(rx_xml_id.split('.'))
+        parent_id = '.'.join(rx_xml_id.split('.')[0:nodes-1])
+        if nodes < 2:
+            return False
+        parent_list = self.xml_get_question_answer_text(parent_id, tree, qa_list)
+        if parent_list:
+            qa_list = parent_list
+        q_branch = [x for x in list(tree) if x.get('id') == parent_id][0]
+        question = q_branch.find('content').text
+        a_fork = [x for x in q_branch.findall('fork') if x.get('target') == rx_xml_id][0]
+        answer = a_fork.text
+        qa = ' : '.join([question, answer])
+        qa_list.append(qa)
+        return qa_list
+
+
+    @property
+    def description(self):
+        if self.internal_type == 'GO':
+            return "Grow Only"
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(self.variant.decision_tree_xml)
+        rx_names = [branch.findtext('content') for branch in root.findall('branch') if 'fork' not in [x.tag for x in list(branch)]]
+        rx_index = rx_names.index(self.internal_name)
+        rx_branch = [branch for branch in root.findall('branch') if 'fork' not in [x.tag for x in list(branch)]][rx_index]
+        rx_xml_id = rx_branch.get('id')
+        qa_list = self.xml_get_question_answer_text(rx_xml_id, root, [])
+        return ', '.join(qa_list)
 
 
 @register
