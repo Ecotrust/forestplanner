@@ -394,6 +394,8 @@ class DiscoveryStand(Feature):
 
         super(DiscoveryStand, self).save(*args, **kwargs)
 
+        self.lot_property.create_default_discovery_scenarios()
+
     class Options:
         form = "discovery.forms.DiscoveryStandForm"
 
@@ -414,5 +416,3 @@ class DiscoveryRx(models.Model):
 
     def __str__(self):
         return str('%s - %s - %s' % (str(self.discovery_scenario), str(self.variant), str(self.rx)))
-
-    

@@ -1270,27 +1270,31 @@ class ForestProperty(FeatureCollection):
         if not self.is_runnable:
             return
 
-        for scenarioTemplate in DiscoveryScenario.objects.filter(show=True):
-            rxs = scenarioTemplate.discoveryrx_set.filter(variant=self.variant)
-            if not rxs.count() > 0:
-                return
+        scenarios = self.scenario_set.all()
+        scenario_list = [x.property_level_dict for x in scenarios]
+        scenario_names = [x.name for x in scenarios]
+        for default_scenario in DiscoveryScenario.objects.filter(show=True):
+            if default_scenario.name not in scenario_names:
+                rxs = default_scenario.discoveryrx_set.filter(variant=self.variant)
+                if not rxs.count() > 0:
+                    continue
 
-            rx = rxs[0]
-            in_rxs = {}
-            for stand in self.feature_set(feature_classes=[Stand]):
-                in_rxs[stand.id] = rx.id
+                rx = rxs[0]
+                in_rxs = {}
+                for stand in self.feature_set(feature_classes=[Stand]):
+                    in_rxs[stand.id] = rx.id
 
-            if Scenario.objects.filter(input_property=self, input_rxs=in_rxs).count() == 0:
-                s1 = Scenario(user=self.user,
-                              input_property=self,
-                              name="Grow Only",
-                              description="No management activities; allow natural regeneration for entire time period.",
-                              input_target_boardfeet=0,
-                              input_target_carbon=True,
-                              input_rxs=in_rxs,
-                              input_age_class=10,
-                              )
-                s1.save()
+                if Scenario.objects.filter(input_property=self, input_rxs=in_rxs).count() == 0:
+                    s1 = Scenario(user=self.user,
+                                  input_property=self,
+                                  name=default_scenario.name,
+                                  description=default_scenario.description,
+                                  input_target_boardfeet=0,
+                                  input_target_carbon=True,
+                                  input_rxs=in_rxs,
+                                  input_age_class=10,
+                                  )
+                    s1.save()
 
         return True
 

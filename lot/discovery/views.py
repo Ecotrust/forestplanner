@@ -492,11 +492,12 @@ def forest_profile(request, discovery_stand_uid):
 
 @login_required
 def compare_outcomes(request, discovery_stand_uid):
+    from discovery.models import DiscoveryScenario
     import json
     stand = get_feature_by_uid(discovery_stand_uid)
-    scenarios = stand.lot_property.scenario_set.all()
-    scenario_list = [x.property_level_dict for x in scenarios]
-    # import ipdb; ipdb.set_trace()
+    # Create default Management Outcomes if not done already
+    stand.lot_property.create_default_discovery_scenarios()
+
     context = {
         'title': 'Compare Management Outcomes',
         'subtitle': stand.name,
