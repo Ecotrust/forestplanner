@@ -33,7 +33,44 @@
         </table>
       </div>
       <div class="col" id="metrics-col">
+        <div class="accordion" id="accordion-metrics">
+          {% for topic in metrics_dict %}
+            <div class="card">
+              <div class="card-header" id="heading-{{ topic.title|slugify }}">
+                <h5 class="mb-0">
+                  <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{ topic.title|slugify }}" aria-expanded="true" aria-controls="collapse-{{ topic.title|slugify }}">
+                    {{ topic.title|title }}
+                  </button>
+                </h5>
+              </div>
 
+              <div id="collapse-{{ topic.title|slugify }}" class="collapse show" aria-labelledby="heading-{{ topic.title|slugify }}" data-parent="#accordion-metrics">
+                <div class="card-body">
+                  <h3>{{ topic.title }}</h3>
+                  <div class="accordion" id="accordion-{{ topic.title|slugify }}">
+                    {% for metric in topic.metrics %}
+                      <div class="card">
+                        <div class="card-header" id="heading-{{ topic.title|slugify }}-{{ metric.title|slugify }}">
+                          <h5 class="mb-0">
+                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{ topic.title|slugify }}-{{ metric.title|slugify }}" aria-expanded="true" aria-controls="collapse-{{ topic.title|slugify }}-{{ metric.title|slugify }}">
+                              {{ metric.title|title }}
+                            </button>
+                          </h5>
+                        </div>
+
+                        <div id="collapse-{{ topic.title|slugify }}-{{ metric.title|slugify }}" class="collapse show" aria-labelledby="heading-{{ topic.title|slugify }}-{{ metric.title|slugify }}" data-parent="#accordion-{{ topic.title|slugify }}">
+                          <div class="card-body">
+                            <h3>{{ metric.title }}</h3>
+                          </div>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </div>

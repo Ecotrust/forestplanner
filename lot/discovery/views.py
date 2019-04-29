@@ -514,6 +514,7 @@ def compare_outcomes(request, discovery_stand_uid):
         'step_btn_text': 'View Forest Report',
         'scenario_list': scenario_list,
         'scenario_list_json': json.dumps(scenario_list),
+        'metrics_dict': settings.METRICS_DICT,
     }
     return render(request, 'discovery/compare_outcomes.html', context)
 

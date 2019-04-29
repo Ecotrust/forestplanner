@@ -70,3 +70,73 @@ HARD_SOFTWOOD_LOOKUP = {
     'Apple': 'hardwood',
     'Knobcone pine': 'softwood',
 }
+
+METRICS_DICT = [
+    {
+        'title': 'Fundamentals',
+        'metrics': [
+            {
+                'title': 'Basal Area (BA)',
+                'id': 'funamentals-basal-area'
+            },{
+                'title': 'Quadratic Mean Diameter (QMD)',
+                'id': 'fundamentals-quadratic-mean-diameter'
+            },{
+                'title': 'Trees per Acre (TPA)',
+                'id': 'fundamentals-trees-per-acre'
+            },{
+                'title': 'Successional Stage',
+                'id': 'fundamentals-successional-stage'
+            },{
+                'title': 'Annual Growth',
+                'id': 'fundamentals-annual-growth'
+            },{
+                'title': 'Annual Mortality',
+                'id': 'fundamentals-annual-mortality'
+            },
+        ]
+    },{
+        'title': 'Carbon',
+        'metrics': [
+            {
+                'title': 'Carbon stored in the forest',
+                'id': 'carbon-stored-in-forest'
+            },{
+                'title': 'Carbon stored in products',
+                'id': 'carbon-stored-in-products'
+            },{
+                'title': 'Total Carbon Storage',
+                'id': 'carbon-total-stored'
+            },
+        ]
+    },{
+        'title': 'Timber',
+        'metrics': [
+            {
+                'title': 'Standing timber volume',
+                'id': 'timber-standing-volume'
+            },{
+                'title': 'Harvested timber volume',
+                'id': 'timber-harvested-volume'
+            },{
+                'title': 'Cash flow',
+                'id': 'timber-cash-flow'
+            },
+        ]
+    },{
+        'title': 'Wildfire',
+        'metrics': [
+            {
+                'title': 'Fire Hazard Rating',
+                'id': 'wildfire-hazard-rating'
+            },{
+                'title': 'Mortality for Moderate Wildfire',
+                'id': 'wildfire-mortality-moderate'
+            },{
+                'title': 'Mortality for Severe Wildfire',
+                'id': 'wildfire-mortality-severe'
+            },
+        ]
+    },
+
+]
