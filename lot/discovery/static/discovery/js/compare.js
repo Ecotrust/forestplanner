@@ -4,14 +4,21 @@ for (var i = 0; i < scenario_list.length; i++) {
   scenarios[scenario.pk] = scenario.fields;
 }
 
-var margin = {top: 50, right: 50, bottom: 50, left: 50},
+var margin = {top: 20, right: 20, bottom: 50, left: 55},
       width = window.innerWidth/3 - margin.left - margin.right, // Use the window's width
       height = window.innerHeight/3 - margin.top - margin.bottom; // Use the window's height
 
+// TODO: Have admin select color for each scenario
 var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228",
                     "#579575", "#839557", "#958c12",
                     "#953579", "#4b5de4", "#d8b83f",
                     "#ff5800", "#0085cc"];  // assumes max of 11 series will be shown
+
+// Define the div for the tooltip
+var tooltipDiv = d3.select("body")
+  .append("div")
+    .attr("class", "tooltip")
+    .style("opacity", 0);
 
 loadGraphs = function() {
   if ($('input:checked').length > 0) {
@@ -23,14 +30,9 @@ loadGraphs = function() {
       $.each(topic.metrics, function(metric_index, metric){   // ---------------METRIC--------------------
         metric_data = {};
         // TODO: Need:
-        //  Axis labels
-        //  Metric key
+        //  legend
 
-        if (metric.hasOwnProperty('metric_key')) {
-          var metric_key = metric.metric_key;
-        } else {
-          var metric_key = 'ba';
-        }
+        var metric_key = metric.metric_key;
 
         if (metric.hasOwnProperty('axes')) {
           xlabel = metric.axes.x.label;
@@ -50,7 +52,6 @@ loadGraphs = function() {
 
         var xdomain = [];
         var yvalues = [];
-
         // For each scenario
         $.each($("input:checked"), function(index, scenario_item){     // ---------------SCENARIO--------------------
           // Get scenario data
@@ -59,18 +60,16 @@ loadGraphs = function() {
           metric_data[scenario.name] = [];
           // Loop through nodes:
           $.each(raw_data, function(data_index, datum){         // ---------------DATUM--------------------
-            // This assumes all x values are a timestamp like YYYY-12-31 11:59PM
-            var year = datum[0].split('-12-31 11:59PM')[0];
-            if (xdomain.indexOf(year) < 0) {
-              xdomain.push(year);
+            if (datum[1] != null) {
+              // This assumes all x values are a timestamp like YYYY-12-31 11:59PM
+              var year = datum[0].split('-12-31 11:59PM')[0];
+              if (xdomain.indexOf(year) < 0) {
+                xdomain.push(year);
+              }
+              metric_data[scenario.name].push({'x': year, 'y':datum[1]});
+              yvalues.push(datum[1]);
             }
-            metric_data[scenario.name].push({'x': year, 'y':datum[1]});
-            yvalues.push(datum[1]);
           })                                                  // ---------------END DATUM--------------------
-
-          // Create lines:
-
-
         });                                               // ---------------END SCENARIO--------------------
         xdomain.sort(function(a, b){ return parseFloat(a)-parseFloat(b);});
         yvalues.sort(function(a, b){ return parseFloat(a)-parseFloat(b);});
@@ -79,19 +78,11 @@ loadGraphs = function() {
           .domain([xdomain[0], xdomain[xdomain.length-1]]) // input
           .range([0, width]); // output
 
-          // Create X axis label
-
-        //TODO
-
         // Create Y axis measures
         var yScale = d3.scaleLinear()
           // .domain([ymin, ymax]) // input
           .domain([yvalues[0], yvalues[yvalues.length-1]]) // input
           .range([height, 0]); // output
-
-        // Create Y axis label
-
-        // TODO
 
         // create line generator
         line_generator = d3.line()
@@ -104,21 +95,40 @@ loadGraphs = function() {
         svg.append("g")
           .attr("class", "x axis")
           .attr("transform", "translate(0," + height + ")")
-          .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+          .call(d3.axisBottom(xScale)
+                .ticks(10)
+                .tickFormat(d3.format("d"))) // Create an axis component with d3.axisBottom
+          .append('text') // x-axis Label
+            .attr('class','label')
+            .attr('x',150)
+            .attr('y',25)
+            .attr('dy','.71em')
+            .style('text-anchor','start')
+            .style('fill','black')
+            .html(xlabel);
+
         svg.append("g")
-          .attr("class", "y axis")
-          .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+            .attr("class", "y axis")
+            .call(d3.axisLeft(yScale)) // Create an axis component with d3.axisLeft
+          .append('text') // y-axis Label
+            .attr('class','label')
+            .attr('transform','rotate(-90)')
+            .attr('x',-30)
+            .attr('y',-48)
+            .attr('dy','.71em')
+            .style('text-anchor','end')
+            .style('fill','black')
+            .html(ylabel);
 
         $.each(Object.keys(metric_data), function(draw_index, scenario_key){
-          // var foo = Object.assign({}, line_generator);
-          // 9. Append the path, bind the data, and call the line generator
+          // Append the path, bind the data, and call the line generator
           svg.append("path")
             .datum(metric_data[scenario_key]) // 10. Binds data to the line
             .attr("class", "line") // Assign a class for styling
             .style('stroke', chartColors[draw_index])
             .attr("d", line_generator); // 11. Calls the line generator
 
-          // 12. Appends a circle for each datapoint
+          // Appends a circle for each datapoint
           svg.selectAll("dot")
             .data(metric_data[scenario_key])
             .enter().append("circle") // Uses the enter().append() method
@@ -127,14 +137,22 @@ loadGraphs = function() {
             .attr("cx", function(d) { return xScale(d.x) })
             .attr("cy", function(d) { return yScale(d.y) })
             .attr("r", 5)
-            // .on("mouseover", function(a, b, c) {
-            //   console.log(a);
-            //   // this.classList.add('focus');
-            // })
-
+            .on("mouseover", function(d) {
+              tooltipDiv.transition()
+                .duration(200)
+                .style('opacity', .8);
+              tooltipDiv.html(d.x + ', ' + d.y)
+                .style("left", (d3.event.pageX) + "px")
+                .style("top", (d3.event.pageY - 28) + "px")
+                .style("min-width", "90px")
+                .style("border", "1px solid black");
+              })
+            .on("mouseout", function(evt) {
+              tooltipDiv.transition()
+                .duration(500)
+                .style('opacity', 0);
+              })
         });
-
-
       });                                               // ---------------END METRIC--------------------
     });                                                 // ---------------END TOPIC --------------------
   } else {

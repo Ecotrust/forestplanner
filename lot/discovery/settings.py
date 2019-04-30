@@ -77,22 +77,41 @@ METRICS_DICT = [
         'metrics': [
             {
                 'title': 'Basal Area (BA)',
-                'id': 'funamentals-basal-area'
-            },{
-                'title': 'Quadratic Mean Diameter (QMD)',
-                'id': 'fundamentals-quadratic-mean-diameter'
+                'id': 'funamentals-basal-area',
+                'metric_key': 'ba',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        # 'label': 'Basal Area in ft<sup>2</sup>/acre'
+                        'label': 'Basal Area in ft<tspan baseline-shift="super">2</tspan>/acre'
+                    }
+                }
+            # },{
+            #     'title': 'Quadratic Mean Diameter (QMD)',
+            #     'id': 'fundamentals-quadratic-mean-diameter'
             },{
                 'title': 'Trees per Acre (TPA)',
-                'id': 'fundamentals-trees-per-acre'
-            },{
-                'title': 'Successional Stage',
-                'id': 'fundamentals-successional-stage'
-            },{
-                'title': 'Annual Growth',
-                'id': 'fundamentals-annual-growth'
-            },{
-                'title': 'Annual Mortality',
-                'id': 'fundamentals-annual-mortality'
+                'id': 'fundamentals-trees-per-acre',
+                'metric_key': 'tpa',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Trees Per Acre'
+                    }
+                }
+            # },{
+            #     'title': 'Successional Stage',
+            #     'id': 'fundamentals-successional-stage'
+            # },{
+            #     'title': 'Annual Growth',
+            #     'id': 'fundamentals-annual-growth'
+            # },{
+            #     'title': 'Annual Mortality',
+            #     'id': 'fundamentals-annual-mortality'
             },
         ]
     },{
@@ -100,13 +119,31 @@ METRICS_DICT = [
         'metrics': [
             {
                 'title': 'Carbon stored in the forest',
-                'id': 'carbon-stored-in-forest'
-            },{
-                'title': 'Carbon stored in products',
-                'id': 'carbon-stored-in-products'
+                'id': 'carbon-stored-in-forest',
+                'metric_key': 'agl_carbon',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Carbon (metric tons C)'
+                    }
+                }
+            # },{
+            #     'title': 'Carbon stored in products',
+            #     'id': 'carbon-stored-in-products'
             },{
                 'title': 'Total Carbon Storage',
-                'id': 'carbon-total-stored'
+                'id': 'carbon-total-stored',
+                'metric_key': 'total_carbon',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Carbon (metric tons C)'
+                    }
+                }
             },
         ]
     },{
@@ -114,13 +151,31 @@ METRICS_DICT = [
         'metrics': [
             {
                 'title': 'Standing timber volume',
-                'id': 'timber-standing-volume'
+                'id': 'timber-standing-volume',
+                'metric_key': 'standing_timber',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Standing Timber in MBF'
+                    }
+                }
             },{
                 'title': 'Harvested timber volume',
-                'id': 'timber-harvested-volume'
-            },{
-                'title': 'Cash flow',
-                'id': 'timber-cash-flow'
+                'id': 'timber-harvested-volume',
+                'metric_key': 'harvested_timber',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Harvested Timber in MBF'
+                    }
+                }
+            # },{
+            #     'title': 'Cash flow',
+            #     'id': 'timber-cash-flow'
             },
         ]
     },{
@@ -128,13 +183,22 @@ METRICS_DICT = [
         'metrics': [
             {
                 'title': 'Fire Hazard Rating',
-                'id': 'wildfire-hazard-rating'
-            },{
-                'title': 'Mortality for Moderate Wildfire',
-                'id': 'wildfire-mortality-moderate'
-            },{
-                'title': 'Mortality for Severe Wildfire',
-                'id': 'wildfire-mortality-severe'
+                'id': 'wildfire-hazard-rating',
+                'metric_key': 'fire',
+                'axes': {
+                    'x': {
+                        'label': 'Year'
+                    },
+                    'y': {
+                        'label': 'Fire Hazard Rating'
+                    }
+                }
+            # },{
+            #     'title': 'Mortality for Moderate Wildfire',
+            #     'id': 'wildfire-mortality-moderate'
+            # },{
+            #     'title': 'Mortality for Severe Wildfire',
+            #     'id': 'wildfire-mortality-severe'
             },
         ]
     },
