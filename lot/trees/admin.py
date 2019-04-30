@@ -4,8 +4,20 @@ from django import forms
 
 admin.site.register(Strata)
 admin.site.register(Stand)
-admin.site.register(Scenario)
-admin.site.register(ForestProperty)
+
+class ScenarioAdmin(admin.ModelAdmin):
+    list_display = ('name', 'input_property', 'user')
+
+
+    class Meta:
+        model = Scenario
+
+admin.site.register(Scenario, ScenarioAdmin)
+
+class ForestPropertyAdmin(admin.ModelAdmin):
+    list_display = ('name', 'user', 'date_created', 'date_modified')
+
+admin.site.register(ForestProperty, ForestPropertyAdmin)
 admin.site.register(ScenarioStand)
 # admin.site.register(Rx)
 admin.site.register(MyRx)

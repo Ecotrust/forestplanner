@@ -394,7 +394,11 @@ class DiscoveryStand(Feature):
 
         super(DiscoveryStand, self).save(*args, **kwargs)
 
-        self.lot_property.create_default_discovery_scenarios()
+        if not self.lot_property:
+            import time
+            time.sleep(5)
+        if self.lot_property:
+            self.lot_property.create_default_discovery_scenarios()
 
     class Options:
         form = "discovery.forms.DiscoveryStandForm"

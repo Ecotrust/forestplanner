@@ -2095,6 +2095,12 @@ class ScenarioStand(PolygonFeature):
         form_template = "trees/scenariostand_form.html"
         manipulators = []
 
+    def __str__(self):
+        if self.name:
+            return self.name
+        else:
+            return "%s: Stand %s, Rx %s" % (self.scenario, self.stand, self.rx)
+
     @cachemethod("ScenarioStand_%(id)s_geojson")
     def geojson(self, srid=None):
         # start with the stand geojson
