@@ -129,6 +129,7 @@ loadGraphs = function() {
             .attr("d", line_generator); // 11. Calls the line generator
 
           // Appends a circle for each datapoint
+
           svg.selectAll("dot")
             .data(metric_data[scenario_key])
             .enter().append("circle") // Uses the enter().append() method
@@ -141,7 +142,7 @@ loadGraphs = function() {
               tooltipDiv.transition()
                 .duration(200)
                 .style('opacity', .8);
-              tooltipDiv.html(d.x + ', ' + d.y)
+              tooltipDiv.html(d.x + ', ' + parseFloat(d.y.toFixed(2)))
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px")
                 .style("min-width", "90px")
