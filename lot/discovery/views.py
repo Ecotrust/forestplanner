@@ -56,7 +56,7 @@ def example_stands(request):
 
     context = {
         'user': request.user,
-        'title': 'Existing Stands',
+        'title': 'Import an Existing Stand',
         'grid_data': stands,
         'grid_defaults': {
             'image': settings.DEFAULT_STAND_IMAGE,
