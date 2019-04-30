@@ -493,11 +493,21 @@ def forest_profile(request, discovery_stand_uid):
 @login_required
 def compare_outcomes(request, discovery_stand_uid):
     from discovery.models import DiscoveryScenario
-    import json
+    import json, time
     stand = get_feature_by_uid(discovery_stand_uid)
     # Create default Management Outcomes if not done already
     stand.lot_property.create_default_discovery_scenarios()
     scenarios = stand.lot_property.scenario_set.all()
+
+    scenarios_ready = True
+    for scenario in scenarios:
+        fields = scenario.property_level_dict['fields']
+        if fields['is_running'] == False and fields['needs_rerun'] == True:
+            scenarios_ready = False
+            scenario.run()
+    if not scenarios_ready:
+        time.sleep(5)
+
     scenario_list = [x.property_level_dict for x in scenarios]
 
     context = {

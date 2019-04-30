@@ -841,8 +841,12 @@ class Scenario(Feature):
         taskid = cache.get('Taskid_%s' % self.uid)
         if taskid:
             task = AsyncResult(taskid)
-            status = task.status
-            print(str(status))
+            try:
+                status = task.status
+            except AttributeError as e:
+                # Rx not found, just pretend it failed and re-run
+                status = "FAILED"
+            # print(str(status))
             if status not in ["SUCCESS", "FAILED", "FAILURE"]:
                 # still running
                 return True
@@ -1137,6 +1141,9 @@ class ForestProperty(FeatureCollection):
     carbon_group = models.ForeignKey(CarbonGroup, null=True, blank=True, default=None, on_delete=models.SET_DEFAULT)
     shared_scenario = models.ForeignKey(Scenario, null=True, blank=True, default=None, on_delete=models.SET_DEFAULT)
 
+    def __str__(self):
+        return self.name
+
     def geojson(self, srid=None):
         '''
         Couldn't find any serialization methods flexible enough for our needs
@@ -1279,7 +1286,7 @@ class ForestProperty(FeatureCollection):
                 if not rxs.count() > 0:
                     continue
 
-                rx = rxs[0]
+                rx = rxs[0].rx
                 in_rxs = {}
                 for stand in self.feature_set(feature_classes=[Stand]):
                     in_rxs[stand.id] = rx.id

@@ -20,6 +20,29 @@ var tooltipDiv = d3.select("body")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
+formatTick = function(val, max_char) {
+  var val_len = parseFloat(val.toPrecision(max_char)).toString().length;
+  if ( val_len > max_char) {
+    if (val_len > max_char + 3) {
+      if (val_len > max_char + 6) {
+        if (val_len > max_char + 9) {
+          new_val = val.toPrecision(max_char-2);
+        } else {
+          new_val = parseFloat((val/1000000000).toPrecision(3)) + "B";
+        }
+      } else {
+        new_val = parseFloat((val/1000000).toPrecision(3)) + "M";
+      }
+    } else {
+      new_val = parseFloat((val/1000).toPrecision(3)) + "K";
+    }
+  } else {
+    new_val = parseFloat(val.toPrecision(max_char));
+  }
+  return new_val;
+}
+
+
 loadGraphs = function() {
   if ($('input:checked').length > 0) {
     $('#accordion-metrics').show();
@@ -56,7 +79,14 @@ loadGraphs = function() {
         $.each($("input:checked"), function(index, scenario_item){     // ---------------SCENARIO--------------------
           // Get scenario data
           scenario = scenarios[scenario_item.value];
-          var raw_data = scenario.output_property_metrics.__all__[metric_key];
+          if (scenario.output_property_metrics != null){
+            var raw_data = scenario.output_property_metrics.__all__[metric_key];
+          } else {
+            raw_data = []
+            if (metric_index == 0 && topic_index==0) {
+              alert('Data for ' + scenario.name + ' are not ready yet. Please try refreshing the page in a few minutes.');
+            }
+          }
           metric_data[scenario.name] = [];
           // Loop through nodes:
           $.each(raw_data, function(data_index, datum){         // ---------------DATUM--------------------
@@ -109,7 +139,8 @@ loadGraphs = function() {
 
         svg.append("g")
             .attr("class", "y axis")
-            .call(d3.axisLeft(yScale)) // Create an axis component with d3.axisLeft
+            .call(d3.axisLeft(yScale)
+              .tickFormat(function(d){ return formatTick(d, 4)})) // Create an axis component with d3.axisLeft
           .append('text') // y-axis Label
             .attr('class','label')
             .attr('transform','rotate(-90)')
@@ -142,7 +173,7 @@ loadGraphs = function() {
               tooltipDiv.transition()
                 .duration(200)
                 .style('opacity', .8);
-              tooltipDiv.html(d.x + ', ' + parseFloat(d.y.toFixed(2)))
+              tooltipDiv.html(d.x + ', ' + formatTick(d.y, 4))
                 .style("left", (d3.event.pageX) + "px")
                 .style("top", (d3.event.pageY - 28) + "px")
                 .style("min-width", "90px")

@@ -17,14 +17,18 @@
           {% for scenario in scenario_list %}
             <tr>
               <td>
-                <input type="checkbox" id="scenario-checkbox-{{ scenario.pk }}" value="{{ scenario.pk }}" {% if scenario.default %}checked{% endif %}>
+                <input type="checkbox" id="scenario-checkbox-{{ scenario.pk }}" value="{{ scenario.pk }}" {% if scenario.fields.output_property_metrics == None %}disabled{% endif %}{% if scenario.default %}checked{% endif %}>
               </td>
               <td>
                 {{ scenario.fields.name }}
                 <div class="css_tooltip">
                   <i class="info-icon icon-info-sign field-tooltip"></i>
                   <span class="tooltiptext css_tooltip-right">
-                    {{ scenario.fields.description | safe }}
+                    {% if scenario.fields.output_property_metrics == None %}
+                      This scenario is still processing. Please give it some time then refresh the page.
+                    {% else %}
+                      {{ scenario.fields.description | safe }}
+                    {% endif %}
                   </span>
                 </div>
               </td>
