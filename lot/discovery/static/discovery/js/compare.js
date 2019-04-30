@@ -52,8 +52,6 @@ loadGraphs = function() {
       // For each metric graph
       $.each(topic.metrics, function(metric_index, metric){   // ---------------METRIC--------------------
         metric_data = {};
-        // TODO: Need:
-        //  legend
 
         var metric_key = metric.metric_key;
 
@@ -151,7 +149,12 @@ loadGraphs = function() {
             .style('fill','black')
             .html(ylabel);
 
-        $.each(Object.keys(metric_data), function(draw_index, scenario_key){
+        var legend = svg.append("g")
+          .attr("class", "legend")
+          .attr("height", 120)
+          .attr("width", width)
+
+        $.each(Object.keys(metric_data), function(draw_index, scenario_key){    // ---------------SCENARIO AGAIN--------------------
           // Append the path, bind the data, and call the line generator
           svg.append("path")
             .datum(metric_data[scenario_key]) // 10. Binds data to the line
@@ -184,7 +187,19 @@ loadGraphs = function() {
                 .duration(500)
                 .style('opacity', 0);
               })
-        });
+
+          legend.append("rect")
+            .attr("x", 80*draw_index)
+            .attr("y", height+40)
+            .attr("width", 10)
+            .attr("height", 10)
+            .style("fill", chartColors[draw_index]);
+
+          legend.append("text")
+            .attr("x", 80*draw_index + 15)
+            .attr("y", height+48)
+            .text(scenario_key)
+        });                                             // ---------------END SCENARIO AGAIN--------------------
       });                                               // ---------------END METRIC--------------------
     });                                                 // ---------------END TOPIC --------------------
   } else {

@@ -15,6 +15,10 @@ div.tooltip {
     pointer-events: none;
 }
 
+.legend {
+    font: 12px sans-serif;
+}
+
 .legend rect {
   fill:white;
   stroke:black;
