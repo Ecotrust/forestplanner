@@ -189,7 +189,7 @@ loadGraphs = function() {
               })
 
           legend.append("rect")
-            .attr("x", 80*draw_index)
+            .attr("x", 90*draw_index)
             .attr("y", height+40)
             .attr("width", 10)
             .attr("height", 10)
