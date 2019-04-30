@@ -4,19 +4,153 @@ for (var i = 0; i < scenario_list.length; i++) {
   scenarios[scenario.pk] = scenario.fields;
 }
 
-$('input:checkbox').on('change', function(e) {
-  id = parseInt(e.currentTarget.value);
-  if (e.currentTarget.checked) {
-    console.log('Scenario ' + id + ' checked!');
-    // Add scenario's data to metrics
+var margin = {top: 50, right: 50, bottom: 50, left: 50},
+      width = window.innerWidth/3 - margin.left - margin.right, // Use the window's width
+      height = window.innerHeight/3 - margin.top - margin.bottom; // Use the window's height
+
+var chartColors = [ "#4bb2c5", "#c5b47f", "#EAA228",
+                    "#579575", "#839557", "#958c12",
+                    "#953579", "#4b5de4", "#d8b83f",
+                    "#ff5800", "#0085cc"];  // assumes max of 11 series will be shown
+
+loadGraphs = function() {
+  if ($('input:checked').length > 0) {
+    $('#accordion-metrics').show();
+    $('#no-metrics-message').hide();
+    // For each topic
+    $.each(metric_list, function(topic_index, topic){
+      // For each metric graph
+      $.each(topic.metrics, function(metric_index, metric){   // ---------------METRIC--------------------
+        metric_data = {};
+        // TODO: Need:
+        //  Axis labels
+        //  Metric key
+
+        if (metric.hasOwnProperty('metric_key')) {
+          var metric_key = metric.metric_key;
+        } else {
+          var metric_key = 'ba';
+        }
+
+        if (metric.hasOwnProperty('axes')) {
+          xlabel = metric.axes.x.label;
+          ylabel = metric.axes.y.label;
+        } else {
+          xlabel = 'X-Axis';
+          ylabel = 'Y-Axis';
+        }
+
+        // Create SVG Element
+        var svg = d3.select("#" + metric.id)
+          .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+          .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var xdomain = [];
+        var yvalues = [];
+
+        // For each scenario
+        $.each($("input:checked"), function(index, scenario_item){     // ---------------SCENARIO--------------------
+          // Get scenario data
+          scenario = scenarios[scenario_item.value];
+          var raw_data = scenario.output_property_metrics.__all__[metric_key];
+          metric_data[scenario.name] = [];
+          // Loop through nodes:
+          $.each(raw_data, function(data_index, datum){         // ---------------DATUM--------------------
+            // This assumes all x values are a timestamp like YYYY-12-31 11:59PM
+            var year = datum[0].split('-12-31 11:59PM')[0];
+            if (xdomain.indexOf(year) < 0) {
+              xdomain.push(year);
+            }
+            metric_data[scenario.name].push({'x': year, 'y':datum[1]});
+            yvalues.push(datum[1]);
+          })                                                  // ---------------END DATUM--------------------
+
+          // Create lines:
+
+
+        });                                               // ---------------END SCENARIO--------------------
+        xdomain.sort(function(a, b){ return parseFloat(a)-parseFloat(b);});
+        yvalues.sort(function(a, b){ return parseFloat(a)-parseFloat(b);});
+        // Create X axis measures
+        var xScale = d3.scaleLinear()
+          .domain([xdomain[0], xdomain[xdomain.length-1]]) // input
+          .range([0, width]); // output
+
+          // Create X axis label
+
+        //TODO
+
+        // Create Y axis measures
+        var yScale = d3.scaleLinear()
+          // .domain([ymin, ymax]) // input
+          .domain([yvalues[0], yvalues[yvalues.length-1]]) // input
+          .range([height, 0]); // output
+
+        // Create Y axis label
+
+        // TODO
+
+        // create line generator
+        line_generator = d3.line()
+          .x(function(d) { return xScale(d.x); }) // set the x values for the line generator
+          .y(function(d) { return yScale(d.y); }) // set the y values for the line generator
+          // .interpolate("linear");
+          // .curve(d3.curveMonotoneX) // apply smoothing to the line
+
+        // Append axis measures:
+        svg.append("g")
+          .attr("class", "x axis")
+          .attr("transform", "translate(0," + height + ")")
+          .call(d3.axisBottom(xScale)); // Create an axis component with d3.axisBottom
+        svg.append("g")
+          .attr("class", "y axis")
+          .call(d3.axisLeft(yScale)); // Create an axis component with d3.axisLeft
+
+        $.each(Object.keys(metric_data), function(draw_index, scenario_key){
+          // var foo = Object.assign({}, line_generator);
+          // 9. Append the path, bind the data, and call the line generator
+          svg.append("path")
+            .datum(metric_data[scenario_key]) // 10. Binds data to the line
+            .attr("class", "line") // Assign a class for styling
+            .style('stroke', chartColors[draw_index])
+            .attr("d", line_generator); // 11. Calls the line generator
+
+          // 12. Appends a circle for each datapoint
+          svg.selectAll("dot")
+            .data(metric_data[scenario_key])
+            .enter().append("circle") // Uses the enter().append() method
+            .attr("class", "dot") // Assign a class for styling
+            .style('fill', chartColors[draw_index])
+            .attr("cx", function(d) { return xScale(d.x) })
+            .attr("cy", function(d) { return yScale(d.y) })
+            .attr("r", 5)
+            // .on("mouseover", function(a, b, c) {
+            //   console.log(a);
+            //   // this.classList.add('focus');
+            // })
+
+        });
+
+
+      });                                               // ---------------END METRIC--------------------
+    });                                                 // ---------------END TOPIC --------------------
   } else {
-    console.log('Scenario ' + id + ' unchecked!');
-    // Remove scenario's data from metrics
-    // If this can't be done, then you'll have to re-run metrics without it :(
+    $('#accordion-metrics').hide();
+    $('#no-metrics-message').show();
   }
+
+}
+
+// add listeners to checkboxes to toggle adding/removing data from graphs by ID
+$('input:checkbox').on('change', function(e) {
+  $('svg').remove();
+  loadGraphs();
 
 });
 
-// Create D3 graphs for each metric
-
-// add listeners to checkboxes to toggle adding/removing data from graphs by ID
+$(document).ready(function() {
+  loadGraphs();
+});

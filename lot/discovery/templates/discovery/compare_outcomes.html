@@ -33,6 +33,12 @@
         </table>
       </div>
       <div class="col" id="metrics-col">
+        <div id="no-metrics-message" style="display:none" class="card">
+          <div class="card-header">No Management Selected</div>
+          <div class="card-body">
+            Please select at least 1 management option to the left to view data.
+          </div>
+        </div>
         <div class="accordion" id="accordion-metrics">
           {% for topic in metrics_dict %}
             <div class="card">
@@ -57,10 +63,10 @@
                             </button>
                           </h5>
                         </div>
-
                         <div id="collapse-{{ topic.title|slugify }}-{{ metric.title|slugify }}" class="collapse show" aria-labelledby="heading-{{ topic.title|slugify }}-{{ metric.title|slugify }}" data-parent="#accordion-{{ topic.title|slugify }}">
                           <div class="card-body">
                             <h3>{{ metric.title }}</h3>
+                            <div id="{{ metric.id }}"></div>
                           </div>
                         </div>
                       </div>
@@ -90,6 +96,7 @@
   {{ block.super }}
   <script type="text/javascript" src="{% static 'discovery/dependencies/d3/d3.min.js' %}"></script>
   <script type="text/javascript">
+    metric_list = {{ metrics_dict|safe }};
     scenario_list = JSON.parse('{{ scenario_list_json|safe }}');
   </script>
   <script type="text/javascript" src="{% static 'discovery/js/compare.js' %}"></script>
