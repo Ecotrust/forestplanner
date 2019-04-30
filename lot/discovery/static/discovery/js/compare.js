@@ -196,7 +196,7 @@ loadGraphs = function() {
             .style("fill", chartColors[draw_index]);
 
           legend.append("text")
-            .attr("x", 80*draw_index + 15)
+            .attr("x", 90*draw_index + 15)
             .attr("y", height+48)
             .text(scenario_key)
         });                                             // ---------------END SCENARIO AGAIN--------------------
