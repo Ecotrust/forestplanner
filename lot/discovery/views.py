@@ -5,6 +5,8 @@ from django.shortcuts import render, redirect
 from madrona.features import get_feature_by_uid
 from discovery.forms import DiscoveryStandForm
 from django.contrib.auth.decorators import login_required
+from flatblocks.models import FlatBlock
+import copy
 
 def index(request):
     return redirect('/discovery/landing/')
@@ -54,6 +56,10 @@ def example_stands(request):
     for stand in ExampleStand.objects.all():
         stands.append(stand.to_grid())
 
+    help_button_flatblock = 'help-example-stands'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'user': request.user,
         'title': 'Import an Existing Stand',
@@ -65,8 +71,8 @@ def example_stands(request):
         # use button_text and button_action together
         'button_text': None,
         'button_action': None,
-        'help_title': "Help",
-        'help_flatblock': 'help-example-stands'
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock
     }
 
     return render(request, 'discovery/stand_grid.html', context)
@@ -126,6 +132,10 @@ def stands(request):
     for stand in DiscoveryStand.objects.filter(user=request.user):
         stands.append(stand.to_grid())
 
+    help_button_flatblock = 'help-stand-list'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'user': request.user,
         'title': 'stands',
@@ -137,6 +147,8 @@ def stands(request):
         # use button_text and button_action together
         'button_text': '+ Add a new property',
         'button_action': '/discovery/find_your_forest/',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock
     }
     return render(request, 'discovery/stand_grid.html', context)
 
@@ -197,12 +209,15 @@ def get_modal_content(request, card_type, uid):
 # find your forest page
 @login_required
 def find_your_forest(request):
+    help_button_flatblock = 'help-find-your-forest'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
     context = {
         'title': 'Find Your Forest',
         'flatblock_slug': 'find-your-forest',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # specific for action buttons template
         'act_btn_one_text': 'Choose an existing property',
         'act_btn_one_action': '/discovery/example_stands/',
@@ -218,12 +233,20 @@ def collect_data(request, discovery_stand_uid):
         next_action = '/discovery/enter_data/%s/' % discovery_stand_uid
     else:
         next_action = '/discovery/enter_stand_table/%s/' % discovery_stand_uid
+
+    stand = get_feature_by_uid(discovery_stand_uid)
+
+    help_button_flatblock = 'help-collect-data'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Collect data',
+        'subtitle': stand.name,
         # 'flatblock_slug': 'collect-data',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # specific for action buttons template
         'act_btn_one_text': 'Download tree list spreadsheet template',
         'act_btn_one_action': '',
@@ -239,13 +262,20 @@ def collect_data(request, discovery_stand_uid):
 
 # enter data page
 @login_required
-def enter_data(request):
+def enter_data(request, discovery_stand_uid):
+
+    stand = get_feature_by_uid(discovery_stand_uid)
+
+    help_button_flatblock = 'help-enter-data'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
     context = {
         'title': 'Enter data',
+        'subtitle': stand.name,
         'flatblock_slug': 'enter-data',
         # use button_text and button_action together
-        'button_text': 'WATCH TUTORIAL',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # specific for action buttons template
         'act_btn_one_text': 'Upload a new tree list',
         'act_btn_one_action': '',
@@ -357,13 +387,18 @@ def enter_stand_table(request, discovery_stand_uid):
         else:
             size_choices = (('', '(Select a species first)'),)
         form.fields['size_class'] = ChoiceField(choices=size_choices)
+
+    help_button_flatblock = 'help-enter-stand-table'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Enter stand table',
         'subtitle': stand.name,
         'flatblock_slug': 'enter-stand-table',
         # use button_text and button_action together
-        'button_text': 'Help',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # specific for data entry template
 
         # cta below action buttons options
@@ -394,12 +429,17 @@ def map(request, discovery_stand_uid=None):
         form = DiscoveryStandForm()
     form_user = request.user
     form.fields['user'].initial = form_user
+
+    help_button_flatblock = 'help-map'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Map your forest stand',
         'flatblock_slug': 'map-your-property',
         # use button_text and button_action together
-        # 'button_text': 'Help',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         'DISCOVERYSTAND_FORM': form,
     }
     return render(request, 'discovery/map.html', context)
@@ -475,13 +515,17 @@ def forest_profile(request, discovery_stand_uid):
     }
     profile_columns.append(structure_col)
 
+    help_button_flatblock = 'help-forest-profile'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Forest profile',
         'subtitle': stand.name,
         'flatblock_slug': 'forest-profile',
         # use button_text and button_action together
-        'button_text': 'Help',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         'profile_columns': profile_columns,
         'stand_stats': stand_stats,
         'use_step_btn': True,
@@ -510,8 +554,6 @@ def compare_outcomes(request, discovery_stand_uid):
 
     scenario_list = [x.property_level_dict for x in scenarios]
 
-    from flatblocks.models import FlatBlock
-    import copy
     metrics_dict = copy.deepcopy(settings.METRICS_DICT)
     for topic in metrics_dict:
         for metric in topic['metrics']:
@@ -519,13 +561,17 @@ def compare_outcomes(request, discovery_stand_uid):
                 if len(FlatBlock.objects.filter(slug=metric['info'])) < 1:
                     metric['info'] = False
 
+    help_button_flatblock = 'help-compare-outcomes'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Compare Management Outcomes',
         'subtitle': stand.name,
         'flatblock_slug': 'compare-outcomes',
         # use button_text and button_action together
-        'button_text': 'Help',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': True,
@@ -541,13 +587,18 @@ def compare_outcomes(request, discovery_stand_uid):
 
 def report(request, discovery_stand_uid):
     stand = get_feature_by_uid(discovery_stand_uid)
+
+    help_button_flatblock = 'help-report'
+    if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
+        help_button_flatblock = False
+
     context = {
         'title': 'Report',
         'subtitle': stand.name,
         'flatblock_slug': 'report-block',
         # use button_text and button_action together
-        'button_text': 'Help',
-        'button_action': '',
+        'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
+        'help_button_flatblock': help_button_flatblock,
         # cta below action buttons options
         ## should this button be displayed
         'use_step_btn': False,

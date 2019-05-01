@@ -229,6 +229,16 @@ FLATBLOCK_IDS = [
     'enter-stand-table',
     'find-your-forest',
     'forest-profile',
+    'help-collect-data',
+    'help-compare-outcomes',
+    'help-enter-data',
+    'help-enter-stand-table',
+    'help-example-stands',
+    'help-find-your-forest',
+    'help-forest-profile',
+    'help-map',
+    'help-report',
+    'help-stand-list',
     'landing-four',
     'landing-one',
     'landing-two',
@@ -243,3 +253,5 @@ FLATBLOCK_IDS = [
     'metric-total-carbon',
     'metric-trees-per-acre',
 ]
+
+DEFAULT_HELP_BUTTON_TEXT = 'Help'

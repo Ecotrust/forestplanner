@@ -52,6 +52,10 @@
   </div>
   {% endblock %} <!-- cardcontainer -->
 
+{% endblock content %}
+
+{% block modals %}
+  {{ block.super }}
   {% block grid-modal %}
   <div class="modal fade" id="grid-modal" tabindex="-1" role="dialog" aria-labelledby="grid-modal" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -74,4 +78,4 @@
     </div>
   </div>
   {% endblock %} <!-- grid-modal -->
-{% endblock content %}
+{% endblock modals %}

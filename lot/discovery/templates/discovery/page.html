@@ -9,24 +9,22 @@
 {% block pre-content %}
   <div class="container">
     <div class="row page-title-row">
-      {% if button_text %}
-        <div class="col-8">
-          {% if subtitle %}
-            <h2 class="page-subtitle">{{ subtitle|title }}</h2>
-          {% endif %}
-          <h1 class="page-title">{{ title|title }}</h1>
-        </div>
-        <div class="col-4">
-          <a href="{{ button_action }}" class="btn btn-outline-dark">{{ button_text }}</a>
-        </div>
-      {% else %}
-      <div class="col">
+      <div class="col-8">
         {% if subtitle %}
           <h2 class="page-subtitle">{{ subtitle|title }}</h2>
         {% endif %}
         <h1 class="page-title">{{ title|title }}</h1>
       </div>
-      {% endif %}
+      <div class="col-4">
+        {% if help_button_text and help_button_flatblock %}
+          <button type="button" class="btn btn-outline-dark" data-toggle="modal" data-target="#pageModal">
+            {{ help_button_text }}
+          </button>
+        {% endif %}
+        {% if button_text and button_action %}
+          <a href="{{ button_action }}" class="btn btn-outline-dark">{{ button_text }}</a>
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endblock pre-content %}
@@ -42,3 +40,7 @@
     </div>
   </div>
 {% endblock content %}
+
+{% block modals %}
+  {% include "discovery/common/help_modal.html" %}
+{% endblock modals %}
