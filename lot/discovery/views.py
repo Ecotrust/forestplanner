@@ -510,6 +510,15 @@ def compare_outcomes(request, discovery_stand_uid):
 
     scenario_list = [x.property_level_dict for x in scenarios]
 
+    from flatblocks.models import FlatBlock
+    import copy
+    metrics_dict = copy.deepcopy(settings.METRICS_DICT)
+    for topic in metrics_dict:
+        for metric in topic['metrics']:
+            if 'info' in metric.keys():
+                if len(FlatBlock.objects.filter(slug=metric['info'])) < 1:
+                    metric['info'] = False
+
     context = {
         'title': 'Compare Management Outcomes',
         'subtitle': stand.name,
@@ -524,8 +533,10 @@ def compare_outcomes(request, discovery_stand_uid):
         'step_btn_text': 'View Forest Report',
         'scenario_list': scenario_list,
         'scenario_list_json': json.dumps(scenario_list),
-        'metrics_dict': settings.METRICS_DICT,
+        'metrics_dict': metrics_dict,
+        'metrics_dict_json': settings.METRICS_DICT,
     }
+
     return render(request, 'discovery/compare_outcomes.html', context)
 
 def report(request, discovery_stand_uid):

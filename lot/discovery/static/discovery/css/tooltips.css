@@ -64,3 +64,20 @@
   border-color: transparent black transparent transparent;
   max-width: 60vw;
 }
+
+.css_tooltip-left {
+  top: -1.7rem;
+  right: 140%;
+}
+
+.css_tooltip-left::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 100%;
+  margin-top: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent transparent black;
+  max-width: 60vw;
+}

@@ -87,6 +87,7 @@ METRICS_DICT = [
                 'title': 'Basal Area (BA)',
                 'id': 'funamentals-basal-area',
                 'metric_key': 'ba',
+                'info': 'metric-basal-area',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -103,6 +104,7 @@ METRICS_DICT = [
                 'title': 'Trees per Acre (TPA)',
                 'id': 'fundamentals-trees-per-acre',
                 'metric_key': 'tpa',
+                'info': 'metric-trees-per-acre',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -129,6 +131,7 @@ METRICS_DICT = [
                 'title': 'Carbon stored in the forest',
                 'id': 'carbon-stored-in-forest',
                 'metric_key': 'agl_carbon',
+                'info': 'metric-forest-carbon',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -144,6 +147,7 @@ METRICS_DICT = [
                 'title': 'Total Carbon Storage',
                 'id': 'carbon-total-stored',
                 'metric_key': 'total_carbon',
+                'info': 'metric-total-carbon',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -161,6 +165,7 @@ METRICS_DICT = [
                 'title': 'Standing timber volume',
                 'id': 'timber-standing-volume',
                 'metric_key': 'standing_timber',
+                'info': 'metric-standing-timber',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -173,6 +178,7 @@ METRICS_DICT = [
                 'title': 'Harvested timber volume',
                 'id': 'timber-harvested-volume',
                 'metric_key': 'harvested_timber',
+                'info': 'metric-harvested-timber',
                 'axes': {
                     'x': {
                         'label': 'Year'
@@ -200,7 +206,8 @@ METRICS_DICT = [
                     'y': {
                         'label': 'Fire Hazard Rating'
                     }
-                }
+                },
+                'info': 'metric-fire-rating'
             # },{
             #     'title': 'Mortality for Moderate Wildfire',
             #     'id': 'wildfire-mortality-moderate'
@@ -211,4 +218,28 @@ METRICS_DICT = [
         ]
     },
 
+]
+
+FLATBLOCK_IDS = [
+    'collect-data',
+    'collect-data-2',
+    'compare-outcomes',
+    'edit-your-stand',
+    'enter-data',
+    'enter-stand-table',
+    'find-your-forest',
+    'forest-profile',
+    'landing-four',
+    'landing-one',
+    'landing-two',
+    'landing-three',
+    'map-your-property',
+    'map-your-stand',
+    'metric-basal-area',
+    'metric-fire-rating',
+    'metric-forest-carbon',
+    'metric-harvested-timber',
+    'metric-standing-timber',
+    'metric-total-carbon',
+    'metric-trees-per-acre',
 ]

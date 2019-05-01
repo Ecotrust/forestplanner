@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.conf import settings
 from django.forms import ModelForm, ChoiceField
 from django.forms.models import BaseInlineFormSet
 from django.forms import widgets as form_widgets
@@ -110,3 +111,43 @@ class FlatPageCustom(FlatPageAdmin):
 
 admin.site.unregister(FlatPage)
 admin.site.register(FlatPage, FlatPageCustom)
+
+from flatblocks.admin import FlatBlockAdmin
+from flatblocks.models import FlatBlock
+
+class FlatBlockCustomForm(ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(FlatBlockCustomForm, self).__init__(*args, **kwargs)
+        choices = settings.FLATBLOCK_IDS
+        if 'slug' in self.initial.keys():
+            slug = self.initial['slug']
+            choice_options = [(slug, slug)]
+            # TODO: filter out options used by other instances
+            other_flatblocks = FlatBlock.objects.exclude(slug=slug)
+        else:
+            choice_options = []
+            other_flatblocks = FlatBlock.objects.all()
+        choice_options += [(x,x) for x in choices if (x,x) not in choice_options]
+        other_options = [(x.slug,x.slug) for x in other_flatblocks]
+        choice_options = list(set(choice_options).difference(set(other_options)))
+        self.fields['slug'] = ChoiceField(
+            choices=choice_options
+        )
+
+    class Meta:
+        model = FlatBlock
+        widgets = {
+            'slug': form_widgets.Select,
+        }
+        fields = '__all__'
+
+class FlatBlockAdminCustom(FlatBlockAdmin):
+    form = FlatBlockCustomForm
+    formfield_overrides = {
+        models.TextField: {'widget': CKEditorWidget}
+    }
+    class Meta:
+        fields = '__all__'
+
+admin.site.unregister(FlatBlock)
+admin.site.register(FlatBlock, FlatBlockAdminCustom)
