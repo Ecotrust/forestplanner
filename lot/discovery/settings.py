@@ -1,6 +1,6 @@
 EMAIL_HOST = 'localhost'
 EMAIL_PORT = 25
-EMAIL_HOST_USER = 'noreply@forestdiscovery.ecotrust.org'
+DEFAULT_FROM_EMAIL = 'No Reply<noreply@forestdiscovery.ecotrust.org>'
 
 DEFAULT_STAND_SPLASH = "/static/discovery/img/Evergreen_(PSF).png"
 DEFAULT_STAND_IMAGE = "/static/discovery/img/Trees_icon_wide.png"
