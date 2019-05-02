@@ -365,6 +365,7 @@ class DiscoveryStand(Feature):
             'profile': False,
             'outcomes': False,
             'report': False,
+            'IMPORT_TREELIST': settings.IMPORT_TREELIST,
         }
         if self.lot_property:
             page_status['display'] = True

@@ -32,9 +32,24 @@ html, body {
   /* border-top: 1px solid black; */
   background-color: #f8f9fa;
 }
+
+.footer-button {
+  height: 56px;
+  font-size: 0.8rem;
+}
+
+a.footer-link:hover {
+  text-decoration: none;
+}
+
 /* MAP STUFF */
 .overflow-panel {
   height: calc(100vh - 112px) !important;
+}
+
+button.future-button {
+  cursor: default;
+  border-radius: 0.3rem;
 }
 
 #map-wrap-row,

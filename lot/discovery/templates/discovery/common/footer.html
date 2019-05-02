@@ -2,22 +2,82 @@
   <div class='row'>
     {% if stand_status %}
       <div class='col'>
-        {{ stand_status.titles.stands }}
+        <a class='footer-link' href="/discovery/">
+          <button class="btn btn-dark footer-button btn-block">
+            {{ stand_status.titles.stands }}
+          </button>
+        </a>
       </div>
       <div class='col'>
-        {{ stand_status.titles.map }}
+        {% if stand_status.map %}
+          <a class='footer-link' href="/discovery/map/{{ stand_status.uid }}/">
+            <button class="btn btn-dark footer-button btn-block">
+              {{ stand_status.titles.map }}
+            </button>
+          </a>
+        {% else %}
+          <button class="future-button footer-button btn-block btn-outline-dark disabled">
+            {{ stand_status.titles.map }}
+          </button>
+        {% endif %}
       </div>
       <div class='col'>
-        {{ stand_status.titles.treelist }}
+        <!--
+          users with treelist data may prefer to go straight to
+          'enter_stand_table', but we can't lock them out of downloading the
+          forms, so we send everyone to 'collect_data' until we find a better
+          solution.
+        -->
+        {% if stand_status.collect %}
+          <a class='footer-link' href="/discovery/collect_data/{{ stand_status.uid }}/">
+            <button class="btn btn-dark footer-button btn-block">
+              {{ stand_status.titles.collect }}
+            </button>
+          </a>
+        {% else %}
+          <button class="future-button footer-button btn-block btn-outline-dark disabled">
+            {{ stand_status.titles.collect }}
+          </button>
+        {% endif %}
       </div>
       <div class='col'>
-        {{ stand_status.titles.profile }}
+        {% if stand_status.profile %}
+          <a class='footer-link' href="/discovery/forest_profile/{{ stand_status.uid }}/">
+            <button class="btn btn-dark footer-button btn-block">
+              {{ stand_status.titles.profile }}
+            </button>
+          </a>
+        {% else %}
+          <button class="future-button footer-button btn-block btn-outline-dark disabled">
+            {{ stand_status.titles.profile }}
+          </button>
+        {% endif %}
       </div>
       <div class='col'>
-        {{ stand_status.titles.outcomes }}
+        {% if stand_status.outcomes %}
+          <a class='footer-link' href="/discovery/compare_outcomes/{{ stand_status.uid }}/">
+            <button class="btn btn-dark footer-button btn-block">
+              {{ stand_status.titles.outcomes }}
+            </button>
+          </a>
+        {% else %}
+          <button class="future-button footer-button btn-block btn-outline-dark disabled">
+            {{ stand_status.titles.outcomes }}
+          </button>
+        {% endif %}
       </div>
       <div class='col'>
-        {{ stand_status.titles.report }}
+        {% if stand_status.report %}
+          <a class='footer-link' href="/discovery/report/{{ stand_status.uid }}/">
+            <button class="btn btn-dark footer-button btn-block">
+              {{ stand_status.titles.report }}
+            </button>
+          </a>
+        {% else %}
+          <button class="future-button footer-button btn-block btn-outline-dark disabled">
+            {{ stand_status.titles.report }}
+          </button>
+        {% endif %}
       </div>
     {% endif %}
   </div>
