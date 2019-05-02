@@ -39,31 +39,40 @@
   </head>
 
   <body class="{% block bodyclass %}{% endblock %}">
-    <!-- accessibility option for screen readers only -->
-    <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
+    <div id='page'>
+      <!-- accessibility option for screen readers only -->
+      <a class="sr-only sr-only-focusable" href="#content">Skip to main content</a>
 
-    <header class="{% block headerclass %}{% endblock %}">
-      {% block header %}
-        {% include 'discovery/common/header.html' %}
-      {% endblock header %}
-    </header>
+      <header class="{% block headerclass %}{% endblock %}">
+        {% block header %}
+          {% include 'discovery/common/header.html' %}
+        {% endblock header %}
+      </header>
 
-    <main>
-      {% block pre-content %}{% endblock pre-content %}
-      {% block content %}{% endblock content %}
-      {% block post-content %}{% endblock post-content %}
-      {% block modals %} {% endblock modals %}
-    </main>
+      <div id="middle-wrapper"> <!-- used for scrolling middle content between header & footer -->
 
-    <footer>
-      {% block footer %}{% endblock footer %}
-    </footer>
+        <main>
+          {% block pre-content %}{% endblock pre-content %}
+          {% block content %}{% endblock content %}
+          {% block post-content %}{% endblock post-content %}
+          {% block modals %} {% endblock modals %}
+        </main>
+
+        <footer>
+          {% block footer %}{% endblock footer %}
+        </footer>
+
+      </div>
+
+      {% block navfooter %}
+        {% include "discovery/common/footer.html" %}
+      {% endblock navfooter %}
+    </div>
 
     {% block foot_scripts %}
       <script type="text/javascript" src="{% static 'discovery/js/discovery.js' %}"></script>
     {% endblock foot_scripts %}
 
     {% block extra_foot_scripts %}{% endblock extra_foot_scripts %}
-
   </body>
 </html>

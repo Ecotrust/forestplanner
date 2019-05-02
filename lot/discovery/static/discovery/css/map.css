@@ -7,7 +7,8 @@
 }
 
 .overflow-panel {
-  height: calc(100vh - 56px - 5rem);
+  height: calc(100vh - 56px);
+  padding-bottom: 60px;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -44,7 +45,7 @@ span.helptext {
 }
 
 #collect-data-advance-button {
-  bottom: 2rem;
+  bottom: 65px;
   position: fixed;
 }
 
@@ -102,4 +103,16 @@ span.helptext {
 
 #map-legend div img {
   max-width: 100%;
+}
+
+#middle-wrapper {
+  overflow-y: unset;
+  /* height: calc(100vh-56px);
+  top: 56px;
+  bottom: 0;
+  position: absolute; */
+}
+
+#map-form-content {
+  padding: 0;
 }

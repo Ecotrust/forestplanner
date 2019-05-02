@@ -27,6 +27,20 @@ CKEDITOR_CONFIGS = {
 
 IMPORT_TREELIST = False
 
+PAGE_TITLES = {
+    'stands': 'Your Stands',
+    'add': 'Find Your Forest',
+    'existing': 'Import an Existing Stand',
+    'map': 'Map Your Forest Stand',
+    'collect': 'Collect Data',
+    'enter': 'Enter Data',
+    'treelist': 'Enter Stand Table',
+    'profile': 'Forest Profile',
+    'outcomes': 'Compare Management Outcomes',
+    'report': 'Report',
+
+}
+
 HARD_SOFTWOOD_LOOKUP = {
     'Douglas-fir': 'softwood',
     'Nonstocked': 'unknown',

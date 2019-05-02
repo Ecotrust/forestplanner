@@ -4,6 +4,9 @@
 {% block extra_styles %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'discovery/css/page.css' %}">
+  {% if stand_status %}
+    <link rel="stylesheet" href="{% static 'discovery/css/footer.css' %}">
+  {% endif %}
 {% endblock %}
 
 {% block pre-content %}

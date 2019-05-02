@@ -235,6 +235,7 @@ def collect_data(request, discovery_stand_uid):
         next_action = '/discovery/enter_stand_table/%s/' % discovery_stand_uid
 
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
 
     help_button_flatblock = 'help-collect-data'
     if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
@@ -257,6 +258,7 @@ def collect_data(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': next_action,
         'step_btn_text': 'Enter data now',
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/collect_data.html', context)
 
@@ -265,6 +267,7 @@ def collect_data(request, discovery_stand_uid):
 def enter_data(request, discovery_stand_uid):
 
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
 
     help_button_flatblock = 'help-enter-data'
     if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
@@ -288,6 +291,7 @@ def enter_data(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': '/discovery/forest_profile/',
         'step_btn_text': 'View forest profile',
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/common/action_buttons.html', context)
 
@@ -324,6 +328,7 @@ def enter_stand_table(request, discovery_stand_uid):
 
     error_msgs = []
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
     choice_json = get_species_sizecls_json(stand.variant)
     prop_stand = stand.get_stand()
     if not prop_stand:
@@ -411,6 +416,7 @@ def enter_stand_table(request, discovery_stand_uid):
         'choice_json': choice_json,
         'UID': discovery_stand_uid,
         'error_msgs': error_msgs,
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/common/data_table.html', context)
 
@@ -425,8 +431,10 @@ def map(request, discovery_stand_uid=None):
             'user': request.user.pk,
             'pk':discovery_stand.pk,
         })
+        stand_status = discovery_stand.get_page_status()
     else:
         form = DiscoveryStandForm()
+        stand_status = None
     form_user = request.user
     form.fields['user'].initial = form_user
 
@@ -435,12 +443,13 @@ def map(request, discovery_stand_uid=None):
         help_button_flatblock = False
 
     context = {
-        'title': 'Map your forest stand',
+        'title': settings.PAGE_TITLES['map'],
         'flatblock_slug': 'map-your-property',
         # use button_text and button_action together
         'help_button_text': settings.DEFAULT_HELP_BUTTON_TEXT,
         'help_button_flatblock': help_button_flatblock,
         'DISCOVERYSTAND_FORM': form,
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/map.html', context)
 
@@ -448,6 +457,7 @@ def map(request, discovery_stand_uid=None):
 @login_required
 def forest_profile(request, discovery_stand_uid):
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
     profile_columns = []
     # Forest Type
     forest_type_col = {
@@ -531,6 +541,7 @@ def forest_profile(request, discovery_stand_uid):
         'use_step_btn': True,
         'step_btn_action': '/discovery/compare_outcomes/%s/' % discovery_stand_uid,
         'step_btn_text': 'Compare Outcomes',
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/forest_profile.html', context)
 
@@ -539,6 +550,7 @@ def compare_outcomes(request, discovery_stand_uid):
     from discovery.models import DiscoveryScenario
     import json, time
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
     # Create default Management Outcomes if not done already
     stand.lot_property.create_default_discovery_scenarios()
     scenarios = stand.lot_property.scenario_set.all()
@@ -581,12 +593,14 @@ def compare_outcomes(request, discovery_stand_uid):
         'scenario_list_json': json.dumps(scenario_list),
         'metrics_dict': metrics_dict,
         'metrics_dict_json': settings.METRICS_DICT,
+        'stand_status': stand_status,
     }
 
     return render(request, 'discovery/compare_outcomes.html', context)
 
 def report(request, discovery_stand_uid):
     stand = get_feature_by_uid(discovery_stand_uid)
+    stand_status = stand.get_page_status()
 
     help_button_flatblock = 'help-report'
     if len(FlatBlock.objects.filter(slug=help_button_flatblock)) < 1:
@@ -604,6 +618,7 @@ def report(request, discovery_stand_uid):
         'use_step_btn': False,
         'step_btn_action': '',
         'step_btn_text': '',
+        'stand_status': stand_status,
     }
     return render(request, 'discovery/report.html', context)
 

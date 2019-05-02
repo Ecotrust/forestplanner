@@ -281,7 +281,12 @@ class DiscoveryStand(Feature):
                 basal_area_dict = None
             stand_tpa = stand.strata.search_tpa
         else:
-            stand_tpa = None
+            return {
+                'tpa': None,
+                'basal_area_dict': None,
+                'forest_type': None,
+                'tree_size': None,
+            }
 
         return {
             'tpa': int(stand_tpa),
@@ -349,6 +354,29 @@ class DiscoveryStand(Feature):
             'qmd': qmd,
             'size_class': size_class
         }
+
+    def get_page_status(self):
+        page_status = {
+            'uid': self.uid,
+            'titles': settings.PAGE_TITLES,
+            'display': False,
+            'map': False,
+            'collect': False,
+            'profile': False,
+            'outcomes': False,
+            'report': False,
+        }
+        if self.lot_property:
+            page_status['display'] = True
+            page_status['map'] = True
+            stand = self.get_stand()
+            if stand:
+                page_status['collect'] = True
+                if stand.strata:
+                    page_status['profile'] = True
+                    page_status['outcomes'] = True
+                    page_status['report'] = True
+        return page_status
 
     def save(self, *args, **kwargs):
         from django.core.exceptions import ValidationError

@@ -1,0 +1,50 @@
+html, body {
+    height: 100%;
+    width: 100%;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+#middle-wrapper {
+  overflow-y: auto;
+  position: absolute;
+  top: 56px;
+  bottom: 56px;
+  left: 0;
+  right: 0;
+}
+
+#page {
+  position: relative;
+  height: 100%;
+  width: 100vw;
+  margin: 0 auto;
+}
+
+#nav-footer {
+  /* width: 100vw; */
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  position: absolute;
+  z-index: 999;
+  /* border-top: 1px solid black; */
+  background-color: #f8f9fa;
+}
+/* MAP STUFF */
+.overflow-panel {
+  height: calc(100vh - 112px) !important;
+}
+
+#map-wrap-row,
+#content-map-wrap {
+    height: calc(100vh - 112px) !important;
+}
+/* #middle-wrapper {
+  overflow-y: unset;
+  height: calc(100vh-112px) !important;
+  top: 56px;
+  bottom: 56px !important;
+  position: absolute;
+} */

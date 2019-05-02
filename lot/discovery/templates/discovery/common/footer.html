@@ -1,0 +1,24 @@
+<div id='nav-footer'>
+  <div class='row'>
+    {% if stand_status %}
+      <div class='col'>
+        {{ stand_status.titles.stands }}
+      </div>
+      <div class='col'>
+        {{ stand_status.titles.map }}
+      </div>
+      <div class='col'>
+        {{ stand_status.titles.treelist }}
+      </div>
+      <div class='col'>
+        {{ stand_status.titles.profile }}
+      </div>
+      <div class='col'>
+        {{ stand_status.titles.outcomes }}
+      </div>
+      <div class='col'>
+        {{ stand_status.titles.report }}
+      </div>
+    {% endif %}
+  </div>
+</div>
