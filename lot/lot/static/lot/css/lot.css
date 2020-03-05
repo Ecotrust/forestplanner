@@ -1,0 +1,23 @@
+.title {
+  text-align: center;
+  font-size: 8rem;
+}
+
+.lot-options {
+  margin: 4rem;
+  padding: 4rem;
+}
+
+.lot-options div {
+  text-align: center;
+}
+
+.lot-options button {
+  padding: 2rem;
+  font-size: 24;
+  font-weight: bold;
+}
+
+.lot-options button:hover {
+  background-color: rgb(200,200,200);
+}

@@ -6,11 +6,13 @@ from django.conf import settings
 from madrona.features.views import workspace
 from django.views.static import serve
 from trees.views import map
+from lot.views import lot_landing_page
 # admin.autodiscover()
 
 urlpatterns = [
     # '',
     path('discovery/', include('discovery.urls')),
+    path('landmapper/', include('landmapper.urls')),
     re_path(r'^trees/', include('trees.urls')),
     # Looser pattern matching for workspace username (as opposed to \w+)
     # Already in madrona 4.2dev+ but just in case we're still running <=4.1
@@ -27,7 +29,10 @@ urlpatterns = [
     ),
     re_path('admin/', admin.site.urls),
     # re_path(r'^/?$', map, name='map'),
-    re_path(r'^/?$', include('discovery.urls')),
+    # re_path(r'^/?$', include('discovery.urls')),
+    re_path(r'^/discovery?$', include('discovery.urls')),
+    re_path(r'^/landmapper?$', include('landmapper.urls')),
+    re_path(r'^/?$', lot_landing_page, name='lot'),
     re_path(r'^', include('madrona.common.urls')),
 ]
 

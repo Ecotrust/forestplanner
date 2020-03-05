@@ -1,0 +1,40 @@
+{% load static %}
+<HTML>
+  <HEAD>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="{% static 'lot/css/lot.css' %}">
+  </HEAD>
+  <BODY>
+    <div class="container">
+      <h1 class='title'>Land Owner Tools</h1>
+      <div class="row lot-options well">
+        <div class="col-sm-4">
+          <a href="landmapper">
+            <button class="btn">Land Mapper</button>
+          </a>
+          <p>Select your taxlot and learn more about your property.</p>
+        </div>
+        <div class="col-sm-4">
+          <a href="discovery">
+            <button class="btn">Forest Discovery</button>
+          </a>
+          <p>Plot your forested property and learn more about what is growing there and different management approaches.</p>
+        </div>
+        <div class="col-sm-4">
+          <a href="map">
+            <button class="btn">Forest Planner</button>
+          </a>
+          <p>Plot your forested property, delineate your stands, and provide treelists and management plans to model your land's behavior over the next century!</p>
+        </div>
+      </div>
+    </div>
+  </BODY>
+</HTML>
