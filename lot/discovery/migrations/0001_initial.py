@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
         ('contenttypes', '0002_remove_content_type_name'),
         ('trees', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
+        ('auth', '__first__'),
         ('auth', '0009_alter_user_last_name_max_length'),
     ]
 

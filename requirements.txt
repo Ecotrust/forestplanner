@@ -14,7 +14,7 @@ cligj>=0.5.0
 confusable-homoglyphs>=3.2.0
 decorator>=4.3.2
 defusedxml>=0.5.0
-Django>=2.1.7
+Django<3.0
 django-allauth>=0.39.0
 django-appconf>=1.0.2
 django-ckeditor>=5.6.1
@@ -35,7 +35,8 @@ ipython>=7.3.0
 ipython-genutils>=0.2.0
 jedi>=0.13.3
 kombu>=4.4.0
--e git+https://github.com/Ecotrust/madrona.git@2b03a7ba1639a8a1080c7aeb6fac27825e5fc8e4#egg=madrona
+#-e git+https://github.com/Ecotrust/madrona.git@2b03a7ba1639a8a1080c7aeb6fac27825e5fc8e4#egg=madrona
+-e git+https://github.com/Ecotrust/madrona.git@py3#egg=madrona
 munch>=2.3.2
 # numpy>=1.16.2
 oauthlib>=3.0.1
@@ -61,6 +62,7 @@ requests>=2.21.0
 requests-oauthlib>=1.2.0
 # rjsmin>=1.0.12
 scipy>=1.2.1
+selenium
 Shapely>=1.6.4.post2
 simplejson>=3.16.0
 six>=1.12.0
