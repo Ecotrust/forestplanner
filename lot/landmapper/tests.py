@@ -27,10 +27,19 @@ class ModelTests(TestCase):
 
     def setUp(self):
         from django.contrib.auth.models import User
+        # from landmapper.models import Taxlot
+        # from django.contrib.gis.geos import GEOSGeometry
+        ### Create user
+        User.objects.get_or_create(username='admin')
+
+
+
+    def test_taxlot(self):
+        from django.contrib.auth.models import User
         from landmapper.models import Taxlot
         from django.contrib.gis.geos import GEOSGeometry
-        ### Create user
-        admin = User.objects.create(username='admin')
+
+        admin = User.objects.get(username='admin')
 
         ### Create Taxlots
         # ZOOM TO: 44.085, -122.900
@@ -46,21 +55,24 @@ class ModelTests(TestCase):
         poly_3.transform(4326)
 
         #Create taxlot instances
-        Taxlot.objects.create(user=admin, geometry_orig=poly_1)
-        Taxlot.objects.create(user=admin, geometry_orig=poly_2)
-        Taxlot.objects.create(user=admin, geometry_orig=poly_3)
+        tl1 = Taxlot.objects.create(user=admin, geometry_orig=poly_1)
+        tl2 = Taxlot.objects.create(user=admin, geometry_orig=poly_2)
+        tl3 = Taxlot.objects.create(user=admin, geometry_orig=poly_3)
 
-    def test_taxlot(self):
-        from landmapper.models import Taxlot
-        from django.contrib.gis.geos import GEOSGeometry
         click_1 = 'SRID=4326;POINT( -122.903 44.083 )'          #Note, it doesn't appear to matter if we give GEOSGeoms or just WKT.
         click_2 = GEOSGeometry('SRID=4326;POINT( -122.902 44.087 )')
         click_3 = GEOSGeometry('SRID=4326;POINT( -122.888 44.083 )')
+        click_4 = GEOSGeometry('SRID=4326;POINT( -123 45 )')
 
         # Test intersection
         taxlot_1 = Taxlot.objects.get(geometry_orig__contains=click_1)
         taxlot_2 = Taxlot.objects.get(geometry_orig__contains=click_2)
         taxlot_3 = Taxlot.objects.get(geometry_orig__contains=click_3)
+        self.assertEqual(taxlot_1.pk, tl1.pk)
+        self.assertEqual(taxlot_2.pk, tl2.pk)
+        self.assertEqual(taxlot_3.pk, tl3.pk)
+        self.assertNotEqual(taxlot_1.pk, tl2.pk)
+        self.assertEqual(len(Taxlot.objects.filter(geometry_orig__contains=click_4)), 0)
 
 class ViewTests(TestCase):
     """
@@ -88,94 +100,94 @@ class ViewTests(TestCase):
     def test_views(self):
         print("Views!")
 
-class FrontendTests(StaticLiveServerTestCase):
-    """
-    state changes
-        address found
-            map zoomed
-                Test if specific map tiles were pulled
-            state advanced
-        1st taxlot selected
-            state advanced
-            url updated
-        2nd taxlot selected
-            state retained
-            url updated
-        property name entered
-            'next' enabled
-            url updated
-        property name deleted
-            'next' disabled
-            url updated
-        2nd taxlot unselected
-            url updated
-            state retained
-        1st taxlot unselected
-            url updated
-            state regressed
-        address cleared
-            url updated
-            state regressed
-            map zoomed back to default
-        valid input and clicking 'next' brings us to a report
-    Error handling
-        unknown address
-        non-contiguous taxlots
-    validation
-        validate address prior to geocode query
-        valid property names?
-            1+ spaces?
-            Maximum characters
-            Foreign accented characters (Latin1, umlauts, etc…)
-    popups
-        From the header menu
-        from the download button(s)
-        From 'get help'
-    downloads?
-    """
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(2)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
-
-    # def test_login(self):
-    def test_browser(self):
-        print("Front End!")
-
-class MySeleniumTests(StaticLiveServerTestCase):
-    # fixtures = ['user-data.json']
-    #
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(2)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
-
-    # def test_login(self):
-    def test_browser(self):
-        # import ipdb; ipdb.set_trace()
-        print('get server')
-        print('URL: ""%s"' % self.live_server_url)
-        # foo = self.selenium.get(self.live_server_url)
-        # foo.title
-        # self.selenium.get('%s%s' % (self.live_server_url, '/login/'))
-        # username_input = self.selenium.find_element_by_name("username")
-        # username_input.send_keys('myuser')
-        # password_input = self.selenium.find_element_by_name("password")
-        # password_input.send_keys('secret')
-        # self.selenium.find_element_by_xpath('//input[@value="Log in"]').click()
-
+# class FrontendTests(StaticLiveServerTestCase):
+#     """
+#     state changes
+#         address found
+#             map zoomed
+#                 Test if specific map tiles were pulled
+#             state advanced
+#         1st taxlot selected
+#             state advanced
+#             url updated
+#         2nd taxlot selected
+#             state retained
+#             url updated
+#         property name entered
+#             'next' enabled
+#             url updated
+#         property name deleted
+#             'next' disabled
+#             url updated
+#         2nd taxlot unselected
+#             url updated
+#             state retained
+#         1st taxlot unselected
+#             url updated
+#             state regressed
+#         address cleared
+#             url updated
+#             state regressed
+#             map zoomed back to default
+#         valid input and clicking 'next' brings us to a report
+#     Error handling
+#         unknown address
+#         non-contiguous taxlots
+#     validation
+#         validate address prior to geocode query
+#         valid property names?
+#             1+ spaces?
+#             Maximum characters
+#             Foreign accented characters (Latin1, umlauts, etc…)
+#     popups
+#         From the header menu
+#         from the download button(s)
+#         From 'get help'
+#     downloads?
+#     """
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         cls.selenium = WebDriver()
+#         cls.selenium.implicitly_wait(2)
+#
+#     @classmethod
+#     def tearDownClass(cls):
+#         cls.selenium.quit()
+#         super().tearDownClass()
+#
+#     # def test_login(self):
+#     def test_browser(self):
+#         print("Front End!")
+#
+# class MySeleniumTests(StaticLiveServerTestCase):
+#     # fixtures = ['user-data.json']
+#     #
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         cls.selenium = WebDriver()
+#         cls.selenium.implicitly_wait(2)
+#
+#     @classmethod
+#     def tearDownClass(cls):
+#         cls.selenium.quit()
+#         super().tearDownClass()
+#
+#     # def test_login(self):
+#     def test_browser(self):
+#         # import ipdb; ipdb.set_trace()
+#         print('get server')
+#         print('URL: ""%s"' % self.live_server_url)
+#         # foo = self.selenium.get(self.live_server_url)
+#         # foo.title
+#         # self.selenium.get('%s%s' % (self.live_server_url, '/login/'))
+#         # username_input = self.selenium.find_element_by_name("username")
+#         # username_input.send_keys('myuser')
+#         # password_input = self.selenium.find_element_by_name("password")
+#         # password_input.send_keys('secret')
+#         # self.selenium.find_element_by_xpath('//input[@value="Log in"]').click()
+#
 
 
 
