@@ -369,7 +369,7 @@ class Scenario(Feature):
         verbose_name='Target Carbon', default=False,
         help_text="Optimize harvest schedule for carbon sequestration")
     input_rxs = JSONField(
-        null=True, blank=True, default="{}",
+        null=True, blank=True, default=dict,
         verbose_name="Prescriptions associated with each stand")
     # 2 char code from SpatialConstraint.category (see SpatialConstraintCategories)
     spatial_constraints = models.TextField(

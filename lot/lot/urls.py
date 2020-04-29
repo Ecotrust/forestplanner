@@ -27,12 +27,12 @@ urlpatterns = [
         TemplateView.as_view(template_name = 'account/profile.html'),
         name="auth_profile"
     ),
-    re_path('admin/', admin.site.urls),
+    # re_path('admin/', admin.site.urls),
     # re_path(r'^/?$', map, name='map'),
     # re_path(r'^/?$', include('discovery.urls')),
-    re_path(r'^/discovery?$', include('discovery.urls')),
-    re_path(r'^/landmapper?$', include('landmapper.urls')),
-    re_path(r'^/?$', lot_landing_page, name='lot'),
+    re_path(r'^discovery', include('discovery.urls')),
+    re_path(r'^landmapper', include('landmapper.urls')),
+    re_path(r'^$', lot_landing_page, name='lot'),
     re_path(r'^', include('madrona.common.urls')),
 ]
 
