@@ -24,7 +24,10 @@ class MenuPage(models.Model):
     name = models.CharField(max_length=255)
     order = models.SmallIntegerField(default=10)
     staff_only = models.BooleanField(default=False)
-    # content = RTE Field
+    content = models.TextField(null=True, blank=True, default=None)
+
+    def __str__(self):
+        return "%s" % self.name
 
 @register
 class Taxlot(MultiPolygonFeature):

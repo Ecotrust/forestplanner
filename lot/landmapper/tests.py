@@ -19,9 +19,8 @@ class ModelTests(TestCase):
         Queries return correct data
         Queries that should return no data get no data
     """
-    # How to work with GEOS API in Django: https://docs.djangoproject.com/en/2.2/ref/contrib/gis/geos/
-
-
+    # How to work with GEOS API in Django:
+    #       https://docs.djangoproject.com/en/2.2/ref/contrib/gis/geos/
     def test_models(self):
         print("Models!")
 
@@ -31,8 +30,6 @@ class ModelTests(TestCase):
         # from django.contrib.gis.geos import GEOSGeometry
         ### Create user
         User.objects.get_or_create(username='admin')
-
-
 
     def test_taxlot(self):
         from django.contrib.auth.models import User
@@ -73,6 +70,69 @@ class ModelTests(TestCase):
         self.assertEqual(taxlot_3.pk, tl3.pk)
         self.assertNotEqual(taxlot_1.pk, tl2.pk)
         self.assertEqual(len(Taxlot.objects.filter(geometry_orig__contains=click_4)), 0)
+
+        #TODO: test any model methods for attributes and types returned
+
+    def test_menu_page(self):
+        from landmapper.models import MenuPage
+
+        menu_title = "Menu Item"
+        # Courtesy of rikeripsum.com
+        menu_text = "The game's not big enough unless it scares you a little. \
+        Your head is not an artifact! Our neural pathways have become \
+        accustomed to your sensory input patterns. Commander William Riker of \
+        the Starship Enterprise. What? We're not at all alike! What's a \
+        knock-out like you doing in a computer-generated gin joint like this? \
+        Not if I weaken first. Mr. Worf, you sound like a man who's asking his \
+        friend if he can start dating his sister. For an android with no \
+        feelings, he sure managed to evoke them in others."
+        menu_content = "<h1>%s</h1><p>%s</p>" % (menu_title, menu_text)
+
+        MenuPage.objects.create(name='Menu', content=menu_content, order=0)
+
+        hipster_title = "Hipster"
+        # courtesy of https://hipsum.co/
+        hipster_textP1 = "Fam id messenger bag forage, nisi lomo edison bulb \
+        ipsum lo-fi kitsch street art kinfolk sriracha irony nulla. Raclette \
+        fanny pack meditation, lomo heirloom farm-to-table wayfarers shaman \
+        dolore roof party trust fund disrupt laboris anim kogi. Taxidermy \
+        organic nostrud blue bottle activated charcoal minim, gluten-free \
+        slow-carb XOXO photo booth cornhole keffiyeh elit. Cold-pressed \
+        cornhole waistcoat snackwave hexagon. Banh mi subway tile viral ennui, \
+        duis irure poutine proident flexitarian fam direct trade sint roof \
+        party. Try-hard artisan pork belly chillwave. Quis activated charcoal \
+        mustache cornhole excepteur nostrud godard."
+        hipster_textP2 = "Id neutra literally four dollar toast ea, franzen \
+        irony food truck venmo. Pour-over copper mug cold-pressed, yr YOLO \
+        sartorial tousled pug tacos mustache hashtag. Health goth vinyl \
+        chillwave williamsburg cardigan kickstarter tofu normcore duis hoodie \
+        shaman neutra cred tumblr church-key. Af authentic craft beer, \
+        letterpress deep v intelligentsia slow-carb synth 90's. Activated \
+        charcoal organic blue bottle aliqua in dolore."
+        hipster_content = "<h1>%s</h1><p>%s</p><p>%s</p>" % (
+            hipster_title,
+            hipster_textP1,
+            hipster_textP2
+        )
+
+        MenuPage.objects.create(name=hipster_title, content=hipster_content, order=1, staff_only=True)
+
+        self.assertEqual(len(MenuPage.objects.all()), 2)
+        non_staff = MenuPage.objects.get(staff_only=False)
+        self.assertTrue('gin joint' in non_staff.content)
+        staff_only = MenuPage.objects.get(staff_only=True)
+        self.assertTrue('Banh mi' in staff_only.content)
+
+        # TODO: test this in Front-End
+
+    def test_forest_type(self):
+        from landmapper.models import ForestType
+
+        ForestType.objects.create(name='Foo')
+
+        self.assertEqual(len(ForestType.objects.all()), 1)
+
+        # TODO: test everything about ForestType once it's a thing
 
 class ViewTests(TestCase):
     """
