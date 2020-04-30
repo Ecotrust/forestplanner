@@ -10,10 +10,9 @@ class ModelTests(TestCase):
         Queries return correct data
         Queries that should return no data get no data
     """
+
     # How to work with GEOS API in Django:
     #       https://docs.djangoproject.com/en/2.2/ref/contrib/gis/geos/
-    def test_models(self):
-        print("Models!")
 
     def setUp(self):
         from django.contrib.auth.models import User
@@ -201,73 +200,74 @@ class ViewTests(TestCase):
     def test_views(self):
         print("Views!")
 
-# class FrontendTests(StaticLiveServerTestCase):
-#     """
-#     state changes
-#         address found
-#             map zoomed
-#                 Test if specific map tiles were pulled
-#             state advanced
-#         1st taxlot selected
-#             state advanced
-#             url updated
-#         2nd taxlot selected
-#             state retained
-#             url updated
-#         property name entered
-#             'next' enabled
-#             url updated
-#         property name deleted
-#             'next' disabled
-#             url updated
-#         2nd taxlot unselected
-#             url updated
-#             state retained
-#         1st taxlot unselected
-#             url updated
-#             state regressed
-#         address cleared
-#             url updated
-#             state regressed
-#             map zoomed back to default
-#         valid input and clicking 'next' brings us to a report
-#     Error handling
-#         unknown address
-#         non-contiguous taxlots
-#     validation
-#         validate address prior to geocode query
-#         valid property names?
-#             1+ spaces?
-#             Maximum characters
-#             Foreign accented characters (Latin1, umlauts, etc…)
-#     popups
-#         From the header menu
-#         from the download button(s)
-#         From 'get help'
-#     downloads?
-#     """
-#     @classmethod
-#     def setUpClass(cls):
-#         super().setUpClass()
-#         cls.selenium = WebDriver()
-#         cls.selenium.implicitly_wait(2)
-#
-#     @classmethod
-#     def tearDownClass(cls):
-#         cls.selenium.quit()
-#         super().tearDownClass()
-#
-#    def test_home(self):
-#        # TODOS:
-#        #   Header placement
-#        #   Header branding
-#        #   Header Menu Items
-#        #   ...
-#
-#     # def test_login(self):
-#     def test_browser(self):
-#         print("Front End!")
-#
+class FrontendTests(StaticLiveServerTestCase):
+    """
+    state changes
+        address found
+            map zoomed
+                Test if specific map tiles were pulled
+            state advanced
+        1st taxlot selected
+            state advanced
+            url updated
+        2nd taxlot selected
+            state retained
+            url updated
+        property name entered
+            'next' enabled
+            url updated
+        property name deleted
+            'next' disabled
+            url updated
+        2nd taxlot unselected
+            url updated
+            state retained
+        1st taxlot unselected
+            url updated
+            state regressed
+        address cleared
+            url updated
+            state regressed
+            map zoomed back to default
+        valid input and clicking 'next' brings us to a report
+    Error handling
+        unknown address
+        non-contiguous taxlots
+    validation
+        validate address prior to geocode query
+        valid property names?
+            1+ spaces?
+            Maximum characters
+            Foreign accented characters (Latin1, umlauts, etc…)
+    popups
+        From the header menu
+        from the download button(s)
+        From 'get help'
+    downloads?
+    """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(2)
+
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+
+    # def test_home(self):
+    #    # TODOS:
+    #    #   Header placement
+    #    #   Header branding
+    #    #   Header Menu Items
+    #    #   ...
+    #    print("hi")
+
+    # def test_login(self):
+    def test_browser(self):
+        print("Front End!")
+
 # class MySeleniumTests(StaticLiveServerTestCase):
 #     # fixtures = ['user-data.json']
 #     #
