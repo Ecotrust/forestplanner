@@ -4,15 +4,6 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 from django.test import TestCase
 from django.conf import settings
 
-
-class AnimalTestCase(TestCase):
-    # def setUp(self):
-    #     Animal.objects.create(name="lion", sound="roar")
-    #     Animal.objects.create(name="cat", sound="meow")
-
-    def test_animals_can_speak(self):
-        print('foo')
-
 class ModelTests(TestCase):
     """
     Queries on each model in the module
