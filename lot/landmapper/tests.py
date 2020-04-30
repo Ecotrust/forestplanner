@@ -140,15 +140,65 @@ class ViewTests(TestCase):
         soil data queries
         geocoding
         Pulling map images for server-side .PDF creation
+    """
+    def test_soils_api(self):
+        # TODO: SOILS API
+        print('soils')
+
+    def test_geocoding(self):
+        # TODO: Geocoding with Geocoder: https://geocoder.readthedocs.io/
+        #   How are api keys handled?
+        print('geocoder')
+
+    def test_tiles(self):
+        # TODO: Tile requests
+        #   basemap images
+        #   streams?
+        #   lots/properties?
+        #   forest types?
+        #   soils
+        print('tiles')
+
+    """
     Templates
         correctly formatted context for rendering templates
         reporting values
         ForestType queries
         legend creation (map, forest type, soil)
         table creation (overview, forest type, soil)
+    """
+
+    # Should we break up views into 'gather' and 'render' functions?
+    # Perhaps the 'gather' functions are modular children - the parent requests
+    #   the context and then uses that to render the template
+
+    def test_header_gather(self):
+        # TODO:
+        # add menu items (done in models tests?)
+        # do branding images exist?
+        # is context dict correctly formatted with:
+        #   correct keywords
+        #   correct value types for each keyword
+        #   correct values
+        #   correct order (of MenuPage instances)
+        print('header view')
+
+    def test_home_view_gather(self):
+        # TODO:
+        #   ...
+        print('home view gather')
+
+
+
+
+    """
     Error Handling
+    """
+    """
     GIS Manipulation
         convert taxlot selections into features
+    """
+    """
     File generation/export
         pdf report generation
             all
@@ -215,6 +265,13 @@ class ViewTests(TestCase):
 #     def tearDownClass(cls):
 #         cls.selenium.quit()
 #         super().tearDownClass()
+#
+#    def test_home(self):
+#        # TODOS:
+#        #   Header placement
+#        #   Header branding
+#        #   Header Menu Items
+#        #   ...
 #
 #     # def test_login(self):
 #     def test_browser(self):
