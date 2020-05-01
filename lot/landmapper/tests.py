@@ -133,6 +133,30 @@ class ViewTests(TestCase):
     """
     def test_soils_api(self):
         # TODO: SOILS API
+        from landmapper.views import get_soils_connector
+        wms = get_soils_connector()
+        # Good examples: https://geopython.github.io/OWSLib/#wms
+        self.assertEqual(wms.identification.type, 'OGC:WMS')
+        self.assertTrue(wms.identification.version in ['1.1.0', '1.1.1', '1.3.0'])
+        self.assertEqual(wms.identification.title, 'NRCS Soil Data Mart Data Access Web Map Service')
+        self.assertEqual(wms.identification.abstract, 'NRCS SSURGO Soils web map service. This is an Open GIS Consortium standard Web Map Service (WMS).')
+        self.assertTrue('Soils' in list(wms.contents))
+        self.assertEqual(wms['Soils'].title, 'Soils')
+        self.assertTrue('ESPG:3857' in wms['Soils'].crsOptions)
+        self.assertEqual(
+            wms['Soils'].styles['default']['legend'],
+            'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms?version=1.1.1&service=WMS&request=GetLegendGraphic&layer=Soils&format=image/png&STYLE=default'
+        )
+        img = wms.getmap(
+            layers=['surveyareapoly'],
+            styles=['default'],
+            srs='EPSG:4326',
+            bbox=(-125, 36, -119, 41),
+            size=(300,250),
+            format='image/jpeg',
+            tansparent=True
+        )
+
         print('soils')
 
     def test_geocoding(self):
