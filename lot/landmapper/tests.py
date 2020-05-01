@@ -3,6 +3,7 @@ from selenium.webdriver.firefox.webdriver import WebDriver
 
 from django.test import TestCase
 from django.conf import settings
+from django.urls import reverse
 
 class ModelTests(TestCase):
     """
@@ -202,8 +203,92 @@ class ViewTests(TestCase):
         #   ...
         print('home view gather')
 
+    def test_index_page(self):
+        """
+            TODO:
+                create variable to strore result of fetching the home page
+                assert response is 200
+        """
+        from landmapper.views import index
+        response = self.client.get(reverse(index))
+        self.assertEqual(response.status_code, 200)
 
+    def test_identify_gather(self):
+        """
+        Test:
+            Input
+        TODO:
+            create var to store page request input
+            check for a coords param
+            check for a search string
+            check for taxlot ids param
+            check for property name param
+        IN:
+            coords
+            search string
+            (opt) taxlot ids
+            (opt) property name
+        """
+        # from landmapper.views import identify
+        print('test identify gather')
 
+    def test_identify_render(self):
+        """
+        TEST:
+            Rendered Template
+        TODO:
+            create variable to store result of fetching the identify page
+            assert response is 200
+        """
+        from landmapper.views import identify
+        response = self.client.get(reverse(identify))
+        self.assertEqual(response.status_code, 200)
+
+    def test_report_gather(self):
+        """
+        Test:
+            IN
+        TODO:
+            create var to store page request input
+            check for taxlot ids
+            check for property name
+        IN:
+            taxlot ids
+            property name
+        """
+        # from landmapper.views import report
+        print('test report gather')
+
+    def test_report_render(self):
+        """
+        TEST:
+            Rendered Template
+        TODO:
+            create variable to store result of fetching the report page
+            assert response is 200
+            can a property be created
+            can a report be created
+            is a legend returned
+
+        USES:
+            CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
+        """
+        from landmapper.views import report
+        response = self.client.get(reverse(report))
+        self.assertEqual(response.status_code, 200)
+
+    def test_create_property(self):
+        """
+        TODO:
+            make request to create a property with paramaters for:
+                taxlot_ids[]
+                property_name
+            check if a madrona polygon feature is returned
+        NOTES:
+            should be cached
+        """
+        # from landmapper.views import create_property
+        print('property created')
 
     """
     Error Handling
