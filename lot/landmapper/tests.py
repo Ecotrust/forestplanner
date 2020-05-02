@@ -202,6 +202,11 @@ class ViewTests(TestCase):
         out.write(contents)
         out.close()
 
+        # TODO: The wfs results are messed up. The lat and lon seem flipped when I try to load
+        #       GML results into QGIS.
+        #       Seems related to this: https://github.com/qgis/QGIS/issues/33673
+        #       Attempt to use another tool (OGR) to convert GML to .shp or .json or something
+
 
 
         print('soils')
