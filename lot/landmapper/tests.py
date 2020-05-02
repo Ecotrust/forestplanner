@@ -134,8 +134,8 @@ class ViewTests(TestCase):
     """
     def test_soils_api(self):
         # TODO: SOILS API
-        from landmapper.views import get_soils_connector
-        wms = get_soils_connector()
+        from landmapper.views import get_soils_connectors
+        (wms, wfs) = get_soils_connectors()
         # Good examples: https://geopython.github.io/OWSLib/#wms
         self.assertEqual(wms.identification.type, 'OGC:WMS')
         self.assertTrue(wms.identification.version in ['1.1.0', '1.1.1', '1.3.0'])
@@ -143,20 +143,66 @@ class ViewTests(TestCase):
         self.assertEqual(wms.identification.abstract, 'NRCS SSURGO Soils web map service. This is an Open GIS Consortium standard Web Map Service (WMS).')
         self.assertTrue('Soils' in list(wms.contents))
         self.assertEqual(wms['Soils'].title, 'Soils')
-        self.assertTrue('ESPG:3857' in wms['Soils'].crsOptions)
+        # self.assertTrue('ESPG:3857' in wms['Soils'].crsOptions)
         self.assertEqual(
             wms['Soils'].styles['default']['legend'],
             'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms?version=1.1.1&service=WMS&request=GetLegendGraphic&layer=Soils&format=image/png&STYLE=default'
         )
         img = wms.getmap(
-            layers=['surveyareapoly'],
+            # layers=['surveyareapoly'],
+            layers=['mapunitpoly'],
             styles=['default'],
-            srs='EPSG:4326',
-            bbox=(-125, 36, -119, 41),
-            size=(300,250),
+            # srs='EPSG:4326',
+            # bbox=(-125, 36, -119, 41),
+            srs='EPSG:3857',
+            bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
+            size=(665,892), # WIDTH=665&HEIGHT=892
             format='image/jpeg',
             tansparent=True
         )
+        out = open('mapunitpoly.jpg', 'wb')
+        out.write(img.read())
+        out.close()
+
+
+
+        # poly_1 = GEOSGeometry('SRID=3857;POLYGON (( -13505988.11665581167 5460691.044468306005, -13505988.11665581167 5473814.764981821179, -13496204.17703530937 5473814.764981821179, -13496204.17703530937 5460691.044468306005, -13505988.11665581167 5460691.044468306005 ))')
+
+        # WFS
+        # The USDA server seems to be improperly configured
+        # TODO: Link to github discussion
+        # This is an example of a link that DOES work (I don't know how to parse the output):
+        # https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=mapunitpoly&SRSNAME=EPSG:4326&BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631
+        #   Gets the Soil Type IDs
+        # https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=mapunitpolyextended&SRSNAME=EPSG:4326&BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631
+        #   Gets the Soil Type IDs + attributes (notice the layer name changed)
+
+        # wfs.getfeature(
+        #     service='WFS',
+        #     version='1.1.0',
+        #     output='GML3',
+        #     srsname='EPSG:4326',
+        #     bbox=(-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631),
+        #     typename='mapunitpolyextended'
+        # )
+        # import ipdb; ipdb.set_trace()
+
+        import urllib.request
+        endpoint = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?'
+        request = 'SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&'
+        layer = 'TYPENAME=mapunitpolyextended&'
+        projection = 'SRSNAME=EPSG:4326&'
+        # bbox = 'BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631'
+        # bbox = 'BBOX=-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526' # Bend
+        bbox = 'BBOX=-121.32635552328541,43.969290485490596,-121.325,43.97' # TINY EXAMPLE
+        gml = '&OUTPUTFORMAT=GML3'
+        url = "%s%s%s%s%s%s" % (endpoint, request, layer, projection, bbox, gml)
+        contents = urllib.request.urlopen(url).read()
+        out = open('mapunitpolyextended.gml', 'wb')
+        out.write(contents)
+        out.close()
+
+
 
         print('soils')
 

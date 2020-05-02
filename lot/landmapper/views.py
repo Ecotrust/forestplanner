@@ -1,12 +1,15 @@
 from django.shortcuts import render
 
-def get_soils_connector():
+def get_soils_connectors():
     '''
     Land Mapper: Soils WMS connector
     '''
     from owslib.wms import WebMapService
-    wms = WebMapService('https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms')
-    return wms
+    from owslib.wfs import WebFeatureService
+    wms = WebMapService('http://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms')
+    # wfs = WebFeatureService(url='https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDMWM.wfs', version='1.1.0')
+    wfs = WebFeatureService(url='http://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs', version='1.1.0')
+    return (wms,wfs)
 
 # Create your views here.
 def home(request):
