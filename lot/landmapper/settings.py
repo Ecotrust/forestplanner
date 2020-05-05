@@ -13,126 +13,151 @@ SOIL_DATA_LAYER = 'mapunitpolyextended'
 
 SOIL_ID_FIELD = 'musym'
 
+# Reference: https://sdmdataaccess.nrcs.usda.gov/documents/TablesAndColumnsReport.pdf
 SOIL_FIELDS = {
     'areasymbol': {
         'name': 'Area Symbol',
         'display': False,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'musym': {
         'name': 'Map Unit Symbol',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'nationalmusym': {
         'name': 'National Map Unit Symbol',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'mukey': {
         'name': 'Map Unit Key',
         'display': False,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': ''
     },
     'spatialversion': {
         'name': 'Spatial Version',
         'display': False,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': ''
     },
     'muname': {
         'name': 'Map Unit Name',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'mustatus': {
         'name': 'Map Unit Status',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'slopegraddcp': {
-        'name': 'slopegraddcp',
+        'name': 'Slope Gradient - Dominant Component',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': '%'
     },
     'slopegradwta': {
-        'name': 'slopegradwta',
+        'name': 'Slope Gradient - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': '%'
     },
     'brockdepmin': {
-        'name': 'brockdepmin',
+        'name': 'Bedrock Depth - Minimum',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': 'cm'
     },
     'wtdepannmin': {
-        'name': 'wtdepannmin',
+        'name': 'Water Table Depth - Annual - Minimum',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': 'cm'
     },
     'wtdepaprjunmin': {
-        'name': 'wtdepaprjunmin',
+        'name': 'Water Table Depth - April - June - Minimum',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': 'cm'
     },
     'flodfreqdcd': {
-        'name': 'flodfreqdcd',
+        'name': 'Flooding Frequency - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'flodfreqmax': {
-        'name': 'flodfreqmax',
+        'name': 'Flooding Frequency - Maximum',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'pondfreqprs': {
-        'name': 'pondfreqprs',
+        'name': 'pondfrePonding Frequency - Presenceqprs',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'aws025wta': {
-        'name': 'aws025wta',
+        'name': 'Available Water Storage 0-25 cm - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': 'cm'
     },
     'aws050wta': {
-        'name': 'aws050wta',
+        'name': 'Available Water Storage 0-50 cm - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': 'cm'
     },
     'aws0100wta': {
-        'name': 'aws0100wta',
+        'name': 'Available Water Storage 0-100 cm - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': 'cm'
     },
     'aws0150wta': {
-        'name': 'aws0150wta',
+        'name': 'Available Water Storage 0-150 cm - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': 'cm'
     },
     'drclassdcd': {
-        'name': 'drclassdcd',
+        'name': 'Drainage Class - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'drclasswettest': {
-        'name': 'drclasswettest',
+        'name': 'Drainage Class - Wettest',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'hydgrpdcd': {
-        'name': 'hydgrpdcd',
+        'name': 'Hydrologic Group - Dominant Conditions',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'iccdcd': {
-        'name': 'iccdcd',
+        'name': 'Irrigated Capability Class - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'iccdcdpct': {
-        'name': 'iccdcdpct',
+        'name': 'Irrigated Capability Class - Dominant Condition Aggregate Percent',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': '%'      # not listed in docs
     },
     'niccdcd': {
         'name': 'niccdcd',
