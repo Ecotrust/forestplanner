@@ -76,3 +76,4 @@ xlrd>=1.2.0
 
 # LandMapper Requirements
 owslib
+geocoder
