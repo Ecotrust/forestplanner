@@ -285,6 +285,14 @@ except ImportError as e:
     print("Failure to find settings file for Discovery.")
     pass
 
+
+# LandMapper settings
+
+try:
+    from landmapper.settings import *
+except ImportError as e:
+    print('Failure to find settings file for LandMapper.')
+    pass
 # ------------------------------------------------------------------------------
 # Local settings
 # ------------------------------------------------------------------------------

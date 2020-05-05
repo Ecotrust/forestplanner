@@ -133,8 +133,8 @@ class ViewTests(TestCase):
         Pulling map images for server-side .PDF creation
     """
     def test_soils_api(self):
-        # TODO: SOILS API
-        from landmapper.views import get_soils_connectors
+        from osgeo import ogr
+        from landmapper.views import get_soils_connectors, get_soil_data_gml, get_soils_list
         (wms, wfs) = get_soils_connectors()
         # Good examples: https://geopython.github.io/OWSLib/#wms
         self.assertEqual(wms.identification.type, 'OGC:WMS')
@@ -150,7 +150,7 @@ class ViewTests(TestCase):
         )
         img = wms.getmap(
             # layers=['surveyareapoly'],
-            layers=['mapunitpoly'],
+            layers=[settings.SOIL_TILE_LAYER],
             styles=['default'],
             # srs='EPSG:4326',
             # bbox=(-125, 36, -119, 41),
@@ -160,54 +160,17 @@ class ViewTests(TestCase):
             format='image/jpeg',
             tansparent=True
         )
-        out = open('mapunitpoly.jpg', 'wb')
+        out = open('%s.jpg' % settings.SOIL_TILE_LAYER, 'wb')
         out.write(img.read())
         out.close()
 
+        # gml = get_soil_data_gml('-121.32635552328541,43.969290485490596,-121.325,43.97', 'EPSG:4326', 'GML3') #TinyExample
+        soils_list = get_soils_list('-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526', 'EPSG:4326') # Bend
 
-
-        # poly_1 = GEOSGeometry('SRID=3857;POLYGON (( -13505988.11665581167 5460691.044468306005, -13505988.11665581167 5473814.764981821179, -13496204.17703530937 5473814.764981821179, -13496204.17703530937 5460691.044468306005, -13505988.11665581167 5460691.044468306005 ))')
-
-        # WFS
-        # The USDA server seems to be improperly configured
-        # TODO: Link to github discussion
-        # This is an example of a link that DOES work (I don't know how to parse the output):
-        # https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=mapunitpoly&SRSNAME=EPSG:4326&BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631
-        #   Gets the Soil Type IDs
-        # https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&TYPENAME=mapunitpolyextended&SRSNAME=EPSG:4326&BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631
-        #   Gets the Soil Type IDs + attributes (notice the layer name changed)
-
-        # wfs.getfeature(
-        #     service='WFS',
-        #     version='1.1.0',
-        #     output='GML3',
-        #     srsname='EPSG:4326',
-        #     bbox=(-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631),
-        #     typename='mapunitpolyextended'
-        # )
-        # import ipdb; ipdb.set_trace()
-
-        import urllib.request
-        endpoint = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs?'
-        request = 'SERVICE=WFS&REQUEST=GetFeature&VERSION=1.1.0&'
-        layer = 'TYPENAME=mapunitpolyextended&'
-        projection = 'SRSNAME=EPSG:4326&'
-        # bbox = 'BBOX=-121.9246584917641627,36.86446939088204289,-121.60054248356131268,37.09945349682910631'
-        # bbox = 'BBOX=-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526' # Bend
-        bbox = 'BBOX=-121.32635552328541,43.969290485490596,-121.325,43.97' # TINY EXAMPLE
-        gml = '&OUTPUTFORMAT=GML3'
-        url = "%s%s%s%s%s%s" % (endpoint, request, layer, projection, bbox, gml)
-        contents = urllib.request.urlopen(url).read()
-        out = open('mapunitpolyextended.gml', 'wb')
-        out.write(contents)
-        out.close()
-
-        # TODO: The wfs results are messed up. The lat and lon seem flipped when I try to load
-        #       GML results into QGIS.
-        #       Seems related to this: https://github.com/qgis/QGIS/issues/33673
-        #       Attempt to use another tool (OGR) to convert GML to .shp or .json or something
-
-
+        self.assertEqual(len(soils_list.keys()), 18)
+        self.assertEqual(soils_list['W']['muname'], 'Water')
+        for musym in ['61C', '157C', '62D', '155C', '155D', '58C', '72C', '36A', '28A', '27A', '65A', '156C', '38B', '85A', '18D', '36B', 'W', 'NOTCOM']:
+            self.assertTrue(musym in soils_list.keys())
 
         print('soils')
 
