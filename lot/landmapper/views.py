@@ -122,6 +122,59 @@ def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
 
     return soils_list
 
+"""
+geocode
+PURPOSE: Convert a provided place name into geographic coordinates
+IN:
+-   search_string: (string) An address or named landmark/region
+-   srs: (int) The EPSG ID for the spatial reference system in which to output coordinates
+-       defaut: 4326
+-   service: (string) The geocoding service to query for a result
+-       default = 'arcgis'
+-       other supported options: 'google'
+OUT:
+-   coords: a list of two coordinate elements -- [lat(y), long(x)]
+-       projected in the requested coordinate system
+"""
+def geocode(search_string, srs=4326, service='arcgis'):
+    # https://geocoder.readthedocs.io/
+    import geocoder
+
+    g = False
+    # Query desired service
+    if service.lower() == 'arcgis':
+        g = geocoder.arcgis(search_string)
+    elif service.lower() == 'google':
+        if hasattr(settings, 'GOOGLE_API_KEY'):
+            g = geocoder.google(search_string, key=settings.GOOGLE_API_KEY)
+        else:
+            print('To use Google geocoder, please configure "GOOGLE_API_KEY" in your project settings. ')
+    if not g or not g.ok:
+        print('Selected geocoder not available or failed. Defaulting to ArcGIS')
+        g = geocoder.arcgis(search_string)
+
+    coords = g.latlng
+
+    # Transform coordinates if necessary
+    if not srs == 4326:
+        from django.contrib.gis.geos import GEOSGeometry
+        if ':' in srs:
+            try:
+                srs = srs.split(':')[1]
+            except Exception as e:
+                pass
+        try:
+            int(srs)
+        except ValueError as e:
+            print('ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326')
+            return coords
+
+        point = GEOSGeometry('SRID=4326;POINT (%s %s)' % (coords[1], coords[0]), srid=4326)
+        point.transform(srs)
+        coords = [point.coords[1], point.coords[0]]
+
+    return coords
+
 # Create your views here.
 def home(request):
     '''

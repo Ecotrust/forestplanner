@@ -179,16 +179,11 @@ class ViewTests(TestCase):
         print('soils')
 
     def test_geocoding(self):
-        # TODO: Geocoding with Geocoder: https://geocoder.readthedocs.io/
-        #   How are api keys handled?
+        from landmapper.views import geocode
 
-        # https://geocoder.readthedocs.io/
-        import geocoder
+        coords = geocode('Mountain View, CA')
 
-        g = geocoder.arcgis('Mountain View, CA')
-        geocoder_out = g.latlng
-
-        self.assertEqual(g.latlng, [37.389670000000024, -122.08159999999998])
+        self.assertEqual(coords, [37.389670000000024, -122.08159999999998])
         print('geocoder')
 
     def test_tiles(self):
