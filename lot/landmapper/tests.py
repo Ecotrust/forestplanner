@@ -165,7 +165,11 @@ class ViewTests(TestCase):
         out.close()
 
         # gml = get_soil_data_gml('-121.32635552328541,43.969290485490596,-121.325,43.97', 'EPSG:4326', 'GML3') #TinyExample
-        soils_list = get_soils_list('-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526', 'EPSG:4326') # Bend
+        # soils_list = get_soils_list('-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526', 'EPSG:4326') # Bend
+        # soils_list_mercator = get_soils_list('-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179', 'EPSG:3857') # Bend
+        soils_list = get_soils_list('-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179', 'EPSG:3857') # Bend
+        #
+        # soils_list.keys() == soils_list_mercator.keys()
 
         self.assertEqual(len(soils_list.keys()), 18)
         self.assertEqual(soils_list['W']['muname'], 'Water')

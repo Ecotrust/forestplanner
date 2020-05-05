@@ -38,4 +38,5 @@ docs/output/*
 apps/*
 lot/lot/fixtures/downloads/
 lot/discovery/local_settings.py
+lot/landmapper/local_settings.py
 static/*
