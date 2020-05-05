@@ -160,98 +160,117 @@ SOIL_FIELDS = {
         'UOM': '%'      # not listed in docs
     },
     'niccdcd': {
-        'name': 'niccdcd',
+        'name': 'Non-Irrigated Capability Class - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'niccdcdpct': {
-        'name': 'niccdcdpct',
+        'name': 'Non-Irrigated Capability Class - Dominant Condition Aggregate Percent',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': '%'      # not listed in docs
     },
     'engdwobdcd': {
-        'name': 'engdwobdcd',
+        'name': 'ENG - Dwellings W/O Basements - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engdwbdcd': {
-        'name': 'engdwbdcd',
+        'name': 'ENG - Dwellings with Basements - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engdwbll': {
-        'name': 'engdwbll',
+        'name': 'ENG - Dwellings with Basements - Least Limiting',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engdwbml': {
-        'name': 'engdwbml',
+        'name': 'ENG - Dwellings with Basements - Most Limiting',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engstafdcd': {
-        'name': 'engstafdcd',
+        'name': 'ENG - Septic Tank Absorption Fields - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engstafll': {
-        'name': 'engstafll',
+        'name': 'ENG - Septic Tank Absorption Fields - Least Limiting',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engstafml': {
-        'name': 'engstafml',
+        'name': 'ENG - Septic Tank Absorption Fields - Most Limiting',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engsldcd': {
-        'name': 'engsldcd',
+        'name': 'ENG - Sewage Lagoons - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engsldcp': {
-        'name': 'engsldcp',
+        'name': 'ENG - Sewage Lagoons - Dominant Component',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'englrsdcd': {
-        'name': 'englrsdcd',
+        'name': 'ENG - Local Roads and Streets - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engcmssdcd': {
-        'name': 'engcmssdcd',
+        'name': 'ENG - Construction Materials; Sand Source - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'engcmssmp': {
-        'name': 'engcmssmp',
+        'name': 'ENG - Construction Materials; Sand Source - Most Probable',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'urbrecptdcd': {
-        'name': 'urbrecptdcd',
+        'name': 'URB/REC - Paths and Trails - Dominant Condition',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'urbrecptwta': {
-        'name': 'urbrecptwta',
+        'name': 'URB/REC - Paths and Trails - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': ''
     },
     'forpehrtdcp': {
-        'name': 'forpehrtdcp',
+        'name': 'FOR - Potential Erosion Hazard (Road/Trail) - Dominant Component',
         'display': True,
-        'format': 'text'
+        'format': 'string',
+        'UOM': ''
     },
     'hydclprs': {
-        'name': 'hydclprs',
+        'name': 'Hydric Classification - Presence',
         'display': True,
-        'format': 'text'
+        'format': 'integer',
+        'UOM': ''
     },
     'awmmfpwwta': {
-        'name': 'awmmfpwwta',
+        'name': 'AWM - Manure and Food Processing Waste - Weighted Average',
         'display': True,
-        'format': 'text'
+        'format': 'float',
+        'UOM': ''
     }
 }
