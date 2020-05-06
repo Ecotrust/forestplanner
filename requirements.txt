@@ -74,6 +74,12 @@ vine>=1.2.0
 wcwidth>=0.1.7
 xlrd>=1.2.0
 
+########
 # LandMapper Requirements
+########
+# Geo tools
 owslib
+# Wrapper for many Geocoding APIs
 geocoder
+# Image manipulation
+opencv-python

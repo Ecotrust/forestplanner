@@ -26,12 +26,16 @@ def get_soils_connectors(retries=0):
     # wfs = WebFeatureService(url='https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDMWM.wfs', version='1.1.0')
     try:
         wfs = WebFeatureService(url=settings.SOIL_WFS_URL, version=settings.SOIL_WFS_VERSION)
-    except ConnectionError as e:
+    except (ConnectionError, ConnectionResetError) as e:
         if retries < 10:
             print('failed to connect to wfs %s time(s)' % retries)
             (wms,wfs) = get_soils_connectors(retries+1)
         else:
             print("ERROR: Unable to connect to WFS Server @ %s" % settings.SOIL_WFS_URL)
+            wfs = None
+    except Exception as e:
+        print('Unexpected error occurred: %s' % e)
+        wfs = None
     return (wms,wfs)
 
 """
@@ -58,6 +62,49 @@ def unstable_request_wrapper(url, retries=0):
         print(e)
         print(url)
     return contents
+
+"""
+get_wms_layer_image
+"""
+def get_wms_layer_image(wms, layers, styles, srs, bbox, size):
+    img = wms.getmap(
+        # layers=['surveyareapoly'],
+        layers=layers,
+        styles=styles,
+        # srs='EPSG:4326',
+        # bbox=(-125, 36, -119, 41),
+        srs=srs,
+        bbox=bbox,
+        size=size, # WIDTH=665&HEIGHT=892
+        format='image/png',
+        tansparent=True
+    )
+    return img
+
+"""
+set_image_transparancy
+Attribution: Thanks to cr333 and the Stack overflow community:
+-   https://stackoverflow.com/a/765774/706797
+"""
+def set_image_transparancy(filename, rgb_val):
+    from PIL import Image
+    img = Image.open(filename)
+    img = img.convert("RGBA")
+    data = img.getdata()
+    red = int(rgb_val[0])
+    green = int(rgb_val[1])
+    blue = int(rgb_val[2])
+
+    newData = []
+    for item in data:
+        if item[0] == red and item[1] == green and item[2] == blue:
+            newData.append((red, green, blue, 0))
+        else:
+            newData.append(item)
+
+    img.putdata(newData)
+    img.save(filename, "PNG")
+
 
 """
 get_soil_data_gml
