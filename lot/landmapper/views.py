@@ -47,7 +47,7 @@ OUT:
 def unstable_request_wrapper(url, retries=0):
     import urllib.request
     try:
-        contents = urllib.request.urlopen(url).read()
+        contents = urllib.request.urlopen(url)
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
@@ -56,7 +56,6 @@ def unstable_request_wrapper(url, retries=0):
             print("ERROR: Unable to connect to %s" % url)
     except Exception as e:
         print(e)
-        import ipdb; ipdb.set_trace()
         print(url)
     return contents
 
@@ -85,7 +84,7 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     url = "%s?%s%s%s%s%s" % (endpoint, request, layer, projection, bbox, gml)
     contents = unstable_request_wrapper(url)
     fp = NamedTemporaryFile()
-    fp.write(contents)
+    fp.write(contents.read())
     gml = ogr.Open(fp.name)
     fp.close()
     return gml
@@ -174,6 +173,34 @@ def geocode(search_string, srs=4326, service='arcgis'):
         coords = [point.coords[1], point.coords[0]]
 
     return coords
+
+"""
+get_aerial_image
+PURPOSE: Return USGS Aerial image at the selected location of the selected size
+IN:
+-   bbox: (string) comma-separated W,S,E,N coordinates
+-   width: (int) The number of pixels for the width of the image
+-   height: (int) The number of pixels for the height of the image
+-   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
+-       default: 3857
+OUT:
+-   image_info: (dict) {
+-       image: image as raw data (bytes)
+-       attribution: attribution text for proper use of imagery
+-   }
+"""
+def get_aerial_image(bbox, width, height, bboxSR=3857):
+    aerial_endpoint = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export'
+    layers = 0
+    aerial_url = "%s?bbox=%s&imageSR=3857&bboxSR=%s&layers=%s&size=%s,%s&format=png&f=image" % (aerial_endpoint, bbox, bboxSR, layers, width, height)
+    attribution = 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+
+    image_data = unstable_request_wrapper(aerial_url)
+
+    return {
+        'image': image_data,
+        'attribution': attribution
+    }
 
 # Create your views here.
 def home(request):

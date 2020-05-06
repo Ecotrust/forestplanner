@@ -157,10 +157,10 @@ class ViewTests(TestCase):
             srs='EPSG:3857',
             bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
             size=(665,892), # WIDTH=665&HEIGHT=892
-            format='image/jpeg',
+            format='image/png',
             tansparent=True
         )
-        out = open('%s.jpg' % settings.SOIL_TILE_LAYER, 'wb')
+        out = open('%s.png' % settings.SOIL_TILE_LAYER, 'wb')
         out.write(img.read())
         out.close()
 
@@ -193,6 +193,49 @@ class ViewTests(TestCase):
         #   lots/properties?
         #   forest types?
         #   soils
+        """
+        get BBOX, centroid, zoom, or any other value needed to query the endpoints
+        get basemap tile
+        -   set
+        get any overlay tiles
+        stitch images together (imagemagic?)
+        """
+
+        # BBOX
+
+        # Convert to height, width, zoom, centroid, etc... ?
+
+        # Basemap endpoints
+        #   Aerial (ArcGIS) is an XYZ - can we query for BBOX instead?
+        #       https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/7/44/32
+        #       Examples here: https://developers.arcgis.com/rest/services-reference/export-image.htm
+        #       https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/World/MODIS/ImageServer/exportImage?f=image&bbox=-141.19530416221985,-62.217823180545146,139.27427961579508,84.15317625109763&imageSR=4326&bboxSR=4326&size=937,489
+        #       https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/World/MODIS/ImageServer/exportImage?f=image&
+        #           bbox=-141.19530416221985,-62.217823180545146,139.27427961579508,84.15317625109763&
+        #           imageSR=4326&
+        #           bboxSR=4326&
+        #           size=937,489
+
+        # From Bend Soils Example:
+        # srs='EPSG:3857',
+        # bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
+        # size=(665,892), # WIDTH=665&HEIGHT=892
+
+        from landmapper.views import get_aerial_image
+        bbox = '-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179'
+        bboxSR = 3857
+        width = 665
+        height = 892
+        image_dict = get_aerial_image(bbox, width, height, bboxSR)
+        # aerial_endpoint = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export'
+        # layers = 0
+        # aerial_url = "%s?bbox=%s&imageSR=3857&bboxSR=%s&layers=%s&size=%s,%s&format=png&f=image" % (aerial_endpoint, bbox, bboxSR, layers, width, height)
+        # attribution = 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+        out = open('aerial.png', 'wb')
+        out.write(image_dict['image'].read())
+        out.close()
+
+
         print('tiles')
 
     """
