@@ -117,7 +117,7 @@ IN:
 -   format: The version of GML to use (GML2 or GML3)
 -       default: 'GML3'
 OUT:
--   gml: an OGR layer interpreted from the GML
+-   gml_result: an OGR layer interpreted from the GML
 """
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     from tempfile import NamedTemporaryFile
@@ -132,9 +132,9 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     contents = unstable_request_wrapper(url)
     fp = NamedTemporaryFile()
     fp.write(contents.read())
-    gml = ogr.Open(fp.name)
+    gml_result = ogr.Open(fp.name)
     fp.close()
-    return gml
+    return gml_result
 
 """
 get_soils_list

@@ -134,7 +134,7 @@ class ViewTests(TestCase):
     """
     def test_soils_api(self):
         from osgeo import ogr
-        from landmapper.views import get_soils_connectors, get_soil_data_gml, get_soils_list, get_wms_layer_image, set_image_transparancy
+        from landmapper.views import get_soils_connectors, get_soil_data_gml, get_soils_list, get_wms_layer_image, set_image_transparancy, unstable_request_wrapper
         (wms, wfs) = get_soils_connectors()
         # Good examples: https://geopython.github.io/OWSLib/#wms
         self.assertEqual(wms.identification.type, 'OGC:WMS')
@@ -148,14 +148,14 @@ class ViewTests(TestCase):
             wms['Soils'].styles['default']['legend'],
             'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms?version=1.1.1&service=WMS&request=GetLegendGraphic&layer=Soils&format=image/png&STYLE=default'
         )
-        img = get_wms_layer_image(
-            wms=wms,
-            layers=[settings.SOIL_TILE_LAYER],
-            styles=['default'],
-            srs='EPSG:3857',
-            bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
-            size=(665,892), # WIDTH=665&HEIGHT=892
-        )
+        # img = get_wms_layer_image(
+        #     wms=wms,
+        #     layers=[settings.SOIL_TILE_LAYER],
+        #     styles=['default'],
+        #     srs='EPSG:3857',
+        #     bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
+        #     size=(665,892), # WIDTH=665&HEIGHT=892
+        # )
 
         # img.geturl()
         #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&styles=default&width=665&height=892&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&transparent=FALSE&bgcolor=0xFFFFFF&exceptions=application%2Fvnd.ogc.se_xml&tansparent=True'
@@ -172,6 +172,11 @@ class ViewTests(TestCase):
         #         exceptions=application%2Fvnd.ogc.se_xml&
         #         tansparent=True'
 
+        #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=1330&height=1794&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=TRUE
+        #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=333&height=446&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=true
+        img_data = unstable_request_wrapper('https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=665&height=892&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=true')
+
+
         # img = wms.getmap(
         #     # layers=['surveyareapoly'],
         #     # srs='EPSG:4326',
@@ -181,10 +186,11 @@ class ViewTests(TestCase):
         # )
         image_filename = '%s.png' % settings.SOIL_TILE_LAYER
         out = open(image_filename, 'wb')
-        out.write(img.read())
+        # out.write(img.read())
+        out.write(img_data.read())
         out.close()
 
-        set_image_transparancy(image_filename, (255,255,255))
+        # set_image_transparancy(image_filename, (255,255,255))
 
         # gml = get_soil_data_gml('-121.32635552328541,43.969290485490596,-121.325,43.97', 'EPSG:4326', 'GML3') #TinyExample
         # soils_list = get_soils_list('-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526', 'EPSG:4326') # Bend

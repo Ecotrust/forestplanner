@@ -81,5 +81,3 @@ xlrd>=1.2.0
 owslib
 # Wrapper for many Geocoding APIs
 geocoder
-# Image manipulation
-opencv-python
