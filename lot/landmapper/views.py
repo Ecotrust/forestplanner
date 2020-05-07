@@ -1,17 +1,17 @@
 from django.shortcuts import render
 from django.conf import settings
 
-"""
-unstable_request_wrapper
-PURPOSE: As mentioned above, the USDA wfs service is weak. We wrote this wrapper
--   to fail less.
-IN:
--   'url': The URL being requested
--   'retries': The number of retries made on this URL
-OUT:
--   contents: The html contents of the requested page
-"""
 def unstable_request_wrapper(url, retries=0):
+    # """
+    # unstable_request_wrapper
+    # PURPOSE: As mentioned above, the USDA wfs service is weak. We wrote this wrapper
+    # -   to fail less.
+    # IN:
+    # -   'url': The URL being requested
+    # -   'retries': The number of retries made on this URL
+    # OUT:
+    # -   contents: The html contents of the requested page
+    # """
     import urllib.request
     try:
         contents = urllib.request.urlopen(url)
@@ -26,22 +26,22 @@ def unstable_request_wrapper(url, retries=0):
         print(url)
     return contents
 
-"""
-get_soil_overlay_tile_data
-PURPOSE:
--   Retrieve the soil tile image http response for a given bbox at a given size
-IN:
--   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
--   width: (int) width of the desired image in pixels
--       default: settings.REPORT_MAP_WIDTH
--   height: (int) height of the desired image in pixels
--       default: settings.REPORT_MAP_HEIGHT
--   srs: (string) the formatted Spatial Reference System string describing the
--       default: 'EPSG:3857' (Web Mercator)
-OUT:
--   img_data: http(s) response from the request
-"""
 def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857'):
+    # """
+    # get_soil_overlay_tile_data
+    # PURPOSE:
+    # -   Retrieve the soil tile image http response for a given bbox at a given size
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # OUT:
+    # -   img_data: http(s) response from the request
+    # """
     soil_wms_endpoint = settings.SOIL_WMS_URL
 
     if settings.SOIL_ZOOM_OVERLAY_2X:
@@ -61,20 +61,20 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     img_data = unstable_request_wrapper(request_url)
     return img_data
 
-"""
-get_soil_data_gml
-PURPOSE: given a bounding box, SRS, and preferred version (format) of GML,
--   return an OGR layer read from the GML response (from unstable_request_wrapper)
-IN:
--   bbox: a string of comma-separated bounding-box coordinates (W,S,E,N)
--   srs: The Spatial Reference System used to interpret the coordinates
--       default: 'EPSG:4326'
--   format: The version of GML to use (GML2 or GML3)
--       default: 'GML3'
-OUT:
--   gml_result: an OGR layer interpreted from the GML
-"""
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
+    # """
+    # get_soil_data_gml
+    # PURPOSE: given a bounding box, SRS, and preferred version (format) of GML,
+    # -   return an OGR layer read from the GML response (from unstable_request_wrapper)
+    # IN:
+    # -   bbox: a string of comma-separated bounding-box coordinates (W,S,E,N)
+    # -   srs: The Spatial Reference System used to interpret the coordinates
+    # -       default: 'EPSG:4326'
+    # -   format: The version of GML to use (GML2 or GML3)
+    # -       default: 'GML3'
+    # OUT:
+    # -   gml_result: an OGR layer interpreted from the GML
+    # """
     from tempfile import NamedTemporaryFile
     from osgeo import ogr
     endpoint = settings.SOIL_WFS_URL
@@ -91,19 +91,19 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     fp.close()
     return gml_result
 
-"""
-get_soils_list
-PURPOSE:
-IN:
--   bbox: a string of comma-separated bounding-box coordinates (W,S,E,N)
--   srs: The Spatial Reference System used to interpret the coordinates
--       default: 'EPSG:4326'
--   format: The version of GML to use (GML2 or GML3)
--       default: 'GML3'
-OUT:
--   gml: an OGR layer interpreted from the GML
-"""
 def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
+    # """
+    # get_soils_list
+    # PURPOSE:
+    # IN:
+    # -   bbox: a string of comma-separated bounding-box coordinates (W,S,E,N)
+    # -   srs: The Spatial Reference System used to interpret the coordinates
+    # -       default: 'EPSG:4326'
+    # -   format: The version of GML to use (GML2 or GML3)
+    # -       default: 'GML3'
+    # OUT:
+    # -   gml: an OGR layer interpreted from the GML
+    # """
     gml = get_soil_data_gml(bbox, srs, format)
     inLayer = gml.GetLayerByIndex(0)
 
@@ -123,21 +123,22 @@ def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
 
     return soils_list
 
-"""
-geocode
-PURPOSE: Convert a provided place name into geographic coordinates
-IN:
--   search_string: (string) An address or named landmark/region
--   srs: (int) The EPSG ID for the spatial reference system in which to output coordinates
--       defaut: 4326
--   service: (string) The geocoding service to query for a result
--       default = 'arcgis'
--       other supported options: 'google'
-OUT:
--   coords: a list of two coordinate elements -- [lat(y), long(x)]
--       projected in the requested coordinate system
-"""
 def geocode(search_string, srs=4326, service='arcgis'):
+    # """
+    # geocode
+    # PURPOSE: Convert a provided place name into geographic coordinates
+    # IN:
+    # -   search_string: (string) An address or named landmark/region
+    # -   srs: (int) The EPSG ID for the spatial reference system in which to output coordinates
+    # -       defaut: 4326
+    # -   service: (string) The geocoding service to query for a result
+    # -       default = 'arcgis'
+    # -       other supported options: 'google'
+    # OUT:
+    # -   coords: a list of two coordinate elements -- [lat(y), long(x)]
+    # -       projected in the requested coordinate system
+    # """
+
     # https://geocoder.readthedocs.io/
     import geocoder
 
@@ -176,22 +177,22 @@ def geocode(search_string, srs=4326, service='arcgis'):
 
     return coords
 
-"""
-get_aerial_image
-PURPOSE: Return USGS Aerial image at the selected location of the selected size
-IN:
--   bbox: (string) comma-separated W,S,E,N coordinates
--   width: (int) The number of pixels for the width of the image
--   height: (int) The number of pixels for the height of the image
--   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
--       default: 3857
-OUT:
--   image_info: (dict) {
--       image: image as raw data (bytes)
--       attribution: attribution text for proper use of imagery
--   }
-"""
 def get_aerial_image(bbox, width, height, bboxSR=3857):
+    # """
+    # get_aerial_image
+    # PURPOSE: Return USGS Aerial image at the selected location of the selected size
+    # IN:
+    # -   bbox: (string) comma-separated W,S,E,N coordinates
+    # -   width: (int) The number of pixels for the width of the image
+    # -   height: (int) The number of pixels for the height of the image
+    # -   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
+    # -       default: 3857
+    # OUT:
+    # -   image_info: (dict) {
+    # -       image: image as raw data (bytes)
+    # -       attribution: attribution text for proper use of imagery
+    # -   }
+    # """
     aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
     # Get URL for request
     if aerial_dict['technology'] == 'arcgis_mapserver':
@@ -218,17 +219,17 @@ def get_aerial_image(bbox, width, height, bboxSR=3857):
         'attribution': attribution
     }
 
-"""
-image_result_to_PIL
-PURPOSE:
--   Given an image result from a url, convert to a PIL Image type without
--       needing to store the image as a file
-IN:
--   image_data: raw image data pulled from a URL (http(s) request)
-OUT:
--   image_object: PIL Image instance of the image
-"""
 def image_result_to_PIL(image_data):
+    # """
+    # image_result_to_PIL
+    # PURPOSE:
+    # -   Given an image result from a url, convert to a PIL Image type without
+    # -       needing to store the image as a file
+    # IN:
+    # -   image_data: raw image data pulled from a URL (http(s) request)
+    # OUT:
+    # -   image_object: PIL Image instance of the image
+    # """
     from PIL import Image
     from tempfile import NamedTemporaryFile
 
@@ -240,19 +241,19 @@ def image_result_to_PIL(image_data):
 
     return rgba_image
 
-"""
-merge_images
-PURPOSE:
--   Given two PIL RGBA Images, overlay one on top of the other and return the
--       resulting PIL RGBA Image object
-IN:
--   background: (PIL RGBA Image) The base image to have an overlay placed upon
--   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
--       background
-OUT:
--   merged_image: (PIL RGBA Image) the resulting merged image
-"""
 def merge_images(background, foreground):
+    # """
+    # merge_images
+    # PURPOSE:
+    # -   Given two PIL RGBA Images, overlay one on top of the other and return the
+    # -       resulting PIL RGBA Image object
+    # IN:
+    # -   background: (PIL RGBA Image) The base image to have an overlay placed upon
+    # -   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
+    # -       background
+    # OUT:
+    # -   merged_image: (PIL RGBA Image) the resulting merged image
+    # """
     merged = background.copy()
     merged.paste(foreground, (0, 0), foreground)
     return merged
@@ -284,19 +285,20 @@ def report(request):
     return render(request, 'landmapper/base.html', {})
 
 def create_property(request, taxlot_ids, property_name):
-    '''
-    Land Mapper: Create Property
-
-    TODO:
-        can a memory instance of feature be made as opposed to a database feature
-            meta of model (ref: madrona.features) to be inherited?
-            don't want this in a database
-            use a class (python class) as opposed to django model class?
-        add methods to class for
-            creating property
-            turn into shp
-            CreatePDF, ExportLayer, BuildLegend, BuildTables?
-        research caching approaches
-            django docs
-            django caching API
-    '''
+    # '''
+    # Land Mapper: Create Property
+    #
+    # TODO:
+    #     can a memory instance of feature be made as opposed to a database feature
+    #         meta of model (ref: madrona.features) to be inherited?
+    #         don't want this in a database
+    #         use a class (python class) as opposed to django model class?
+    #     add methods to class for
+    #         creating property
+    #         turn into shp
+    #         CreatePDF, ExportLayer, BuildLegend, BuildTables?
+    #     research caching approaches
+    #         django docs
+    #         django caching API
+    # '''
+    return None

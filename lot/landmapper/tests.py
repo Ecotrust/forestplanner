@@ -141,7 +141,7 @@ class ViewTests(TestCase):
     """
     def test_soils_api(self):
         from osgeo import ogr
-        from landmapper.views import get_soil_data_gml, get_soil_overlay_tile_data, get_soils_list, get_wms_layer_image, set_image_transparancy, unstable_request_wrapper
+        from landmapper.views import get_soil_data_gml, get_soil_overlay_tile_data, get_soils_list, unstable_request_wrapper
 
         soils_list = get_soils_list('-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179', 'EPSG:3857') # Bend
 
