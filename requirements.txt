@@ -78,6 +78,6 @@ xlrd>=1.2.0
 # LandMapper Requirements
 ########
 # Geo tools
-owslib
+# owslib
 # Wrapper for many Geocoding APIs
 geocoder

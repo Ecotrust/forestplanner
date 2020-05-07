@@ -2,43 +2,6 @@ from django.shortcuts import render
 from django.conf import settings
 
 """
-get_soils_connectors
-PURPOSE: return handy owslib wms and wfs objects for the soils data sources
--   as defined in landmapper.settings.py.
--   NOTE: The WFS services for the USDA Soils Data Mart site is not properly
--   configured. The next few views handle a more manual approach to reading
--   the soils data to an ogr-understandable layer object
-IN:
--   'retries': The number of retries attempted on the WFS endpoint, which is
--       shakey
-OUT:
--   wms: an owslib wms object
--   wfs: an owslib wfs object
-"""
-def get_soils_connectors(retries=0):
-    '''
-    Land Mapper: Soils WMS connector
-    '''
-    from owslib.wms import WebMapService
-    from owslib.wfs import WebFeatureService
-    wms = WebMapService(settings.SOIL_WMS_URL)
-    # wms = WebMapService('http://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms')
-    # wfs = WebFeatureService(url='https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDMWM.wfs', version='1.1.0')
-    try:
-        wfs = WebFeatureService(url=settings.SOIL_WFS_URL, version=settings.SOIL_WFS_VERSION)
-    except (ConnectionError, ConnectionResetError) as e:
-        if retries < 10:
-            print('failed to connect to wfs %s time(s)' % retries)
-            (wms,wfs) = get_soils_connectors(retries+1)
-        else:
-            print("ERROR: Unable to connect to WFS Server @ %s" % settings.SOIL_WFS_URL)
-            wfs = None
-    except Exception as e:
-        print('Unexpected error occurred: %s' % e)
-        wfs = None
-    return (wms,wfs)
-
-"""
 unstable_request_wrapper
 PURPOSE: As mentioned above, the USDA wfs service is weak. We wrote this wrapper
 -   to fail less.
@@ -64,47 +27,39 @@ def unstable_request_wrapper(url, retries=0):
     return contents
 
 """
-get_wms_layer_image
+get_soil_overlay_tile_data
+PURPOSE:
+-   Retrieve the soil tile image http response for a given bbox at a given size
+IN:
+-   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+-   width: (int) width of the desired image in pixels
+-       default: settings.REPORT_MAP_WIDTH
+-   height: (int) height of the desired image in pixels
+-       default: settings.REPORT_MAP_HEIGHT
+-   srs: (string) the formatted Spatial Reference System string describing the
+-       default: 'EPSG:3857' (Web Mercator)
+OUT:
+-   img_data: http(s) response from the request
 """
-def get_wms_layer_image(wms, layers, styles, srs, bbox, size):
-    img = wms.getmap(
-        # layers=['surveyareapoly'],
-        layers=layers,
-        styles=styles,
-        # srs='EPSG:4326',
-        # bbox=(-125, 36, -119, 41),
-        srs=srs,
-        bbox=bbox,
-        size=size, # WIDTH=665&HEIGHT=892
-        format='image/png',
-        tansparent=True
-    )
-    return img
+def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857'):
+    soil_wms_endpoint = settings.SOIL_WMS_URL
 
-"""
-set_image_transparancy
-Attribution: Thanks to cr333 and the Stack overflow community:
--   https://stackoverflow.com/a/765774/706797
-"""
-def set_image_transparancy(filename, rgb_val):
-    from PIL import Image
-    img = Image.open(filename)
-    img = img.convert("RGBA")
-    data = img.getdata()
-    red = int(rgb_val[0])
-    green = int(rgb_val[1])
-    blue = int(rgb_val[2])
+    if settings.SOIL_ZOOM_OVERLAY_2X:
+        width = int(width/2)
+        height = int(height/2)
 
-    newData = []
-    for item in data:
-        if item[0] == red and item[1] == green and item[2] == blue:
-            newData.append((red, green, blue, 0))
-        else:
-            newData.append(item)
-
-    img.putdata(newData)
-    img.save(filename, "PNG")
-
+    request_url = ''.join([
+        settings.SOIL_WMS_URL,
+        '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
+        '&version=', settings.SOIL_WMS_VERSION,
+        '&layers=', settings.SOIL_TILE_LAYER,
+        '&width=', str(width),
+        '&height=', str(height),
+        '&srs=', srs,
+        '&bbox=', bbox,
+    ])
+    img_data = unstable_request_wrapper(request_url)
+    return img_data
 
 """
 get_soil_data_gml
@@ -237,17 +192,70 @@ OUT:
 -   }
 """
 def get_aerial_image(bbox, width, height, bboxSR=3857):
-    aerial_endpoint = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export'
-    layers = 0
-    aerial_url = "%s?bbox=%s&imageSR=3857&bboxSR=%s&layers=%s&size=%s,%s&format=png&f=image" % (aerial_endpoint, bbox, bboxSR, layers, width, height)
-    attribution = 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+    aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
+    # Get URL for request
+    if aerial_dict['technology'] == 'arcgis_mapserver':
+        aerial_url = ''.join([
+            aerial_dict['url'],
+            '?bbox=', bbox,
+            '&bboxSR=', str(bboxSR),
+            '&layers=', aerial_dict['layers'],
+            '&size=', str(width), ',', str(height),
+            '&imageSR=3857&format=png&f=image',
+        ])
+    else:
+        print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting aerial layers at the moment')
+        aerial_url = None
 
+    # set Attribution
+    attribution = aerial_dict['attribution']
+
+    # Request URL
     image_data = unstable_request_wrapper(aerial_url)
 
     return {
-        'image': image_data,
+        'image': image_data,    # Raw http(s) response
         'attribution': attribution
     }
+
+"""
+image_result_to_PIL
+PURPOSE:
+-   Given an image result from a url, convert to a PIL Image type without
+-       needing to store the image as a file
+IN:
+-   image_data: raw image data pulled from a URL (http(s) request)
+OUT:
+-   image_object: PIL Image instance of the image
+"""
+def image_result_to_PIL(image_data):
+    from PIL import Image
+    from tempfile import NamedTemporaryFile
+
+    fp = NamedTemporaryFile()
+    fp.write(image_data.read())
+    pil_image = Image.open(fp.name)
+    rgba_image = pil_image.convert("RGBA")
+    fp.close()
+
+    return rgba_image
+
+"""
+merge_images
+PURPOSE:
+-   Given two PIL RGBA Images, overlay one on top of the other and return the
+-       resulting PIL RGBA Image object
+IN:
+-   background: (PIL RGBA Image) The base image to have an overlay placed upon
+-   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
+-       background
+OUT:
+-   merged_image: (PIL RGBA Image) the resulting merged image
+"""
+def merge_images(background, foreground):
+    merged = background.copy()
+    merged.paste(foreground, (0, 0), foreground)
+    return merged
 
 # Create your views here.
 def home(request):

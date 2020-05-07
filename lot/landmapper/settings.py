@@ -1,18 +1,42 @@
+import os
+LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
+###########################################
+##      Basemaps                        ###
+###########################################
+BASEMAPS = {
+    'USGS_Aerial': {
+        'url': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
+        'layers': '0',
+        'technology': 'arcgis_mapserver',
+        'attribution': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+    },
+}
+AERIAL_DEFAULT = 'USGS_Aerial'
+
+###########################################
+##      REPORTS                         ###
+###########################################
+# Based on map size on slide 4 in the XD Specs
+REPORT_MAP_WIDTH = 509
+REPORT_MAP_HEIGHT = 722
+
+REPORT_CONTENT_WIDTH = 508
+REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
+
+###########################################
+##      Soils                           ###
+###########################################
+# WMS (raster image tile)
 SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
-
 SOIL_WMS_VERSION = '1.1.1'
-
-SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs'
-
-SOIL_WFS_VERSION = '1.1.0'
-
 SOIL_TILE_LAYER = 'mapunitpoly'
+SOIL_ZOOM_OVERLAY_2X = False
 
+# WFS (soil data)
+SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs'
+SOIL_WFS_VERSION = '1.1.0'
 SOIL_DATA_LAYER = 'mapunitpolyextended'
-
-
 SOIL_ID_FIELD = 'musym'
-
 # Reference: https://sdmdataaccess.nrcs.usda.gov/documents/TablesAndColumnsReport.pdf
 SOIL_FIELDS = {
     'areasymbol': {
@@ -274,6 +298,14 @@ SOIL_FIELDS = {
         'UOM': ''
     }
 }
+
+###########################################
+##      Tests                           ###
+###########################################
+TESTING_DIR = os.path.join(LANDMAPPER_DIR, 'testing_files')
+IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
+
+
 try:
     from .local_settings import *
 except Exception as e:

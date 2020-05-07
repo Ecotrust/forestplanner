@@ -132,72 +132,18 @@ class ViewTests(TestCase):
         geocoding
         Pulling map images for server-side .PDF creation
     """
+
+    """
+    test_soils_api
+    PURPOSE:
+    -   Test request for soils image tile at given size, location.
+    -   Test request for soils data for corresponding BBOX.
+    """
     def test_soils_api(self):
         from osgeo import ogr
-        from landmapper.views import get_soils_connectors, get_soil_data_gml, get_soils_list, get_wms_layer_image, set_image_transparancy, unstable_request_wrapper
-        (wms, wfs) = get_soils_connectors()
-        # Good examples: https://geopython.github.io/OWSLib/#wms
-        self.assertEqual(wms.identification.type, 'OGC:WMS')
-        self.assertTrue(wms.identification.version in ['1.1.0', '1.1.1', '1.3.0'])
-        self.assertEqual(wms.identification.title, 'NRCS Soil Data Mart Data Access Web Map Service')
-        self.assertEqual(wms.identification.abstract, 'NRCS SSURGO Soils web map service. This is an Open GIS Consortium standard Web Map Service (WMS).')
-        self.assertTrue('Soils' in list(wms.contents))
-        self.assertEqual(wms['Soils'].title, 'Soils')
-        # self.assertTrue('ESPG:3857' in wms['Soils'].crsOptions)
-        self.assertEqual(
-            wms['Soils'].styles['default']['legend'],
-            'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms?version=1.1.1&service=WMS&request=GetLegendGraphic&layer=Soils&format=image/png&STYLE=default'
-        )
-        # img = get_wms_layer_image(
-        #     wms=wms,
-        #     layers=[settings.SOIL_TILE_LAYER],
-        #     styles=['default'],
-        #     srs='EPSG:3857',
-        #     bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
-        #     size=(665,892), # WIDTH=665&HEIGHT=892
-        # )
+        from landmapper.views import get_soil_data_gml, get_soil_overlay_tile_data, get_soils_list, get_wms_layer_image, set_image_transparancy, unstable_request_wrapper
 
-        # img.geturl()
-        #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&styles=default&width=665&height=892&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&transparent=FALSE&bgcolor=0xFFFFFF&exceptions=application%2Fvnd.ogc.se_xml&tansparent=True'
-        #
-        #         https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?
-        #         service=WMS&version=1.1.1&request=GetMap&
-        #         layers=mapunitpoly&
-        #         styles=default&
-        #         width=665&height=892&
-        #         srs=EPSG%3A3857&
-        #         bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&
-        #         format=image%2Fpng&
-        #         transparent=FALSE&bgcolor=0xFFFFFF&
-        #         exceptions=application%2Fvnd.ogc.se_xml&
-        #         tansparent=True'
-
-        #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=1330&height=1794&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=TRUE
-        #   https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=333&height=446&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=true
-        img_data = unstable_request_wrapper('https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDM.wms?service=WMS&version=1.1.1&request=GetMap&layers=mapunitpoly&width=665&height=892&srs=EPSG%3A3857&bbox=-13505988.116655812%2C5460691.044468306%2C-13496204.17703531%2C5473814.764981821&format=image%2Fpng&TRANSPARENT=true')
-
-
-        # img = wms.getmap(
-        #     # layers=['surveyareapoly'],
-        #     # srs='EPSG:4326',
-        #     # bbox=(-125, 36, -119, 41),
-        #     format='image/png',
-        #     tansparent=True
-        # )
-        image_filename = '%s.png' % settings.SOIL_TILE_LAYER
-        out = open(image_filename, 'wb')
-        # out.write(img.read())
-        out.write(img_data.read())
-        out.close()
-
-        # set_image_transparancy(image_filename, (255,255,255))
-
-        # gml = get_soil_data_gml('-121.32635552328541,43.969290485490596,-121.325,43.97', 'EPSG:4326', 'GML3') #TinyExample
-        # soils_list = get_soils_list('-121.32635552328541,43.969290485490596,-121.23846489828543,44.054078446801526', 'EPSG:4326') # Bend
-        # soils_list_mercator = get_soils_list('-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179', 'EPSG:3857') # Bend
         soils_list = get_soils_list('-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179', 'EPSG:3857') # Bend
-        #
-        # soils_list.keys() == soils_list_mercator.keys()
 
         self.assertEqual(len(soils_list.keys()), 18)
         self.assertEqual(soils_list['W']['muname'], 'Water')
@@ -228,57 +174,23 @@ class ViewTests(TestCase):
         get any overlay tiles
         stitch images together (imagemagic?)
         """
+        import os
+        from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images
 
         # BBOX
-
-        # Convert to height, width, zoom, centroid, etc... ?
-
-        # Basemap endpoints
-        #   Aerial (ArcGIS) is an XYZ - can we query for BBOX instead?
-        #       https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/7/44/32
-        #       Examples here: https://developers.arcgis.com/rest/services-reference/export-image.htm
-        #       https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/World/MODIS/ImageServer/exportImage?f=image&bbox=-141.19530416221985,-62.217823180545146,139.27427961579508,84.15317625109763&imageSR=4326&bboxSR=4326&size=937,489
-        #       https://sampleserver3.arcgisonline.com/ArcGIS/rest/services/World/MODIS/ImageServer/exportImage?f=image&
-        #           bbox=-141.19530416221985,-62.217823180545146,139.27427961579508,84.15317625109763&
-        #           imageSR=4326&
-        #           bboxSR=4326&
-        #           size=937,489
-
-        # From Bend Soils Example:
-        # srs='EPSG:3857',
-        # bbox=(-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179),
-        # size=(665,892), # WIDTH=665&HEIGHT=892
-
-        from landmapper.views import get_aerial_image
         bbox = '-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179'
         bboxSR = 3857
+
+        # Convert to height, width, zoom, centroid, etc... ?
         width = 665
         height = 892
-        image_dict = get_aerial_image(bbox, width, height, bboxSR)
-        # aerial_endpoint = 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export'
-        # layers = 0
-        # aerial_url = "%s?bbox=%s&imageSR=3857&bboxSR=%s&layers=%s&size=%s,%s&format=png&f=image" % (aerial_endpoint, bbox, bboxSR, layers, width, height)
-        # attribution = 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
-        out = open('aerial.png', 'wb')
-        out.write(image_dict['image'].read())
-        out.close()
 
-        # Blend layers into single image
-        from PIL import Image
-        back = Image.open("aerial.png")
-        front = Image.open("mapunitpoly.png")
-        back = back.convert("RGBA")
-        back.paste(front, (0, 0), front)
-        back.save('merged.png')
-
-        # merge_file = open('merged.png', 'wb')
-        # merge_file.write(merged.read())
-        # merge_file.close()
-        # import cv2
-        # back = cv2.imread("aerial.png")
-        # front = cv2.imread("mapunitpoly.png")
-        # merged = cv2.addWeighted(back, 1, front, 1, 0)
-        # cv2.imwrite('merged.png', merged)
+        aerial_dict = get_aerial_image(bbox, width, height, bboxSR)
+        aerial_image = image_result_to_PIL(aerial_dict['image'])
+        soil_tile_http = get_soil_overlay_tile_data(bbox, width, height)
+        soil_image = image_result_to_PIL(soil_tile_http)
+        merged = merge_images(aerial_image, soil_image)
+        merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'merged.png'),"PNG")
 
         print('tiles')
 

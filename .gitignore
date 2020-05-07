@@ -39,4 +39,5 @@ apps/*
 lot/lot/fixtures/downloads/
 lot/discovery/local_settings.py
 lot/landmapper/local_settings.py
+lot/landmapper/testing_files/image_test/*
 static/*
