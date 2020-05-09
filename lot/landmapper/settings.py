@@ -1,4 +1,8 @@
 import os
+from datetime import date
+
+TODAY_DATE = date.today().strftime("%D")
+
 LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
 ###########################################
 ##      Basemaps                        ###
@@ -17,6 +21,7 @@ AERIAL_DEFAULT = 'USGS_Aerial'
 ##      REPORTS                         ###
 ###########################################
 # Based on map size on slide 4 in the XD Specs
+# This assumes the 'landscape' report layout (image will feel like 'portrait')
 REPORT_MAP_WIDTH = 509
 REPORT_MAP_HEIGHT = 722
 
@@ -37,6 +42,22 @@ SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHI
 SOIL_WFS_VERSION = '1.1.0'
 SOIL_DATA_LAYER = 'mapunitpolyextended'
 SOIL_ID_FIELD = 'musym'
+
+# https://sdmdataaccess.sc.egov.usda.gov/Citation.htm
+SOIL_SSURGO_ATTRIBUTION = ''.join(
+    "Soil Survey Staff, Natural Resources Conservation Service, ",
+    "United States Department of Agriculture. ",
+    "Soil Survey Geographic (SSURGO) Database. ",
+    "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
+    "Accessed %s" % TODAY_DATE
+)
+SOIL_STATSGO_ATTRIBUTION = ''.join(
+    "Soil Survey Staff, Natural Resources Conservation Service, ",
+    "United States Department of Agriculture. ",
+    "U.S. General Soil Map (STATSGO2). ",
+    "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
+    "Accessed %s" % TODAY_DATE
+
 # Reference: https://sdmdataaccess.nrcs.usda.gov/documents/TablesAndColumnsReport.pdf
 SOIL_FIELDS = {
     'areasymbol': {
@@ -297,6 +318,18 @@ SOIL_FIELDS = {
         'format': 'float',
         'UOM': ''
     }
+}
+
+###########################################
+##      Map Info                        ###
+###########################################
+ATTRIBUTION_KEYS = {
+    'aerial': BASEMAPS[AERIAL_DEFAULT]['attribution'],
+    'topo': 'Set topo attr in settings',
+    'streets': 'Set street attr in settings',
+    'streams': 'Set streams attr in settings',
+    'taxlot': 'Set taxlot attr in settings',
+    'soil': SOIL_SSURGO_ATTRIBUTION
 }
 
 ###########################################

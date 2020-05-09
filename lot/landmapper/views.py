@@ -26,7 +26,7 @@ def unstable_request_wrapper(url, retries=0):
         print(url)
     return contents
 
-def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857'):
+def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
     # """
     # get_soil_overlay_tile_data
     # PURPOSE:
@@ -44,7 +44,7 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     # """
     soil_wms_endpoint = settings.SOIL_WMS_URL
 
-    if settings.SOIL_ZOOM_OVERLAY_2X:
+    if zoom:
         width = int(width/2)
         height = int(height/2)
 
@@ -256,6 +256,99 @@ def merge_images(background, foreground):
     # """
     merged = background.copy()
     merged.paste(foreground, (0, 0), foreground)
+    return merged
+
+def get_bbox_from_property(property):
+    """
+    TODO:
+    -   Given a GEOSGeometry, get the bbox and SRS
+    -   Determine whether geom is taller or wider in ratio
+    -   If taller:
+    -       The geom bbox should be (0.90 * settings.REPORT_MAP_HEIGHT) pixels tall
+    -       Calculate how wide that would make the bbox in pixels (how?)
+    -           the coordinate values to pixels ratio is constant across web mercator:
+    -               This is true for both comparing x an y axis and across the entire map (at null island is the same as NW Alaska)
+    -       Buffer identical numbers of pixels to the width on each side of the bbox until width == settings.REPORT_MAP_WIDTH
+    -       Buffer (0.05 * settings.REPORT_MAP_HEIGHT) pixels to each the top and the bottom of the bbox
+    -       Determine the bbox of the buffered shape
+    -       return bbox and 'landscape' for orientation (taller maps go on 'landscape' report pages)
+    -           I know this seems backwards
+    -   If wider:
+    -       If we support both landscape AND portrait report layouts (not clear if this is MVP):
+    -           The geom bbox should be (0.90 * settings.REPORT_MAP_HEIGHT) pixels wide
+    -               YES: HEIGHT - since we invert for 'portrait' report layout
+    -           Calculate how tall that would make the bbox in pixels (how?)
+    -           Buffer identical numbers of pixels to the height above and below the bbox until height == settings.REPORT_MAP_WIDTH
+    -           Buffer (0.05 * settings.REPORT_MAP_HEIGHT) pixels to each the left and right of the bbox
+    -           Determine the bbox of the buffered shape
+    -           return bbox and 'portait' for orientation (wider maps go on 'portrait' report pages)
+    -       Else:
+    -           You fill in the blank
+    """
+    return (None, orientation)
+
+def get_layer_attribution(layer_name):
+    # """
+    # PURPOSE: shortcut for repetitive requests to get attributions from settings by layer name
+    # IN: layer_name (string): the key for the layer that needs attribution
+    # OUT: (string): Attribution for the layer, or text describing missing data
+    # """
+    if layer_name in settings.ATTRIBUTION_KEYS.keys():
+        return settings.ATTRIBUTION_KEYS[layer_name]
+    else:
+        return 'No known attribution for ""%s"' % layer_name
+
+def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):
+    return None
+
+def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):
+    return None
+
+def get_attribution_image(attribution_list):
+    return None
+
+def get_soil_report_image(property, bbox=None, orientation='landscape'):
+    # """
+    # PURPOSE:
+    # -   given a property object, return an image formatted for the soil report.
+    # -       This will include an aerial base layer, the rendered, highlighted
+    # -       property outline, taxlots, the soil layer, and on top, the attribution.
+    # IN:
+    # -   property; (property object) the property to be displayed on the map
+    # OUT:
+    # -   soil_report_image: (PIL Image) the soil report map image
+    # """
+    if not bbox:
+        (bbox, orientation) = get_bbox_from_property(property)
+
+    bboxSR = 3857
+    aerial_dict = get_aerial_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    base_image = image_result_to_PIL(aerial_dict['image'])
+    # add taxlots
+    taxlot_image = get_taxlot_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    # add property
+    property_image = get_property_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    # default soil cartography
+    soil_tile_http = get_soil_overlay_tile_data(bbox, width, height)
+    soil_image = image_result_to_PIL(soil_tile_http)
+
+    # generate attribution image
+    attributions = [
+        aerial_dict['attribution'],
+        get_layer_attribution('soils'),
+        get_layer_attribution('taxlot'),
+    ]
+
+    attribution_image = get_attribution_image(attributions)
+
+    merged = merge_images(aerial_image, taxlot_image)
+    merged = merge_images(merged, property_image)
+    merged = merge_images(merged, soil_image)
+    merged = merge_images(merged, attribution_image)
+    # merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'merged.png'),"PNG")
+
+    #TODO: Build and app
+
     return merged
 
 # Create your views here.
