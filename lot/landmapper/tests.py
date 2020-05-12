@@ -15,37 +15,59 @@ class ModelTests(TestCase):
     # How to work with GEOS API in Django:
     #       https://docs.djangoproject.com/en/2.2/ref/contrib/gis/geos/
 
-    def setUp(self):
+    def create_test_user():
         from django.contrib.auth.models import User
-        # from landmapper.models import Taxlot
-        # from django.contrib.gis.geos import GEOSGeometry
-        ### Create user
-        User.objects.get_or_create(username='admin')
+        if User.objects.all().count() < 1:
+            User.objects.get_or_create(username='test_user')
 
-    def test_taxlot(self):
-        from django.contrib.auth.models import User
+    def create_taxlot_records(self):
         from landmapper.models import Taxlot
         from django.contrib.gis.geos import GEOSGeometry
 
-        admin = User.objects.get(username='admin')
+        # from django.contrib.auth.models import User
+        ModelTests.create_test_user()
 
-        ### Create Taxlots
-        # ZOOM TO: 44.085, -122.900
-        # Taxlot NE of Eugene:
-        poly_1 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681279.3108 5478566.238799997, -13680721.1384 5478574.5858, -13680722.0809 5478015.218999997, -13681279.9385 5478006.679099999, -13681838.8572 5477998.089199997, -13681837.4829 5478557.857699998, -13681279.3108 5478566.238799997)))', srid=3857)
-        # Adjacent taxlot to the note
-        poly_2 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681278.5741 5479125.020800002, -13680719.8309 5479133.516500004, -13680721.1384 5478574.5858, -13681279.3108 5478566.238799997, -13681837.4829 5478557.857699998, -13681837.3172 5479116.491499998, -13681278.5741 5479125.020800002)))', srid=3857)
-        # Nearby, non-adjacent taxlot
-        poly_3 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13679606.0781 5478590.317100003, -13679607.5092 5478031.919799998, -13680164.0094 5478023.597900003, -13680163.6087 5478582.451800004, -13679606.0781 5478590.317100003)))', srid=3857)
-        # transform polies from 3857 to 4326
-        poly_1.transform(4326)
-        poly_2.transform(4326)
-        poly_3.transform(4326)
+        if Taxlot.objects.all().count() < 1:
+            from django.contrib.auth.models import User
+            test_user = User.objects.get(username='test_user')
+
+            ### Create Taxlots
+            # ZOOM TO: 44.085, -122.900
+            # Taxlot NE of Eugene:
+            poly_1 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681279.3108 5478566.238799997, -13680721.1384 5478574.5858, -13680722.0809 5478015.218999997, -13681279.9385 5478006.679099999, -13681838.8572 5477998.089199997, -13681837.4829 5478557.857699998, -13681279.3108 5478566.238799997)))', srid=3857)
+            # Adjacent taxlot to the north
+            poly_2 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681278.5741 5479125.020800002, -13680719.8309 5479133.516500004, -13680721.1384 5478574.5858, -13681279.3108 5478566.238799997, -13681837.4829 5478557.857699998, -13681837.3172 5479116.491499998, -13681278.5741 5479125.020800002)))', srid=3857)
+            # Nearby, non-adjacent taxlot
+            poly_3 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13679606.0781 5478590.317100003, -13679607.5092 5478031.919799998, -13680164.0094 5478023.597900003, -13680163.6087 5478582.451800004, -13679606.0781 5478590.317100003)))', srid=3857)
+            # Adjacent taxlot to the south
+            poly_4 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681279.9385 5478006.679099999, -13680722.0809 5478015.218999997, -13680723.1572 5477455.464900002, -13681280.5667 5477446.9441, -13681840.2315 5477438.354400001, -13681838.8572 5477998.089199997, -13681279.9385 5478006.679099999)))', srid=3857)
+            # nearby 'tall' ratio taxlot
+            poly_5 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13679588.897 5484177.156499997, -13679587.9734 5483615.298299998, -13679587.051 5483053.471600004, -13680143.9512 5483045.795699999, -13680148.3177 5483612.898599997, -13680152.6443 5484174.773000002, -13679588.897 5484177.156499997)))', srid=3857)
+            # transform polies from 3857 to 4326
+            poly_1.transform(4326)
+            poly_2.transform(4326)
+            poly_3.transform(4326)
+            poly_4.transform(4326)
+            poly_5.transform(4326)
+
+            tl1 = Taxlot.objects.create(user=test_user, geometry_orig=poly_1, name='test_mid_wide')
+            tl2 = Taxlot.objects.create(user=test_user, geometry_orig=poly_2, name='test_top_wide')
+            tl3 = Taxlot.objects.create(user=test_user, geometry_orig=poly_3, name='test_small_detached')
+            tl4 = Taxlot.objects.create(user=test_user, geometry_orig=poly_4, name='test_bottom_wide')
+            tl5 = Taxlot.objects.create(user=test_user, geometry_orig=poly_5, name='test_solo_tall')
+
+    def test_taxlot(self):
+        from landmapper.models import Taxlot
+        from django.contrib.gis.geos import GEOSGeometry
+
+        self.create_taxlot_records()
 
         #Create taxlot instances
-        tl1 = Taxlot.objects.create(user=admin, geometry_orig=poly_1)
-        tl2 = Taxlot.objects.create(user=admin, geometry_orig=poly_2)
-        tl3 = Taxlot.objects.create(user=admin, geometry_orig=poly_3)
+        tl1 = Taxlot.objects.get(name='test_mid_wide')
+        tl2 = Taxlot.objects.get(name='test_top_wide')
+        tl3 = Taxlot.objects.get(name='test_small_detached')
+        tl4 = Taxlot.objects.get(name='test_bottom_wide')
+        tl5 = Taxlot.objects.get(name='test_solo_tall')
 
         click_1 = 'SRID=4326;POINT( -122.903 44.083 )'          #Note, it doesn't appear to matter if we give GEOSGeoms or just WKT.
         click_2 = GEOSGeometry('SRID=4326;POINT( -122.902 44.087 )')
@@ -176,18 +198,49 @@ class ViewTests(TestCase):
         """
         import os
         from PIL import Image
-        from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images
+        from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images, get_property_from_taxlot_selection, get_bbox_as_string
+        # from django.contrib.gis.geos import GEOSGeometry
+        from landmapper.models import Taxlot
 
-        # BBOX
-        bbox = '-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179'
-        bboxSR = 3857
+        # from ModelTests import create_taxlot_records
+        ModelTests.create_taxlot_records(ModelTests)
 
-        # Convert to height, width, zoom, centroid, etc... ?
-        width = 665
-        height = 892
+        # tall_property = GEOSGeometry('SRID=3857;MULTIPOLYGON (((
+        tall_taxlot = Taxlot.objects.get(name='test_solo_tall')
 
-        aerial_dict = get_aerial_image(bbox, width, height, bboxSR)
+        wide_taxlot_top = Taxlot.objects.get(name='test_top_wide')
+        wide_taxlot_mid = Taxlot.objects.get(name='test_mid_wide')
+        wide_taxlot_bottom = Taxlot.objects.get(name='test_bottom_wide')
+
+        wide_property = get_property_from_taxlot_selection([wide_taxlot_mid,])
+
+        tall_property = get_property_from_taxlot_selection([tall_taxlot,])
+
+        stacked_tall_property = get_property_from_taxlot_selection([
+            wide_taxlot_top,
+            wide_taxlot_mid,
+            wide_taxlot_bottom
+        ])
+
+
+        # # BBOX
+        # bbox = '-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179'
+        # bboxSR = 3857
+        #
+        # # Convert to height, width, zoom, centroid, etc... ?
+        # width = 665
+        # height = 892
+        # aerial_dict = get_aerial_image(bbox, width, height, bboxSR)
+        # aerial_image = image_result_to_PIL(aerial_dict['image'])
+
+        bbox = tall_property.geometry_orig.envelope.coords
+        bboxSR = tall_property.geometry_orig.srid
+        width = settings.REPORT_MAP_WIDTH
+        height = settings.REPORT_MAP_HEIGHT
+
+        aerial_dict = get_aerial_image(bbox=bbox, bboxSR=bboxSR)
         aerial_image = image_result_to_PIL(aerial_dict['image'])
+
         # default soil cartography
         soil_tile_http = get_soil_overlay_tile_data(bbox, width, height)
         soil_image = image_result_to_PIL(soil_tile_http)

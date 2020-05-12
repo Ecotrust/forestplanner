@@ -43,6 +43,7 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     # -   img_data: http(s) response from the request
     # """
     soil_wms_endpoint = settings.SOIL_WMS_URL
+    bbox = get_bbox_as_string(bbox)
 
     if zoom:
         width = int(width/2)
@@ -81,7 +82,7 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     request = 'SERVICE=WFS&REQUEST=GetFeature&VERSION=%s&' % settings.SOIL_WFS_VERSION
     layer = 'TYPENAME=%s&' % settings.SOIL_DATA_LAYER
     projection = 'SRSNAME=%s&' % srs
-    bbox = 'BBOX=%s' % bbox
+    bbox = 'BBOX=%s' % get_bbox_as_string(bbox)
     gml = '&OUTPUTFORMAT=%s' % format
     url = "%s?%s%s%s%s%s" % (endpoint, request, layer, projection, bbox, gml)
     contents = unstable_request_wrapper(url)
@@ -104,6 +105,7 @@ def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
     # OUT:
     # -   gml: an OGR layer interpreted from the GML
     # """
+    bbox = get_bbox_as_string(bbox)
     gml = get_soil_data_gml(bbox, srs, format)
     inLayer = gml.GetLayerByIndex(0)
 
@@ -177,9 +179,52 @@ def geocode(search_string, srs=4326, service='arcgis'):
 
     return coords
 
-def get_aerial_image(bbox, width, height, bboxSR=3857):
+def get_bbox_as_string(bbox):
     # """
-    # get_aerial_image
+    # PURPOSE:
+    # -   if bbox is not a string of 4 coordinates ("W,S,E,N") convert
+    # IN:
+    # -   A bounding box description, either a string, a list, or a GEOSGeometry
+    # OUT:
+    # -   A string representation of the bbox in the format of "W,S,E,N"
+    # """
+    from django.contrib.gis.geos import Polygon, MultiPolygon
+
+    if type(bbox) in [MultiPolygon , Polygon]:
+        west = bbox.coords[0][0][0]
+        south = bbox.coords[0][0][1]
+        east = bbox.coords[0][2][0]
+        north = bbox.coords[0][2][1]
+        return "%s,%s,%s,%s" % (west, south, east, north)
+
+    if type(bbox) in [tuple, list]:
+        if len(bbox) == 1 and len(bbox[0]) == 5: # assume coords from Polygon
+            west = bbox[0][0][0]
+            south = bbox[0][0][1]
+            east = bbox[0][2][0]
+            north = bbox[0][2][1]
+            return "%s,%s,%s,%s" % (west, south, east, north)
+        elif len(bbox) == 1 and len(bbox[0]) == 1 and len(bbox[0][0]) == 5:   # coords from MultiPolygon
+            west = bbox[0][0][0][0]
+            south = bbox[0][0][0][1]
+            east = bbox[0][0][2][0]
+            north = bbox[0][0][2][1]
+            return "%s,%s,%s,%s" % (west, south, east, north)
+        elif len(bbox) == 1 and len(bbox[0]) == 1 and len(bbox[0][0]) > 5:
+            return get_bbox_as_string(MultiPolygon(bbox,).envelope())
+        elif len(bbox) == 4:
+            return ','.join(bbox)
+        elif len(bbox) == 2 and len(bbox[0]) == 2 and len(bbox[1]) == 2:
+            return ','.join([','.join(bbox[0]),','.join([bbox[1]])])
+    if type(bbox) == str:
+        if len(bbox.split(',')) == 4:
+            return bbox
+
+    print('ERROR: Format of BBOX unrecognized. Crossing fingers and hoping for the best...')
+    return bbox
+
+def get_aerial_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
     # -   bbox: (string) comma-separated W,S,E,N coordinates
@@ -194,6 +239,7 @@ def get_aerial_image(bbox, width, height, bboxSR=3857):
     # -   }
     # """
     aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
+    bbox = get_bbox_as_string(bbox)
     # Get URL for request
     if aerial_dict['technology'] == 'arcgis_mapserver':
         aerial_url = ''.join([
@@ -230,14 +276,33 @@ def image_result_to_PIL(image_data):
     # OUT:
     # -   image_object: PIL Image instance of the image
     # """
-    from PIL import Image
+    from PIL import Image, UnidentifiedImageError
     from tempfile import NamedTemporaryFile
 
     fp = NamedTemporaryFile()
-    fp.write(image_data.read())
-    pil_image = Image.open(fp.name)
-    rgba_image = pil_image.convert("RGBA")
-    fp.close()
+    data_content = image_data.read()
+    fp.write(data_content)
+    try:
+        pil_image = Image.open(fp.name)
+
+        rgba_image = pil_image.convert("RGBA")
+        fp.close()
+    except UnidentifiedImageError as e:
+        # RDH 2020-05-11: PIL's Image.open does not seem to work with Django's
+        #       NatedTemporaryFile (perhaps the wrong write type?). We use
+        #       the unique filename created, then do everything by hand,
+        #       being sure to clean up after ourselves when done.
+        import os
+        outfilename = fp.name
+        fp.close()
+        if os.path.exists(outfilename):
+            os.remove(outfilename)
+        temp_file = open(outfilename, 'wb')
+        temp_file.write(data_content)
+        temp_file.close()
+        pil_image = Image.open(outfilename)
+        rgba_image = pil_image.convert("RGBA")
+        os.remove(outfilename)
 
     return rgba_image
 
@@ -258,7 +323,42 @@ def merge_images(background, foreground):
     merged.paste(foreground, (0, 0), foreground)
     return merged
 
-def get_bbox_from_property(property):
+def get_property_from_taxlot_selection(taxlot_list):
+    """
+    PURPOSE:
+    -   Given a list of taxlots, unify them into a single property object
+    IN:
+    -   List of at least 1 taxlot
+    OUT:
+    -   One multipolygon property record (unsaved)
+    """
+    # NOTE: Create a property without adding to the database with Property()
+    #   SEE: https://stackoverflow.com/questions/26672077/django-model-vs-model-objects-create
+    from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+    from landmapper.models import Property
+    # get_taxlot_user
+    user = taxlot_list[0].user
+
+    # Collect taxlot geometries
+    geometries = [x.geometry_final for x in taxlot_list]
+
+    # Merge taxlot geometries
+    merged_geom = False
+    for geom in geometries:
+        if not merged_geom:
+            merged_geom = geom
+        else:
+            merged_geom = merged_geom.union(geom)
+
+    merged_geom = MultiPolygon(merged_geom.unary_union,)
+
+    # Create Property object (don't use 'objects.create()'!)
+    property = Property(user=user, geometry_orig=merged_geom, name='test_property')
+
+    return property
+
+
+def get_bbox_from_property(property):       # TODO
     """
     TODO:
     -   Given a GEOSGeometry, get the bbox and SRS
@@ -285,6 +385,7 @@ def get_bbox_from_property(property):
     -       Else:
     -           You fill in the blank
     """
+
     return (None, orientation)
 
 def get_layer_attribution(layer_name):
@@ -298,13 +399,15 @@ def get_layer_attribution(layer_name):
     else:
         return 'No known attribution for ""%s"' % layer_name
 
-def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):
+def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):        # TODO
+    bbox = get_bbox_as_string(bbox)
     return None
 
-def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):
+def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):      # TODO
+    bbox = get_bbox_as_string(bbox)
     return None
 
-def get_attribution_image(attribution_list):
+def get_attribution_image(attribution_list):            # TODO
     return None
 
 def get_soil_report_image(property, bbox=None, orientation='landscape'):
@@ -322,7 +425,7 @@ def get_soil_report_image(property, bbox=None, orientation='landscape'):
         (bbox, orientation) = get_bbox_from_property(property)
 
     bboxSR = 3857
-    aerial_dict = get_aerial_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    aerial_dict = get_aerial_image(bbox, bboxSR, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT)
     base_image = image_result_to_PIL(aerial_dict['image'])
     # add taxlots
     taxlot_image = get_taxlot_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
@@ -341,10 +444,15 @@ def get_soil_report_image(property, bbox=None, orientation='landscape'):
 
     attribution_image = get_attribution_image(attributions)
 
-    merged = merge_images(aerial_image, taxlot_image)
-    merged = merge_images(merged, property_image)
-    merged = merge_images(merged, soil_image)
-    merged = merge_images(merged, attribution_image)
+    merged = aerial_image
+    if taxlot_image:
+        merged = merge_images(aerial_image, taxlot_image)
+    if property_image:
+        merged = merge_images(merged, property_image)
+    if soil_image:
+        merged = merge_images(merged, soil_image)
+    if attribution_image:
+        merged = merge_images(merged, attribution_image)
     # merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'merged.png'),"PNG")
 
     #TODO: Build and app

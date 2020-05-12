@@ -39,5 +39,13 @@ class Taxlot(MultiPolygonFeature):
     class Meta:
         abstract = False
 
+class Property(MultiPolygonFeature):
+    class Options:
+        form = 'features.forms.SpatialFeatureForm'
+        manipulators = []
+
+    class Meta:
+        abstract = False
+
 class ForestType(models.Model):
     name = models.CharField(max_length=255)

@@ -14,8 +14,14 @@ BASEMAPS = {
         'technology': 'arcgis_mapserver',
         'attribution': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
     },
+    'ESRI_Satellite': {
+        'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
+        'layers': '0',
+        'technology': 'arcgis_mapserver',
+        'attribution': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
+    },
 }
-AERIAL_DEFAULT = 'USGS_Aerial'
+AERIAL_DEFAULT = 'ESRI_Satellite'
 
 ###########################################
 ##      REPORTS                         ###
@@ -44,19 +50,20 @@ SOIL_DATA_LAYER = 'mapunitpolyextended'
 SOIL_ID_FIELD = 'musym'
 
 # https://sdmdataaccess.sc.egov.usda.gov/Citation.htm
-SOIL_SSURGO_ATTRIBUTION = ''.join(
+SOIL_SSURGO_ATTRIBUTION = ''.join([
     "Soil Survey Staff, Natural Resources Conservation Service, ",
     "United States Department of Agriculture. ",
     "Soil Survey Geographic (SSURGO) Database. ",
     "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
     "Accessed %s" % TODAY_DATE
-)
-SOIL_STATSGO_ATTRIBUTION = ''.join(
+])
+SOIL_STATSGO_ATTRIBUTION = ''.join([
     "Soil Survey Staff, Natural Resources Conservation Service, ",
     "United States Department of Agriculture. ",
     "U.S. General Soil Map (STATSGO2). ",
     "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
     "Accessed %s" % TODAY_DATE
+])
 
 # Reference: https://sdmdataaccess.nrcs.usda.gov/documents/TablesAndColumnsReport.pdf
 SOIL_FIELDS = {
