@@ -34,6 +34,10 @@ REPORT_MAP_HEIGHT = 722
 REPORT_CONTENT_WIDTH = 508
 REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 
+REPORT_SUPPORT_ORIENTATION = False
+
+REPORT_MAP_MIN_BUFFER = 0.1
+
 ###########################################
 ##      Soils                           ###
 ###########################################
@@ -41,7 +45,7 @@ REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
 SOIL_WMS_VERSION = '1.1.1'
 SOIL_TILE_LAYER = 'mapunitpoly'
-SOIL_ZOOM_OVERLAY_2X = False
+SOIL_ZOOM_OVERLAY_2X = True
 
 # WFS (soil data)
 SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs'

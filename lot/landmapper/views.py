@@ -28,7 +28,6 @@ def unstable_request_wrapper(url, retries=0):
 
 def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
     # """
-    # get_soil_overlay_tile_data
     # PURPOSE:
     # -   Retrieve the soil tile image http response for a given bbox at a given size
     # IN:
@@ -39,6 +38,8 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     # -       default: settings.REPORT_MAP_HEIGHT
     # -   srs: (string) the formatted Spatial Reference System string describing the
     # -       default: 'EPSG:3857' (Web Mercator)
+    # -   zoom: (bool) whether or not to zoom in on the cartography to make it
+    # -       bolder in the final image
     # OUT:
     # -   img_data: http(s) response from the request
     # """
@@ -61,6 +62,34 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     ])
     img_data = unstable_request_wrapper(request_url)
     return img_data
+
+def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
+    # """
+    # PURPOSE:
+    # -   given a bbox and optionally pixel width, height, and an indication of
+    # -       whether or not to zoom the cartography in, return a PIL Image
+    # -       instance of the soils overlay
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # -   zoom: (bool) whether or not to zoom in on the cartography to make it
+    # -       bolder in the final image
+    # OUT:
+    # -   a PIL Image instance of the soils overlay
+    # """
+    from PIL import Image
+    data = get_soil_overlay_tile_data(bbox, width, height, srs, zoom)
+    image = image_result_to_PIL(data)
+    if zoom:
+        image = image.resize((width, height), Image.ANTIALIAS)
+
+    return image
+
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     # """
@@ -190,11 +219,11 @@ def get_bbox_as_string(bbox):
     # """
     from django.contrib.gis.geos import Polygon, MultiPolygon
 
-    if type(bbox) in [MultiPolygon , Polygon]:
-        west = bbox.coords[0][0][0]
-        south = bbox.coords[0][0][1]
-        east = bbox.coords[0][2][0]
-        north = bbox.coords[0][2][1]
+    if type(bbox) in [Polygon, MultiPolygon]:
+        west = bbox.envelope.coords[0][0][0]
+        south = bbox.envelope.coords[0][0][1]
+        east = bbox.envelope.coords[0][2][0]
+        north = bbox.envelope.coords[0][2][1]
         return "%s,%s,%s,%s" % (west, south, east, north)
 
     if type(bbox) in [tuple, list]:
@@ -210,12 +239,18 @@ def get_bbox_as_string(bbox):
             east = bbox[0][0][2][0]
             north = bbox[0][0][2][1]
             return "%s,%s,%s,%s" % (west, south, east, north)
-        elif len(bbox) == 1 and len(bbox[0]) == 1 and len(bbox[0][0]) > 5:
-            return get_bbox_as_string(MultiPolygon(bbox,).envelope())
-        elif len(bbox) == 4:
-            return ','.join(bbox)
-        elif len(bbox) == 2 and len(bbox[0]) == 2 and len(bbox[1]) == 2:
-            return ','.join([','.join(bbox[0]),','.join([bbox[1]])])
+        elif len(bbox) == 1 and len(bbox[0]) == 1 and len(bbox[0][0]) > 5:  # Non-envelope MultiPolygon coords
+            return get_bbox_as_string(Polygon( bbox[0][0] ).envelope)
+        elif len(bbox) == 1 and len(bbox[0]) > 5:   # Non-envelope Polygon coords
+            return get_bbox_as_string(Polygon(bbox[0]).envelope)
+        elif len(bbox) == 4:    # Simple list [W,S,E,N]
+            return ','.join([str(x) for x in bbox])
+        elif len(bbox) == 2 and len(bbox[0]) == 2 and len(bbox[1]) == 2: # list of two sets of Point coordinates
+            return ','.join([
+                ','.join([str(x) for x in bbox[0]]),
+                ','.join([str(x) for x in bbox[1]])
+            ])
+
     if type(bbox) == str:
         if len(bbox.split(',')) == 4:
             return bbox
@@ -357,36 +392,80 @@ def get_property_from_taxlot_selection(taxlot_list):
 
     return property
 
-
 def get_bbox_from_property(property):       # TODO
-    """
-    TODO:
-    -   Given a GEOSGeometry, get the bbox and SRS
-    -   Determine whether geom is taller or wider in ratio
-    -   If taller:
-    -       The geom bbox should be (0.90 * settings.REPORT_MAP_HEIGHT) pixels tall
-    -       Calculate how wide that would make the bbox in pixels (how?)
-    -           the coordinate values to pixels ratio is constant across web mercator:
-    -               This is true for both comparing x an y axis and across the entire map (at null island is the same as NW Alaska)
-    -       Buffer identical numbers of pixels to the width on each side of the bbox until width == settings.REPORT_MAP_WIDTH
-    -       Buffer (0.05 * settings.REPORT_MAP_HEIGHT) pixels to each the top and the bottom of the bbox
-    -       Determine the bbox of the buffered shape
-    -       return bbox and 'landscape' for orientation (taller maps go on 'landscape' report pages)
-    -           I know this seems backwards
-    -   If wider:
-    -       If we support both landscape AND portrait report layouts (not clear if this is MVP):
-    -           The geom bbox should be (0.90 * settings.REPORT_MAP_HEIGHT) pixels wide
-    -               YES: HEIGHT - since we invert for 'portrait' report layout
-    -           Calculate how tall that would make the bbox in pixels (how?)
-    -           Buffer identical numbers of pixels to the height above and below the bbox until height == settings.REPORT_MAP_WIDTH
-    -           Buffer (0.05 * settings.REPORT_MAP_HEIGHT) pixels to each the left and right of the bbox
-    -           Determine the bbox of the buffered shape
-    -           return bbox and 'portait' for orientation (wider maps go on 'portrait' report pages)
-    -       Else:
-    -           You fill in the blank
-    """
+    # """
+    # PURPOSE:
+    # -   Given a Property instance, return the bounding box and preferred report orientation
+    # IN:
+    # -   property: An instance of landmapper's Property model
+    # OUT:
+    # -   (bbox[str], orientation[str]): A tuple of two strings, the first is the
+    # -       string representation of the bounding box (EPSG:3857), the second is
+    # -       the type of orientation the resulting report should use to print
+    # -       itself
+    # """
+    if hasattr(property, 'geometry_final') and property.geometry_final:
+        geometry = property.geometry_final
+    elif hasattr(property, 'geometry_orig') and property.geometry_orig:
+        geometry = property.geometry_orig
+    elif hasattr(property, 'envelope'):
+        geometry = property
+    else:
+        print("ERROR: property type unrecognized")
+        return ("ERROR", "ERROR")
+    if not geometry.srid == 3857:
+        geometry.transform(3857)
+    envelope = geometry.envelope.coords
+    # assumption: GEOSGeom.evnelope().coords returns (((W,S),(E,S),(E,N),(W,N),(W,S),),)
+    west = envelope[0][0][0]
+    south = envelope[0][0][1]
+    east = envelope[0][2][0]
+    north = envelope[0][2][1]
 
-    return (None, orientation)
+    property_width = abs(float(east - west))
+    property_height = abs(float(north - south))
+
+    property_ratio = property_width / property_height
+
+    if abs(property_ratio) > 1.0 and settings.REPORT_SUPPORT_ORIENTATION:  # wider than tall and portrait reports allowed
+        target_width = settings.REPORT_MAP_HEIGHT
+        target_height = settings.REPORT_MAP_WIDTH
+        orientation = 'portrait'
+
+    else:
+        target_width = float(settings.REPORT_MAP_WIDTH)
+        target_height = float(settings.REPORT_MAP_HEIGHT)
+        orientation = 'landscape'
+
+    target_ratio = target_width / target_height
+    pixel_width = target_width * (1 - settings.REPORT_MAP_MIN_BUFFER)
+    pixel_height = target_height * (1 - settings.REPORT_MAP_MIN_BUFFER)
+
+    # compare envelope ratio to target image ratio to make sure we constrain the correct axis first
+    if property_ratio >= target_ratio: # limit by width
+        coord_per_pixel = property_width / pixel_width
+        buffer_width_pixel = target_width * settings.REPORT_MAP_MIN_BUFFER / 2
+        buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+        property_pixel_height = property_height / coord_per_pixel
+        height_diff = target_height - property_pixel_height
+        buffer_height_pixel = height_diff / 2
+        buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+    else:   # limit by height
+        coord_per_pixel = property_height / pixel_height
+        buffer_height_pixel = target_height * settings.REPORT_MAP_MIN_BUFFER / 2
+        buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+        property_pixel_width = property_width / coord_per_pixel
+        width_diff = target_width - property_pixel_width
+        buffer_width_pixel = width_diff / 2
+        buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+
+    box_west = west - buffer_width_coord
+    box_east = east + buffer_width_coord
+    box_north = north + buffer_height_coord
+    box_south = south - buffer_height_coord
+
+
+    return (get_bbox_as_string([box_west,box_south,box_east,box_north]), orientation)
 
 def get_layer_attribution(layer_name):
     # """
@@ -410,7 +489,7 @@ def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.RE
 def get_attribution_image(attribution_list):            # TODO
     return None
 
-def get_soil_report_image(property, bbox=None, orientation='landscape'):
+def get_soil_report_image(property, bbox=None, orientation='landscape', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, debug=False):
     # """
     # PURPOSE:
     # -   given a property object, return an image formatted for the soil report.
@@ -421,19 +500,25 @@ def get_soil_report_image(property, bbox=None, orientation='landscape'):
     # OUT:
     # -   soil_report_image: (PIL Image) the soil report map image
     # """
+    if debug:
+        import os
     if not bbox:
         (bbox, orientation) = get_bbox_from_property(property)
+    if orientation == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
+        print("ORIENTATION SET TO 'PORTRAIT'")
+        temp_width = width
+        width = height
+        height = temp_width
 
     bboxSR = 3857
-    aerial_dict = get_aerial_image(bbox, bboxSR, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT)
+    aerial_dict = get_aerial_image(bbox, bboxSR, width, height)
     base_image = image_result_to_PIL(aerial_dict['image'])
     # add taxlots
-    taxlot_image = get_taxlot_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    taxlot_image = get_taxlot_image(bbox, width, height, bboxSR)
     # add property
-    property_image = get_property_image(bbox, settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT, bboxSR)
+    property_image = get_property_image(bbox, width, height, bboxSR)
     # default soil cartography
-    soil_tile_http = get_soil_overlay_tile_data(bbox, width, height)
-    soil_image = image_result_to_PIL(soil_tile_http)
+    soil_image = get_soil_overlay_tile_image(bbox, width, height)
 
     # generate attribution image
     attributions = [
@@ -444,18 +529,19 @@ def get_soil_report_image(property, bbox=None, orientation='landscape'):
 
     attribution_image = get_attribution_image(attributions)
 
-    merged = aerial_image
+    merged = base_image
+    if debug:
+        base_image.save(os.path.join(settings.IMAGE_TEST_DIR, 'base_image.png'),"PNG")
     if taxlot_image:
-        merged = merge_images(aerial_image, taxlot_image)
+        merged = merge_images(base_image, taxlot_image)
     if property_image:
         merged = merge_images(merged, property_image)
     if soil_image:
+        if debug:
+            soil_image.save(os.path.join(settings.IMAGE_TEST_DIR, 'soil_image.png'),"PNG")
         merged = merge_images(merged, soil_image)
     if attribution_image:
         merged = merge_images(merged, attribution_image)
-    # merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'merged.png'),"PNG")
-
-    #TODO: Build and app
 
     return merged
 

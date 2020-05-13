@@ -43,18 +43,15 @@ class ModelTests(TestCase):
             poly_4 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13681279.9385 5478006.679099999, -13680722.0809 5478015.218999997, -13680723.1572 5477455.464900002, -13681280.5667 5477446.9441, -13681840.2315 5477438.354400001, -13681838.8572 5477998.089199997, -13681279.9385 5478006.679099999)))', srid=3857)
             # nearby 'tall' ratio taxlot
             poly_5 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13679588.897 5484177.156499997, -13679587.9734 5483615.298299998, -13679587.051 5483053.471600004, -13680143.9512 5483045.795699999, -13680148.3177 5483612.898599997, -13680152.6443 5484174.773000002, -13679588.897 5484177.156499997)))', srid=3857)
-            # transform polies from 3857 to 4326
-            poly_1.transform(4326)
-            poly_2.transform(4326)
-            poly_3.transform(4326)
-            poly_4.transform(4326)
-            poly_5.transform(4326)
+            # far away taxlot in Bend, OR
+            poly_6 = GEOSGeometry('SRID=3857;MULTIPOLYGON (((-13497350.5573 5466642.792599998, -13497362.4181 5466097.011299998, -13496818.6803 5466089.796300001, -13496841.6402 5464979.914999999, -13496842.3361 5464962.954899997, -13496847.8271 5464938.125299998, -13496854.4567 5464922.439199999, -13496862.9991 5464907.7971, -13496873.457 5464894.491099998, -13496885.6206 5464882.735399999, -13496899.281 5464872.796899997, -13496915.9134 5464864.078699999, -13497186.7509 5464756.381200001, -13497218.3726 5464744.583499998, -13497243.0659 5464738.578500003, -13497276.6577 5464734.244800001, -13497303.3047 5464733.873199999, -13497301.1837 5464709.457099997, -13497267.3398 5464709.203500003, -13497233.7491 5464713.643200003, -13497201.257 5464722.689599998, -13497177.6548 5464732.478600003, -13496906.2013 5464842.197300002, -13496890.8283 5464849.816299997, -13496870.23 5464864.486199997, -13496857.8543 5464876.191, -13496845.093 5464892.1175, -13496855.5253 5464422.189599998, -13497398.8988 5464424.464199997, -13497956.0209 5464426.768299997, -13498311.1495 5464428.221500002, -13498513.3548 5464429.037199996, -13498506.7787 5464988.822300002, -13498499.9906 5465548.669100001, -13498493.2115 5466109.637100004, -13498492.3651 5466109.618199997, -13498489.4617 5466373.697999999, -13498485.0185 5466373.632200003, -13498483.1133 5466256.362300001, -13498150.3055 5466368.762400001, -13497931.1132 5466365.570900001, -13497935.5942 5466652.810099997, -13497910.2055 5466652.561800003, -13497629.6409 5466647.688199997, -13497473.0662 5466644.93, -13497350.5573 5466642.792599998)))', srid=3857)
 
             tl1 = Taxlot.objects.create(user=test_user, geometry_orig=poly_1, name='test_mid_wide')
             tl2 = Taxlot.objects.create(user=test_user, geometry_orig=poly_2, name='test_top_wide')
             tl3 = Taxlot.objects.create(user=test_user, geometry_orig=poly_3, name='test_small_detached')
             tl4 = Taxlot.objects.create(user=test_user, geometry_orig=poly_4, name='test_bottom_wide')
             tl5 = Taxlot.objects.create(user=test_user, geometry_orig=poly_5, name='test_solo_tall')
+            tl6 = Taxlot.objects.create(user=test_user, geometry_orig=poly_6, name='test_bend_lot')
 
     def test_taxlot(self):
         from landmapper.models import Taxlot
@@ -182,6 +179,55 @@ class ViewTests(TestCase):
         self.assertEqual(coords, [37.389670000000024, -122.08159999999998])
         print('geocoder')
 
+    def test_bbox_to_string(self):
+        from landmapper.views import get_bbox_as_string
+        from landmapper.models import Taxlot
+        from django.contrib.gis.geos import MultiPolygon, Polygon
+
+        ModelTests.create_taxlot_records(ModelTests)
+
+        taxlot = Taxlot.objects.all()[0]
+        geom = taxlot.geometry_final
+
+        north = geom.envelope.coords[0][2][1]
+        south = geom.envelope.coords[0][0][1]
+        east = geom.envelope.coords[0][2][0]
+        west = geom.envelope.coords[0][0][0]
+
+        correct_output = ','.join([str(west),str(south),str(east),str(north)])
+
+        self.assertLess(west, east)
+        self.assertLess(south, north)
+
+        if type(geom) == Polygon:
+            polygon_input = geom
+            multipolygon_input = MultiPolygon([geom,])
+        else:
+            polygon_input = Polygon(geom.coords[0][0])
+            multipolygon_input = geom
+
+        # CASES:
+        #   Polygon
+        polygon_input = Polygon(((west,south),(east,south),(east,north),(west,north),(west,south)))
+        self.assertEqual(correct_output, get_bbox_as_string(polygon_input))
+        #   MultiPolygon
+        self.assertEqual(correct_output, get_bbox_as_string(MultiPolygon([polygon_input,])))
+        #   Coords from Polygon ((W,S),(E,S),(E,N),(W,N),(W,S))
+        self.assertEqual(correct_output, get_bbox_as_string(polygon_input.envelope.coords))
+        #   Coords from MultiPolygon (((W,S),(E,S),(E,N),(W,N),(W,S)),)
+        # self.assertEqual(correct_output, get_bbox_as_string(((west,south),(east,south),(east,north),(west,north),(west,south))))
+        self.assertEqual(correct_output, get_bbox_as_string(multipolygon_input.envelope.coords))
+        #   Non-envelope MultiPolygon
+        self.assertEqual(correct_output, get_bbox_as_string(multipolygon_input))
+        self.assertEqual(correct_output, get_bbox_as_string(multipolygon_input.coords))
+        #   Non-envelope Polygon
+        self.assertEqual(correct_output, get_bbox_as_string(polygon_input))
+        self.assertEqual(correct_output, get_bbox_as_string(polygon_input.coords))
+        #   Simple list object [W,S,E,N]
+        self.assertEqual(correct_output, get_bbox_as_string([west, south, east, north]))
+        #   List of two sets of point coordinates [(W,S),(E,N)]
+        self.assertEqual(correct_output, get_bbox_as_string([(west, south), (east, north)]))
+
     def test_tiles(self):
         # TODO: Tile requests
         #   basemap images
@@ -198,7 +244,8 @@ class ViewTests(TestCase):
         """
         import os
         from PIL import Image
-        from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images, get_property_from_taxlot_selection, get_bbox_as_string
+        # from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images, get_property_from_taxlot_selection, get_bbox_as_string, get_bbox_from_property
+        from landmapper.views import get_property_from_taxlot_selection, get_soil_report_image
         # from django.contrib.gis.geos import GEOSGeometry
         from landmapper.models import Taxlot
 
@@ -212,46 +259,30 @@ class ViewTests(TestCase):
         wide_taxlot_mid = Taxlot.objects.get(name='test_mid_wide')
         wide_taxlot_bottom = Taxlot.objects.get(name='test_bottom_wide')
 
+        bend_taxlot = Taxlot.objects.get(name='test_bend_lot')
+
         wide_property = get_property_from_taxlot_selection([wide_taxlot_mid,])
 
         tall_property = get_property_from_taxlot_selection([tall_taxlot,])
 
-        stacked_tall_property = get_property_from_taxlot_selection([
+        stacked_property = get_property_from_taxlot_selection([
             wide_taxlot_top,
             wide_taxlot_mid,
             wide_taxlot_bottom
         ])
 
+        bend_property = get_property_from_taxlot_selection([bend_taxlot,])
 
-        # # BBOX
-        # bbox = '-13505988.11665581167,5460691.044468306005,-13496204.17703530937,5473814.764981821179'
-        # bboxSR = 3857
-        #
-        # # Convert to height, width, zoom, centroid, etc... ?
-        # width = 665
-        # height = 892
-        # aerial_dict = get_aerial_image(bbox, width, height, bboxSR)
-        # aerial_image = image_result_to_PIL(aerial_dict['image'])
+        tall_prop_image_data = get_soil_report_image(tall_property, debug=False)
+        tall_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'tall_soil.png'),"PNG")
 
-        bbox = tall_property.geometry_orig.envelope.coords
-        bboxSR = tall_property.geometry_orig.srid
-        width = settings.REPORT_MAP_WIDTH
-        height = settings.REPORT_MAP_HEIGHT
+        wide_prop_image_data = get_soil_report_image(wide_property)
+        wide_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'wide_soil.png'),"PNG")
+        stacked_prop_image_data = get_soil_report_image(stacked_property)
+        stacked_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'stacked_soil.png'),"PNG")
 
-        aerial_dict = get_aerial_image(bbox=bbox, bboxSR=bboxSR)
-        aerial_image = image_result_to_PIL(aerial_dict['image'])
-
-        # default soil cartography
-        soil_tile_http = get_soil_overlay_tile_data(bbox, width, height)
-        soil_image = image_result_to_PIL(soil_tile_http)
-        merged = merge_images(aerial_image, soil_image)
-        merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'merged.png'),"PNG")
-        # 'zoomed' soil cartography
-        zoomed_soil_tile_http = get_soil_overlay_tile_data(bbox, width, height, zoom=True)
-        zoomed_soil_image = image_result_to_PIL(zoomed_soil_tile_http)
-        zoomed_soil_image = zoomed_soil_image.resize(aerial_image.size, Image.ANTIALIAS)
-        zoom_merged = merge_images(aerial_image, zoomed_soil_image)
-        zoom_merged.save(os.path.join(settings.IMAGE_TEST_DIR, 'zoom_merged.png'),"PNG")
+        bend_prop_image_data = get_soil_report_image(bend_property)
+        bend_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'bend_soil.png'),"PNG")
 
         print('tiles')
 
