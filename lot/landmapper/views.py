@@ -90,7 +90,6 @@ def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=se
 
     return image
 
-
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     # """
     # get_soil_data_gml
@@ -258,6 +257,31 @@ def get_bbox_as_string(bbox):
     print('ERROR: Format of BBOX unrecognized. Crossing fingers and hoping for the best...')
     return bbox
 
+def get_bbox_as_polygon(bbox, srid=3857):
+    # """
+    # PURPOSE:
+    # -   return a polygon bounding box from a large number of possible formats
+    # IN:
+    # -   bbox: (str, GEOS geom, list or tuple) any one of the bbox representations
+    # -       of a bounding box supported by 'get_bbox_as_string'
+    # -   ssrid: (int) the EPSG spatial reference identifier for the coordinate
+    # -       system used to interpret the given coordinates
+    # -       default: 3857
+    # OUT:
+    # -   bbox_geom: (GEOS Polygon) A GEOS Polygon feature of the provided bounding
+    # -       box
+    # """
+    from django.contrib.gis.geos import Polygon
+    # Get BBOX into consistant format
+    bbox_str = get_bbox_as_string(bbox)
+    # convert list into W,S,E,N components
+    [west, south, east, north] = [float(x) for x in bbox_str.split(',')]
+    # Format W,S,E,N into point coordinates
+    polygon_input = [(west,south),(east,south),(east,north),(west,north),(west,south)]
+    # Create the Polygon with the provided SRID
+    bbox_geom = Polygon(polygon_input, srid=srid)
+    return bbox_geom
+
 def get_aerial_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
@@ -392,7 +416,7 @@ def get_property_from_taxlot_selection(taxlot_list):
 
     return property
 
-def get_bbox_from_property(property):       # TODO
+def get_bbox_from_property(property):       # TODO: This should be a method on property instances called 'bbox'
     # """
     # PURPOSE:
     # -   Given a Property instance, return the bounding box and preferred report orientation
@@ -479,7 +503,27 @@ def get_layer_attribution(layer_name):
         return 'No known attribution for ""%s"' % layer_name
 
 def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):        # TODO
-    bbox = get_bbox_as_string(bbox)
+    """
+    PURPOSE:
+    -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
+    IN:
+    -   bbox: (string) comma-separated W,S,E,N coordinates
+    -   width: (int) The number of pixels for the width of the image
+    -       default: REPORT_MAP_WIDTH from settings
+    -   height: (int) The number of pixels for the height of the image
+    -       default: REPORT_MAP_HEIGHT from settings
+    -   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
+    -       default: 3857
+    OUT:
+    -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
+    -       rendered with the appropriate styles
+    """
+    from PIL import Image
+    from django.contrib.gis.geos import GEOSGeometry, Polygon, MultiPolygon
+    from landmapper.models import Taxlot
+    bbox_geom = get_bbox_as_polygon(bbox)
+    taxlots = Taxlot.objects.filter(geometry_final__intersects=bbox_geom)
+
     return None
 
 def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):      # TODO

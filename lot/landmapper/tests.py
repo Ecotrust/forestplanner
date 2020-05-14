@@ -273,16 +273,17 @@ class ViewTests(TestCase):
 
         bend_property = get_property_from_taxlot_selection([bend_taxlot,])
 
-        tall_prop_image_data = get_soil_report_image(tall_property, debug=False)
-        tall_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'tall_soil.png'),"PNG")
+        property_runs = [
+            ('tall', tall_property),
+            ('wide', wide_property),
+            ('stacked', stacked_property),
+            ('bend', bend_property)
+        ]
 
-        wide_prop_image_data = get_soil_report_image(wide_property)
-        wide_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'wide_soil.png'),"PNG")
-        stacked_prop_image_data = get_soil_report_image(stacked_property)
-        stacked_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'stacked_soil.png'),"PNG")
-
-        bend_prop_image_data = get_soil_report_image(bend_property)
-        bend_prop_image_data.save(os.path.join(settings.IMAGE_TEST_DIR, 'bend_soil.png'),"PNG")
+        for property in property_runs:
+            (prop_name, prop_instance) = property
+            image_data = get_soil_report_image(prop_instance, debug=False)
+            image_data.save(os.path.join(settings.IMAGE_TEST_DIR, '%s_soil.png' % prop_name),"PNG")
 
         print('tiles')
 
