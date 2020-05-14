@@ -322,10 +322,9 @@ class ViewTests(TestCase):
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
-        # from landmapper.views import index
-        # response = self.client.get(reverse(index))
-        # self.assertEqual(response.status_code, 200)
-        print('test index page')
+        from landmapper.views import index
+        response = self.client.get(reverse(index))
+        self.assertEqual(response.status_code, 200)
 
     def test_identify_gather(self):
         """
@@ -354,10 +353,9 @@ class ViewTests(TestCase):
             create variable to store result of fetching the identify page
             assert response is 200
         """
-        # from landmapper.views import identify
-        # response = self.client.get(reverse(identify))
-        # self.assertEqual(response.status_code, 200)
-        print('test identify render')
+        from landmapper.views import identify
+        response = self.client.get(reverse(identify))
+        self.assertEqual(response.status_code, 200)
 
     def test_report_gather(self):
         """
@@ -388,10 +386,9 @@ class ViewTests(TestCase):
         USES:
             CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
         """
-        # from landmapper.views import report
-        # response = self.client.get(reverse(report))
-        # self.assertEqual(response.status_code, 200)
-        print('test report render')
+        from landmapper.views import report
+        response = self.client.get(reverse(report))
+        self.assertEqual(response.status_code, 200)
 
     def test_create_property(self):
         """
