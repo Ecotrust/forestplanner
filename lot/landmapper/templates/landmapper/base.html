@@ -1,6 +1,40 @@
 {% load static %}
-<HTML>
-  <HEAD>
+<!DOCTYPE html>
+</html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!--
+      Allows control over where resources are loaded from.
+      Place as early in the <head> as possible, as the tag
+      only applies to resources that are declared after it.
+    -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'">
+
+    <!-- Name of web application (only should be used if the website is used as an app) -->
+    <meta name="application-name" content="Application Name">
+
+    <!-- Theme Color for Chrome, Firefox OS and Opera -->
+    <meta name="theme-color" content="#4285f4">
+
+    <!-- Short description of the document (limit to 150 characters) -->
+    <!-- This content *may* be used as a part of search engine results. -->
+    <meta name="description" content="A description of the page">
+
+    <!-- Control the behavior of search engine crawling and indexing -->
+    <meta name="robots" content="index,follow"><!-- All Search Engines -->
+    <meta name="googlebot" content="index,follow"><!-- Google Specific -->
+
+    <!-- Tells Google not to show the sitelinks search box -->
+    <meta name="google" content="nositelinkssearchbox">
+
+    <!-- Tells Google not to provide a translation for this document -->
+    <meta name="google" content="notranslate">
+
+    <!-- TODO add page title -->
+    <title>Page Title</title>
+
     <!-- Latest compiled and minified CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
 
@@ -11,12 +45,17 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     <link rel="stylesheet" href="{% static 'landmapper/css/home.css' %}">
-  </HEAD>
-  <BODY>
+  </head>
+
+  <body>
+    <header></header>
+    <main></main>
+    <footer></footer>
     <a href="/">&lt;= Back to Land Owner Tools</a>
     <div class='container'>
       <h1 class='title'>Land Mapper 2.0</h1>
       <p>There will be some stuff here... probably.</p>
     </div>
-  </BODY>
-</HTML>
+  </body>
+
+</html>

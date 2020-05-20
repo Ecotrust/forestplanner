@@ -422,6 +422,13 @@ class ViewTests(TestCase):
     def test_views(self):
         print("Views!")
 
+class TemplateTests(TestCase):
+
+    def test_home_template_render(self):
+        from landmapper.views import home
+        response = self.client.get(reverse(index))
+        self.assertEqual(response.status_code, 200)
+
 class FrontendTests(StaticLiveServerTestCase):
     """
     state changes
