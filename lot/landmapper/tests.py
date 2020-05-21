@@ -470,16 +470,16 @@ class FrontendTests(StaticLiveServerTestCase):
         From 'get help'
     downloads?
     """
-    @classmethod
-    def setUpClass(cls):
-        super().setUpClass()
-        cls.selenium = WebDriver()
-        cls.selenium.implicitly_wait(2)
-
-    @classmethod
-    def tearDownClass(cls):
-        cls.selenium.quit()
-        super().tearDownClass()
+    # @classmethod
+    # def setUpClass(cls):
+    #     super().setUpClass()
+    #     cls.selenium = WebDriver()
+    #     cls.selenium.implicitly_wait(2)
+    #
+    # @classmethod
+    # def tearDownClass(cls):
+    #     cls.selenium.quit()
+    #     super().tearDownClass()
 
     # def test_home(self):
     #    # TODOS:
