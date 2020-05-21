@@ -287,14 +287,15 @@ class ViewTests(TestCase):
 
         print('tiles')
 
-    """
-    Templates
-        correctly formatted context for rendering templates
-        reporting values
-        ForestType queries
-        legend creation (map, forest type, soil)
-        table creation (overview, forest type, soil)
-    """
+
+    # """
+    # TEMPLATES
+    #     correctly formatted context for rendering templates
+    #     reporting values
+    #     ForestType queries
+    #     legend creation (map, forest type, soil)
+    #     table creation (overview, forest type, soil)
+    # """
 
     # Should we break up views into 'gather' and 'render' functions?
     # Perhaps the 'gather' functions are modular children - the parent requests
@@ -316,14 +317,14 @@ class ViewTests(TestCase):
         #   ...
         print('home view gather')
 
-    def test_index_page(self):
+    def test_home_page(self):
         """
             TODO:
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
-        from landmapper.views import index
-        response = self.client.get(reverse(index))
+        from landmapper.views import home
+        response = self.client.get(reverse(home))
         self.assertEqual(response.status_code, 200)
 
     def test_identify_gather(self):
@@ -422,12 +423,7 @@ class ViewTests(TestCase):
     def test_views(self):
         print("Views!")
 
-class TemplateTests(TestCase):
 
-    def test_home_template_render(self):
-        from landmapper.views import home
-        response = self.client.get(reverse(index))
-        self.assertEqual(response.status_code, 200)
 
 class FrontendTests(StaticLiveServerTestCase):
     """
