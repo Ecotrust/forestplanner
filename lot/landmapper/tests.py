@@ -323,8 +323,10 @@ class ViewTests(TestCase):
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
+        self.browser = WebDriver.Firefox()
         from landmapper.views import home
-        response = self.client.get(reverse(home))
+        # response = self.client.get(reverse(home))
+        response = self.browser.get(reverse(home))
         self.assertEqual(response.status_code, 200)
 
     def test_identify_gather(self):
@@ -470,6 +472,9 @@ class FrontendTests(StaticLiveServerTestCase):
         From 'get help'
     downloads?
     """
+
+    # browser = WebDriver.Firefox()
+
     # @classmethod
     # def setUpClass(cls):
     #     super().setUpClass()
@@ -491,7 +496,9 @@ class FrontendTests(StaticLiveServerTestCase):
 
     # def test_login(self):
     def test_browser(self):
-        print("Front End!")
+        print('browser')
+        # browser.get('http://localhost:8000')
+        # assert 'Print My Land Map' in browser.title
 
 # class MySeleniumTests(StaticLiveServerTestCase):
 #     # fixtures = ['user-data.json']
