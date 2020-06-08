@@ -1,3 +1,6 @@
+import os, sys
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'lot.settings')
+
 import unittest
 # from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 # from selenium.webdriver.firefox.webdriver import WebDriver
@@ -53,6 +56,7 @@ class FrontendTests(unittest.TestCase):
     """
 
     def setUp(self):
+        # Browser for all tests
         self.browser = webdriver.Firefox()
 
     def tearDown(self):
@@ -91,8 +95,8 @@ class FrontendTests(unittest.TestCase):
         # logo = self.browser.find_element_by_tag_name()
 
 if __name__ == '__main__':
-    unittest.main(warnings='ignore')
-    
+    unittest.main()
+
 # class MySeleniumTests(StaticLiveServerTestCase):
 #     # fixtures = ['user-data.json']
 #     #
