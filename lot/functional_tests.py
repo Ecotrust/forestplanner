@@ -90,6 +90,9 @@ class FrontendTests(unittest.TestCase):
         # check for logo
         # logo = self.browser.find_element_by_tag_name()
 
+if __name__ == '__main__':
+    unittest.main(warnings='ignore')
+    
 # class MySeleniumTests(StaticLiveServerTestCase):
 #     # fixtures = ['user-data.json']
 #     #
