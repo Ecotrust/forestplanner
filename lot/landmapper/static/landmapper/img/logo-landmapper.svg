@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="242" height="37" viewBox="0 0 242 37">
+  <defs>
+    <style>
+      .cls-1 {
+        font-size: 30px;
+        font-family: Helvetica;
+        letter-spacing: 0.05em;
+      }
+
+      .cls-2 {
+        fill: #78a22f;
+      }
+    </style>
+  </defs>
+  <g id="Group_35" data-name="Group 35" transform="translate(-39 -18)">
+    <text id="Landmapper" class="cls-1" transform="translate(99 48)"><tspan x="0" y="0">Landmapper</tspan></text>
+    <g id="Group_32" data-name="Group 32" transform="translate(-150.5 -199.904)">
+      <path id="Path_9" data-name="Path 9" class="cls-2" d="M205.534,224.177l14.681-5.1v28.547L206.5,252.611h-.966Z" transform="translate(-2.481)"/>
+      <g id="Group_31" data-name="Group 31" transform="translate(189.5 217.904)">
+        <path id="Path_10" data-name="Path 10" d="M217.314,217.914a.872.872,0,0,1,.223.055l13.4,5.362a.894.894,0,0,1,.559.838v28.6a.893.893,0,0,1-.9.888.872.872,0,0,1-.331-.065L217.2,248.366l-13.069,5.221a.888.888,0,0,1-.67,0l-13.4-5.362a.893.893,0,0,1-.559-.823v-28.6a.894.894,0,0,1,.885-.9.906.906,0,0,1,.344.065l13.069,5.222,13.069-5.222A.888.888,0,0,1,217.314,217.914Zm-26.027,2.205v26.669l11.617,4.636V224.769Zm26.808.014v26.655l11.617,4.649V224.769Zm-1.787,0-11.617,4.635v26.655l11.617-4.635V220.134Z" transform="translate(-189.5 -217.904)"/>
+      </g>
+    </g>
+  </g>
+</svg>
