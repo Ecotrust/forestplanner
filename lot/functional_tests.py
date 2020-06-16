@@ -86,13 +86,11 @@ class FrontendTests(unittest.TestCase):
         # look for <header> tag
         self.browser.get('http://localhost:8000/landmapper/')
         header = self.browser.find_element_by_tag_name('header')
-        print(header)
-        self.assertIn('svg', header.text)
+        # Find logo
+        logo = self.browser.find_element_by_id('navbar-brand-img')
+        # TODO: need a better test than assertTrue
+        self.assertTrue(logo)
 
-        self.fail('finish test')
-
-        # check for logo
-        # logo = self.browser.find_element_by_tag_name()
 
 if __name__ == '__main__':
     unittest.main()
