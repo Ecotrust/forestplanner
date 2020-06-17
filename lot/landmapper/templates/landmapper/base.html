@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    {% block head_meta %}
     <!--
       Allows control over where resources are loaded from.
       Place as early in the <head> as possible, as the tag
@@ -34,7 +35,9 @@
 
     <!-- TODO add page title -->
     <title>Print My Land Map</title>
+    {% endblock head_meta %}
 
+    {% block styles %}
     <!-- Latest compiled and minified CSS -->
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"> -->
     <!-- Using latest version of bootstrap -->
@@ -42,6 +45,13 @@
 
     <!-- Our home stylesheet -->
     <link rel="stylesheet" href="{% static 'landmapper/css/home.css' %}">
+    {% endblock styles %}
+
+    {% block extra_styles %}{% endblock extra_styles %}
+
+    {% block head_scripts %}{% endblock head_scripts %}
+
+    {% block extra_head_scripts %}{% endblock extra_head_scripts %}
 
     <!-- Not using jquery until needed.
           if jquery is needed, best to add before closing body tag,
@@ -56,13 +66,16 @@
 
   </head>
 
-  <body>
-    <header>
-      <nav class="navbar navbar-light bg-light">
-        <a class="navbar-brand" href="#"><img id="navbar-brand-img" src="{% static 'landmapper/img/logo-landmapper.svg' %}" /></a>
-      </nav>
-    </header>
-    <main></main>
+  <body class="{% block bodyclass %}{% endblock %}">
+    <!-- accessibility option for screen readers only -->
+    <a class="sr-only sr-only-focusable" href="#main-content">Skip to main content</a>
+
+    {% block header %}
+      {% include 'landmapper/common/header.html' %}
+    {% endblock header %}
+
+
+    <main id="main-content"></main>
     <footer></footer>
     <a href="/">&lt;= Back to Land Owner Tools</a>
     <div class='container'>

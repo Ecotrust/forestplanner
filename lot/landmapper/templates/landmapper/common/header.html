@@ -1,0 +1,19 @@
+{% load static %}
+<header>
+  <nav class="navbar navbar-light bg-light">
+    <a class="navbar-brand" href="/landmapper/"><img id="navbar-brand-img" src="{% static 'landmapper/img/logo-landmapper.svg' %}" /></a>
+  </nav>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ml-auto">
+      <li class="nav-item active">
+        <a class="nav-link" href="/landmapper/">Home <span class="sr-only">(current)</span></a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/landmapper/{% url 'features' %}">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/landmapper/{% url 'help' %}">Help</a>
+      </li>
+    </ul>
+  </div>
+</header>
