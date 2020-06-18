@@ -307,6 +307,7 @@ class ViewTests(TestCase):
         #   correct value types for each keyword
         #   correct values
         #   correct order (of MenuPage instances)
+
         print('header view')
 
     def test_home_view_gather(self):
@@ -403,6 +404,14 @@ class ViewTests(TestCase):
         # from landmapper.views import create_property
         print('property created')
 
+    def test_about_page_gather(self):
+        # from landmapper.models import MenuPage
+        # from landmapper.views import aboutMenuPage
+        # response = self.client.get(reverse(aboutMenuPage))
+        print('about')
+        # about_page = MenuPage.objects.all(name='about')
+        # self.assertTrue('about', about_page.content)
+
     """
     Error Handling
     """
@@ -421,3 +430,9 @@ class ViewTests(TestCase):
     """
     def test_views(self):
         print("Views!")
+
+
+    # def teat_help_page_gather(self):
+    #     from landmapper.views import about
+    #     response = self.client.get(reverse(about))
+    #     self.assertEqual(response.status_code, 200)

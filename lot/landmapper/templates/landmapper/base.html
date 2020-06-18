@@ -75,13 +75,18 @@
     {% endblock header %}
 
 
-    <main id="main-content"></main>
-    <footer></footer>
-    <a href="/">&lt;= Back to Land Owner Tools</a>
-    <div class='container'>
-      <h1 class='title'>Land Mapper 2.0</h1>
-      <p>There will be some stuff here... probably.</p>
-    </div>
+    {% block main %}
+      <main id="main-content" class="container">
+        {% block content %}
+          <div class="content"></div>
+        {% endblock content %}
+      </main>
+    {% endblock main %}
+
+    {% block footer %}
+      <footer></footer>
+    {% endblock footer %}
+
   </body>
 
 </html>

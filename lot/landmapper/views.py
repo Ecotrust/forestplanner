@@ -633,3 +633,11 @@ def create_property(request, taxlot_ids, property_name):
     #         django caching API
     # '''
     return None
+
+def aboutMenuPage(request):
+    '''
+    Land Mapper: About Menu Page
+    '''
+    from landmapper.models import MenuPage
+    about_page = MenuPage.objects.get(name='about')
+    # return about_page
