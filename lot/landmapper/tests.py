@@ -325,7 +325,7 @@ class ViewTests(TestCase):
         response = self.client.get(reverse(home))
         # response = self.browser.get(reverse(home))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'home.html')
+        self.assertTemplateUsed(response, '/landmapper/home.html')
 
     def test_identify_gather(self):
         """
