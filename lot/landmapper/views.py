@@ -600,18 +600,33 @@ def home(request):
 def index(request):
     '''
     Land Mapper: Index Page
+    (landing: slide 1)
     '''
     return render(request, 'landmapper/base.html', {})
 
 def identify(request):
     '''
     Land Mapper: Identify Pages
+    IN
+        coords
+        search string
+        (opt) taxlot ids
+        (opt) property name
+    OUT
+        Rendered Template
     '''
     return render(request, 'landmapper/base.html', {})
 
 def report(request):
     '''
     Land Mapper: Report Pages
+    Report (slides 5-7a)
+    IN
+    taxlot ids
+    property name
+    OUT
+    Rendered Template
+    Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
     return render(request, 'landmapper/base.html', {})
 
@@ -632,6 +647,16 @@ def create_property(request, taxlot_ids, property_name):
     #         django docs
     #         django caching API
     # '''
+    '''
+    (called before loading 'Report', cached)
+    IN:
+    taxlot_ids[ ]
+    property_name
+    OUT:
+    Madrona polygon feature
+    NOTES:
+    CACHE THESE!!!!
+    '''
     return None
 
 def aboutMenuPage(request):
@@ -641,3 +666,135 @@ def aboutMenuPage(request):
     from landmapper.models import MenuPage
     about_page = MenuPage.objects.get(name='about')
     # return about_page
+
+
+def CreateProperty(request):
+    '''
+    CreateAerialReport: (slide 7b)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+    BuildLegend
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreateStreetReport(request):
+    '''
+    (slide 7b)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+        BuildLegend
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreateTerrainReport(request):
+    '''
+    (slide 7b)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+        BuildLegend
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreateStreamsReport(request):
+    '''
+    (slide 7b)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+        BuildLegend
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreateForestTypeReport(request):
+    '''
+    (Slide 7c)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+        BuildLegend
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreateSoilReport(request):
+    '''
+    (Slides 7d-f)
+    IN:
+        Property
+    OUT:
+        Context for appropriately rendered report template
+    USES:
+        BuildLegend, BuildTable, GetSoilsData, (API Wrapper?)
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def CreatePDF(request):
+    '''
+    (called on request for download map, cached)
+    IN:
+        Map ID (default: 'all', options: 'all', 'aerial', 'street', 'terrain', 'streams','forest','soil')
+        property (from CreateProperty)
+    OUT:
+        PDF file
+    NOTES:
+        Leverage Template(s) from Report?
+        Cache?
+    USES:
+        CreateAerialReport, CreateStreetReport, CreateTerrainReport, CreateStreamsReport, CreateForestTypeReport, CreateSoilReport
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+def ExportLayer(request):
+    '''
+    (called on request for download GIS data)
+    IN:
+        Layer (default: property, leave modular to support forest_type, soil, others...)
+        Format (default: zipped .shp, leave modular to support json & others)
+        property
+    OUT:
+        layer file
+    USES:
+        pgsql2shp (OGR/PostGIS built-in)
+    '''
+    return render(request, 'landmapper/base.html', {})
+
+# Helper Views:
+def GetSoilsData():
+    return
+
+def BuildLegend():
+    return
+
+def BuildForestTypeLegend():
+    return
+
+def BuildSoilLegend():
+    return
+
+def BuildTable():
+    return
+
+def BuildForestTypeLegend():
+    return
+
+def BuildSoilTable():
+    return
+
+def BuildCacheKey():
+    '''
+    sort taxlot IDs and add to property name for consistent cache keys
+    Doing it here is the lowest-common-denominator: don't worry about sorting taxlots when adding them to the querystring on the client side
+    '''
+    return
