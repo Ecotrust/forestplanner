@@ -1,9 +1,9 @@
 .wrap-print {
-  /* TODO: double check this */
   display: block;
-  max-width: 21.59cm;
+  margin: 0 auto;
   overflow: hidden;
   position: relative;
+  max-width: 21.59cm;
 }
 
 @media print {
