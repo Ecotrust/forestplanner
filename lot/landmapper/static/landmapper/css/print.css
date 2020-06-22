@@ -3,12 +3,12 @@
   margin: 0 auto;
   overflow: hidden;
   position: relative;
-  max-width: 21.59cm;
+  max-width: 27.94cm;
 }
 
 @media print {
   .wrap-print {
-    height: 27.94cm;
-    width: 21.59cm;
+    height: 21.59cm;
+    width: 27.94cm;
   }
 }
