@@ -1,0 +1,14 @@
+.wrap-print {
+  /* TODO: double check this */
+  display: block;
+  max-width: 21.59cm;
+  overflow: hidden;
+  position: relative;
+}
+
+@media print {
+  .wrap-print {
+    height: 27.94cm;
+    width: 21.59cm;
+  }
+}

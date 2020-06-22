@@ -45,7 +45,9 @@
 
     <!-- Our home stylesheet -->
     <link rel="stylesheet" href="{% static 'landmapper/css/bootstrap-4.5.0/bootstrap.min.css' %}">
-    <link rel="stylesheet" href="{% static 'landmapper/css/home.css' %}">
+    <link rel="stylesheet" href="{% static 'landmapper/css/base.css' %}">
+    <link rel="stylesheet" href="{% static 'landmapper/css/header.css' %}">
+    <link rel="stylesheet" href="{% static 'landmapper/css/print.css' %}">
     {% endblock styles %}
 
     {% block extra_styles %}{% endblock extra_styles %}
@@ -77,7 +79,7 @@
 
 
     {% block main %}
-      <main id="main-content" class="container-fluid">
+      <main id="main-content" class="wrap-print container-fluid">
         {% block content %}
           <div class="content"></div>
         {% endblock content %}
