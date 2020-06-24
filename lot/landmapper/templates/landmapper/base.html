@@ -33,8 +33,8 @@
     <!-- Tells Google not to provide a translation for this document -->
     <meta name="google" content="notranslate">
 
-    <!-- TODO add page title -->
-    <title>Print My Land Map</title>
+    <title>{% block site_title %}LandMapper{% endblock site_title %}</title>
+
     {% endblock head_meta %}
 
     {% block styles %}
@@ -70,26 +70,29 @@
   </head>
 
   <body class="{% block bodyclass %}{% endblock %}">
-    <!-- accessibility option for screen readers only -->
-    <a class="sr-only sr-only-focusable" href="#main-content">Skip to main content</a>
+    {% block body %}
 
-    {% block header %}
-      {% include 'landmapper/common/header.html' %}
-    {% endblock header %}
+      <!-- accessibility option for screen readers only -->
+      <a class="sr-only sr-only-focusable" href="#main-content">Skip to main content</a>
+
+      {% block header %}
+        {% include 'landmapper/common/header.html' %}
+      {% endblock header %}
 
 
-    {% block main %}
-      <main id="main-content" class="wrap-print">
-        {% block content %}
-          <div class="content"></div>
-        {% endblock content %}
-      </main>
-    {% endblock main %}
+      {% block main %}
+        <main id="main-content" class="wrap-print">
+          {% block content %}
+            <div class="content"></div>
+          {% endblock content %}
+        </main>
+      {% endblock main %}
 
-    {% block footer %}
-      <footer></footer>
-    {% endblock footer %}
+      {% block footer %}
+        <footer></footer>
+      {% endblock footer %}
 
+    {% endblock body %}
   </body>
 
 </html>

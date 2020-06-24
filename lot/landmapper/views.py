@@ -594,7 +594,6 @@ def home(request):
     '''
     Land Mapper: Home Page
     '''
-    # return render(request, 'landmapper/home.html', {})
     return render(request, 'landmapper/two-pane.html', {})
 
 def index(request):
