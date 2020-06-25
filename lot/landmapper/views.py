@@ -594,7 +594,7 @@ def home(request):
     '''
     Land Mapper: Home Page
     '''
-    about_page = get_about_page()
+    about_page = get_menu_page('about')
     context = {
         'about_page': about_page,
     }
@@ -662,13 +662,13 @@ def create_property(request, taxlot_ids, property_name):
     '''
     return None
 
-def get_about_page():
+def get_menu_page(name):
     '''
     Land Mapper: About Menu Page
     '''
     from landmapper.models import MenuPage
-    about_page = MenuPage.objects.get(pk=1)
-    return about_page
+    page = MenuPage.objects.get(name=name)
+    return page
 
 
 def CreateProperty(request):
