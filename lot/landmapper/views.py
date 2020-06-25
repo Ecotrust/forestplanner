@@ -595,6 +595,7 @@ def home(request):
     Land Mapper: Home Page
     '''
     about_page = get_menu_page('about')
+    help_page = get_menu_page('help')
     context = {
         'about_page': about_page,
     }
@@ -664,7 +665,14 @@ def create_property(request, taxlot_ids, property_name):
 
 def get_menu_page(name):
     '''
-    Land Mapper: About Menu Page
+    PURPOSE:
+        Get a MenuPage
+        Used for modals
+    IN:
+        name (str): MenuPage name given through Django admin
+    OUT:
+        MenuPage (obj): MenuPage with matching name
+
     '''
     from landmapper.models import MenuPage
     page = MenuPage.objects.get(name=name)
