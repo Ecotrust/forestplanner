@@ -92,6 +92,11 @@
         <footer></footer>
       {% endblock footer %}
 
+      {% block modal %}
+        {% include 'landmapper/common/modal.html' %}
+      {% endblock modal %}
+
+      {% block footer_scripts %}{% endblock footer_scripts %}
     {% endblock body %}
   </body>
 

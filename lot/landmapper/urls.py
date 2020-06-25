@@ -6,6 +6,7 @@ urlpatterns = [
     # re_path(r'',
         # home, name='landmapper-home'),
     path('', home, name="home"),
-    path('identify/', identify, name="identify"),
-    path('report/', report, name="report"),
+    path('/identify/', identify, name="identify"),
+    path('/report/', report, name="report"),
+    path('/pages/', include('django.contrib.flatpages.urls')),
 ]

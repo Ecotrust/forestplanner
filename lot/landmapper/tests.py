@@ -404,9 +404,9 @@ class ViewTests(TestCase):
         # from landmapper.views import create_property
         print('property created')
 
-    def test_about_page_gather(self):
+    def test_about_modal(self):
         # from landmapper.models import MenuPage
-        # from landmapper.views import aboutMenuPage
+        from landmapper.views import aboutMenuPage
         # response = self.client.get(reverse(aboutMenuPage))
         print('about')
         # about_page = MenuPage.objects.all(name='about')
