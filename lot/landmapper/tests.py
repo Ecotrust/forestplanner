@@ -406,11 +406,14 @@ class ViewTests(TestCase):
 
     def test_about_modal(self):
         # from landmapper.models import MenuPage
-        from landmapper.views import aboutMenuPage
-        # response = self.client.get(reverse(aboutMenuPage))
-        print('about')
-        # about_page = MenuPage.objects.all(name='about')
-        # self.assertTrue('about', about_page.content)
+        from landmapper.views import get_menu_page
+        about_page = get_menu_page('about')
+        self.assertTrue('about', about_page.name)
+
+    def test_help_modal(self):
+        from landmapper.views import get_menu_page
+        help_page = get_menu_page('help')
+        self.assertTrue('help', help_page.name)
 
     """
     Error Handling

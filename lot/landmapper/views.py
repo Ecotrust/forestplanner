@@ -598,6 +598,7 @@ def home(request):
     help_page = get_menu_page('help')
     context = {
         'about_page': about_page,
+        'help_page': help_page,
     }
     return render(request, 'landmapper/two-pane.html', context)
 
