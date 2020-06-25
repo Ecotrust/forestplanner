@@ -1,11 +1,8 @@
 {% extends 'landmapper/two-pane.html' %}
-{% load static %}
+{% load static flatblocks %}
 
 {% block content-panel %}
-  <p>Welcome to Landmapper, a simple online tool to create maps of your property you can quickly save, download, or print.</p>
-  <p>Landmapper is designed to help make conservation and management planning easier for forest owners.</p>
-  <p>We currently offer maps across Oregon including aerial photos, street maps, topography, streams and water bodies, forest types, and soil types.
-  Get started by locating your property.</p>
+  {% flatblock aside_content evaluated=True %}
 {% endblock content-panel %}
 
 {% endblock map-wrap %}

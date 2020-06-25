@@ -597,9 +597,15 @@ def home(request):
     '''
     about_page = get_menu_page('about')
     help_page = get_menu_page('help')
+
+    aside_content = 'home-aside'
+    if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
+        aside_content = False
+
     context = {
         'about_page': about_page,
         'help_page': help_page,
+        'aside_content': aside_content,
     }
     return render(request, 'landmapper/two-pane.html', context)
 
