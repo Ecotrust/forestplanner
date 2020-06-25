@@ -677,6 +677,9 @@ def get_menu_page(name):
     '''
     from landmapper.models import MenuPage
     page = MenuPage.objects.get(name=name)
+    if len(page) < 1:
+        page = None
+        
     return page
 
 

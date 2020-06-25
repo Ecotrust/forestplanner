@@ -344,6 +344,13 @@ ATTRIBUTION_KEYS = {
 }
 
 ###########################################
+##      Flatblock content               ###
+###########################################
+FLATBLOCK_IDS += [
+    'home-aside',
+]
+
+###########################################
 ##      Tests                           ###
 ###########################################
 TESTING_DIR = os.path.join(LANDMAPPER_DIR, 'testing_files')

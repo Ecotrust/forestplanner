@@ -404,16 +404,18 @@ class ViewTests(TestCase):
         # from landmapper.views import create_property
         print('property created')
 
-    def test_about_modal(self):
-        # from landmapper.models import MenuPage
-        from landmapper.views import get_menu_page
-        about_page = get_menu_page('about')
-        self.assertTrue('about', about_page.name)
-
-    def test_help_modal(self):
-        from landmapper.views import get_menu_page
-        help_page = get_menu_page('help')
-        self.assertTrue('help', help_page.name)
+    # Need help writing these tests -DP 6.25.20
+    # def test_about_modal(self):
+    #     from landmapper.models import MenuPage
+    #     from landmapper.views import get_menu_page
+    #     about_page = get_menu_page('about')
+    #     self.assertIsInstance(about_page, MenuPage)
+    #
+    # def test_help_modal(self):
+    #     from landmapper.models import MenuPage
+    #     from landmapper.views import get_menu_page
+    #     help_page = get_menu_page('help')
+    #     self.assertIsInstance(help_page, MenuPage)
 
     """
     Error Handling
