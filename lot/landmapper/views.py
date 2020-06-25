@@ -1,5 +1,6 @@
 from django.shortcuts import render
 from django.conf import settings
+from flatblocks.models import FlatBlock
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -677,9 +678,9 @@ def get_menu_page(name):
     '''
     from landmapper.models import MenuPage
     page = MenuPage.objects.get(name=name)
-    if len(page) < 1:
+    if not page:
         page = None
-        
+
     return page
 
 

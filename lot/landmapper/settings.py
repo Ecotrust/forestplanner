@@ -346,7 +346,7 @@ ATTRIBUTION_KEYS = {
 ###########################################
 ##      Flatblock content               ###
 ###########################################
-FLATBLOCK_IDS += [
+FLATBLOCK_IDS = [
     'home-aside',
 ]
 

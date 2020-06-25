@@ -435,9 +435,4 @@ class ViewTests(TestCase):
     """
     def test_views(self):
         print("Views!")
-
-
-    # def teat_help_page_gather(self):
-    #     from landmapper.views import about
-    #     response = self.client.get(reverse(about))
-    #     self.assertEqual(response.status_code, 200)
+        
