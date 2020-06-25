@@ -598,7 +598,7 @@ def home(request):
     context = {
         'about_page': about_page,
     }
-    return render(request, 'landmapper/two-pane.html', {})
+    return render(request, 'landmapper/two-pane.html', context)
 
 def index(request):
     '''
@@ -667,7 +667,7 @@ def get_about_page():
     Land Mapper: About Menu Page
     '''
     from landmapper.models import MenuPage
-    about_page = MenuPage.objects.get(name='about')
+    about_page = MenuPage.objects.get(pk=1)
     return about_page
 
 
