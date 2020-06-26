@@ -410,7 +410,8 @@ ATTRIBUTION_BOX_OUTLINE = None
 ATTRIBUTION_TEXT_COLOR = "black"
 # ATTRIBUTION_TEXT_FONT = 'Pillow/Tests/fonts/FreeMono.ttf'
 # default UBUNTU Font
-ATTRIBUTION_TEXT_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+# ATTRIBUTION_TEXT_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+ATTRIBUTION_TEXT_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
 ATTRIBUTION_TEXT_FONT_SIZE = 10
 ATTRIBUTION_TEXT_BUFFER = 3
 ATTRIBUTION_TEXT_LINE_SPACING = 1
