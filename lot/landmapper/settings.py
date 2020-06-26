@@ -4,6 +4,12 @@ from datetime import date
 TODAY_DATE = date.today().strftime("%D")
 
 LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
+
+###########################################
+##      Keys                            ###
+###########################################
+MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
+
 ###########################################
 ##      Basemaps                        ###
 ###########################################
@@ -20,8 +26,15 @@ BASEMAPS = {
         'technology': 'arcgis_mapserver',
         'attribution': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
     },
+    'ESRI_Topo': {
+        'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/export',
+        'layers': '0',
+        'technology': 'arcgis_mapserver',
+        'attribution': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
+    },
 }
 AERIAL_DEFAULT = 'ESRI_Satellite'
+TOPO_DEFAULT = 'ESRI_Topo'
 
 ###########################################
 ##      REPORTS                         ###
@@ -330,6 +343,44 @@ SOIL_FIELDS = {
         'UOM': ''
     }
 }
+
+###########################################
+##      Streams                         ###
+###########################################
+STREAMS_URLS = {
+    'AGOL': {
+        'URL': [
+            'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Detailed_Streams/FeatureServer/0/query?'
+        ],
+        'PARAMS': {},
+        'QS':[
+            'f=geojson',
+            'returnGeometry=true',
+            'spatialRel=esriSpatialRelIntersects',
+            # 'maxAllowableOffset=76.43702828515632',
+            'geometryType=esriGeometryEnvelope',
+            'inSR=102100',
+            'outFields=*',
+            'returnCentroid=false',
+            'returnExceededLimitFeatures=false',
+            'maxRecordCountFactor=3',
+            'outSR=102100',
+            'resultType=tile',
+        ]
+    },
+    'MAPBOX_STATIC': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/static/{lon},{lat},{zoom}/{width}x{height}?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckbv10von10qw1iqs1cgdccw7',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN
+        ]
+    }
+}
+
+
 
 ###########################################
 ##      Map Info                        ###

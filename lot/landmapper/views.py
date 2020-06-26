@@ -26,6 +26,106 @@ def unstable_request_wrapper(url, retries=0):
         print(url)
     return contents
 
+################################
+# MapBox Munging             ###
+################################
+# The next 2 functions (g2p & p2g) are from R A "@busybus"
+# The following 'get_web_map_zoom' also borrows heavily from @busybus
+# and his blog post here:
+#   https://medium.com/@busybus/rendered-maps-with-python-ffba4b34101c
+
+ZOOM0_SIZE = 512  # Not 256
+# Geo-coordinate in degrees => Pixel coordinate
+def g2p(lat, lon, zoom):
+    from math import pi, log, tan, exp, atan, log2, floor
+    return (
+        # x
+        ZOOM0_SIZE * (2 ** zoom) * (1 + lon / 180) / 2,
+        # y
+        ZOOM0_SIZE / (2 * pi) * (2 ** zoom) * (pi - log(tan(pi / 4 * (1 + lat / 90))))
+    )
+# Pixel coordinate => geo-coordinate in degrees
+def p2g(x, y, zoom):
+    from math import pi, log, tan, exp, atan, log2, floor
+    return (
+        # lat
+        (atan(exp(pi - y / ZOOM0_SIZE * (2 * pi) / (2 ** zoom))) / pi * 4 - 1) * 90,
+        # lon
+        (x / ZOOM0_SIZE * 2 / (2 ** zoom) - 1) * 180,
+    )
+
+def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857'):
+    # """
+    # PURPOSE:
+    # -   Determine the zoom level for a web map tile server to match the image size
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # OUT:
+    # -   zoom: a float representing the appropriate zoom value within 0.01
+    # """
+    from math import log, log2, floor
+    bbox = get_bbox_as_string(bbox)
+    if not srs in ['EPSG:4326', '4326', 4326]:
+        if type(srs) == str:
+            if ':' in srs:
+                srid = int(srs.split(':')[-1])
+            else:
+                srid = int(srs)
+        else:
+            srid = int(srs)
+        bbox_polygon = get_bbox_as_polygon(bbox, srid)
+        bbox_polygon.transform(4326)
+        bbox = get_bbox_as_string(bbox_polygon)
+    else:
+        bbox_polygon = get_bbox_as_polygon(bbox)
+
+    [left, bottom, right, top] = [float(x) for x in bbox.split(',')]
+    # Sanity check
+    assert (-90 <= bottom < top <= 90)
+    assert (-180 <= left < right <= 180)
+
+    # The center point of the region of interest
+    (lat, lon) = ((top + bottom) / 2, (left + right) / 2)
+
+    # Reduce precision of (lat, lon) to increase cache hits
+    snap_to_dyadic = (lambda a, b: (lambda x, scale=(2 ** floor(log2(abs(b - a) / 4))): (round(x / scale) * scale)))
+    lat = snap_to_dyadic(bottom, top)(lat)
+    lon = snap_to_dyadic(left, right)(lon)
+
+    # Rendered image map size in pixels (no retina)
+    (w, h) = (width, height)
+
+    zoom = 11
+    delta = 11
+    steps = 0
+    while abs(delta) > 0.0001:
+        delta = abs(delta)/2
+        fits = False
+        # Center point in pixel coordinates at this zoom level
+        (x0, y0) = g2p(lat, lon, zoom)
+        # The "container" geo-region that the downloaded map would cover
+        (TOP, LEFT)     = p2g(x0 - w / 2, y0 - h / 2, zoom)
+        (BOTTOM, RIGHT) = p2g(x0 + w / 2, y0 + h / 2, zoom)
+        # Would the map cover the region of interest?
+        if (LEFT <= left < right <= RIGHT):
+            if (BOTTOM <= bottom < top <= TOP):
+                fits = True
+
+        if not fits:
+            # decrease the zoom value (zoom out)
+            delta = 0-delta
+        zoom = zoom + delta
+        steps += 1
+
+    print("%d steps" % steps)
+    return zoom
+
 def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
     # """
     # PURPOSE:
@@ -63,6 +163,71 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     img_data = unstable_request_wrapper(request_url)
     return img_data
 
+def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=False):
+    # """
+    # PURPOSE:
+    # -   Retrieve the streams tile image http response for a given bbox at a given size
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # -   zoom: (bool) whether or not to zoom in on the cartography to make it
+    # -       bolder in the final image
+    # OUT:
+    # -   img_data: http(s) response from the request
+    # """
+    import json
+    from urllib.parse import quote
+    stream_agol_endpoint = settings.STREAMS_AGOL_URL
+    bbox = get_bbox_as_string(bbox)
+
+    if zoom:
+        width = int(width/2)
+        height = int(height/2)
+
+    qs_entries = settings.STREAMS_AGOL_URL_QS.copy()
+    stream_geometry = {
+        "xmin":float(bbox.split(',')[0]),
+        "ymin":float(bbox.split(',')[1]),
+        "xmax":float(bbox.split(',')[2]),
+        "ymax":float(bbox.split(',')[3]),
+        "spatialReference":{
+            "wkid":102100,
+            "latestWkid":3857
+        }
+    }
+    qs_entries.append('geometry=%s' % quote(''.join(json.dumps(stream_geometry).split(' '))))
+    quantizationParameters = {
+        "mode":"view",
+        "originPosition":"upperLeft",
+        "tolerance":76.43702828515632,
+        "extent":{
+            "xmin":float(bbox.split(',')[0]),
+            "ymin":float(bbox.split(',')[1]),
+            "xmax":float(bbox.split(',')[2]),
+            "ymax":float(bbox.split(',')[3]),
+            "spatialReference":{
+                "wkid":102100,
+                "latestWkid":3857
+            }
+        }
+    }
+    qs_entries.append('quantizationParameters=%s' % quote(''.join(json.dumps(quantizationParameters).split(' '))))
+    querystring = '&'.join(qs_entries)
+    request_url = ''.join([
+        settings.STREAMS_AGOL_URL,
+        settings.STREAMS_TILE_LAYER,
+        settings.STREAMS_AGOL_URL_SUFFIX,
+        querystring
+    ])
+    streams_geojson = unstable_request_wrapper(request_url)
+    img_data = geojson_to_image(streams_geojson, bbox, settings.STREAMS_STYLE)
+    return img_data
+
 def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
     # """
     # PURPOSE:
@@ -89,6 +254,32 @@ def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=se
         image = image.resize((width, height), Image.ANTIALIAS)
 
     return image
+
+def get_stream_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
+    # """
+    # PURPOSE:
+    # -   given a bbox and optionally pixel width, height, and an indication of
+    # -       whether or not to zoom the cartography in, return a PIL Image
+    # -       instance of the streams overlay
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # -   zoom: (bool) whether or not to zoom in on the cartography to make it
+    # -       bolder in the final image
+    # OUT:
+    # -   a PIL Image instance of the soils overlay
+    # """
+    from PIL import Image
+    data = get_stream_overlay_tile_data(bbox, width, height, srs, zoom)
+    image = image_result_to_PIL(data)
+    if zoom:
+        image = image.resize((width, height), Image.ANTIALIAS)
+
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     # """
@@ -318,6 +509,48 @@ def get_aerial_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=
 
     # Request URL
     image_data = unstable_request_wrapper(aerial_url)
+
+    return {
+        'image': image_data,    # Raw http(s) response
+        'attribution': attribution
+    }
+
+def get_topo_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
+    # PURPOSE: Return ESRI(?) Topo image at the selected location of the selected size
+    # IN:
+    # -   bbox: (string) comma-separated W,S,E,N coordinates
+    # -   width: (int) The number of pixels for the width of the image
+    # -   height: (int) The number of pixels for the height of the image
+    # -   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
+    # -       default: 3857
+    # OUT:
+    # -   image_info: (dict) {
+    # -       image: image as raw data (bytes)
+    # -       attribution: attribution text for proper use of imagery
+    # -   }
+    # """
+    topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
+    bbox = get_bbox_as_string(bbox)
+    # Get URL for request
+    if topo_dict['technology'] == 'arcgis_mapserver':
+        topo_url = ''.join([
+            topo_dict['url'],
+            '?bbox=', bbox,
+            '&bboxSR=', str(bboxSR),
+            '&layers=', topo_dict['layers'],
+            '&size=', str(width), ',', str(height),
+            '&imageSR=3857&format=png&f=image',
+        ])
+    else:
+        print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting topo layers at the moment')
+        topo_url = None
+
+    # set Attribution
+    attribution = topo_dict['attribution']
+
+    # Request URL
+    image_data = unstable_request_wrapper(topo_url)
 
     return {
         'image': image_data,    # Raw http(s) response
@@ -584,6 +817,62 @@ def get_soil_report_image(property, bbox=None, orientation='landscape', width=se
         if debug:
             soil_image.save(os.path.join(settings.IMAGE_TEST_DIR, 'soil_image.png'),"PNG")
         merged = merge_images(merged, soil_image)
+    if attribution_image:
+        merged = merge_images(merged, attribution_image)
+
+    return merged
+
+def get_streams_report_image(property, bbox=None, orientation='landscape', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, debug=False):
+    # """
+    # PURPOSE:
+    # -   given a property object, return an image formatted for the streams report.
+    # -       This will include a topo base layer, the rendered, highlighted
+    # -       property outline, taxlots, the streams layer, and on top, the attribution.
+    # IN:
+    # -   property; (property object) the property to be displayed on the map
+    # OUT:
+    # -   stream_report_image: (PIL Image) the streams report map image
+    # """
+    if debug:
+        import os
+    if not bbox:
+        (bbox, orientation) = get_bbox_from_property(property)
+    if orientation == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
+        print("ORIENTATION SET TO 'PORTRAIT'")
+        temp_width = width
+        width = height
+        height = temp_width
+
+    bboxSR = 3857
+    topo_dict = get_topo_image(bbox, bboxSR, width, height)
+    base_image = image_result_to_PIL(topo_dict['image'])
+    # add taxlots
+    taxlot_image = get_taxlot_image(bbox, width, height, bboxSR)
+    # add property
+    property_image = get_property_image(bbox, width, height, bboxSR)
+    # default soil cartography
+    stream_image = get_stream_overlay_tile_image(bbox, width, height)
+
+    # generate attribution image
+    attributions = [
+        topo_dict['attribution'],
+        get_layer_attribution('streams'),
+        get_layer_attribution('taxlot'),
+    ]
+
+    attribution_image = get_attribution_image(attributions)
+
+    merged = base_image
+    if debug:
+        base_image.save(os.path.join(settings.IMAGE_TEST_DIR, 'base_image.png'),"PNG")
+    if taxlot_image:
+        merged = merge_images(base_image, taxlot_image)
+    if property_image:
+        merged = merge_images(merged, property_image)
+    if stream_image:
+        if debug:
+            stream_image.save(os.path.join(settings.IMAGE_TEST_DIR, 'stream_image.png'),"PNG")
+        merged = merge_images(merged, stream_image)
     if attribution_image:
         merged = merge_images(merged, attribution_image)
 

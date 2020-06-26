@@ -1,3 +1,6 @@
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
+
 from django.test import TestCase
 from django.conf import settings
 from django.urls import reverse
@@ -242,7 +245,7 @@ class ViewTests(TestCase):
         import os
         from PIL import Image
         # from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images, get_property_from_taxlot_selection, get_bbox_as_string, get_bbox_from_property
-        from landmapper.views import get_property_from_taxlot_selection, get_soil_report_image
+        from landmapper.views import get_property_from_taxlot_selection, get_soil_report_image, get_streams_report_image
         # from django.contrib.gis.geos import GEOSGeometry
         from landmapper.models import Taxlot
 
@@ -281,18 +284,19 @@ class ViewTests(TestCase):
             (prop_name, prop_instance) = property
             image_data = get_soil_report_image(prop_instance, debug=False)
             image_data.save(os.path.join(settings.IMAGE_TEST_DIR, '%s_soil.png' % prop_name),"PNG")
+            image_data = get_streams_report_image(prop_instance, debug=False)
+            image_data.save(os.path.join(settings.IMAGE_TEST_DIR, '%s_stream.png' % prop_name),"PNG")
 
         print('tiles')
 
-
-    # """
-    # TEMPLATES
-    #     correctly formatted context for rendering templates
-    #     reporting values
-    #     ForestType queries
-    #     legend creation (map, forest type, soil)
-    #     table creation (overview, forest type, soil)
-    # """
+    """
+    Templates
+        correctly formatted context for rendering templates
+        reporting values
+        ForestType queries
+        legend creation (map, forest type, soil)
+        table creation (overview, forest type, soil)
+    """
 
     # Should we break up views into 'gather' and 'render' functions?
     # Perhaps the 'gather' functions are modular children - the parent requests
@@ -307,7 +311,6 @@ class ViewTests(TestCase):
         #   correct value types for each keyword
         #   correct values
         #   correct order (of MenuPage instances)
-
         print('header view')
 
     def test_home_view_gather(self):
@@ -315,17 +318,15 @@ class ViewTests(TestCase):
         #   ...
         print('home view gather')
 
-    def test_home_page(self):
+    def test_index_page(self):
         """
             TODO:
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
-        from landmapper.views import home
-        response = self.client.get(reverse(home))
-        # response = self.browser.get(reverse(home))
+        from landmapper.views import index
+        response = self.client.get(reverse(index))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, '/landmapper/home.html')
 
     def test_identify_gather(self):
         """
@@ -404,14 +405,6 @@ class ViewTests(TestCase):
         # from landmapper.views import create_property
         print('property created')
 
-    def test_about_page_gather(self):
-        # from landmapper.models import MenuPage
-        # from landmapper.views import aboutMenuPage
-        # response = self.client.get(reverse(aboutMenuPage))
-        print('about')
-        # about_page = MenuPage.objects.all(name='about')
-        # self.assertTrue('about', about_page.content)
-
     """
     Error Handling
     """
@@ -431,8 +424,131 @@ class ViewTests(TestCase):
     def test_views(self):
         print("Views!")
 
+class FrontendTests(StaticLiveServerTestCase):
+    """
+    state changes
+        address found
+            map zoomed
+                Test if specific map tiles were pulled
+            state advanced
+        1st taxlot selected
+            state advanced
+            url updated
+        2nd taxlot selected
+            state retained
+            url updated
+        property name entered
+            'next' enabled
+            url updated
+        property name deleted
+            'next' disabled
+            url updated
+        2nd taxlot unselected
+            url updated
+            state retained
+        1st taxlot unselected
+            url updated
+            state regressed
+        address cleared
+            url updated
+            state regressed
+            map zoomed back to default
+        valid input and clicking 'next' brings us to a report
+    Error handling
+        unknown address
+        non-contiguous taxlots
+    validation
+        validate address prior to geocode query
+        valid property names?
+            1+ spaces?
+            Maximum characters
+            Foreign accented characters (Latin1, umlauts, etc…)
+    popups
+        From the header menu
+        from the download button(s)
+        From 'get help'
+    downloads?
+    """
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.selenium = WebDriver()
+        cls.selenium.implicitly_wait(2)
 
-    # def teat_help_page_gather(self):
-    #     from landmapper.views import about
-    #     response = self.client.get(reverse(about))
-    #     self.assertEqual(response.status_code, 200)
+    @classmethod
+    def tearDownClass(cls):
+        cls.selenium.quit()
+        super().tearDownClass()
+
+    # def test_home(self):
+    #    # TODOS:
+    #    #   Header placement
+    #    #   Header branding
+    #    #   Header Menu Items
+    #    #   ...
+    #    print("hi")
+
+    # def test_login(self):
+    def test_browser(self):
+        print("Front End!")
+
+# class MySeleniumTests(StaticLiveServerTestCase):
+#     # fixtures = ['user-data.json']
+#     #
+#     @classmethod
+#     def setUpClass(cls):
+#         super().setUpClass()
+#         cls.selenium = WebDriver()
+#         cls.selenium.implicitly_wait(2)
+#
+#     @classmethod
+#     def tearDownClass(cls):
+#         cls.selenium.quit()
+#         super().tearDownClass()
+#
+#     # def test_login(self):
+#     def test_browser(self):
+#         # import ipdb; ipdb.set_trace()
+#         print('get server')
+#         print('URL: ""%s"' % self.live_server_url)
+#         # foo = self.selenium.get(self.live_server_url)
+#         # foo.title
+#         # self.selenium.get('%s%s' % (self.live_server_url, '/login/'))
+#         # username_input = self.selenium.find_element_by_name("username")
+#         # username_input.send_keys('myuser')
+#         # password_input = self.selenium.find_element_by_name("password")
+#         # password_input.send_keys('secret')
+#         # self.selenium.find_element_by_xpath('//input[@value="Log in"]').click()
+#
+
+
+
+
+# from django.test import TestCase
+#
+# from selenium import webdriver
+#
+# # From stack overflow:
+# ### https://stackoverflow.com/a/47785513
+# from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
+#
+# cap = DesiredCapabilities().FIREFOX
+# # cap["marionette"] = False
+#
+# # browser = webdriver.Firefox(capabilities=cap, executable_path="/usr/local/bin/geckodriver")
+#
+# ### https://stackoverflow.com/questions/45692626/unable-to-load-firefox-in-selenium-webdriver-in-python
+# from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+# cap["marionette"] = True
+# binary = FirefoxBinary('/usr/bin/firefox')
+# print('create browser')
+# browser = webdriver.Firefox(firefox_binary=binary, capabilities=cap, executable_path="/usr/local/bin/geckodriver")
+#
+# # browser = webdriver.Firefox()
+# # browser.get('http://127.0.0.1:8000')
+# print('google test')
+# browser.get('http://www.google.com')
+# print('pre')
+# browser.get('http://0:8000')
+# print(browser.title)
+# assert 'Django' in browser.title

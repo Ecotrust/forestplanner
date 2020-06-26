@@ -1,3 +1,4 @@
 # Land Owner Tools has a Google Project created, but billing was never activated because we didn't need the API key
 # Without that, requests will be denied.
 GOOGLE_API_KEY = 'a_google_api_key'
+MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
