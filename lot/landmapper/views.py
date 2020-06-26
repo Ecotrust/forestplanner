@@ -67,7 +67,10 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
     # -   srs: (string) the formatted Spatial Reference System string describing the
     # -       default: 'EPSG:3857' (Web Mercator)
     # OUT:
-    # -   zoom: a float representing the appropriate zoom value within 0.01
+    # -   out_dict: dictionary containing:
+    # -     lat: a float representing the centroid latitude
+    # -     lon: a float representing the centroid longitude
+    # -     zoom: a float representing the appropriate zoom value within 0.01
     # """
     from math import log, log2, floor
     bbox = get_bbox_as_string(bbox)
@@ -103,7 +106,6 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
 
     zoom = 11
     delta = 11
-    steps = 0
     while abs(delta) > 0.0001:
         delta = abs(delta)/2
         fits = False
@@ -121,10 +123,12 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
             # decrease the zoom value (zoom out)
             delta = 0-delta
         zoom = zoom + delta
-        steps += 1
 
-    print("%d steps" % steps)
-    return zoom
+    return {
+        'lat': lat,
+        'lon': lon,
+        'zoom': zoom
+    }
 
 def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
     # """
@@ -163,7 +167,7 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     img_data = unstable_request_wrapper(request_url)
     return img_data
 
-def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=False):
+def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.STREAM_ZOOM_OVERLAY_2X):
     # """
     # PURPOSE:
     # -   Retrieve the streams tile image http response for a given bbox at a given size
@@ -180,52 +184,39 @@ def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=s
     # OUT:
     # -   img_data: http(s) response from the request
     # """
-    import json
-    from urllib.parse import quote
-    stream_agol_endpoint = settings.STREAMS_AGOL_URL
+
+    import urllib.request
     bbox = get_bbox_as_string(bbox)
 
     if zoom:
         width = int(width/2)
         height = int(height/2)
 
-    qs_entries = settings.STREAMS_AGOL_URL_QS.copy()
-    stream_geometry = {
-        "xmin":float(bbox.split(',')[0]),
-        "ymin":float(bbox.split(',')[1]),
-        "xmax":float(bbox.split(',')[2]),
-        "ymax":float(bbox.split(',')[3]),
-        "spatialReference":{
-            "wkid":102100,
-            "latestWkid":3857
-        }
-    }
-    qs_entries.append('geometry=%s' % quote(''.join(json.dumps(stream_geometry).split(' '))))
-    quantizationParameters = {
-        "mode":"view",
-        "originPosition":"upperLeft",
-        "tolerance":76.43702828515632,
-        "extent":{
-            "xmin":float(bbox.split(',')[0]),
-            "ymin":float(bbox.split(',')[1]),
-            "xmax":float(bbox.split(',')[2]),
-            "ymax":float(bbox.split(',')[3]),
-            "spatialReference":{
-                "wkid":102100,
-                "latestWkid":3857
-            }
-        }
-    }
-    qs_entries.append('quantizationParameters=%s' % quote(''.join(json.dumps(quantizationParameters).split(' '))))
-    querystring = '&'.join(qs_entries)
-    request_url = ''.join([
-        settings.STREAMS_AGOL_URL,
-        settings.STREAMS_TILE_LAYER,
-        settings.STREAMS_AGOL_URL_SUFFIX,
-        querystring
-    ])
-    streams_geojson = unstable_request_wrapper(request_url)
-    img_data = geojson_to_image(streams_geojson, bbox, settings.STREAMS_STYLE)
+    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
+    request_params = request_dict['PARAMS'].copy()
+
+    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
+        web_mercator_dict = get_web_map_zoom(bbox, width, height, srs)
+        if zoom:
+            request_params['retina'] = "@2x"
+
+        request_params['lon'] = web_mercator_dict['lon']
+        request_params['lat'] = web_mercator_dict['lat']
+        request_params['zoom'] = web_mercator_dict['zoom']
+        request_params['width'] = width
+        request_params['height'] = height
+
+        request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
+        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+
+    else:
+        print('settings.STREAMS_SOURCE value "%s" is not currently supported.' % settings.STREAMS_SOURCE)
+
+    request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+
+    print(request_url)
+
+    img_data = unstable_request_wrapper(request_url)
     return img_data
 
 def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
@@ -280,6 +271,8 @@ def get_stream_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=
     if zoom:
         image = image.resize((width, height), Image.ANTIALIAS)
 
+
+    return image
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     # """
@@ -850,7 +843,7 @@ def get_streams_report_image(property, bbox=None, orientation='landscape', width
     taxlot_image = get_taxlot_image(bbox, width, height, bboxSR)
     # add property
     property_image = get_property_image(bbox, width, height, bboxSR)
-    # default soil cartography
+    # default streams cartography
     stream_image = get_stream_overlay_tile_image(bbox, width, height)
 
     # generate attribution image

@@ -366,21 +366,32 @@ STREAMS_URLS = {
             'maxRecordCountFactor=3',
             'outSR=102100',
             'resultType=tile',
-        ]
+        ],
+        'ATTRIBUTION': 'National Hydrography Dataset: USGS, Esri'
     },
     'MAPBOX_STATIC': {
-        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/static/{lon},{lat},{zoom}/{width}x{height}?',
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/static/{lon},{lat},{zoom}/{width}x{height}{retina}?',
         'PARAMS': {
             'userid':'forestplanner',
             'layerid': 'ckbv10von10qw1iqs1cgdccw7',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+            'width': '',
+            'height': '',
+            'retina': '',
         },
         'QS': [
-            'access_token=%s' % MAPBOX_TOKEN
-        ]
+            'access_token=%s' % MAPBOX_TOKEN,
+            'attribution=false',
+            'logo=false'
+        ],
+        'ATTRIBUTION': 'Oregon Department of Forestry'
     }
 }
-
-
+STREAMS_SOURCE = 'MAPBOX_STATIC'
+STREAM_ZOOM_OVERLAY_2X = False
+STREAMS_ATTRIBUTION = STREAMS_URLS[STREAMS_SOURCE]['ATTRIBUTION']
 
 ###########################################
 ##      Map Info                        ###
@@ -389,7 +400,7 @@ ATTRIBUTION_KEYS = {
     'aerial': BASEMAPS[AERIAL_DEFAULT]['attribution'],
     'topo': 'Set topo attr in settings',
     'streets': 'Set street attr in settings',
-    'streams': 'Set streams attr in settings',
+    'streams': STREAMS_ATTRIBUTION,
     'taxlot': 'Set taxlot attr in settings',
     'soil': SOIL_SSURGO_ATTRIBUTION
 }
