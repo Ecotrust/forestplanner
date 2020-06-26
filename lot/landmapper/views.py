@@ -214,8 +214,6 @@ def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=s
 
     request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
-    print(request_url)
-
     img_data = unstable_request_wrapper(request_url)
     return img_data
 
@@ -756,8 +754,73 @@ def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.RE
     bbox = get_bbox_as_string(bbox)
     return None
 
-def get_attribution_image(attribution_list):            # TODO
-    return None
+def get_attribution_image(attribution_list, width, height):
+    # """
+    # PURPOSE:
+    # -   given a stringified list of attributions, return an image overlay.
+    # IN:
+    # -   attribution: a string of attributions for included layers
+    # -   width: (int) number of pixels wide the image is.
+    # -   height: (int) number of pixels tall the image is.
+    # OUT:
+    # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
+    # """
+    from PIL import ImageDraw, ImageFont, Image
+    TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
+    LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
+    box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
+    text_color = settings.ATTRIBUTION_TEXT_COLOR
+    text_font = ImageFont.truetype(settings.ATTRIBUTION_TEXT_FONT, settings.ATTRIBUTION_TEXT_FONT_SIZE)
+
+    # Create overlay image
+    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+
+    # calculate text size
+    if type(attribution_list) == list:
+        attribution_list = ', '.join(attribution_list)
+    (text_width, text_height) = text_font.getsize(attribution_list)
+
+    # Create a list of rows of attribution text
+    attribution_rows = []
+    attribution_word_list = attribution_list.split(' ')
+    while len(attribution_word_list) > 0:
+        new_row = [attribution_word_list.pop(0)]
+        while len(attribution_word_list) > 0 and text_font.getsize(' '.join(new_row + [attribution_word_list[0]]))[0] < (width-2*TEXT_BUFFER):
+            new_row.append(attribution_word_list.pop(0))
+        attribution_rows.append(' '.join(new_row))
+
+    # determine text_block size
+    text_block_height = 2*TEXT_BUFFER + (text_height + LINE_SPACING) * len(attribution_rows) - LINE_SPACING
+    if len(attribution_rows) > 1:
+        text_block_width = width
+    else:
+        text_block_width = text_width + 2*TEXT_BUFFER
+
+    # draw box
+    left_px = width - text_block_width
+    top_px = height - text_block_height
+    right_px = width
+    bottom_px = height
+    box_shape = [(left_px, top_px), (right_px, bottom_px)]
+    text_box = ImageDraw.Draw(base_img)
+    text_box.rectangle(box_shape, fill=settings.ATTRIBUTION_BOX_FILL_COLOR, outline=settings.ATTRIBUTION_BOX_OUTLINE)
+
+    # TODO: create box and text separately with full opacity, apply to base using:
+    #       out = Image.alpha_composite(base, txt)
+    # or something similar to remove 'checkered pattern' on attribute box.
+
+    # draw text
+    # https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html?highlight=RGBA#example-draw-partial-opacity-text
+    text_top = top_px + TEXT_BUFFER
+    text_left = left_px + TEXT_BUFFER
+    for (idx, text_row) in enumerate(attribution_rows):
+        if idx != 0:
+            text_top += LINE_SPACING
+        txt = ImageDraw.Draw(base_img)
+        txt.text((text_left, text_top), text_row, font=text_font, fill=text_color)
+        text_top += text_height
+
+    return base_img
 
 def get_soil_report_image(property, bbox=None, orientation='landscape', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, debug=False):
     # """
@@ -793,11 +856,11 @@ def get_soil_report_image(property, bbox=None, orientation='landscape', width=se
     # generate attribution image
     attributions = [
         aerial_dict['attribution'],
-        get_layer_attribution('soils'),
+        get_layer_attribution('soil'),
         get_layer_attribution('taxlot'),
     ]
 
-    attribution_image = get_attribution_image(attributions)
+    attribution_image = get_attribution_image(attributions, width, height)
 
     merged = base_image
     if debug:
@@ -853,7 +916,10 @@ def get_streams_report_image(property, bbox=None, orientation='landscape', width
         get_layer_attribution('taxlot'),
     ]
 
-    attribution_image = get_attribution_image(attributions)
+    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
+        attributions.append('MapBox')
+
+    attribution_image = get_attribution_image(attributions, width, height)
 
     merged = base_image
     if debug:
