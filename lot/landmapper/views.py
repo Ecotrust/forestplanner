@@ -464,6 +464,16 @@ def get_bbox_as_polygon(bbox, srid=3857):
     bbox_geom = Polygon(polygon_input, srid=srid)
     return bbox_geom
 
+
+def get_base_image(layername, bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    if layername == 'aerial':
+        return get_aerial_image(bbox, bboxSR, width, height)
+    elif layername == 'topo':
+        return get_topo_image(bbox, bboxSR, width, height)
+    else:
+        print("Layername '%s' not recognized as valid base layer for maps. Defaulting to 'aerial'.")
+    return get_aerial_image(bbox, bboxSR, width, height)
+    
 def get_aerial_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
@@ -742,6 +752,8 @@ def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
     -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
     -       rendered with the appropriate styles
     """
+    # if this comes from MapBox, reuse the Streams code.
+    # if this comes from the DB, reuse the Property code.
     from PIL import Image
     from django.contrib.gis.geos import GEOSGeometry, Polygon, MultiPolygon
     from landmapper.models import Taxlot
@@ -750,9 +762,49 @@ def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
 
     return None
 
-def get_property_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):      # TODO
+def get_property_image(property, bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):      # TODO
+    """
+    PURPOSE:
+    -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
+    IN:
+    -   property: (object) a property record from the DB
+    -   bbox: (string) comma-separated W,S,E,N coordinates
+    -   width: (int) The number of pixels for the width of the image
+    -       default: REPORT_MAP_WIDTH from settings
+    -   height: (int) The number of pixels for the height of the image
+    -       default: REPORT_MAP_HEIGHT from settings
+    -   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
+    -       default: 3857
+    OUT:
+    -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
+    -       rendered with the appropriate styles
+    """
+    from django.contrib.gis.geos.collections import MultiPolygon, Polygon
+    from PIL import Image, ImageDraw
+
+    # Create overlay image
+    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+
+    geom = property.geometry_orig
     bbox = get_bbox_as_string(bbox)
-    return None
+    [bbwest, bbsouth, bbeast, bbnorth] = [float(x) for x in bbox.split(',')]
+    if type(geom) == Polygon:
+        coords_set = (geom.coords)
+    else:
+        coords_set = geom.coords
+
+    yConversion = float(height)/(bbnorth-bbsouth)
+    xConversion = float(width)/(bbeast-bbwest)
+
+    for poly in coords_set:
+        for poly_coords in poly:
+            polygon = ImageDraw.Draw(base_img)
+            poly_px_coords = []
+            for (gX, gY) in poly_coords:
+                poly_px_coords.append(((gX-bbwest)*xConversion, (bbnorth-gY)*yConversion))
+            polygon.polygon(poly_px_coords, outline=settings.PROPERTY_OUTLINE_COLOR)#, width=settings.PROPERTY_OUTLINE_WIDTH)
+
+    return base_img
 
 def get_attribution_image(attribution_list, width, height):
     # """
@@ -844,18 +896,19 @@ def get_soil_report_image(property, bbox=None, orientation='landscape', width=se
         height = temp_width
 
     bboxSR = 3857
-    aerial_dict = get_aerial_image(bbox, bboxSR, width, height)
-    base_image = image_result_to_PIL(aerial_dict['image'])
+    # base_dict = get_aerial_image(bbox, bboxSR, width, height)
+    base_dict = get_base_image(settings.SOIL_BASE_LAYER, bbox, bboxSR, width, height)
+    base_image = image_result_to_PIL(base_dict['image'])
     # add taxlots
     taxlot_image = get_taxlot_image(bbox, width, height, bboxSR)
     # add property
-    property_image = get_property_image(bbox, width, height, bboxSR)
+    property_image = get_property_image(property, bbox, width, height, bboxSR)
     # default soil cartography
     soil_image = get_soil_overlay_tile_image(bbox, width, height)
 
     # generate attribution image
     attributions = [
-        aerial_dict['attribution'],
+        base_dict['attribution'],
         get_layer_attribution('soil'),
         get_layer_attribution('taxlot'),
     ]
@@ -900,18 +953,19 @@ def get_streams_report_image(property, bbox=None, orientation='landscape', width
         height = temp_width
 
     bboxSR = 3857
-    topo_dict = get_topo_image(bbox, bboxSR, width, height)
-    base_image = image_result_to_PIL(topo_dict['image'])
+    # base_dict = get_topo_image(bbox, bboxSR, width, height)
+    base_dict = get_base_image(settings.STREAMS_BASE_LAYER, bbox, bboxSR, width, height)
+    base_image = image_result_to_PIL(base_dict['image'])
     # add taxlots
     taxlot_image = get_taxlot_image(bbox, width, height, bboxSR)
     # add property
-    property_image = get_property_image(bbox, width, height, bboxSR)
+    property_image = get_property_image(property, bbox, width, height, bboxSR)
     # default streams cartography
     stream_image = get_stream_overlay_tile_image(bbox, width, height)
 
     # generate attribution image
     attributions = [
-        topo_dict['attribution'],
+        base_dict['attribution'],
         get_layer_attribution('streams'),
         get_layer_attribution('taxlot'),
     ]

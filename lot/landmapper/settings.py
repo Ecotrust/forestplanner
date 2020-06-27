@@ -52,8 +52,16 @@ REPORT_SUPPORT_ORIENTATION = False
 REPORT_MAP_MIN_BUFFER = 0.1
 
 ###########################################
+##      Properties                      ###
+###########################################
+PROPERTY_OUTLINE_COLOR = (255,255,0,255)
+PROPERTY_OUTLINE_WIDTH = 3
+
+
+###########################################
 ##      Soils                           ###
 ###########################################
+SOIL_BASE_LAYER = 'aerial'
 # WMS (raster image tile)
 SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
 SOIL_WMS_VERSION = '1.1.1'
@@ -347,6 +355,8 @@ SOIL_FIELDS = {
 ###########################################
 ##      Streams                         ###
 ###########################################
+# STREAMS_BASE_LAYER = 'topo'
+STREAMS_BASE_LAYER = 'aerial'
 STREAMS_URLS = {
     'AGOL': {
         'URL': [
