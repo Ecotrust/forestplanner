@@ -12,6 +12,12 @@
     </aside>
     <section class="col-md-8" id="map-wrap">
       {% block map-wrap %}
+        <form role="search">
+          <div>
+            <input type="search" id="property-search" name="q" placeholder="Enter your property address here" aria-label="Enter your property address" required pattern="[0-9]{5}[A-z]">
+            <button>Search</button>
+          </div>
+        </form>
         <div id="map"></div>
       {% endblock map-wrap %}
     </section>
