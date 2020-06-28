@@ -1,0 +1,5 @@
+@font-face {
+  font-family: "Avenir LT Std Black";
+  src: url("/fonts/AvenirLTStd-Black.otf") format("otf"),
+       /* url("/fonts/.woff") format("woff"); */
+}

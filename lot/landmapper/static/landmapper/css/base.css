@@ -1,3 +1,37 @@
+:root {
+
+/**
+ * COLORS
+ * set of color variables for usage throughout css
+ */
+--black: #000000;
+--white: #ffffff;
+--dark-grey: #707070;
+--dark-gray: var(--dark-grey);
+--light-grey: #EDEBEB;
+--light-gray: var(--light-grey);
+--primary-color: #78A22F;
+--green: var(--primary-color);
+
+/**
+ * FONTS FACES
+ * set of font variables for usage throughout css
+ */
+--primary-font: "Avenir LT Std", sans-serif;
+--primary-font-heavy: "Avenir LT Std Heavy", sans-serif;
+
+
+/**
+ * COPY
+ * text, paragraphs, and other copy styles
+ */
+--body-font-size: 18px;
+--body-line-height: 26px;
+--body-letter-spacing: 0.45px;
+
+
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -6,5 +40,8 @@
 }
 
 body {
-  background: #EDEBEB;
+  background: var(--light-grey);
+  font-size: var(--body-font-size);
+  line-height: var(--body-line-height);
+  letter-spacing: var(--body-letter-spacing);
 }
