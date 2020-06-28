@@ -1,7 +1,10 @@
-{% extends 'landmapper/base.html' %}
+{% extends 'landmapper/two-pane.html' %}
 {% load static flatblocks %}
 
-{% block site_title %}{{ page.title }}{% endblock site_title %}
+{% block extra_styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/openlayers-v6.3.1-dist/ol.css' %}">
+{% endblock extra_styles %}
 
 {% block content %}
   <div class="row no-gutters">

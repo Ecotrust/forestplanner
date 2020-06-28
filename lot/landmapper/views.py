@@ -607,7 +607,7 @@ def home(request):
         'help_page': help_page,
         'aside_content': aside_content,
     }
-    return render(request, 'landmapper/two-pane.html', context)
+    return render(request, 'landmapper/landing.html', context)
 
 def index(request):
     '''
