@@ -9,9 +9,9 @@
 {% block head_scripts %}
   {{ block.super }}
   <script type="text/javascript" src="{% static 'landmapper/js/openlayers-v6.3.1-dist/ol.js' %}"></script>
-  
+
   {% comment %} Polyfills for IE9+ and Andriod 4 {% endcomment %}
-  <script type="text/javascript" src="https://polyfill.io/v3/polyfill.js?features=Element.prototype.classList%2CURL%2CrequestAnimationFrame"></script>
+  <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=Element.prototype.classList%2CURL%2CrequestAnimationFrame"></script>
 {% endblock head_scripts %}
 
 {% block content %}
@@ -36,3 +36,7 @@
     {% endblock map-wrap %}
   </div>
 {% endblock content %}
+
+{% block footer_scripts %}
+  <script type="text/javascript" src="{% static 'landmapper/js/map.js' %}"></script>
+{% endblock footer_scripts %}
