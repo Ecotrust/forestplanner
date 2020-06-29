@@ -1,8 +1,31 @@
-#map-wrap {
-  height: 730px;
+#property-search-form {
+  position: absolute;
+  /* Center search box by:
+    left 50% - based on the parent div (50% of map-wrap)
+    transform translate -50% - based on input field (half of search input) */
+  left: 50%;
+  transform: translate(-50%,0);
+  /* Keep search over map.
+    both map and search position absoulte.
+    z-index 2 for search form. z-index 1 for map */
+  z-index: 2;
 }
+
+#map-wrap {
+  /* Height 730px based on Sarah Cline's (SC) designs.
+    should be height of most common paper printing size.
+    TODO: confirm printed paper size and readjust if needed. */
+  height: 730px;
+  position: relative;
+}
+
 #map {
+  /* Map height and width constrained by #map-wrap */
   height: 100%;
   position: absoulte;
   width: 100%;
+  /* Keep search over map.
+    both map and search position absoulte.
+    z-index 2 for search form. z-index 1 for map */
+  z-index: 1;
 }
