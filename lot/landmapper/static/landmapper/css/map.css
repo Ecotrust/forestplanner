@@ -1,0 +1,8 @@
+#map-wrap {
+  height: 730px;
+}
+#map {
+  height: 100%;
+  position: absoulte;
+  width: 100%;
+}
