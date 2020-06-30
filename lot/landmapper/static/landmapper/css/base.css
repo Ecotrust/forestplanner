@@ -1,3 +1,6 @@
+/* Import print css for print media */
+@import 'print.css' print;
+
 :root {
 
 /**
@@ -44,4 +47,12 @@ body {
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
   letter-spacing: var(--body-letter-spacing);
+}
+
+form:valid {
+  border: 1px solid green;
+}
+
+form:invalid {
+  border: 1px solid red;
 }
