@@ -4,6 +4,12 @@ from datetime import date
 TODAY_DATE = date.today().strftime("%D")
 
 LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
+
+###########################################
+##      Keys                            ###
+###########################################
+MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
+
 ###########################################
 ##      Basemaps                        ###
 ###########################################
@@ -20,8 +26,15 @@ BASEMAPS = {
         'technology': 'arcgis_mapserver',
         'attribution': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
     },
+    'ESRI_Topo': {
+        'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/export',
+        'layers': '0',
+        'technology': 'arcgis_mapserver',
+        'attribution': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
+    },
 }
 AERIAL_DEFAULT = 'ESRI_Satellite'
+TOPO_DEFAULT = 'ESRI_Topo'
 
 ###########################################
 ##      REPORTS                         ###
@@ -39,8 +52,16 @@ REPORT_SUPPORT_ORIENTATION = False
 REPORT_MAP_MIN_BUFFER = 0.1
 
 ###########################################
+##      Properties                      ###
+###########################################
+PROPERTY_OUTLINE_COLOR = (255,255,0,255)
+PROPERTY_OUTLINE_WIDTH = 3
+
+
+###########################################
 ##      Soils                           ###
 ###########################################
+SOIL_BASE_LAYER = 'aerial'
 # WMS (raster image tile)
 SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
 SOIL_WMS_VERSION = '1.1.1'
@@ -332,16 +353,98 @@ SOIL_FIELDS = {
 }
 
 ###########################################
+##      Streams                         ###
+###########################################
+# STREAMS_BASE_LAYER = 'topo'
+STREAMS_BASE_LAYER = 'aerial'
+STREAMS_URLS = {
+    'AGOL': {
+        'URL': [
+            'https://services.arcgis.com/P3ePLMYs2RVChkJx/arcgis/rest/services/USA_Detailed_Streams/FeatureServer/0/query?'
+        ],
+        'PARAMS': {},
+        'QS':[
+            'f=geojson',
+            'returnGeometry=true',
+            'spatialRel=esriSpatialRelIntersects',
+            # 'maxAllowableOffset=76.43702828515632',
+            'geometryType=esriGeometryEnvelope',
+            'inSR=102100',
+            'outFields=*',
+            'returnCentroid=false',
+            'returnExceededLimitFeatures=false',
+            'maxRecordCountFactor=3',
+            'outSR=102100',
+            'resultType=tile',
+        ],
+        'ATTRIBUTION': 'National Hydrography Dataset: USGS, Esri'
+    },
+    'MAPBOX_STATIC': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/static/{lon},{lat},{zoom}/{width}x{height}{retina}?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckbv10von10qw1iqs1cgdccw7',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+            'width': '',
+            'height': '',
+            'retina': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+            'attribution=false',
+            'logo=false'
+        ],
+        'ATTRIBUTION': 'Oregon Department of Forestry'
+    },
+    'MAPBOX_TILE': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckbv10von10qw1iqs1cgdccw7',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        'ATTRIBUTION': 'Oregon Department of Forestry',
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512
+    }
+}
+STREAMS_SOURCE = 'MAPBOX_TILE'
+STREAM_ZOOM_OVERLAY_2X = False
+STREAMS_ATTRIBUTION = STREAMS_URLS[STREAMS_SOURCE]['ATTRIBUTION']
+
+###########################################
 ##      Map Info                        ###
 ###########################################
 ATTRIBUTION_KEYS = {
     'aerial': BASEMAPS[AERIAL_DEFAULT]['attribution'],
     'topo': 'Set topo attr in settings',
     'streets': 'Set street attr in settings',
-    'streams': 'Set streams attr in settings',
+    'streams': STREAMS_ATTRIBUTION,
     'taxlot': 'Set taxlot attr in settings',
     'soil': SOIL_SSURGO_ATTRIBUTION
 }
+
+ATTRIBUTION_BOX_FILL_COLOR = (255, 255, 255, 190)
+ATTRIBUTION_BOX_OUTLINE = None
+ATTRIBUTION_TEXT_COLOR = "black"
+# ATTRIBUTION_TEXT_FONT = 'Pillow/Tests/fonts/FreeMono.ttf'
+# default UBUNTU Font
+# ATTRIBUTION_TEXT_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf'
+ATTRIBUTION_TEXT_FONT = '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf'
+ATTRIBUTION_TEXT_FONT_SIZE = 10
+ATTRIBUTION_TEXT_BUFFER = 3
+ATTRIBUTION_TEXT_LINE_SPACING = 1
 
 ###########################################
 ##      Flatblock content               ###

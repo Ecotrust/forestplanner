@@ -1,3 +1,6 @@
+from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from selenium.webdriver.firefox.webdriver import WebDriver
+
 from django.test import TestCase
 from django.conf import settings
 from django.urls import reverse
@@ -242,7 +245,7 @@ class ViewTests(TestCase):
         import os
         from PIL import Image
         # from landmapper.views import get_aerial_image, image_result_to_PIL, get_soil_overlay_tile_data, merge_images, get_property_from_taxlot_selection, get_bbox_as_string, get_bbox_from_property
-        from landmapper.views import get_property_from_taxlot_selection, get_soil_report_image
+        from landmapper.views import get_property_from_taxlot_selection, get_soil_report_image, get_streams_report_image
         # from django.contrib.gis.geos import GEOSGeometry
         from landmapper.models import Taxlot
 
@@ -281,18 +284,19 @@ class ViewTests(TestCase):
             (prop_name, prop_instance) = property
             image_data = get_soil_report_image(prop_instance, debug=False)
             image_data.save(os.path.join(settings.IMAGE_TEST_DIR, '%s_soil.png' % prop_name),"PNG")
+            image_data = get_streams_report_image(prop_instance, debug=False)
+            image_data.save(os.path.join(settings.IMAGE_TEST_DIR, '%s_stream.png' % prop_name),"PNG")
 
         print('tiles')
 
-
-    # """
-    # TEMPLATES
-    #     correctly formatted context for rendering templates
-    #     reporting values
-    #     ForestType queries
-    #     legend creation (map, forest type, soil)
-    #     table creation (overview, forest type, soil)
-    # """
+    """
+    Templates
+        correctly formatted context for rendering templates
+        reporting values
+        ForestType queries
+        legend creation (map, forest type, soil)
+        table creation (overview, forest type, soil)
+    """
 
     # Should we break up views into 'gather' and 'render' functions?
     # Perhaps the 'gather' functions are modular children - the parent requests
@@ -307,7 +311,6 @@ class ViewTests(TestCase):
         #   correct value types for each keyword
         #   correct values
         #   correct order (of MenuPage instances)
-
         print('header view')
 
     def test_home_view_gather(self):
@@ -315,15 +318,14 @@ class ViewTests(TestCase):
         #   ...
         print('home view gather')
 
-    def test_home_page(self):
+    def test_index_page(self):
         """
             TODO:
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
-        from landmapper.views import home
-        response = self.client.get(reverse(home))
-        # response = self.browser.get(reverse(home))
+        from landmapper.views import index
+        response = self.client.get(reverse(index))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, '/landmapper/landing.html')
 
