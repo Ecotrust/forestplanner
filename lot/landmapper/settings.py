@@ -397,9 +397,29 @@ STREAMS_URLS = {
             'logo=false'
         ],
         'ATTRIBUTION': 'Oregon Department of Forestry'
+    },
+    'MAPBOX_TILE': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckbv10von10qw1iqs1cgdccw7',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        'ATTRIBUTION': 'Oregon Department of Forestry',
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512
     }
 }
-STREAMS_SOURCE = 'MAPBOX_STATIC'
+STREAMS_SOURCE = 'MAPBOX_TILE'
 STREAM_ZOOM_OVERLAY_2X = False
 STREAMS_ATTRIBUTION = STREAMS_URLS[STREAMS_SOURCE]['ATTRIBUTION']
 

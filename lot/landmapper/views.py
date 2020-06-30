@@ -167,6 +167,205 @@ def get_soil_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=set
     img_data = unstable_request_wrapper(request_url)
     return img_data
 
+# Courtesy of https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
+def deg2num(lat_deg, lon_deg, zoom):
+    import math
+    lat_rad = math.radians(lat_deg)
+    n = 2.0 ** zoom
+    xtile = int((lon_deg + 180.0) / 360.0 * n)
+    ytile = int((1.0 - math.asinh(math.tan(lat_rad)) / math.pi) / 2.0 * n)
+    return (xtile, ytile)
+
+# Courtesy of https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames
+def num2deg(xtile, ytile, zoom):
+    # This returns the NW-corner of the square
+    import math
+    n = 2.0 ** zoom
+    lon_deg = xtile / n * 360.0 - 180.0
+    lat_rad = math.atan(math.sinh(math.pi * (1 - 2 * ytile / n)))
+    lat_deg = math.degrees(lat_rad)
+    return (lat_deg, lon_deg)
+
+def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
+    # PURPOSE:
+    # -   Get descriptions of required tiles as a 2D array
+    # IN:
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   request_dict: (dict) A dictionary describing the tile source
+    # -   srs: (string) the formatted Spatial Reference System string describing the
+    # -       default: 'EPSG:3857' (Web Mercator)
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # OUT:
+    # -   tiles_dict_array: 2D array of dictionaries defining URL request parameters
+    # -     zoom
+    # -     lat_index
+    # -     lon_index
+    # -     tile_bbox
+    # """
+    from django.contrib.gis.geos import Point
+
+    tiles_dict_array = []
+
+    if type(bbox) == list:
+        bbox = str(bbox)
+    if type(bbox) == str:
+        bbox_poly = get_bbox_as_polygon(bbox, int(str(srs).split(':')[-1]))
+    else:
+        # assume bbox is Polygon
+        bbox_poly = bbox
+
+    bbox_poly.transform(3857)
+
+    # Calculate Meters/Pixel for bbox, size
+    # Below gets us a rough estimate, and may give us errors later.
+    # To do this right, check out this:
+    #   https://wiki.openstreetmap.org/wiki/Zoom_levels#Distance_per_pixel_math
+    (west, south) = bbox_poly.coords[0][0]
+    (east, north) = bbox_poly.coords[0][2]
+    # mp_ratio = (east-west)/width
+    mp_ratio = (north-south)/height     #In theory, this should be less distorted... right? No?
+
+    # Get zoom value based on Meters/Pixel (get 1st zoom layer with less m/p)
+    # Values from https://wiki.openstreetmap.org/wiki/Zoom_levels
+    #       Note: these values are for 256x256 px tiles, do we need to adjust?
+    #       See "Mapbox GL" comment - can just remove 1 from the level
+    ZOOM_LEVELS_MP_RATIOS = [
+        156412,     # 0
+        78206,      # 1
+        39103,      # 2
+        19551,      # 3
+        9776,       # 4
+        4888,       # 5
+        2444,       # 6
+        1222,       # 7
+        610.984,    # 8
+        305.492,    # 9
+        152.746,    # 10
+        76.373,     # 11
+        38.187,     # 12
+        19.093,     # 13
+        9.547,      # 14
+        4.773,      # 15
+        2.387,      # 16
+        1.193,      # 17
+        0.596,      # 18
+        0.298,      # 19
+        0.149,      # 20
+    ]
+
+    pixel_axis = 256
+    for axis in [request_dict['TILE_HEIGHT'], request_dict['TILE_WIDTH']]:
+        if axis > pixel_axis:
+            pixel_axis = axis
+
+    for (z_lvl, mp) in enumerate(ZOOM_LEVELS_MP_RATIOS):
+        zoom = z_lvl
+        map_mp = mp
+        if mp_ratio > (mp*(256/pixel_axis)):
+            break
+
+    # Calculate layer'ls lat/lon index for LL & TR corners of bbox
+    #   Reference: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers
+    wgs84_ll = Point(west, south, srid=3857)
+    wgs84_ll.transform(4326)
+    wgs84_tr = Point(east, north, srid=3857)
+    wgs84_tr.transform(4326)
+    (west_4326, south_4326) = wgs84_ll.coords
+    (east_4326, north_4326) = wgs84_tr.coords
+
+    # west_lon_index = floor(2^zoom*((west_4326+180)/360))
+    # east_lon_index = ceil(2^zoom*((east_4326+180)/360))
+    # south_lat_index = floor(2^zoom*(1-(log(tan(pi/180*south_4326)+sec(pi/180*south_4326))/pi))/2)
+    # north_lat_index = ceil(2^zoom*(1-(log(tan(pi/180*north_4326)+sec(pi/180*north_4326))/pi))/2)
+    (west_lon_index, south_lat_index) = deg2num(south_4326, west_4326, zoom)
+    (east_lon_index, north_lat_index) = deg2num(north_4326, east_4326, zoom)
+
+    # build 2D array of tile URL parameters (lat, lon, zoom) and placeholder 'image'
+    for lon_index in range(west_lon_index, east_lon_index+1, 1):
+        tile_row = []
+        for lat_index in range(north_lat_index, south_lat_index+1, 1):
+            (tile_north, tile_west) = num2deg(lon_index, lat_index, zoom)
+            (tile_south, tile_east) = num2deg(lon_index+1, lat_index+1, zoom)
+            tile_sw = Point(tile_west, tile_south, srid=4326)
+            tile_sw.transform(3857)
+            tile_ne = Point(tile_east, tile_north, srid=4326)
+            tile_ne.transform(3857)
+            tile_bbox = ','.join([str(x) for x in [tile_sw.coords[0], tile_sw.coords[1], tile_ne.coords[0], tile_ne.coords[1]]])
+            cell_dict = {
+                'lat_index': lat_index,
+                'lon_index': lon_index,
+                'zoom': zoom,
+                'tile_bbox': tile_bbox
+            }
+
+            tile_row.append(cell_dict)
+
+        tiles_dict_array.append(tile_row)
+
+    return tiles_dict_array
+
+def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
+    # PURPOSE:
+    # -   Crop given map image tiles to bbox, then resize image to appropriate width/height
+    # IN:
+    # -   tiles_dict_array: (list) a 2D array of image tiles, where LL index = (0,0)
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # OUT:
+    # -   img_data:
+    # """
+    from PIL import Image
+
+    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
+
+    num_cols = len(tiles_dict_array)
+    num_rows = len(tiles_dict_array[0])
+
+    base_width = num_cols * request_dict['TILE_IMAGE_WIDTH']
+    base_height = num_rows * request_dict['TILE_IMAGE_HEIGHT']
+
+    # Create overlay image
+    base_image = Image.new("RGBA", (base_width, base_height), (255,255,255,0))
+
+    # Merge tiles onto base image
+    for (x, column) in enumerate(tiles_dict_array):
+        for (y, cell) in enumerate(column):
+            stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
+            base_image = merge_images(base_image, stream_image, x*request_dict['TILE_IMAGE_WIDTH'], y*request_dict['TILE_IMAGE_HEIGHT'])
+
+    # Get base image bbox
+    base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
+    base_north = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[3])
+    base_east = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[2])
+    base_south = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[1])
+
+    base_width_in_meters = base_east - base_west
+    base_height_in_meters = base_north - base_south
+
+    base_meters_per_pixel = base_height_in_meters/base_height
+
+    # crop image to target bbox
+    (bbox_west, bbox_south, bbox_east, bbox_north) = (float(x) for x in bbox.split(','))
+    crop_west = (bbox_west - base_west) / base_meters_per_pixel
+    crop_south = abs((bbox_south - base_north) / base_meters_per_pixel)
+    crop_east = (bbox_east - base_west) / base_meters_per_pixel
+    crop_north = abs((bbox_north - base_north) / base_meters_per_pixel)
+
+    base_image = base_image.crop(box=(crop_west,crop_north,crop_east,crop_south))
+
+    # resize image to desired pixel count
+    img_data = base_image.resize((width, height), Image.ANTIALIAS)
+
+    return img_data
+
 def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.STREAM_ZOOM_OVERLAY_2X):
     # """
     # PURPOSE:
@@ -208,13 +407,34 @@ def get_stream_overlay_tile_data(bbox, width=settings.REPORT_MAP_WIDTH, height=s
 
         request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
         request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+        request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+
+        img_data = unstable_request_wrapper(request_url)
+
+    elif '_TILE' in settings.STREAMS_SOURCE:
+        # Get descriptions of required tiles as a 2D array
+        tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
+        request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
+        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+        # Zoom should remain constant throughout all cells
+        request_params['zoom'] = tiles_dict_array[0][0]['zoom']
+
+        # Rows are stacked from South to North:
+        #       https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
+        for row in tiles_dict_array:
+            # Cells are ordered from West to East
+            for cell in row:
+                request_params['lon'] = cell['lon_index']
+                request_params['lat'] = cell['lat_index']
+                request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+                cell['image'] = unstable_request_wrapper(request_url)
+
+        img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
 
     else:
         print('settings.STREAMS_SOURCE value "%s" is not currently supported.' % settings.STREAMS_SOURCE)
+        img_data = None
 
-    request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-
-    img_data = unstable_request_wrapper(request_url)
     return img_data
 
 def get_soil_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, srs='EPSG:3857', zoom=settings.SOIL_ZOOM_OVERLAY_2X):
@@ -264,11 +484,9 @@ def get_stream_overlay_tile_image(bbox, width=settings.REPORT_MAP_WIDTH, height=
     # -   a PIL Image instance of the soils overlay
     # """
     from PIL import Image
-    data = get_stream_overlay_tile_data(bbox, width, height, srs, zoom)
-    image = image_result_to_PIL(data)
+    image = get_stream_overlay_tile_data(bbox, width, height, srs, zoom)
     if zoom:
         image = image.resize((width, height), Image.ANTIALIAS)
-
 
     return image
 
@@ -464,7 +682,6 @@ def get_bbox_as_polygon(bbox, srid=3857):
     bbox_geom = Polygon(polygon_input, srid=srid)
     return bbox_geom
 
-
 def get_base_image(layername, bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
     if layername == 'aerial':
         return get_aerial_image(bbox, bboxSR, width, height)
@@ -473,7 +690,7 @@ def get_base_image(layername, bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH
     else:
         print("Layername '%s' not recognized as valid base layer for maps. Defaulting to 'aerial'.")
     return get_aerial_image(bbox, bboxSR, width, height)
-    
+
 def get_aerial_image(bbox, bboxSR=3857, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
@@ -573,7 +790,10 @@ def image_result_to_PIL(image_data):
     from tempfile import NamedTemporaryFile
 
     fp = NamedTemporaryFile()
-    data_content = image_data.read()
+    try:
+        data_content = image_data.read()
+    except AttributeError as e:
+        data_content = image_data
     fp.write(data_content)
     try:
         pil_image = Image.open(fp.name)
@@ -599,7 +819,7 @@ def image_result_to_PIL(image_data):
 
     return rgba_image
 
-def merge_images(background, foreground):
+def merge_images(background, foreground, x=0, y=0):
     # """
     # merge_images
     # PURPOSE:
@@ -613,7 +833,7 @@ def merge_images(background, foreground):
     # -   merged_image: (PIL RGBA Image) the resulting merged image
     # """
     merged = background.copy()
-    merged.paste(foreground, (0, 0), foreground)
+    merged.paste(foreground, (x, y), foreground)
     return merged
 
 def get_property_from_taxlot_selection(taxlot_list):
@@ -896,7 +1116,6 @@ def get_soil_report_image(property, bbox=None, orientation='landscape', width=se
         height = temp_width
 
     bboxSR = 3857
-    # base_dict = get_aerial_image(bbox, bboxSR, width, height)
     base_dict = get_base_image(settings.SOIL_BASE_LAYER, bbox, bboxSR, width, height)
     base_image = image_result_to_PIL(base_dict['image'])
     # add taxlots
@@ -953,7 +1172,6 @@ def get_streams_report_image(property, bbox=None, orientation='landscape', width
         height = temp_width
 
     bboxSR = 3857
-    # base_dict = get_topo_image(bbox, bboxSR, width, height)
     base_dict = get_base_image(settings.STREAMS_BASE_LAYER, bbox, bboxSR, width, height)
     base_image = image_result_to_PIL(base_dict['image'])
     # add taxlots
