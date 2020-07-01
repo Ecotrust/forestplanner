@@ -1,5 +1,10 @@
 @import 'map.css';
 
+#property-search-form .input-group {
+  border: 1px solid var(--black);
+  border-radius: none;
+}
+
 .title {
   text-align: center;
   font-size: 8rem;
