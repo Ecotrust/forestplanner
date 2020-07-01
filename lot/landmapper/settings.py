@@ -355,8 +355,8 @@ SOIL_FIELDS = {
 ###########################################
 ##      Streams                         ###
 ###########################################
-# STREAMS_BASE_LAYER = 'topo'
-STREAMS_BASE_LAYER = 'aerial'
+STREAMS_BASE_LAYER = 'topo'
+# STREAMS_BASE_LAYER = 'aerial'
 STREAMS_URLS = {
     'AGOL': {
         'URL': [

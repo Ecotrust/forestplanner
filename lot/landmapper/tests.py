@@ -145,6 +145,14 @@ class ModelTests(TestCase):
         # TODO: test everything about ForestType once it's a thing
 
 class ViewTests(TestCase):
+
+    @classmethod
+    def setUpTestData(cls):
+        # About and help MenuPage creation for testing 
+        from landmapper.models import MenuPage
+        MenuPage.objects.create(name='about', content='about landmapper',)
+        MenuPage.objects.create(name='help', content='help for landmapper',)
+
     """
     External APIs
         soil data queries
@@ -314,20 +322,15 @@ class ViewTests(TestCase):
         print('header view')
 
     def test_home_view_gather(self):
-        # TODO:
-        #   ...
-        print('home view gather')
-
-    def test_index_page(self):
         """
             TODO:
                 create variable to strore result of fetching the home page
                 assert response is 200
         """
-        from landmapper.views import index
-        response = self.client.get(reverse(index))
+        from landmapper.views import home
+        response = self.client.get(reverse(home))
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, '/landmapper/landing.html')
+        self.assertTemplateUsed(response, 'landmapper/landing.html')
 
     def test_identify_gather(self):
         """

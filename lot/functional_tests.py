@@ -91,6 +91,13 @@ class FrontendTests(unittest.TestCase):
         # TODO: need a better test than assertTrue
         self.assertTrue(logo)
 
+    def test_home(self):
+        self.browser.get('http://localhost:8000/landmapper/')
+        # Find welcome text in content panel
+        aside = self.browser.find_element_by_id('content-panel')
+        # check if text contains landmapper
+        self.assertIn('Landmapper', aside.text)
+
 
 if __name__ == '__main__':
     unittest.main()

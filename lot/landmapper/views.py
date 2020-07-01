@@ -1215,11 +1215,16 @@ def home(request):
     '''
     Land Mapper: Home Page
     '''
+    # Get MenuPage content for pages
+    # get_menu_page(<name of MenuPage>)
+    #   returns None | MenuPage
     about_page = get_menu_page('about')
     help_page = get_menu_page('help')
 
+    # Get aside content Flatblock using name of Flatblock
     aside_content = 'home-aside'
     if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
+        # False signals to template that it should not evaluate
         aside_content = False
 
     context = {
@@ -1234,7 +1239,7 @@ def index(request):
     Land Mapper: Index Page
     (landing: slide 1)
     '''
-    return render(request, 'landmapper/base.html', {})
+    return render(request, 'landmapper/landing.html', context)
 
 def identify(request):
     '''
