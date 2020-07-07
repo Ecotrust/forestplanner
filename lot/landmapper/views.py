@@ -1222,7 +1222,7 @@ def home(request):
     help_page = get_menu_page('help')
 
     # Get aside content Flatblock using name of Flatblock
-    aside_content = 'home-aside'
+    aside_content = 'aside-home'
     if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
         # False signals to template that it should not evaluate
         aside_content = False

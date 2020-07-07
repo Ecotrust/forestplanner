@@ -44,9 +44,25 @@
 
 body {
   background: var(--light-grey);
+  color: var(--black);
   font-size: var(--body-font-size);
   line-height: var(--body-line-height);
   letter-spacing: var(--body-letter-spacing);
+}
+
+/**
+ * Bootstrap grid additions
+ ** full screen width
+ */
+.no-gutters {
+  margin-right: 0;
+  margin-left: 0;
+}
+
+.no-gutters > .col,
+.no-gutters > [class*="col-"] {
+  padding-right: 0;
+  padding-left: 0;
 }
 
 form:valid {

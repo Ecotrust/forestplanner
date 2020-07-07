@@ -1,8 +1,15 @@
 header {
-  background: #fff;
+  background: var(--white);
 }
 
 .nav-item {
+  color: var(--black);
   font-size: 16px;
   letter-spacing: 1px;
+  margin: 0 25px;
+  padding: 5px;
+}
+
+.nav-item:last-of-type {
+  margin-right: 0;
 }

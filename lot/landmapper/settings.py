@@ -450,7 +450,9 @@ ATTRIBUTION_TEXT_LINE_SPACING = 1
 ##      Flatblock content               ###
 ###########################################
 FLATBLOCK_IDS = [
-    'home-aside',
+    'aside-home',
+    'aside-map-pin',
+    'aside-name'
 ]
 
 ###########################################
