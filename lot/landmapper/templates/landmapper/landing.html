@@ -3,20 +3,15 @@
 
 {% block extra_styles %}
   {{ block.super }}
-  <link rel="stylesheet" href="{% static 'landmapper/css/openlayers-v6.3.1-dist/ol.css' %}">
-  <link rel="stylesheet" href="{% static 'landmapper/css/map.css' %}">
+  <link rel="stylesheet" href="{% static 'landmapper/css/home.css' %}">
 {% endblock extra_styles %}
 
 {% block head_scripts %}
   {{ block.super }}
-  <script type="text/javascript" src="{% static 'landmapper/js/openlayers-v6.3.1-dist/ol.js' %}"></script>
-
-  {% comment %} Polyfills for IE9+ and Andriod 4 {% endcomment %}
-  <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=Element.prototype.classList%2CURL%2CrequestAnimationFrame"></script>
 {% endblock head_scripts %}
 
 {% block content %}
-  <div class="row no-gutters">
+  <div class="row align-items-stretch no-gutters">
     {% block content-panel %}
       <aside class="col-md-4" id="content-panel">
         {% flatblock aside_content evaluated=True %}

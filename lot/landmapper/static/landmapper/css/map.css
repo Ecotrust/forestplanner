@@ -25,7 +25,7 @@
   /* Height 730px based on Sarah Cline's (SC) designs.
     should be height of most common paper printing size.
     TODO: confirm printed paper size and readjust if needed. */
-  height: 730px;
+  height: 100%;
   max-height: 100vh;
   position: relative;
 }
