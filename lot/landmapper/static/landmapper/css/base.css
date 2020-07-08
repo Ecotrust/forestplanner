@@ -49,6 +49,15 @@ body {
 }
 
 /**
+ * Aside
+ *
+ */
+#content-panel {
+  /* changes to left padding should also be made to header .navbar */
+  padding: 3.25rem 2.5rem 3.25rem 2.25rem;
+}
+
+/**
  * Bootstrap grid additions
  ** full screen width
  */
@@ -63,6 +72,10 @@ body {
   padding-left: 0;
 }
 
+/**
+ * Forms
+ *
+ */
 form:valid {
   border: 1px solid green;
 }
