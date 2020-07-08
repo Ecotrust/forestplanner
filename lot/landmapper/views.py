@@ -1210,17 +1210,24 @@ def get_streams_report_image(property, bbox=None, orientation='landscape', width
 
     return merged
 
-# Create your views here.
-def home(request):
-    '''
-    Land Mapper: Home Page
-    '''
+def getHeaderMenu(context):
     # Get MenuPage content for pages
     # get_menu_page(<name of MenuPage>)
     #   returns None | MenuPage
     about_page = get_menu_page('about')
     help_page = get_menu_page('help')
 
+    # add pages to context dict
+    context['about_page'] = about_page
+    context['help_page'] = help_page
+
+    return context
+
+# Create your views here.
+def home(request):
+    '''
+    Land Mapper: Home Page
+    '''
     # Get aside content Flatblock using name of Flatblock
     aside_content = 'aside-home'
     if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
@@ -1228,10 +1235,12 @@ def home(request):
         aside_content = False
 
     context = {
-        'about_page': about_page,
-        'help_page': help_page,
         'aside_content': aside_content,
+        'q_address': 'Enter your property address here',
     }
+
+    context = getHeaderMenu(context)
+
     return render(request, 'landmapper/landing.html', context)
 
 def index(request):
@@ -1252,7 +1261,23 @@ def identify(request):
     OUT
         Rendered Template
     '''
-    return render(request, 'landmapper/base.html', {})
+
+    if request.POST.get('action') == 'POST':
+        if request.POST.get('q-address'):
+            q_address = request.POST.get('q-address')
+            coords = geocode(q_address)
+        else:
+            q_address = 'Enter your property address here'
+
+        if coords:
+            context = {
+                'coords': coords,
+                'q_address': q_address
+            }
+            context = getHeaderMenu(context)
+            return render(request, 'landmapper/landing.html', context)
+
+    return home(request)
 
 def report(request):
     '''

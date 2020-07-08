@@ -148,7 +148,7 @@ class ViewTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
-        # About and help MenuPage creation for testing 
+        # About and help MenuPage creation for testing
         from landmapper.models import MenuPage
         MenuPage.objects.create(name='about', content='about landmapper',)
         MenuPage.objects.create(name='help', content='help for landmapper',)
