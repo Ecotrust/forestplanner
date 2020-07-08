@@ -1,21 +1,3 @@
-#property-search-form {
-  position: absolute;
-  /* Center search box by:
-    left 50% - based on the parent div (50% of map-wrap)
-    transform translate -50% - based on input field (half of search input) */
-  left: 50%;
-  transform: translate(-50%,85px);
-  /* Keep search over map.
-    both map and search position absoulte.
-    z-index 2 for search form. z-index 1 for map */
-  z-index: 2;
-}
-
-#property-search-form .input-group {
-  border: 1px solid var(--black);
-  border-radius: none;
-}
-
 /**
  * Map styling
  *** parent div

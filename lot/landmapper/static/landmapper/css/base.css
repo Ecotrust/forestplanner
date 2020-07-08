@@ -58,6 +58,54 @@ body {
 }
 
 /**
+ * Forms
+ *
+ */
+form:valid {
+ border: 1px solid green;
+}
+
+form:invalid {
+ /* border: 1px solid red; */
+}
+
+#property-search-form {
+ position: absolute;
+ /* Center search box by:
+   left 50% - based on the parent div (50% of map-wrap)
+   transform translate -50% - based on input field (half of search input) */
+ left: 50%;
+ transform: translate(-50%,85px);
+ /* Keep search over map.
+   both map and search position absoulte.
+   z-index 2 for search form. z-index 1 for map */
+ z-index: 2;
+}
+
+/**
+ * Inputs Fields
+ *
+ */
+#property-search-form .input-group {
+ border: 1px solid var(--black);
+ border-radius: 0;
+}
+
+#property-search-form input {
+  border-radius: 0;
+  border: none;
+}
+
+/**
+ * Buttons
+ *
+ */
+#property-search-btn {
+  background: var(--white);
+  border-left: 1px solid var(--black);
+}
+
+/**
  * Bootstrap grid additions
  ** full screen width
  */
@@ -70,16 +118,4 @@ body {
 .no-gutters > [class*="col-"] {
   padding-right: 0;
   padding-left: 0;
-}
-
-/**
- * Forms
- *
- */
-form:valid {
-  border: 1px solid green;
-}
-
-form:invalid {
-  border: 1px solid red;
 }
