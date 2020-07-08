@@ -25,10 +25,11 @@
  * COPY
  * text, paragraphs, and other copy styles
  */
+--html-font-size: 16px;
+
 --body-font-size: 18px;
 --body-line-height: 26px;
 --body-letter-spacing: 0.45px;
-
 
 }
 
@@ -37,6 +38,10 @@
   padding: 0;
   box-sizing: border-box;
   border: none;
+}
+
+html {
+  font-size: var(--html-font-size);
 }
 
 body {

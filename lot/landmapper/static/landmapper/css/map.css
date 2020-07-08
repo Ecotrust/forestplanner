@@ -14,6 +14,7 @@
 }
 
 #map {
+  font-size: 1rem;
   /* Map height and width constrained by #map-wrap */
   height: 100%;
   position: absolute;
