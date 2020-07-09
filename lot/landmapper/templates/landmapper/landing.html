@@ -20,7 +20,7 @@
     {% block map-wrap %}
       <section class="col" id="map-wrap">
         {% block property-search %}
-          <form role="search" id="property-search-form" action="{% url 'identify' %}" method="POST">
+          <form role="search" id="property-search-form" action="{% url 'identify' %}" method="post">
             {% csrf_token %}
             <div class="input-group input-group-lg">
               <input type="search" id="property-search" class="form-control" name="q-address" placeholder="{{ q_address }}" aria-label="{{ q_address }}" aria-describedby="property-search-btn" required>
@@ -37,5 +37,9 @@
 {% endblock content %}
 
 {% block footer_scripts %}
+  <script>
+    console.log('{{ coords }}');
+    // var propertyCoords = {{ coords }};
+  </script>
   <script type="text/javascript" src="{% static 'landmapper/js/map.js' %}"></script>
 {% endblock footer_scripts %}

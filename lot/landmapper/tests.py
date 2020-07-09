@@ -348,8 +348,11 @@ class ViewTests(TestCase):
             (opt) taxlot ids
             (opt) property name
         """
-        # from landmapper.views import identify
-        print('test identify gather')
+        from landmapper.views import identify
+        address = 'Mountain View, CA'
+        response = self.client.post(reverse(identify), {'q-address':address})
+        self.assertEqual(response.status_code, 200)
+        print('TODO: identify test')
 
     def test_identify_render(self):
         """

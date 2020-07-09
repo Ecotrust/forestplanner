@@ -1261,14 +1261,12 @@ def identify(request):
     OUT
         Rendered Template
     '''
-
-    if request.POST.get('action') == 'POST':
+    if request.method == 'POST':
         if request.POST.get('q-address'):
             q_address = request.POST.get('q-address')
             coords = geocode(q_address)
         else:
             q_address = 'Enter your property address here'
-
         if coords:
             context = {
                 'coords': coords,
@@ -1276,6 +1274,8 @@ def identify(request):
             }
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
+    else:
+        print('requested identify page')
 
     return home(request)
 
