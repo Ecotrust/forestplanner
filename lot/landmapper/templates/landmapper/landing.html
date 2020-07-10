@@ -42,8 +42,11 @@
     {% if coords %}
       var propertyCoords = {{ coords }};
       if (propertyCoords.length > 1) {
-        console.log(propertyCoords.length);
-        mapView.setCenter(propertyCoords);
+        // Flip coords around for OL
+        console.log(propertyCoords)
+        reprojectCoords = ol.proj.fromLonLat([propertyCoords[1],propertyCoords[0]])
+        mapView.setCenter(reprojectCoords);
+        mapView.setZoom(10);
       }
     {% endif %}
   </script>
