@@ -37,9 +37,14 @@
 {% endblock content %}
 
 {% block footer_scripts %}
-  <script>
-    console.log('{{ coords }}');
-    // var propertyCoords = {{ coords }};
-  </script>
   <script type="text/javascript" src="{% static 'landmapper/js/map.js' %}"></script>
+  <script>
+    {% if coords %}
+      var propertyCoords = {{ coords }};
+      if (propertyCoords.length > 1) {
+        console.log(propertyCoords.length);
+        mapView.setCenter(propertyCoords);
+      }
+    {% endif %}
+  </script>
 {% endblock footer_scripts %}

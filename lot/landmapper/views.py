@@ -1261,6 +1261,12 @@ def identify(request):
     OUT
         Rendered Template
     '''
+    # Get aside content Flatblock using name of Flatblock
+    aside_content = 'aside-map-pin'
+    if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
+        # False signals to template that it should not evaluate
+        aside_content = False
+
     if request.method == 'POST':
         if request.POST.get('q-address'):
             q_address = request.POST.get('q-address')
@@ -1270,7 +1276,8 @@ def identify(request):
         if coords:
             context = {
                 'coords': coords,
-                'q_address': q_address
+                'q_address': q_address,
+                'aside_content': aside_content,
             }
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
