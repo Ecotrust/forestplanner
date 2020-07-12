@@ -15,6 +15,10 @@
     {% block content-panel %}
       <aside class="col-5" id="content-panel">
         {% flatblock aside_content evaluated=True %}
+        {% block show_panel_buttons %}
+          <button type="button" class="btn btn-light">Back</button>
+          <button type="button" class="btn btn-light" {{ btn_next_disabled }}>Next</button>
+        {% endblock show_panel_buttons %}
       </aside>
     {% endblock content-panel %}
     {% block map-wrap %}

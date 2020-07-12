@@ -12,14 +12,6 @@
     {% endblock content-panel %}
     {% block map-wrap %}
       <section class="col-md-8" id="map-wrap">
-        {% block property-search %}
-          <form role="search">
-            <div>
-              <input type="search" id="property-search" name="q" placeholder="Enter your property address here" aria-label="Enter your property address" required>
-              <button>Go</button>
-            </div>
-          </form>
-        {% endblock property-search %}
         <div id="map"></div>
       </section>
     {% endblock map-wrap %}

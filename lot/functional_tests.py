@@ -5,6 +5,7 @@ import unittest
 # from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 # from selenium.webdriver.firefox.webdriver import WebDriver
 from selenium import webdriver
+from selenium.webdriver.common.by import By
 
 # from django.test import TestCase
 from django.conf import settings
@@ -58,6 +59,7 @@ class FrontendTests(unittest.TestCase):
     def setUp(self):
         # Browser for all tests
         self.browser = webdriver.Firefox()
+        self.vars = {}
 
     def tearDown(self):
         self.browser.quit()
@@ -98,6 +100,16 @@ class FrontendTests(unittest.TestCase):
         # check if text contains landmapper
         self.assertIn('Landmapper', aside.text)
 
+    def test_address_query_input(self):
+        self.browser.get('http://localhost:8000/landmapper/')
+        self.browser.find_element(By.ID, 'property-search').send_keys('San Francisco, CA')
+        self.browser.find_element(By.ID, 'property-search-btn').click()
+
+    def test_content_panel_button(self):
+        self.browser.get('http://localhost:8000/landmapper/identify/')
+        self.browser.find_element(By.ID, 'btn-panel-back').click()
+        location = self.broswer.location
+        self.assertEqual('http://localhost:8000/', location)
 
 if __name__ == '__main__':
     unittest.main()

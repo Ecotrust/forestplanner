@@ -1278,6 +1278,8 @@ def identify(request):
                 'coords': coords,
                 'q_address': q_address,
                 'aside_content': aside_content,
+                'show_panel_buttons': True,
+                'btn_next_disabled': 'disabled',
             }
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
