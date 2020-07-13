@@ -102,19 +102,46 @@ class FrontendTests(unittest.TestCase):
 
     def test_address_query_input(self):
         self.browser.get('http://localhost:8000/landmapper/')
+        # Can we find San Francisco, CA?
+        # Find the search input, add search text, click search button
         self.browser.find_element(By.ID, 'property-search').send_keys('San Francisco, CA')
         self.browser.find_element(By.ID, 'property-search-btn').click()
 
     def test_content_panel_next_button_disabled(self):
         self.browser.get('http://localhost:8000/landmapper/identify/')
         next_btn = self.browser.find_element(By.ID, 'btn-content-panel-next')
+        # Check for class .disabled (Bootstrap link visible but not clickable)
         next_btn.classlist.contains('disabled')
 
-    def test_content_panel_back_button(self):
+    def test_content_panel_back_button_click(self):
         self.browser.get('http://localhost:8000/landmapper/identify')
+        # Back button takes us back to the start for now
+        # TODO: maybe go back single step in future iteration
         self.browser.find_element(By.ID, 'btn-content-panel-back').click()
-        location = self.browser.location.href
-        self.assertEqual('http://localhost:8000/landmapper/', location)
+        # Get the window location path which should be home page
+        location = self.browser.window.location.pathname
+        self.assertEqual('/landmapper/', location)
+
+    def test_content_panel_next_button_click(self):
+        self.browser.get('http://localhost:8000/landmapper/identify')
+        # Taxlot must be selected to enable next button
+        # currently just using a map click to test taxlot selection
+        self.browser.find_element(By.ID, 'map').click()
+        # Next button is now enabled so click to go to name and create property maps
+        self.browser.fine_element(By.ID, 'btn-content-panel-next').click()
+
+    def test_taxlot_selection(self):
+        self.browser.get('http://localhost:8000/landmapper/identify')
+        # Currently test by clicking the map
+        self.browser.find_element(By.ID, 'map').click()
+
+        # TODO: 1. load taxlot layer
+            #   2. select single taxlot
+            #   3. select multiple taxlots
+            #   4. deselect taxlot
+            #   5. deselect multiple taxlots
+            #   6. select nonadjacent taxlots
+
 
 if __name__ == '__main__':
     unittest.main()

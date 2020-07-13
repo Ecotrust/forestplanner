@@ -12,3 +12,15 @@ var map = new ol.Map({
   ],
   view: mapView
 });
+
+var showNextBtn = function(show) {
+  if (show) {
+    document.querySelector('#btn-content-panel-next').classList.remove('disabled');
+  } else {
+    document.querySelector('#btn-content-panel-next').classList.add('disabled');
+  }
+}
+
+map.on('click', function(e) {
+  showNextBtn(true);
+});
