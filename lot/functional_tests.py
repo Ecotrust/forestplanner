@@ -105,11 +105,16 @@ class FrontendTests(unittest.TestCase):
         self.browser.find_element(By.ID, 'property-search').send_keys('San Francisco, CA')
         self.browser.find_element(By.ID, 'property-search-btn').click()
 
-    def test_content_panel_button(self):
+    def test_content_panel_next_button_disabled(self):
         self.browser.get('http://localhost:8000/landmapper/identify/')
-        self.browser.find_element(By.ID, 'btn-panel-back').click()
-        location = self.broswer.location
-        self.assertEqual('http://localhost:8000/', location)
+        next_btn = self.browser.find_element(By.ID, 'btn-content-panel-next')
+        next_btn.has_class('disabled')
+
+    def test_content_panel_back_button(self):
+        self.browser.get('http://localhost:8000/landmapper/identify')
+        self.browser.find_element(By.ID, 'btn-content-panel-back').click()
+        location = self.browser.location
+        self.assertEqual('http://localhost:8000/landmapper/', location)
 
 if __name__ == '__main__':
     unittest.main()

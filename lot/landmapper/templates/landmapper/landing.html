@@ -16,8 +16,8 @@
       <aside class="col-5" id="content-panel">
         {% flatblock aside_content evaluated=True %}
         {% block show_panel_buttons %}
-          <button type="button" class="btn btn-light">Back</button>
-          <button type="button" class="btn btn-light" {{ btn_next_disabled }}>Next</button>
+          <a href="{{ btn_back_href }}" class="btn btn-light" id="btn-content-panel-back">Back</a>
+          <a href="{{ btn_next_href }}" class="btn btn-light {{ btn_next_disabled }}" id="btn-content-panel-next">Next</a>
         {% endblock show_panel_buttons %}
       </aside>
     {% endblock content-panel %}

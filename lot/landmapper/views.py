@@ -1236,6 +1236,7 @@ def home(request):
 
     context = {
         'aside_content': aside_content,
+        'show_panel_buttons': False,
         'q_address': 'Enter your property address here',
     }
 
@@ -1279,7 +1280,9 @@ def identify(request):
                 'q_address': q_address,
                 'aside_content': aside_content,
                 'show_panel_buttons': True,
-                'btn_next_disabled': 'disabled',
+                'btn_back_href': '/landmapper/',
+                'btn_next_href': '',
+                'btn_next_disabled': '.disabled', # disabled is a css class for <a> tags
             }
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
