@@ -1282,7 +1282,7 @@ def identify(request):
                 'show_panel_buttons': True,
                 'btn_back_href': '/landmapper/',
                 'btn_next_href': '',
-                'btn_next_disabled': '.disabled', # disabled is a css class for <a> tags
+                'btn_next_disabled': 'disabled', # disabled is a css class for <a> tags
             }
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)

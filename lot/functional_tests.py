@@ -108,12 +108,12 @@ class FrontendTests(unittest.TestCase):
     def test_content_panel_next_button_disabled(self):
         self.browser.get('http://localhost:8000/landmapper/identify/')
         next_btn = self.browser.find_element(By.ID, 'btn-content-panel-next')
-        next_btn.has_class('disabled')
+        next_btn.classlist.contains('disabled')
 
     def test_content_panel_back_button(self):
         self.browser.get('http://localhost:8000/landmapper/identify')
         self.browser.find_element(By.ID, 'btn-content-panel-back').click()
-        location = self.browser.location
+        location = self.browser.location.href
         self.assertEqual('http://localhost:8000/landmapper/', location)
 
 if __name__ == '__main__':
