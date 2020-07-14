@@ -1,15 +1,6 @@
 {% extends 'landmapper/two-pane.html' %}
 {% load static flatblocks %}
 
-{% block extra_styles %}
-  {{ block.super }}
-  <link rel="stylesheet" href="{% static 'landmapper/css/home.css' %}">
-{% endblock extra_styles %}
-
-{% block head_scripts %}
-  {{ block.super }}
-{% endblock head_scripts %}
-
 {% block content %}
   <div class="row align-items-stretch flex-grow-1 no-gutters">
     {% block content-panel %}
@@ -43,7 +34,7 @@
 {% endblock content %}
 
 {% block footer_scripts %}
-  <script type="text/javascript" src="{% static 'landmapper/js/map.js' %}"></script>
+  {{ block.super }}
   <script>
     {% if coords %}
       var propertyCoords = {{ coords }};
