@@ -3,7 +3,7 @@
 
 {% block site_title %}{{ page.title }}{% endblock site_title %}
 
-{% block styles %}}
+{% block styles %}
   {{ block.super }}
   <link rel="stylesheet" href="{% static 'landmapper/css/openlayers-v6.3.1-dist/ol.css' %}">
   <link rel="stylesheet" href="{% static 'landmapper/css/map.css' %}">
