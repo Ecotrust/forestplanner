@@ -48,17 +48,11 @@
     <link rel="stylesheet" href="{% static 'landmapper/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'landmapper/css/header.css' %}">
     <link rel="stylesheet" href="{% static 'landmapper/css/print.css' %}">
-    <link rel="stylesheet" href="{% static 'landmapper/css/openlayers-v6.3.1-dist/ol.css' %}">
-    <link rel="stylesheet" href="{% static 'landmapper/css/map.css' %}">
     {% endblock styles %}
 
     {% block extra_styles %}{% endblock extra_styles %}
 
-    {% block head_scripts %}
-      <script type="text/javascript" src="{% static 'landmapper/js/openlayers-v6.3.1-dist/ol.js' %}"></script>
-      {% comment %} Polyfills for IE9+ and Andriod 4 {% endcomment %}
-      <script type="text/javascript" src="https://polyfill.io/v3/polyfill.min.js?features=Element.prototype.classList%2CURL%2CrequestAnimationFrame"></script>
-    {% endblock head_scripts %}
+    {% block head_scripts %}{% endblock head_scripts %}
 
     {% block extra_head_scripts %}{% endblock extra_head_scripts %}
 
