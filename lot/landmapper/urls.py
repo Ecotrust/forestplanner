@@ -9,4 +9,5 @@ urlpatterns = [
     path('/identify/', identify, name="identify"),
     path('/report/', report, name="report"),
     path('/pages/', include('django.contrib.flatpages.urls')),
+    url(r'^get_taxlot_json', views.get_taxlot_json, name='get taxlot json'),
 ]
