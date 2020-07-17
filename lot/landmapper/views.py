@@ -1228,10 +1228,10 @@ from django.views.decorators.clickjacking import xframe_options_exempt, xframe_o
 @xframe_options_sameorigin
 def get_taxlot_json(request):
     from django.contrib.gis.geos import GEOSGeometry
+    from django.http import HttpResponse
     from .models import Taxlot
     import json
     coords = request.GET.getlist('coords[]') # must be [lon, lat]
-    print(coords)
     intersect_pt = GEOSGeometry('POINT(%s %s)' % (coords[0], coords[1]))
     try:
         lot = Taxlot.objects.get(geometry__intersects=intersect_pt)

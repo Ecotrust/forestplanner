@@ -25,7 +25,7 @@ var loadTaxLots = function(mapEvent) {
   // var lonlat = map.coordinate;
   var lonlat = ol.proj.toLonLat(mapEvent.coordinate)
   // print(e)
-  let taxlotsURL = '/landmapper/get_taxlot_json';
+  let taxlotsURL = '/landmapper/get_taxlot_json/';
 
   jQuery.ajax({
     url: taxlotsURL,
@@ -34,7 +34,7 @@ var loadTaxLots = function(mapEvent) {
     },
     success: function(data) {
         // var format = new OpenLayers.Format.WKT();
-        // wkt = data.geometry;
+        let wkt = data.geometry;
         if (wkt == []) {
           window.alert('Taxlot info unavailable at this location - please draw instead.');
         } else {
