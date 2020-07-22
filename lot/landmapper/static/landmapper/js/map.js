@@ -1,6 +1,14 @@
+var landmapper = {};
+
 var mapView = new ol.View({
   center: ol.proj.fromLonLat([-122.41, 43.82]),
   zoom: 6.5
+});
+
+landmapper.selectedFeatureSource = new ol.source.Vector();
+
+landmapper.selectedFeatureLayer = new ol.layer.Vector({
+  source: landmapper.selectedFeatureSource
 });
 
 var map = new ol.Map({
@@ -8,12 +16,13 @@ var map = new ol.Map({
   layers: [
     new ol.layer.Tile({
       source: new ol.source.OSM()
-    })
+    }),
+    landmapper.selectedFeatureLayer
   ],
   view: mapView
 });
 
-var showNextBtn = function(show) {
+landmapper.showNextBtn = function(show) {
   if (show) {
     document.querySelector('#btn-content-panel-next').classList.remove('disabled');
   } else {
@@ -21,7 +30,7 @@ var showNextBtn = function(show) {
   }
 }
 
-var loadTaxLots = function(mapEvent) {
+landmapper.loadTaxLots = function(mapEvent) {
   var lonlat = mapEvent.coordinate;
   let taxlotsURL = '/landmapper/get_taxlot_json/';
 
@@ -31,24 +40,19 @@ var loadTaxLots = function(mapEvent) {
       'coords': lonlat
     },
     success: function(data) {
-        // var format = new OpenLayers.Format.WKT();
-        let wkt = data.geometry;
-        if (wkt == []) {
-          window.alert('Taxlot info unavailable at this location - please draw instead.');
-        } else {
-          // feature = format.read(wkt);
-          // if (! feature) {
-            // For some reason, we get GeoJSON back instead of WKT
-            // Clearly a bug in Madrona, but for now, just go with it.
-            // format = new OpenLayers.Format.GeoJSON();
-            // feature = format.read(wkt)[0];
-            console.log(data);
-          // }
-        }
-        //Add feature to vector layer
-        // app.viewModel.scenarios.drawingFormModel.polygonLayer.addFeatures([feature]);
-        // app.viewModel.scenarios.drawingFormModel.consolidatePolygonLayerFeatures();
-        // app.viewModel.scenarios.drawingFormModel.hasShape(true);
+      var parsedData = JSON.parse(data);
+      var wkt = parsedData['geometry'];
+      var format = new ol.format.WKT();
+      if (wkt == []) {
+        window.alert('Taxlot info unavailable at this location - please draw instead.');
+      } else {
+        var feature = format.readFeature(wkt);
+      }
+
+      landmapper.selectedFeatureSource.addFeature(feature)
+      // landmapper.selectedFeatureLayer.addFeatures([feature])
+      // app.viewModel.scenarios.drawingFormModel.consolidatePolygonLayerFeatures();
+      // app.viewModel.scenarios.drawingFormModel.hasShape(true);
     },
     error: function(error) {
         window.alert('Error retrieving taxlot - please draw instead.');
@@ -59,6 +63,6 @@ var loadTaxLots = function(mapEvent) {
 
 
 map.on('click', function(e) {
-  showNextBtn(true);
-  loadTaxLots(e);
+  landmapper.showNextBtn(true);
+  landmapper.loadTaxLots(e);
 });
