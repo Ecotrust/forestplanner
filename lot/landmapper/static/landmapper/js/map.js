@@ -22,15 +22,13 @@ var showNextBtn = function(show) {
 }
 
 var loadTaxLots = function(mapEvent) {
-  // var lonlat = map.coordinate;
-  var lonlat = ol.proj.toLonLat(mapEvent.coordinate)
-  // print(e)
+  var lonlat = mapEvent.coordinate;
   let taxlotsURL = '/landmapper/get_taxlot_json/';
 
   jQuery.ajax({
     url: taxlotsURL,
     data: {
-      'coords': [lonlat[0], lonlat[1]]
+      'coords': lonlat
     },
     success: function(data) {
         // var format = new OpenLayers.Format.WKT();
