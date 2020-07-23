@@ -19,16 +19,17 @@ var landmapper = {
  * Check if permalink in URL
  */
 if (window.location.hash !== '') {
-  // try to restore center, zoom-level and rotation from the URL
+  // try to restore center, zoom-level, rotation, and taxlots from the URL
   var hash = window.location.hash.replace('#map=', '');
   var parts = hash.split('/');
-  if (parts.length === 4) {
+  if (parts.length === 5) {
     landmapper.zoom = parseInt(parts[0], 10);
     landmapper.center = [
       parseFloat(parts[1]),
       parseFloat(parts[2])
     ];
     landmapper.rotation = parseFloat(parts[3]);
+    landmapper.taxlot_ids = parts[4]
   }
 }
 
@@ -79,6 +80,7 @@ landmapper.loadTaxLots = function(mapEvent) {
     success: function(data) {
       var parsedData = JSON.parse(data);
       var wkt = parsedData['geometry'];
+      var lot_id = parsedData['id'];
       var format = new ol.format.WKT();
       if (wkt == []) {
         window.alert('Taxlot info unavailable at this location - please draw instead.');
@@ -86,6 +88,12 @@ landmapper.loadTaxLots = function(mapEvent) {
         var feature = format.readFeature(wkt);
       }
       landmapper.selectedFeatureSource.addFeature(feature);
+      if (landmapper.taxlot_ids.length > 0) {
+        landmapper.taxlot_ids = landmapper.taxlot_ids + '&' + lot_id;
+      } else {
+        landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
+      }
+
     },
     error: function(error) {
         window.alert('Error retrieving taxlot - please draw instead.');
@@ -117,11 +125,13 @@ var updatePermalink = function() {
       mapView.getZoom() + '/' +
       landmapper.center[0] + '/' +
       landmapper.center[1] + '/' +
-      mapView.getRotation();
+      mapView.getRotation() + '/' +
+      landmapper.taxlot_ids;
   landmapper.state = {
     zoom: mapView.getZoom(),
     center: mapView.getCenter(),
-    rotation: mapView.getRotation()
+    rotation: mapView.getRotation(),
+    taxlot_ids: landmapper.taxlot_ids
   };
   window.history.pushState(landmapper.state, 'map', landmapper.hash);
 };
@@ -137,5 +147,6 @@ window.addEventListener('popstate', function(event) {
   mapView.setCenter(event.state.center);
   mapView.setZoom(event.state.zoom);
   mapView.setRotation(event.state.rotation);
+  // TODO: style the taxlots
   shouldUpdate = false;
 });
