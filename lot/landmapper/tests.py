@@ -412,6 +412,25 @@ class ViewTests(TestCase):
         # from landmapper.views import create_property
         print('property created')
 
+
+    def test_get_taxlot_json(self):
+        # TEST:
+            # see if a known taxlot is returned given its coordinates
+        # IN:
+            # coords[lng,lat]
+        # OUT:
+            # Taxlot object
+
+        # TODO:
+            # import get_taxlot_json from views and urls
+            # request the page passing coords in the request data
+            # see if a taxlot is returned
+        from landmapper.views import get_taxlot_json
+        from landmapper.models import Taxlot
+        print('Finish test')
+
+
+
     # Need help writing these tests -DP 6.25.20
     # def test_about_modal(self):
     #     from landmapper.models import MenuPage
