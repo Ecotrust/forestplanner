@@ -7,6 +7,6 @@ urlpatterns = [
         # home, name='landmapper-home'),
     path('', home, name="home"),
     path('/identify/', identify, name="identify"),
-    path('report/', report, name="report"),
+    path('/report/', report, name="report"),
     path('get_taxlot_json/', get_taxlot_json, name='get taxlot json'),
 ]

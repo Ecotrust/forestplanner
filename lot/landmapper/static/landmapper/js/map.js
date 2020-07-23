@@ -48,11 +48,7 @@ landmapper.loadTaxLots = function(mapEvent) {
       } else {
         var feature = format.readFeature(wkt);
       }
-
-      landmapper.selectedFeatureSource.addFeature(feature)
-      // landmapper.selectedFeatureLayer.addFeatures([feature])
-      // app.viewModel.scenarios.drawingFormModel.consolidatePolygonLayerFeatures();
-      // app.viewModel.scenarios.drawingFormModel.hasShape(true);
+      landmapper.selectedFeatureSource.addFeature(feature);
     },
     error: function(error) {
         window.alert('Error retrieving taxlot - please draw instead.');

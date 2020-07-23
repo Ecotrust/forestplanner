@@ -1302,7 +1302,7 @@ def identify(request):
                 'aside_content': aside_content,
                 'show_panel_buttons': True,
                 'btn_back_href': '/landmapper/',
-                'btn_next_href': '',
+                'btn_next_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled', # disabled is a css class for <a> tags
             }
             context = getHeaderMenu(context)
@@ -1323,7 +1323,7 @@ def report(request):
     Rendered Template
     Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
-    return render(request, 'landmapper/base.html', {})
+    return render(request, 'landmapper/report/report.html', {})
 
 def create_property(request, taxlot_ids, property_name):
     # '''
