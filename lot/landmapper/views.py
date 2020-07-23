@@ -1302,7 +1302,8 @@ def identify(request):
                 'aside_content': aside_content,
                 'show_panel_buttons': True,
                 'btn_back_href': '/landmapper/',
-                'btn_next_href': '/landmapper/report/',
+                'btn_next_href': 'property_name',
+                'btn_create_maps_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled', # disabled is a css class for <a> tags
             }
             context = getHeaderMenu(context)
