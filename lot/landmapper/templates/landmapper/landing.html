@@ -9,9 +9,16 @@
         {% block show_panel_buttons %}
           {% if show_panel_buttons %}
             <a href="{{ btn_back_href }}" class="btn btn-light" id="btn-content-panel-back">Back</a>
-            <a href="{{ btn_next_href }}" class="btn btn-light {{ btn_next_disabled }}" id="btn-content-panel-next">Next</a>
+            <a href="#" class="btn btn-light {{ btn_next_disabled }}" id="btn-content-panel-next">Next</a>
           {% endif %}
         {% endblock show_panel_buttons %}
+        <form id="form-property-name" class="d-none">
+          <div class="form-group">
+            <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
+          </div>
+          <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
+          <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
+        </form>
       </aside>
     {% endblock content-panel %}
     {% block map-wrap %}
@@ -20,9 +27,9 @@
           <form role="search" id="property-search-form" action="{% url 'identify' %}" method="post">
             {% csrf_token %}
             <div class="input-group input-group-lg">
-              <input type="search" id="property-search" class="form-control" name="q-address" placeholder="{{ q_address }}" aria-label="{{ q_address }}" aria-describedby="property-search-btn" required>
+              <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" aria-describedby="property-search-btn" required />
               <div class="input-group-append">
-                <button id="property-search-btn" class="btn" form="property-search-form">Go</button>
+                <button form="property-search-form" class="btn" id="property-search-btn">Go</button>
               </div>
             </div>
           </form>

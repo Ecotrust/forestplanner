@@ -63,8 +63,21 @@ var map = new ol.Map({
 landmapper.showNextBtn = function(show) {
   if (show) {
     document.querySelector('#btn-content-panel-next').classList.remove('disabled');
+    landmapper.listenNextBtn(true);
   } else {
     document.querySelector('#btn-content-panel-next').classList.add('disabled');
+    landmapper.listenNextBtn(false);
+  }
+}
+
+landmapper.listenNextBtn = function(listen) {
+  if (listen) {
+    document.querySelector('#btn-content-panel-next').addEventListener('click', function(e) {
+      e.preventDefault();
+      document.querySelector('#form-property-name').classList.remove('d-none');
+    });
+  } else {
+    document.querySelector('#form-property-name').classList.add('d-none');
   }
 }
 

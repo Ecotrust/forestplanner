@@ -31,6 +31,14 @@
 --body-line-height: 26px;
 --body-letter-spacing: 0.45px;
 
+
+/**
+ * Sizing
+ * Margins, Padding
+ * @type {Number}
+ */
+--content-panel-padding: 3.25rem 2.5rem 3.25rem 2.25rem;
+
 }
 
 * {
@@ -59,7 +67,7 @@ body {
  */
 #content-panel {
   /* changes to left padding should also be made to header .navbar */
-  padding: 3.25rem 2.5rem 3.25rem 2.25rem;
+  padding: var(--content-panel-padding);
 }
 
 /**
@@ -85,6 +93,18 @@ form:invalid {
    both map and search position absoulte.
    z-index 2 for search form. z-index 1 for map */
  z-index: 2;
+}
+
+/* overlays the content panel to give appearance of next step */
+#form-property-name {
+  background: var(--light-grey);
+  bottom: 0;
+  left: 0;
+  padding: var(--content-panel-padding);
+  position: absolute;
+  right: 0;
+  top: 0;
+  z-index: 3;
 }
 
 /**
