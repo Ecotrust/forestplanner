@@ -61,23 +61,17 @@ var map = new ol.Map({
 });
 
 landmapper.showNextBtn = function(show) {
+  var btnNext = document.getElementById('btn-content-panel-next');
+  var formPropertyName = document.getElementById('form-property-name');
   if (show) {
-    document.querySelector('#btn-content-panel-next').classList.remove('disabled');
-    landmapper.listenNextBtn(true);
-  } else {
-    document.querySelector('#btn-content-panel-next').classList.add('disabled');
-    landmapper.listenNextBtn(false);
-  }
-}
-
-landmapper.listenNextBtn = function(listen) {
-  if (listen) {
-    document.querySelector('#btn-content-panel-next').addEventListener('click', function(e) {
+    btnNext.classList.remove('disabled');
+    btnNext.addEventListener('click', function(e) {
+      formPropertyName.classList.remove('d-none');
       e.preventDefault();
-      document.querySelector('#form-property-name').classList.remove('d-none');
-    });
+    })
   } else {
-    document.querySelector('#form-property-name').classList.add('d-none');
+    btnNext.classList.add('disabled');
+    formPropertyName.classList.add('d-none');
   }
 }
 
