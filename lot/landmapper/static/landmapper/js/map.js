@@ -8,7 +8,12 @@ var landmapper = {
   zoom: 7,
   center: [-13429137.91,5464036.81],
   rotation: 0,
-  taxlot_ids: ''
+  taxlot_ids: '',
+  getLocationHashParts: function() {
+    var hash = window.location.hash.replace('#map=', '');
+    var parts = hash.split('/');
+    return parts;
+  }
 };
 
 /**
@@ -20,8 +25,7 @@ var landmapper = {
  */
 if (window.location.hash !== '') {
   // try to restore center, zoom-level, rotation, and taxlots from the URL
-  var hash = window.location.hash.replace('#map=', '');
-  var parts = hash.split('/');
+  var parts = landmapper.getLocationHashParts();
   if (parts.length === 5) {
     landmapper.zoom = parseInt(parts[0], 10);
     landmapper.center = [

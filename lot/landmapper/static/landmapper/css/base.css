@@ -1,6 +1,14 @@
 :root {
 
 /**
+ * Zindexing
+ * @type {[type]}
+ * 1 Map
+ * 2 Property Search Form
+ * 3 Property Name Form
+ */
+
+/**
  * COLORS
  * set of color variables for usage throughout css
  */
@@ -82,16 +90,17 @@ form:invalid {
 }
 
 #property-search-form {
- position: absolute;
- /* Center search box by:
-   left 50% - based on the parent div (50% of map-wrap)
-   transform translate -50% - based on input field (half of search input) */
- left: 50%;
- transform: translate(-50%,85px);
- /* Keep search over map.
-   both map and search position absoulte.
-   z-index 2 for search form. z-index 1 for map */
- z-index: 2;
+  left: 50%;
+  position: absolute;
+  /* Center search box by:
+    left 50% - based on the parent div (50% of map-wrap)
+    transform translate -50% - based on input field (half of search input) */
+  transform: translate(-50%,85px);
+  /* Keep search over map.
+    both map and search position absoulte.
+    z-index 2 for search form. z-index 1 for map */
+  width: 50%;
+  z-index: 2;
 }
 
 /* overlays the content panel to give appearance of next step */
@@ -118,6 +127,10 @@ form:invalid {
 #property-search-form input {
   border-radius: 0;
   border: none;
+}
+
+#property-search-form .input-group .input-group-append {
+  margin: 0 1px 0 0;
 }
 
 /**

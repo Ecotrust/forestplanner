@@ -1312,7 +1312,7 @@ def identify(request):
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
     else:
-        print('requested identify page')
+        print('requested identify page with method other than POST')
 
     return home(request)
 
@@ -1321,12 +1321,21 @@ def report(request):
     Land Mapper: Report Pages
     Report (slides 5-7a)
     IN
-    taxlot ids
-    property name
+        taxlot ids
+        property name
     OUT
-    Rendered Template
-    Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
+        Rendered Template
+        Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
+    if request.method == 'POST':
+        property_name = request.POST.get('property-name')
+        taxlot_ids = request.POST.get('taxlot_ids')
+        property = create_property(request, taxlot_ids, property_name)
+        import ipdb; ipdb.set_trace()
+    else:
+        print('report page requested with method other than POST')
+
+
     return render(request, 'landmapper/report/report.html', {})
 
 def create_property(request, taxlot_ids, property_name):
@@ -1349,8 +1358,8 @@ def create_property(request, taxlot_ids, property_name):
     '''
     (called before loading 'Report', cached)
     IN:
-    taxlot_ids[ ]
-    property_name
+        taxlot_ids[ ]
+        property_name
     OUT:
     Madrona polygon feature
     NOTES:

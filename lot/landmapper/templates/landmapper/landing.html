@@ -12,7 +12,8 @@
             <a href="#" class="btn btn-light {{ btn_next_disabled }}" id="btn-content-panel-next">Next</a>
           {% endif %}
         {% endblock show_panel_buttons %}
-        <form id="form-property-name" class="d-none" action=" %}{{ btn_create_maps_href }}" method="post">
+        <form id="form-property-name" class="d-none" action="{{ btn_create_maps_href }}" method="post">
+          {% csrf_token %}
           <div class="form-group">
             <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
           </div>
