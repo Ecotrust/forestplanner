@@ -837,7 +837,7 @@ def merge_images(background, foreground, x=0, y=0):
     merged.paste(foreground, (x, y), foreground)
     return merged
 
-def get_property_from_taxlot_selection(taxlot_list):
+def get_property_from_taxlot_selection(request, taxlot_list):
     """
     PURPOSE:
     -   Given a list of taxlots, unify them into a single property object
@@ -851,7 +851,7 @@ def get_property_from_taxlot_selection(taxlot_list):
     from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
     from landmapper.models import Property
     # get_taxlot_user
-    user = taxlot_list[0].user
+    user = request.user
 
     # Collect taxlot geometries
     geometries = [x.geometry_final for x in taxlot_list]
@@ -1331,7 +1331,6 @@ def report(request):
         property_name = request.POST.get('property-name')
         taxlot_ids = request.POST.get('taxlot_ids')
         property = create_property(request, taxlot_ids, property_name)
-        import ipdb; ipdb.set_trace()
     else:
         print('report page requested with method other than POST')
 
@@ -1361,10 +1360,12 @@ def create_property(request, taxlot_ids, property_name):
         taxlot_ids[ ]
         property_name
     OUT:
-    Madrona polygon feature
+        Madrona polygon feature
     NOTES:
-    CACHE THESE!!!!
+        CACHE THESE!!!!
     '''
+    get_property = get_property_from_taxlot_selection(request, taxlot_ids)
+    import ipdb; ipdb.set_trace()
     return None
 
 def get_menu_page(name):

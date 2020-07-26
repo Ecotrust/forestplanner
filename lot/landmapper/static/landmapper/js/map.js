@@ -104,20 +104,15 @@ landmapper.loadTaxLots = function(mapEvent) {
       } else {
         landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
       }
-
     },
     error: function(error) {
         window.alert('Error retrieving taxlot - please draw instead.');
         console.log('error in map.js: Click Control trigger');
     }
-  });
+  }).done(function() {
+    updatePermalink();
+  })
 };
-
-
-map.on('click', function(e) {
-  landmapper.showNextBtn(true);
-  landmapper.loadTaxLots(e);
-});
 
 /**
  * Track state in browser URL
@@ -146,6 +141,11 @@ var updatePermalink = function() {
   };
   window.history.pushState(landmapper.state, 'map', landmapper.hash);
 };
+
+map.on('click', function(e) {
+  landmapper.showNextBtn(true);
+  landmapper.loadTaxLots(e);
+});
 
 map.on('moveend', updatePermalink);
 
