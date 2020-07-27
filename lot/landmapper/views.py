@@ -1364,9 +1364,24 @@ def create_property(request, taxlot_ids, property_name):
     NOTES:
         CACHE THESE!!!!
     '''
-    get_property = get_property_from_taxlot_selection(request, taxlot_ids)
-    import ipdb; ipdb.set_trace()
+    # from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+    # from .models import Taxlot, Property
+    # import json
+    #
+    # taxlots_multipolygon = False
+    # for lot_id in taxlot_ids:
+    #     lot = Taxlot.objects.filter(pk=lot_id)
+    #     if not taxlots_multipolygon:
+    #         taxlots_multipolygon = lot.geometry
+    #     else:
+    #         taxlots_multipolygon = taxlots_multipolygon.union(lot.geometry)
+    #
+    # merged_geom = MultiPolygon(taxlots_multipolygon.unary_union,)
+    #
+    # # Create Property object (don't use 'objects.create()'!)
+    # property = Property(user=user, geometry_orig=merged_geom, name='test_property')
     return None
+
 
 def get_menu_page(name):
     '''
