@@ -1329,7 +1329,7 @@ def report(request):
     '''
     if request.method == 'POST':
         property_name = request.POST.get('property-name')
-        taxlot_ids = request.POST.getlist('taxlot_ids')
+        taxlot_ids = request.POST.getlist('taxlot_ids[]')
         property = create_property(request, taxlot_ids, property_name)
     else:
         print('report page requested with method other than POST')
