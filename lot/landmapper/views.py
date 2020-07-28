@@ -1368,17 +1368,23 @@ def create_property(request, taxlot_ids, property_name):
     from .models import Taxlot, Property
     import json
 
-    user = request.user
-
-    taxlots_multipolygon = False
-
-    import ipdb; ipdb.set_trace()
     for lot_id in taxlot_ids:
-        lot = Taxlot.objects.filter(pk=lot_id)
-        if not taxlots_multipolygon:
-            taxlots_multipolygon = lot.geometry
-        else:
-            taxlots_multipolygon = taxlots_multipolygon.union(lot.geometry)
+        try:
+            lot = Taxlot.objects.get(pk=lot_id)
+            lot_json = lot.geometry.wkt
+            lot_id = lot.id
+        except:
+            lots = Taxlot.objects.filter(pk=lot_id)
+            if len(lots) > 0:
+                lot = lots[0]
+                lot_json = lot.geometry.json
+                lot_id = lot.id
+            else:
+                lot_json = []
+                lot_id = lot.id
+        # return HttpResponse(json.dumps({"id": lot_id, "geometry": lot_json}), status=200)
+
+
 
     merged_geom = MultiPolygon(taxlots_multipolygon.unary_union,)
 
