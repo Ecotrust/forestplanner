@@ -91,6 +91,20 @@ class Taxlot(models.Model):
         show_template = None
 
 class Property(MultiPolygonFeature):
+    # Property name
+    
+    # @property
+    # def area_in_sq_miles(self):
+    #     return sq_meters_to_sq_miles(self.geometry_final.area)
+    #
+    # @property
+    # def formatted_area(self):
+    #     return int((self.area_in_sq_miles * 10) +.5) / 10.
+    #
+    # @property
+    # def area_in_sq_miles(self):
+    #     return sq_meters_to_sq_miles(self.geometry_final.area)
+
     class Options:
         form = 'features.forms.SpatialFeatureForm'
         manipulators = []

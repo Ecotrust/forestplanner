@@ -1329,7 +1329,7 @@ def report(request):
     '''
     if request.method == 'POST':
         property_name = request.POST.get('property-name')
-        taxlot_ids = request.POST.get('taxlot_ids')
+        taxlot_ids = request.POST.getlist('taxlot_ids')
         property = create_property(request, taxlot_ids, property_name)
     else:
         print('report page requested with method other than POST')
@@ -1364,23 +1364,61 @@ def create_property(request, taxlot_ids, property_name):
     NOTES:
         CACHE THESE!!!!
     '''
-    # from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
-    # from .models import Taxlot, Property
-    # import json
-    #
-    # taxlots_multipolygon = False
-    # for lot_id in taxlot_ids:
-    #     lot = Taxlot.objects.filter(pk=lot_id)
-    #     if not taxlots_multipolygon:
-    #         taxlots_multipolygon = lot.geometry
-    #     else:
-    #         taxlots_multipolygon = taxlots_multipolygon.union(lot.geometry)
-    #
-    # merged_geom = MultiPolygon(taxlots_multipolygon.unary_union,)
-    #
-    # # Create Property object (don't use 'objects.create()'!)
-    # property = Property(user=user, geometry_orig=merged_geom, name='test_property')
-    return None
+    from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+    from .models import Taxlot, Property
+    import json
+
+    user = request.user
+
+    taxlots_multipolygon = False
+
+    import ipdb; ipdb.set_trace()
+    for lot_id in taxlot_ids:
+        lot = Taxlot.objects.filter(pk=lot_id)
+        if not taxlots_multipolygon:
+            taxlots_multipolygon = lot.geometry
+        else:
+            taxlots_multipolygon = taxlots_multipolygon.union(lot.geometry)
+
+    merged_geom = MultiPolygon(taxlots_multipolygon.unary_union,)
+
+    # Create Property object (don't use 'objects.create()'!)
+    property = Property(user=user, geometry_orig=merged_geom, name='test_property')
+    return property
+
+# Property() is a Dict of JSON
+# Create property will check the cache first then
+# use django to cache
+#
+# decorators (@decor) - some available for caching shortcut
+#
+# django caching
+#
+# generate unique id
+#
+# turn id to string
+#
+# associate with data (pref dict)
+#
+# cache_key
+#     take all taxlot ids
+#     sort Alpahbetly
+#     join list delinate (seperate) ids with something like a pipe (|) or tilda (~) or plus (+) (unlikey to show up in taxlot ids)
+#         - need to create unique id that cannot be broken
+#         - if we cna't get id from data we will generate it ourselves
+#         - IDs may be alphanumeric so sorting will make sure the same cache key is used
+#             Caching properties
+#             111011 (ambiguous)
+#             11 + 1011
+#             1110 + 11
+#             11|1011 (non-ambiguous)
+#
+# store other properties in Property dict
+#
+# use django caching syntax to store Property in cache
+#
+
+
 
 
 def get_menu_page(name):
