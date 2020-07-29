@@ -1331,6 +1331,7 @@ def report(request):
         property_name = request.POST.get('property_name')
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
         property = create_property(request, taxlot_ids, property_name)
+        print(property)
     else:
         print('report page requested with method other than POST')
 
