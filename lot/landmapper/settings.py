@@ -446,6 +446,13 @@ ATTRIBUTION_TEXT_FONT_SIZE = 10
 ATTRIBUTION_TEXT_BUFFER = 3
 ATTRIBUTION_TEXT_LINE_SPACING = 1
 
+
+###########################################
+##      Flatblock content               ###
+###########################################
+ALLOW_ANONYMOUS_DRAW = True
+ANONYMOUS_USER_PK = 1
+
 ###########################################
 ##      Flatblock content               ###
 ###########################################

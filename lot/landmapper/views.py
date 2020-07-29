@@ -1328,7 +1328,7 @@ def report(request):
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
     if request.method == 'POST':
-        property_name = request.POST.get('property-name')
+        property_name = request.POST.get('property_name')
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
         property = create_property(request, taxlot_ids, property_name)
     else:
@@ -1336,6 +1336,17 @@ def report(request):
 
 
     return render(request, 'landmapper/report/report.html', {})
+
+# Returns anonymous user if not logged in and settings allow
+def check_user(request):
+    try:
+        if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW and settings.ANONYMOUS_USER_PK:
+            from django.contrib.auth.models import User
+            anon_user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
+            request.user = anon_user
+    except:
+        pass
+    return request
 
 def create_property(request, taxlot_ids, property_name):
     # '''
@@ -1368,6 +1379,14 @@ def create_property(request, taxlot_ids, property_name):
     from .models import Taxlot, Property
     import json
 
+    # modifies request for anonymous user
+    request = check_user(request)
+
+    user = request.user
+
+    taxlot_geometry = {}
+    taxlot_polygons = False
+
     for lot_id in taxlot_ids:
         try:
             lot = Taxlot.objects.get(pk=lot_id)
@@ -1382,14 +1401,22 @@ def create_property(request, taxlot_ids, property_name):
             else:
                 lot_json = []
                 lot_id = lot.id
-        # return HttpResponse(json.dumps({"id": lot_id, "geometry": lot_json}), status=200)
 
+        taxlot_geometry[str(lot_id)] = {
+            'id': lot_id,
+            'geometry': lot_json,
+        }
 
+        json_to_polygon = GEOSGeometry(lot_json)
+        if not taxlot_polygons:
+            taxlot_polygons = json_to_polygon
+        else:
+            taxlot_polygons = taxlot_polygons.union(json_to_polygon)
 
-    merged_geom = MultiPolygon(taxlots_multipolygon.unary_union,)
 
     # Create Property object (don't use 'objects.create()'!)
-    property = Property(user=user, geometry_orig=merged_geom, name='test_property')
+    property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
+
     return property
 
 # Property() is a Dict of JSON
