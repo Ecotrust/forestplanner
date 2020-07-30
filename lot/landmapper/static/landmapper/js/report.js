@@ -45,6 +45,9 @@ var landmapperReport = {
           landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
         }
 
+        // when have property redirect to report
+          // redirect to /report/${cache_id}
+
       },
       error: function(error) {
           window.alert('Error retrieving taxlot - please draw instead.');

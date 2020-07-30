@@ -97,6 +97,12 @@ class Property(MultiPolygonFeature):
         return {}
 
     # image field
+    aerial_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    street_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    terrain_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    stream_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    soil_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    forest_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
 
     report_data = JSONField('report_data', default=report_default)
 
