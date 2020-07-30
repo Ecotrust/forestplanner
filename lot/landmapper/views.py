@@ -374,17 +374,6 @@ def getPropertySpecs(property):
 
     return property_specs
 
-# Returns anonymous user if not logged in and settings allow
-def check_user(request):
-    try:
-        if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW and settings.ANONYMOUS_USER_PK:
-            from django.contrib.auth.models import User
-            anon_user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
-            request.user = anon_user
-    except:
-        pass
-    return request
-
 def generate_cache_id(taxlot_ids, property_name):
     from django.utils.text import slugify
     cache_id = slugify(property_name)
