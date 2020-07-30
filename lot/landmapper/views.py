@@ -1350,16 +1350,13 @@ def report(request, cache_id):
 
     return render(request, 'landmapper/report/report.html', {})
 
-# Returns anonymous user if not logged in and settings allow
-def check_user(request):
-    try:
-        if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW and settings.ANONYMOUS_USER_PK:
-            from django.contrib.auth.models import User
-            anon_user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
-            request.user = anon_user
-    except:
-        pass
-    return request
+def generate_cache_id(taxlot_ids, property_name):
+    from django.utils.text import slugify
+    cache_id = slugify(property_name)
+    sorted_taxlots = sorted(taxlot_ids)
+    for lot_id in taxlot_ids:
+        cache_id += str(lot_id)
+    return cache_id
 
 def create_property(request, taxlot_ids, property_name):
     # '''
@@ -1399,6 +1396,8 @@ def create_property(request, taxlot_ids, property_name):
     else:
         user = request.user
 
+    cache_id = generate_cache_id(taxlot_ids, property_name)
+    print(cache_id)
     # taxlot_geometry = {}
     taxlot_polygons = False
 
@@ -1430,7 +1429,7 @@ def create_property(request, taxlot_ids, property_name):
 
 
     # Create Property object (don't use 'objects.create()'!)
-    # now create property from cache id on report page 
+    # now create property from cache id on report page
     # property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
 
     return property
@@ -1465,7 +1464,6 @@ def create_property(request, taxlot_ids, property_name):
 # store other properties in Property dict
 #
 # use django caching syntax to store Property in cache
-#
 
 
 
