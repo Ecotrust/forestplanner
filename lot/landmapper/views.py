@@ -983,50 +983,6 @@ def get_taxlot_image(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
 
     return None
 
-def get_property_image(property, bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT, bboxSR=3857):      # TODO
-    """
-    PURPOSE:
-    -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
-    IN:
-    -   property: (object) a property record from the DB
-    -   bbox: (string) comma-separated W,S,E,N coordinates
-    -   width: (int) The number of pixels for the width of the image
-    -       default: REPORT_MAP_WIDTH from settings
-    -   height: (int) The number of pixels for the height of the image
-    -       default: REPORT_MAP_HEIGHT from settings
-    -   bboxSR: (int) EPSG ID for Spatial Reference system used for input bbox coordinates
-    -       default: 3857
-    OUT:
-    -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
-    -       rendered with the appropriate styles
-    """
-    from django.contrib.gis.geos.collections import MultiPolygon, Polygon
-    from PIL import Image, ImageDraw
-
-    # Create overlay image
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
-
-    geom = property.geometry_orig
-    bbox = get_bbox_as_string(bbox)
-    [bbwest, bbsouth, bbeast, bbnorth] = [float(x) for x in bbox.split(',')]
-    if type(geom) == Polygon:
-        coords_set = (geom.coords)
-    else:
-        coords_set = geom.coords
-
-    yConversion = float(height)/(bbnorth-bbsouth)
-    xConversion = float(width)/(bbeast-bbwest)
-
-    for poly in coords_set:
-        for poly_coords in poly:
-            polygon = ImageDraw.Draw(base_img)
-            poly_px_coords = []
-            for (gX, gY) in poly_coords:
-                poly_px_coords.append(((gX-bbwest)*xConversion, (bbnorth-gY)*yConversion))
-            polygon.polygon(poly_px_coords, outline=settings.PROPERTY_OUTLINE_COLOR)#, width=settings.PROPERTY_OUTLINE_WIDTH)
-
-    return base_img
-
 def get_attribution_image(attribution_list, width, height):
     # """
     # PURPOSE:
@@ -1342,6 +1298,60 @@ def report(request):
 
     return render(request, 'landmapper/report/report.html', {})
 
+def getPropertyReport(property):
+    # TODO: call this in "property" after creating the object instance
+    from landmapper.map_layers import views as map_views
+    image_dict = {
+        'property_map': None,
+        'aerial_map': None,
+        'stream_map': None,
+        'soil_map': None,
+    }
+    # calculate orientation, w x h, bounding box, centroid, and zoom level
+    property_specs = getPropertySpecs(property)
+    property_layer = map_views.getPropertyImageLayer(property, property_specs)
+    taxlot_layer = map_views.getTaxlotImageLayer(property_specs)
+    aerial_layer = map_views.getAerialImageLayer(property)
+    topo_layer = map_views.getTopoImageLayer(property_specs)
+    soil_layer = map_views.getSoilImageLayer(property_specs)
+    stream_layer = map_views.getStreamImageLayer(property_specs)
+
+    image_dict['property_map'] = map_views.getPropertyMap(property, property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
+    image_dict['aerial_map'] = map_views.getAerialMap(property, property_specs, base_layer=aerial_layer, property_layer=property_layer)
+    image_dict['stream_map'] = map_views.getStreamMap(property, property_specs, base_layer=topo_layer, property_layer=property_layer)
+    image_dict['soil_map'] = map_views.getSoilMap(property, property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
+
+    # TODO: assign items in image_dict to property image attributes.
+
+def getPropertySpecs(property):
+    property_specs = {
+        'orientation': None,# 'portrait' or 'landscape'
+        'width': None,      # Pixels
+        'height': None,     # Pixels
+        'bbox': None,       # "W,S,E,N" (EPSG:3857, Web Mercator)
+        'zoom': None        # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
+    }
+    (bbox, orientation) = get_bbox_from_property(property)
+
+    property_specs['orientation'] = orientation
+    property_specs['bbox'] = bbox
+
+    width = settings.REPORT_MAP_WIDTH
+    height = settings.REPORT_MAP_HEIGHT
+
+    if orientation.lower() == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
+        temp_width = width
+        width = height
+        height = temp_width
+
+    property_specs['width'] = width
+    property_specs['height'] = height
+
+    property_specs['zoom'] = get_web_map_zoom(bbox, width=width, height=height, srs='EPSG:3857')
+
+    return property_specs
+
+
 # Returns anonymous user if not logged in and settings allow
 def check_user(request):
     try:
@@ -1385,7 +1395,7 @@ def create_property(request, taxlot_ids, property_name):
     import json
 
     # modifies request for anonymous user
-    if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW:
+    if not (hasattr(request, 'user') and request.user.is_authenticated) and settings.ALLOW_ANONYMOUS_DRAW:
         from django.contrib.auth.models import User
         user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
     else:
