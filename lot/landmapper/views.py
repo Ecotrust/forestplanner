@@ -295,6 +295,9 @@ def report(request, cache_id):
         Rendered Template
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
+    from django.http import HttpResponse
+    import json
+
     if request.method == 'POST':
         property_name = request.POST.get('property_name')
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
@@ -304,14 +307,15 @@ def report(request, cache_id):
             # slugified property name and taxlot_ids to cache key id
             # deslugify when creating name field for property, if expired from cache
         # See if cache has property
-        property = create_property(request, taxlot_ids, property_name)
+        cache_id = create_property(request, taxlot_ids, property_name)
         # get report data and pass property
         #     assigns to property model
         # cache the property
         # return cache id
             # triggers loading of report page in JS
 
-        print(property)
+        return HttpResponse(json.dumps({"cache_id": cache_id}), status=200)
+
     else:
         print('report page requested with method other than POST')
 
@@ -422,42 +426,44 @@ def create_property(request, taxlot_ids, property_name):
         user = request.user
 
     cache_id = generate_cache_id(taxlot_ids, property_name)
-    print(cache_id)
-    # taxlot_geometry = {}
-    taxlot_polygons = False
 
-    for lot_id in taxlot_ids:
-        try:
-            lot = Taxlot.objects.get(pk=lot_id)
-            lot_json = lot.geometry.wkt
-            lot_id = lot.id
-        except:
-            lots = Taxlot.objects.filter(pk=lot_id)
-            if len(lots) > 0:
-                lot = lots[0]
-                lot_json = lot.geometry.json
-                lot_id = lot.id
-            else:
-                lot_json = []
-                lot_id = lot.id
+    return cache_id
+
+    # taxlot_geometry = {}
+    # taxlot_polygons = False
+    #
+    # for lot_id in taxlot_ids:
+    #     try:
+    #         lot = Taxlot.objects.get(pk=lot_id)
+    #         lot_json = lot.geometry.wkt
+    #         lot_id = lot.id
+    #     except:
+    #         lots = Taxlot.objects.filter(pk=lot_id)
+    #         if len(lots) > 0:
+    #             lot = lots[0]
+    #             lot_json = lot.geometry.json
+    #             lot_id = lot.id
+    #         else:
+    #             lot_json = []
+    #             lot_id = lot.id
 
         # taxlot_geometry[str(lot_id)] = {
         #     'id': lot_id,
         #     'geometry': lot_json,
         # }
 
-        json_to_polygon = GEOSGeometry(lot_json)
-        if not taxlot_polygons:
-            taxlot_polygons = json_to_polygon
-        else:
-            taxlot_polygons = taxlot_polygons.union(json_to_polygon)
+        # json_to_polygon = GEOSGeometry(lot_json)
+        # if not taxlot_polygons:
+        #     taxlot_polygons = json_to_polygon
+        # else:
+        #     taxlot_polygons = taxlot_polygons.union(json_to_polygon)
 
 
     # Create Property object (don't use 'objects.create()'!)
     # now create property from cache id on report page
     # property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
 
-    return property
+    # return property
 
 # Property() is a Dict of JSON
 # Create property will check the cache first then
