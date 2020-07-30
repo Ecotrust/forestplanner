@@ -284,7 +284,7 @@ def identify(request):
 
     return home(request)
 
-def report(request):
+def report(request, cache_id):
     '''
     Land Mapper: Report Pages
     Report (slides 5-7a)
@@ -299,10 +299,18 @@ def report(request):
         property_name = request.POST.get('property_name')
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
         # here -> generate cache id for the taxlots
-            # strip all characters from property name except alphanumeric
-            # add property name and taxlot_ids to chace key id
+            # slugify all characters from property name except alphanumeric (url_encode or slug)
+                # verify on client
+            # slugified property name and taxlot_ids to cache key id
+            # deslugify when creating name field for property, if expired from cache
         # See if cache has property
         property = create_property(request, taxlot_ids, property_name)
+        # get report data and pass property
+        #     assigns to property model
+        # cache the property
+        # return cache id
+            # triggers loading of report page in JS
+
         print(property)
     else:
         print('report page requested with method other than POST')
@@ -366,7 +374,6 @@ def getPropertySpecs(property):
 
     return property_specs
 
-
 # Returns anonymous user if not logged in and settings allow
 def check_user(request):
     try:
@@ -377,6 +384,15 @@ def check_user(request):
     except:
         pass
     return request
+
+def generate_cache_id(taxlot_ids, property_name):
+    from django.utils.text import slugify
+    cache_id = slugify(property_name)
+    sorted_taxlots = sorted(taxlot_ids)
+    for lot_id in taxlot_ids:
+        cache_id += str(lot_id)
+    return cache_id
+
 
 def create_property(request, taxlot_ids, property_name):
     # '''
@@ -416,6 +432,8 @@ def create_property(request, taxlot_ids, property_name):
     else:
         user = request.user
 
+    cache_id = generate_cache_id(taxlot_ids, property_name)
+    print(cache_id)
     # taxlot_geometry = {}
     taxlot_polygons = False
 
@@ -447,7 +465,8 @@ def create_property(request, taxlot_ids, property_name):
 
 
     # Create Property object (don't use 'objects.create()'!)
-    property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
+    # now create property from cache id on report page
+    # property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
 
     return property
 
@@ -481,7 +500,6 @@ def create_property(request, taxlot_ids, property_name):
 # store other properties in Property dict
 #
 # use django caching syntax to store Property in cache
-#
 
 
 
