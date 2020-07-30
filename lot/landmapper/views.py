@@ -1330,6 +1330,10 @@ def report(request):
     if request.method == 'POST':
         property_name = request.POST.get('property_name')
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
+        # here -> generate cache id for the taxlots
+            # strip all characters from property name except alphanumeric
+            # add property name and taxlot_ids to chace key id
+        # See if cache has property
         property = create_property(request, taxlot_ids, property_name)
         print(property)
     else:
@@ -1381,11 +1385,13 @@ def create_property(request, taxlot_ids, property_name):
     import json
 
     # modifies request for anonymous user
-    request = check_user(request)
+    if not request.user.is_authenticated and settings.ALLOW_ANONYMOUS_DRAW:
+        from django.contrib.auth.models import User
+        user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
+    else:
+        user = request.user
 
-    user = request.user
-
-    taxlot_geometry = {}
+    # taxlot_geometry = {}
     taxlot_polygons = False
 
     for lot_id in taxlot_ids:
@@ -1403,10 +1409,10 @@ def create_property(request, taxlot_ids, property_name):
                 lot_json = []
                 lot_id = lot.id
 
-        taxlot_geometry[str(lot_id)] = {
-            'id': lot_id,
-            'geometry': lot_json,
-        }
+        # taxlot_geometry[str(lot_id)] = {
+        #     'id': lot_id,
+        #     'geometry': lot_json,
+        # }
 
         json_to_polygon = GEOSGeometry(lot_json)
         if not taxlot_polygons:

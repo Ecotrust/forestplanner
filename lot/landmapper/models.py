@@ -3,6 +3,7 @@ from madrona.features.models import PolygonFeature, FeatureCollection, Feature, 
 from django.contrib.gis.db.models import MultiPolygonField
 from django.db.models import Manager as GeoManager
 from madrona.features import register, alternate, edit, get_feature_by_uid
+from django.contrib.postgres.fields import JSONField
 # from madrona.features.forms import SpatialFeatureForm
 
 """
@@ -92,7 +93,13 @@ class Taxlot(models.Model):
 
 class Property(MultiPolygonFeature):
     # Property name
-    
+    def report_default():
+        return {}
+
+    # image field
+
+    report_data = JSONField('report_data', default=report_default)
+
     # @property
     # def area_in_sq_miles(self):
     #     return sq_meters_to_sq_miles(self.geometry_final.area)
