@@ -866,7 +866,7 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # Below gets us a rough estimate, and may give us errors later.
     # To do this right, check out this:
     #   https://wiki.openstreetmap.org/wiki/Zoom_levels#Distance_per_pixel_math
-    [west, south, east, north] = [int(x) for x in bbox.split(',')]
+    [west, south, east, north] = [float(x) for x in bbox.split(',')]
     # mp_ratio = (east-west)/width
     mp_ratio = (north-south)/height     #In theory, this should be less distorted... right? No?
 
