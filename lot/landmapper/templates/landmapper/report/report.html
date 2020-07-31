@@ -23,7 +23,9 @@
                     </section>
                 </div>
                 <div class="col-md-6">
-                    <p><stong>{{ page }}</strong>: {{ page }}</p>
+                    {% for row in page %}
+                        <p><stong>{{ row }}</strong>: {{ row }}</p>
+                    {% endfor %}
                 </div>
             </div>
         {% endfor %}
