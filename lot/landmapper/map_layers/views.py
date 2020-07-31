@@ -295,6 +295,7 @@ def get_stream_image_layer(property_specs):
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
         img_data = unstable_request_wrapper(request_url)
+        img_data = image_result_to_PIL(img_data)
 
     elif '_TILE' in settings.STREAMS_SOURCE:
         # Get descriptions of required tiles as a 2D array
