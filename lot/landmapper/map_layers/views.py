@@ -295,6 +295,7 @@ def get_stream_image_layer(property_specs):
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
         img_data = unstable_request_wrapper(request_url)
+        img_data = image_result_to_PIL(img_data)
 
     elif '_TILE' in settings.STREAMS_SOURCE:
         # Get descriptions of required tiles as a 2D array
@@ -320,10 +321,14 @@ def get_stream_image_layer(property_specs):
         print('settings.STREAMS_SOURCE value "%s" is not currently supported.' % settings.STREAMS_SOURCE)
         img_data = None
 
+<<<<<<< Updated upstream
     if type(img_data) == Image.Image:
         image = img_data
     else:
         image = image_result_to_PIL(img_data)
+=======
+    image = img_data
+>>>>>>> Stashed changes
     if zoom_argument:
         image = image.resize((width, height), Image.ANTIALIAS)
 
@@ -771,7 +776,12 @@ def get_attribution_image(attribution_list, width, height):
 
     # Create overlay image
     base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+<<<<<<< Updated upstream
 
+=======
+    import ipdb; ipdb.set_trace()
+    # calculate text size
+>>>>>>> Stashed changes
     if type(attribution_list) == list:
         # clean list
         attribution_list = [x for x in attribution_list if x]
