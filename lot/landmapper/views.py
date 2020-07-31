@@ -341,8 +341,6 @@ def report(request, property_id):
     return HttpResponse(json.dumps({"property": property}), status=200)
 
 
-    return render(request, 'landmapper/report/report.html', {})
-
 def get_property_report(property):
     # TODO: call this in "property" after creating the object instance
     from landmapper.map_layers import views as map_views
@@ -420,8 +418,8 @@ def generate_property_id(taxlot_ids, property_name):
     property_id = slugify(property_name)
     sorted_taxlots = sorted(taxlot_ids)
     id_elements = [str(x) for x in [property_id,] + sorted_taxlots]
-    '|'.join(id_elements)
-    return id_elements
+    join_id_elements = '|'.join(id_elements)
+    return join_id_elements
 
 def parse_property_id(property_id):
     '''
