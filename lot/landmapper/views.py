@@ -559,19 +559,7 @@ def get_menu_page(name):
     return page
 
 
-def CreateProperty(request):
-    '''
-    CreateAerialReport: (slide 7b)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-    BuildLegend
-    '''
-    return render(request, 'landmapper/base.html', {})
-
-def CreateStreetReport(request):
+def create_street_report(request):
     '''
     (slide 7b)
     IN:
@@ -583,7 +571,7 @@ def CreateStreetReport(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def CreateTerrainReport(request):
+def create_terrain_report(request):
     '''
     (slide 7b)
     IN:
@@ -595,7 +583,7 @@ def CreateTerrainReport(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def CreateStreamsReport(request):
+def create_streams_report(request):
     '''
     (slide 7b)
     IN:
@@ -607,7 +595,7 @@ def CreateStreamsReport(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def CreateForestTypeReport(request):
+def create_forest_type_report(request):
     '''
     (Slide 7c)
     IN:
@@ -619,7 +607,7 @@ def CreateForestTypeReport(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def CreateSoilReport(request):
+def create_soil_report(request):
     '''
     (Slides 7d-f)
     IN:
@@ -631,7 +619,7 @@ def CreateSoilReport(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def CreatePDF(request):
+def create_pdf(request):
     '''
     (called on request for download map, cached)
     IN:
@@ -647,7 +635,7 @@ def CreatePDF(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def ExportLayer(request):
+def export_layer(request):
     '''
     (called on request for download GIS data)
     IN:
@@ -662,30 +650,20 @@ def ExportLayer(request):
     return render(request, 'landmapper/base.html', {})
 
 # Helper Views:
-def GetSoilsData():
+def get_soils_data():
     return
 
-def BuildLegend():
+def build_legend():
     return
 
-def BuildForestTypeLegend():
+def build_forest_type_legend():
     return
 
-def BuildSoilLegend():
+def build_soil_legend():
     return
 
-def BuildTable():
+def build_table():
     return
 
-def BuildForestTypeLegend():
-    return
-
-def BuildSoilTable():
-    return
-
-def BuildCacheKey():
-    '''
-    sort taxlot IDs and add to property name for consistent cache keys
-    Doing it here is the lowest-common-denominator: don't worry about sorting taxlots when adding them to the querystring on the client side
-    '''
+def build_soil_table():
     return
