@@ -389,8 +389,8 @@ def getStreamMap(property_specs, base_layer, stream_layer, property_layer):
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        stream_layer['attribution']
-        property_layer['attribution']
+        stream_layer['attribution'],
+        property_layer['attribution'],
     ]
 
     if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
@@ -429,8 +429,8 @@ def getSoilMap(property_specs, base_layer, soil_layer, property_layer):
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        soil_layer['attribution']
-        property_layer['attribution']
+        soil_layer['attribution'],
+        property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
