@@ -352,8 +352,8 @@ def getAerialMap(property_specs, base_layer, lots_layer, property_layer):
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        lots_image['attribution']
-        property_layer['attribution']
+        lots_image['attribution'],
+        property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
