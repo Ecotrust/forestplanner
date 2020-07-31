@@ -328,24 +328,30 @@ def report(request, property_id):
         Rendered Template
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
-    from django.http import HttpResponse
-    import json
+    if request.method == 'POST':
+        property_name = request.POST.get('property_name')
+        taxlot_ids = request.POST.getlist('taxlot_ids[]')
+        # here -> generate cache id for the taxlots
+            # slugify all characters from property name except alphanumeric (url_encode or slug)
+                # verify on client
+            # slugified property name and taxlot_ids to cache key id
+            # deslugify when creating name field for property, if expired from cache
+        # See if cache has property
+        property = create_property(request, taxlot_ids, property_name)
+        # get report data and pass property
+        #     assigns to property model
+        # cache the property
+        # return cache id
+            # triggers loading of report page in JS
 
-    property_dict = parse_property_id(property_id)
-    property = create_property(property_dict['taxlot_ids'], property_dict['name'])
-    report = get_property_report(property)
-
-    # cache the property
-    # return cache id
-        # triggers loading of report page in JS
-    context = {
-        'report': report
-    }
-
-    return render(request, 'landmapper/report/report.html', context)
+        print(property)
+    else:
+        print('report page requested with method other than POST')
 
 
-def get_property_report(property):
+    return render(request, 'landmapper/report/report.html', {})
+
+def getPropertyReport(property):
     # TODO: call this in "property" after creating the object instance
     from landmapper.map_layers import views as map_views
     image_dict = {
@@ -371,10 +377,6 @@ def get_property_report(property):
     image_dict['soil_map'] = map_views.getSoilMap(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
 
     # TODO: assign items in image_dict to property image attributes.
-    property.property_map_image = image_dict['property_map']
-    property.aerial_map_image = image_dict['aerial_map']
-    property.stream_map_image = image_dict['stream_map']
-    property.soil_map_image = image_dict['soil_map']
 
 def getPropertySpecs(property):
     from landmapper.map_layers import views as map_views
@@ -405,49 +407,16 @@ def getPropertySpecs(property):
 
     return property_specs
 
-def generate_property_id(taxlot_ids, property_name):
-    '''
-    Land Mapper: Generate Property ID
-
-    PURPOSE:
-        Create a unique id for combination of taxlots and user provided name
-    IN:
-        taxlot_ids
-        property_name
-    OUT:
-        string of sorted taxlots preceeded by slugified property name
-        e.g.: my-property|01234|2731001|80085
-    '''
+def generate_cache_id(taxlot_ids, property_name):
     from django.utils.text import slugify
-    property_id = slugify(property_name)
+    cache_id = slugify(property_name)
     sorted_taxlots = sorted(taxlot_ids)
-    id_elements = [str(x) for x in [property_id,] + sorted_taxlots]
-    join_id_elements = '|'.join(id_elements)
-    return join_id_elements
-
-def parse_property_id(property_id):
-    '''
-    Land Mapper: Parse Property ID
-
-    PURPOSE:
-        Extract the property name and taxlots from a property id
-    IN:
-        property_id
-    OUT (dict):
-        name
-        taxlot_ids
-        e.g.: my-property|01234|2731001|80085
-    '''
-    id_elements = property_id.split('|')
-    name = id_elements.pop(0)
-    name = name.title()
-    return {
-        'name': name,
-        'taxlot_ids': id_elements,
-    }
+    for lot_id in taxlot_ids:
+        cache_id += str(lot_id)
+    return cache_id
 
 
-def create_property(taxlot_ids, property_name, user_id=False):
+def create_property(request, taxlot_ids, property_name):
     # '''
     # Land Mapper: Create Property
     #
@@ -475,35 +444,51 @@ def create_property(taxlot_ids, property_name, user_id=False):
         CACHE THESE!!!!
     '''
     from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
-    from django.contrib.auth.models import User
     from .models import Taxlot, Property
     import json
 
     # modifies request for anonymous user
-    if settings.ALLOW_ANONYMOUS_DRAW:
-        if settings.ANONYMOUS_USER_PK:
-            user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
-        else:
-            user = User.objects.all()[0]
-    elif user_id:
-        user = User.objects.get(pk=user_id)
+    if not (hasattr(request, 'user') and request.user.is_authenticated) and settings.ALLOW_ANONYMOUS_DRAW:
+        from django.contrib.auth.models import User
+        user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
+    else:
+        user = request.user
 
+    cache_id = generate_cache_id(taxlot_ids, property_name)
+    print(cache_id)
     # taxlot_geometry = {}
-    taxlot_multipolygon = False
+    taxlot_polygons = False
 
     for lot_id in taxlot_ids:
-        lot = Taxlot.objects.get(pk=lot_id)
+        try:
+            lot = Taxlot.objects.get(pk=lot_id)
+            lot_json = lot.geometry.wkt
+            lot_id = lot.id
+        except:
+            lots = Taxlot.objects.filter(pk=lot_id)
+            if len(lots) > 0:
+                lot = lots[0]
+                lot_json = lot.geometry.json
+                lot_id = lot.id
+            else:
+                lot_json = []
+                lot_id = lot.id
 
-        if not taxlot_multipolygon:
-            taxlot_multipolygon = lot.geometry
+        # taxlot_geometry[str(lot_id)] = {
+        #     'id': lot_id,
+        #     'geometry': lot_json,
+        # }
+
+        json_to_polygon = GEOSGeometry(lot_json)
+        if not taxlot_polygons:
+            taxlot_polygons = json_to_polygon
         else:
-            taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
+            taxlot_polygons = taxlot_polygons.union(json_to_polygon)
 
 
     # Create Property object (don't use 'objects.create()'!)
     # now create property from cache id on report page
-
-    property = Property(user=user, geometry_orig=taxlot_multipolygon, name=property_name)
+    # property = Property(user=user, geometry_orig=taxlot_polygons, name=property_name)
 
     return property
 
