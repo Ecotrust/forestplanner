@@ -43,6 +43,7 @@
 
 {% block footer_scripts %}
   {{ block.super }}
+  <script type="text/javascript" src="{% static 'landmapper/js/create_report.js' %}"></script>
   <script>
     {% if coords %}
       var propertyCoords = {{ coords }};

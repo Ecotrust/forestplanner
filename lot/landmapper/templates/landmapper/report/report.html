@@ -1,4 +1,5 @@
-{% extends 'landmapper/two-pane.html' %}
+{% extends 'landmapper/base.html' %}
+{% load static %}
 
 {% block content %}
     {% block map-wrap %}
@@ -13,6 +14,7 @@
         <p>Your property</p>
         <h2>Wolf Maple Tree Farm</h2>
         <p><span>Acres: </span>{{ acres }}</p>
+        {{ report }}
       </aside>
     {% endblock content-panel %}
 {% endblock content %}

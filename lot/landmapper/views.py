@@ -334,9 +334,16 @@ def report(request, property_id):
     property = create_property(property_dict['taxlot_ids'], property_dict['name'])
     report = get_property_report(property)
 
-    # cache the property
-    # return cache id
-        # triggers loading of report page in JS
+    if report:
+        context = {
+
+        }
+        property_map_image = report.property_map_image
+    else:
+        context = {
+
+        }
+        
     context = {
         'report': report
     }
