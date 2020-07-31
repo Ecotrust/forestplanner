@@ -6,6 +6,12 @@ from madrona.features import register, alternate, edit, get_feature_by_uid
 from django.contrib.postgres.fields import JSONField
 # from madrona.features.forms import SpatialFeatureForm
 
+def sq_meters_to_sq_miles(area_m2):
+    return area_m2/2589988.11
+
+def sq_meters_to_acres(area_m2):
+    return area_m2/4046.86
+
 """
     From MVC/MTV Components Doc
 
@@ -107,17 +113,18 @@ class Property(MultiPolygonFeature):
 
     report_data = JSONField('report_data', default=report_default)
 
-    # @property
-    # def area_in_sq_miles(self):
-    #     return sq_meters_to_sq_miles(self.geometry_final.area)
-    #
-    # @property
-    # def formatted_area(self):
-    #     return int((self.area_in_sq_miles * 10) +.5) / 10.
-    #
-    # @property
-    # def area_in_sq_miles(self):
-    #     return sq_meters_to_sq_miles(self.geometry_final.area)
+    @property
+    def formatted_area(self):
+        # return int((self.area_in_sq_miles * 10) +.5) / 10.
+        return int((self.area_in_acres * 10) +.5) / 10.
+
+    @property
+    def area_in_sq_miles(self):
+        return sq_meters_to_sq_miles(self.geometry_final.area)
+
+    @property
+    def area_in_acres(self):
+        return sq_meters_to_acres(self.geometry_final.area)
 
     class Options:
         form = 'features.forms.SpatialFeatureForm'

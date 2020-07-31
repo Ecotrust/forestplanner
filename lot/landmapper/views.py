@@ -367,6 +367,83 @@ def get_property_report(property):
     property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
     property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
 
+    property.report_data = get_property_report_data(property)
+
+def get_property_report_data(property, property_dict):
+    report_data = {
+        # '${report_page_name}': {
+        #     'data': [ 2d array, 1 row for each entry, 1 column for each attr, 1st col is name],
+        # }
+    }
+    report_pages = ['property', 'aerial', 'street', 'terrain', 'streams','soils','forest_type']
+
+    #Property
+    property_data = [
+        ['Acres', property.formatted_area],
+        # ['Legal Description', property.get_legal_description],
+        # ['Structural Fire Disctrict', property.get_strctural_fire_district],
+        # ['Forest Fire Disctrict', property.get_forest_fire_district],
+        # ['Watershed Name', property.get_watershed_name],
+        # ['Watershed #', property.get_watershed_number],
+        # ['Zoning', property.get_zoning],
+    ]
+
+    report_data['property'] = {
+        'data': property_data,
+        'legend': None
+    }
+
+    #aerial
+    aerial_data = None
+
+    report_data['aerial'] = {
+        'data': aerial_data,
+        'legend': settings.AERIAL_MAP_LEGEND_URL
+    }
+
+    #street
+    street_data = None
+
+    report_data['street'] = {
+        'data': street_data,
+        'legend': settings.STREET_MAP_LEGEND_URL
+    }
+
+    #terrain
+    terrain_data = None
+
+    report_data['terrain'] = {
+        'data': terrain_data,
+        'legend': settings.TERRAIN_MAP_LEGEND_URL
+    }
+
+    #streams
+    streams_data = None
+
+    report_data['streams'] = {
+        'data': streams_data,
+        'legend': settings.STREAM_MAP_LEGEND_URL
+    }
+
+    #soils
+    soil_data = get_soils_data(property_dict)
+
+    report_data['soils'] = {
+        'data': soil_data,
+        'legend': settings.SOIL_MAP_LEGEND_URL
+    }
+
+    #forest_type
+    forest_type_data = None
+
+    report_data['forest_type'] = {
+        'data': forest_type_data,
+        'legend': settings.FOREST_TYPE_MAP_LEGEND_URL
+    }
+
+    return report_data
+
+
 def get_property_specs(property):
     from landmapper.map_layers import views as map_views
     property_specs = {
@@ -642,8 +719,11 @@ def export_layer(request):
     return render(request, 'landmapper/base.html', {})
 
 # Helper Views:
-def get_soils_data():
-    return
+def get_soils_data(property_dict):
+    soil_data = []
+
+
+    return soil_data
 
 def build_legend():
     return
