@@ -337,8 +337,11 @@ def report(request, property_id):
     # cache the property
     # return cache id
         # triggers loading of report page in JS
+    context = {
+        'report': report
+    }
 
-    return HttpResponse(json.dumps({"property": property}), status=200)
+    return render(request, 'landmapper/report/report.html', context)
 
 
 def get_property_report(property):
