@@ -291,6 +291,7 @@ def create_property_id(request):
 
     '''
     from django.http import HttpResponse
+    from django.utils.http import urlencode
     from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
     from .models import Taxlot, Property
     import json
@@ -307,8 +308,8 @@ def create_property_id(request):
             user = request.user
 
         property_id = generate_property_id(taxlot_ids, property_name)
-
-        return HttpResponse(json.dumps({"property_id": property_id}), status=200)
+        encoded_params = urlencode({'property_id': property_id})
+        return HttpResponse(encoded_params, status=200)
 
     else:
 
