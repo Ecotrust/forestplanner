@@ -453,6 +453,13 @@ ATTRIBUTION_TEXT_FONT_SIZE = 10
 ATTRIBUTION_TEXT_BUFFER = 3
 ATTRIBUTION_TEXT_LINE_SPACING = 1
 
+AERIAL_MAP_LEGEND_URL = '/set/AERIAL_MAP_LEGEND_URL/in/settings.py'
+STREET_MAP_LEGEND_URL = '/set/STREET_MAP_LEGEND_URL/in/settings.py'
+TERRAIN_MAP_LEGEND_URL = '/set/TERRAIN_MAP_LEGEND_URL/in/settings.py'
+STREAM_MAP_LEGEND_URL = '/set/STREAM_MAP_LEGEND_URL/in/settings.py'
+SOIL_MAP_LEGEND_URL = '/set/SOIL_MAP_LEGEND_URL/in/settings.py'
+FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
+
 
 ###########################################
 ##      Flatblock content               ###

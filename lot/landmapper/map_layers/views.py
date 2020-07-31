@@ -577,7 +577,8 @@ def image_result_to_PIL(image_data):
         data_content = image_data.read()
     except AttributeError as e:
         data_content = image_data
-    fp.write(data_content)
+    if data_content:
+        fp.write(data_content)
     try:
         pil_image = Image.open(fp.name)
 
@@ -593,12 +594,15 @@ def image_result_to_PIL(image_data):
         fp.close()
         if os.path.exists(outfilename):
             os.remove(outfilename)
-        temp_file = open(outfilename, 'wb')
-        temp_file.write(data_content)
-        temp_file.close()
-        pil_image = Image.open(outfilename)
-        rgba_image = pil_image.convert("RGBA")
-        os.remove(outfilename)
+        if data_content:
+            temp_file = open(outfilename, 'wb')
+            temp_file.write(data_content)
+            temp_file.close()
+            pil_image = Image.open(outfilename)
+            rgba_image = pil_image.convert("RGBA")
+            os.remove(outfilename)
+        else:
+            rgba_image = Image.new("RGBA", (settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT), (255,255,255,0))
 
     return rgba_image
 
