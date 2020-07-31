@@ -1,5 +1,18 @@
 {% extends 'landmapper/two-pane.html' %}
 
 {% block content %}
-
+  <div class="row no-gutters">
+    {% block map-wrap %}
+      <section class="col-md-6" id="map-wrap">
+        <div id="map"></div>
+      </section>
+    {% endblock map-wrap %}
+    {% block content-panel %}
+      <aside class="col-md-6" id="content-panel">
+        <p>Your property</p>
+        <h2>Wolf Maple Tree Farm</h2>
+        <p><span>Acres: </span>{{ acres }}</p>
+      </aside>
+    {% endblock content-panel %}
+  </div>
 {% endblock content %}

@@ -17,7 +17,7 @@ window.addEventListener( 'load', function() {
 });
 
 var landmapperReport = {
-  reportURL: '/landmapper/report/',
+  reportURL: '/landmapper/create_property_id/',
   getReport: function(taxlots, propertyName) {
     var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
     jQuery.ajax({
@@ -30,9 +30,9 @@ var landmapperReport = {
       },
       success: function(data) {
         var parsedData = JSON.parse(data);
-        console.log(parsedData['cache_id'])
-        var cacheId = parsedData['cache_id'];
-        location.pathname = `landmapper/report/${cacheId}/`;
+        console.log(parsedData['property_id'])
+        var propertyId = parsedData['property_id'];
+        location.pathname = `landmapper/report/${propertyId}/`;
 
         // var wkt = parsedData['geometry'];
         // var lot_id = parsedData['id'];
@@ -50,12 +50,12 @@ var landmapperReport = {
         // }
 
         // when have property redirect to report
-          // redirect to /report/${cache_id}
+          // redirect to /report/${property_id}
 
       },
       error: function(error) {
-          window.alert('Error retrieving taxlot - please draw instead.');
-          console.log('error in map.js: Click Control trigger');
+          window.alert('Error creating maps, please try again.');
+          console.log('Error in craeting maps.');
       }
     });
   }

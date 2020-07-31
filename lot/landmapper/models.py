@@ -97,6 +97,7 @@ class Property(MultiPolygonFeature):
         return {}
 
     # image field
+    property_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     aerial_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     street_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     terrain_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
