@@ -116,15 +116,21 @@ class Property(MultiPolygonFeature):
     @property
     def formatted_area(self):
         # return int((self.area_in_sq_miles * 10) +.5) / 10.
-        return int((self.area_in_acres * 10) +.5) / 10.
+        area_acres = self.area_in_acres
+        if area_acres < 10:
+            return "%.2f" % area_acres
+        if area_acres < 100:
+            return "%.1f" % area_acres
+        return "%.0f" % area_acres
+        # return int((self.area_in_acres * 10) +.5) / 10.
 
     @property
     def area_in_sq_miles(self):
-        return sq_meters_to_sq_miles(self.geometry_final.area)
+        return sq_meters_to_sq_miles(self.geometry_orig.area)
 
     @property
     def area_in_acres(self):
-        return sq_meters_to_acres(self.geometry_final.area)
+        return sq_meters_to_acres(self.geometry_orig.area)
 
     class Options:
         form = 'features.forms.SpatialFeatureForm'

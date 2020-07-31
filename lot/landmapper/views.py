@@ -25,6 +25,7 @@ def unstable_request_wrapper(url, retries=0):
     except Exception as e:
         print(e)
         print(url)
+        contents = False
     return contents
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
@@ -52,7 +53,8 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     url = "%s?%s%s%s%s%s" % (endpoint, request, layer, projection, bbox, gml)
     contents = unstable_request_wrapper(url)
     fp = NamedTemporaryFile()
-    fp.write(contents.read())
+    if contents:
+        fp.write(contents.read())
     gml_result = ogr.Open(fp.name)
     fp.close()
     return gml_result
@@ -367,9 +369,9 @@ def get_property_report(property):
     property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
     property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
 
-    property.report_data = get_property_report_data(property)
+    property.report_data = get_property_report_data(property, property_specs)
 
-def get_property_report_data(property, property_dict):
+def get_property_report_data(property, property_specs):
     report_data = {
         # '${report_page_name}': {
         #     'data': [ 2d array, 1 row for each entry, 1 column for each attr, 1st col is name],
@@ -426,7 +428,7 @@ def get_property_report_data(property, property_dict):
     }
 
     #soils
-    soil_data = get_soils_data(property_dict)
+    soil_data = get_soils_data(property_specs)
 
     report_data['soils'] = {
         'data': soil_data,
@@ -719,7 +721,7 @@ def export_layer(request):
     return render(request, 'landmapper/base.html', {})
 
 # Helper Views:
-def get_soils_data(property_dict):
+def get_soils_data(property_specs):
     soil_data = []
 
 
