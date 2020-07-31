@@ -2,19 +2,31 @@
 {% load static %}
 
 {% block content %}
-    {% block map-wrap %}
+    <div class="col-12 row no-gutters">
         <div class="col-md-6">
-            <section id="map-wrap">
-                <div id="map"></div>
+            <section class="map-image-wrap">
+                <img src="" />
             </section>
         </div>
-    {% endblock map-wrap %}
-    {% block content-panel %}
-      <aside class="col-md-6" id="content-panel">
-        <p>Your property</p>
-        <h2>Wolf Maple Tree Farm</h2>
-        <p><span>Acres: </span>{{ acres }}</p>
-        {{ report }}
-      </aside>
-    {% endblock content-panel %}
+        <aside class="col-md-6 content-panel">
+          <p>Your property</p>
+          <h2>{{ property_name }}</h2>
+        </aside>
+    </div>
+
+    {% if report_pages %}
+        {% for page in report_pages %}
+            <div class="col-12 row no-gutters">
+                <div class="col-md-6">
+                    <section class="map-image-wrap">
+                        <img src="" />
+                    </section>
+                </div>
+                <div class="col-md-6">
+                    <p><stong>{{ page }}</strong>: {{ page }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    {% endif %}
+
 {% endblock content %}

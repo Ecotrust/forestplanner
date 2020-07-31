@@ -72,7 +72,8 @@ body {
  * Aside
  *
  */
-#content-panel {
+#content-panel,
+.content-panel {
   /* changes to left padding should also be made to header .navbar */
   padding: var(--content-panel-padding);
 }

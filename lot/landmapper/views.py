@@ -333,20 +333,13 @@ def report(request, property_id):
     property_dict = parse_property_id(property_id)
     property = create_property(property_dict['taxlot_ids'], property_dict['name'])
     report = get_property_report(property)
-
-    if report:
-        context = {
-
-        }
-        property_map_image = report.property_map_image
-    else:
-        context = {
-
-        }
-        
     context = {
-        'report': report
+        'property_name': property,
+        'report_pages': {},
     }
+    if report:
+        for page in report:
+            context['report_pages'][page] = page.data
 
     return render(request, 'landmapper/report/report.html', context)
 

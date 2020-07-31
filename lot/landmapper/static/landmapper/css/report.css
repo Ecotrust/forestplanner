@@ -1,0 +1,6 @@
+.map-image-wrap {
+  height: 100%;
+  max-height: 100vh;
+  position: relative;
+  width: 100%;
+}
