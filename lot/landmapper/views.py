@@ -347,35 +347,27 @@ def report(request, property_id):
 def get_property_report(property):
     # TODO: call this in "property" after creating the object instance
     from landmapper.map_layers import views as map_views
-    image_dict = {
-        'property_map': None,
-        'aerial_map': None,
-        'stream_map': None,
-        'soil_map': None,
-    }
+
     # calculate orientation, w x h, bounding box, centroid, and zoom level
-    property_specs = getPropertySpecs(property)
-    property_layer = map_views.getPropertyImageLayer(property, property_specs)
+    property_specs = get_property_specs(property)
+    property_layer = map_views.get_property_image_layer(property, property_specs)
     # TODO (Sara is creating the layer now)
-    taxlot_layer = map_views.getTaxlotImageLayer(property_specs)
+    taxlot_layer = map_views.get_taxlot_image_layer(property_specs)
 
-    aerial_layer = map_views.getAerialImageLayer(property_specs)
-    topo_layer = map_views.getTopoImageLayer(property_specs)
-    soil_layer = map_views.getSoilImageLayer(property_specs)
-    stream_layer = map_views.getStreamImageLayer(property_specs)
+    aerial_layer = map_views.get_aerial_image_layer(property_specs)
+    street_layer = map_views.get_street_image_layer(property_specs)
+    topo_layer = map_views.get_topo_image_layer(property_specs)
+    soil_layer = map_views.get_soil_image_layer(property_specs)
+    stream_layer = map_views.get_stream_image_layer(property_specs)
 
-    image_dict['property_map'] = map_views.getPropertyMap(property_specs, base_layer=aerial_layer, property_layer=property_layer)
-    image_dict['aerial_map'] = map_views.getAerialMap(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
-    image_dict['stream_map'] = map_views.getStreamMap(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
-    image_dict['soil_map'] = map_views.getSoilMap(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
+    property.property_map_image = map_views.get_property_map(property_specs, base_layer=aerial_layer, property_layer=property_layer)
+    property.aerial_map_image = map_views.get_aerial_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
+    property.street_map_image = map_views.get_street_map(property_specs, base_layer=street_layer, property_layer=property_layer)
+    property.terrain_map_image = map_views.get_terrain_map(property_specs, base_layer=topo_layer, property_layer=property_layer)
+    property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
+    property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
 
-    # TODO: assign items in image_dict to property image attributes.
-    property.property_map_image = image_dict['property_map']
-    property.aerial_map_image = image_dict['aerial_map']
-    property.stream_map_image = image_dict['stream_map']
-    property.soil_map_image = image_dict['soil_map']
-
-def getPropertySpecs(property):
+def get_property_specs(property):
     from landmapper.map_layers import views as map_views
     property_specs = {
         'orientation': None,# 'portrait' or 'landscape'

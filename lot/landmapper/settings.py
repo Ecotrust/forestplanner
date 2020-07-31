@@ -32,9 +32,16 @@ BASEMAPS = {
         'technology': 'arcgis_mapserver',
         'attribution': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
     },
+    'ESRI_Street': {
+        'url': 'https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/export',
+        'layers': '0',
+        'technology': 'arcgis_mapserver',
+        'attribution': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
+    }
 }
 AERIAL_DEFAULT = 'ESRI_Satellite'
 TOPO_DEFAULT = 'ESRI_Topo'
+STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################
 ##      REPORTS                         ###

@@ -6,7 +6,7 @@ from landmapper.views import unstable_request_wrapper
 # Map Layer Getter Functions ###
 ################################
 
-def getPropertyImageLayer(property, property_specs):
+def get_property_image_layer(property, property_specs):
     """
     PURPOSE:
     -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
@@ -48,7 +48,7 @@ def getPropertyImageLayer(property, property_specs):
         'attribution': None
     }
 
-def getTaxlotImageLayer(property_specs):
+def get_taxlot_image_layer(property_specs):
     # """
     # PURPOSE: Return taxlot layer at the selected location of the selected size
     # IN:
@@ -72,7 +72,7 @@ def getTaxlotImageLayer(property_specs):
         'attribution': attribution
     }
 
-def getAerialImageLayer(property_specs):
+def get_aerial_image_layer(property_specs):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
@@ -116,7 +116,7 @@ def getAerialImageLayer(property_specs):
         'attribution': attribution
     }
 
-def getTopoImageLayer(property_specs):
+def get_topo_image_layer(property_specs):
     # """
     # PURPOSE: Return ESRI(?) Topo image at the selected location of the selected size
     # IN:
@@ -159,7 +159,50 @@ def getTopoImageLayer(property_specs):
         'attribution': attribution
     }
 
-def getSoilImageLayer(property_specs):
+def get_street_image_layer(property_specs):
+    # """
+    # PURPOSE: Return ESRI Street image at the selected location of the selected size
+    # IN:
+    # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+    # OUT:
+    # -   image_info: (dict) {
+    # -       image: image as raw data (bytes)
+    # -       attribution: attribution text for proper use of imagery
+    # -   }
+    # """
+    bbox = property_specs['bbox']
+    bboxSR = 3857
+    width = property_specs['width']
+    height = property_specs['height']
+
+    street_dict = settings.BASEMAPS[settings.STREET_DEFAULT]
+    # Get URL for request
+    if street_dict['technology'] == 'arcgis_mapserver':
+        street_url = ''.join([
+            street_dict['url'],
+            '?bbox=', bbox,
+            '&bboxSR=', str(bboxSR),
+            '&layers=', street_dict['layers'],
+            '&size=', str(width), ',', str(height),
+            '&imageSR=3857&format=png&f=image',
+        ])
+    else:
+        print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting street layers at the moment')
+        street_url = None
+
+    # set Attribution
+    attribution = street_dict['attribution']
+
+    # Request URL
+    image_data = unstable_request_wrapper(street_url)
+    base_image = image_result_to_PIL(image_data)
+
+    return {
+        'image': base_image,
+        'attribution': attribution
+    }
+
+def get_soil_image_layer(property_specs):
         # """
         # PURPOSE:
         # -   given a bbox and optionally pixel width, height, and an indication of
@@ -208,7 +251,7 @@ def getSoilImageLayer(property_specs):
             'attribution': attribution
         }
 
-def getStreamImageLayer(property_specs):
+def get_stream_image_layer(property_specs):
     # """
     # PURPOSE:
     # -   Retrieve the streams tile image http response for a given bbox at a given size
@@ -295,7 +338,7 @@ def getStreamImageLayer(property_specs):
 # Map Image Builder Functions ##
 ################################
 
-def getPropertyMap(property_specs, base_layer, property_layer):
+def get_property_map(property_specs, base_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -328,7 +371,7 @@ def getPropertyMap(property_specs, base_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def getAerialMap(property_specs, base_layer, lots_layer, property_layer):
+def get_aerial_map(property_specs, base_layer, lots_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -365,7 +408,75 @@ def getAerialMap(property_specs, base_layer, lots_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def getStreamMap(property_specs, base_layer, stream_layer, property_layer):
+def get_street_map(property_specs, base_layer, property_layer):
+    # """
+    # PURPOSE:
+    # -   given property specs, images and attributions for a base layer and
+    # -       a property outline layer, return an image formatted for the
+    # -       property report.
+    # IN:
+    # -   property_specs; (dict) width, height and other property metadata
+    # -   base_layer; (dict) PIL img and attribution for basemap layer
+    # -   lots_layer; (dict) PIL img and attribution for tax lots
+    # -   property_layer; (dict) PIL img and attribution for property outline
+    # OUT:
+    # -   property_report_image: (PIL Image) the property report map image
+    # """
+
+    width = property_specs['width']
+    height = property_specs['height']
+
+    base_image = base_layer['image']
+    # add property
+    property_image = property_layer['image']
+
+    # generate attribution image
+    attributions = [
+        base_layer['attribution'],
+        property_layer['attribution'],
+    ]
+
+    attribution_image = get_attribution_image(attributions, width, height)
+
+    layer_stack = [base_image, property_image, attribution_image]
+
+    return merge_layers(layer_stack)
+
+def get_terrain_map(property_specs, base_layer, property_layer):
+    # """
+    # PURPOSE:
+    # -   given property specs, images and attributions for a base layer and
+    # -       a property outline layer, return an image formatted for the
+    # -       property report.
+    # IN:
+    # -   property_specs; (dict) width, height and other property metadata
+    # -   base_layer; (dict) PIL img and attribution for basemap layer
+    # -   lots_layer; (dict) PIL img and attribution for tax lots
+    # -   property_layer; (dict) PIL img and attribution for property outline
+    # OUT:
+    # -   property_report_image: (PIL Image) the property report map image
+    # """
+
+    width = property_specs['width']
+    height = property_specs['height']
+
+    base_image = base_layer['image']
+    # add property
+    property_image = property_layer['image']
+
+    # generate attribution image
+    attributions = [
+        base_layer['attribution'],
+        property_layer['attribution'],
+    ]
+
+    attribution_image = get_attribution_image(attributions, width, height)
+
+    layer_stack = [base_image, property_image, attribution_image]
+
+    return merge_layers(layer_stack)
+
+def get_stream_map(property_specs, base_layer, stream_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -405,7 +516,7 @@ def getStreamMap(property_specs, base_layer, stream_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def getSoilMap(property_specs, base_layer, soil_layer, property_layer):
+def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
