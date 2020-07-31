@@ -277,7 +277,10 @@ def getStreamImageLayer(property_specs):
         print('settings.STREAMS_SOURCE value "%s" is not currently supported.' % settings.STREAMS_SOURCE)
         img_data = None
 
-    image = image_result_to_PIL(img_data)
+    if type(img_data) == Image.Image:
+        image = img_data
+    else:
+        image = image_result_to_PIL(img_data)
     if zoom_argument:
         image = image.resize((width, height), Image.ANTIALIAS)
 
@@ -352,7 +355,7 @@ def getAerialMap(property_specs, base_layer, lots_layer, property_layer):
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        lots_image['attribution'],
+        lots_layer['attribution'],
         property_layer['attribution'],
     ]
 
@@ -658,9 +661,12 @@ def get_attribution_image(attribution_list, width, height):
     # Create overlay image
     base_img = Image.new("RGBA", (width, height), (255,255,255,0))
 
-    # calculate text size
     if type(attribution_list) == list:
+        # clean list
+        attribution_list = [x for x in attribution_list if x]
+
         attribution_list = ', '.join(attribution_list)
+    # calculate text size
     (text_width, text_height) = text_font.getsize(attribution_list)
 
     # Create a list of rows of attribution text
@@ -866,7 +872,7 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # Below gets us a rough estimate, and may give us errors later.
     # To do this right, check out this:
     #   https://wiki.openstreetmap.org/wiki/Zoom_levels#Distance_per_pixel_math
-    [west, south, east, north] = [int(x) for x in bbox.split(',')]
+    [west, south, east, north] = [float(x) for x in bbox.split(',')]
     # mp_ratio = (east-west)/width
     mp_ratio = (north-south)/height     #In theory, this should be less distorted... right? No?
 
