@@ -341,6 +341,8 @@ def report(request, property_id):
         for page in report:
             context['report_pages'][page] = page.data
 
+    context = getHeaderMenu(context)
+    
     return render(request, 'landmapper/report/report.html', context)
 
 
