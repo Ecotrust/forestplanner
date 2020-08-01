@@ -722,6 +722,7 @@ def export_layer(request):
 
 # Helper Views:
 def get_soils_data(property_specs):
+    import requests, json
     from landmapper.fetch import soils_from_nrcs
     soil_data = []
 
@@ -730,13 +731,27 @@ def get_soils_data(property_specs):
 
     soils = soils_from_nrcs(bbox, inSR)
 
-    headers = ['areasymbol', 'spatialversion', 'musym', 'nationalmusym', 'mukey', 'mupolygonkey']
-    soil_data.append(headers)
+    nationalmusyms = []
     for index, row in soils.iterrows():
-        soil_row = []
-        for header in headers:
-            soil_row.append(getattr(row, header))
-        soil_data.append(soil_row)
+        if row.nationalmusym not in nationalmusyms:
+            nationalmusyms.append(row.nationalmusym)
+
+    columns = ['musym', 'muname']
+
+    query = "SELECT %s FROM mapunit WHERE nationalmusym IN ('%s') ORDER BY %s" % (', '.join(columns),"', '".join(nationalmusyms), columns[0])
+    sdm_url = 'https://sdmdataaccess.nrcs.usda.gov/Tabular/SDMTabularService/post.rest'
+    data_query = {
+        'format': 'json',
+        'query': query
+        }
+    json_result = requests.post(sdm_url, data=data_query)
+    soil_json = json.loads(json_result.text)
+
+    header_row = [settings.SOIL_FIELDS[header]['name'] for header in columns]
+    soil_data.append(header_row)
+
+    for row in soil_json['Table']:
+        soil_data.append(row)
 
     return soil_data
 
