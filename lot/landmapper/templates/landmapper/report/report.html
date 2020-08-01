@@ -5,12 +5,14 @@
     <div class="col-12 row no-gutters">
         <div class="col-md-6">
             <section class="map-image-wrap">
-                <img src="" />
+                <img src="{{ property_map_image.url }}" />
             </section>
         </div>
         <aside class="col-md-6 content-panel">
           <p>Your property</p>
           <h2>{{ property_name }}</h2>
+
+          {{ report }}
         </aside>
     </div>
 
