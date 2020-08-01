@@ -40,6 +40,9 @@ def soils_from_nrcs(bbox, inSR, **kwargs):
     -------
     soils : GeoDataFrame
     """
+
+    from landmapper.views import unstable_request_wrapper
+
     wgs_gdf = gpd.GeoDataFrame(geometry=[box(*bbox)], crs=inSR).to_crs(4326)
     wgs_bbox = wgs_gdf.iloc[0].geometry.bounds
 
@@ -57,7 +60,8 @@ def soils_from_nrcs(bbox, inSR, **kwargs):
         params.update({key: value})
 
     url = requests.Request('GET', BASE_URL, params=params).prepare().url
-    soils = gpd.read_file(url)
+    url_response = unstable_request_wrapper(url)
+    soils = gpd.read_file(url_response)
 
     # for some reason, the NRCS web service is mixing up X and Y coordinates
     soils['geometry'] = soils.geometry.map(  # swap them here
@@ -67,18 +71,18 @@ def soils_from_nrcs(bbox, inSR, **kwargs):
     soils = soils.to_crs(inSR)
     soils = gpd.clip(soils, box(*bbox))
     KEEP_COLS = {'areasymbol': str,
-                 'spatialver': int,
+                 'spatialversion': int,
                  'musym': str,
-                 'nationalmu': str,
+                 'nationalmusym': str,
                  'mukey': int,
-                 'mupolygonk': int}
+                 'mupolygonkey': int}
     for key, value, in KEEP_COLS.items():
         soils[key] = soils[key].astype(value)
 
     if soils.crs.is_projected:
         if soils.crs.axis_info[0].unit_name == 'metre':
             soils['acres'] = soils.area / 4046.86
-        elif 'foot' in soils.crs.axis_info[0].unit_name.
+        elif 'foot' in soils.crs.axis_info[0].unit_name:
             soils['acres'] = soils.area / 43560
 
     return soils

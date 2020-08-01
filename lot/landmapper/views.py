@@ -722,8 +722,21 @@ def export_layer(request):
 
 # Helper Views:
 def get_soils_data(property_specs):
+    from landmapper.fetch import soils_from_nrcs
     soil_data = []
 
+    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    inSR = 3857
+
+    soils = soils_from_nrcs(bbox, inSR)
+
+    headers = ['areasymbol', 'spatialversion', 'musym', 'nationalmusym', 'mukey', 'mupolygonkey']
+    soil_data.append(headers)
+    for index, row in soils.iterrows():
+        soil_row = []
+        for header in headers:
+            soil_row.append(getattr(row, header))
+        soil_data.append(soil_row)
 
     return soil_data
 

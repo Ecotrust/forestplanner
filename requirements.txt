@@ -81,3 +81,7 @@ xlrd>=1.2.0
 # owslib
 # Wrapper for many Geocoding APIs
 geocoder
+geopandas
+imageio
+scikit-image
+pygeos
