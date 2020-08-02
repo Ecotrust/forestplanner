@@ -739,10 +739,10 @@ def get_soils_data(property_specs):
     mukeys = []
     for index, row in soils.iterrows():
         if row.mukey not in mukeys:
-            mukeys.append(row.mukey)
+            mukeys.append(str(row.mukey))
 
     columns = ['musym', 'muname']
-
+    
     query = "SELECT %s FROM mapunit WHERE mukey IN ('%s') ORDER BY %s" % (', '.join(columns),"', '".join(mukeys), columns[0])
     sdm_url = 'https://sdmdataaccess.nrcs.usda.gov/Tabular/SDMTabularService/post.rest'
     data_query = {
