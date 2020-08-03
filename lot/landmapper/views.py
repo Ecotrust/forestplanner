@@ -337,11 +337,9 @@ def report(request, property_id):
     context = {
         'property_id': property_id,
         'property_name': property.name,
-        # 'property_map_image': property.property_map_image,
         'property': property,
         'property_report': property.report_data,
     }
-    # property_map_image = get_map_image_from_PIL(property.property_map_image)
 
     context = getHeaderMenu(context)
 

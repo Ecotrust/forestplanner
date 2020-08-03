@@ -7,11 +7,11 @@
 {% endblock styles %}
 
 {% block content %}
-    <section id="section-property">
+    <section id="section-property" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/street/map">
+                    <img src="/landmapper/report/{{ property_id }}/property/map">
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
@@ -28,7 +28,7 @@
         </div>
     </section>
 
-    <section id="section-aerial">
+    <section id="section-aerial" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
@@ -46,7 +46,7 @@
         </div>
     </section>
 
-    <section id="section-terain">
+    <section id="section-terain" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
@@ -64,7 +64,7 @@
         </div>
     </section>
 
-    <section id="section-streams">
+    <section id="section-streams" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
@@ -82,7 +82,7 @@
         </div>
     </section>
 
-    <section id="section-soil-types">
+    <section id="section-soil-types" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
@@ -99,20 +99,5 @@
             </aside>
         </div>
     </section>
-
-    {% if property_report %}
-        {% for report in property_report %}
-            <div class="col-12 row no-gutters">
-                <div class="col-md-6">
-                    <section class="map-image-wrap">
-                        <img src="" />
-                    </section>
-                </div>
-                <div class="col-md-6">
-                    {{ report }}
-                </div>
-            </div>
-        {% endfor %}
-    {% endif %}
 
 {% endblock content %}
