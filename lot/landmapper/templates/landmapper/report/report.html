@@ -7,25 +7,26 @@
 {% endblock styles %}
 
 {% block content %}
-    <div class="col-12 row no-gutters">
-        <div class="col-md-6">
-            <section class="map-image-wrap">
-                {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
-                {{ property_map_image }}
-            </section>
-        </div>
-        <aside class="col-md-6 content-panel">
-            <p>Your property</p>
-            <h2>{{ property_name }}</h2>
-
-            {{ property_report }}
-
-            <h4>All maps of your property</h4>
-            <div>
-                <a href="#section-aerial">Aerial Photo</a> | <a href="#section-terrain">Terrain Map</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+    <section id="section-property">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    <img src="/landmapper/report/{{ property_id }}/street/map">
+                </section>
             </div>
-        </aside>
-    </div>
+            <aside class="col-md-6 content-panel">
+                <p>Your property</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property.name }}
+
+                <h4>All maps of your property</h4>
+                <div>
+                    <a href="#section-aerial">Aerial Photo</a> | <a href="#section-terrain">Terrain Map</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+                </div>
+            </aside>
+        </div>
+    </section>
 
     <section id="section-aerial">
         <div class="col-12 row no-gutters">
@@ -37,7 +38,7 @@
             </div>
             <aside class="col-md-6 content-panel">
                 <p>Your property</p>
-                <h2>{{ property_name }}</h2>
+                <h2>{{ property.name }}</h2>
 
                 {{ property_report.aerial }}
 
@@ -56,7 +57,7 @@
             </div>
             <aside class="col-md-6 content-panel">
                 <p>Your property</p>
-                <h2>{{ property_name }}</h2>
+                <h2>{{ property.name }}</h2>
 
                 {{ property_report }}
 
@@ -75,7 +76,7 @@
             </div>
             <aside class="col-md-6 content-panel">
                 <p>Your property</p>
-                <h2>{{ property_name }}</h2>
+                <h2>{{ property.name }}</h2>
 
                 {{ property_report }}
 
@@ -94,7 +95,7 @@
             </div>
             <aside class="col-md-6 content-panel">
                 <p>Your property</p>
-                <h2>{{ property_name }}</h2>
+                <h2>{{ property.name }}</h2>
 
                 {{ property_report }}
 

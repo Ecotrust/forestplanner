@@ -332,14 +332,12 @@ def report(request, property_id):
     from django.http import HttpResponse
     import json
 
-    property_dict = parse_property_id(property_id)
-    property = create_property(property_dict['taxlot_ids'], property_dict['name'])
-
-    get_property_report(property)
+    property = get_property_by_id(property_id)
 
     context = {
-        'property_name': property_dict['name'],
-        'property_map_image': property.property_map_image,
+        'property_id': property_id,
+        'property_name': property.name,
+        # 'property_map_image': property.property_map_image,
         'property': property,
         'property_report': property.report_data,
     }
@@ -448,21 +446,6 @@ def get_property_report_data(property, property_specs):
 
     return report_data
 
-def get_map_image_from_PIL(PIL_property_map_image):
-    # from django.http import HttpResponse
-    from PIL import Image
-
-    try:
-        image = PIL_property_map_image
-    except Exception as e:
-        print(e)
-        return None
-
-    # response = HttpResponse(content_type="image/png")
-    # context["map-image"] = image.save(response, 'PNG')
-    return response
-
-
 def get_property_specs(property):
     from landmapper.map_layers import views as map_views
     property_specs = {
@@ -533,7 +516,6 @@ def parse_property_id(property_id):
         'taxlot_ids': id_elements,
     }
 
-
 def create_property(taxlot_ids, property_name, user_id=False):
     # '''
     # Land Mapper: Create Property
@@ -592,7 +574,52 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     property = Property(user=user, geometry_orig=taxlot_multipolygon, name=property_name)
 
+    get_property_report(property)
+
     return property
+
+def get_property_by_id(property_id):
+    from django.core.cache import cache
+    from django.contrib.sites import shortcuts
+    from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+    from django.contrib.auth.models import User
+    from .models import Taxlot, Property
+    import json
+
+    property = cache.get('%s' % property_id)
+
+    if not property:
+        property_dict = parse_property_id(property_id)
+        property = create_property(property_dict['taxlot_ids'], property_dict['name'])
+        # Cache for 1 week
+        cache.set('%s' % property_id, property, 60*60*24*7)
+
+    return property
+
+
+def get_property_map_image(request, property_id, map_type):
+    from django.http import HttpResponse
+    from PIL import Image
+
+    property = get_property_by_id(property_id)
+
+    if map_type == 'stream':
+        image = property.stream_map_image
+    elif map_type == 'street':
+        image = property.street_map_image
+    elif map_type == 'aerial':
+        image = property.aerial_map_image
+    elif map_type == 'soil_types':
+        image = property.soil_map_image
+    elif map_type == 'property':
+        image = property.property_map_image
+    elif map_type == 'terrain':
+        image = property.terrain_map_image
+    else:
+        image = None
+    response = HttpResponse(content_type="image/png")
+    image.save(response, 'PNG')
+    return response
 
 def get_menu_page(name):
     '''

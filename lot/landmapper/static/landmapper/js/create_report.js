@@ -30,7 +30,6 @@ var landmapperReport = {
       },
       success: function(data) {
         var parsedData = JSON.parse(data);
-        console.log(parsedData)
         var propertyId = parsedData['property_id'];
         var origin = window.location.origin;
         return window.location.href = `${origin}/landmapper/report/${propertyId}`;
