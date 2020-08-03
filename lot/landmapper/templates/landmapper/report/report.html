@@ -22,7 +22,7 @@
 
                 <h4>All maps of your property</h4>
                 <div>
-                    <a href="#section-aerial">Aerial Photo</a> | <a href="#section-terrain">Terrain Map</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+                    <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
                 </div>
             </aside>
         </div>
@@ -32,8 +32,7 @@
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
-                    {{ property.aerial_map_image }}
+                    <img src="/landmapper/report/{{ property_id }}/aerial/map">
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
@@ -51,8 +50,7 @@
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
-                    {{ property.terrain_map_image }}
+                    <img src="/landmapper/report/{{ property_id }}/terrain/map">
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
@@ -70,8 +68,7 @@
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
-                    {{ property.stream_map_image }}
+                    <img src="/landmapper/report/{{ property_id }}/stream/map">
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
@@ -89,8 +86,7 @@
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
-                    {{ property.soil_map_image }}
+                    <img src="/landmapper/report/{{ property_id }}/soil_types/map">
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
