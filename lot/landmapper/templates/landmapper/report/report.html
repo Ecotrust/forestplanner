@@ -59,12 +59,10 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Street Map</p>
-                <h2>{{ property_name }}</h2>
+                <h1>Street Map</h1>
+                <h3>{{ property_name }}</h3>
 
-                {{ property_report }}
-
-                {{ property }}
+                <img src="{{ property_report.street.legend }}" />
             </aside>
         </div>
     </section>
@@ -77,12 +75,10 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Your property</p>
-                <h2>{{ property.name }}</h2>
+                <h1>Terrain Map</h1>
+                <h3>{{ property_name }}</h3>
 
-                {{ property_report }}
-
-                {{ property }}
+                <img src="{{ property_report.terrain.legend }}" />
             </aside>
         </div>
     </section>
@@ -95,12 +91,10 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Your property</p>
-                <h2>{{ property.name }}</h2>
+                <h1>Streams Map</h1>
+                <h3>{{ property_name }}</h3>
 
-                {{ property_report }}
-
-                {{ property }}
+                <img src="{{ property_report.stream.legend }}" />
             </aside>
         </div>
     </section>
@@ -113,13 +107,27 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Your property</p>
-                <h2>{{ property.name }}</h2>
+                <h1>Soil Types Map</h1>
+                <h3>{{ property_name }}</h3>
 
-                {{ property_report }}
-
-                {{ property }}
+                <img src="{{ property_report.soil_types.legend }}" />
             </aside>
+        </div>
+    </section>
+
+    <section class="section-report map-wrap">
+        <div class="col-12 row no-gutters">
+            <div class="content-panel">
+                <h1>Soil Type Table</h1>
+                <h3>{{ property_name }}</h3>
+                <h2>Page 2 of 2</h2>
+            </div>
+            <div class="property-report-data">
+                {% for datum in property_report.soil_types.data %}
+                    <p>{{ datum.0 }}: {{ datum.1 }}</p>
+                {% endfor %}
+                {{ property.soil_types }}
+            </div>
         </div>
     </section>
 
