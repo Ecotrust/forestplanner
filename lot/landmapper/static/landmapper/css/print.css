@@ -1,4 +1,8 @@
 @media print {
+  @page {
+    size: landscape;
+  }
+  
   .wrap-print {
     display: block;
     margin: 0 auto;
