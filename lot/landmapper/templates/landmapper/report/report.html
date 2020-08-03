@@ -1,24 +1,110 @@
 {% extends 'landmapper/base.html' %}
 {% load static %}
 
+{% block styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'landmapper/css/report.css' %}">
+{% endblock styles %}
+
 {% block content %}
     <div class="col-12 row no-gutters">
         <div class="col-md-6">
             <section class="map-image-wrap">
-                <img src="{{ property_map_image }}" />
+                {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
                 {{ property_map_image }}
             </section>
         </div>
         <aside class="col-md-6 content-panel">
-          <p>Your property</p>
-          <h2>{{ property_name }}</h2>
+            <p>Your property</p>
+            <h2>{{ property_name }}</h2>
 
-          {{ report }}
+            {{ property_report }}
+
+            <h4>All maps of your property</h4>
+            <div>
+                <a href="#section-aerial">Aerial Photo</a> | <a href="#section-terrain">Terrain Map</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+            </div>
         </aside>
     </div>
 
-    {% if report_pages %}
-        {% for page in report_pages %}
+    <section id="section-aerial">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
+                    {{ property.aerial_map_image }}
+                </section>
+            </div>
+            <aside class="col-md-6 content-panel">
+                <p>Your property</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property_report.aerial }}
+
+                {{ property }}
+            </aside>
+        </div>
+    </section>
+
+    <section id="section-terain">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
+                    {{ property.terrain_map_image }}
+                </section>
+            </div>
+            <aside class="col-md-6 content-panel">
+                <p>Your property</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property_report }}
+
+                {{ property }}
+            </aside>
+        </div>
+    </section>
+
+    <section id="section-streams">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
+                    {{ property.stream_map_image }}
+                </section>
+            </div>
+            <aside class="col-md-6 content-panel">
+                <p>Your property</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property_report }}
+
+                {{ property }}
+            </aside>
+        </div>
+    </section>
+
+    <section id="section-soil-types">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    {% comment %} <img src="{{ property_map_image }}" /> {% endcomment %}
+                    {{ property.soil_map_image }}
+                </section>
+            </div>
+            <aside class="col-md-6 content-panel">
+                <p>Your property</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property_report }}
+
+                {{ property }}
+            </aside>
+        </div>
+    </section>
+
+    {% if property_report %}
+        {% for report in property_report %}
             <div class="col-12 row no-gutters">
                 <div class="col-md-6">
                     <section class="map-image-wrap">
@@ -26,9 +112,7 @@
                     </section>
                 </div>
                 <div class="col-md-6">
-                    {% for row in page %}
-                        <p><stong>{{ row }}</strong>: {{ row }}</p>
-                    {% endfor %}
+                    {{ report }}
                 </div>
             </div>
         {% endfor %}
