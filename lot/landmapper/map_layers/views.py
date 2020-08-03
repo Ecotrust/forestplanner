@@ -833,9 +833,9 @@ def merge_layers(layer_list):
     for layer in layer_list:
         if layer:
             if not merged:
-                merged = layer
+                merged = layer.copy()
             else:
-                marged = merge_images(merged, layer)
+                merged = merge_images(merged, layer)
 
     return merged
 
