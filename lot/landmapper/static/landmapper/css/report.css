@@ -3,6 +3,7 @@
 }
 
 .section-report {
+  border-bottom: 1px solid var(--black);
   height: 100vh;
   overflow: hidden;
   width: 100%;
@@ -18,4 +19,10 @@
 .map-image-wrap img {
   max-height: 100%;
   max-width: 100%;
+}
+
+.anchor-links {
+  font-size: 20px;
+  line-height: 39px;
+  letter-spacing: 1px;
 }

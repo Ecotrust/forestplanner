@@ -15,13 +15,19 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Your property</p>
-                <h2>{{ property_name }}</h2>
+                <h2>Your property</h2>
+                <h1>{{ property_name }}</h1>
 
-                {{ property.name }}
+                <div class="property-report-data">
+                    {% for datum in property_report.property.data %}
+                        <p>{{ datum.0 }}: {{ datum.1 }}</p>
+                    {% endfor %}
+                </div>
 
-                <h4>All maps of your property</h4>
-                <div>
+                <hr />
+
+                <h2>All maps of your property</h2>
+                <div class="anchor-links">
                     <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
                 </div>
             </aside>
@@ -36,17 +42,34 @@
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
-                <p>Your property</p>
-                <h2>{{ property.name }}</h2>
+                <h1>Aerial Photo</h1>
+                <h3>{{ property_name }}</h3>
 
-                {{ property_report.aerial }}
+                <img src="{{ property_report.aerial.legend }}" />
+
+            </aside>
+        </div>
+    </section>
+
+    <section id="section-street" class="section-report map-wrap">
+        <div class="col-12 row no-gutters">
+            <div class="col-md-6">
+                <section class="map-image-wrap">
+                    <img src="/landmapper/report/{{ property_id }}/street/map">
+                </section>
+            </div>
+            <aside class="col-md-6 content-panel">
+                <p>Street Map</p>
+                <h2>{{ property_name }}</h2>
+
+                {{ property_report }}
 
                 {{ property }}
             </aside>
         </div>
     </section>
 
-    <section id="section-terain" class="section-report map-wrap">
+    <section id="section-terrain" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
