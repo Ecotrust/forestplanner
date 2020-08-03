@@ -8,7 +8,6 @@ urlpatterns = [
         # home, name='landmapper-home'),
     path('', home, name="home"),
     path('identify/', identify, name="identify"),
-    # path('/report/', report, name="report"),
     path('create_property_id/', create_property_id, name='create_property_id'),
     # path('report/<str:property_id>', cache_page(60 * 60 * 24 * 7)(report), name='report'),
     path('report/<str:property_id>', report, name='report'),

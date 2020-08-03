@@ -336,11 +336,12 @@ def report(request, property_id):
     property = create_property(property_dict['taxlot_ids'], property_dict['name'])
 
     get_property_report(property)
-
+    property_map_image = get_property_map_image(property.property_map_image)
+    import ipdb; ipdb.set_trace()
     context = {
         'property_name': property_dict['name'],
-        'property_map_image': property.property_map_image,
-        'report': property.report_data,
+        'property_map_image': property_map_image,
+        'report': property,
     }
     # if report:
         # for page in report:
@@ -349,7 +350,6 @@ def report(request, property_id):
     context = getHeaderMenu(context)
 
     return render(request, 'landmapper/report/report.html', context)
-
 
 def get_property_report(property):
     # TODO: call this in "property" after creating the object instance
@@ -449,6 +449,22 @@ def get_property_report_data(property, property_specs):
     }
 
     return report_data
+
+def get_property_map_image(PIL_property_map_image):
+    from django.http import HttpResponse
+    from PIL import Image
+
+    try:
+        image = PIL_property_map_image
+    except Exception as e:
+        print(e)
+        pass
+
+    response = HttpResponse(content_type="image/png")
+    image.save(response, 'PNG')
+    return response
+
+
 
 
 def get_property_specs(property):
@@ -582,40 +598,6 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     return property
 
-# Property() is a Dict of JSON
-# Create property will check the cache first then
-# use django to cache
-#
-# decorators (@decor) - some available for caching shortcut
-#
-# django caching
-#
-# generate unique id
-#
-# turn id to string
-#
-# associate with data (pref dict)
-#
-# cache_key
-#     take all taxlot ids
-#     sort Alpahbetly
-#     join list delinate (seperate) ids with something like a pipe (|) or tilda (~) or plus (+) (unlikey to show up in taxlot ids)
-#         - need to create unique id that cannot be broken
-#         - if we cna't get id from data we will generate it ourselves
-#         - IDs may be alphanumeric so sorting will make sure the same cache key is used
-#             Caching properties
-#             111011 (ambiguous)
-#             11 + 1011
-#             1110 + 11
-#             11|1011 (non-ambiguous)
-#
-# store other properties in Property dict
-#
-# use django caching syntax to store Property in cache
-
-
-
-
 def get_menu_page(name):
     '''
     PURPOSE:
@@ -742,7 +724,7 @@ def get_soils_data(property_specs):
             mukeys.append(str(row.mukey))
 
     columns = ['musym', 'muname']
-    
+
     query = "SELECT %s FROM mapunit WHERE mukey IN ('%s') ORDER BY %s" % (', '.join(columns),"', '".join(mukeys), columns[0])
     sdm_url = 'https://sdmdataaccess.nrcs.usda.gov/Tabular/SDMTabularService/post.rest'
     data_query = {
