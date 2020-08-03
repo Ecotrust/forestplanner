@@ -242,6 +242,8 @@ def get_soil_image_layer(property_specs):
 
         image = image_result_to_PIL(data)
         if zoom_argument:
+            width = width*2
+            height = height*2
             image = image.resize((width, height), Image.ANTIALIAS)
 
         attribution = settings.ATTRIBUTION_KEYS['soil']
