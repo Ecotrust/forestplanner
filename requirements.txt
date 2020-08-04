@@ -85,3 +85,5 @@ geopandas
 imageio
 scikit-image
 pygeos
+matplotlib
+# matplotlib_scalebar

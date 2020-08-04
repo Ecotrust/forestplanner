@@ -915,6 +915,40 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
 
     return img_data
 
+def add_scalebar(pil_image, ratio, imperial=True, placement=None, dpi=100):
+    import matplotlib.pyplot as plt
+    # import matplotlib.cbook as cbook
+    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
+    # Trying to work AnchoSizeBar from this example: https://stackoverflow.com/a/45882037/706797
+    (width, height) = pil_image.size
+    figsize = (width/dpi, height/dpi)
+    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
+    # fig = plt.figure(figsize=figsize, dpi=dpi)
+    image = fig.figimage(pil_image, xo=0, yo=0, origin='upper')
+
+    scalebar = AnchoredSizeBar(ax.transData,
+                               20, '20 m', 'lower center',
+                               pad=0.1,
+                               color='white',
+                               frameon=False,
+                               size_vertical=1,
+                               # fontproperties=fontprops
+                               )
+
+    ax.add_artist(scalebar)
+    ax.set_yticks([])
+    ax.set_xticks([])
+
+    # TODO:
+    # - Test
+    # - Change to PIL Image (or find another way to hand off to be a .png for Rest calls)
+
+    #
+    # from matplotlib_scalebar.scalebar import ScaleBar
+    # # Examples: https://pypi.org/project/matplotlib-scalebar/
+    # scalebar = ScaleBar(ratio)
+
+
 ################################
 # MapBox Munging             ###
 ################################
