@@ -541,7 +541,7 @@ def create_property(taxlot_ids, property_name, user_id=False):
     NOTES:
         CACHE THESE!!!!
     '''
-    from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
+    from django.contrib.gis.geos import GEOSGeometry, MultiPolygon, Polygon
     from django.contrib.auth.models import User
     from .models import Taxlot, Property
     import json
@@ -570,6 +570,8 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     # Create Property object (don't use 'objects.create()'!)
     # now create property from cache id on report page
+    if type(taxlot_multipolygon) == Polygon:
+        taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
 
     property = Property(user=user, geometry_orig=taxlot_multipolygon, name=property_name)
 
