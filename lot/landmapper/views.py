@@ -560,11 +560,12 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     for lot_id in taxlot_ids:
         lot = Taxlot.objects.get(pk=lot_id)
-
         if not taxlot_multipolygon:
             taxlot_multipolygon = lot.geometry
         else:
             taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
+
+    taxlot_multipolygon = MultiPolygon(taxlot_multipolygon.unary_union,)
 
 
     # Create Property object (don't use 'objects.create()'!)
@@ -579,7 +580,7 @@ def create_property(taxlot_ids, property_name, user_id=False):
 def get_property_by_id(property_id):
     from django.core.cache import cache
     from django.contrib.sites import shortcuts
-    
+
     property = cache.get('%s' % property_id)
 
     if not property:
