@@ -57,7 +57,13 @@ var map = new ol.Map({
   target: 'map',
   layers: [
     new ol.layer.Tile({
-      source: new ol.source.OSM()
+      visible: true,
+      title: 'Aerial With Labels',
+      preload: Infinity,
+      source: new ol.source.BingMaps({
+        imagerySet: 'AerialWithLabels',
+        key: 'Ave7UcBYYPahWffLRpKbOAIo22WuwCpLuvUauhw_h6U4FOFMXZNCDnl3O3OTgxdF'
+      })
     }),
     landmapper.selectedFeatureLayer
   ],
