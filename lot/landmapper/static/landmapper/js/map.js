@@ -16,6 +16,7 @@ var landmapper = {
   }
 };
 
+
 /**
  * [Permalink checker]
  * @method if
@@ -37,6 +38,7 @@ if (window.location.hash !== '') {
   }
 }
 
+
 /**
  * [mapView description]
  * @type {ol}
@@ -47,12 +49,33 @@ var mapView = new ol.View({
   rotation: landmapper.rotation
 });
 
+
+/**
+ * [selectedFeatureSource description]
+ * @type {ol}
+ */
 landmapper.selectedFeatureSource = new ol.source.Vector();
 
-landmapper.selectedFeatureLayer = new ol.layer.Vector({
-  source: landmapper.selectedFeatureSource
+landmapper.selectedFeatureStyles = new ol.style.Style({
+  fill: new ol.style.Fill({
+    color: 'rgba(255, 231, 49, 0.25)',
+  }),
+  stroke: new ol.style.Stroke({
+    color: '#FFE731',
+    width: 2,
+  }),
 });
 
+landmapper.selectedFeatureLayer = new ol.layer.Vector({
+  source: landmapper.selectedFeatureSource,
+  style: landmapper.selectedFeatureStyles,
+});
+
+
+/**
+ * [map description]
+ * @type {ol}
+ */
 var map = new ol.Map({
   target: 'map',
   layers: [
@@ -70,6 +93,12 @@ var map = new ol.Map({
   view: mapView
 });
 
+/**
+ * [description]
+ * @method
+ * @param  {[type]} show [description]
+ * @return {[type]}      [description]
+ */
 landmapper.showNextBtn = function(show) {
   var btnNext = document.getElementById('btn-content-panel-next');
   var formPropertyName = document.getElementById('form-property-name');
@@ -85,6 +114,12 @@ landmapper.showNextBtn = function(show) {
   }
 }
 
+/**
+ * [description]
+ * @method
+ * @param  {[type]} mapEvent [description]
+ * @return {[type]}          [description]
+ */
 landmapper.loadTaxLots = function(mapEvent) {
   var lonlat = mapEvent.coordinate;
   let taxlotsURL = '/landmapper/get_taxlot_json/';
@@ -120,11 +155,19 @@ landmapper.loadTaxLots = function(mapEvent) {
   })
 };
 
+
 /**
  * Track state in browser URL
  * @type {Boolean}
  */
 var shouldUpdate = true;
+
+
+/**
+ * Update browser URL with Map state
+ * @method
+ * @return {[type]} [description]
+ */
 var updatePermalink = function() {
   if (!shouldUpdate) {
     // do not update the URL when the view was changed in the 'popstate' handler
@@ -148,12 +191,25 @@ var updatePermalink = function() {
   window.history.pushState(landmapper.state, 'map', landmapper.hash);
 };
 
-map.on('click', function(e) {
+
+/**
+ * Map events
+ * @method
+ * @param  {[type]} e [description]
+ * @return {[type]}   [description]
+ */
+map.on('singleclick', function(e) {
   landmapper.showNextBtn(true);
   landmapper.loadTaxLots(e);
 });
 
+
+/**
+ * Update permalink
+ * @type {[type]}
+ */
 map.on('moveend', updatePermalink);
+
 
 // restore the view state when navigating through the history, see
 // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
