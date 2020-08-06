@@ -193,6 +193,16 @@ def getHeaderMenu(context):
 
     return context
 
+
+def getPanelButtonsCreateReport(context):
+
+    context['btn_back_href'] = '/landmapper/'
+    context['btn_next_href'] = 'property_name'
+    context['btn_create_maps_href'] = '/landmapper/report/'
+    context['btn_next_disabled'] = 'disabled'; # disabled is a css class for <a> tags
+
+    return context
+
 # Create your views here.
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_sameorigin
 @xframe_options_sameorigin
@@ -233,7 +243,7 @@ def home(request):
         'show_panel_buttons': False,
         'q_address': 'Enter your property address here',
     }
-
+    # context = getPanelButtonsCreateReport(context)
     context = getHeaderMenu(context)
 
     return render(request, 'landmapper/landing.html', context)
@@ -265,20 +275,20 @@ def identify(request):
     if request.method == 'POST':
         if request.POST.get('q-address'):
             q_address = request.POST.get('q-address')
+            q_address_value = request.POST.get('q-address')
             coords = geocode(q_address)
         else:
             q_address = 'Enter your property address here'
+
         if coords:
             context = {
                 'coords': coords,
                 'q_address': q_address,
+                'q_address_value': q_address_value,
                 'aside_content': aside_content,
                 'show_panel_buttons': True,
-                'btn_back_href': '/landmapper/',
-                'btn_next_href': 'property_name',
-                'btn_create_maps_href': '/landmapper/report/',
-                'btn_next_disabled': 'disabled', # disabled is a css class for <a> tags
             }
+            context = getPanelButtonsCreateReport(context)
             context = getHeaderMenu(context)
             return render(request, 'landmapper/landing.html', context)
     else:

@@ -121,38 +121,52 @@ landmapper.showNextBtn = function(show) {
  * @return {[type]}          [description]
  */
 landmapper.loadTaxLots = function(mapEvent) {
-  var lonlat = mapEvent.coordinate;
-  let taxlotsURL = '/landmapper/get_taxlot_json/';
-
-  jQuery.ajax({
-    url: taxlotsURL,
-    data: {
-      'coords': lonlat
-    },
-    success: function(data) {
-      var parsedData = JSON.parse(data);
-      var wkt = parsedData['geometry'];
-      var lot_id = parsedData['id'];
-      var format = new ol.format.WKT();
-      if (wkt == []) {
-        window.alert('Taxlot info unavailable at this location - please draw instead.');
-      } else {
-        var feature = format.readFeature(wkt);
-      }
-      landmapper.selectedFeatureSource.addFeature(feature);
-      if (landmapper.taxlot_ids.length > 0) {
-        landmapper.taxlot_ids = landmapper.taxlot_ids + '&' + lot_id;
-      } else {
-        landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
-      }
-    },
-    error: function(error) {
-        window.alert('Error retrieving taxlot - please draw instead.');
-        console.log('error in map.js: Click Control trigger');
+  var featureSelected = false;
+  var pixel = map.getEventPixel(mapEvent.originalEvent);
+  // Check if taxlot is already selected
+  landmapper.selectedFeatureLayer.getFeatures(pixel).then(function(features) {
+    var feature = features.length ? features[0] : undefined;
+    if (feature) {
+      featureSelected = true;
+      console.log(feature);
+      landmapper.selectedFeatureSource.getSource().removeFeature(feature.ol_uid);
     }
-  }).done(function() {
-    updatePermalink();
-  })
+  });
+
+  var lonlat = mapEvent.coordinate;
+  var taxlotsURL = '/landmapper/get_taxlot_json/';
+
+  if (!featureSelected) {
+    jQuery.ajax({
+      url: taxlotsURL,
+      data: {
+        'coords': lonlat
+      },
+      success: function(data) {
+        var parsedData = JSON.parse(data);
+        var wkt = parsedData['geometry'];
+        var lot_id = parsedData['id'];
+        var format = new ol.format.WKT();
+        if (wkt == []) {
+          window.alert('Taxlot info unavailable at this location - please draw instead.');
+        } else {
+          var feature = format.readFeature(wkt);
+        }
+        landmapper.selectedFeatureSource.addFeature(feature);
+        if (landmapper.taxlot_ids.length > 0) {
+          landmapper.taxlot_ids = landmapper.taxlot_ids + '&' + lot_id;
+        } else {
+          landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
+        }
+      },
+      error: function(error) {
+          window.alert('Error retrieving taxlot - please draw instead.');
+          console.log('error in map.js: Click Control trigger');
+      }
+    }).done(function() {
+      updatePermalink();
+    })
+  }
 };
 
 
