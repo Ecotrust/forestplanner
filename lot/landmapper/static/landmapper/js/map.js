@@ -135,17 +135,18 @@ landmapper.loadTaxLots = function(mapEvent) {
   var lonlat = mapEvent.coordinate;
   var taxlotsURL = '/landmapper/get_taxlot_json/';
 
-  if (selectFeature) {
-    jQuery.ajax({
-      url: taxlotsURL,
-      data: {
-        'coords': lonlat
-      },
-      success: function(data) {
-        var parsedData = JSON.parse(data);
-        var wkt = parsedData['geometry'];
-        var lot_id = parsedData['id'];
-        var format = new ol.format.WKT();
+  jQuery.ajax({
+    url: taxlotsURL,
+    data: {
+      'coords': lonlat
+    },
+    success: function(data) {
+      var parsedData = JSON.parse(data);
+      var wkt = parsedData['geometry'];
+      var lot_id = parsedData['id'];
+      var format = new ol.format.WKT();
+      // Select feature is bool if true add taxlot
+      if (selectFeature) {
         if (wkt == []) {
           window.alert('Taxlot info unavailable at this location - please draw instead.');
         } else {
@@ -157,15 +158,27 @@ landmapper.loadTaxLots = function(mapEvent) {
         } else {
           landmapper.taxlot_ids = landmapper.taxlot_ids + lot_id;
         }
-      },
-      error: function(error) {
-          window.alert('Error retrieving taxlot - please draw instead.');
-          console.log('error in map.js: Click Control trigger');
+      } else {
+        // If selectFeature is false remove taxlot
+        var startAmpersand = landmapper.taxlot_ids.includes('&' + lot_id);
+        var endAmpersand = landmapper.taxlot_ids.includes(lot_id + '&');
+        if (startAmpersand) {
+          landmapper.taxlot_ids = landmapper.taxlot_ids.replace('&' + lot_id, '');
+        } else if (endAmpersand) {
+          landmapper.taxlot_ids = landmapper.taxlot_ids.replace(lot_id + '&', '');
+        } else {
+          landmapper.taxlot_ids = landmapper.taxlot_ids.replace(lot_id, '');
+        }
       }
-    }).done(function() {
-      updatePermalink();
-    });
-  }
+
+    },
+    error: function(error) {
+        window.alert('Error retrieving taxlot - please draw instead.');
+        console.log('error in map.js: Click Control trigger');
+    }
+  }).done(function() {
+    updatePermalink();
+  });
 };
 
 
