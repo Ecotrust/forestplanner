@@ -121,22 +121,21 @@ landmapper.showNextBtn = function(show) {
  * @return {[type]}          [description]
  */
 landmapper.loadTaxLots = function(mapEvent) {
-  var featureSelected = false;
+  var selectFeature = true;
   var pixel = map.getEventPixel(mapEvent.originalEvent);
+  var pixelCoords = map.getCoordinateFromPixel(pixel);
   // Check if taxlot is already selected
-  landmapper.selectedFeatureLayer.getFeatures(pixel).then(function(features) {
-    var feature = features.length ? features[0] : undefined;
-    if (feature) {
-      featureSelected = true;
-      console.log(feature);
-      landmapper.selectedFeatureSource.getSource().removeFeature(feature.ol_uid);
-    }
-  });
-
+  var featuresAtPixel = landmapper.selectedFeatureSource.getFeaturesAtCoordinate(pixelCoords);
+  // var feature = featuresAtPixel.length ? featuresAtPixel[0] : undefined;
+  console.log(featuresAtPixel);
+  if (featuresAtPixel.length > 0) {
+    selectFeature = false;
+    landmapper.selectedFeatureSource.removeFeature(featuresAtPixel[0]);
+  }
   var lonlat = mapEvent.coordinate;
   var taxlotsURL = '/landmapper/get_taxlot_json/';
 
-  if (!featureSelected) {
+  if (selectFeature) {
     jQuery.ajax({
       url: taxlotsURL,
       data: {
@@ -165,7 +164,7 @@ landmapper.loadTaxLots = function(mapEvent) {
       }
     }).done(function() {
       updatePermalink();
-    })
+    });
   }
 };
 
