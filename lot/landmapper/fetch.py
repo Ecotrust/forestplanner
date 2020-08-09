@@ -61,7 +61,10 @@ def soils_from_nrcs(bbox, inSR, **kwargs):
 
     url = requests.Request('GET', BASE_URL, params=params).prepare().url
     url_response = unstable_request_wrapper(url)
-    soils = gpd.read_file(url_response)
+    if url_response:
+        soils = gpd.read_file(url_response)
+    else:
+        print('Error: during request for soils data')
 
     # for some reason, the NRCS web service is mixing up X and Y coordinates
     soils['geometry'] = soils.geometry.map(  # swap them here
