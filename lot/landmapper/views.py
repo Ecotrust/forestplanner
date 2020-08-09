@@ -23,9 +23,11 @@ def unstable_request_wrapper(url, retries=0):
         else:
             print("ERROR: Unable to connect to %s" % url)
     except Exception as e:
-        print(e)
-        print(url)
-        contents = False
+        if retries < 10:
+            print('failed [%d time(s)] to connect to %s' % (retries, url))
+            contents = unstable_request_wrapper(url, retries+1)
+        else:
+            print('failed [%d time(s)] with exception %s' % (e, url))
     return contents
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
@@ -575,7 +577,7 @@ def create_property(taxlot_ids, property_name, user_id=False):
         else:
             taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
 
-    taxlot_multipolygon = MultiPolygon(taxlot_multipolygon.unary_union,)
+    # taxlot_multipolygon = MultiPolygon(taxlot_multipolygon.unary_union,)
 
 
     # Create Property object (don't use 'objects.create()'!)
