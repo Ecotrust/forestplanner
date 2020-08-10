@@ -121,13 +121,13 @@ landmapper.showNextBtn = function(show) {
  * @return {[type]}          [description]
  */
 landmapper.loadTaxLots = function(mapEvent) {
+  // bool true if selecitng an unselected taxlot. Checked and changed later
   var selectFeature = true;
   var pixel = map.getEventPixel(mapEvent.originalEvent);
   var pixelCoords = map.getCoordinateFromPixel(pixel);
+
   // Check if taxlot is already selected
   var featuresAtPixel = landmapper.selectedFeatureSource.getFeaturesAtCoordinate(pixelCoords);
-  // var feature = featuresAtPixel.length ? featuresAtPixel[0] : undefined;
-  console.log(featuresAtPixel);
   if (featuresAtPixel.length > 0) {
     selectFeature = false;
     landmapper.selectedFeatureSource.removeFeature(featuresAtPixel[0]);

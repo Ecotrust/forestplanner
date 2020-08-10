@@ -2,7 +2,7 @@
   @page {
     size: landscape;
   }
-  
+
   .wrap-print {
     display: block;
     margin: 0 auto;
@@ -11,5 +11,9 @@
     height: 21.59cm;
     width: 27.94cm;
     max-width: 27.94cm;
+  }
+
+  .section-report {
+    border-bottom: none;
   }
 }
