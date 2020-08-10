@@ -22,12 +22,14 @@ def unstable_request_wrapper(url, retries=0):
             contents = unstable_request_wrapper(url, retries+1)
         else:
             print("ERROR: Unable to connect to %s" % url)
+            contents = None
     except Exception as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
             contents = unstable_request_wrapper(url, retries+1)
         else:
             print('failed [%d time(s)] with exception %s' % (retries, url))
+            contents = None
     return contents
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
