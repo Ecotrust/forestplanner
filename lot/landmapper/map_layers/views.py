@@ -557,6 +557,280 @@ def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
     return merge_layers(layer_stack)
 
 ################################
+# Scalebar Functions          ###
+################################
+
+def get_scalebar_image(property_specs, span_ratio=0.75):
+    image_width_in_pixels = property_specs['width']
+    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    image_width_in_meters = bbox[2] - bbox[0]
+    return generate_scalebar_for_image(image_width_in_meters, image_width_in_pixels, span_ratio)
+
+# Thanks to Senshin @ https://stackoverflow.com/a/33947673/706797
+def get_first_sig_dig(x):
+    from math import log10, floor
+    return round(x / (10**floor(log10(x))))
+
+# Thanks to Evgeny and Tobias Kienzler @ https://stackoverflow.com/a/3411435/706797
+def round_to_1(x):
+    from math import log10, floor
+    return round(x, -int(floor(log10(abs(x)))))
+
+def refit_step(step_tick, num_steps, max_width_in_units, min_step_width_in_pixels, units_per_pixel):
+    sig_dig = get_first_sig_dig(step_tick)
+    if num_steps > 1:
+        step_tick = increase_step_size(step_tick, sig_dig)
+        num_steps = int(max_width_in_units/step_tick)
+    else:
+        step_tick = reduce_step_size(step_tick, sig_dig)
+        num_steps = int(max_width_in_units/step_tick)
+
+    step_width_in_pixels = step_tick/units_per_pixel
+    if step_width_in_pixels < min_step_width_in_pixels:
+        growth_ratio = int(min_step_width_in_pixels/step_width_in_pixels)+1
+        step_tick = step_tick * growth_ratio
+        num_steps = int(max_width_in_units/step_tick)
+
+    if num_steps < 1:
+        # punt and worry about other things.
+        step_tick = min_step_width_in_pixels * units_per_pixel
+        num_steps = 1
+
+    if step_tick > 10:
+        step_tick = int(step_tick)
+
+    return {
+        'step_tick': step_tick,
+        'num_steps': num_steps
+    }
+
+def increase_step_size(step_tick, sig_dig):
+    if sig_dig in [1,2,5]:
+        return step_tick
+    elif sig_dig < 5:
+        resize_factor = 5/sig_dig
+    else:
+        resize_factor = 10/sig_dig
+
+    new_step_tick = resize_factor * step_tick
+    return resize_factor * step_tick
+
+def reduce_step_size(step_tick, sig_dig):
+    if sig_dig < 3:
+        resize_factor = 0.5
+    elif sig_dig < 5:
+        resize_factor = 2/sig_dig
+    elif sig_dig == 5:
+        return step_tick
+    else:
+        resize_factor = 5/sig_dig
+
+    return step_tick * resize_factor
+
+def generate_scalebar_for_image(img_width_in_meters, img_width_in_pixels=509, scale_width_ratio=1, min_step_width=100, dpi=300):
+    bottom_units_per_pixel = img_width_in_meters/img_width_in_pixels
+    if img_width_in_pixels > 500:
+        units_bottom = 'meters'
+        units_top = 'feet'
+    else:
+        units_bottom = 'm'
+        units_top = 'ft'
+    scale_bottom = 1
+    scale_top = 0.3048
+    scale_width_in_meters = img_width_in_meters*scale_width_ratio
+    scale_width_in_pixels = scale_width_in_meters/bottom_units_per_pixel
+    max_step_count = int(scale_width_in_pixels/min_step_width)
+    num_steps_bottom = max_step_count
+    if num_steps_bottom < 1:
+        num_steps_bottom = 1
+    if scale_width_in_meters/num_steps_bottom > 1000:
+        if img_width_in_pixels > 500:
+            units_bottom = 'km'
+            units_top = 'miles'
+        else:
+            units_bottom = 'km'
+            units_top = 'mi'
+        scale_bottom = 1000
+        scale_top = 1609.34
+        bottom_units_per_pixel = bottom_units_per_pixel/scale_bottom
+    bottom_unit_count = scale_width_in_meters/scale_bottom
+    top_unit_count = scale_width_in_meters/scale_top
+    step_ticks_bottom = round_to_1(bottom_unit_count/num_steps_bottom)
+
+    refit_dict = refit_step(
+        step_ticks_bottom,
+        num_steps_bottom,
+        scale_width_in_meters/scale_bottom,
+        min_step_width,
+        bottom_units_per_pixel/scale_bottom
+    )
+    step_ticks_bottom = refit_dict['step_tick']
+    num_steps_bottom = refit_dict['num_steps']
+
+    step_ticks_top = round_to_1(top_unit_count/num_steps_bottom)
+    num_steps_top = num_steps_bottom
+
+    refit_dict = refit_step(
+        step_ticks_top,
+        num_steps_top,
+        scale_width_in_meters/scale_top,
+        min_step_width,
+        bottom_units_per_pixel/scale_top
+    )
+
+    step_ticks_top = refit_dict['step_tick']
+    num_steps_top = refit_dict['num_steps']
+
+    num_ticks_top = num_steps_top + 1
+    num_ticks_bottom = num_steps_bottom + 1
+
+    return make_scalebar(
+        num_ticks_top,
+        step_ticks_top,
+        num_ticks_bottom,
+        step_ticks_bottom,
+        bottom_units_per_pixel,
+        scale_top=scale_top,
+        scale_bottom=scale_bottom,
+        units_top=units_top,
+        units_bottom=units_bottom
+    )
+
+def format_label(value):
+    if int(value) >= 1000:
+        return '{:,d}'.format(value)
+    # elif type(value) == int or value >= 10:
+    #     return str(int(value))
+    else:
+        # 3 digits should be more than enough - in theory there should only be 1 unless things go sideways
+        return '{:.3g}'.format(value)
+
+def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_bottom, bottom_units_per_pixel=None, scale_top=1.0, scale_bottom=3.28084, units_top='feet', units_bottom='meters'):
+
+    """Renders a dual scale bar as a PIL Image.
+    Parameters
+    ----------
+    num_ticks_top, num_ticks_bottom : int
+      number of ticks, including starting and ending points, to use for drawing scale bars
+    step_ticks_top, step_ticks_bottom : int
+      amount that each successive tick adds to previous tick
+    bottom_units_per_pixel : numeric
+      the width of each pixel in the resulting image in the same units as
+      the bottom scale bar. This parameters helps resize the resulting figure
+      to ensure an accurate scale is generated.
+    scale_top, scale_bottom : numeric
+      relative scales of units in top and bottom scale bars
+    units_top, units_bottom : str
+      string used to label units on the last tick in the scale bar
+
+    Returns
+    -------
+    img : PIL Image
+      the dual scale bar rendered as an in-memory image
+    """
+
+
+    from matplotlib import pyplot as plt
+    import numpy as np
+    import matplotlib
+    matplotlib.use('Agg')
+    DPI = 350
+
+    width_top = (num_ticks_top - 1) * step_ticks_top * (scale_top / scale_bottom)
+    width_bot = (num_ticks_bottom - 1) * step_ticks_bottom
+    min_top, max_top = -width_top / 2, width_top / 2
+    min_bot, max_bot = -width_bot / 2, width_bot / 2
+    both_min, both_max = min(min_top, min_bot), max(max_top, max_bot)
+
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(1.5, 0.15)
+    fig.dpi = DPI
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    fig.add_axes(ax)
+
+    # make the top scalebar
+    # first, the line
+    ax.plot((min_top, max_top), (1.0, 1.0), lw=0.25, color='black')
+    # then, create the tick marks
+    ticks_top = np.linspace(min_top, max_top, num_ticks_top)
+
+    for i, x in enumerate(ticks_top):
+        ax.plot((x, x), (1.0, 3.0), lw=0.25, color='black')
+        # add the labels for each tick mark
+        ax.text(x,
+                4.0,
+                format_label(step_ticks_top*i),
+                horizontalalignment='center',
+                verticalalignment='bottom',
+                fontname='arial',
+               fontsize=2)
+        # add the units after the last tick mark
+        if x == ticks_top[0]:
+            spaces = ' ' * (len(format_label(step_ticks_top*i))+1)
+            ax.text(x,
+                    4.0,
+                    spaces + units_top,
+                    horizontalalignment='left',
+                    verticalalignment='bottom',
+                    fontname='arial',
+                   fontsize=2)
+
+    # make the bottom scalebar
+    # first, the line
+    ax.plot((min_bot, max_bot), (-1, -1), lw=0.25, color='black')
+    # then, create the tick marks
+    ticks_bot = np.linspace(min_bot, max_bot, num_ticks_bottom)
+    for i, x in enumerate(ticks_bot):
+        ax.plot((x, x), (-1.0, -3.0), lw=0.25, color='black')
+        # add the labels for each tick mark
+        ax.text(x,
+                -4.0,
+                format_label(step_ticks_bottom*i),
+                horizontalalignment='center',
+                verticalalignment='top',
+                fontname='arial',
+                fontsize=2)
+         # add the units after the last tick mark
+        if x == ticks_bot[0]:
+            spaces = ' ' * (len(format_label(step_ticks_bottom*i))+1)
+            ax.text(x,
+                    -4.0,
+                    spaces + units_bottom,
+                    horizontalalignment='left',
+                    verticalalignment='top',
+                    fontname='arial',
+                    fontsize=2)
+    # set display options so that ticks and labels are appropriately sized
+    ax.set_ylim(-10, 10)
+    ax.set_xlim(both_min * 1.05, both_max * 1.30)
+    ax.axis('off')
+    # calculate units per pixel for top scale bar
+    img_coords_step_bot = fig.dpi_scale_trans.inverted().transform(
+        ax.transData.transform(((ticks_bot[0], 1), (ticks_bot[-1], 1)))) * DPI
+    img_scale_bot = (step_ticks_bottom *
+                     (num_ticks_bottom - 1)) / (img_coords_step_bot[1][0] -
+                                                img_coords_step_bot[0][0])
+    # calculate adjustment factor to resize figure to enforce accurate scale
+    adjust = img_scale_bot / bottom_units_per_pixel
+    fig.set_size_inches(*(fig.get_size_inches() * adjust))
+    img = plt_to_pil_image(fig, dpi=DPI)
+    return img
+
+def plt_to_pil_image(plt_figure, dpi=200):
+    import io
+    from PIL import Image
+    import matplotlib.pyplot as plt
+
+    fig = plt.figure(plt_figure.number)
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png', dpi=dpi)
+    buf.seek(0)
+    pil_image = Image.open(buf)
+    plt.close()
+    return pil_image
+
+################################
 # Helper Functions           ###
 ################################
 
@@ -914,40 +1188,6 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
     img_data = base_image.resize((width, height), Image.ANTIALIAS)
 
     return img_data
-
-def add_scalebar(pil_image, ratio, imperial=True, placement=None, dpi=100):
-    import matplotlib.pyplot as plt
-    # import matplotlib.cbook as cbook
-    from mpl_toolkits.axes_grid1.anchored_artists import AnchoredSizeBar
-    # Trying to work AnchoSizeBar from this example: https://stackoverflow.com/a/45882037/706797
-    (width, height) = pil_image.size
-    figsize = (width/dpi, height/dpi)
-    fig, ax = plt.subplots(figsize=figsize, dpi=dpi)
-    # fig = plt.figure(figsize=figsize, dpi=dpi)
-    image = fig.figimage(pil_image, xo=0, yo=0, origin='upper')
-
-    scalebar = AnchoredSizeBar(ax.transData,
-                               20, '20 m', 'lower center',
-                               pad=0.1,
-                               color='white',
-                               frameon=False,
-                               size_vertical=1,
-                               # fontproperties=fontprops
-                               )
-
-    ax.add_artist(scalebar)
-    ax.set_yticks([])
-    ax.set_xticks([])
-
-    # TODO:
-    # - Test
-    # - Change to PIL Image (or find another way to hand off to be a .png for Rest calls)
-
-    #
-    # from matplotlib_scalebar.scalebar import ScaleBar
-    # # Examples: https://pypi.org/project/matplotlib-scalebar/
-    # scalebar = ScaleBar(ratio)
-
 
 ################################
 # MapBox Munging             ###
