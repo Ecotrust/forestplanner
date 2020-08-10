@@ -381,6 +381,7 @@ def get_property_report(property):
     property.terrain_map_image = map_views.get_terrain_map(property_specs, base_layer=topo_layer, property_layer=property_layer)
     property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
     property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
+    property.scalebar_image = map_views.get_scalebar_image(property_specs, span_ratio=0.75)
 
     property.report_data = get_property_report_data(property, property_specs)
 
