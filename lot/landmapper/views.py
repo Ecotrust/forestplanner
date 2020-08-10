@@ -574,7 +574,7 @@ def create_property(taxlot_ids, property_name, user_id=False):
         lot = Taxlot.objects.get(pk=lot_id)
         if not taxlot_multipolygon:
             taxlot_multipolygon = lot.geometry
-            taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
+            # taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
         else:
             taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
 
