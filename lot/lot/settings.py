@@ -272,6 +272,18 @@ USE_FIA_NN_MATCHING = True
 
 
 # ------------------------------------------------------------------------------
+# Land Owner Tools settings
+# ------------------------------------------------------------------------------
+DOMAIN_ROUTING = {
+    'lot.ecotrust.org': None,
+    'landownertools.ecotrust.org': None,
+    'forestplanner.ecotrust.org': 'forestplanner',
+    'discovery.ecotrust.org': 'discovery',
+    'forestdiscovery.ecotrust.org': 'discovery',
+    'landmapper.ecotrust.org': 'landmapper'
+}
+
+# ------------------------------------------------------------------------------
 # Discovery settings
 # ------------------------------------------------------------------------------
 INSTALLED_APPS += (
@@ -296,6 +308,8 @@ try:
 except ImportError as e:
     print('Failure to find settings file for LandMapper.')
     pass
+
+
 # ------------------------------------------------------------------------------
 # Local settings
 # ------------------------------------------------------------------------------
