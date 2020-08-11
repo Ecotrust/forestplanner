@@ -17,19 +17,16 @@ def unstable_request_wrapper(url, retries=0):
     try:
         contents = urllib.request.urlopen(url)
     except ConnectionError as e:
-        if retries < 10:
+        if retries < 20:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
             contents = unstable_request_wrapper(url, retries+1)
         else:
             print("ERROR: Unable to connect to %s" % url)
             contents = None
     except Exception as e:
-        if retries < 10:
-            print('failed [%d time(s)] to connect to %s' % (retries, url))
-            contents = unstable_request_wrapper(url, retries+1)
-        else:
-            print('failed [%d time(s)] with exception %s' % (retries, url))
-            contents = None
+        print(e)
+        print(url)
+        contents = False
     return contents
 
 def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
@@ -602,8 +599,9 @@ def get_property_by_id(property_id):
     if not property:
         property_dict = parse_property_id(property_id)
         property = create_property(property_dict['taxlot_ids'], property_dict['name'])
-        # Cache for 1 week
-        cache.set('%s' % property_id, property, 60*60*24*7)
+        if not property.report_data['soils']['data'][0][0] == 'Error':
+            # Cache for 1 week
+            cache.set('%s' % property_id, property, 60*60*24*7)
 
     return property
 
@@ -745,12 +743,18 @@ def export_layer(request):
 def get_soils_data(property_specs):
     import requests, json
     from landmapper.fetch import soils_from_nrcs
+
     soil_data = []
 
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
     inSR = 3857
 
-    soils = soils_from_nrcs(bbox, inSR)
+    try:
+        soils = soils_from_nrcs(bbox, inSR)
+    except (UnboundLocalError, AttributeError) as e:
+        soil_data.append(['Error',])
+        soil_data.append(['NRCS Soil data service unavailable. Try again later',])
+        return soil_data
 
     mukeys = []
     for index, row in soils.iterrows():
