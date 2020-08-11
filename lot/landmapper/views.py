@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.conf import settings
 from flatblocks.models import FlatBlock
+from django.contrib.humanize.templatetags import humanize
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -16,6 +17,8 @@ def unstable_request_wrapper(url, retries=0):
     import urllib.request
     try:
         contents = urllib.request.urlopen(url)
+        if retries > 0:
+            print('succeeded to connect after %d tries to %s' % (retries, url))
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
@@ -394,7 +397,7 @@ def get_property_report_data(property, property_specs, taxlots):
     report_pages = ['property', 'aerial', 'street', 'terrain', 'streams','soils','forest_type']
 
     #Property
-    property_data = get_aggregate_property_data(taxlots)
+    property_data = get_aggregate_property_data(property, taxlots)
 
 
     report_data['property'] = {
@@ -452,8 +455,9 @@ def get_property_report_data(property, property_specs, taxlots):
 
     return report_data
 
-def get_aggregate_property_data(taxlots):
+def get_aggregate_property_data(property, taxlots):
     acres = []
+    sq_miles = []
     min_elevation = []
     max_elevation = []
     odf_fpd = []
@@ -481,9 +485,10 @@ def get_aggregate_property_data(taxlots):
 
 
     return [
-        ['Acres', aggregate_sum(acres)],
-        ['Min Elevation', aggregate_min(min_elevation)],
-        ['Max Elevation', aggregate_max(max_elevation)],
+        ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
+        ['Source Sq, Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
+        ['Min Elevation', pretty_print_float(aggregate_min(min_elevation))],
+        ['Max Elevation', pretty_print_float(aggregate_max(max_elevation))],
         ['odf_fpd', aggregate_strings(odf_fpd)],
         ['agency', aggregate_strings(agency)],
         ['orzdesc', aggregate_strings(orzdesc)],
@@ -533,6 +538,25 @@ def aggregate_sum(agg_list):
         if not sum == None:
             sum_total += sum
     return sum_total
+
+def sq_ft_to_acres(sq_ft_val):
+    return sq_ft_val/43560
+
+def sq_ft_to_sq_mi(sq_ft_val):
+    return sq_ft_val/27878400
+
+def pretty_print_float(value):
+    if abs(value) >= 1000000:
+        return humanize.intword(round(value))
+    elif abs(value) >= 1000:
+        return humanize.intcomma(round(value))
+    elif abs(value) >= 100:
+        return str(round(value))
+    elif abs(value) >= 1:
+        return format(value, '.3g')
+    else:
+        return format(value, '.3g')
+
 
 def get_property_specs(property):
     from landmapper.map_layers import views as map_views
