@@ -1,3 +1,4 @@
+import decimal
 from django.shortcuts import render
 from django.conf import settings
 from flatblocks.models import FlatBlock
@@ -543,7 +544,7 @@ def sq_ft_to_sq_mi(sq_ft_val):
     return sq_ft_val/27878400
 
 def pretty_print_float(value):
-    if isinstance(value, (int, float)):
+    if isinstance(value, (int, float, decimal.Decimal)):
         if abs(value) >= 1000000:
             return humanize.intword(round(value))
         elif abs(value) >= 1000:
