@@ -1,6 +1,8 @@
+import decimal
 from django.shortcuts import render
 from django.conf import settings
 from flatblocks.models import FlatBlock
+from django.contrib.humanize.templatetags import humanize
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -16,8 +18,10 @@ def unstable_request_wrapper(url, retries=0):
     import urllib.request
     try:
         contents = urllib.request.urlopen(url)
+        if retries > 0:
+            print('succeeded to connect after %d tries to %s' % (retries, url))
     except ConnectionError as e:
-        if retries < 20:
+        if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
             contents = unstable_request_wrapper(url, retries+1)
         else:
@@ -356,7 +360,7 @@ def report(request, property_id):
 
     return render(request, 'landmapper/report/report.html', context)
 
-def get_property_report(property):
+def get_property_report(property, taxlots):
     # TODO: call this in "property" after creating the object instance
     from landmapper.map_layers import views as map_views
 
@@ -380,11 +384,9 @@ def get_property_report(property):
     property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
     property.scalebar_image = map_views.get_scalebar_image(property_specs, span_ratio=0.75)
 
-    property.report_data = get_property_report_data(property, property_specs)
+    property.report_data = get_property_report_data(property, property_specs, taxlots)
 
-    property.report_pdf = create_report_pdf(property)
-
-def get_property_report_data(property, property_specs):
+def get_property_report_data(property, property_specs, taxlots):
     report_data = {
         # '${report_page_name}': {
         #     'data': [ 2d array, 1 row for each entry, 1 column for each attr, 1st col is name],
@@ -393,15 +395,8 @@ def get_property_report_data(property, property_specs):
     report_pages = ['property', 'aerial', 'street', 'terrain', 'streams','soils','forest_type']
 
     #Property
-    property_data = [
-        ['Acres', property.formatted_area],
-        # ['Legal Description', property.get_legal_description],
-        # ['Structural Fire Disctrict', property.get_strctural_fire_district],
-        # ['Forest Fire Disctrict', property.get_forest_fire_district],
-        # ['Watershed Name', property.get_watershed_name],
-        # ['Watershed #', property.get_watershed_number],
-        # ['Zoning', property.get_zoning],
-    ]
+    property_data = get_aggregate_property_data(property, taxlots)
+
 
     report_data['property'] = {
         'data': property_data,
@@ -457,6 +452,112 @@ def get_property_report_data(property, property_specs):
     }
 
     return report_data
+
+def get_aggregate_property_data(property, taxlots):
+    acres = []
+    sq_miles = []
+    min_elevation = []
+    max_elevation = []
+    odf_fpd = []
+    agency = []
+    orzdesc = []
+    huc12 = []
+    name = []
+    twnshpno = []
+    rangeno = []
+    frstdivno = []
+    # mean_elevation = []
+
+    for taxlot in taxlots:
+        acres.append(taxlot.acres)
+        min_elevation.append(taxlot.elev_min_1)
+        max_elevation.append(taxlot.elev_max_1)
+        odf_fpd.append(taxlot.odf_fpd)
+        agency.append(taxlot.agency)
+        orzdesc.append(taxlot.orzdesc)
+        huc12.append(taxlot.huc12)
+        name.append(taxlot.name)
+        twnshpno.append(taxlot.twnshpno)
+        rangeno.append(taxlot.rangeno)
+        frstdivno.append(taxlot.frstdivno)
+
+    return [
+        ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
+        ['Square Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
+        ['Min Elevation', pretty_print_float(aggregate_min(min_elevation))],
+        ['Max Elevation', pretty_print_float(aggregate_max(max_elevation))],
+        ['Legal Description', aggregate_strings(orzdesc)],
+        ['Structural Fire Disctrict', aggregate_strings(agency)],
+        ['Forest Fire District', aggregate_strings(odf_fpd)],
+        ['Region', aggregate_strings(name)],
+        ['Watershed (HUC)', aggregate_strings(huc12)],
+        # ['twnshpno', aggregate_strings(twnshpno)],
+        # ['rangeno', aggregate_strings(rangeno)],
+        # ['frstdivno', aggregate_strings(frstdivno)],
+    ]
+
+def aggregate_strings(agg_list):
+    agg_list = [x for x in agg_list if not x == None]
+    out_str = '; '.join(list(dict.fromkeys(agg_list)))
+    if len(out_str) == 0:
+        out_str = "None"
+    return out_str
+
+def aggregate_min(agg_list):
+    out_min = None
+    for min in agg_list:
+        if out_min == None:
+            out_min = min
+        if min:
+            if min < out_min:
+                out_min = min
+    return out_min
+
+def aggregate_max(agg_list):
+    out_max = None
+    for max in agg_list:
+        if out_max == None:
+            out_max = max
+        if max:
+            if max > out_max:
+                out_max = max
+    return out_max
+
+def aggregate_mean(agg_list):
+    mean_sum = 0
+    for mean in agg_list:
+        if not mean == None:
+            mean_sum += mean
+    return mean_sum/len(agg_list)
+
+def aggregate_sum(agg_list):
+    sum_total = 0
+    for sum in agg_list:
+        if not sum == None:
+            sum_total += sum
+    return sum_total
+
+def sq_ft_to_acres(sq_ft_val):
+    return sq_ft_val/43560
+
+def sq_ft_to_sq_mi(sq_ft_val):
+    return sq_ft_val/27878400
+
+def pretty_print_float(value):
+    if isinstance(value, (int, float, decimal.Decimal)):
+        if abs(value) >= 1000000:
+            return humanize.intword(round(value))
+        elif abs(value) >= 1000:
+            return humanize.intcomma(round(value))
+        elif abs(value) >= 100:
+            return str(round(value))
+        elif abs(value) >= 1:
+            return format(value, '.3g')
+        else:
+            return format(value, '.3g')
+    else:
+        return str(value)
+
 
 def get_property_specs(property):
     from landmapper.map_layers import views as map_views
@@ -572,8 +673,10 @@ def create_property(taxlot_ids, property_name, user_id=False):
     # taxlot_geometry = {}
     taxlot_multipolygon = False
 
-    for lot_id in taxlot_ids:
-        lot = Taxlot.objects.get(pk=lot_id)
+    taxlots = Taxlot.objects.filter(pk__in=taxlot_ids)
+
+    for lot in taxlots:
+        # lot = Taxlot.objects.get(pk=lot_id)
         if not taxlot_multipolygon:
             taxlot_multipolygon = lot.geometry
             # taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
@@ -588,7 +691,7 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     property = Property(user=user, geometry_orig=taxlot_multipolygon, name=property_name)
 
-    get_property_report(property)
+    get_property_report(property, taxlots)
 
     return property
 
@@ -781,7 +884,6 @@ def export_layer(request):
 def get_soils_data(property_specs):
     import requests, json
     from landmapper.fetch import soils_from_nrcs
-
     soil_data = []
 
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
@@ -793,6 +895,7 @@ def get_soils_data(property_specs):
         soil_data.append(['Error',])
         soil_data.append(['NRCS Soil data service unavailable. Try again later',])
         return soil_data
+
 
     mukeys = []
     for index, row in soils.iterrows():

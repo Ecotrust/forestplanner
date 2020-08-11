@@ -1,0 +1,20 @@
+{
+  "shape_leng": "shape_leng",
+  "shape_area": "shape_area",
+  "acres": "acres",
+  "ODF_FPD": "odf_fpd",
+  "Agency": "agency",
+  "orZDesc": "or_z_desc",
+  "HUC12": "watershed_huc12",
+  "Name": "name",
+  "TWNSHPNO": "township_id",
+  "RANGENO": "range_id",
+  "FRSTDIVNO": "forest_div_id",
+  "ele_mean": "mean_elevation",
+  "ele_min": "min_elevation",
+  "ele_max": "max_elevation",
+  "elev_min": "elev_min",
+  "elev_max": "elev_max",
+  "elev_min_1": "elev_min_1",
+  "elev_max_1": "elev_max_1"
+}

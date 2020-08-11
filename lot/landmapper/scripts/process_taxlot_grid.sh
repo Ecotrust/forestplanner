@@ -6,9 +6,12 @@
 thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
-WORKING_DIR="/usr/local/apps/marineplanner-core/apps/landmapper/data"
-SHP="$WORKING_DIR/ORtaxlot_allCounties.shp"
-FINAL="$WORKING_DIR/OR_TAXLOTS.sql"
+WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/2020_OR_taxlot_data"
+SHP="$WORKING_DIR/taxlot_att.shp"
+FINAL="$WORKING_DIR/OR_TAXLOTS_2020.sql"
+
+SRID=3857
+table_name='landmapper_taxlot'
 
 ################################################################################
 # Probably no need to touch anything below here
@@ -32,8 +35,8 @@ VALIDATE="python $thisdir/validate_fields.py"
 # export shp to dump format sql
 # -d option handles dropping table before creation
 # -g option specifies geometry column name
-shp2pgsql -d -D -s 3857 -i -I -W LATIN1 \
-    -g geometry $SHP public.landmapper_taxlot > $TMP
+shp2pgsql -d -D -s $SRID -i -I -W LATIN1 \
+    -g geometry $SHP public.$table_name > $TMP
 
 # Replace gid with id
 sed -i 's/gid serial/id serial/' $TMP
@@ -46,9 +49,9 @@ $TRANSLATE $TMP $FIELDMAP > $FINAL
 cat << EOT >> $FINAL
 
 BEGIN;
-SELECT AddGeometryColumn('public','landmapper_taxlot','centroid','3857','POINT',2);
-UPDATE "public"."landmapper_taxlot" SET "centroid" = ST_Centroid("geometry");
-CREATE INDEX ON "public"."landmapper_taxlot" USING GIST ("centroid");
+SELECT AddGeometryColumn('public','$table_name','centroid','$SRID','POINT',2);
+UPDATE "public"."$table_name" SET "centroid" = ST_Centroid("geometry");
+CREATE INDEX ON "public"."$table_name" USING GIST ("centroid");
 COMMIT;
 EOT
 

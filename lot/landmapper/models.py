@@ -54,6 +54,39 @@ class Taxlot(models.Model):
         verbose_name_plural = 'Taxlots'
         app_label = 'landmapper'
 
+    # acres
+    acres = models.FloatField(null=True, blank=True)
+    # ODF_FPD
+    odf_fpd = models.CharField(max_length=25, null=True, blank=True, default=None)
+    # Agency
+    agency = models.CharField(max_length=100, null=True, blank=True, default=None)
+    # orZDesc - "Elevation?"
+    orzdesc = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # HUC12 - "Watershed"
+    huc12 = models.CharField(max_length=12, null=True, blank=True, default=None)
+    # Name
+    name = models.CharField(max_length=120, null=True, blank=True, default=None)
+    # TWNSHPNO
+    twnshpno = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # RANGENO
+    rangeno = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # FRSTDIVNO
+    frstdivno = models.CharField(max_length=10, null=True, blank=True, default=None)
+    # ele_mean
+    mean_elevation = models.FloatField(null=True, blank=True, default=None)
+    # ele_min
+    min_elevation = models.FloatField(null=True, blank=True, default=None)
+    # ele_max
+    max_elevation = models.FloatField(null=True, blank=True, default=None)
+    # elev_min
+    elev_min = models.FloatField(null=True, blank=True, default=None)
+    # elev_max
+    elev_max = models.FloatField(null=True, blank=True, default=None)
+    # elev_min_1
+    elev_min_1 = models.FloatField(null=True, blank=True, default=None)
+    # elev_max_1
+    elev_max_1 = models.FloatField(null=True, blank=True, default=None)
+
     shape_leng = models.FloatField(null=True, blank=True)
     shape_area = models.FloatField(null=True, blank=True)
 

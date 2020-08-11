@@ -287,6 +287,9 @@ except ImportError as e:
 
 
 # LandMapper settings
+INSTALLED_APPS += (
+    'django.contrib.humanize',
+)
 
 try:
     from landmapper.settings import *

@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./", "/usr/local/apps/forestplanner"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "1024"
+    vb.memory = "2048"
   end
 
   # Enable provisioning with a shell script. Additional provisioners such as
