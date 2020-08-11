@@ -20,7 +20,7 @@ def unstable_request_wrapper(url, retries=0):
         if retries > 0:
             print('succeeded to connect after %d tries to %s' % (retries, url))
     except ConnectionError as e:
-        if retries < 20:
+        if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
             contents = unstable_request_wrapper(url, retries+1)
         else:
@@ -480,20 +480,19 @@ def get_aggregate_property_data(property, taxlots):
         rangeno.append(taxlot.rangeno)
         frstdivno.append(taxlot.frstdivno)
 
-
     return [
         ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
-        ['Source Sq, Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
+        ['Square Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
         ['Min Elevation', pretty_print_float(aggregate_min(min_elevation))],
         ['Max Elevation', pretty_print_float(aggregate_max(max_elevation))],
-        ['odf_fpd', aggregate_strings(odf_fpd)],
-        ['agency', aggregate_strings(agency)],
-        ['orzdesc', aggregate_strings(orzdesc)],
-        ['Watershed #', aggregate_strings(huc12)],
-        ['name', aggregate_strings(name)],
-        ['twnshpno', aggregate_strings(twnshpno)],
-        ['rangeno', aggregate_strings(rangeno)],
-        ['frstdivno', aggregate_strings(frstdivno)],
+        ['Legal Description', aggregate_strings(orzdesc)],
+        ['Structural Fire Disctrict', aggregate_strings(agency)],
+        ['Forest Fire District', aggregate_strings(odf_fpd)],
+        ['Region', aggregate_strings(name)],
+        ['Watershed (HUC)', aggregate_strings(huc12)],
+        # ['twnshpno', aggregate_strings(twnshpno)],
+        # ['rangeno', aggregate_strings(rangeno)],
+        # ['frstdivno', aggregate_strings(frstdivno)],
     ]
 
 def aggregate_strings(agg_list):
@@ -501,6 +500,7 @@ def aggregate_strings(agg_list):
     out_str = '; '.join(list(dict.fromkeys(agg_list)))
     if len(out_str) == 0:
         out_str = "None"
+    return out_str
 
 def aggregate_min(agg_list):
     out_min = None
@@ -543,16 +543,19 @@ def sq_ft_to_sq_mi(sq_ft_val):
     return sq_ft_val/27878400
 
 def pretty_print_float(value):
-    if abs(value) >= 1000000:
-        return humanize.intword(round(value))
-    elif abs(value) >= 1000:
-        return humanize.intcomma(round(value))
-    elif abs(value) >= 100:
-        return str(round(value))
-    elif abs(value) >= 1:
-        return format(value, '.3g')
+    if isinstance(value, (int, float)):
+        if abs(value) >= 1000000:
+            return humanize.intword(round(value))
+        elif abs(value) >= 1000:
+            return humanize.intcomma(round(value))
+        elif abs(value) >= 100:
+            return str(round(value))
+        elif abs(value) >= 1:
+            return format(value, '.3g')
+        else:
+            return format(value, '.3g')
     else:
-        return format(value, '.3g')
+        return str(value)
 
 
 def get_property_specs(property):
@@ -844,7 +847,6 @@ def export_layer(request):
 def get_soils_data(property_specs):
     import requests, json
     from landmapper.fetch import soils_from_nrcs
-
     soil_data = []
 
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
@@ -856,6 +858,7 @@ def get_soils_data(property_specs):
         soil_data.append(['Error',])
         soil_data.append(['NRCS Soil data service unavailable. Try again later',])
         return soil_data
+
 
     mukeys = []
     for index, row in soils.iterrows():
