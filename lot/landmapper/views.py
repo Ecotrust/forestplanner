@@ -742,8 +742,9 @@ def create_report_pdf(property):
 
     rendered_pdf = template_pdf({
         'date': '07/17/20',
-        'propName': property['name'],
-        'acres' : property['report_data']['property']['acres'],
+        'propName': property.name,
+        # 'acres' : property.report_data['property']['data'][0]['acres'],
+        'acres' : '100',
         'elevation' : '130 ft',
         'legalDesc' : 'Section 4, Township 4S',
         'structFire' : 'Answer',
