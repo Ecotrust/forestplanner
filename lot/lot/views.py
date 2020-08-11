@@ -1,8 +1,6 @@
 from django.conf import settings
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-# from landmapper.urls import home as landmapper_home
-
 
 def lot_landing_page(request):
     '''
