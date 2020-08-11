@@ -6,6 +6,10 @@
     <link rel="stylesheet" href="{% static 'landmapper/css/report.css' %}">
 {% endblock styles %}
 
+{% block extra_head_scripts %}
+    <script src="{% static 'landmapper/js/report.js' %}"></script>
+{% endblock extra_head_scripts %}
+
 {% block content %}
     <section id="section-property" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
