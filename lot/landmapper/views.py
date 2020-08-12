@@ -731,8 +731,21 @@ def get_property_map_image(request, property_id, map_type):
         image = property.terrain_map_image
     else:
         image = None
+
     response = HttpResponse(content_type="image/png")
     image.save(response, 'PNG')
+
+    return response
+
+def get_scalebar_image(request, property_id):
+    from django.http import HttpResponse
+    from PIL import Image
+
+    property = get_property_by_id(property_id)
+    image = property.scalebar_image
+    response = HttpResponse(content_type="image/png")
+    image.save(response, 'PNG')
+
     return response
 
 def get_menu_page(name):
@@ -747,12 +760,12 @@ def get_menu_page(name):
 
     '''
     from landmapper.models import MenuPage
+
     page = MenuPage.objects.get(name=name)
     if not page:
         page = None
 
     return page
-
 
 def create_street_report(request):
     '''

@@ -35,7 +35,7 @@
                     <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
                 </div>
 
-                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary">Download all maps</button>
+                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary">Download all maps</a>
                 <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share maps</button>
             </aside>
         </div>
@@ -54,7 +54,7 @@
 
                 <img src="{{ property_report.aerial.legend }}" />
 
-                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary">Download map</button>
+                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary">Download map</a>
                 <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share map</button>
             </aside>
         </div>
@@ -64,7 +64,8 @@
         <div class="col-12 row no-gutters">
             <div class="col-md-6">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/street/map">
+                    <img src="/landmapper/report/{{ property_id }}/street/map" />
+                    <img src="/landmapper/report/{{ property_id }}/scalebar" />
                 </section>
             </div>
             <aside class="col-md-6 content-panel">
