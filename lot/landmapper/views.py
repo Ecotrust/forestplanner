@@ -828,13 +828,13 @@ def create_soil_report(request):
     return render(request, 'landmapper/base.html', {})
 
 def get_property_pdf(request, property_id):
-    from django.http import HttpResponse
+    from django.http import HttpResponse, HttpResponseRedirect
 
     property = get_property_by_id(property_id)
     report_pdf = create_report_pdf(property)
 
-    response = HttpResponse(content_type="application/pdf")
-    report_pdf.save(response, 'PDF')
+    response = HttpResponseRedirect(report_pdf)
+    
     return response
 
 def create_report_pdf(property):
@@ -851,28 +851,32 @@ def create_report_pdf(property):
     USES:
         CreateAerialReport, CreateStreetReport, CreateTerrainReport, CreateStreamsReport, CreateForestTypeReport, CreateSoilReport
     '''
+    import os
     from pdfjinja import PdfJinja
 
     template_pdf_file = settings.REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
 
     rendered_pdf = template_pdf({
-        'date': '07/17/20',
-        'propName': property.name,
+        'date_1': '07/17/20',
+        'date_2': '07/17/20',
+        'property_name': property.name,
         # 'acres' : property.report_data['property']['data'][0]['acres'],
         'acres' : '100',
         'elevation' : '130 ft',
-        'legalDesc' : 'Section 4, Township 4S',
-        'structFire' : 'Answer',
-        'forestFire' : 'Answer',
-        'wsName' : 'Watershed Name',
-        'wsNum' : '12345678910',
-        'zone' : 'Zone Type',
-        'introAerial': property.aerial_map_image,
-        'aerial' :  property.aerial_map_image,
-        'county' : 'Jackson County',
-        'sbAerial' :  property.scalebar_image,
+        'legald_description' : 'Section 4, Township 4S',
+        'struct_fire_district' : 'Answer',
+        'forest_fire_district' : 'Answer',
+        'watershed_name' : 'Watershed Name',
+        'watershed_number' : '12345678910',
+        'zoning' : 'Zone Type',
+        'aerial_1': 'get_property_map_image',
+        'aerial_2' :  'property.aerial_map_image',
+        'county_name' : 'Jackson County',
+        # 'scale_bar' :  property.scalebar_image,
+        'scalebar' :  'property.aerial_map_image'
     })
+
     rendered_pdf_name = property.name + '.pdf'
     output_file = os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name)
     rendered_pdf.write(open(output_file, 'wb'))

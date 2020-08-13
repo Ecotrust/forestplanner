@@ -485,7 +485,7 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-REPORT_PDF_TEMPLATE = os.path.join(LANDMAPPER_DIR, 'templates/landmapper/report/LM_form.pdf')
+REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form.pdf'
 REPORT_PDF_DIR = os.path.join(LANDMAPPER_DIR, 'report_pdf')
 
 try:
