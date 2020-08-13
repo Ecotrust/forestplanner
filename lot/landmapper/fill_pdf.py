@@ -24,6 +24,15 @@ def fill_pdf(pdf_template, fields_to_fill, outfile):
     ------
     FileNotFoundError
       if output file is not generated
+
+    Dependancies
+    ------------
+    install pdftk
+    sudo snap install pdftk
+
+    Create a symlink for pdftk
+    sudo ln -s /snap/pdftk/current/usr/bin/pdftk /usr/bin/pdftk
+
     """
     template = PdfJinja(pdf_template)
     filled = template(fields_to_fill)
