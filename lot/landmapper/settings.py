@@ -61,7 +61,7 @@ REPORT_MAP_MIN_BUFFER = 0.1
 ###########################################
 ##      Properties                      ###
 ###########################################
-PROPERTY_OUTLINE_COLOR = (255,255,0,255)
+PROPERTY_OUTLINE_COLOR = (255,0,255,255)
 PROPERTY_OUTLINE_WIDTH = 3
 
 
