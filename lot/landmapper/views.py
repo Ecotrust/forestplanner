@@ -827,17 +827,38 @@ def create_soil_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+def create_property_pdf_cache_id(property_id):
+    property_pdf_id = property_id + '_pdf'
+    return property_pdf_id
+
+def get_property_pdf_by_id(property_id):
+    from django.core.cache import cache
+    from django.contrib.sites import shortcuts
+
+    property_pdf_id = create_property_pdf_cache_id(property_id)
+    property_pdf = cache.get('%s' % property_pdf_id)
+
+    if not property_pdf:
+        property = get_property_by_id(property_id)
+        property_pdf = create_property_pdf(property)
+        if property_pdf:
+            cache.set('%s' % property_pdf_id, property_pdf, 60*60*24*7)
+
+    return property_pdf
+
 def get_property_pdf(request, property_id):
     from django.http import HttpResponse, HttpResponseRedirect
+    from django.core.cache import cache
+    from django.contrib.sites import shortcuts
 
-    property = get_property_by_id(property_id)
-    report_pdf = create_report_pdf(property)
+    property_pdf = get_property_pdf_by_id(property_id)
 
-    response = HttpResponseRedirect(report_pdf)
-    
+    response = HttpResponse(report_pdf, content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
+
     return response
 
-def create_report_pdf(property):
+def create_property_pdf(property):
     '''
     (called on request for download map, cached)
     IN:
@@ -878,10 +899,17 @@ def create_report_pdf(property):
     })
 
     rendered_pdf_name = property.name + '.pdf'
-    output_file = os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name)
-    rendered_pdf.write(open(output_file, 'wb'))
 
-    return output_file
+    if not os.path.exists(settings.REPORT_PDF_DIR):
+        os.makedirs(settings.REPORT_PDF_DIR)
+
+    rendered_pdf.write(open(os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name), 'wb'))
+    output_file_location = os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name)
+
+    return {
+        'rendered_pdf': rendered_pdf,
+        'output_file_location': output_file_location,
+    }
 
 def export_layer(request):
     '''
