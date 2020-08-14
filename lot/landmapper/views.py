@@ -853,7 +853,7 @@ def get_property_pdf(request, property_id):
 
     property_pdf = get_property_pdf_by_id(property_id)
 
-    response = HttpResponse(report_pdf, content_type='application/pdf')
+    response = HttpResponse(property_pdf, content_type='application/pdf')
     response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
 
     return response
