@@ -13,12 +13,15 @@
 {% block content %}
     <section id="section-property" class="section-report map-wrap">
         <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+            <div class="col-7">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/property/map">
+                    <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-5 content-panel">
                 <h2>Your property</h2>
                 <h1>{{ property_name }}</h1>
 
@@ -41,18 +44,23 @@
         </div>
     </section>
 
-    <section id="section-aerial" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+    <section id="section-aerial" class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
+            <div class="col">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/aerial/map">
+                    <img src="/landmapper/report/{{ property_id }}/aerial/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Aerial Photo</h1>
                 <h3>{{ property_name }}</h3>
 
-                <img src="{{ property_report.aerial.legend }}" />
+                <div class="legend-wrap">
+                    <img src="{{ property_report.aerial.legend }}" />
+                </div>
 
                 <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download map</a>
                 <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share map</button>
@@ -60,73 +68,92 @@
         </div>
     </section>
 
-    <section id="section-street" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+    <section id="section-street" class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
+            <div class="col">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/street/map" />
-                    <img src="/landmapper/report/{{ property_id }}/scalebar" />
+                    <img src="/landmapper/report/{{ property_id }}/street/map" class="property-map-image" />
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Street Map</h1>
                 <h3>{{ property_name }}</h3>
 
-                <img src="{{ property_report.street.legend }}" />
+                <div class="legend-wrap">
+                    <img src="{{ property_report.street.legend }}" />
+                </div>
             </aside>
         </div>
     </section>
 
-    <section id="section-terrain" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+    <section id="section-terrain" class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
+            <div class="col">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/terrain/map">
+                    <img src="/landmapper/report/{{ property_id }}/terrain/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Terrain Map</h1>
                 <h3>{{ property_name }}</h3>
 
-                <img src="{{ property_report.terrain.legend }}" />
+                <div class="legend-wrap">
+                    <img src="{{ property_report.terrain.legend }}" />
+                </div>
             </aside>
         </div>
     </section>
 
-    <section id="section-streams" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+    <section id="section-streams" class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
+            <div class="col">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/stream/map">
+                    <img src="/landmapper/report/{{ property_id }}/stream/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Streams Map</h1>
                 <h3>{{ property_name }}</h3>
 
-                <img src="{{ property_report.stream.legend }}" />
+                <div class="legend-wrap">
+                    <img src="{{ property_report.stream.legend }}" />
+                </div>
             </aside>
         </div>
     </section>
 
-    <section id="section-soil-types" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-md-6">
+    <section id="section-soil-types" class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
+            <div class="col">
                 <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/soil_types/map">
+                    <img src="/landmapper/report/{{ property_id }}/soil_types/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                    </div>
                 </section>
             </div>
-            <aside class="col-md-6 content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Soil Types Map</h1>
                 <h3>{{ property_name }}</h3>
 
-                <img src="{{ property_report.soils.legend }}" />
+                <div class="legend-wrap">
+                    <img src="{{ property_report.soils.legend }}" />
+                </div>
             </aside>
         </div>
     </section>
 
-    <section class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
+    <section class="section-report map-wrap row no-gutters">
+        <div class="col-12 d-flex no-gutters">
             <div class="content-panel">
                 <h1>Soil Type Table</h1>
                 <h3>{{ property_name }}</h3>

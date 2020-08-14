@@ -827,7 +827,7 @@ def create_soil_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-def create_property_pdf_cache_id(property_id):
+def create_property_pdf_id(property_id):
     property_pdf_id = property_id + '_pdf'
     return property_pdf_id
 
@@ -835,7 +835,7 @@ def get_property_pdf_by_id(property_id):
     from django.core.cache import cache
     from django.contrib.sites import shortcuts
 
-    property_pdf_id = create_property_pdf_cache_id(property_id)
+    property_pdf_id = create_property_pdf_id(property_id)
     property_pdf = cache.get('%s' % property_pdf_id)
 
     if not property_pdf:
@@ -850,32 +850,51 @@ def get_property_pdf(request, property_id):
     from django.http import HttpResponse, HttpResponseRedirect
     from django.core.cache import cache
     from django.contrib.sites import shortcuts
+    from django.core.files.storage import FileSystemStorage
+    from django.http import HttpResponse, HttpResponseNotFound
 
     property_pdf = get_property_pdf_by_id(property_id)
 
-    response = HttpResponse(property_pdf, content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
+    # fp = NamedTemporaryFile()
+    # try:
+    #     data_content = rendered_pdf.read()
+    # except AttributeError as e:
+    #     data_content = rendered_pdf
+    # if data_content:
+    #     fp.write(data_content)
+
+    fs = FileSystemStorage()
+    filename = property_pdf
+    if fs.exists(filename):
+        with fs.open(filename) as pdf:
+            response = HttpResponse(pdf, content_type='application/pdf')
+            response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
+            return response
+    else:
+        return HttpResponseNotFound('The requested pdf was not found in our server.')
+
+    # response = HttpResponse(property_pdf, content_type='application/pdf')
+    # response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
 
     return response
 
 def create_property_pdf(property):
     '''
-    (called on request for download map, cached)
-    IN:
-        Map ID (default: 'all', options: 'all', 'aerial', 'street', 'terrain', 'streams','forest','soil')
-        property (from CreateProperty)
-    OUT:
-        PDF file
-    NOTES:
-        Leverage Template(s) from Report?
-        Cache?
-    USES:
-        CreateAerialReport, CreateStreetReport, CreateTerrainReport, CreateStreamsReport, CreateForestTypeReport, CreateSoilReport
+    HOW TO CREATE PDFs
+    ----------
+    template_pdf_file : str
+        path to path to the template PDF
+    rendered_pdf : function (dict)
+        dict - fields to populate and the values to populate them with
+        function - uses pdfjinja to crete pdf
+    output_file_location : str, path to file
+        path to the PDF output file that will be generated
     '''
     import os
     from pdfjinja import PdfJinja
+    from tempfile import NamedTemporaryFile
 
-    template_pdf_file = settings.REPORT_PDF_TEMPLATE
+    template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
 
     rendered_pdf = template_pdf({
@@ -900,16 +919,21 @@ def create_property_pdf(property):
 
     rendered_pdf_name = property.name + '.pdf'
 
-    if not os.path.exists(settings.REPORT_PDF_DIR):
-        os.makedirs(settings.REPORT_PDF_DIR)
+    output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
 
-    rendered_pdf.write(open(os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name), 'wb'))
-    output_file_location = os.path.join(settings.REPORT_PDF_DIR, rendered_pdf_name)
+    rendered_pdf.write(open(output_pdf, 'wb'))
 
-    return {
-        'rendered_pdf': rendered_pdf,
-        'output_file_location': output_file_location,
-    }
+    if os.path.exists(output_pdf):
+        return output_pdf
+    else:
+        return rendered_pdf
+        # raise FileNotFoundError('Failed to produce output file.')
+
+    # return output_file_location
+    # return {
+    #     'rendered_pdf': rendered_pdf,
+    #     'output_file_location': output_file_location,
+    # }
 
 def export_layer(request):
     '''
