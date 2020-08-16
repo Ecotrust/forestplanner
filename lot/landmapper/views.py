@@ -852,26 +852,22 @@ def get_property_pdf(request, property_id):
     from django.contrib.sites import shortcuts
     from django.core.files.storage import FileSystemStorage
     from django.http import HttpResponse, HttpResponseNotFound
+    import io
+    from django.http import FileResponse
 
     property_pdf = get_property_pdf_by_id(property_id)
+    # property_pdf.seek(0)
+    return FileResponse(property_pdf, as_attachment=True, filename='my_property.pdf')
 
-    # fp = NamedTemporaryFile()
-    # try:
-    #     data_content = rendered_pdf.read()
-    # except AttributeError as e:
-    #     data_content = rendered_pdf
-    # if data_content:
-    #     fp.write(data_content)
-
-    fs = FileSystemStorage()
-    filename = property_pdf
-    if fs.exists(filename):
-        with fs.open(filename) as pdf:
-            response = HttpResponse(pdf, content_type='application/pdf')
-            response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
-            return response
-    else:
-        return HttpResponseNotFound('The requested pdf was not found in our server.')
+    # fs = FileSystemStorage()
+    # filename = property_pdf
+    # if fs.exists(filename):
+    #     with fs.open(filename) as pdf:
+    #         response = HttpResponse(pdf, content_type='application/pdf')
+    #         response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
+    #         return response
+    # else:
+    #     return HttpResponseNotFound('The requested pdf was not found in our server.')
 
     # response = HttpResponse(property_pdf, content_type='application/pdf')
     # response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
@@ -891,8 +887,8 @@ def create_property_pdf(property):
         path to the PDF output file that will be generated
     '''
     import os
+    import io
     from pdfjinja import PdfJinja
-    from tempfile import NamedTemporaryFile
 
     template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
@@ -917,17 +913,44 @@ def create_property_pdf(property):
         'scalebar' :  'property.aerial_map_image'
     })
 
-    rendered_pdf_name = property.name + '.pdf'
+    buffer = io.BytesIO()
+    # output = pyPdf.PdfFileWriter()
 
-    output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
+    # pdfOne = pyPdf.PdfFileReader(file(pdfOne, "rb"))
+    # for page in range(pdfOne.getNumPages()):
+        # output.addPage(pdfOne.getPage(page))
 
-    rendered_pdf.write(open(output_pdf, 'wb'))
+    rendered_pdf.write(buffer)
+    # import ipdb; ipdb.set_trace()
+    # buffer.seek(0)
+    return buffer
 
-    if os.path.exists(output_pdf):
-        return output_pdf
-    else:
-        return rendered_pdf
+    # rendered_pdf_name = property.name + '.pdf'
+
+    # write pdf into string.io Buffer
+    # return string.io Buffer
+    # may need to set seek to 0
+
+    # merge landmapper
+    # push to disco
+
+    # if not os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
+        # os.makedirs(settings.PROPERTY_REPORT_PDF_DIR)
+
+    # output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
+
+    # if os.path.exists(output_pdf):
+        # return output_pdf
+    # else:
         # raise FileNotFoundError('Failed to produce output file.')
+
+    # fp = NamedTemporaryFile()
+    # try:
+    #     data_content = rendered_pdf.read()
+    # except AttributeError as e:
+    #     data_content = rendered_pdf
+    # if data_content:
+    #     fp.write(data_content)
 
     # return output_file_location
     # return {
