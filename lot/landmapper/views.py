@@ -458,6 +458,7 @@ def get_aggregate_property_data(property, taxlots):
     sq_miles = []
     min_elevation = []
     max_elevation = []
+    legal = []
     odf_fpd = []
     agency = []
     orzdesc = []
@@ -472,25 +473,27 @@ def get_aggregate_property_data(property, taxlots):
         acres.append(taxlot.acres)
         min_elevation.append(taxlot.elev_min_1)
         max_elevation.append(taxlot.elev_max_1)
-        odf_fpd.append(taxlot.odf_fpd)
+        legal.append("Section %s, Township %s, Range %s" % (taxlot.frstdivno, taxlot.twnshpno, taxlot.rangeno))
         agency.append(taxlot.agency)
-        orzdesc.append(taxlot.orzdesc)
-        huc12.append(taxlot.huc12)
+        odf_fpd.append(taxlot.odf_fpd)
         name.append(taxlot.name)
-        twnshpno.append(taxlot.twnshpno)
-        rangeno.append(taxlot.rangeno)
-        frstdivno.append(taxlot.frstdivno)
+        huc12.append(taxlot.huc12)
+        orzdesc.append(taxlot.orzdesc)
+        # twnshpno.append(taxlot.twnshpno)
+        # rangeno.append(taxlot.rangeno)
+        # frstdivno.append(taxlot.frstdivno)
 
     return [
         ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
         ['Square Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
         ['Min Elevation', pretty_print_float(aggregate_min(min_elevation))],
         ['Max Elevation', pretty_print_float(aggregate_max(max_elevation))],
-        ['Legal Description', aggregate_strings(orzdesc)],
+        ['Legal Description', aggregate_strings(legal)],
         ['Structural Fire Disctrict', aggregate_strings(agency)],
         ['Forest Fire District', aggregate_strings(odf_fpd)],
-        ['Region', aggregate_strings(name)],
+        ['Watershed', aggregate_strings(name)],
         ['Watershed (HUC)', aggregate_strings(huc12)],
+        ['Zoning', aggregate_strings(orzdesc)]
         # ['twnshpno', aggregate_strings(twnshpno)],
         # ['rangeno', aggregate_strings(rangeno)],
         # ['frstdivno', aggregate_strings(frstdivno)],
