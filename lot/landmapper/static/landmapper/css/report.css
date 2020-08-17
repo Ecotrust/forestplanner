@@ -19,9 +19,17 @@
   position: relative;
 }
 
+#section-property .property-map-image {
+  min-height: auto;
+  min-width: auto;
+}
+
+
 @media screen and (min-width: 980px) {
-  #section-property {
-    max-height: 722px;
+  #section-property .property-map-image {
+    /* max-height: 722px; */
+    height: 100%;
+    width: 100%;
   }
 
   #section-property .section-flex-wrap {
@@ -66,6 +74,7 @@
 
 .section-report .content-panel {
   padding-left: 3vh;
+  min-width: 340px;
 }
 
 .anchor-links {
@@ -88,10 +97,11 @@
 
 .legend-wrap {
   margin-top: 3vh;
+  margin-left: -1.5vh;
 }
 
 .legend-wrap img {
-  width: 300px;
+  width: 320px;
 }
 
 .scalebar {

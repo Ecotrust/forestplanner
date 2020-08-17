@@ -486,7 +486,7 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ##      PDF Files                       ###
 ###########################################
 PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form.pdf'
-PROPERTY_REPORT_PDF_DIR = '/static/landmapper/report_pdf/'
+PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
 
 try:
     from .local_settings import *

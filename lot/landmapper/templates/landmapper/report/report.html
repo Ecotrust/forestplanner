@@ -7,12 +7,12 @@
 {% endblock styles %}
 
 {% block extra_head_scripts %}
-    <script src="{% static 'landmapper/js/report.js' %}"></script>
+
 {% endblock extra_head_scripts %}
 
 {% block content %}
     <section id="section-property" class="section-report map-wrap row no-gutters">
-        <div class="d-flex no-gutters align-items-stretch justify-content-center section-flex-wrap">
+        <div class="d-flex no-gutters align-items-start justify-content-center section-flex-wrap">
             <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
             <div class="scalebar-wrap">
                 <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
@@ -35,7 +35,7 @@
                 </div>
 
                 <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download all maps</a>
-                <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share maps</button>
+                <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share maps</button>
             </aside>
         </div>
     </section>
@@ -60,7 +60,7 @@
 
                 <div class="button-wrap">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
-                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                    <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </aside>
         </div>
@@ -86,7 +86,7 @@
 
                 <div class="button-wrap">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
-                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                    <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </aside>
         </div>
@@ -112,7 +112,7 @@
 
                 <div class="button-wrap">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
-                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                    <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </aside>
         </div>
@@ -133,12 +133,12 @@
                 <h3>{{ property_name }}</h3>
 
                 <div class="legend-wrap">
-                    <img src="{{ property_report.stream.legend }}" />
+                    <img src="{{ property_report.streams.legend }}" />
                 </div>
 
                 <div class="button-wrap">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
-                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                    <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </aside>
         </div>
@@ -164,7 +164,7 @@
 
                 <div class="button-wrap">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
-                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                    <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </aside>
         </div>
@@ -172,14 +172,13 @@
 
     <section class="section-report map-wrap row no-gutters">
         <div class="col-12 d-flex no-gutters justify-content-center">
-            <div class="row">
-                <div class="content-panel">
-                    <h1>Soil Type Table</h1>
-                    <h3>{{ property_name }}</h3>
-                    <h2>Page 2 of 2</h2>
-                </div>
+            <div class="content-panel">
+                <h1>Soil Type Table</h1>
+                <h3>{{ property_name }}</h3>
+                <h2>Page 2 of 2</h2>
             </div>
-
+        </div>
+        <div class="col-12 no-gutters">
             <div class="property-report-data">
                 <ul class="list-group list-group-flush">
                     {% for datum in property_report.soils.data %}
@@ -191,3 +190,8 @@
     </section>
 
 {% endblock content %}
+
+{% block footer_scripts %}
+    <script src="{% static 'landmapper/js/clipboard.min.js' %}"></script>
+    <script src="{% static 'landmapper/js/report.js' %}"></script>
+{% endblock footer_scripts %}

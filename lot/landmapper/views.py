@@ -891,7 +891,10 @@ def create_property_pdf(property):
     '''
     import os
     import io
+    import argparse
+    import PyPDF2 as pypdf
     from pdfjinja import PdfJinja
+    from pdfminer.pdfparser import PDFParser
 
     template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
@@ -916,19 +919,7 @@ def create_property_pdf(property):
         'scalebar' :  'property.aerial_map_image'
     })
 
-    buffer = io.BytesIO()
-    # output = pyPdf.PdfFileWriter()
-
-    # pdfOne = pyPdf.PdfFileReader(file(pdfOne, "rb"))
-    # for page in range(pdfOne.getNumPages()):
-        # output.addPage(pdfOne.getPage(page))
-
-    rendered_pdf.write(buffer)
-    # import ipdb; ipdb.set_trace()
-    # buffer.seek(0)
-    return buffer
-
-    # rendered_pdf_name = property.name + '.pdf'
+    rendered_pdf_name = property.name + '.pdf'
 
     # write pdf into string.io Buffer
     # return string.io Buffer
@@ -937,15 +928,25 @@ def create_property_pdf(property):
     # merge landmapper
     # push to disco
 
-    # if not os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
+    if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
         # os.makedirs(settings.PROPERTY_REPORT_PDF_DIR)
+        output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
+        rendered_pdf.write(open(output_pdf, 'wb'))
+    else:
+        print('Directory does not exit')
 
-    # output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
-
-    # if os.path.exists(output_pdf):
-        # return output_pdf
-    # else:
-        # raise FileNotFoundError('Failed to produce output file.')
+    if os.path.exists(output_pdf):
+        buffer = io.BytesIO()
+        new_output = pypdf.PdfFileWriter()
+        new_pdf = pypdf.PdfFileReader(output_pdf)
+        for page in range(new_pdf.getNumPages()):
+            new_output.addPage(new_pdf.getPage(page))
+        import ipdb; ipdb.set_trace()
+        new_output.write(buffer)
+        # buffer.seek(0)
+        return buffer.getvalue()
+    else:
+        raise FileNotFoundError('Failed to produce output file.')
 
     # fp = NamedTemporaryFile()
     # try:
