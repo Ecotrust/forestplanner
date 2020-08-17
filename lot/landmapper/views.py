@@ -859,7 +859,7 @@ def get_property_pdf(request, property_id):
     from django.http import FileResponse
 
     property_pdf = get_property_pdf_by_id(property_id)
-    # property_pdf.seek(0)
+    property_pdf.seek(0)
     return FileResponse(property_pdf, as_attachment=True, filename='my_property.pdf')
 
     # fs = FileSystemStorage()
@@ -941,7 +941,6 @@ def create_property_pdf(property):
         new_pdf = pypdf.PdfFileReader(output_pdf)
         for page in range(new_pdf.getNumPages()):
             new_output.addPage(new_pdf.getPage(page))
-        import ipdb; ipdb.set_trace()
         new_output.write(buffer)
         # buffer.seek(0)
         return buffer.getvalue()
