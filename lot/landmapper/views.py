@@ -858,9 +858,14 @@ def get_property_pdf(request, property_id):
     import io
     from django.http import FileResponse
 
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="my_property.pdf"'
+
+
     property_pdf = get_property_pdf_by_id(property_id)
-    property_pdf.seek(0)
-    return FileResponse(property_pdf, as_attachment=True, filename='my_property.pdf')
+    response.write(property_pdf)
+    return response
+    # return FileResponse(property_pdf, as_attachment=True, filename='my_property.pdf')
 
     # fs = FileSystemStorage()
     # filename = property_pdf
