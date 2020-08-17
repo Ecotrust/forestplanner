@@ -11,17 +11,13 @@
 {% endblock extra_head_scripts %}
 
 {% block content %}
-    <section id="section-property" class="section-report map-wrap">
-        <div class="col-12 row no-gutters">
-            <div class="col-7">
-                <section class="map-image-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
-                    <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
-                    </div>
-                </section>
+    <section id="section-property" class="section-report map-wrap row no-gutters">
+        <div class="d-flex no-gutters align-items-stretch justify-content-center section-flex-wrap">
+            <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
+            <div class="scalebar-wrap">
+                <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
             </div>
-            <aside class="col-5 content-panel">
+            <aside class="content-panel">
                 <h2>Your property</h2>
                 <h1>{{ property_name }}</h1>
 
@@ -34,8 +30,8 @@
                 <hr />
 
                 <h2>All maps of your property</h2>
-                <div class="anchor-links">
-                    <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a> | <a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+                <div class="anchor-links align-items-end">
+                    <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a><br /><a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
                 </div>
 
                 <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download all maps</a>
@@ -45,7 +41,7 @@
     </section>
 
     <section id="section-aerial" class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
+        <div class="col-12 d-flex no-gutters justify-content-center">
             <div class="col-auto">
                 <section class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/aerial/map" class="property-map-image">
@@ -54,7 +50,7 @@
                     </div>
                 </section>
             </div>
-            <aside class="col content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Aerial Photo</h1>
                 <h3>{{ property_name }}</h3>
 
@@ -62,14 +58,16 @@
                     <img src="{{ property_report.aerial.legend }}" />
                 </div>
 
-                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download map</a>
-                <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share map</button>
+                <div class="button-wrap">
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                </div>
             </aside>
         </div>
     </section>
 
     <section id="section-street" class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
+        <div class="col-12 d-flex no-gutters justify-content-center">
             <div class="col-auto">
                 <section class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/street/map" class="property-map-image" />
@@ -78,19 +76,24 @@
                     </div>
                 </section>
             </div>
-            <aside class="col content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Street Map</h1>
                 <h3>{{ property_name }}</h3>
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.street.legend }}" />
                 </div>
+
+                <div class="button-wrap">
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                </div>
             </aside>
         </div>
     </section>
 
     <section id="section-terrain" class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
+        <div class="col-12 d-flex no-gutters justify-content-center">
             <div class="col-auto">
                 <section class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/terrain/map" class="property-map-image">
@@ -99,19 +102,24 @@
                     </div>
                 </section>
             </div>
-            <aside class="col content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Terrain Map</h1>
                 <h3>{{ property_name }}</h3>
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.terrain.legend }}" />
                 </div>
+
+                <div class="button-wrap">
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                </div>
             </aside>
         </div>
     </section>
 
     <section id="section-streams" class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
+        <div class="col-12 d-flex no-gutters justify-content-center">
             <div class="col-auto">
                 <section class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/stream/map" class="property-map-image">
@@ -120,19 +128,24 @@
                     </div>
                 </section>
             </div>
-            <aside class="col content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Streams Map</h1>
                 <h3>{{ property_name }}</h3>
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.stream.legend }}" />
                 </div>
+
+                <div class="button-wrap">
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                </div>
             </aside>
         </div>
     </section>
 
     <section id="section-soil-types" class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
+        <div class="col-12 d-flex no-gutters justify-content-center">
             <div class="col-auto">
                 <section class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/soil_types/map" class="property-map-image">
@@ -141,28 +154,38 @@
                     </div>
                 </section>
             </div>
-            <aside class="col content-panel">
+            <aside class="col-auto content-panel">
                 <h1>Soil Types Map</h1>
                 <h3>{{ property_name }}</h3>
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.soils.legend }}" />
                 </div>
+
+                <div class="button-wrap">
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    <button type="button" class="btn btn-primary" data-toggle="tooltip" data-html="true" title="Copied to clipboard">Share</button>
+                </div>
             </aside>
         </div>
     </section>
 
     <section class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters">
-            <div class="content-panel">
-                <h1>Soil Type Table</h1>
-                <h3>{{ property_name }}</h3>
-                <h2>Page 2 of 2</h2>
+        <div class="col-12 d-flex no-gutters justify-content-center">
+            <div class="row">
+                <div class="content-panel">
+                    <h1>Soil Type Table</h1>
+                    <h3>{{ property_name }}</h3>
+                    <h2>Page 2 of 2</h2>
+                </div>
             </div>
+
             <div class="property-report-data">
-                {% for datum in property_report.soils.data %}
-                    {{ datum.0 }}: {{ datum.1 }}</p>
-                {% endfor %}
+                <ul class="list-group list-group-flush">
+                    {% for datum in property_report.soils.data %}
+                        <li class="list-group-item">{{ datum.0 }}: {{ datum.1 }}</li>
+                    {% endfor %}
+                </ul>
             </div>
         </div>
     </section>

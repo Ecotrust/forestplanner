@@ -1,29 +1,84 @@
+@import(base.css);
+
 #main-content {
   background: var(--white);
 }
 
+#main-content p {
+  font-size: 20px;
+  line-height: 38px;
+  margin-bottom: 0;
+}
+
+#section-property .content-panel {
+  padding: 3vh 5vw;
+}
+
+#section-property .section-flex-wrap {
+  display: block !important;
+  position: relative;
+}
+
+@media screen and (min-width: 980px) {
+  #section-property {
+    max-height: 722px;
+  }
+
+  #section-property .section-flex-wrap {
+    display: flex !important;
+  }
+}
+
+#section-property .map-image-wrap {
+  max-height: 100%;
+  width: auto;
+}
+
+#section-property .scalebar-wrap .scalebar {
+  top: 1vh;
+  left: 1vh;
+}
+
 .section-report {
-  /* border-bottom: 1px solid var(--black); */
-  height: 100vh;
+  border-bottom: 1px solid var(--black);
+  /* height: 100vh; */
   overflow: hidden;
   width: 100%;
 }
 
-.section-report .content-panel {
-  padding-left: 20px;
+.section-report:not(#section-property) .map-image-wrap {
+  padding: 3vh;
 }
 
-.map-image-wrap {
-  /* height: 100%; */
-  /* max-height: 100vh; */
-  /* position: relative; */
-  /* width: 100%; */
+.section-report:not(#section-property) h1 {
+  font-size: 28px;
+  letter-spacing: 1.4px;
+  line-height: 39px;
+}
+
+.section-report:not(#section-property) h3 {
+  font-size: 20px;
+  font-family: var(--primary-font);
+  font-weight: var(--body-font-weight);
+  letter-spacing: 1px;
+  line-height: 27px;
+}
+
+.section-report .content-panel {
+  padding-left: 3vh;
 }
 
 .anchor-links {
   font-size: 20px;
-  line-height: 39px;
+  line-height: 42px;
   letter-spacing: 1px;
+  margin: 3vh -4px; /* -4 for .achor-links a padding */
+  max-width: 380px;
+  word-spacing: 4px;
+}
+
+.anchor-links a {
+  padding: 0 4px;
 }
 
 .map-image-wrap .property-map-image {
@@ -32,7 +87,7 @@
 }
 
 .legend-wrap {
-  margin-top: 20px;
+  margin-top: 3vh;
 }
 
 .legend-wrap img {
@@ -43,9 +98,14 @@
   background-color: rgba(255,255,255,0.6);
   border: 1px solid #fff;
   box-sizing: content-box;
-  top: 10px;
+  top: 4vh;
   height: auto !important;
-  left: 10px;
+  left: 4vh;
   position: absolute;
   width: 361px !important;
+}
+
+.button-wrap {
+  position: absolute;
+  bottom: 3vh;
 }

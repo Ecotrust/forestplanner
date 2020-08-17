@@ -109,6 +109,12 @@ a {
   color: var(--black);
 }
 
+hr {
+  border-top: 1px solid var(--dark-grey);
+  height: 1px;
+  margin: 3vh 0;
+}
+
 /**
  * Aside
  *
