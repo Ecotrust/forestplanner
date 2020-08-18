@@ -11,7 +11,8 @@
 }
 
 #section-property .content-panel {
-  padding: 3vh 5vw;
+  padding: 3vh 0;
+  margin-left: 10vw;
 }
 
 #section-property .section-flex-wrap {
@@ -34,6 +35,10 @@
 
   #section-property .section-flex-wrap {
     display: flex !important;
+  }
+
+  #section-property .content-panel {
+    min-width: 420px;
   }
 }
 
@@ -74,7 +79,7 @@
 
 .section-report .content-panel {
   padding-left: 3vh;
-  min-width: 340px;
+  min-width: 350px;
 }
 
 .anchor-links {
