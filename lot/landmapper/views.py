@@ -850,36 +850,14 @@ def get_property_pdf_by_id(property_id):
     return property_pdf
 
 def get_property_pdf(request, property_id):
-    from django.http import HttpResponse, HttpResponseRedirect
-    from django.core.cache import cache
     from django.contrib.sites import shortcuts
-    from django.core.files.storage import FileSystemStorage
-    from django.http import HttpResponse, HttpResponseNotFound
-    import io
-    from django.http import FileResponse
+    from django.http import HttpResponse
 
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = 'inline; filename="my_property.pdf"'
 
-
     property_pdf = get_property_pdf_by_id(property_id)
     response.write(property_pdf)
-    return response
-    # return FileResponse(property_pdf, as_attachment=True, filename='my_property.pdf')
-
-    # fs = FileSystemStorage()
-    # filename = property_pdf
-    # if fs.exists(filename):
-    #     with fs.open(filename) as pdf:
-    #         response = HttpResponse(pdf, content_type='application/pdf')
-    #         response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
-    #         return response
-    # else:
-    #     return HttpResponseNotFound('The requested pdf was not found in our server.')
-
-    # response = HttpResponse(property_pdf, content_type='application/pdf')
-    # response['Content-Disposition'] = 'attachment; filename="my_property.pdf"'
-
     return response
 
 def create_property_pdf(property):
@@ -896,10 +874,8 @@ def create_property_pdf(property):
     '''
     import os
     import io
-    import argparse
     import PyPDF2 as pypdf
     from pdfjinja import PdfJinja
-    from pdfminer.pdfparser import PDFParser
 
     template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
@@ -925,10 +901,6 @@ def create_property_pdf(property):
 
     rendered_pdf_name = property.name + '.pdf'
 
-    # write pdf into string.io Buffer
-    # return string.io Buffer
-    # may need to set seek to 0
-
     if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
         # os.makedirs(settings.PROPERTY_REPORT_PDF_DIR)
         output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
@@ -947,20 +919,6 @@ def create_property_pdf(property):
         return buffer.getvalue()
     else:
         raise FileNotFoundError('Failed to produce output file.')
-
-    # fp = NamedTemporaryFile()
-    # try:
-    #     data_content = rendered_pdf.read()
-    # except AttributeError as e:
-    #     data_content = rendered_pdf
-    # if data_content:
-    #     fp.write(data_content)
-
-    # return output_file_location
-    # return {
-    #     'rendered_pdf': rendered_pdf,
-    #     'output_file_location': output_file_location,
-    # }
 
 def export_layer(request):
     '''
