@@ -929,9 +929,6 @@ def create_property_pdf(property):
     # return string.io Buffer
     # may need to set seek to 0
 
-    # merge landmapper
-    # push to disco
-
     if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
         # os.makedirs(settings.PROPERTY_REPORT_PDF_DIR)
         output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
