@@ -47,10 +47,11 @@
     <link rel="stylesheet" href="{% static 'landmapper/css/bootstrap-4.5.0/bootstrap.min.css' %}">
     <link rel="stylesheet" href="{% static 'landmapper/css/base.css' %}">
     <link rel="stylesheet" href="{% static 'landmapper/css/header.css' %}">
-    <link rel="stylesheet" href="{% static 'landmapper/css/print.css' %}">
     {% endblock styles %}
 
-    {% block extra_styles %}{% endblock extra_styles %}
+    {% block extra_styles %}
+      <link rel="stylesheet" href="{% static 'landmapper/css/print.css' %}">
+    {% endblock extra_styles %}
 
     {% block head_scripts %}
       <script type="text/javascript" src="{% static 'landmapper/js/jquery-3.5.1/jquery-3.5.1.min.js' %}"></script>

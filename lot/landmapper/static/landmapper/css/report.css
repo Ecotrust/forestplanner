@@ -113,6 +113,7 @@
   left: 4vh;
   position: absolute;
   width: 361px !important;
+  z-index: 1;
 }
 
 .button-wrap {

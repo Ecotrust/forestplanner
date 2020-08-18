@@ -29,13 +29,13 @@
 
                 <hr />
 
-                <h2>All maps of your property</h2>
-                <div class="anchor-links align-items-end">
+                <h2 class="d-print-none">All maps of your property</h2>
+                <div class="anchor-links align-items-end d-print-none">
                     <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a><br /><a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
                 </div>
 
-                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download all maps</a>
-                <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share maps</button>
+                <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary d-print-none" target="_blank">Download all maps</a>
+                <button type="button" class="btn btn-primary copy-link d-print-none" title="Copied to clipboard">Share maps</button>
             </aside>
         </div>
     </section>
@@ -58,7 +58,7 @@
                     <img src="{{ property_report.aerial.legend }}" />
                 </div>
 
-                <div class="button-wrap">
+                <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
@@ -84,7 +84,7 @@
                     <img src="{{ property_report.street.legend }}" />
                 </div>
 
-                <div class="button-wrap">
+                <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
@@ -110,7 +110,7 @@
                     <img src="{{ property_report.terrain.legend }}" />
                 </div>
 
-                <div class="button-wrap">
+                <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
@@ -136,7 +136,7 @@
                     <img src="{{ property_report.streams.legend }}" />
                 </div>
 
-                <div class="button-wrap">
+                <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
@@ -154,6 +154,7 @@
                     </div>
                 </section>
             </div>
+
             <aside class="col-auto content-panel">
                 <h1>Soil Types Map</h1>
                 <h3>{{ property_name }}</h3>
@@ -162,7 +163,7 @@
                     <img src="{{ property_report.soils.legend }}" />
                 </div>
 
-                <div class="button-wrap">
+                <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
@@ -171,20 +172,21 @@
     </section>
 
     <section class="section-report map-wrap row no-gutters">
-        <div class="col-12 d-flex no-gutters justify-content-center">
-            <div class="content-panel">
+        <div class="col-12 d-flex no-gutters justify-content-start">
+            <div class="col-auto content-panel">
                 <h1>Soil Type Table</h1>
                 <h3>{{ property_name }}</h3>
                 <h2>Page 2 of 2</h2>
             </div>
         </div>
         <div class="col-12 no-gutters">
-            <div class="property-report-data">
-                <ul class="list-group list-group-flush">
-                    {% for datum in property_report.soils.data %}
-                        <li class="list-group-item">{{ datum.0 }}: {{ datum.1 }}</li>
-                    {% endfor %}
-                </ul>
+            <div class="property-report-data row no-gutters">
+                {% for datum in property_report.soils.data %}
+                    <ul class="list-group list-group-flush {% cycle 'col-6' 'col-6' %}">
+                        <li class="list-group-item">{{ datum.0 }}</li>
+                        <li class="list-group-item">{{ datum.1 }}</li>
+                    </ul>
+                {% endfor %}
             </div>
         </div>
     </section>

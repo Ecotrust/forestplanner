@@ -905,23 +905,22 @@ def create_property_pdf(property):
     template_pdf = PdfJinja(template_pdf_file)
 
     rendered_pdf = template_pdf({
-        'date_1': '07/17/20',
-        'date_2': '07/17/20',
+        'date_1': '',
+        'date_2': '',
         'property_name': property.name,
-        # 'acres' : property.report_data['property']['data'][0]['acres'],
-        'acres' : '100',
-        'elevation' : '130 ft',
-        'legald_description' : 'Section 4, Township 4S',
-        'struct_fire_district' : 'Answer',
-        'forest_fire_district' : 'Answer',
-        'watershed_name' : 'Watershed Name',
-        'watershed_number' : '12345678910',
-        'zoning' : 'Zone Type',
-        'aerial_1': 'get_property_map_image',
-        'aerial_2' :  'property.aerial_map_image',
-        'county_name' : 'Jackson County',
-        # 'scale_bar' :  property.scalebar_image,
-        'scalebar' :  'property.aerial_map_image'
+        'acres' : property.report_data['property']['data'][0]['acres'],
+        # 'acres' : '100',
+        'elevation' : '',
+        'legald_description' : '',
+        'struct_fire_district' : '',
+        'forest_fire_district' : '',
+        'watershed_name' : '',
+        'watershed_number' : '',
+        'zoning' : '',
+        'aerial_1': property.aerial_map_image,
+        'aerial_2' :  property.aerial_map_image,
+        'county_name' : '',
+        'scalebar' :  property.scalebar_image,
     })
 
     rendered_pdf_name = property.name + '.pdf'
