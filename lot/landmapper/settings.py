@@ -462,7 +462,7 @@ FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
 
 
 ###########################################
-##      Flatblock content               ###
+##      Report creation and PDF access  ###
 ###########################################
 ALLOW_ANONYMOUS_DRAW = True
 ANONYMOUS_USER_PK = 1
