@@ -15,32 +15,55 @@ MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
 ###########################################
 BASEMAPS = {
     'USGS_Aerial': {
-        'url': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
-        'layers': '0',
-        'technology': 'arcgis_mapserver',
-        'attribution': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+        'URL': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
+        'LAYERS': '0',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
     },
     'ESRI_Satellite': {
-        'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
-        'layers': '0',
-        'technology': 'arcgis_mapserver',
-        'attribution': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
+        'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
+        'LAYERS': '0',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
     },
     'ESRI_Topo': {
-        'url': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/export',
-        'layers': '0',
-        'technology': 'arcgis_mapserver',
-        'attribution': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
+        'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/export',
+        'LAYERS': '0',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
     },
     'ESRI_Street': {
-        'url': 'https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/export',
-        'layers': '0',
-        'technology': 'arcgis_mapserver',
-        'attribution': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
+        'URL': 'https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/export',
+        'LAYERS': '0',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
+    },
+    'Custom_Topo': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/cke0j10sj1gta19o9agb1w8pq/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'TECHNOLOGY': 'XYZ',
+        'ATTRIBUTION': 'Sources: MapBox',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'cke0j10sj1gta19o9agb1w8pq',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512,
+        'ZOOM_2X': False
     }
 }
 AERIAL_DEFAULT = 'ESRI_Satellite'
-TOPO_DEFAULT = 'ESRI_Topo'
+TOPO_DEFAULT = 'Custom_Topo'
+# TOPO_DEFAULT = 'ESRI_Topo'
 STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################
@@ -434,7 +457,7 @@ STREAMS_ATTRIBUTION = STREAMS_URLS[STREAMS_SOURCE]['ATTRIBUTION']
 ##      Map Info                        ###
 ###########################################
 ATTRIBUTION_KEYS = {
-    'aerial': BASEMAPS[AERIAL_DEFAULT]['attribution'],
+    'aerial': BASEMAPS[AERIAL_DEFAULT]['ATTRIBUTION'],
     'topo': 'Set topo attr in settings',
     'streets': 'Set street attr in settings',
     'streams': STREAMS_ATTRIBUTION,
