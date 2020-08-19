@@ -13,9 +13,16 @@
     /* max-width: 27.94cm; */
   }
 
+  #main-content {
+    display: block;
+    margin: 0 auto;
+    width: 11in;
+  }
+
   .section-report {
     display: block;
     border-bottom: none;
+    padding: .25in;
     page-break-after: always;
     overflow: hidden;
   }
@@ -30,14 +37,14 @@
     position: relative;
   }
 
-  #section-property .property-map-image {
-    height: 722px;
-    width: auto;
+  #section-property .content-panel {
+    margin-left: 0;
+    padding: 3vh;
   }
 
   .property-map-image {
-    height: 541px;
-    width: auto;
+    height: 722px;
+    width: 509px;
   }
 
   .section-report .content-panel {
