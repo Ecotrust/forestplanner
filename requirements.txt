@@ -87,4 +87,5 @@ scikit-image
 pygeos
 matplotlib
 # matplotlib_scalebar
+pypdf2
 PdfJinja
