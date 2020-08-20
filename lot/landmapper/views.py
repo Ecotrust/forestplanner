@@ -843,7 +843,7 @@ def get_property_pdf_by_id(property_id):
 
     if not property_pdf:
         property = get_property_by_id(property_id)
-        property_pdf = create_property_pdf(property)
+        property_pdf = create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_id, property_pdf, 60*60*24*7)
 
@@ -854,13 +854,15 @@ def get_property_pdf(request, property_id):
     from django.http import HttpResponse
 
     response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'inline; filename="my_property.pdf"'
+    response['Content-Disposition'] = 'inline; filename="property.pdf"'
 
     property_pdf = get_property_pdf_by_id(property_id)
+
     response.write(property_pdf)
+
     return response
 
-def create_property_pdf(property):
+def create_property_pdf(property, property_id):
     '''
     HOW TO CREATE PDFs
     ----------
@@ -875,28 +877,40 @@ def create_property_pdf(property):
     import os
     import io
     import PyPDF2 as pypdf
+    from django.http import HttpResponse
     from pdfjinja import PdfJinja
+    import requests
 
     template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
 
+    import datetime
+    current_datetime = datetime.datetime.now()
+    current_datetime = current_datetime.strftime("%c")
+
+    # aerial_image = requests.get('http://localhost:8000/landmapper/report/' + property_id + '/aerial/map', stream=True)
+    aerial_image = 'http://localhost:8000/landmapper/report/' + property_id + '/aerial/map'
+
     rendered_pdf = template_pdf({
-        'date_1': '',
-        'date_2': '',
-        'property_name': property.name,
-        # 'acres' : property.report_data['property']['data'][0]['acres'],
-        'acres' : '100',
-        'elevation' : '',
-        'legald_description' : '',
-        'struct_fire_district' : '',
-        'forest_fire_district' : '',
-        'watershed_name' : '',
-        'watershed_number' : '',
-        'zoning' : '',
-        'aerial_1': property.aerial_map_image,
-        'aerial_2' :  property.aerial_map_image,
-        'county_name' : '',
-        'scalebar' :  property.scalebar_image,
+        'date': str(current_datetime),
+        'propName': property.name,
+        'acres' : property.report_data['property']['data'][0][1],
+        'elevation' : property.report_data['property']['data'][2][1],
+        'legalDesc' : property.report_data['property']['data'][4][1],
+        'structFire' : property.report_data['property']['data'][5][1],
+        'fire' : property.report_data['property']['data'][6][1],
+        'watershed' : property.report_data['property']['data'][7][1],
+        'watershedNum' : property.report_data['property']['data'][8][1],
+        'zone' : property.report_data['property']['data'][9][1],
+        'introAerialImagery': aerial_image,
+        'propName2': property.name,
+        'aerial' :  property.aerial_map_image,
+        'scale' :  property.scalebar_image,
+        'directions': property.street_map_image,
+        'scale_directions' :  property.scalebar_image,
+        'topo': property.terrain_map_image,
+        'hydro': property.stream_map_image,
+        'soils': property.soil_map_image,
     })
 
     rendered_pdf_name = property.name + '.pdf'

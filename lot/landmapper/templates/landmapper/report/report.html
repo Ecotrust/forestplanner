@@ -171,21 +171,25 @@
         </div>
     </section>
 
-    <section class="section-report map-wrap row no-gutters">
+    <section class="section-report map-wrap row no-gutters pb-5">
         <div class="col-12 d-flex no-gutters justify-content-start">
-            <div class="col-auto content-panel">
+            <div class="col-1"></div>
+            <div class="col-10 content-panel">
                 <h1>Soil Type Table</h1>
                 <h3>{{ property_name }}</h3>
                 <h2>Page 2 of 2</h2>
             </div>
+            <div class="col-1"></div>
         </div>
         <div class="col-12 no-gutters">
             <div class="property-report-data row no-gutters">
                 {% for datum in property_report.soils.data %}
-                    <ul class="list-group list-group-flush {% cycle 'col-6' 'col-6' %}">
+                    <div class="col-1"></div>
+                    <ul class="list-group list-group-flush {% cycle 'col-4' 'col-4' %}">
                         <li class="list-group-item">{{ datum.0 }}</li>
                         <li class="list-group-item">{{ datum.1 }}</li>
                     </ul>
+                    <div class="col-1"></div>
                 {% endfor %}
             </div>
         </div>
