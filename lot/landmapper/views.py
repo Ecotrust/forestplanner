@@ -916,7 +916,6 @@ def create_property_pdf(property, property_id):
     rendered_pdf_name = property.name + '.pdf'
 
     if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
-        os.makedirs(settings.PROPERTY_REPORT_PDF_DIR)
         output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
         rendered_pdf.write(open(output_pdf, 'wb'))
     else:
