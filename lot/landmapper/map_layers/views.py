@@ -91,12 +91,12 @@ def get_aerial_image_layer(property_specs):
 
     aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
     # Get URL for request
-    if aerial_dict['technology'] == 'arcgis_mapserver':
+    if aerial_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         aerial_url = ''.join([
-            aerial_dict['url'],
+            aerial_dict['URL'],
             '?bbox=', bbox,
             '&bboxSR=', str(bboxSR),
-            '&layers=', aerial_dict['layers'],
+            '&layers=', aerial_dict['LAYERS'],
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
@@ -105,7 +105,7 @@ def get_aerial_image_layer(property_specs):
         aerial_url = None
 
     # set Attribution
-    attribution = aerial_dict['attribution']
+    attribution = aerial_dict['ATTRIBUTION']
 
     # Request URL
     image_data = unstable_request_wrapper(aerial_url)
@@ -134,25 +134,29 @@ def get_topo_image_layer(property_specs):
 
     topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
     # Get URL for request
-    if topo_dict['technology'] == 'arcgis_mapserver':
+    if topo_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         topo_url = ''.join([
-            topo_dict['url'],
+            topo_dict['URL'],
             '?bbox=', bbox,
             '&bboxSR=', str(bboxSR),
-            '&layers=', topo_dict['layers'],
+            '&layers=', topo_dict['LAYERS'],
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
+        image_data = unstable_request_wrapper(topo_url)
+        # Request URL
+        base_image = image_result_to_PIL(image_data)
+    elif topo_dict['TECHNOLOGY'] == 'XYZ':
+        base_image = get_mapbox_image_data(topo_dict, property_specs, zoom_2x=topo_dict['ZOOM_2X'])
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting topo layers at the moment')
         topo_url = None
+        image_data = None
+        base_image = None
 
     # set Attribution
-    attribution = topo_dict['attribution']
+    attribution = topo_dict['ATTRIBUTION']
 
-    # Request URL
-    image_data = unstable_request_wrapper(topo_url)
-    base_image = image_result_to_PIL(image_data)
 
     return {
         'image': base_image,
@@ -177,12 +181,12 @@ def get_street_image_layer(property_specs):
 
     street_dict = settings.BASEMAPS[settings.STREET_DEFAULT]
     # Get URL for request
-    if street_dict['technology'] == 'arcgis_mapserver':
+    if street_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         street_url = ''.join([
-            street_dict['url'],
+            street_dict['URL'],
             '?bbox=', bbox,
             '&bboxSR=', str(bboxSR),
-            '&layers=', street_dict['layers'],
+            '&layers=', street_dict['LAYERS'],
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
@@ -191,7 +195,7 @@ def get_street_image_layer(property_specs):
         street_url = None
 
     # set Attribution
-    attribution = street_dict['attribution']
+    attribution = street_dict['ATTRIBUTION']
 
     # Request URL
     image_data = unstable_request_wrapper(street_url)
@@ -253,6 +257,51 @@ def get_soil_image_layer(property_specs):
             'attribution': attribution
         }
 
+def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
+    # """
+    # PURPOSE:
+    # -   Retrieve mapbox tile images http response for a given bbox at a given size
+    # IN:
+    # -   layer_url: (string) pre-computed URL string with {z}, {x}, and {y} for the tile template
+    # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+    # OUT:
+    # -   img_data: image as raw data (bytes)
+    # """
+    bbox = property_specs['bbox']
+    srs = 'EPSG:3857'
+    width = property_specs['width']
+    height = property_specs['height']
+    if zoom_2x:
+        width = int(width/2)
+        height = int(height/2)
+
+    request_params = request_dict['PARAMS'].copy()
+
+    # Get descriptions of required tiles as a 2D array
+    tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
+
+    request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
+    request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+    # Zoom should remain constant throughout all cells
+    request_params['zoom'] = tiles_dict_array[0][0]['zoom']
+
+    # Rows are stacked from South to North:
+    #       https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
+    for row in tiles_dict_array:
+        # Cells are ordered from West to East
+        for cell in row:
+            request_params['lon'] = cell['lon_index']
+            request_params['lat'] = cell['lat_index']
+            request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+            cell['image'] = unstable_request_wrapper(request_url)
+
+    img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
+
+    if zoom_2x:
+        img_data = img_data.resize((property_specs['width'], property_specs['height']), Image.ANTIALIAS)
+
+    return img_data
+
 def get_stream_image_layer(property_specs):
     # """
     # PURPOSE:
@@ -268,20 +317,21 @@ def get_stream_image_layer(property_specs):
 
     import urllib.request
 
-    bbox = property_specs['bbox']
-    srs = 'EPSG:3857'
-    width = property_specs['width']
-    height = property_specs['height']
+    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
     zoom_argument = settings.STREAM_ZOOM_OVERLAY_2X
 
-    if zoom_argument:
-        width = int(width/2)
-        height = int(height/2)
-
-    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
-    request_params = request_dict['PARAMS'].copy()
-
     if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
+        bbox = property_specs['bbox']
+        srs = 'EPSG:3857'
+        width = property_specs['width']
+        height = property_specs['height']
+
+        if zoom_argument:
+            width = int(width/2)
+            height = int(height/2)
+
+            request_params = request_dict['PARAMS'].copy()
+
         web_mercator_dict = get_web_map_zoom(bbox, width, height, srs)
         if zoom_argument:
             request_params['retina'] = "@2x"
@@ -299,36 +349,21 @@ def get_stream_image_layer(property_specs):
         img_data = unstable_request_wrapper(request_url)
         img_data = image_result_to_PIL(img_data)
 
+        if type(img_data) == Image.Image:
+            image = img_data
+        else:
+            image = image_result_to_PIL(img_data)
+        if zoom_argument:
+            image = image.resize((width, height), Image.ANTIALIAS)
+
     elif '_TILE' in settings.STREAMS_SOURCE:
-        # Get descriptions of required tiles as a 2D array
-        tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
-        request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
-        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
-        # Zoom should remain constant throughout all cells
-        request_params['zoom'] = tiles_dict_array[0][0]['zoom']
+        image = get_mapbox_image_data(request_dict, property_specs)
 
-        # Rows are stacked from South to North:
-        #       https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
-        for row in tiles_dict_array:
-            # Cells are ordered from West to East
-            for cell in row:
-                request_params['lon'] = cell['lon_index']
-                request_params['lat'] = cell['lat_index']
-                request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-                cell['image'] = unstable_request_wrapper(request_url)
-
-        img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
 
     else:
         print('settings.STREAMS_SOURCE value "%s" is not currently supported.' % settings.STREAMS_SOURCE)
-        img_data = None
+        image = None
 
-    if type(img_data) == Image.Image:
-        image = img_data
-    else:
-        image = image_result_to_PIL(img_data)
-    if zoom_argument:
-        image = image.resize((width, height), Image.ANTIALIAS)
 
     attribution = settings.ATTRIBUTION_KEYS['streams']
 
