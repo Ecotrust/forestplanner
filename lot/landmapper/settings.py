@@ -483,6 +483,18 @@ STREAM_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/hydrology.png'
 SOIL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/soils.png'
 FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
 
+###########################################
+##      Site URLs                       ###
+###########################################
+PRODUCTION_URL = 'http://landmapper.ecotrust.org/landmapper'
+DEV_URL = 'http://localhost:8000/landmapper'
+
+LIVE_SITE = False
+
+if LIVE_SITE:
+    APP_URL = PRODUCTION_URL
+else:
+    APP_URL = DEV_URL
 
 ###########################################
 ##      Report creation and PDF access  ###

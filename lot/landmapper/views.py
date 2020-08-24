@@ -876,20 +876,78 @@ def create_property_pdf(property, property_id):
     '''
     import os
     import io
+    import datetime
     import PyPDF2 as pypdf
     from django.http import HttpResponse
     from pdfjinja import PdfJinja
-    import requests
+    import urllib.request
+    from tempfile import NamedTemporaryFile
+    from django.core import files
 
     template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
     template_pdf = PdfJinja(template_pdf_file)
 
-    import datetime
     current_datetime = datetime.datetime.now()
     current_datetime = current_datetime.strftime("%c")
 
-    # aerial_image = requests.get('http://localhost:8000/landmapper/report/' + property_id + '/aerial/map', stream=True)
-    aerial_image = 'http://localhost:8000/landmapper/report/' + property_id + '/aerial/map'
+    property_url = settings.APP_URL + '/report/' + property_id + '/property/map'
+    scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar'
+    aerial_url = settings.APP_URL + '/report/' + property_id + '/aerial/map'
+    street_url = settings.APP_URL + '/report/' + property_id + '/street/map'
+    terrain_url = settings.APP_URL + '/report/' + property_id + '/terrain/map'
+    stream_url = settings.APP_URL + '/report/' + property_id + '/stream/map'
+    soil_types_url = settings.APP_URL + '/report/' + property_id + '/soil_types/map'
+
+    get_property_image = urllib.request.urlopen(property_url)
+    # get_aerial_image = requests.get(aerial_url)
+    # get_scalebar_image = requests.get(scalebar_url)
+    # get_street_image = requests.get(street_url)
+    # get_terrain_image = requests.get(terrain_url)
+    # get_stream_image = requests.get(stream_url)
+    # get_soil_image = requests.get(soil_types_url)
+
+    tmp_property = NamedTemporaryFile()
+    tmp_property_data = get_property_image.read()
+    tmp_property.write(tmp_property_data)
+
+    # tmp_property_name = property_id + 'property'
+    # tmp_property.flush()
+    # tmp_property_file = files.File(tmp_property, name=tmp_property_name)
+
+    # tmp_aerial = NamedTemporaryFile()
+    # if get_aerial_image:
+    #     tmp_aerial.write(get_aerial_image.read())
+    #
+    # tmp_scalebar = NamedTemporaryFile()
+    # if get_street_image:
+    #     tmp_scalebar.write(get_street_image.read())
+    #
+    # tmp_street = NamedTemporaryFile()
+    # if get_street_image:
+    #     tmp_street.write(get_street_image.read())
+    #
+    # tmp_topo = NamedTemporaryFile()
+    # if get_terrain_image:
+    #     tmp_topo.write(get_terrain_image.read())
+    #
+    # tmp_stream = NamedTemporaryFile()
+    # if get_stream_image:
+    #     tmp_stream.write(get_stream_image.read())
+    #
+    # tmp_soils = NamedTemporaryFile()
+    # if get_soil_image:
+    #     tmp_soils.write(get_soil_image.read())
+
+
+    # 1. write API to create local URL /landmapper/overview_map/{{ taxlot_ids }}/
+    # 2. wirte .... /rest of maps
+
+    # 1. give each image a unique name
+    # 2. write images to media as files
+    # 3. create PDF
+    # 4. assign pdf to variable
+    # 5. delete image files
+    # 6. return pdf variable
 
     rendered_pdf = template_pdf({
         'date': str(current_datetime),
@@ -902,15 +960,24 @@ def create_property_pdf(property, property_id):
         'watershed' : property.report_data['property']['data'][7][1],
         'watershedNum' : property.report_data['property']['data'][8][1],
         'zone' : property.report_data['property']['data'][9][1],
-        'introAerialImagery': aerial_image,
+         'introAerialImagery': [{
+              "data": tmp_property,
+              "text": "Mascot :)",
+              "dimensions": [100, 200, 400, 400]
+        }],
+        'aerial': [{
+             "data": get_property_image.read(),
+             "text": "Mascot :)",
+             "dimensions": [100, 200, 400, 400]
+       }],
         'propName2': property.name,
-        'aerial' :  property.aerial_map_image,
-        'scale' :  property.scalebar_image,
-        'directions': property.street_map_image,
-        'scale_directions' :  property.scalebar_image,
-        'topo': property.terrain_map_image,
-        'hydro': property.stream_map_image,
-        'soils': property.soil_map_image,
+        # 'aerial' :  tmp_property,
+        'scale' :  tmp_property,
+        'directions': tmp_property,
+        'scale_directions' :  tmp_property,
+        'topo': tmp_property,
+        'hydro': tmp_property,
+        'soils': tmp_property,
     })
 
     rendered_pdf_name = property.name + '.pdf'
