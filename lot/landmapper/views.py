@@ -880,15 +880,9 @@ def create_property_pdf(property, property_id):
     import PyPDF2 as pypdf
     from django.http import HttpResponse
     from pdfjinja import PdfJinja
-    import urllib.request
+    import requests
     from tempfile import NamedTemporaryFile
     from django.core import files
-
-    template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
-    template_pdf = PdfJinja(template_pdf_file)
-
-    current_datetime = datetime.datetime.now()
-    current_datetime = current_datetime.strftime("%c")
 
     property_url = settings.APP_URL + '/report/' + property_id + '/property/map'
     scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar'
@@ -898,20 +892,23 @@ def create_property_pdf(property, property_id):
     stream_url = settings.APP_URL + '/report/' + property_id + '/stream/map'
     soil_types_url = settings.APP_URL + '/report/' + property_id + '/soil_types/map'
 
-    get_property_image = urllib.request.urlopen(property_url)
-    # get_aerial_image = requests.get(aerial_url)
-    # get_scalebar_image = requests.get(scalebar_url)
-    # get_street_image = requests.get(street_url)
-    # get_terrain_image = requests.get(terrain_url)
-    # get_stream_image = requests.get(stream_url)
-    # get_soil_image = requests.get(soil_types_url)
+    get_property_image = requests.get(property_url, stream=True)
+    # get_aerial_image = requests.get(aerial_url, stream=True)
+    # get_scalebar_image = requests.get(scalebar_url, stream=True)
+    # get_street_image = requests.get(street_url, stream=True)
+    # get_terrain_image = requests.get(terrain_url, stream=True)
+    # get_stream_image = requests.get(stream_url, stream=True)
+    # get_soil_image = requests.get(soil_types_url, stream=True)
 
-    tmp_property = NamedTemporaryFile()
-    tmp_property_data = get_property_image.read()
-    tmp_property.write(tmp_property_data)
+    tmp_property = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=False)
+    # tmp_property_name = property_id + '_property'
+    tmp_property_name = tmp_property.name
+    with open(tmp_property_name, 'wb') as f:
+        for chunk in get_property_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+                # f.flush()
 
-    # tmp_property_name = property_id + 'property'
-    # tmp_property.flush()
     # tmp_property_file = files.File(tmp_property, name=tmp_property_name)
 
     # tmp_aerial = NamedTemporaryFile()
@@ -949,6 +946,12 @@ def create_property_pdf(property, property_id):
     # 5. delete image files
     # 6. return pdf variable
 
+    template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
+    template_pdf = PdfJinja(template_pdf_file)
+
+    current_datetime = datetime.datetime.now()
+    current_datetime = current_datetime.strftime("%c")
+
     rendered_pdf = template_pdf({
         'date': str(current_datetime),
         'propName': property.name,
@@ -960,24 +963,15 @@ def create_property_pdf(property, property_id):
         'watershed' : property.report_data['property']['data'][7][1],
         'watershedNum' : property.report_data['property']['data'][8][1],
         'zone' : property.report_data['property']['data'][9][1],
-         'introAerialImagery': [{
-              "data": tmp_property,
-              "text": "Mascot :)",
-              "dimensions": [100, 200, 400, 400]
-        }],
-        'aerial': [{
-             "data": get_property_image.read(),
-             "text": "Mascot :)",
-             "dimensions": [100, 200, 400, 400]
-       }],
+        'introAerialImagery': tmp_property_name,
         'propName2': property.name,
-        # 'aerial' :  tmp_property,
-        'scale' :  tmp_property,
-        'directions': tmp_property,
-        'scale_directions' :  tmp_property,
-        'topo': tmp_property,
-        'hydro': tmp_property,
-        'soils': tmp_property,
+        'aerial' :  tmp_property_name,
+        'scale' :  tmp_property_name,
+        'directions': tmp_property_name,
+        'scale_directions' :  tmp_property_name,
+        'topo': tmp_property_name,
+        'hydro': tmp_property_name,
+        'soils': tmp_property_name,
     })
 
     rendered_pdf_name = property.name + '.pdf'
@@ -988,6 +982,8 @@ def create_property_pdf(property, property_id):
         rendered_pdf.write(open(output_pdf, 'wb'))
     else:
         print('Directory does not exit')
+
+    get_property_image.close()
 
     if os.path.exists(output_pdf):
         buffer = io.BytesIO()
