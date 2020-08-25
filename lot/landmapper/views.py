@@ -885,56 +885,69 @@ def create_property_pdf(property, property_id):
     from django.core import files
 
     property_url = settings.APP_URL + '/report/' + property_id + '/property/map'
-    scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar'
     aerial_url = settings.APP_URL + '/report/' + property_id + '/aerial/map'
     street_url = settings.APP_URL + '/report/' + property_id + '/street/map'
     terrain_url = settings.APP_URL + '/report/' + property_id + '/terrain/map'
     stream_url = settings.APP_URL + '/report/' + property_id + '/stream/map'
     soil_types_url = settings.APP_URL + '/report/' + property_id + '/soil_types/map'
+    scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar'
 
     get_property_image = requests.get(property_url, stream=True)
-    # get_aerial_image = requests.get(aerial_url, stream=True)
-    # get_scalebar_image = requests.get(scalebar_url, stream=True)
-    # get_street_image = requests.get(street_url, stream=True)
-    # get_terrain_image = requests.get(terrain_url, stream=True)
-    # get_stream_image = requests.get(stream_url, stream=True)
-    # get_soil_image = requests.get(soil_types_url, stream=True)
+    get_aerial_image = requests.get(aerial_url, stream=True)
+    get_street_image = requests.get(street_url, stream=True)
+    get_terrain_image = requests.get(terrain_url, stream=True)
+    get_stream_image = requests.get(stream_url, stream=True)
+    get_soil_image = requests.get(soil_types_url, stream=True)
+    get_scalebar_image = requests.get(scalebar_url, stream=True)
 
-    tmp_property = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=False)
-    # tmp_property_name = property_id + '_property'
+    tmp_property = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
     tmp_property_name = tmp_property.name
     with open(tmp_property_name, 'wb') as f:
         for chunk in get_property_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
-                # f.flush()
 
-    # tmp_property_file = files.File(tmp_property, name=tmp_property_name)
+    tmp_aerial = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_aerial_name = tmp_aerial.name
+    with open(tmp_aerial_name, 'wb') as f:
+        for chunk in get_aerial_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
 
-    # tmp_aerial = NamedTemporaryFile()
-    # if get_aerial_image:
-    #     tmp_aerial.write(get_aerial_image.read())
-    #
-    # tmp_scalebar = NamedTemporaryFile()
-    # if get_street_image:
-    #     tmp_scalebar.write(get_street_image.read())
-    #
-    # tmp_street = NamedTemporaryFile()
-    # if get_street_image:
-    #     tmp_street.write(get_street_image.read())
-    #
-    # tmp_topo = NamedTemporaryFile()
-    # if get_terrain_image:
-    #     tmp_topo.write(get_terrain_image.read())
-    #
-    # tmp_stream = NamedTemporaryFile()
-    # if get_stream_image:
-    #     tmp_stream.write(get_stream_image.read())
-    #
-    # tmp_soils = NamedTemporaryFile()
-    # if get_soil_image:
-    #     tmp_soils.write(get_soil_image.read())
+    tmp_street = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_street_name = tmp_street.name
+    with open(tmp_street_name, 'wb') as f:
+        for chunk in get_street_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
 
+    tmp_topo = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_topo_name = tmp_topo.name
+    with open(tmp_topo_name, 'wb') as f:
+        for chunk in get_terrain_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+    tmp_stream = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_stream_name = tmp_stream.name
+    with open(tmp_stream_name, 'wb') as f:
+        for chunk in get_stream_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+    tmp_soils = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_soils_name = tmp_soils.name
+    with open(tmp_soils_name, 'wb') as f:
+        for chunk in get_soil_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+    tmp_scalebar = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_scalebar_name = tmp_scalebar.name
+    with open(tmp_scalebar_name, 'wb') as f:
+        for chunk in get_scalebar_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
 
     # 1. write API to create local URL /landmapper/overview_map/{{ taxlot_ids }}/
     # 2. wirte .... /rest of maps
@@ -965,13 +978,13 @@ def create_property_pdf(property, property_id):
         'zone' : property.report_data['property']['data'][9][1],
         'introAerialImagery': tmp_property_name,
         'propName2': property.name,
-        'aerial' :  tmp_property_name,
-        'scale' :  tmp_property_name,
-        'directions': tmp_property_name,
-        'scale_directions' :  tmp_property_name,
-        'topo': tmp_property_name,
-        'hydro': tmp_property_name,
-        'soils': tmp_property_name,
+        'aerial' :  tmp_aerial_name,
+        'scale' :  tmp_scalebar_name,
+        'directions': tmp_street_name,
+        'scale_directions' :  tmp_scalebar_name,
+        'topo': tmp_topo_name,
+        'hydro': tmp_stream_name,
+        'soils': tmp_soils_name,
     })
 
     rendered_pdf_name = property.name + '.pdf'
@@ -984,6 +997,12 @@ def create_property_pdf(property, property_id):
         print('Directory does not exit')
 
     get_property_image.close()
+    get_aerial_image.close()
+    get_soil_image.close()
+    get_street_image.close()
+    get_terrain_image.close()
+    get_stream_image.close()
+    get_scalebar_image.close()
 
     if os.path.exists(output_pdf):
         buffer = io.BytesIO()
