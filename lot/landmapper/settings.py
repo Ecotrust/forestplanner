@@ -489,7 +489,7 @@ FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
 PRODUCTION_URL = 'http://landmapper.ecotrust.org/landmapper'
 DEV_URL = 'http://localhost:8000/landmapper'
 
-LIVE_SITE = False
+LIVE_SITE = True
 
 if LIVE_SITE:
     APP_URL = PRODUCTION_URL
