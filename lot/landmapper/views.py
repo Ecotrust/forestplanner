@@ -378,10 +378,10 @@ def get_property_report(property, taxlots):
 
     property.property_map_image = map_views.get_property_map(property_specs, base_layer=aerial_layer, property_layer=property_layer)
     property.aerial_map_image = map_views.get_aerial_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
-    property.street_map_image = map_views.get_street_map(property_specs, base_layer=street_layer, property_layer=property_layer)
+    property.street_map_image = map_views.get_street_map(property_specs, base_layer=street_layer, lots_layer=taxlot_layer, property_layer=property_layer)
     property.terrain_map_image = map_views.get_terrain_map(property_specs, base_layer=topo_layer, property_layer=property_layer)
     property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
-    property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, soil_layer=soil_layer, property_layer=property_layer)
+    property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, soil_layer=soil_layer, property_layer=property_layer)
     property.scalebar_image = map_views.get_scalebar_image(property_specs, span_ratio=0.75)
 
     property.report_data = get_property_report_data(property, property_specs, taxlots)

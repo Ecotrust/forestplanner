@@ -59,16 +59,60 @@ def get_taxlot_image_layer(property_specs):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    bbox = property_specs['bbox']
-    width = property_specs['width']
-    height = property_specs['height']
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+    import urllib.request
+
+    request_dict = settings.TAXLOTS_URLS[settings.TAXLOTS_SOURCE]
+    zoom_argument = settings.TAXLOT_ZOOM_OVERLAY_2X
+
+    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
+        bbox = property_specs['bbox']
+        srs = 'EPSG:3857'
+        width = property_specs['width']
+        height = property_specs['height']
+
+        if zoom_argument:
+            width = int(width/2)
+            height = int(height/2)
+
+        request_params = request_dict['PARAMS'].copy()
+
+        web_mercator_dict = get_web_map_zoom(bbox, width, height, srs)
+        if zoom_argument:
+            request_params['retina'] = "@2x"
+
+        request_params['lon'] = web_mercator_dict['lon']
+        request_params['lat'] = web_mercator_dict['lat']
+        request_params['zoom'] = web_mercator_dict['zoom']
+        request_params['width'] = width
+        request_params['height'] = height
+
+        request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
+        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+        request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+
+        img_data = unstable_request_wrapper(request_url)
+        img_data = image_result_to_PIL(img_data)
+
+        if type(img_data) == Image.Image:
+            image = img_data
+        else:
+            image = image_result_to_PIL(img_data)
+        if zoom_argument:
+            image = image.resize((width, height), Image.ANTIALIAS)
+
+    elif '_TILE' in settings.TAXLOTS_SOURCE:
+        image = get_mapbox_image_data(request_dict, property_specs)
+
+
+    else:
+        print('settings.TAXLOTS_SOURCE value "%s" is not currently supported.' % settings.TAXLOTS_SOURCE)
+        image = None
+
+
     attribution = settings.ATTRIBUTION_KEYS['taxlot']
 
-    # TODO: query MapBox for Taxlot Layer and add it to the base image.
-
     return {
-        'image': base_img,    # Raw http(s) response
+        'image': image,
         'attribution': attribution
     }
 
@@ -330,7 +374,7 @@ def get_stream_image_layer(property_specs):
             width = int(width/2)
             height = int(height/2)
 
-            request_params = request_dict['PARAMS'].copy()
+        request_params = request_dict['PARAMS'].copy()
 
         web_mercator_dict = get_web_map_zoom(bbox, width, height, srs)
         if zoom_argument:
@@ -446,7 +490,7 @@ def get_aerial_map(property_specs, base_layer, lots_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def get_street_map(property_specs, base_layer, property_layer):
+def get_street_map(property_specs, base_layer, lots_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -465,18 +509,21 @@ def get_street_map(property_specs, base_layer, property_layer):
     height = property_specs['height']
 
     base_image = base_layer['image']
+    # add tax lot layer
+    lots_image = lots_layer['image']
     # add property
     property_image = property_layer['image']
 
     # generate attribution image
     attributions = [
         base_layer['attribution'],
+        lots_layer['attribution'],
         property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
 
-    layer_stack = [base_image, property_image, attribution_image]
+    layer_stack = [base_image, lots_image, property_image, attribution_image]
 
     return merge_layers(layer_stack)
 
@@ -554,7 +601,7 @@ def get_stream_map(property_specs, base_layer, stream_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
+def get_soil_map(property_specs, base_layer, lots_layer, soil_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -563,6 +610,7 @@ def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
     # IN:
     # -   property_specs; (dict) width, height and other property metadata
     # -   base_layer; (dict) PIL img and attribution for basemap layer
+    # -   lots_layer; (dict) PIL img and attribution for tax lots
     # -   soil_layer; (dict) PIL img and attribution for soils layer
     # -   property_layer; (dict) PIL img and attribution for property outline
     # OUT:
@@ -574,6 +622,8 @@ def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
 
     base_image = base_layer['image']
     # add tax lot layer
+    lots_image = lots_layer['image']
+    # add soils layer
     soil_image = soil_layer['image']
     # add property
     property_image = property_layer['image']
@@ -581,13 +631,14 @@ def get_soil_map(property_specs, base_layer, soil_layer, property_layer):
     # generate attribution image
     attributions = [
         base_layer['attribution'],
+        lots_layer['attribution'],
         soil_layer['attribution'],
         property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
 
-    layer_stack = [base_image, soil_image, property_image, attribution_image]
+    layer_stack = [base_image, lots_image, soil_image, property_image, attribution_image]
 
     return merge_layers(layer_stack)
 
