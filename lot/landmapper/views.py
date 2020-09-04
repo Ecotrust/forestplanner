@@ -980,6 +980,8 @@ def create_property_pdf(property, property_id):
         'propName2': property.name,
         'aerial' :  tmp_aerial_name,
         'scale' :  tmp_scalebar_name,
+        'scale_aerial': tmp_scalebar_name,
+        'scale_aerial': tmp_scalebar_name,
         'directions': tmp_street_name,
         'scale_directions' :  tmp_scalebar_name,
         'topo': tmp_topo_name,
