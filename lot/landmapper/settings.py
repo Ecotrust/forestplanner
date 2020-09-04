@@ -454,6 +454,36 @@ STREAM_ZOOM_OVERLAY_2X = False
 STREAMS_ATTRIBUTION = STREAMS_URLS[STREAMS_SOURCE]['ATTRIBUTION']
 
 ###########################################
+##      Taxlots                         ###
+###########################################
+TAXLOTS_URLS = {
+    'MAPBOX_TILE': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckdgho51i084u1inx1a70iwim',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        'ATTRIBUTION': 'Taxlots: TBD',
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512
+    }
+}
+TAXLOTS_SOURCE = 'MAPBOX_TILE'
+TAXLOT_ZOOM_OVERLAY_2X = False
+TAXLOTS_ATTRIBUTION = TAXLOTS_URLS[TAXLOTS_SOURCE]['ATTRIBUTION']
+
+
+###########################################
 ##      Map Info                        ###
 ###########################################
 ATTRIBUTION_KEYS = {
@@ -461,7 +491,7 @@ ATTRIBUTION_KEYS = {
     'topo': 'Set topo attr in settings',
     'streets': 'Set street attr in settings',
     'streams': STREAMS_ATTRIBUTION,
-    'taxlot': 'Set taxlot attr in settings',
+    'taxlot': TAXLOTS_ATTRIBUTION,
     'soil': SOIL_SSURGO_ATTRIBUTION
 }
 
