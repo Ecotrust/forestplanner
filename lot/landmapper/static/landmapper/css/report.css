@@ -95,7 +95,7 @@
   height: auto !important;
   left: 4vh;
   position: absolute;
-  width: 361px !important;
+  width: auto;
   z-index: 1;
 }
 
