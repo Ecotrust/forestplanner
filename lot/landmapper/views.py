@@ -380,7 +380,11 @@ def get_property_report(property, taxlots):
     property.aerial_map_image = map_views.get_aerial_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
     property.street_map_image = map_views.get_street_map(property_specs, base_layer=street_layer, lots_layer=taxlot_layer, property_layer=property_layer)
     property.terrain_map_image = map_views.get_terrain_map(property_specs, base_layer=topo_layer, property_layer=property_layer)
-    property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=topo_layer, stream_layer=stream_layer, property_layer=property_layer)
+    if settings.STREAMS_BASE_LAYER == 'aerial':
+        stream_base_layer = aerial_layer
+    else:
+        stream_base_layer = topo_layer
+    property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=stream_base_layer, stream_layer=stream_layer, property_layer=property_layer)
     property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, soil_layer=soil_layer, property_layer=property_layer)
     property.scalebar_image = map_views.get_scalebar_image(property_specs, span_ratio=0.75)
 
