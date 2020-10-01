@@ -292,6 +292,7 @@ def identify(request):
                 'q_address_value': q_address_value,
                 'aside_content': aside_content,
                 'show_panel_buttons': True,
+                'search_performed': True,
             }
             context = getPanelButtonsCreateReport(context)
             context = getHeaderMenu(context)

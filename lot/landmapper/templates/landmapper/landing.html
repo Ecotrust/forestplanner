@@ -27,7 +27,7 @@
     {% block map-wrap %}
       <section class="col" id="map-wrap">
         {% block property-search %}
-          <form role="search" id="property-search-form" action="/landmapper/identify/" method="post">
+          <form role="search" id="property-search-form" action="/landmapper/identify/" method="post" {% if search_performed %} style="visibility: hidden;" {% endif %}>
             {% csrf_token %}
             <div class="input-group input-group-lg">
               <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" value="{{ q_address_value }}" aria-describedby="property-search-btn" required />
