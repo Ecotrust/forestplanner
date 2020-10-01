@@ -19,6 +19,7 @@ window.addEventListener( 'load', function() {
 var landmapperReport = {
   reportURL: '/landmapper/create_property_id/',
   getReport: function(taxlots, propertyName) {
+    $('#spinner-modal').modal('show');
     var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
     jQuery.ajax({
       headers: { "X-CSRFToken": token },
@@ -54,6 +55,7 @@ var landmapperReport = {
 
       },
       error: function(error) {
+          $('#spinner-modal').modal('hide');
           window.alert('Error creating maps, please try again.');
           console.log('Error in craeting maps.');
       }
