@@ -1,6 +1,9 @@
 from django.conf import settings
 from PIL import Image, ImageDraw
 from landmapper.views import unstable_request_wrapper
+from math import pi, log, tan, exp, atan, log2, log10, floor
+import pyproj
+from django.contrib.gis.geos import Point
 
 ################################
 # Map Layer Getter Functions ###
@@ -649,20 +652,30 @@ def get_soil_map(property_specs, base_layer, lots_layer, soil_layer, property_la
 def get_scalebar_image(property_specs, span_ratio=0.75):
     image_width_in_pixels = property_specs['width']
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
-    image_width_in_meters = bbox[2] - bbox[0]
+    # image_width_in_meters = bbox[2] - bbox[0]
+
+    # get coords in EPSG:4326
+    bbox_poly = get_bbox_as_polygon(property_specs['bbox'])
+    bbox_poly.transform(4326)
+    nw = Point(bbox_poly.coords[0][3])
+    ne = Point(bbox_poly.coords[0][2])
+    # geodesic measurement
+    geod = pyproj.Geod(ellps='WGS84')
+    angle1,angle2,distance = geod.inv(nw.coords[0], nw.coords[1], ne.coords[0], ne.coords[1])
+    image_width_in_meters = distance
+
     return generate_scalebar_for_image(image_width_in_meters, image_width_in_pixels, span_ratio)
 
 # Thanks to Senshin @ https://stackoverflow.com/a/33947673/706797
 def get_first_sig_dig(x):
-    from math import log10, floor
     return round(x / (10**floor(log10(x))))
 
 # Thanks to Evgeny and Tobias Kienzler @ https://stackoverflow.com/a/3411435/706797
 def round_to_1(x):
-    from math import log10, floor
     return round(x, -int(floor(log10(abs(x)))))
 
 def refit_step(step_tick, num_steps, max_width_in_units, min_step_width_in_pixels, units_per_pixel):
+
     sig_dig = get_first_sig_dig(step_tick)
     if num_steps > 1:
         step_tick = increase_step_size(step_tick, sig_dig)
@@ -713,7 +726,11 @@ def reduce_step_size(step_tick, sig_dig):
 
     return step_tick * resize_factor
 
-def generate_scalebar_for_image(img_width_in_meters, img_width_in_pixels=509, scale_width_ratio=1, min_step_width=100, dpi=300):
+def generate_scalebar_for_image(
+        img_width_in_meters,
+        img_width_in_pixels=509,
+        scale_width_ratio=1,
+        min_step_width=100, dpi=300):
     bottom_units_per_pixel = img_width_in_meters/img_width_in_pixels
     if img_width_in_pixels > 500:
         units_bottom = 'meters'
@@ -759,9 +776,9 @@ def generate_scalebar_for_image(img_width_in_meters, img_width_in_pixels=509, sc
     refit_dict = refit_step(
         step_ticks_top,
         num_steps_top,
-        scale_width_in_meters/scale_top,
+        top_unit_count,
         min_step_width,
-        bottom_units_per_pixel/scale_top
+        bottom_units_per_pixel*scale_bottom/scale_top
     )
 
     step_ticks_top = refit_dict['step_tick']
@@ -814,7 +831,6 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     img : PIL Image
       the dual scale bar rendered as an in-memory image
     """
-
 
     from matplotlib import pyplot as plt
     import numpy as np
@@ -1288,7 +1304,6 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
 ZOOM0_SIZE = 512  # Not 256
 # Geo-coordinate in degrees => Pixel coordinate
 def g2p(lat, lon, zoom):
-    from math import pi, log, tan, exp, atan, log2, floor
     return (
         # x
         ZOOM0_SIZE * (2 ** zoom) * (1 + lon / 180) / 2,
@@ -1297,7 +1312,6 @@ def g2p(lat, lon, zoom):
     )
 # Pixel coordinate => geo-coordinate in degrees
 def p2g(x, y, zoom):
-    from math import pi, log, tan, exp, atan, log2, floor
     return (
         # lat
         (atan(exp(pi - y / ZOOM0_SIZE * (2 * pi) / (2 ** zoom))) / pi * 4 - 1) * 90,
@@ -1344,7 +1358,6 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # -     lon_index
     # -     tile_bbox
     # """
-    from django.contrib.gis.geos import Point
 
     tiles_dict_array = []
 
@@ -1453,7 +1466,6 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
     # -     lon: a float representing the centroid longitude
     # -     zoom: a float representing the appropriate zoom value within 0.01
     # """
-    from math import log, log2, floor
     bbox = get_bbox_as_string(bbox)
     if not srs in ['EPSG:4326', '4326', 4326]:
         if type(srs) == str:
