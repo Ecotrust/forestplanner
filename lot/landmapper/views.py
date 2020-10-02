@@ -3,6 +3,7 @@ from django.shortcuts import render
 from django.conf import settings
 from flatblocks.models import FlatBlock
 from django.contrib.humanize.templatetags import humanize
+from urllib.parse import quote, unquote
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -610,7 +611,7 @@ def generate_property_id(taxlot_ids, property_name):
         e.g.: my-property|01234|2731001|80085
     '''
     from django.utils.text import slugify
-    property_id = slugify(property_name)
+    property_id = quote(property_name, safe='')
     sorted_taxlots = sorted(taxlot_ids)
     id_elements = [str(x) for x in [property_id,] + sorted_taxlots]
     join_id_elements = '|'.join(id_elements)
@@ -631,7 +632,8 @@ def parse_property_id(property_id):
     '''
     id_elements = property_id.split('|')
     name = id_elements.pop(0)
-    name = name.title()
+    # name = name.title()
+    name = unquote(name)
     return {
         'name': name,
         'taxlot_ids': id_elements,

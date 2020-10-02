@@ -205,6 +205,11 @@ form:invalid {
   padding-left: 0;
 }
 
+#prop-name-error {
+  visibility: hidden;
+  color: red;
+}
+
 /**
  * Bootstrap Spinner
  */
