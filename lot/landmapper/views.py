@@ -489,11 +489,21 @@ def get_aggregate_property_data(property, taxlots):
         # rangeno.append(taxlot.rangeno)
         # frstdivno.append(taxlot.frstdivno)
 
+    min_elevation = aggregate_min(min_elevation)
+    max_elevation = aggregate_max(max_elevation)
+
+    if not min_elevation == None and not max_elevation == None:
+        elevation_label = 'Elevation Range'
+        min_elevation = pretty_print_float(min_elevation)
+        max_elevation = pretty_print_float(max_elevation)
+        elevation_value = "%s - %s ft" % (int(float(min_elevation)), int(float(max_elevation)))
+    else:
+        elevation_label = 'Elevation'
+        elevation_value = 'Unknown'
+
     return [
         ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
-        ['Square Miles', pretty_print_float(sq_ft_to_sq_mi(aggregate_sum(acres)))],
-        ['Min Elevation', pretty_print_float(aggregate_min(min_elevation))],
-        ['Max Elevation', pretty_print_float(aggregate_max(max_elevation))],
+        [elevation_label, elevation_value],
         ['Legal Description', aggregate_strings(legal)],
         ['Structural Fire Disctrict', aggregate_strings(agency)],
         ['Forest Fire District', aggregate_strings(odf_fpd)],
