@@ -19,8 +19,8 @@ def unstable_request_wrapper(url, retries=0):
     import urllib.request
     try:
         contents = urllib.request.urlopen(url)
-        if retries > 0:
-            print('succeeded to connect after %d tries to %s' % (retries, url))
+        # if retries > 0:
+        #     # print('succeeded to connect after %d tries to %s' % (retries, url))
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
