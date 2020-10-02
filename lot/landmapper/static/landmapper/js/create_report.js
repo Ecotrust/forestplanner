@@ -20,7 +20,6 @@ window.addEventListener( 'load', function() {
     var disallowed = [92, 47, 124];
     if (disallowed.indexOf(keyCode) >= 0) {
       $('#prop-name-error').css("visibility", "visible");
-      console.log(keyCode);
       e.preventDefault();
       return false;
     }

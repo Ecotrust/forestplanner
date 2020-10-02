@@ -632,7 +632,6 @@ def parse_property_id(property_id):
     '''
     id_elements = property_id.split('|')
     name = id_elements.pop(0)
-    # name = name.title()
     name = unquote(name)
     return {
         'name': name,
