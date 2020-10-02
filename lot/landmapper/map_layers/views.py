@@ -821,6 +821,8 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     import matplotlib
     matplotlib.use('Agg')
     DPI = 350
+    DEFAULT_WIDTH = 1.5
+    DEFAULT_HEIGHT = 0.2
 
     width_top = (num_ticks_top - 1) * step_ticks_top * (scale_top / scale_bottom)
     width_bot = (num_ticks_bottom - 1) * step_ticks_bottom
@@ -829,7 +831,7 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     both_min, both_max = min(min_top, min_bot), max(max_top, max_bot)
 
     fig = plt.figure(frameon=False)
-    fig.set_size_inches(1.5, 0.15)
+    fig.set_size_inches(DEFAULT_WIDTH, DEFAULT_HEIGHT)
     fig.dpi = DPI
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
