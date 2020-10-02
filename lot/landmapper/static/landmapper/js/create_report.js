@@ -17,7 +17,15 @@ window.addEventListener( 'load', function() {
 
   formGenerateReport.addEventListener('keypress', function(e) {
     var keyCode = e.which;
-    var disallowed = [92, 47, 124];
+    // console.log(keyCode);
+    /*
+      \ : 92 - gets interpreted as a literal by app server
+      / : 47 - gets interpreted as a literal by app server
+      | : 124 - is required for parsing lot ID from name
+      ? : 63 - Gets interpreted as starting a query string? Breaks image requests, can be fixed
+      # : 35 - gets interpreted as an anchor? Breaks image requests, can be fixed
+    */
+    var disallowed = [92, 47, 124, 63, 35];
     if (disallowed.indexOf(keyCode) >= 0) {
       $('#prop-name-error').css("visibility", "visible");
       e.preventDefault();
