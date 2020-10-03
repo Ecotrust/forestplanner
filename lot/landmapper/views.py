@@ -878,6 +878,30 @@ def get_property_pdf(request, property_id):
 
     return response
 
+def get_report_data_dict(data):
+    data_dict = {}
+    for property, value in data:
+        if property == 'Acres':
+            data_dict['acres'] = value
+        elif property in ['Elevation', 'Elevation Range']:
+            data_dict['elevation'] = value
+        elif property == 'Legal Description':
+            data_dict['legalDesc'] = value
+        elif property == 'Structural Fire Disctrict':
+            data_dict['structFire'] = value
+        elif property == 'Forest Fire District':
+            data_dict['fire'] = value
+        elif property == 'Watershed':
+            data_dict['watershed'] = value
+        elif property == 'Watershed (HUC)':
+            data_dict['watershedNum'] = value
+        elif property == 'Zoning':
+            data_dict['zone'] = value
+        else:
+            data_dict[property.lower()] = value
+
+    return data_dict
+
 def create_property_pdf(property, property_id):
     '''
     HOW TO CREATE PDFs
@@ -981,17 +1005,19 @@ def create_property_pdf(property, property_id):
     current_datetime = datetime.datetime.now()
     current_datetime = current_datetime.strftime("%c")
 
-    rendered_pdf = template_pdf({
+    report_data_dict = get_report_data_dict(property.report_data['property']['data'])
+
+    template_input_dict = {
         'date': str(current_datetime),
         'propName': property.name,
-        'acres' : property.report_data['property']['data'][0][1],
-        'elevation' : property.report_data['property']['data'][2][1],
-        'legalDesc' : property.report_data['property']['data'][4][1],
-        'structFire' : property.report_data['property']['data'][5][1],
-        'fire' : property.report_data['property']['data'][6][1],
-        'watershed' : property.report_data['property']['data'][7][1],
-        'watershedNum' : property.report_data['property']['data'][8][1],
-        'zone' : property.report_data['property']['data'][9][1],
+        'acres' : report_data_dict['acres'],
+        'elevation' : report_data_dict['elevation'],
+        'legalDesc' : report_data_dict['legalDesc'],
+        'structFire' : report_data_dict['structFire'],
+        'fire' : report_data_dict['fire'],
+        'watershed' : report_data_dict['watershed'],
+        'watershedNum' : report_data_dict['watershedNum'],
+        'zone' : report_data_dict['zone'],
         'introAerialImagery': tmp_property_name,
         'propName2': property.name,
         'aerial' :  tmp_aerial_name,
@@ -1005,7 +1031,10 @@ def create_property_pdf(property, property_id):
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
-    })
+    }
+
+
+    rendered_pdf = template_pdf(template_input_dict)
 
     rendered_pdf_name = property.name + '.pdf'
 
