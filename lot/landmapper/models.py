@@ -30,10 +30,11 @@ def sq_meters_to_acres(area_m2):
 """
 
 class MenuPage(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name="Menu Item")
     order = models.SmallIntegerField(default=10)
     staff_only = models.BooleanField(default=False)
-    content = models.TextField(null=True, blank=True, default=None)
+    header = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Popup Header")
+    content = models.TextField(null=True, blank=True, default=None, verbose_name="Popup Body")
 
     def __str__(self):
         return "%s" % self.name

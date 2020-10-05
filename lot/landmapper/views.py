@@ -4,6 +4,7 @@ from django.conf import settings
 from flatblocks.models import FlatBlock
 from django.contrib.humanize.templatetags import humanize
 from urllib.parse import quote, unquote
+from landmapper.models import *
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -186,20 +187,6 @@ def get_property_from_taxlot_selection(request, taxlot_list):
 
     return property
 
-def getHeaderMenu(context):
-    # Get MenuPage content for pages
-    # get_menu_page(<name of MenuPage>)
-    #   returns None | MenuPage
-    about_page = get_menu_page('about')
-    help_page = get_menu_page('help')
-
-    # add pages to context dict
-    context['about_page'] = about_page
-    context['help_page'] = help_page
-
-    return context
-
-
 def getPanelButtonsCreateReport(context):
 
     context['btn_back_href'] = '/landmapper/'
@@ -250,7 +237,7 @@ def home(request):
         'q_address': 'Enter your property address here',
     }
     # context = getPanelButtonsCreateReport(context)
-    context = getHeaderMenu(context)
+    context['menu_items'] = MenuPage.objects.all().order_by('order')
 
     return render(request, 'landmapper/landing.html', context)
 
@@ -296,7 +283,7 @@ def identify(request):
                 'search_performed': True,
             }
             context = getPanelButtonsCreateReport(context)
-            context = getHeaderMenu(context)
+            context['menu_items'] = MenuPage.objects.all().order_by('order')
             return render(request, 'landmapper/landing.html', context)
     else:
         print('requested identify page with method other than POST')
@@ -358,7 +345,7 @@ def report(request, property_id):
         'property_report': property.report_data,
     }
 
-    context = getHeaderMenu(context)
+    context['menu_items'] = MenuPage.objects.all().order_by('order')
 
     return render(request, 'landmapper/report/report.html', context)
 
@@ -767,24 +754,6 @@ def get_scalebar_image(request, property_id):
 
     return response
 
-def get_menu_page(name):
-    '''
-    PURPOSE:
-        Get a MenuPage
-        Used for modals
-    IN:
-        name (str): MenuPage name given through Django admin
-    OUT:
-        MenuPage (obj): MenuPage with matching name
-
-    '''
-    from landmapper.models import MenuPage
-
-    page = MenuPage.objects.get(name=name)
-    if not page:
-        page = None
-
-    return page
 
 def create_street_report(request):
     '''
