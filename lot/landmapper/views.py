@@ -6,6 +6,8 @@ from django.contrib.humanize.templatetags import humanize
 from urllib.parse import quote, unquote
 from landmapper.models import *
 
+
+## MOVE TO UTIL.PY
 def unstable_request_wrapper(url, retries=0):
     # """
     # unstable_request_wrapper
@@ -25,7 +27,7 @@ def unstable_request_wrapper(url, retries=0):
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
-            contents = unstable_request_wrapper(url, retries+1)
+            contents = unstable_request_wrapper(url, retries + 1)
         else:
             print("ERROR: Unable to connect to %s" % url)
             contents = None
@@ -35,7 +37,9 @@ def unstable_request_wrapper(url, retries=0):
         contents = False
     return contents
 
-def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
+
+## NOT USED IN THIS SCRIPT (CAN BE SCRUBBED)
+def get_soil_data_gml(bbox, srs='EPSG:4326', format='GML3'):
     # """
     # get_soil_data_gml
     # PURPOSE: given a bounding box, SRS, and preferred version (format) of GML,
@@ -66,7 +70,9 @@ def get_soil_data_gml(bbox, srs='EPSG:4326',format='GML3'):
     fp.close()
     return gml_result
 
-def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
+
+## NOT USED IN THIS SCRIPT (CAN BE SCRUBBED)
+def get_soils_list(bbox, srs='EPSG:4326', format='GML3'):
     # """
     # get_soils_list
     # PURPOSE:
@@ -93,11 +99,13 @@ def get_soils_list(bbox, srs='EPSG:4326',format='GML3'):
         if not feat.GetField(settings.SOIL_ID_FIELD) in soils_list.keys():
             for j in range(0, inLayerDefn.GetFieldCount()):
                 field_name = inLayerDefn.GetFieldDefn(j).GetName()
-                if field_name in settings.SOIL_FIELDS.keys() and settings.SOIL_FIELDS[field_name]['display']:
+                if field_name in settings.SOIL_FIELDS.keys(
+                ) and settings.SOIL_FIELDS[field_name]['display']:
                     feat_dict[field_name] = feat.GetField(field_name)
             soils_list[feat.GetField(settings.SOIL_ID_FIELD)] = feat_dict
 
     return soils_list
+
 
 def geocode(search_string, srs=4326, service='arcgis'):
     # """
@@ -126,9 +134,12 @@ def geocode(search_string, srs=4326, service='arcgis'):
         if hasattr(settings, 'GOOGLE_API_KEY'):
             g = geocoder.google(search_string, key=settings.GOOGLE_API_KEY)
         else:
-            print('To use Google geocoder, please configure "GOOGLE_API_KEY" in your project settings. ')
+            print(
+                'To use Google geocoder, please configure "GOOGLE_API_KEY" in your project settings. '
+            )
     if not g or not g.ok:
-        print('Selected geocoder not available or failed. Defaulting to ArcGIS')
+        print(
+            'Selected geocoder not available or failed. Defaulting to ArcGIS')
         g = geocoder.arcgis(search_string)
 
     coords = g.latlng
@@ -144,15 +155,21 @@ def geocode(search_string, srs=4326, service='arcgis'):
         try:
             int(srs)
         except ValueError as e:
-            print('ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326')
+            print(
+                'ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326'
+            )
             return coords
 
-        point = GEOSGeometry('SRID=4326;POINT (%s %s)' % (coords[1], coords[0]), srid=4326)
+        point = GEOSGeometry('SRID=4326;POINT (%s %s)' %
+                             (coords[1], coords[0]),
+                             srid=4326)
         point.transform(srs)
         coords = [point.coords[1], point.coords[0]]
 
     return coords
 
+
+## NOT USED IN THIS SCRIPT (TESTS.PY) CAN BE SCRUBBED
 def get_property_from_taxlot_selection(request, taxlot_list):
     """
     PURPOSE:
@@ -180,31 +197,40 @@ def get_property_from_taxlot_selection(request, taxlot_list):
         else:
             merged_geom = merged_geom.union(geom)
 
-    merged_geom = MultiPolygon(merged_geom.unary_union,)
+    merged_geom = MultiPolygon(merged_geom.unary_union, )
 
     # Create Property object (don't use 'objects.create()'!)
-    property = Property(user=user, geometry_orig=merged_geom, name='test_property')
+    property = Property(user=user,
+                        geometry_orig=merged_geom,
+                        name='test_property')
 
     return property
 
-def getPanelButtonsCreateReport(context):
 
+## CALLED IN IDENTIFY FUNCTION, BELONGS IN VIEWS.py
+def getPanelButtonsCreateReport(context):
+    """Says where buttons go when you're using the UI mapping tool."""
     context['btn_back_href'] = '/landmapper/'
     context['btn_next_href'] = 'property_name'
     context['btn_create_maps_href'] = '/landmapper/report/'
-    context['btn_next_disabled'] = 'disabled'; # disabled is a css class for <a> tags
+    context['btn_next_disabled'] = 'disabled'
+    # disabled is a css class for <a> tags
 
     return context
 
+
 # Create your views here.
 from django.views.decorators.clickjacking import xframe_options_exempt, xframe_options_sameorigin
+
+
+## BELONGS IN UTILS.py
 @xframe_options_sameorigin
 def get_taxlot_json(request):
     from django.contrib.gis.geos import GEOSGeometry
     from django.http import HttpResponse
     from .models import Taxlot
     import json
-    coords = request.GET.getlist('coords[]') # must be [lon, lat]
+    coords = request.GET.getlist('coords[]')  # must be [lon, lat]
     intersect_pt = GEOSGeometry('POINT(%s %s)' % (coords[0], coords[1]))
     try:
         lot = Taxlot.objects.get(geometry__intersects=intersect_pt)
@@ -219,8 +245,14 @@ def get_taxlot_json(request):
         else:
             lot_json = []
             lot_id = lot.id
-    return HttpResponse(json.dumps({"id": lot_id, "geometry": lot_json}), status=200)
+    return HttpResponse(json.dumps({
+        "id": lot_id,
+        "geometry": lot_json
+    }),
+                        status=200)
 
+
+## BELONGS in VIEWS.py
 def home(request):
     '''
     Land Mapper: Home Page
@@ -241,12 +273,15 @@ def home(request):
 
     return render(request, 'landmapper/landing.html', context)
 
+
+## BELONGS in VIEWS.py  --> IS THIS BEING USED?
 def index(request):
-    '''
+    '''  ## LANDING PAGE
     Land Mapper: Index Page
     (landing: slide 1)
     '''
     return render(request, 'landmapper/landing.html', context)
+
 
 def identify(request):
     '''
@@ -290,6 +325,8 @@ def identify(request):
 
     return home(request)
 
+
+## BELONGS IN VIEWS.py
 def create_property_id(request):
     '''
     Land Mapper: Create Property Cache ID
@@ -307,14 +344,16 @@ def create_property_id(request):
         taxlot_ids = request.POST.getlist('taxlot_ids[]')
 
         # modifies request for anonymous user
-        if not (hasattr(request, 'user') and request.user.is_authenticated) and settings.ALLOW_ANONYMOUS_DRAW:
+        if not (hasattr(request, 'user') and request.user.is_authenticated
+                ) and settings.ALLOW_ANONYMOUS_DRAW:
             from django.contrib.auth.models import User
             user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
         else:
             user = request.user
 
         property_id = generate_property_id(taxlot_ids, property_name)
-        return HttpResponse(json.dumps({'property_id':property_id}), status=200)
+        return HttpResponse(json.dumps({'property_id': property_id}),
+                            status=200)
 
     else:
 
@@ -322,6 +361,8 @@ def create_property_id(request):
 
     return HttpResponse('Create property failed', status=402)
 
+
+## BELONGS IN VIEWS.py
 def report(request, property_id):
     '''
     Land Mapper: Report Pages
@@ -349,13 +390,16 @@ def report(request, property_id):
 
     return render(request, 'landmapper/report/report.html', context)
 
+
+# BELONGS IN REPORTS.py manipulates a property object (populates attributes)
 def get_property_report(property, taxlots):
     # TODO: call this in "property" after creating the object instance
     from landmapper.map_layers import views as map_views
 
     # calculate orientation, w x h, bounding box, centroid, and zoom level
     property_specs = get_property_specs(property)
-    property_layer = map_views.get_property_image_layer(property, property_specs)
+    property_layer = map_views.get_property_image_layer(
+        property, property_specs)
     # TODO (Sara is creating the layer now)
     taxlot_layer = map_views.get_taxlot_image_layer(property_specs)
 
@@ -365,36 +409,58 @@ def get_property_report(property, taxlots):
     soil_layer = map_views.get_soil_image_layer(property_specs)
     stream_layer = map_views.get_stream_image_layer(property_specs)
 
-    property.property_map_image = map_views.get_property_map(property_specs, base_layer=aerial_layer, property_layer=property_layer)
-    property.aerial_map_image = map_views.get_aerial_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, property_layer=property_layer)
-    property.street_map_image = map_views.get_street_map(property_specs, base_layer=street_layer, lots_layer=taxlot_layer, property_layer=property_layer)
-    property.terrain_map_image = map_views.get_terrain_map(property_specs, base_layer=topo_layer, property_layer=property_layer)
+    property.property_map_image = map_views.get_property_map(
+        property_specs, base_layer=aerial_layer, property_layer=property_layer)
+    property.aerial_map_image = map_views.get_aerial_map(
+        property_specs,
+        base_layer=aerial_layer,
+        lots_layer=taxlot_layer,
+        property_layer=property_layer)
+    property.street_map_image = map_views.get_street_map(
+        property_specs,
+        base_layer=street_layer,
+        lots_layer=taxlot_layer,
+        property_layer=property_layer)
+    property.terrain_map_image = map_views.get_terrain_map(
+        property_specs, base_layer=topo_layer, property_layer=property_layer)
     if settings.STREAMS_BASE_LAYER == 'aerial':
         stream_base_layer = aerial_layer
     else:
         stream_base_layer = topo_layer
-    property.stream_map_image = map_views.get_stream_map(property_specs, base_layer=stream_base_layer, stream_layer=stream_layer, property_layer=property_layer)
-    property.soil_map_image = map_views.get_soil_map(property_specs, base_layer=aerial_layer, lots_layer=taxlot_layer, soil_layer=soil_layer, property_layer=property_layer)
-    property.scalebar_image = map_views.get_scalebar_image(property_specs, span_ratio=0.75)
+    property.stream_map_image = map_views.get_stream_map(
+        property_specs,
+        base_layer=stream_base_layer,
+        stream_layer=stream_layer,
+        property_layer=property_layer)
+    property.soil_map_image = map_views.get_soil_map(
+        property_specs,
+        base_layer=aerial_layer,
+        lots_layer=taxlot_layer,
+        soil_layer=soil_layer,
+        property_layer=property_layer)
+    property.scalebar_image = map_views.get_scalebar_image(property_specs,
+                                                           span_ratio=0.75)
 
-    property.report_data = get_property_report_data(property, property_specs, taxlots)
+    property.report_data = get_property_report_data(property, property_specs,
+                                                    taxlots)
 
+
+## BELONGS IN REPORTS.py gathers data for a property object
 def get_property_report_data(property, property_specs, taxlots):
     report_data = {
         # '${report_page_name}': {
         #     'data': [ 2d array, 1 row for each entry, 1 column for each attr, 1st col is name],
         # }
     }
-    report_pages = ['property', 'aerial', 'street', 'terrain', 'streams','soils','forest_type']
+    report_pages = [
+        'property', 'aerial', 'street', 'terrain', 'streams', 'soils',
+        'forest_type'
+    ]
 
     #Property
     property_data = get_aggregate_property_data(property, taxlots)
 
-
-    report_data['property'] = {
-        'data': property_data,
-        'legend': None
-    }
+    report_data['property'] = {'data': property_data, 'legend': None}
 
     #aerial
     aerial_data = None
@@ -446,6 +512,8 @@ def get_property_report_data(property, property_specs, taxlots):
 
     return report_data
 
+
+## REPORTS.py --> handles summarization of property attributes
 def get_aggregate_property_data(property, taxlots):
     acres = []
     sq_miles = []
@@ -466,7 +534,8 @@ def get_aggregate_property_data(property, taxlots):
         acres.append(taxlot.acres)
         min_elevation.append(taxlot.elev_min_1)
         max_elevation.append(taxlot.elev_max_1)
-        legal.append("Section %s, Township %s, Range %s" % (taxlot.frstdivno, taxlot.twnshpno, taxlot.rangeno))
+        legal.append("Section %s, Township %s, Range %s" %
+                     (taxlot.frstdivno, taxlot.twnshpno, taxlot.rangeno))
         agency.append(taxlot.agency)
         odf_fpd.append(taxlot.odf_fpd)
         name.append(taxlot.name)
@@ -483,18 +552,22 @@ def get_aggregate_property_data(property, taxlots):
         elevation_label = 'Elevation Range'
         min_elevation = pretty_print_float(min_elevation)
         max_elevation = pretty_print_float(max_elevation)
-        elevation_value = "%s - %s ft" % (int(float(min_elevation)), int(float(max_elevation)))
+        elevation_value = "%s - %s ft" % (int(
+            float(min_elevation)), int(float(max_elevation)))
     else:
         elevation_label = 'Elevation'
         elevation_value = 'Unknown'
 
     return [
-        ['Acres', pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
+        ['Acres',
+         pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
         [elevation_label, elevation_value],
         ['Legal Description', aggregate_strings(legal)],
-        ['Structural Fire Disctrict', aggregate_strings(agency)],
-        ['Forest Fire District', aggregate_strings(odf_fpd)],
-        ['Watershed', aggregate_strings(name)],
+        ['Structural Fire Disctrict',
+         aggregate_strings(agency)],
+        ['Forest Fire District',
+         aggregate_strings(odf_fpd)], ['Watershed',
+                                       aggregate_strings(name)],
         ['Watershed (HUC)', aggregate_strings(huc12)],
         ['Zoning', aggregate_strings(orzdesc)]
         # ['twnshpno', aggregate_strings(twnshpno)],
@@ -502,6 +575,8 @@ def get_aggregate_property_data(property, taxlots):
         # ['frstdivno', aggregate_strings(frstdivno)],
     ]
 
+
+## REPORTS.py
 def aggregate_strings(agg_list):
     agg_list = [x for x in agg_list if not x == None]
     out_str = '; '.join(list(dict.fromkeys(agg_list)))
@@ -509,6 +584,8 @@ def aggregate_strings(agg_list):
         out_str = "None"
     return out_str
 
+
+## REPORTS.py
 def aggregate_min(agg_list):
     out_min = None
     for min in agg_list:
@@ -519,6 +596,8 @@ def aggregate_min(agg_list):
                 out_min = min
     return out_min
 
+
+## REPORTS.py
 def aggregate_max(agg_list):
     out_max = None
     for max in agg_list:
@@ -529,13 +608,17 @@ def aggregate_max(agg_list):
                 out_max = max
     return out_max
 
+
+## REPORTS.py
 def aggregate_mean(agg_list):
     mean_sum = 0
     for mean in agg_list:
         if not mean == None:
             mean_sum += mean
-    return mean_sum/len(agg_list)
+    return mean_sum / len(agg_list)
 
+
+## REPORTS.py
 def aggregate_sum(agg_list):
     sum_total = 0
     for sum in agg_list:
@@ -543,12 +626,18 @@ def aggregate_sum(agg_list):
             sum_total += sum
     return sum_total
 
+
+## UTILS.py?  --> only used in REPORTS.py
 def sq_ft_to_acres(sq_ft_val):
-    return sq_ft_val/43560
+    return sq_ft_val / 43560
 
+
+## NO LONGER USED (CAN BE SCRUBBED)
 def sq_ft_to_sq_mi(sq_ft_val):
-    return sq_ft_val/27878400
+    return sq_ft_val / 27878400
 
+
+## REPORTS.py
 def pretty_print_float(value):
     if isinstance(value, (int, float, decimal.Decimal)):
         if abs(value) >= 1000000:
@@ -565,14 +654,16 @@ def pretty_print_float(value):
         return str(value)
 
 
+## BELONGS IN REPORTS.py
 def get_property_specs(property):
     from landmapper.map_layers import views as map_views
     property_specs = {
-        'orientation': None,# 'portrait' or 'landscape'
-        'width': None,      # Pixels
-        'height': None,     # Pixels
-        'bbox': None,       # "W,S,E,N" (EPSG:3857, Web Mercator)
-        'zoom': None        # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
+        'orientation': None,  # 'portrait' or 'landscape'
+        'width': None,  # Pixels
+        'height': None,  # Pixels
+        'bbox': None,  # "W,S,E,N" (EPSG:3857, Web Mercator)
+        'zoom':
+        None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
     (bbox, orientation) = map_views.get_bbox_from_property(property)
 
@@ -582,7 +673,8 @@ def get_property_specs(property):
     width = settings.REPORT_MAP_WIDTH
     height = settings.REPORT_MAP_HEIGHT
 
-    if orientation.lower() == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
+    if orientation.lower(
+    ) == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
         temp_width = width
         width = height
         height = temp_width
@@ -590,10 +682,15 @@ def get_property_specs(property):
     property_specs['width'] = width
     property_specs['height'] = height
 
-    property_specs['zoom'] = map_views.get_web_map_zoom(bbox, width=width, height=height, srs='EPSG:3857')
+    property_specs['zoom'] = map_views.get_web_map_zoom(bbox,
+                                                        width=width,
+                                                        height=height,
+                                                        srs='EPSG:3857')
 
     return property_specs
 
+
+## BELONGS IN VIEWS.py -- called by create_property_id -- > should be merged with it?
 def generate_property_id(taxlot_ids, property_name):
     '''
     Land Mapper: Generate Property ID
@@ -610,10 +707,14 @@ def generate_property_id(taxlot_ids, property_name):
     from django.utils.text import slugify
     property_id = quote(property_name, safe='')
     sorted_taxlots = sorted(taxlot_ids)
-    id_elements = [str(x) for x in [property_id,] + sorted_taxlots]
+    id_elements = [str(x) for x in [
+        property_id,
+    ] + sorted_taxlots]
     join_id_elements = '|'.join(id_elements)
     return join_id_elements
 
+
+## merge this with get_property_by_id
 def parse_property_id(property_id):
     '''
     Land Mapper: Parse Property ID
@@ -635,6 +736,8 @@ def parse_property_id(property_id):
         'taxlot_ids': id_elements,
     }
 
+
+## BELONGS IN VIEWS.py --- > or maybe PROPERTY.py
 def create_property(taxlot_ids, property_name, user_id=False):
     # '''
     # Land Mapper: Create Property
@@ -689,18 +792,21 @@ def create_property(taxlot_ids, property_name, user_id=False):
         else:
             taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
 
-
     # Create Property object (don't use 'objects.create()'!)
     # now create property from cache id on report page
     if type(taxlot_multipolygon) == Polygon:
         taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
 
-    property = Property(user=user, geometry_orig=taxlot_multipolygon, name=property_name)
+    property = Property(user=user,
+                        geometry_orig=taxlot_multipolygon,
+                        name=property_name)
 
     get_property_report(property, taxlots)
 
     return property
 
+
+## BELONGS IN VIEWS.py OR MAYBE PROPERTY.py
 def get_property_by_id(property_id):
     from django.core.cache import cache
     from django.contrib.sites import shortcuts
@@ -709,14 +815,16 @@ def get_property_by_id(property_id):
 
     if not property:
         property_dict = parse_property_id(property_id)
-        property = create_property(property_dict['taxlot_ids'], property_dict['name'])
+        property = create_property(property_dict['taxlot_ids'],
+                                   property_dict['name'])
         if not property.report_data['soils']['data'][0][0] == 'Error':
             # Cache for 1 week
-            cache.set('%s' % property_id, property, 60*60*24*7)
+            cache.set('%s' % property_id, property, 60 * 60 * 24 * 7)
 
     return property
 
 
+## BELONGS IN VIEWS.py
 def get_property_map_image(request, property_id, map_type):
     from django.http import HttpResponse
     from PIL import Image
@@ -743,6 +851,8 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
+
+## BELONGS IN VIEWS.py
 def get_scalebar_image(request, property_id):
     from django.http import HttpResponse
     from PIL import Image
@@ -755,6 +865,7 @@ def get_scalebar_image(request, property_id):
     return response
 
 
+## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
 def create_street_report(request):
     '''
     (slide 7b)
@@ -767,6 +878,8 @@ def create_street_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+
+## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
 def create_terrain_report(request):
     '''
     (slide 7b)
@@ -779,6 +892,8 @@ def create_terrain_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+
+## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
 def create_streams_report(request):
     '''
     (slide 7b)
@@ -791,6 +906,8 @@ def create_streams_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+
+## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
 def create_forest_type_report(request):
     '''
     (Slide 7c)
@@ -803,6 +920,8 @@ def create_forest_type_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+
+## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
 def create_soil_report(request):
     '''
     (Slides 7d-f)
@@ -815,10 +934,14 @@ def create_soil_report(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
+
+## BELONGS IN get_property_pdf function
 def create_property_pdf_id(property_id):
     property_pdf_id = property_id + '_pdf'
     return property_pdf_id
 
+
+## BELONGS IN get_property_pdf function
 def get_property_pdf_by_id(property_id):
     from django.core.cache import cache
     from django.contrib.sites import shortcuts
@@ -830,10 +953,12 @@ def get_property_pdf_by_id(property_id):
         property = get_property_by_id(property_id)
         property_pdf = create_property_pdf(property, property_id)
         if property_pdf:
-            cache.set('%s' % property_pdf_id, property_pdf, 60*60*24*7)
+            cache.set('%s' % property_pdf_id, property_pdf, 60 * 60 * 24 * 7)
 
     return property_pdf
 
+
+## BELONGS IN VIEWS.py
 def get_property_pdf(request, property_id):
     from django.contrib.sites import shortcuts
     from django.http import HttpResponse
@@ -847,6 +972,8 @@ def get_property_pdf(request, property_id):
 
     return response
 
+
+## BELONGS IN VIEWS.py --> might belong in create_property_pdf
 def get_report_data_dict(data):
     data_dict = {}
     for property, value in data:
@@ -871,6 +998,8 @@ def get_report_data_dict(data):
 
     return data_dict
 
+
+## BELONGS IN REPORTS.py
 def create_property_pdf(property, property_id):
     '''
     HOW TO CREATE PDFs
@@ -909,49 +1038,63 @@ def create_property_pdf(property, property_id):
     get_soil_image = requests.get(soil_types_url, stream=True)
     get_scalebar_image = requests.get(scalebar_url, stream=True)
 
-    tmp_property = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_property = NamedTemporaryFile(suffix='.png',
+                                      dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                      delete=True)
     tmp_property_name = tmp_property.name
     with open(tmp_property_name, 'wb') as f:
         for chunk in get_property_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_aerial = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_aerial = NamedTemporaryFile(suffix='.png',
+                                    dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                    delete=True)
     tmp_aerial_name = tmp_aerial.name
     with open(tmp_aerial_name, 'wb') as f:
         for chunk in get_aerial_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_street = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_street = NamedTemporaryFile(suffix='.png',
+                                    dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                    delete=True)
     tmp_street_name = tmp_street.name
     with open(tmp_street_name, 'wb') as f:
         for chunk in get_street_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_topo = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_topo = NamedTemporaryFile(suffix='.png',
+                                  dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                  delete=True)
     tmp_topo_name = tmp_topo.name
     with open(tmp_topo_name, 'wb') as f:
         for chunk in get_terrain_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_stream = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_stream = NamedTemporaryFile(suffix='.png',
+                                    dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                    delete=True)
     tmp_stream_name = tmp_stream.name
     with open(tmp_stream_name, 'wb') as f:
         for chunk in get_stream_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_soils = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_soils = NamedTemporaryFile(suffix='.png',
+                                   dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                   delete=True)
     tmp_soils_name = tmp_soils.name
     with open(tmp_soils_name, 'wb') as f:
         for chunk in get_soil_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
-    tmp_scalebar = NamedTemporaryFile(suffix='.png', dir=settings.PROPERTY_REPORT_PDF_DIR, delete=True)
+    tmp_scalebar = NamedTemporaryFile(suffix='.png',
+                                      dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                      delete=True)
     tmp_scalebar_name = tmp_scalebar.name
     with open(tmp_scalebar_name, 'wb') as f:
         for chunk in get_scalebar_image.iter_content(chunk_size=1024):
@@ -974,41 +1117,42 @@ def create_property_pdf(property, property_id):
     current_datetime = datetime.datetime.now()
     current_datetime = current_datetime.strftime("%c")
 
-    report_data_dict = get_report_data_dict(property.report_data['property']['data'])
+    report_data_dict = get_report_data_dict(
+        property.report_data['property']['data'])
 
     template_input_dict = {
         'date': str(current_datetime),
         'propName': property.name,
-        'acres' : report_data_dict['acres'],
-        'elevation' : report_data_dict['elevation'],
-        'legalDesc' : report_data_dict['legalDesc'],
-        'structFire' : report_data_dict['structFire'],
-        'fire' : report_data_dict['fire'],
-        'watershed' : report_data_dict['watershed'],
-        'watershedNum' : report_data_dict['watershedNum'],
-        'zone' : report_data_dict['zone'],
+        'acres': report_data_dict['acres'],
+        'elevation': report_data_dict['elevation'],
+        'legalDesc': report_data_dict['legalDesc'],
+        'structFire': report_data_dict['structFire'],
+        'fire': report_data_dict['fire'],
+        'watershed': report_data_dict['watershed'],
+        'watershedNum': report_data_dict['watershedNum'],
+        'zone': report_data_dict['zone'],
         'introAerialImagery': tmp_property_name,
         'propName2': property.name,
-        'aerial' :  tmp_aerial_name,
-        'scale' :  tmp_scalebar_name,
+        'aerial': tmp_aerial_name,
+        'scale': tmp_scalebar_name,
         'scale_aerial': tmp_scalebar_name,
         'scale_topo': tmp_scalebar_name,
         'scale_hydro': tmp_scalebar_name,
         'scale_soil': tmp_scalebar_name,
         'directions': tmp_street_name,
-        'scale_directions' :  tmp_scalebar_name,
+        'scale_directions': tmp_scalebar_name,
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
     }
-
 
     rendered_pdf = template_pdf(template_input_dict)
 
     rendered_pdf_name = property.name + '.pdf'
 
     if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
-        output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
+        output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR,
+                                  rendered_pdf_name)
         rendered_pdf.write(open(output_pdf, 'wb'))
     else:
         print('Directory does not exit')
@@ -1033,6 +1177,8 @@ def create_property_pdf(property, property_id):
     else:
         raise FileNotFoundError('Failed to produce output file.')
 
+
+## BELONGS IN VIEWS.py
 def export_layer(request):
     '''
     (called on request for download GIS data)
@@ -1047,7 +1193,9 @@ def export_layer(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-# Helper Views:
+
+# Helper View
+## BELONGS IN SOILS.py
 def get_soils_data(property_specs):
     import requests, json
     from landmapper.fetch import soils_from_nrcs
@@ -1059,10 +1207,13 @@ def get_soils_data(property_specs):
     try:
         soils = soils_from_nrcs(bbox, inSR)
     except (UnboundLocalError, AttributeError) as e:
-        soil_data.append(['Error',])
-        soil_data.append(['NRCS Soil data service unavailable. Try again later',])
+        soil_data.append([
+            'Error',
+        ])
+        soil_data.append([
+            'NRCS Soil data service unavailable. Try again later',
+        ])
         return soil_data
-
 
     mukeys = []
     for index, row in soils.iterrows():
@@ -1071,12 +1222,10 @@ def get_soils_data(property_specs):
 
     columns = ['musym', 'muname']
 
-    query = "SELECT %s FROM mapunit WHERE mukey IN ('%s') ORDER BY %s" % (', '.join(columns),"', '".join(mukeys), columns[0])
+    query = "SELECT %s FROM mapunit WHERE mukey IN ('%s') ORDER BY %s" % (
+        ', '.join(columns), "', '".join(mukeys), columns[0])
     sdm_url = 'https://sdmdataaccess.nrcs.usda.gov/Tabular/SDMTabularService/post.rest'
-    data_query = {
-        'format': 'json',
-        'query': query
-        }
+    data_query = {'format': 'json', 'query': query}
     json_result = requests.post(sdm_url, data=data_query)
     soil_json = json.loads(json_result.text)
 
@@ -1088,17 +1237,22 @@ def get_soils_data(property_specs):
 
     return soil_data
 
+
 def build_legend():
     return
+
 
 def build_forest_type_legend():
     return
 
+
 def build_soil_legend():
     return
 
+
 def build_table():
     return
+
 
 def build_soil_table():
     return
