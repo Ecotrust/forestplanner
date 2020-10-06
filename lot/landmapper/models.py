@@ -5,6 +5,8 @@ from django.db.models import Manager as GeoManager
 from madrona.features import register, alternate, edit, get_feature_by_uid
 from django.contrib.postgres.fields import JSONField
 # from madrona.features.forms import SpatialFeatureForm
+from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 def sq_meters_to_sq_miles(area_m2):
     return area_m2/2589988.11
@@ -34,7 +36,12 @@ class MenuPage(models.Model):
     order = models.SmallIntegerField(default=10)
     staff_only = models.BooleanField(default=False)
     header = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Popup Header")
-    content = models.TextField(null=True, blank=True, default=None, verbose_name="Popup Body")
+    content = RichTextUploadingField(null=True, blank=True, default=None, verbose_name="Popup Body",
+                                        external_plugin_resources=[(
+                                            'youtube',
+                                            '/static/landmapper/vendor/ckeditor/youtube/',
+                                            'plugin.js'
+                                        )])
 
     def __str__(self):
         return "%s" % self.name

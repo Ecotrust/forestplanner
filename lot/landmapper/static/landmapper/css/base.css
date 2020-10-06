@@ -219,3 +219,8 @@ form:invalid {
   color: #78a22f;
   border-width: 3rem;
 }
+
+.modal.show .modal-dialog {
+  width: fit-content;
+  max-width: 80vw;
+}
