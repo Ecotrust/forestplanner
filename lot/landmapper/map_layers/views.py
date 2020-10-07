@@ -1,6 +1,6 @@
 from django.conf import settings
 from PIL import Image, ImageDraw
-from landmapper.views import unstable_request_wrapper
+from landmapper import views as lm_views
 from math import pi, log, tan, exp, atan, log2, log10, floor
 import pyproj
 from django.contrib.gis.geos import Point
@@ -93,7 +93,7 @@ def get_taxlot_image_layer(property_specs):
         request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
-        img_data = unstable_request_wrapper(request_url)
+        img_data = lm_views.unstable_request_wrapper(request_url)
         img_data = image_result_to_PIL(img_data)
 
         if type(img_data) == Image.Image:
@@ -155,7 +155,7 @@ def get_aerial_image_layer(property_specs):
     attribution = aerial_dict['ATTRIBUTION']
 
     # Request URL
-    image_data = unstable_request_wrapper(aerial_url)
+    image_data = lm_views.unstable_request_wrapper(aerial_url)
     base_image = image_result_to_PIL(image_data)
 
     return {
@@ -190,7 +190,7 @@ def get_topo_image_layer(property_specs):
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
-        image_data = unstable_request_wrapper(topo_url)
+        image_data = lm_views.unstable_request_wrapper(topo_url)
         # Request URL
         base_image = image_result_to_PIL(image_data)
     elif topo_dict['TECHNOLOGY'] == 'XYZ':
@@ -245,7 +245,7 @@ def get_street_image_layer(property_specs):
     attribution = street_dict['ATTRIBUTION']
 
     # Request URL
-    image_data = unstable_request_wrapper(street_url)
+    image_data = lm_views.unstable_request_wrapper(street_url)
     base_image = image_result_to_PIL(image_data)
 
     return {
@@ -289,7 +289,7 @@ def get_soil_image_layer(property_specs):
             '&srs=', srs,
             '&bbox=', bbox,
         ])
-        data = unstable_request_wrapper(request_url)
+        data = lm_views.unstable_request_wrapper(request_url)
 
         image = image_result_to_PIL(data)
         if zoom_argument:
@@ -340,7 +340,7 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
             request_params['lon'] = cell['lon_index']
             request_params['lat'] = cell['lat_index']
             request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-            cell['image'] = unstable_request_wrapper(request_url)
+            cell['image'] = lm_views.unstable_request_wrapper(request_url)
 
     img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
 
@@ -393,7 +393,7 @@ def get_stream_image_layer(property_specs):
         request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
-        img_data = unstable_request_wrapper(request_url)
+        img_data = lm_views.unstable_request_wrapper(request_url)
         img_data = image_result_to_PIL(img_data)
 
         if type(img_data) == Image.Image:
