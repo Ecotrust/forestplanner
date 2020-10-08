@@ -54,7 +54,8 @@ def render_vectors(geoms,
     img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
     xmin, ymin, xmax, ymax = bbox
 
-    fig, ax = plt.subplots(figsize=(img_width, img_height), dpi=dpi)
+    fig = plt.figure(figsize=(img_width, img_height), dpi=dpi)
+    ax = fig.add_axes([0.0,0.0,1.0,1.0])
     ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
     ax.axis('off')
 
@@ -78,7 +79,7 @@ def render_vectors(geoms,
                         xy=geoms[i].centroid.coords[0],
                         **label_kwargs)
 
-    img = plt_to_pil_image(fig, dpi=dpi, transparent=(255,255,255))
+    img = plt_to_pil_image(fig, dpi=dpi, transparent=True)
 
     return img
 
@@ -988,7 +989,7 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     return img
 
 
-def plt_to_pil_image(plt_figure, dpi=200, transparent=None):
+def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     """
     Converts a matplotlib figure to a PIL Image (in memory).
 
@@ -998,10 +999,8 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=None):
       the figure to convert
     dpi : int
       the number of dots per inch to render the image
-    transparent : Tuple, optional
-      If set, an RGB tuple (0-255 values) to define the transparency color
-      This tuple may be 3 values (for RGB, assuming full transparency) or
-      4 values: providing an "alpha" value for transparency.
+    transparent : bool, optional
+      render plt with a transparent background
 
     Returns
     -------
@@ -1010,24 +1009,10 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=None):
     """
     fig = plt.figure(plt_figure.number)
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=dpi)
+    plt.savefig(buf, format='png', dpi=dpi, transparent=transparent)
     buf.seek(0)
     pil_image = Image.open(buf)
     plt.close()
-    if transparent and len(transparent) >= 3:
-        if len(transparent) >= 4:
-            alpha = transparent[3]
-        else:
-            alpha = 0
-        pil_image = pil_image.convert("RGBA")
-        img_data = pil_image.getdata()
-        new_data = []
-        for datum in img_data:
-            if datum[0] == transparent[0] and datum[1] == transparent[1] and datum[2] == transparent[2]:
-                new_data.append((datum[0],datum[1],datum[2],alpha))
-            else:
-                new_data.append((datum[0],datum[1],datum[2],255))
-        pil_image.putdata(new_data)
 
     return pil_image
 
