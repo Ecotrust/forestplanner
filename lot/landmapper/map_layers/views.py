@@ -102,12 +102,13 @@ def get_property_image_layer(property, property_specs):
     pixel_height = property_specs['height']
     edgecolor = settings.PROPERTY_OUTLINE_COLOR
     linewidth = settings.PROPERTY_OUTLINE_WIDTH
+    patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
     img = render_vectors(geoms=[property.geometry_orig],
                          bbox=bbox,
                          pixel_width=pixel_width,
                          pixel_height=pixel_height,
-                         patch_kwargs=dict(ec=edgecolor, lw=linewidth)
+                         patch_kwargs=patch_kwargs
                          )
     taxlot_img = {'image': img, 'attribution': None}
 
