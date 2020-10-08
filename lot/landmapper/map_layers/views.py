@@ -2,10 +2,10 @@ from django.conf import settings
 from landmapper import views as lm_views
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
-import io
+import io, pyproj, shapely
+import numpy as np
 from PIL import Image, ImageDraw
 from math import pi, log, tan, exp, atan, log2, log10, floor
-import pyproj
 from matplotlib import pyplot as plt
 from matplotlib import patches
 from matplotlib.collections import PatchCollection
@@ -62,10 +62,12 @@ def render_vectors(geoms,
 
     for geom in geoms:
         if type(geom) == Polygon:
-            patch = patches.Polygon(np.array(geom.exterior.xy).T)
+            shape = shapely.geometry.Polygon(geom.coords)
+            patch = patches.Polygon(np.array(shape.exterior.xy).T)
             polys.append(patch)
         elif type(geom) == MultiPolygon:
-            for poly in geom.geoms:
+            for poly_coords in geom.coords[0]:
+                poly = shapely.geometry.Polygon(poly_coords)
                 patch = patches.Polygon(np.array(poly.exterior.xy).T)
                 polys.append(patch)
     ax.add_collection(PatchCollection(polys, **patch_kwargs))
@@ -76,7 +78,7 @@ def render_vectors(geoms,
                         xy=geoms[i].centroid.coords[0],
                         **label_kwargs)
 
-    img = plt_to_pil_image(fig, dpi=dpi, transparent=True)
+    img = plt_to_pil_image(fig, dpi=dpi, transparent=(255,255,255))
 
     return img
 
@@ -986,7 +988,7 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     return img
 
 
-def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
+def plt_to_pil_image(plt_figure, dpi=200, transparent=None):
     """
     Converts a matplotlib figure to a PIL Image (in memory).
 
@@ -996,8 +998,10 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
       the figure to convert
     dpi : int
       the number of dots per inch to render the image
-    transparent : bool, optional
-      whether to render the background of the image transparent
+    transparent : Tuple, optional
+      If set, an RGB tuple (0-255 values) to define the transparency color
+      This tuple may be 3 values (for RGB, assuming full transparency) or
+      4 values: providing an "alpha" value for transparency.
 
     Returns
     -------
@@ -1010,6 +1014,20 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     buf.seek(0)
     pil_image = Image.open(buf)
     plt.close()
+    if transparent and len(transparent) >= 3:
+        if len(transparent) >= 4:
+            alpha = transparent[3]
+        else:
+            alpha = 0
+        pil_image = pil_image.convert("RGBA")
+        img_data = pil_image.getdata()
+        new_data = []
+        for datum in img_data:
+            if datum[0] == transparent[0] and datum[1] == transparent[1] and datum[2] == transparent[2]:
+                new_data.append((datum[0],datum[1],datum[2],alpha))
+            else:
+                new_data.append((datum[0],datum[1],datum[2],255))
+        pil_image.putdata(new_data)
 
     return pil_image
 

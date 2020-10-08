@@ -84,7 +84,8 @@ REPORT_MAP_MIN_BUFFER = 0.1
 ###########################################
 ##      Properties                      ###
 ###########################################
-PROPERTY_OUTLINE_COLOR = (255,0,255,255)
+# PROPERTY_OUTLINE_COLOR = (255,0,255,255)
+PROPERTY_OUTLINE_COLOR = (1,0,1,1)  # matplotlib does not understand 0-255, only hex or 0-1.0 vals
 PROPERTY_OUTLINE_WIDTH = 3
 
 
