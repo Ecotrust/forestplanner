@@ -1,55 +1,119 @@
 from django.conf import settings
-from PIL import Image, ImageDraw
 from landmapper import views as lm_views
+from django.contrib.gis.geos import Point, Polygon, MultiPolygon
+
+import io
+from PIL import Image, ImageDraw
 from math import pi, log, tan, exp, atan, log2, log10, floor
 import pyproj
-from django.contrib.gis.geos import Point
+from matplotlib import pyplot as plt
+from matplotlib import patches
+from matplotlib.collections import PatchCollection
 
 ################################
 # Map Layer Getter Functions ###
 ################################
 
+def render_vectors(geoms,
+                   bbox,
+                   pixel_height,
+                   pixel_width,
+                   dpi=300,
+                   patch_kwargs={},
+                   labels=None,
+                   label_kwargs={}):
+    """
+    Renders the geometries of a vector layer as an image with a transparent
+    background.
+
+    Parameters
+    ----------
+    geoms : list-like of Polygon or MultiPolygon objects
+      the geometries that will be plotted
+    bbox : list-like of numerics
+      the xmin, ymin, xmax, and ymax coordinates describing the bounding box
+      for the image
+    pixel_height : int
+      the desired height of the image, in pixels
+    pixel_width : int
+      the desired width of the image, in pixels
+    dpi : int, optional
+      dots per inch for the rendered image, default is 350
+    patch_kwargs : dict, optional
+      keyword arguments to pass to matplotlib.PatchCollection
+    labels : list-like of strings, optional
+      labels used to annotate polygons
+    label_kwargs : dict, optional
+      keyword arguments to pass to ax.annotate
+
+    Returns
+    -------
+    img : PIL image
+      the vector rendered as an image
+    """
+    img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
+    xmin, ymin, xmax, ymax = bbox
+
+    fig, ax = plt.subplots(figsize=(img_width, img_height), dpi=dpi)
+    ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
+    ax.axis('off')
+
+    polys = []
+
+    for geom in geoms:
+        if type(geom) == Polygon:
+            patch = patches.Polygon(np.array(geom.exterior.xy).T)
+            polys.append(patch)
+        elif type(geom) == MultiPolygon:
+            for poly in geom.geoms:
+                patch = patches.Polygon(np.array(poly.exterior.xy).T)
+                polys.append(patch)
+    ax.add_collection(PatchCollection(polys, **patch_kwargs))
+
+    if labels is not None:
+        for i, label in enumerate(labels):
+            ax.annotate(text=label,
+                        xy=geoms[i].centroid.coords[0],
+                        **label_kwargs)
+
+    img = plt_to_pil_image(fig, dpi=dpi, transparent=True)
+
+    return img
+
+
 def get_property_image_layer(property, property_specs):
     """
-    PURPOSE:
-    -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
-    IN:
-    -   property: (object) a property record from the DB
-    -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
-    OUT:
-    -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
-    -       rendered with the appropriate styles
+    Produce an image of the taxlots belonging to a property.
+
+    Parameters
+    ----------
+    property : a property object
+      a property record from the DB
+    property_specs : dict
+      pre-computed aspects of the property, including: bbox, width, and height
+
+    Returns
+    -------
+    taxlot_img : dict
+      dictionary with 'image' and 'attribution' as keys
     """
-    from django.contrib.gis.geos.collections import MultiPolygon, Polygon
-    bbox = property_specs['bbox']
-    width = property_specs['width']
-    height = property_specs['height']
+    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    pixel_width = property_specs['width']
+    pixel_height = property_specs['height']
+    edgecolor = settings.PROPERTY_OUTLINE_COLOR
+    linewidth = settings.PROPERTY_OUTLINE_WIDTH
+    patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
-    # Create overlay image
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+    img = render_vectors(geoms=[property.geometry_orig],
+                         bbox=bbox,
+                         pixel_width=pixel_width,
+                         pixel_height=pixel_height,
+                         patch_kwargs=patch_kwargs
+                         )
+    taxlot_img = {'image': img, 'attribution': None}
 
-    geom = property.geometry_orig
-    [bbwest, bbsouth, bbeast, bbnorth] = [float(x) for x in bbox.split(',')]
-    if type(geom) == Polygon:
-        coords_set = (geom.coords)
-    else:
-        coords_set = geom.coords
+    return taxlot_img
 
-    yConversion = float(height)/(bbnorth-bbsouth)
-    xConversion = float(width)/(bbeast-bbwest)
-
-    for poly in coords_set:
-        for poly_coords in poly:
-            polygon = ImageDraw.Draw(base_img)
-            poly_px_coords = []
-            for (gX, gY) in poly_coords:
-                poly_px_coords.append(((gX-bbwest)*xConversion, (bbnorth-gY)*yConversion))
-            polygon.polygon(poly_px_coords, outline=settings.PROPERTY_OUTLINE_COLOR)#, width=settings.PROPERTY_OUTLINE_WIDTH)
-
-    return {
-        'image': base_img,    # Raw http(s) response
-        'attribution': None
-    }
 
 def get_taxlot_image_layer(property_specs):
     # """
@@ -921,18 +985,34 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     img = plt_to_pil_image(fig, dpi=DPI)
     return img
 
-def plt_to_pil_image(plt_figure, dpi=200):
-    import io
-    from PIL import Image
-    import matplotlib.pyplot as plt
 
+def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
+    """
+    Converts a matplotlib figure to a PIL Image (in memory).
+
+    Parameters
+    ---------
+    plt_figure : matplotlib Figure object
+      the figure to convert
+    dpi : int
+      the number of dots per inch to render the image
+    transparent : bool, optional
+      whether to render the background of the image transparent
+
+    Returns
+    -------
+    pil_image : Image
+      the figure converted to a PIL Image
+    """
     fig = plt.figure(plt_figure.number)
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=dpi)
     buf.seek(0)
     pil_image = Image.open(buf)
     plt.close()
+
     return pil_image
+
 
 ################################
 # Helper Functions           ###
