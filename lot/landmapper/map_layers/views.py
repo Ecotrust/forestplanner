@@ -334,31 +334,37 @@ def get_soil_image_layer(property_specs):
         # -       attribution: attribution text for proper use of imagery
         # -   }
         # """
-        bbox = property_specs['bbox']
-        srs = 'EPSG:3857'
-        width = property_specs['width']
-        height = property_specs['height']
-        zoom_argument = settings.SOIL_ZOOM_OVERLAY_2X
 
-        soil_wms_endpoint = settings.SOIL_WMS_URL
+        SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
+        if settings.SOIL_SOURCE == "USDA_WMS":
+            bbox = property_specs['bbox']
+            srs = 'EPSG:3857'
+            width = property_specs['width']
+            height = property_specs['height']
+            zoom_argument = SOIL_SETTINGS['ZOOM_OVERLAY_2X']
 
-        if zoom_argument:
-            width = int(width/2)
-            height = int(height/2)
+            soil_wms_endpoint = SOIL_SETTINGS['URL']
 
-        request_url = ''.join([
-            settings.SOIL_WMS_URL,
-            '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
-            '&version=', settings.SOIL_WMS_VERSION,
-            '&layers=', settings.SOIL_TILE_LAYER,
-            '&width=', str(width),
-            '&height=', str(height),
-            '&srs=', srs,
-            '&bbox=', bbox,
-        ])
-        data = lm_views.unstable_request_wrapper(request_url)
+            if zoom_argument:
+                width = int(width/2)
+                height = int(height/2)
 
-        image = image_result_to_PIL(data)
+            request_url = ''.join([
+                soil_wms_endpoint,
+                '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
+                '&version=', SOIL_SETTINGS['WMS_VERSION'],
+                '&layers=', SOIL_SETTINGS['TILE_LAYER'],
+                '&width=', str(width),
+                '&height=', str(height),
+                '&srs=', srs,
+                '&bbox=', bbox,
+            ])
+            data = lm_views.unstable_request_wrapper(request_url)
+            image = image_result_to_PIL(data)
+        elif settings.SOIL_SOURCE == "MAPBOX":
+            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs)
+            zoom_argument = False
+
         if zoom_argument:
             width = width*2
             height = height*2
@@ -407,6 +413,7 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
             request_params['lon'] = cell['lon_index']
             request_params['lat'] = cell['lat_index']
             request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+            print("Getting layer from MapBox: %s" % request_url)
             cell['image'] = lm_views.unstable_request_wrapper(request_url)
 
     img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)

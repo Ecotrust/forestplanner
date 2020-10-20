@@ -94,32 +94,73 @@ PROPERTY_OUTLINE_WIDTH = 1
 ###########################################
 SOIL_BASE_LAYER = 'aerial'
 # WMS (raster image tile)
-SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
-SOIL_WMS_VERSION = '1.1.1'
-SOIL_TILE_LAYER = 'mapunitpoly'
-SOIL_ZOOM_OVERLAY_2X = True
+# SOIL_WMS_URL = 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms'
+# SOIL_WMS_VERSION = '1.1.1'
+# SOIL_TILE_LAYER = 'mapunitpoly'
+SOIL_ZOOM_OVERLAY_2X = False
+
+SOILS_URLS = {
+    'USDA_WMS': {
+        'URL': 'https://SDMDataAccess.sc.egov.usda.gov/Spatial/SDM.wms',
+        'WMS_VERSION': '1.1.1',
+        'TILE_LAYER': 'mapunitpoly',
+        'ZOOM_OVERLAY_2X': SOIL_ZOOM_OVERLAY_2X,
+        'ATTRIBUTION': ''.join([
+            "Soil Survey Staff, Natural Resources Conservation Service, ",
+            "United States Department of Agriculture. ",
+            "Soil Survey Geographic (SSURGO) Database. ",
+            "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
+            "Accessed %s" % TODAY_DATE
+        ])
+    },
+    'USDA_WFS': {
+        'URL': 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs',
+        'WFS_VERSION': '1.1.0',
+        'DATA_LAYER': 'mapunitpolyextended',
+        'ID_FIELD': 'musym',
+        'ATTRIBUTION': ''.join([        # RDH 2020-10-20: I am not sure this is the correct acctibution for this service.
+            "Soil Survey Staff, Natural Resources Conservation Service, ",
+            "United States Department of Agriculture. ",
+            "U.S. General Soil Map (STATSGO2). ",
+            "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
+            "Accessed %s" % TODAY_DATE,
+        ])
+    },
+    'MAPBOX': {
+        'URL': 'https://api.mapbox.com/styles/v1/{userid}/{layerid}/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'PARAMS': {
+            'userid':'forestplanner',
+            'layerid': 'ckg85xmw7084119mpbf5a69sf',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        'ATTRIBUTION': 'Soil Survey Staff. The Gridded Soil Survey Geographic (gSSURGO) Database for Oregon. United States Department of Agriculture, Natural Resources Conservation Service. Available online at https://gdg.sc.egov.usda.gov/. October 12, 2020 (202007 official release).',
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512
+    }
+
+}
 
 # WFS (soil data)
-SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs'
-SOIL_WFS_VERSION = '1.1.0'
-SOIL_DATA_LAYER = 'mapunitpolyextended'
-SOIL_ID_FIELD = 'musym'
+# SOIL_WFS_URL = 'https://sdmdataaccess.sc.egov.usda.gov/Spatial/SDMWGS84GEOGRAPHIC.wfs'
+# SOIL_WFS_VERSION = '1.1.0'
+# SOIL_DATA_LAYER = 'mapunitpolyextended'
+# SOIL_ID_FIELD = 'musym'
 
 # https://sdmdataaccess.sc.egov.usda.gov/Citation.htm
-SOIL_SSURGO_ATTRIBUTION = ''.join([
-    "Soil Survey Staff, Natural Resources Conservation Service, ",
-    "United States Department of Agriculture. ",
-    "Soil Survey Geographic (SSURGO) Database. ",
-    "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
-    "Accessed %s" % TODAY_DATE
-])
-SOIL_STATSGO_ATTRIBUTION = ''.join([
-    "Soil Survey Staff, Natural Resources Conservation Service, ",
-    "United States Department of Agriculture. ",
-    "U.S. General Soil Map (STATSGO2). ",
-    "Available online at https://sdmdataaccess.sc.egov.usda.gov. ",
-    "Accessed %s" % TODAY_DATE
-])
+SOIL_SSURGO_ATTRIBUTION = SOILS_URLS['USDA_WMS']['ATTRIBUTION']
+
+SOIL_SOURCE = 'MAPBOX'
+
+SOIL_ATTRIBUTION = SOILS_URLS[SOIL_SOURCE]['ATTRIBUTION']
 
 # Reference: https://sdmdataaccess.nrcs.usda.gov/documents/TablesAndColumnsReport.pdf
 SOIL_FIELDS = {
@@ -493,7 +534,7 @@ ATTRIBUTION_KEYS = {
     'streets': 'Set street attr in settings',
     'streams': STREAMS_ATTRIBUTION,
     'taxlot': TAXLOTS_ATTRIBUTION,
-    'soil': SOIL_SSURGO_ATTRIBUTION
+    'soil': SOIL_ATTRIBUTION
 }
 
 ATTRIBUTION_BOX_FILL_COLOR = (255, 255, 255, 190)
