@@ -2,6 +2,7 @@ import os, io, datetime, requests, json, decimal
 from datetime import date
 from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
+from landmapper.models import SoilType
 from landmapper.fetch import soils_from_nrcs
 from landmapper.map_layers import views as map_views
 from pdfjinja import PdfJinja
@@ -477,35 +478,13 @@ def get_soils_data(property_specs):
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
     inSR = 3857
 
-    try:
-        soils = soils_from_nrcs(bbox, inSR)
-    except (UnboundLocalError, AttributeError) as e:
-        soil_data.append([
-            'Error',
-        ])
-        soil_data.append([
-            'NRCS Soil data service unavailable. Try again later',
-        ])
-        return soil_data
+    bbox_poly = map_views.get_bbox_as_polygon(property_specs['bbox'])
+    soils = SoilType.objects.filter(geometry__intersects=bbox_poly)
 
-    mukeys = []
-    for index, row in soils.iterrows():
-        if row.mukey not in mukeys:
-            mukeys.append(str(row.mukey))
-
-    columns = ['musym', 'muname']
-
-    query = "SELECT %s FROM mapunit WHERE mukey IN ('%s') ORDER BY %s" % (
-        ', '.join(columns), "', '".join(mukeys), columns[0])
-    sdm_url = 'https://sdmdataaccess.nrcs.usda.gov/Tabular/SDMTabularService/post.rest'
-    data_query = {'format': 'json', 'query': query}
-    json_result = requests.post(sdm_url, data=data_query)
-    soil_json = json.loads(json_result.text)
-
-    header_row = [settings.SOIL_FIELDS[header]['name'] for header in columns]
-    soil_data.append(header_row)
-
-    for row in soil_json['Table']:
-        soil_data.append(row)
+    ordered_musyms = list(set([x.musym for x in soils]))
+    ordered_musyms.sort()
+    soil_data = []
+    for musym in ordered_musyms:
+        soil_data.append(soils.filter(musym=musym)[0])
 
     return soil_data

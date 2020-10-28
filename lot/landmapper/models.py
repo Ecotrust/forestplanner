@@ -146,22 +146,29 @@ class Taxlot(models.Model):
         form_template = None
         show_template = None
 
-# class SoilType(models.Model):
-#     mukey = models.CharField(max_length=100, null=True, blank=True, default=None)
-#     areasym = models.CharField(max_length=100, null=True, blank=True, default=None)
-#     spatial = models.FloatField(null=True, blank=True, default=None)
-#     musym = models.CharField(max_length=100, null=True, blank=True, default=None)
-#     shp_lng = models.FloatField(null=True, blank=True, default=None)
-#     shap_ar = models.FloatField(null=True, blank=True, default=None)
-#     avgsi = models.FloatField(null=True, blank=True, default=None)
-#     muname = models.CharField(max_length=255, null=True, blank=True, default=None)
-#     drclssd = models.CharField(max_length=100, null=True, blank=True, default=None)
-#     frphrtd = models.CharField(max_length=100, null=True, blank=True, default=None)
-#     avg_rs_l = models.FloatField(null=True, blank=True, default=None)
-#     avg_rs_h = models.FloatField(null=True, blank=True, default=None)
-#
-#     class Options:
-#         verbose_name = 'Soil Type'
+class SoilType(models.Model):
+    mukey = models.CharField(max_length=100, null=True, blank=True, default=None)
+    areasym = models.CharField(max_length=100, null=True, blank=True, default=None)
+    spatial = models.FloatField(null=True, blank=True, default=None)
+    musym = models.CharField(max_length=100, null=True, blank=True, default=None)
+    shp_lng = models.FloatField(null=True, blank=True, default=None)
+    shap_ar = models.FloatField(null=True, blank=True, default=None)
+    avgsi = models.FloatField(null=True, blank=True, default=None)
+    muname = models.CharField(max_length=255, null=True, blank=True, default=None)
+    drclssd = models.CharField(max_length=100, null=True, blank=True, default=None)
+    frphrtd = models.CharField(max_length=100, null=True, blank=True, default=None)
+    avg_rs_l = models.FloatField(null=True, blank=True, default=None)
+    avg_rs_h = models.FloatField(null=True, blank=True, default=None)
+
+    geometry = MultiPolygonField(
+        srid=3857,
+        null=True, blank=True,
+        verbose_name="Grid Cell Geometry"
+    )
+    objects = GeoManager()
+
+    class Options:
+        verbose_name = 'Soil Type'
 
 class Property(MultiPolygonFeature):
     # Property name

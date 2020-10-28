@@ -75,8 +75,7 @@ def get_property_by_id(property_id):
         id_elements = property_id.split('|')
         # Url Decode property's name
         property = create_property(id_elements[1:], unquote(id_elements[0]))
-        if not property.report_data['soils']['data'][0][0] == 'Error':
-            # Cache for 1 week
-            cache.set('%s' % property_id, property, 60 * 60 * 24 * 7)
+        # Cache for 1 week
+        cache.set('%s' % property_id, property, 60 * 60 * 24 * 7)
 
     return property

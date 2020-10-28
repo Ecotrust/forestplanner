@@ -184,11 +184,11 @@
         </div>
         <div class="col-12 no-gutters">
             <div class="property-report-data row no-gutters">
-                {% for datum in property_report.soils.data %}
+                {% for soil_type in property_report.soils.data %}
                     <div class="col-1"></div>
                     <ul class="list-group list-group-flush {% cycle 'col-4' 'col-4' %}">
-                        <li class="list-group-item">{{ datum.0 }}</li>
-                        <li class="list-group-item">{{ datum.1 }}</li>
+                        <li class="list-group-item">{{ soil_type.musym }}</li>
+                        <li class="list-group-item">{{ soil_type.muname }}</li>
                     </ul>
                     <div class="col-1"></div>
                 {% endfor %}
