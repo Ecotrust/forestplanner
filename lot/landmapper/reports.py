@@ -1,4 +1,5 @@
 import os, io, datetime, requests, json, decimal
+from datetime import date
 from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
 from landmapper.fetch import soils_from_nrcs
@@ -68,6 +69,8 @@ def get_property_report_data(property, property_specs, taxlots):
         'property', 'aerial', 'street', 'terrain', 'streams', 'soils',
         'forest_type'
     ]
+
+    report_data['date'] = date.today().strftime("%B %d, %Y")
 
     #Property
     property_data = get_aggregate_property_data(property, taxlots)
@@ -143,10 +146,10 @@ def get_aggregate_property_data(property, taxlots):
 
     for taxlot in taxlots:
         acres.append(taxlot.acres)
-        min_elevation.append(taxlot.elev_min_1)
-        max_elevation.append(taxlot.elev_max_1)
-        legal.append("Section %s, Township %s, Range %s" %
-                     (taxlot.frstdivno, taxlot.twnshpno, taxlot.rangeno))
+        min_elevation.append(taxlot.min_elevation)
+        max_elevation.append(taxlot.max_elevation)
+        legal.append("%s%s %s" %
+                     (taxlot.twnshpdir, taxlot.frstdivno, taxlot.twnshplab))
         agency.append(taxlot.agency)
         odf_fpd.append(taxlot.odf_fpd)
         name.append(taxlot.name)

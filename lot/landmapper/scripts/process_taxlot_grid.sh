@@ -7,7 +7,7 @@ thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
 WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/2020_OR_taxlot_data"
-SHP="$WORKING_DIR/taxlot_att.shp"
+SHP="$WORKING_DIR/taxlot_att2.shp"
 FINAL="$WORKING_DIR/OR_TAXLOTS_2020.sql"
 
 SRID=3857
@@ -35,7 +35,7 @@ VALIDATE="python $thisdir/validate_fields.py"
 # export shp to dump format sql
 # -d option handles dropping table before creation
 # -g option specifies geometry column name
-shp2pgsql -d -D -s $SRID -i -I -W LATIN1 \
+shp2pgsql -k -d -D -s $SRID -i -I -W LATIN1 \
     -g geometry $SHP public.$table_name > $TMP
 
 # Replace gid with id

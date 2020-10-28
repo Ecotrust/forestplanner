@@ -20,6 +20,7 @@
             <aside class="content-panel">
                 <h2>Your property</h2>
                 <h1>{{ property_name }}</h1>
+                <p>Report generated on: {{property_report.date}}</p>
 
                 <div class="property-report-data">
                     {% for datum in property_report.property.data %}
