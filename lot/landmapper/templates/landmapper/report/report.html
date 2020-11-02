@@ -1,5 +1,6 @@
 {% extends 'landmapper/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block styles %}
     {{ block.super }}
@@ -189,6 +190,31 @@
                     <ul class="list-group list-group-flush {% cycle 'col-4' 'col-4' %}">
                         <li class="list-group-item">{{ soil_type.musym }}</li>
                         <li class="list-group-item">{{ soil_type.muname }}</li>
+                        <!-- <li class="list-group-item">{{ soil_type.acres }}</li> -->
+                        {% if soil_type.drclssd %}
+                          <li class="list-group-item">Drainage: {{ soil_type.drclssd }}</li>
+                        {% endif %}
+                        {% if soil_type.avgsi or soil_type.avgsi == 0 %}
+                          <li class="list-group-item">Site Index: {{ soil_type.avgsi|floatformat:2|intcomma }}</li>
+                        {% endif %}
+                        {% if soil_type.frphrtd %}
+                          <li class="list-group-item">Erosion Hazard: {{ soil_type.frphrtd }}</li>
+                        {% endif %}
+                        {% if soil_type.avg_rs_l or soil_type.avg_rs_h %}
+                          <li class="list-group-item">
+                            Depth to Soil:
+                            {% if soil_type.avg_rs_l %}
+                              {{ soil_type.avg_rs_l|floatformat:1 }}
+                              {% if soil_type.avg_rs_h %}
+                                -
+                              {% endif %}
+                            {% endif %}
+                            {% if soil_type.avg_rs_h %}
+                              {{ soil_type.avg_rs_h|floatformat:1 }}
+                            {% endif %}
+                            cm
+                          </li>
+                        {% endif %}
                     </ul>
                     <div class="col-1"></div>
                 {% endfor %}
