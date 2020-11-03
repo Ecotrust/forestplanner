@@ -10,9 +10,9 @@ for folder in ${EPHEMERAL_DIRECTORIES[@]}; do
   # get every file in the folder older than $DAYS_OLD days
   readarray -d '' ephemeral_files < <(/usr/bin/find $folder -name "*.*" -mtime +$DAYS_OLD -print0)
   # for every file in the folder...
-  for ephemeral_file in ${ephemeral_files[@]}; do
+  for ephemeral_file in "${ephemeral_files[@]}"; do
       # delete old file
-      /bin/rm '$ephemeral_file'
+      /bin/rm "${ephemeral_file[@]}""
   done
 
 done
