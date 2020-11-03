@@ -111,7 +111,7 @@ def get_property_report_data(property, property_specs, taxlots):
     }
 
     #soils
-    soil_data = get_soils_data(property_specs)
+    soil_data = get_soils_data(property.geometry_orig)
 
     report_data['soils'] = {
         'data': soil_data,
@@ -230,6 +230,15 @@ def aggregate_sum(agg_list):
 
 def sq_ft_to_acres(sq_ft_val):
     return sq_ft_val / 43560
+
+def sq_m_to_acres(sq_m_val):
+    return sq_m_val / 4046.86
+
+def cm_to_inches(cm_val):
+    if cm_val:
+        return float(cm_val) / 2.54
+    else:
+        return cm_val
 
 def pretty_print_float(value):
     if isinstance(value, (int, float, decimal.Decimal)):
@@ -472,19 +481,56 @@ def create_property_pdf(property, property_id):
     else:
         raise FileNotFoundError('Failed to produce output file.')
 
-def get_soils_data(property_specs):
+def get_soils_data(property_geom):
+    soil_area_values = {}
+    equal_area_projection_id = 5070
     soil_data = []
+    # get soil patches that intersect the property
+    soils = SoilType.objects.filter(geometry__intersects=property_geom)
+    # get the true area of the property in Acres
+    property_srid = int(str(property_geom.srid))
+    property_geom.transform(equal_area_projection_id)
+    property_acres = sq_m_to_acres(property_geom.area)
+    property_geom.transform(property_srid)
 
-    bbox = [float(x) for x in property_specs['bbox'].split(',')]
-    inSR = 3857
+    # build dictionary of soil values for each soil type
+    for soil_patch in soils:
+        if not soil_patch.musym in soil_area_values.keys():
+            soil_area_values[soil_patch.musym] = {
+                # All SoilType fields + 2 property-specific calculated fields
+                'mukey': soil_patch.mukey,
+                'musym': soil_patch.musym,
+                'muname': soil_patch.muname,
+                'acres': 0,
+                'spatial': soil_patch.spatial,
+                'areasym': soil_patch.areasym,
+                'shp_lng': soil_patch.shp_lng,
+                'shap_ar': soil_patch.shap_ar,
+                'avgsi': soil_patch.avgsi,
+                'site_index_unit': 'feet',
+                'drclssd': soil_patch.drclssd,
+                'frphrtd': soil_patch.frphrtd,
+                'avg_rs_l': cm_to_inches(soil_patch.avg_rs_l),
+                'avg_rs_h': cm_to_inches(soil_patch.avg_rs_h),
+                'depth_unit': 'inches',
+                'percent_area': 0.0
+            }
+            # can't cast None to int
+            if soil_patch.avgsi:
+                soil_area_values[soil_patch.musym]['avgsi'] = int(soil_patch.avgsi)
+        # aggregate area value
+        intersection_patch = property_geom.intersection(soil_patch.geometry)
+        intersection_patch.transform(equal_area_projection_id)
+        soil_area_values[soil_patch.musym]['acres'] = soil_area_values[soil_patch.musym]['acres'] + sq_m_to_acres(intersection_patch.area)
+        # Update the 'percent area' value
+        soil_area_values[soil_patch.musym]['percent_area'] = float(soil_area_values[soil_patch.musym]['acres'])/float(property_acres)*100
 
-    bbox_poly = map_views.get_bbox_as_polygon(property_specs['bbox'])
-    soils = SoilType.objects.filter(geometry__intersects=bbox_poly)
-
-    ordered_musyms = list(set([x.musym for x in soils]))
+    # present soil symbol values in alphanumeric order
+    ordered_musyms = list(set(soil_area_values.keys()))
     ordered_musyms.sort()
-    soil_data = []
+
+    # add each soil entry in order to the output list so that order is maintained
     for musym in ordered_musyms:
-        soil_data.append(soils.filter(musym=musym)[0])
+        soil_data.append(soil_area_values[musym])
 
     return soil_data
