@@ -160,12 +160,12 @@ def get_aggregate_property_data(property, taxlots):
         # rangeno.append(taxlot.rangeno)
         # frstdivno.append(taxlot.frstdivno)
 
-    min_elevation = pretty_print_float(aggregate_min(min_elevation))
-    max_elevation = pretty_print_float(aggregate_max(max_elevation))
+    min_elevation = pretty_print_float(m_to_ft(aggregate_min(min_elevation)))
+    max_elevation = pretty_print_float(m_to_ft(aggregate_max(max_elevation)))
 
     if not min_elevation == None and not max_elevation == None:
         elevation_label = 'Elevation Range'
-        elevation_value = "%s - %s ft" % (pretty_print_float(m_to_ft(min_elevation)),pretty_print_float(m_to_ft(max_elevation)))
+        elevation_value = "%s - %s ft" % (min_elevation, max_elevation)
     else:
         elevation_label = 'Elevation'
         elevation_value = 'Unknown'
