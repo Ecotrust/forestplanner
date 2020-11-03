@@ -14,11 +14,31 @@ window.addEventListener( 'load', function() {
     e.preventDefault();
     generatePropertyReport(e);
   });
+
+  formGenerateReport.addEventListener('keypress', function(e) {
+    var keyCode = e.which;
+    // console.log(keyCode);
+    /*
+      \ : 92 - gets interpreted as a literal by app server
+      / : 47 - gets interpreted as a literal by app server
+      | : 124 - is required for parsing lot ID from name
+      ? : 63 - Gets interpreted as starting a query string? Breaks image requests, can be fixed
+      # : 35 - gets interpreted as an anchor? Breaks image requests, can be fixed
+    */
+    var disallowed = [92, 47, 124, 63, 35];
+    if (disallowed.indexOf(keyCode) >= 0) {
+      $('#prop-name-error').css("visibility", "visible");
+      e.preventDefault();
+      return false;
+    }
+  })
+
 });
 
 var landmapperReport = {
   reportURL: '/landmapper/create_property_id/',
   getReport: function(taxlots, propertyName) {
+    $('#spinner-modal').modal('show');
     var token = document.querySelector('[name=csrfmiddlewaretoken]').value;
     jQuery.ajax({
       headers: { "X-CSRFToken": token },
@@ -54,6 +74,7 @@ var landmapperReport = {
 
       },
       error: function(error) {
+          $('#spinner-modal').modal('hide');
           window.alert('Error creating maps, please try again.');
           console.log('Error in craeting maps.');
       }

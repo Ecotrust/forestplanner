@@ -204,3 +204,23 @@ form:invalid {
   padding-right: 0;
   padding-left: 0;
 }
+
+#prop-name-error {
+  visibility: hidden;
+  color: red;
+}
+
+/**
+ * Bootstrap Spinner
+ */
+.landmapper-spinner {
+  width: 20rem;
+  height: 20rem;
+  color: #78a22f;
+  border-width: 3rem;
+}
+
+.modal.show .modal-dialog {
+  width: fit-content;
+  max-width: 80vw;
+}

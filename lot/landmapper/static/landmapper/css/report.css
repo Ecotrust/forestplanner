@@ -95,7 +95,11 @@
   height: auto !important;
   left: 4vh;
   position: absolute;
+<<<<<<< HEAD
   width: auto;
+=======
+  /* width: 361px !important;  RDH 2020-10-02: Please don't do this! */
+>>>>>>> 370dd2cb20a6b1c9ad79fcc5a0cf9886fff1abb6
   z-index: 1;
 }
 

@@ -1,52 +1,122 @@
 from django.conf import settings
+from landmapper import views as lm_views
+from django.contrib.gis.geos import Point, Polygon, MultiPolygon
+
+import io, pyproj, shapely
+import numpy as np
 from PIL import Image, ImageDraw
-from landmapper.views import unstable_request_wrapper
+from math import pi, log, tan, exp, atan, log2, log10, floor
+from matplotlib import pyplot as plt
+from matplotlib import patches
+from matplotlib.collections import PatchCollection
 
 ################################
 # Map Layer Getter Functions ###
 ################################
 
+def render_vectors(geoms,
+                   bbox,
+                   pixel_height,
+                   pixel_width,
+                   dpi=300,
+                   patch_kwargs={},
+                   labels=None,
+                   label_kwargs={}):
+    """
+    Renders the geometries of a vector layer as an image with a transparent
+    background.
+
+    Parameters
+    ----------
+    geoms : list-like of Polygon or MultiPolygon objects
+      the geometries that will be plotted
+    bbox : list-like of numerics
+      the xmin, ymin, xmax, and ymax coordinates describing the bounding box
+      for the image
+    pixel_height : int
+      the desired height of the image, in pixels
+    pixel_width : int
+      the desired width of the image, in pixels
+    dpi : int, optional
+      dots per inch for the rendered image, default is 350
+    patch_kwargs : dict, optional
+      keyword arguments to pass to matplotlib.PatchCollection
+    labels : list-like of strings, optional
+      labels used to annotate polygons
+    label_kwargs : dict, optional
+      keyword arguments to pass to ax.annotate
+
+    Returns
+    -------
+    img : PIL image
+      the vector rendered as an image
+    """
+    img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
+    xmin, ymin, xmax, ymax = bbox
+
+    fig = plt.figure(figsize=(img_width, img_height), dpi=dpi)
+    ax = fig.add_axes([0.0,0.0,1.0,1.0])
+    ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
+    ax.axis('off')
+
+    polys = []
+
+    for geom in geoms:
+        if type(geom) == Polygon:
+            shape = shapely.geometry.Polygon(geom.coords)
+            patch = patches.Polygon(np.array(shape.exterior.xy).T)
+            polys.append(patch)
+        elif type(geom) == MultiPolygon:
+            for poly_coords in geom.coords[0]:
+                poly = shapely.geometry.Polygon(poly_coords)
+                patch = patches.Polygon(np.array(poly.exterior.xy).T)
+                polys.append(patch)
+    ax.add_collection(PatchCollection(polys, **patch_kwargs))
+
+    if labels is not None:
+        for i, label in enumerate(labels):
+            ax.annotate(text=label,
+                        xy=geoms[i].centroid.coords[0],
+                        **label_kwargs)
+
+    img = plt_to_pil_image(fig, dpi=dpi, transparent=True)
+
+    return img
+
+
 def get_property_image_layer(property, property_specs):
     """
-    PURPOSE:
-    -   Given a bounding box, return an image of all intersecting taxlots cut to the specified size.
-    IN:
-    -   property: (object) a property record from the DB
-    -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
-    OUT:
-    -   taxlot_image: (PIL Image object) an image of the appropriate taxlot data
-    -       rendered with the appropriate styles
+    Produce an image of the taxlots belonging to a property.
+
+    Parameters
+    ----------
+    property : a property object
+      a property record from the DB
+    property_specs : dict
+      pre-computed aspects of the property, including: bbox, width, and height
+
+    Returns
+    -------
+    taxlot_img : dict
+      dictionary with 'image' and 'attribution' as keys
     """
-    from django.contrib.gis.geos.collections import MultiPolygon, Polygon
-    bbox = property_specs['bbox']
-    width = property_specs['width']
-    height = property_specs['height']
+    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    pixel_width = property_specs['width']
+    pixel_height = property_specs['height']
+    edgecolor = settings.PROPERTY_OUTLINE_COLOR
+    linewidth = settings.PROPERTY_OUTLINE_WIDTH
+    patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
-    # Create overlay image
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+    img = render_vectors(geoms=[property.geometry_orig],
+                         bbox=bbox,
+                         pixel_width=pixel_width,
+                         pixel_height=pixel_height,
+                         patch_kwargs=patch_kwargs
+                         )
+    taxlot_img = {'image': img, 'attribution': None}
 
-    geom = property.geometry_orig
-    [bbwest, bbsouth, bbeast, bbnorth] = [float(x) for x in bbox.split(',')]
-    if type(geom) == Polygon:
-        coords_set = (geom.coords)
-    else:
-        coords_set = geom.coords
+    return taxlot_img
 
-    yConversion = float(height)/(bbnorth-bbsouth)
-    xConversion = float(width)/(bbeast-bbwest)
-
-    for poly in coords_set:
-        for poly_coords in poly:
-            polygon = ImageDraw.Draw(base_img)
-            poly_px_coords = []
-            for (gX, gY) in poly_coords:
-                poly_px_coords.append(((gX-bbwest)*xConversion, (bbnorth-gY)*yConversion))
-            polygon.polygon(poly_px_coords, outline=settings.PROPERTY_OUTLINE_COLOR)#, width=settings.PROPERTY_OUTLINE_WIDTH)
-
-    return {
-        'image': base_img,    # Raw http(s) response
-        'attribution': None
-    }
 
 def get_taxlot_image_layer(property_specs):
     # """
@@ -90,7 +160,7 @@ def get_taxlot_image_layer(property_specs):
         request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
-        img_data = unstable_request_wrapper(request_url)
+        img_data = lm_views.unstable_request_wrapper(request_url)
         img_data = image_result_to_PIL(img_data)
 
         if type(img_data) == Image.Image:
@@ -152,7 +222,7 @@ def get_aerial_image_layer(property_specs):
     attribution = aerial_dict['ATTRIBUTION']
 
     # Request URL
-    image_data = unstable_request_wrapper(aerial_url)
+    image_data = lm_views.unstable_request_wrapper(aerial_url)
     base_image = image_result_to_PIL(image_data)
 
     return {
@@ -187,7 +257,7 @@ def get_topo_image_layer(property_specs):
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
-        image_data = unstable_request_wrapper(topo_url)
+        image_data = lm_views.unstable_request_wrapper(topo_url)
         # Request URL
         base_image = image_result_to_PIL(image_data)
     elif topo_dict['TECHNOLOGY'] == 'XYZ':
@@ -242,7 +312,7 @@ def get_street_image_layer(property_specs):
     attribution = street_dict['ATTRIBUTION']
 
     # Request URL
-    image_data = unstable_request_wrapper(street_url)
+    image_data = lm_views.unstable_request_wrapper(street_url)
     base_image = image_result_to_PIL(image_data)
 
     return {
@@ -264,31 +334,37 @@ def get_soil_image_layer(property_specs):
         # -       attribution: attribution text for proper use of imagery
         # -   }
         # """
-        bbox = property_specs['bbox']
-        srs = 'EPSG:3857'
-        width = property_specs['width']
-        height = property_specs['height']
-        zoom_argument = settings.SOIL_ZOOM_OVERLAY_2X
 
-        soil_wms_endpoint = settings.SOIL_WMS_URL
+        SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
+        if settings.SOIL_SOURCE == "USDA_WMS":
+            bbox = property_specs['bbox']
+            srs = 'EPSG:3857'
+            width = property_specs['width']
+            height = property_specs['height']
+            zoom_argument = SOIL_SETTINGS['ZOOM_OVERLAY_2X']
 
-        if zoom_argument:
-            width = int(width/2)
-            height = int(height/2)
+            soil_wms_endpoint = SOIL_SETTINGS['URL']
 
-        request_url = ''.join([
-            settings.SOIL_WMS_URL,
-            '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
-            '&version=', settings.SOIL_WMS_VERSION,
-            '&layers=', settings.SOIL_TILE_LAYER,
-            '&width=', str(width),
-            '&height=', str(height),
-            '&srs=', srs,
-            '&bbox=', bbox,
-        ])
-        data = unstable_request_wrapper(request_url)
+            if zoom_argument:
+                width = int(width/2)
+                height = int(height/2)
 
-        image = image_result_to_PIL(data)
+            request_url = ''.join([
+                soil_wms_endpoint,
+                '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
+                '&version=', SOIL_SETTINGS['WMS_VERSION'],
+                '&layers=', SOIL_SETTINGS['TILE_LAYER'],
+                '&width=', str(width),
+                '&height=', str(height),
+                '&srs=', srs,
+                '&bbox=', bbox,
+            ])
+            data = lm_views.unstable_request_wrapper(request_url)
+            image = image_result_to_PIL(data)
+        elif settings.SOIL_SOURCE == "MAPBOX":
+            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs)
+            zoom_argument = False
+
         if zoom_argument:
             width = width*2
             height = height*2
@@ -337,7 +413,8 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
             request_params['lon'] = cell['lon_index']
             request_params['lat'] = cell['lat_index']
             request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-            cell['image'] = unstable_request_wrapper(request_url)
+            print("Getting layer from MapBox: %s" % request_url)
+            cell['image'] = lm_views.unstable_request_wrapper(request_url)
 
     img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
 
@@ -390,7 +467,7 @@ def get_stream_image_layer(property_specs):
         request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
         request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
 
-        img_data = unstable_request_wrapper(request_url)
+        img_data = lm_views.unstable_request_wrapper(request_url)
         img_data = image_result_to_PIL(img_data)
 
         if type(img_data) == Image.Image:
@@ -649,20 +726,30 @@ def get_soil_map(property_specs, base_layer, lots_layer, soil_layer, property_la
 def get_scalebar_image(property_specs, span_ratio=0.75):
     image_width_in_pixels = property_specs['width']
     bbox = [float(x) for x in property_specs['bbox'].split(',')]
-    image_width_in_meters = bbox[2] - bbox[0]
+    # image_width_in_meters = bbox[2] - bbox[0]
+
+    # get coords in EPSG:4326
+    bbox_poly = get_bbox_as_polygon(property_specs['bbox'])
+    bbox_poly.transform(4326)
+    nw = Point(bbox_poly.coords[0][3])
+    ne = Point(bbox_poly.coords[0][2])
+    # geodesic measurement
+    geod = pyproj.Geod(ellps='WGS84')
+    angle1,angle2,distance = geod.inv(nw.coords[0], nw.coords[1], ne.coords[0], ne.coords[1])
+    image_width_in_meters = distance
+
     return generate_scalebar_for_image(image_width_in_meters, image_width_in_pixels, span_ratio)
 
 # Thanks to Senshin @ https://stackoverflow.com/a/33947673/706797
 def get_first_sig_dig(x):
-    from math import log10, floor
     return round(x / (10**floor(log10(x))))
 
 # Thanks to Evgeny and Tobias Kienzler @ https://stackoverflow.com/a/3411435/706797
 def round_to_1(x):
-    from math import log10, floor
     return round(x, -int(floor(log10(abs(x)))))
 
 def refit_step(step_tick, num_steps, max_width_in_units, min_step_width_in_pixels, units_per_pixel):
+
     sig_dig = get_first_sig_dig(step_tick)
     if num_steps > 1:
         step_tick = increase_step_size(step_tick, sig_dig)
@@ -713,7 +800,11 @@ def reduce_step_size(step_tick, sig_dig):
 
     return step_tick * resize_factor
 
-def generate_scalebar_for_image(img_width_in_meters, img_width_in_pixels=509, scale_width_ratio=1, min_step_width=100, dpi=300):
+def generate_scalebar_for_image(
+        img_width_in_meters,
+        img_width_in_pixels=509,
+        scale_width_ratio=1,
+        min_step_width=100, dpi=300):
     bottom_units_per_pixel = img_width_in_meters/img_width_in_pixels
     if img_width_in_pixels > 500:
         units_bottom = 'meters'
@@ -759,9 +850,9 @@ def generate_scalebar_for_image(img_width_in_meters, img_width_in_pixels=509, sc
     refit_dict = refit_step(
         step_ticks_top,
         num_steps_top,
-        scale_width_in_meters/scale_top,
+        top_unit_count,
         min_step_width,
-        bottom_units_per_pixel/scale_top
+        bottom_units_per_pixel*scale_bottom/scale_top
     )
 
     step_ticks_top = refit_dict['step_tick']
@@ -815,12 +906,13 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
       the dual scale bar rendered as an in-memory image
     """
 
-
     from matplotlib import pyplot as plt
     import numpy as np
     import matplotlib
     matplotlib.use('Agg')
     DPI = 350
+    DEFAULT_WIDTH = 1.5
+    DEFAULT_HEIGHT = 0.2
 
     width_top = (num_ticks_top - 1) * step_ticks_top * (scale_top / scale_bottom)
     width_bot = (num_ticks_bottom - 1) * step_ticks_bottom
@@ -829,7 +921,7 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     both_min, both_max = min(min_top, min_bot), max(max_top, max_bot)
 
     fig = plt.figure(frameon=False)
-    fig.set_size_inches(1.5, 0.15)
+    fig.set_size_inches(DEFAULT_WIDTH, DEFAULT_HEIGHT)
     fig.dpi = DPI
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
@@ -903,18 +995,34 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     img = plt_to_pil_image(fig, dpi=DPI)
     return img
 
-def plt_to_pil_image(plt_figure, dpi=200):
-    import io
-    from PIL import Image
-    import matplotlib.pyplot as plt
 
+def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
+    """
+    Converts a matplotlib figure to a PIL Image (in memory).
+
+    Parameters
+    ---------
+    plt_figure : matplotlib Figure object
+      the figure to convert
+    dpi : int
+      the number of dots per inch to render the image
+    transparent : bool, optional
+      render plt with a transparent background
+
+    Returns
+    -------
+    pil_image : Image
+      the figure converted to a PIL Image
+    """
     fig = plt.figure(plt_figure.number)
     buf = io.BytesIO()
-    plt.savefig(buf, format='png', dpi=dpi)
+    plt.savefig(buf, format='png', dpi=dpi, transparent=transparent)
     buf.seek(0)
     pil_image = Image.open(buf)
     plt.close()
+
     return pil_image
+
 
 ################################
 # Helper Functions           ###
@@ -1286,7 +1394,6 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
 ZOOM0_SIZE = 512  # Not 256
 # Geo-coordinate in degrees => Pixel coordinate
 def g2p(lat, lon, zoom):
-    from math import pi, log, tan, exp, atan, log2, floor
     return (
         # x
         ZOOM0_SIZE * (2 ** zoom) * (1 + lon / 180) / 2,
@@ -1295,7 +1402,6 @@ def g2p(lat, lon, zoom):
     )
 # Pixel coordinate => geo-coordinate in degrees
 def p2g(x, y, zoom):
-    from math import pi, log, tan, exp, atan, log2, floor
     return (
         # lat
         (atan(exp(pi - y / ZOOM0_SIZE * (2 * pi) / (2 ** zoom))) / pi * 4 - 1) * 90,
@@ -1342,7 +1448,6 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # -     lon_index
     # -     tile_bbox
     # """
-    from django.contrib.gis.geos import Point
 
     tiles_dict_array = []
 
@@ -1451,7 +1556,6 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
     # -     lon: a float representing the centroid longitude
     # -     zoom: a float representing the appropriate zoom value within 0.01
     # """
-    from math import log, log2, floor
     bbox = get_bbox_as_string(bbox)
     if not srs in ['EPSG:4326', '4326', 4326]:
         if type(srs) == str:

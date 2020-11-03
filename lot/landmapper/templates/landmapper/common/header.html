@@ -11,12 +11,19 @@
           <li class="nav-item">
             <a class="nav-link" href="/landmapper/">Home <span class="sr-only">(current)</span></a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="modal" href="#about-modal" data-target="#about-modal">About <span class="sr-only">(modal)</span></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" data-toggle="modal" href="#help-modal">Help <span class="sr-only">(modal)</span></a>
-          </li>
+          {% for item in menu_items %}
+            {% if item.staff_only %}
+              {% if user.is_authenticated %}
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="modal" href="#{{item.name}}-modal">{{item.name}} <span class="sr-only">(modal)</span></a>
+                </li>
+              {% endif %} <!-- is_authenticated -->
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" data-toggle="modal" href="#{{item.name}}-modal">{{item.name}} <span class="sr-only">(modal)</span></a>
+              </li>
+            {% endif %} <!-- staff only -->
+          {% endfor %} <!-- menu_items -->
         </ul>
       </div>
     </div>

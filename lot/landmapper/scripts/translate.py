@@ -6,7 +6,7 @@ import json
 
 def translate(content, wdict):
     for key in wdict:
-        content = content.replace(key, wdict[key])
+        content = content.replace('"%s"' % key, '"%s"' % wdict[key])
     return content
 
 

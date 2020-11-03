@@ -18,6 +18,7 @@
           <div class="form-group">
             <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
           </div>
+          <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
           <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
           <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
         </form>
@@ -27,7 +28,7 @@
     {% block map-wrap %}
       <section class="col" id="map-wrap">
         {% block property-search %}
-          <form role="search" id="property-search-form" action="/landmapper/identify/" method="post">
+          <form role="search" id="property-search-form" action="/landmapper/identify/" method="post" {% if search_performed %} style="visibility: hidden;" {% endif %}>
             {% csrf_token %}
             <div class="input-group input-group-lg">
               <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" value="{{ q_address_value }}" aria-describedby="property-search-btn" required />

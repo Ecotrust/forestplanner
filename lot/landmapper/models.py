@@ -5,6 +5,8 @@ from django.db.models import Manager as GeoManager
 from madrona.features import register, alternate, edit, get_feature_by_uid
 from django.contrib.postgres.fields import JSONField
 # from madrona.features.forms import SpatialFeatureForm
+from ckeditor.fields import RichTextField
+from ckeditor_uploader.fields import RichTextUploadingField
 
 def sq_meters_to_sq_miles(area_m2):
     return area_m2/2589988.11
@@ -30,10 +32,16 @@ def sq_meters_to_acres(area_m2):
 """
 
 class MenuPage(models.Model):
-    name = models.CharField(max_length=255)
+    name = models.CharField(max_length=255, verbose_name="Menu Item")
     order = models.SmallIntegerField(default=10)
     staff_only = models.BooleanField(default=False)
-    content = models.TextField(null=True, blank=True, default=None)
+    header = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Popup Header")
+    content = RichTextUploadingField(null=True, blank=True, default=None, verbose_name="Popup Body",
+                                        external_plugin_resources=[(
+                                            'youtube',
+                                            '/static/landmapper/vendor/ckeditor/youtube/',
+                                            'plugin.js'
+                                        )])
 
     def __str__(self):
         return "%s" % self.name
@@ -55,7 +63,7 @@ class Taxlot(models.Model):
         app_label = 'landmapper'
 
     # acres
-    acres = models.FloatField(null=True, blank=True)
+    acres = models.FloatField(null=True, blank=True, default=None)
     # ODF_FPD
     odf_fpd = models.CharField(max_length=25, null=True, blank=True, default=None)
     # Agency
@@ -72,20 +80,28 @@ class Taxlot(models.Model):
     rangeno = models.CharField(max_length=3, null=True, blank=True, default=None)
     # FRSTDIVNO
     frstdivno = models.CharField(max_length=10, null=True, blank=True, default=None)
-    # ele_mean
+    # TWNSHPDIR
+    twnshpdir = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # RANGEDIR
+    rangedir = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # TWNSHPLAB
+    twnshplab = models.CharField(max_length=20, null=True, blank=True, default=None)
+    # AREA
+    area = models.FloatField(null=True, blank=True, default=None)
+    # MEAN, formerly ele_mean
     mean_elevation = models.FloatField(null=True, blank=True, default=None)
-    # ele_min
+    # MIN, formerly ele_min
     min_elevation = models.FloatField(null=True, blank=True, default=None)
-    # ele_max
+    # MAX, formerly ele_max
     max_elevation = models.FloatField(null=True, blank=True, default=None)
     # elev_min
-    elev_min = models.FloatField(null=True, blank=True, default=None)
+    # elev_min = models.FloatField(null=True, blank=True, default=None)
     # elev_max
-    elev_max = models.FloatField(null=True, blank=True, default=None)
+    # elev_max = models.FloatField(null=True, blank=True, default=None)
     # elev_min_1
-    elev_min_1 = models.FloatField(null=True, blank=True, default=None)
+    # elev_min_1 = models.FloatField(null=True, blank=True, default=None)
     # elev_max_1
-    elev_max_1 = models.FloatField(null=True, blank=True, default=None)
+    # elev_max_1 = models.FloatField(null=True, blank=True, default=None)
 
     shape_leng = models.FloatField(null=True, blank=True)
     shape_area = models.FloatField(null=True, blank=True)
@@ -129,6 +145,30 @@ class Taxlot(models.Model):
         form = None
         form_template = None
         show_template = None
+
+class SoilType(models.Model):
+    mukey = models.CharField(max_length=100, null=True, blank=True, default=None)
+    areasym = models.CharField(max_length=100, null=True, blank=True, default=None)
+    spatial = models.FloatField(null=True, blank=True, default=None)
+    musym = models.CharField(max_length=100, null=True, blank=True, default=None)
+    shp_lng = models.FloatField(null=True, blank=True, default=None)
+    shap_ar = models.FloatField(null=True, blank=True, default=None)
+    avgsi = models.FloatField(null=True, blank=True, default=None)
+    muname = models.CharField(max_length=255, null=True, blank=True, default=None)
+    drclssd = models.CharField(max_length=100, null=True, blank=True, default=None)
+    frphrtd = models.CharField(max_length=100, null=True, blank=True, default=None)
+    avg_rs_l = models.FloatField(null=True, blank=True, default=None)
+    avg_rs_h = models.FloatField(null=True, blank=True, default=None)
+
+    geometry = MultiPolygonField(
+        srid=3857,
+        null=True, blank=True,
+        verbose_name="Grid Cell Geometry"
+    )
+    objects = GeoManager()
+
+    class Options:
+        verbose_name = 'Soil Type'
 
 class Property(MultiPolygonFeature):
     # Property name

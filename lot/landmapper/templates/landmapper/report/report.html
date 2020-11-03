@@ -1,5 +1,6 @@
 {% extends 'landmapper/base.html' %}
 {% load static %}
+{% load humanize %}
 
 {% block styles %}
     {{ block.super }}
@@ -20,6 +21,7 @@
             <aside class="content-panel">
                 <h2>Your property</h2>
                 <h1>{{ property_name }}</h1>
+                <p>Report generated on: {{property_report.date}}</p>
 
                 <div class="property-report-data">
                     {% for datum in property_report.property.data %}
@@ -183,11 +185,49 @@
         </div>
         <div class="col-12 no-gutters">
             <div class="property-report-data row no-gutters">
-                {% for datum in property_report.soils.data %}
+                {% for soil_type in property_report.soils.data %}
                     <div class="col-1"></div>
                     <ul class="list-group list-group-flush {% cycle 'col-4' 'col-4' %}">
-                        <li class="list-group-item">{{ datum.0 }}</li>
-                        <li class="list-group-item">{{ datum.1 }}</li>
+                        <li class="list-group-item">{{ soil_type.musym }}</li>
+                        <li class="list-group-item">{{ soil_type.muname }}</li>
+                        <li class="list-group-item">Area: {{ soil_type.acres|floatformat:1|intcomma }} acres ({{ soil_type.percent_area|floatformat:1}}%)</li>
+                        <li class="list-group-item">Drainage:
+                          {% if soil_type.drclssd %}
+                            {{ soil_type.drclssd }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item">Site Index:
+                          {% if soil_type.avgsi or soil_type.avgsi == 0 %}
+                            {{ soil_type.avgsi|intcomma }} {{ soil_type.site_index_unit }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item">Erosion Hazard:
+                          {% if soil_type.frphrtd %}
+                            {{ soil_type.frphrtd }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item">Depth to Soil Restrictive Layer:
+                          {% if soil_type.avg_rs_l or soil_type.avg_rs_h %}
+                            {% if soil_type.avg_rs_l %}
+                              {{ soil_type.avg_rs_l|floatformat:1 }}
+                              {% if soil_type.avg_rs_h %}
+                                -
+                              {% endif %}
+                            {% endif %}
+                            {% if soil_type.avg_rs_h %}
+                              {{ soil_type.avg_rs_h|floatformat:1 }}
+                            {% endif %}
+                            {{ soil_type.depth_unit }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
                     </ul>
                     <div class="col-1"></div>
                 {% endfor %}

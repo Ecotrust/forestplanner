@@ -289,7 +289,27 @@ DOMAIN_ROUTING = {
 INSTALLED_APPS += (
     'django.contrib.flatpages',
     'ckeditor',
+    'ckeditor_uploader',
 )
+
+CKEDITOR_CONFIGS = {
+    'default': {
+        'toolbar': 'Custom',
+        'toolbar_Custom': [
+            ['Format'],
+            ['Bold', 'Italic', 'Underline','Strike','Subscript','Superscript'],
+            ['NumberedList', 'BulletedList', '-', 'Outdent', 'Indent', '-', 'JustifyLeft', 'JustifyCenter', 'JustifyRight', 'JustifyBlock'],
+            ['Link', 'Unlink'],
+            ['Image','Youtube','Table','HorizontalRule','SpecialChar'],
+            [ 'TextColor','BGColor' ],
+            ['Undo','Redo'],
+            ['RemoveFormat', 'Source'],
+        ],
+        'extraPlugins': ['youtube']
+    },
+}
+
+CKEDITOR_UPLOAD_PATH = "uploads/"
 
 try:
     from discovery.settings import *

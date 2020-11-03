@@ -7,6 +7,7 @@ from madrona.features.views import workspace
 from django.views.static import serve
 from trees.views import map
 from lot.views import lot_landing_page
+from django.conf.urls.static import static
 # admin.autodiscover()
 
 urlpatterns = [
@@ -32,9 +33,11 @@ urlpatterns = [
     # re_path(r'^/?$', include('discovery.urls')),
     re_path(r'^discovery', include('discovery.urls')),
     re_path(r'^landmapper', include('landmapper.urls')),
+    path('ckeditor/', include('ckeditor_uploader.urls')),
     re_path(r'^$', lot_landing_page, name='lot'),
     re_path(r'^', include('madrona.common.urls')),
-]
+    # According to https://youtu.be/L6y6cn1XUfw this line will be ignored in production.
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += [
