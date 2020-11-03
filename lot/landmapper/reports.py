@@ -165,7 +165,7 @@ def get_aggregate_property_data(property, taxlots):
 
     if not min_elevation == None and not max_elevation == None:
         elevation_label = 'Elevation Range'
-        elevation_value = "%s - %s ft" % (min_elevation, max_elevation)
+        elevation_value = "%s - %s ft" % (pretty_print_float(m_to_ft(min_elevation)),pretty_print_float(m_to_ft(max_elevation)))
     else:
         elevation_label = 'Elevation'
         elevation_value = 'Unknown'
@@ -228,17 +228,25 @@ def aggregate_sum(agg_list):
             sum_total += sum
     return sum_total
 
+# Area Unit Conversion
 def sq_ft_to_acres(sq_ft_val):
     return sq_ft_val / 43560
 
 def sq_m_to_acres(sq_m_val):
     return sq_m_val / 4046.86
 
+# Length Unit Conversion
 def cm_to_inches(cm_val):
     if cm_val:
         return float(cm_val) / 2.54
     else:
         return cm_val
+
+def m_to_ft(m_val):
+    if m_val:
+        return float(m_val) * 3.28084
+    else:
+        return m_val
 
 def pretty_print_float(value):
     if isinstance(value, (int, float, decimal.Decimal)):
