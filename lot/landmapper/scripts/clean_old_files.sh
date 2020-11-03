@@ -12,7 +12,7 @@ for folder in ${EPHEMERAL_DIRECTORIES[@]}; do
   # for every file in the folder...
   for ephemeral_file in "${ephemeral_files[@]}"; do
       # delete old file
-      /bin/rm "${ephemeral_file[@]}""
+      /bin/rm "${ephemeral_file[@]}"
   done
 
 done
