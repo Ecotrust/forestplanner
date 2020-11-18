@@ -5,13 +5,13 @@
 }
 
 #main-content p {
-  font-size: 20px;
-  line-height: 38px;
+  font-size: 18px;
+  line-height: 1.75;
   margin-bottom: 0;
 }
 
 #section-property .content-panel {
-  padding: 3vh 0;
+  padding: 2vh 0;
   margin-left: 10vw;
 }
 
@@ -67,14 +67,15 @@
 
 .anchor-links {
   font-size: 20px;
-  line-height: 42px;
+  line-height: 38px;
   letter-spacing: 1px;
-  margin: 3vh -4px; /* -4 for .achor-links a padding */
-  max-width: 380px;
+  margin: 2vh -4px; /* -4 for .achor-links a padding */
   word-spacing: 4px;
 }
 
 .anchor-links a {
+  font-family: var(--primary-font-heavy);
+  font-weight: 900;
   padding: 0 4px;
 }
 
@@ -89,23 +90,62 @@
 
 .scalebar {
   background-color: rgba(255,255,255,0.6);
-  border: 1px solid #fff;
-  box-sizing: content-box;
   top: 4vh;
-  height: auto !important;
+  max-height: none;
+  min-height: auto;
+  height: auto;
   left: 4vh;
+  outline: 1px solid #fff;
   position: absolute;
-<<<<<<< HEAD
   width: auto;
-=======
-  /* width: 361px !important;  RDH 2020-10-02: Please don't do this! */
->>>>>>> 370dd2cb20a6b1c9ad79fcc5a0cf9886fff1abb6
+  max-width: none;
+  min-width: auto;
   z-index: 1;
 }
 
 .button-wrap {
   position: absolute;
   bottom: 3vh;
+}
+
+/**
+ * soils
+ *
+ */
+
+#section-soil-tables h1,
+#section-soil-tables h3 {
+  display: inline;
+}
+
+#section-soil-tables h3 {
+  padding-left: 5px;
+}
+
+#section-soil-tables .content-panel {
+  padding-left: 0;
+  padding-right: 0;
+  width: 100%;
+}
+
+.soil-type-list {
+  font-size: 16px;
+  line-height: 1.25;
+  margin: 20px 20px 35px 20px;
+}
+
+.list-group-symbol {
+  background-color: #A0EACB;
+  border-radius: 50%;
+  display: inline-block;
+  font-weight: bold;
+  padding: 10px;
+}
+
+.list-group-title {
+  display: inline-block;
+  font-size: 1.125em;
+  font-weight: bold;
 }
 
 /**

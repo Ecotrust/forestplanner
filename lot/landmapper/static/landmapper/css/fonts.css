@@ -1,5 +1,17 @@
 @font-face {
-  font-family: "Avenir LT Std Black";
-  src: url("/fonts/AvenirLTStd-Black.otf") format("otf"),
-       /* url("/fonts/.woff") format("woff"); */
+  font-family: "Avenir LT Std Heavy";
+  font-weight: normal;
+  font-style: normal;
+  src: local("Avenir LT Std 85 Heavy"),
+      url("../fonts/AvenirLTStd-Heavy.woff") format("woff"),
+      url("../fonts/AvenirLTStd-Heavy.otf") format("otf"),
+}
+
+@font-face {
+  font-family: "Avenir LT Std";
+  font-weight: normal;
+  font-style: normal;
+  src: local("Avenir LT Std 45 Book"),
+      url("../fonts/AvenirLTStd-Book.woff") format("woff"),
+      url("../fonts/AvenirLTStd-Book.otf") format("otf");
 }

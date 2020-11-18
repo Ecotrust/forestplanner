@@ -3,6 +3,11 @@ header {
 }
 
 header .navbar {
+  border-bottom: 1px solid var(--dark-grey);
+}
+
+
+header .navbar {
   padding-left: 2.25rem;
   padding-right: 2.25rem;
 }
@@ -17,4 +22,13 @@ header .navbar {
 
 .nav-item:last-of-type {
   margin-right: 0;
+}
+
+.navbar-nav .nav-item .nav-link {
+  color: var(--black);
+  font-family: var(--primary-font-heavy);
+  font-size: 1.125em;
+  font-weight: normal;
+  letter-spacing: 0.125em;
+  text-transform: capitalize;
 }
