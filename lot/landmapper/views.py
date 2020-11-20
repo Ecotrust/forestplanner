@@ -138,6 +138,7 @@ def home(request):
         'aside_content': aside_content,
         'show_panel_buttons': False,
         'q_address': 'Enter your property address here',
+        'overlay': 'overlay',
     }
     context['menu_items'] = MenuPage.objects.all().order_by('order')
 
@@ -189,6 +190,7 @@ def identify(request):
                 'btn_create_maps_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled',
                 'menu_items': MenuPage.objects.all().order_by('order'),
+                'overlay': '',
             }
             return render(request, 'landmapper/landing.html', context)
     else:

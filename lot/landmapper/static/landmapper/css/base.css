@@ -149,11 +149,11 @@ form:invalid {
   /* Center search box by:
     left 50% - based on the parent div (50% of map-wrap)
     transform translate -50% - based on input field (half of search input) */
-  transform: translate(-50%,85px);
+  transform: translate(-50%,15vh);
   /* Keep search over map.
     both map and search position absoulte.
     z-index 2 for search form. z-index 1 for map */
-  width: 50%;
+  width: 60%;
   z-index: 2;
 }
 
@@ -187,6 +187,11 @@ form:invalid {
   margin: 0 1px 0 0;
 }
 
+#property-search {
+  height: auto;
+  padding: 1rem 1.5rem .875rem;
+}
+
 /**
  * Buttons
  *
@@ -194,6 +199,7 @@ form:invalid {
 #property-search-btn {
   background: var(--white);
   border-left: 1px solid var(--black);
+  font-family: var(--primary-font-heavy);
 }
 
 .btn-primary {

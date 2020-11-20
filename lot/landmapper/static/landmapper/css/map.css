@@ -24,3 +24,14 @@
     z-index 2 for search form. z-index 1 for map */
   z-index: 1;
 }
+
+.overlay:after {
+  background: rgba(0,0,0,0.6);
+  bottom: 0;
+  content: '';
+  left: 0;
+  right: 0;
+  top: 0;
+  position: absolute;
+  z-index: 2;
+}
