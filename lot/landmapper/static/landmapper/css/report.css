@@ -30,10 +30,7 @@
   width: auto;
 }
 
-#section-property .scalebar-wrap .scalebar {
-  top: 1vh;
-  left: 1vh;
-}
+#section-property .scalebar-wrap .scalebar {}
 
 .section-report {
   border-bottom: 1px solid var(--black);
