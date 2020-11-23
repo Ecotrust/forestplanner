@@ -38,7 +38,7 @@
             </div>
           </form>
         {% endblock property-search %}
-        <div id="map" class="overlay"></div>
+        <div id="map" {% if not search_performed %} class="overlay" {% endif %}></div>
       </section>
     {% endblock map-wrap %}
   </div>
