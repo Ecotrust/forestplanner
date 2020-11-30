@@ -62,8 +62,6 @@ class Taxlot(models.Model):
         verbose_name_plural = 'Taxlots'
         app_label = 'landmapper'
 
-    # acres
-    acres = models.FloatField(null=True, blank=True, default=None)
     # ODF_FPD
     odf_fpd = models.CharField(max_length=25, null=True, blank=True, default=None)
     # Agency
@@ -80,31 +78,16 @@ class Taxlot(models.Model):
     rangeno = models.CharField(max_length=3, null=True, blank=True, default=None)
     # FRSTDIVNO
     frstdivno = models.CharField(max_length=10, null=True, blank=True, default=None)
-    # TWNSHPDIR
-    twnshpdir = models.CharField(max_length=3, null=True, blank=True, default=None)
-    # RANGEDIR
-    rangedir = models.CharField(max_length=3, null=True, blank=True, default=None)
     # TWNSHPLAB
     twnshplab = models.CharField(max_length=20, null=True, blank=True, default=None)
-    # AREA
-    area = models.FloatField(null=True, blank=True, default=None)
     # MEAN, formerly ele_mean
     mean_elevation = models.FloatField(null=True, blank=True, default=None)
     # MIN, formerly ele_min
     min_elevation = models.FloatField(null=True, blank=True, default=None)
     # MAX, formerly ele_max
     max_elevation = models.FloatField(null=True, blank=True, default=None)
-    # elev_min
-    # elev_min = models.FloatField(null=True, blank=True, default=None)
-    # elev_max
-    # elev_max = models.FloatField(null=True, blank=True, default=None)
-    # elev_min_1
-    # elev_min_1 = models.FloatField(null=True, blank=True, default=None)
-    # elev_max_1
-    # elev_max_1 = models.FloatField(null=True, blank=True, default=None)
-
-    shape_leng = models.FloatField(null=True, blank=True)
-    shape_area = models.FloatField(null=True, blank=True)
+    # legal_label Fully formatted legal description
+    legal_label = models.CharField(max_length=255, null=True, blank=True, default=None)
 
     geometry = MultiPolygonField(
         srid=3857,
@@ -117,6 +100,10 @@ class Taxlot(models.Model):
     def area_in_sq_miles(self):
         true_area = self.geometry.transform(2163, clone=True).area
         return sq_meters_to_sq_miles(true_area)
+
+    @property
+    def area_in_acres(self):
+        return sq_meters_to_acres(self.geometry.transform(2163, clone=True).area)
 
     @property
     def formatted_area(self):

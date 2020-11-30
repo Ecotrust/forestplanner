@@ -146,19 +146,16 @@ def get_aggregate_property_data(property, taxlots):
     # mean_elevation = []
 
     for taxlot in taxlots:
-        acres.append(taxlot.acres)
+        acres.append(taxlot.area_in_acres)
         min_elevation.append(taxlot.min_elevation)
         max_elevation.append(taxlot.max_elevation)
-        legal.append("%s%s %s" %
-                     (taxlot.twnshpdir, taxlot.frstdivno, taxlot.twnshplab))
+        legal.append("%s" %
+                     (taxlot.legal_label))
         agency.append(taxlot.agency)
         odf_fpd.append(taxlot.odf_fpd)
         name.append(taxlot.name)
         huc12.append(taxlot.huc12)
         orzdesc.append(taxlot.orzdesc)
-        # twnshpno.append(taxlot.twnshpno)
-        # rangeno.append(taxlot.rangeno)
-        # frstdivno.append(taxlot.frstdivno)
 
     min_elevation = pretty_print_float(m_to_ft(aggregate_min(min_elevation)))
     max_elevation = pretty_print_float(m_to_ft(aggregate_max(max_elevation)))
@@ -172,7 +169,7 @@ def get_aggregate_property_data(property, taxlots):
 
     return [
         ['Acres',
-         pretty_print_float(sq_ft_to_acres(aggregate_sum(acres)))],
+         pretty_print_float(aggregate_sum(acres))],
         [elevation_label, elevation_value],
         ['Legal Description', aggregate_strings(legal)],
         ['Structural Fire Disctrict',
