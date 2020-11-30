@@ -430,7 +430,8 @@ def create_property_pdf(property, property_id):
     current_datetime = current_datetime.strftime("%c")
 
     report_data_dict = get_report_data_dict(
-        property.report_data['property']['data'])
+        property.report_data['property']['data']
+    )
 
     template_input_dict = {
         'date': str(current_datetime),

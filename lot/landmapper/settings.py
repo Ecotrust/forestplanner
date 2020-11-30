@@ -82,6 +82,13 @@ REPORT_SUPPORT_ORIENTATION = False
 REPORT_MAP_MIN_BUFFER = 0.1
 
 ###########################################
+##      REPORTS                         ###
+###########################################
+SCALEBAE_DEFAULT_WIDTH = 1.5
+SCALEBAE_DEFAULT_HEIGHT = 0.2
+
+
+###########################################
 ##      Properties                      ###
 ###########################################
 # PROPERTY_OUTLINE_COLOR = (255,0,255,255)

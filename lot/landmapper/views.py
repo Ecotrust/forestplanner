@@ -190,7 +190,6 @@ def identify(request):
                 'btn_create_maps_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled',
                 'menu_items': MenuPage.objects.all().order_by('order'),
-                'overlay': '',
             }
             return render(request, 'landmapper/landing.html', context)
     else:
