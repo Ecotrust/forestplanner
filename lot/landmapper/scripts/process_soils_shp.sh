@@ -6,22 +6,24 @@
 thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
-WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/2020_OR_taxlot_data"
-SHP="$WORKING_DIR/taxlot_att4_3857.shp"
-FINAL="$WORKING_DIR/OR_TAXLOTS_2020.sql"
+WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/Soils"
+SHP="$WORKING_DIR/oregon_soil.shp"
+FINAL="$WORKING_DIR/OR_SOIL_2020.sql"
 
 SRID=3857
-table_name='landmapper_taxlot'
+table_name='landmapper_soiltype'
+database_name='disco'
+db_user='postgres'
 
 ################################################################################
 # Probably no need to touch anything below here
 ################################################################################
 
 # Path will not change by json file may need to be updated
-FIELDMAP="$thisdir/taxlot_field_map.json"
+FIELDMAP="$thisdir/soil_field_map.json"
 
 # Probably won't need to touch these if running from root project dir
-TMP="$WORKING_DIR/taxlot_planning_grid.sql"
+TMP="$WORKING_DIR/soil_planning_grid.sql"
 TRANSLATE="python $thisdir/translate.py"
 VALIDATE="python $thisdir/validate_fields.py"
 
@@ -57,5 +59,5 @@ EOT
 
 echo "------"
 echo "SUCCESS. sql file created; load into database on VM/Prod server with"
-echo "psql -U postgres -d marineplanner -f $FINAL"
+echo "psql -U $db_user -d $database_name -f $FINAL"
 echo "------"

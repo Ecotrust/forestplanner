@@ -1,5 +1,4 @@
 {
-  "acres": "acres",
   "ODF_FPD": "odf_fpd",
   "Agency": "agency",
   "orZDesc": "orzdesc",
@@ -8,13 +7,10 @@
   "TWNSHPNO": "twnshpno",
   "RANGENO": "rangeno",
   "FRSTDIVNO": "frstdivno",
-  "TWNSHPDIR": "twnshpdir",
-  "RANGEDIR": "rangedir",
   "TWNSHPLAB": "twnshplab",
-  "AREA": "area",
+  "LegalLabel": "legal_label",
   "MIN": "min_elevation",
   "MAX": "max_elevation",
   "MEAN": "mean_elevation",
-  "Shape_Leng": "shape_leng",
-  "Shape_Area": "shape_area"
+  "UID": "id"
 }
