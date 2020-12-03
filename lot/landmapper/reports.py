@@ -454,6 +454,7 @@ def create_property_pdf(property, property_id):
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
+        # 'soilType1': report_data_dict['soils'][''] 
     }
 
     rendered_pdf = template_pdf(template_input_dict)

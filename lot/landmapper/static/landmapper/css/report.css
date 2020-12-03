@@ -17,6 +17,7 @@
 
 #section-property .section-flex-wrap {
   display: block !important;
+  margin: 0 auto;
   position: relative;
 }
 
