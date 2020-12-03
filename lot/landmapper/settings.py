@@ -84,8 +84,8 @@ REPORT_MAP_MIN_BUFFER = 0.1
 ###########################################
 ##      REPORTS                         ###
 ###########################################
-SCALEBAE_DEFAULT_WIDTH = 1.5
-SCALEBAE_DEFAULT_HEIGHT = 0.2
+SCALEBAR_DEFAULT_WIDTH = 1.5
+SCALEBAR_DEFAULT_HEIGHT = 0.2
 
 
 ###########################################

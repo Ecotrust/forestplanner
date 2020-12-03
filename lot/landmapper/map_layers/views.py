@@ -919,7 +919,7 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     both_min, both_max = min(min_top, min_bot), max(max_top, max_bot)
 
     fig = plt.figure(frameon=False)
-    fig.set_size_inches(settings.SCALEBAE_DEFAULT_WIDTH, settings.SCALEBAE_DEFAULT_HEIGHT)
+    fig.set_size_inches(settings.SCALEBAR_DEFAULT_WIDTH, settings.SCALEBAR_DEFAULT_HEIGHT)
     fig.dpi = DPI
     ax = plt.Axes(fig, [0., 0., 1., 1.])
     ax.set_axis_off()
