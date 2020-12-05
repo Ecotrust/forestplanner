@@ -81,6 +81,14 @@ REPORT_SUPPORT_ORIENTATION = False
 
 REPORT_MAP_MIN_BUFFER = 0.1
 
+# These values approximate zoom 12 & 14 at the Oregon/California border.
+# MAX_METER_RESOLUTION_CONTEXT = 30.0  # ~15,000m/509px (current pixel width)
+# MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
+
+# MAX width resolution in 3857 degrees:
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+
 ###########################################
 ##      REPORTS                         ###
 ###########################################

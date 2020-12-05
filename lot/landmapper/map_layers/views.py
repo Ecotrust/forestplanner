@@ -30,7 +30,7 @@ def render_vectors(geoms,
     ----------
     geoms : list-like of Polygon or MultiPolygon objects
       the geometries that will be plotted
-    bbox : list-like of numerics
+    bbox : String of web-mercator values formatted as "west,south,east,north"
       the xmin, ymin, xmax, and ymax coordinates describing the bounding box
       for the image
     pixel_height : int
@@ -52,7 +52,7 @@ def render_vectors(geoms,
       the vector rendered as an image
     """
     img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
-    xmin, ymin, xmax, ymax = bbox
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
 
     fig = plt.figure(figsize=(img_width, img_height), dpi=dpi)
     ax = fig.add_axes([0.0,0.0,1.0,1.0])
@@ -84,7 +84,7 @@ def render_vectors(geoms,
     return img
 
 
-def get_property_image_layer(property, property_specs):
+def get_property_image_layer(property, property_specs, bbox=False):
     """
     Produce an image of the taxlots belonging to a property.
 
@@ -100,17 +100,18 @@ def get_property_image_layer(property, property_specs):
     taxlot_img : dict
       dictionary with 'image' and 'attribution' as keys
     """
-    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    if not bbox:
+        bbox = property_specs['bbox']
     pixel_width = property_specs['width']
     pixel_height = property_specs['height']
     edgecolor = settings.PROPERTY_OUTLINE_COLOR
     linewidth = settings.PROPERTY_OUTLINE_WIDTH
     patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
-    img = render_vectors(geoms=[property.geometry_orig],
-                         bbox=bbox,
-                         pixel_width=pixel_width,
-                         pixel_height=pixel_height,
+    img = render_vectors(geoms=[property.geometry_orig],    # geoms (positional)
+                         bbox=bbox,                         # bbox  (positional)
+                         pixel_height=pixel_height,         # pixel_height (positional)
+                         pixel_width=pixel_width,           # pixel_width (positional)
                          patch_kwargs=patch_kwargs
                          )
     taxlot_img = {'image': img, 'attribution': None}
@@ -277,7 +278,7 @@ def get_topo_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_street_image_layer(property_specs):
+def get_street_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return ESRI Street image at the selected location of the selected size
     # IN:
@@ -288,7 +289,8 @@ def get_street_image_layer(property_specs):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -567,7 +569,7 @@ def get_aerial_map(property_specs, base_layer, lots_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def get_street_map(property_specs, base_layer, lots_layer, property_layer):
+def get_street_map(property_specs, base_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -576,7 +578,6 @@ def get_street_map(property_specs, base_layer, lots_layer, property_layer):
     # IN:
     # -   property_specs; (dict) width, height and other property metadata
     # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   lots_layer; (dict) PIL img and attribution for tax lots
     # -   property_layer; (dict) PIL img and attribution for property outline
     # OUT:
     # -   property_report_image: (PIL Image) the property report map image
@@ -586,21 +587,18 @@ def get_street_map(property_specs, base_layer, lots_layer, property_layer):
     height = property_specs['height']
 
     base_image = base_layer['image']
-    # add tax lot layer
-    lots_image = lots_layer['image']
     # add property
     property_image = property_layer['image']
 
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        lots_layer['attribution'],
         property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
 
-    layer_stack = [base_image, lots_image, property_image, attribution_image]
+    layer_stack = [base_image, property_image, attribution_image]
 
     return merge_layers(layer_stack)
 
