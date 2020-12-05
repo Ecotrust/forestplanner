@@ -154,6 +154,7 @@
 
   #section-property .section-flex-wrap {
     display: flex !important;
+    margin: 0 auto;
   }
 
   #section-property .content-panel {

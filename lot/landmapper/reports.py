@@ -454,8 +454,31 @@ def create_property_pdf(property, property_id):
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
-        # 'soilType1': report_data_dict['soils'][''] 
     }
+
+    # Create var for all soils
+    soil_list = property.report_data['soils']['data']
+    # Given more than 12 soil types sort them by percent area
+    #   only show the 12 highest by percent area
+    if len(soil_list) > 12:
+        soil_list = sorted(soil_list, key=lambda x:x['percent_area'], reverse=True)
+    # Add each soil to template input dict
+    # Loop through each soil type
+    # Use the soil_count var to match each soil type to an input in pdf
+    soil_count = 1
+    for soil in soil_list:
+        print(soil)
+        sc_name = 'soil' + str(soil_count)
+        template_input_dict[str(sc_name) + 'musym'] = soil['musym']
+        template_input_dict[str(sc_name) + 'Name'] = soil['muname']
+        template_input_dict[str(sc_name) + 'acres'] = soil['acres']
+        template_input_dict[str(sc_name) + 'drainage'] = soil['drclssd']
+        template_input_dict[str(sc_name) + 'si'] = str(soil['avgsi']) + ' ' + soil['site_index_unit']
+        template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
+        template_input_dict[str(sc_name) + 'depth'] = str(soil['avg_rs_l']) + ' - ' + str(soil['avg_rs_h'])  + ' ' + str(soil['depth_unit'])
+
+        soil_count += 1
+
 
     rendered_pdf = template_pdf(template_input_dict)
 
