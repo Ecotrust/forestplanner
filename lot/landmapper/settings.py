@@ -11,6 +11,20 @@ LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
 MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
 
 ###########################################
+##      Map Scales                      ###
+###########################################
+# Closest: 'fit' -- fits the property as close as possible
+# Moderate: 'medium' -- approximately zoom level 12 unless the property is too big
+# Regional Context: 'context' -- appx zoom 14 unless the property is larger
+PROPERTY_OVERVIEW_SCALE = 'fit'
+STREET_SCALE = 'context'
+TOPO_SCALE = 'medium'
+AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
+TAXLOTS_SCALE = AERIAL_SCALE
+SOIL_SCALE = AERIAL_SCALE
+STREAM_SCALE = AERIAL_SCALE
+
+###########################################
 ##      Basemaps                        ###
 ###########################################
 BASEMAPS = {
@@ -61,6 +75,7 @@ BASEMAPS = {
         'ZOOM_2X': False
     }
 }
+
 AERIAL_DEFAULT = 'ESRI_Satellite'
 TOPO_DEFAULT = 'Custom_Topo'
 # TOPO_DEFAULT = 'ESRI_Topo'
@@ -538,7 +553,6 @@ TAXLOTS_URLS = {
 TAXLOTS_SOURCE = 'MAPBOX_TILE'
 TAXLOT_ZOOM_OVERLAY_2X = False
 TAXLOTS_ATTRIBUTION = TAXLOTS_URLS[TAXLOTS_SOURCE]['ATTRIBUTION']
-
 
 ###########################################
 ##      Map Info                        ###

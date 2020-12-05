@@ -119,7 +119,7 @@ def get_property_image_layer(property, property_specs, bbox=False):
     return taxlot_img
 
 
-def get_taxlot_image_layer(property_specs):
+def get_taxlot_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return taxlot layer at the selected location of the selected size
     # IN:
@@ -135,8 +135,10 @@ def get_taxlot_image_layer(property_specs):
     request_dict = settings.TAXLOTS_URLS[settings.TAXLOTS_SOURCE]
     zoom_argument = settings.TAXLOT_ZOOM_OVERLAY_2X
 
-    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
+    if not bbox:
         bbox = property_specs['bbox']
+
+    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
         srs = 'EPSG:3857'
         width = property_specs['width']
         height = property_specs['height']
@@ -172,7 +174,7 @@ def get_taxlot_image_layer(property_specs):
             image = image.resize((width, height), Image.ANTIALIAS)
 
     elif '_TILE' in settings.TAXLOTS_SOURCE:
-        image = get_mapbox_image_data(request_dict, property_specs)
+        image = get_mapbox_image_data(request_dict, property_specs, bbox)
 
 
     else:
@@ -187,7 +189,7 @@ def get_taxlot_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_aerial_image_layer(property_specs):
+def get_aerial_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
@@ -199,7 +201,8 @@ def get_aerial_image_layer(property_specs):
     # -   }
     # """
 
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -231,7 +234,7 @@ def get_aerial_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_topo_image_layer(property_specs):
+def get_topo_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return ESRI(?) Topo image at the selected location of the selected size
     # IN:
@@ -242,7 +245,8 @@ def get_topo_image_layer(property_specs):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -262,7 +266,7 @@ def get_topo_image_layer(property_specs):
         # Request URL
         base_image = image_result_to_PIL(image_data)
     elif topo_dict['TECHNOLOGY'] == 'XYZ':
-        base_image = get_mapbox_image_data(topo_dict, property_specs, zoom_2x=topo_dict['ZOOM_2X'])
+        base_image = get_mapbox_image_data(topo_dict, property_specs, bbox, zoom_2x=topo_dict['ZOOM_2X'])
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting topo layers at the moment')
         topo_url = None
@@ -322,7 +326,7 @@ def get_street_image_layer(property_specs, bbox=False):
         'attribution': attribution
     }
 
-def get_soil_image_layer(property_specs):
+def get_soil_image_layer(property_specs, bbox=False):
         # """
         # PURPOSE:
         # -   given a bbox and optionally pixel width, height, and an indication of
@@ -338,8 +342,11 @@ def get_soil_image_layer(property_specs):
         # """
 
         SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
-        if settings.SOIL_SOURCE == "USDA_WMS":
+
+        if not bbox:
             bbox = property_specs['bbox']
+
+        if settings.SOIL_SOURCE == "USDA_WMS":
             srs = 'EPSG:3857'
             width = property_specs['width']
             height = property_specs['height']
@@ -364,7 +371,7 @@ def get_soil_image_layer(property_specs):
             data = lm_views.unstable_request_wrapper(request_url)
             image = image_result_to_PIL(data)
         elif settings.SOIL_SOURCE == "MAPBOX":
-            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs)
+            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs, bbox)
             zoom_argument = False
 
         if zoom_argument:
@@ -379,7 +386,7 @@ def get_soil_image_layer(property_specs):
             'attribution': attribution
         }
 
-def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
+def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
     # """
     # PURPOSE:
     # -   Retrieve mapbox tile images http response for a given bbox at a given size
@@ -389,7 +396,8 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
     # OUT:
     # -   img_data: image as raw data (bytes)
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     srs = 'EPSG:3857'
     width = property_specs['width']
     height = property_specs['height']
@@ -425,7 +433,7 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
 
     return img_data
 
-def get_stream_image_layer(property_specs):
+def get_stream_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE:
     # -   Retrieve the streams tile image http response for a given bbox at a given size
@@ -443,8 +451,10 @@ def get_stream_image_layer(property_specs):
     request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
     zoom_argument = settings.STREAM_ZOOM_OVERLAY_2X
 
-    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
+    if not bbox:
         bbox = property_specs['bbox']
+
+    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
         srs = 'EPSG:3857'
         width = property_specs['width']
         height = property_specs['height']
@@ -480,7 +490,7 @@ def get_stream_image_layer(property_specs):
             image = image.resize((width, height), Image.ANTIALIAS)
 
     elif '_TILE' in settings.STREAMS_SOURCE:
-        image = get_mapbox_image_data(request_dict, property_specs)
+        image = get_mapbox_image_data(request_dict, property_specs, bbox)
 
 
     else:
