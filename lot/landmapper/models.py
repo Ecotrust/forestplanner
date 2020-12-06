@@ -171,6 +171,8 @@ class Property(MultiPolygonFeature):
     soil_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     forest_map_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     scalebar_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    context_scalebar_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+    medium_scalebar_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
 
     report_data = JSONField('report_data', default=report_default)
 

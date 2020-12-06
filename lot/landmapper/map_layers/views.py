@@ -30,7 +30,7 @@ def render_vectors(geoms,
     ----------
     geoms : list-like of Polygon or MultiPolygon objects
       the geometries that will be plotted
-    bbox : list-like of numerics
+    bbox : String of web-mercator values formatted as "west,south,east,north"
       the xmin, ymin, xmax, and ymax coordinates describing the bounding box
       for the image
     pixel_height : int
@@ -52,7 +52,7 @@ def render_vectors(geoms,
       the vector rendered as an image
     """
     img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
-    xmin, ymin, xmax, ymax = bbox
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
 
     fig = plt.figure(figsize=(img_width, img_height), dpi=dpi)
     ax = fig.add_axes([0.0,0.0,1.0,1.0])
@@ -84,7 +84,7 @@ def render_vectors(geoms,
     return img
 
 
-def get_property_image_layer(property, property_specs):
+def get_property_image_layer(property, property_specs, bbox=False):
     """
     Produce an image of the taxlots belonging to a property.
 
@@ -100,17 +100,18 @@ def get_property_image_layer(property, property_specs):
     taxlot_img : dict
       dictionary with 'image' and 'attribution' as keys
     """
-    bbox = [float(x) for x in property_specs['bbox'].split(',')]
+    if not bbox:
+        bbox = property_specs['bbox']
     pixel_width = property_specs['width']
     pixel_height = property_specs['height']
     edgecolor = settings.PROPERTY_OUTLINE_COLOR
     linewidth = settings.PROPERTY_OUTLINE_WIDTH
     patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
-    img = render_vectors(geoms=[property.geometry_orig],
-                         bbox=bbox,
-                         pixel_width=pixel_width,
-                         pixel_height=pixel_height,
+    img = render_vectors(geoms=[property.geometry_orig],    # geoms (positional)
+                         bbox=bbox,                         # bbox  (positional)
+                         pixel_height=pixel_height,         # pixel_height (positional)
+                         pixel_width=pixel_width,           # pixel_width (positional)
                          patch_kwargs=patch_kwargs
                          )
     taxlot_img = {'image': img, 'attribution': None}
@@ -118,7 +119,7 @@ def get_property_image_layer(property, property_specs):
     return taxlot_img
 
 
-def get_taxlot_image_layer(property_specs):
+def get_taxlot_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return taxlot layer at the selected location of the selected size
     # IN:
@@ -134,8 +135,10 @@ def get_taxlot_image_layer(property_specs):
     request_dict = settings.TAXLOTS_URLS[settings.TAXLOTS_SOURCE]
     zoom_argument = settings.TAXLOT_ZOOM_OVERLAY_2X
 
-    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
+    if not bbox:
         bbox = property_specs['bbox']
+
+    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
         srs = 'EPSG:3857'
         width = property_specs['width']
         height = property_specs['height']
@@ -171,7 +174,7 @@ def get_taxlot_image_layer(property_specs):
             image = image.resize((width, height), Image.ANTIALIAS)
 
     elif '_TILE' in settings.TAXLOTS_SOURCE:
-        image = get_mapbox_image_data(request_dict, property_specs)
+        image = get_mapbox_image_data(request_dict, property_specs, bbox)
 
 
     else:
@@ -186,7 +189,7 @@ def get_taxlot_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_aerial_image_layer(property_specs):
+def get_aerial_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
@@ -198,7 +201,8 @@ def get_aerial_image_layer(property_specs):
     # -   }
     # """
 
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -230,7 +234,7 @@ def get_aerial_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_topo_image_layer(property_specs):
+def get_topo_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return ESRI(?) Topo image at the selected location of the selected size
     # IN:
@@ -241,7 +245,8 @@ def get_topo_image_layer(property_specs):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -261,7 +266,7 @@ def get_topo_image_layer(property_specs):
         # Request URL
         base_image = image_result_to_PIL(image_data)
     elif topo_dict['TECHNOLOGY'] == 'XYZ':
-        base_image = get_mapbox_image_data(topo_dict, property_specs, zoom_2x=topo_dict['ZOOM_2X'])
+        base_image = get_mapbox_image_data(topo_dict, property_specs, bbox, zoom_2x=topo_dict['ZOOM_2X'])
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting topo layers at the moment')
         topo_url = None
@@ -277,7 +282,7 @@ def get_topo_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_street_image_layer(property_specs):
+def get_street_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE: Return ESRI Street image at the selected location of the selected size
     # IN:
@@ -288,7 +293,8 @@ def get_street_image_layer(property_specs):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
@@ -320,7 +326,7 @@ def get_street_image_layer(property_specs):
         'attribution': attribution
     }
 
-def get_soil_image_layer(property_specs):
+def get_soil_image_layer(property_specs, bbox=False):
         # """
         # PURPOSE:
         # -   given a bbox and optionally pixel width, height, and an indication of
@@ -336,8 +342,11 @@ def get_soil_image_layer(property_specs):
         # """
 
         SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
-        if settings.SOIL_SOURCE == "USDA_WMS":
+
+        if not bbox:
             bbox = property_specs['bbox']
+
+        if settings.SOIL_SOURCE == "USDA_WMS":
             srs = 'EPSG:3857'
             width = property_specs['width']
             height = property_specs['height']
@@ -362,7 +371,7 @@ def get_soil_image_layer(property_specs):
             data = lm_views.unstable_request_wrapper(request_url)
             image = image_result_to_PIL(data)
         elif settings.SOIL_SOURCE == "MAPBOX":
-            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs)
+            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs, bbox)
             zoom_argument = False
 
         if zoom_argument:
@@ -377,7 +386,7 @@ def get_soil_image_layer(property_specs):
             'attribution': attribution
         }
 
-def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
+def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
     # """
     # PURPOSE:
     # -   Retrieve mapbox tile images http response for a given bbox at a given size
@@ -387,7 +396,8 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
     # OUT:
     # -   img_data: image as raw data (bytes)
     # """
-    bbox = property_specs['bbox']
+    if not bbox:
+        bbox = property_specs['bbox']
     srs = 'EPSG:3857'
     width = property_specs['width']
     height = property_specs['height']
@@ -423,7 +433,7 @@ def get_mapbox_image_data(request_dict, property_specs, zoom_2x=False):
 
     return img_data
 
-def get_stream_image_layer(property_specs):
+def get_stream_image_layer(property_specs, bbox=False):
     # """
     # PURPOSE:
     # -   Retrieve the streams tile image http response for a given bbox at a given size
@@ -441,8 +451,10 @@ def get_stream_image_layer(property_specs):
     request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
     zoom_argument = settings.STREAM_ZOOM_OVERLAY_2X
 
-    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
+    if not bbox:
         bbox = property_specs['bbox']
+
+    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
         srs = 'EPSG:3857'
         width = property_specs['width']
         height = property_specs['height']
@@ -478,7 +490,7 @@ def get_stream_image_layer(property_specs):
             image = image.resize((width, height), Image.ANTIALIAS)
 
     elif '_TILE' in settings.STREAMS_SOURCE:
-        image = get_mapbox_image_data(request_dict, property_specs)
+        image = get_mapbox_image_data(request_dict, property_specs, bbox)
 
 
     else:
@@ -567,7 +579,7 @@ def get_aerial_map(property_specs, base_layer, lots_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def get_street_map(property_specs, base_layer, lots_layer, property_layer):
+def get_street_map(property_specs, base_layer, property_layer):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -576,7 +588,6 @@ def get_street_map(property_specs, base_layer, lots_layer, property_layer):
     # IN:
     # -   property_specs; (dict) width, height and other property metadata
     # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   lots_layer; (dict) PIL img and attribution for tax lots
     # -   property_layer; (dict) PIL img and attribution for property outline
     # OUT:
     # -   property_report_image: (PIL Image) the property report map image
@@ -586,21 +597,18 @@ def get_street_map(property_specs, base_layer, lots_layer, property_layer):
     height = property_specs['height']
 
     base_image = base_layer['image']
-    # add tax lot layer
-    lots_image = lots_layer['image']
     # add property
     property_image = property_layer['image']
 
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        lots_layer['attribution'],
         property_layer['attribution'],
     ]
 
     attribution_image = get_attribution_image(attributions, width, height)
 
-    layer_stack = [base_image, lots_image, property_image, attribution_image]
+    layer_stack = [base_image, property_image, attribution_image]
 
     return merge_layers(layer_stack)
 

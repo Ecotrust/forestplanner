@@ -11,6 +11,20 @@ LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
 MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
 
 ###########################################
+##      Map Scales                      ###
+###########################################
+# Closest: 'fit' -- fits the property as close as possible
+# Moderate: 'medium' -- approximately zoom level 12 unless the property is too big
+# Regional Context: 'context' -- appx zoom 14 unless the property is larger
+PROPERTY_OVERVIEW_SCALE = 'fit'
+STREET_SCALE = 'context'
+TOPO_SCALE = 'medium'
+AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
+TAXLOTS_SCALE = AERIAL_SCALE
+SOIL_SCALE = AERIAL_SCALE
+STREAM_SCALE = AERIAL_SCALE
+
+###########################################
 ##      Basemaps                        ###
 ###########################################
 BASEMAPS = {
@@ -61,6 +75,7 @@ BASEMAPS = {
         'ZOOM_2X': False
     }
 }
+
 AERIAL_DEFAULT = 'ESRI_Satellite'
 TOPO_DEFAULT = 'Custom_Topo'
 # TOPO_DEFAULT = 'ESRI_Topo'
@@ -80,6 +95,14 @@ REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 REPORT_SUPPORT_ORIENTATION = False
 
 REPORT_MAP_MIN_BUFFER = 0.1
+
+# These values approximate zoom 12 & 14 at the Oregon/California border.
+# MAX_METER_RESOLUTION_CONTEXT = 30.0  # ~15,000m/509px (current pixel width)
+# MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
+
+# MAX width resolution in 3857 degrees:
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
 
 ###########################################
 ##      REPORTS                         ###
@@ -530,7 +553,6 @@ TAXLOTS_URLS = {
 TAXLOTS_SOURCE = 'MAPBOX_TILE'
 TAXLOT_ZOOM_OVERLAY_2X = False
 TAXLOTS_ATTRIBUTION = TAXLOTS_URLS[TAXLOTS_SOURCE]['ATTRIBUTION']
-
 
 ###########################################
 ##      Map Info                        ###

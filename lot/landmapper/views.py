@@ -244,6 +244,12 @@ def report(request, property_id):
         'property_name': property.name,
         'property': property,
         'property_report': property.report_data,
+        'overview_scale': settings.PROPERTY_OVERVIEW_SCALE,
+        'aerial_scale': settings.AERIAL_SCALE,
+        'street_scale': settings.STREET_SCALE,
+        'topo_scale': settings.TOPO_SCALE,
+        'stream_scale': settings.STREAM_SCALE,
+        'soil_scale': settings.SOIL_SCALE
     }
 
     context['menu_items'] = MenuPage.objects.all().order_by('order')
@@ -272,10 +278,15 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
-def get_scalebar_as_image(request, property_id):
+def get_scalebar_as_image(request, property_id, scale="fit"):
 
     property = properties.get_property_by_id(property_id)
-    image = property.scalebar_image
+    if scale == 'context':
+        image = property.context_scalebar_image
+    elif scale == 'medium':
+        image = property.medium_scalebar_image
+    else:
+        image = property.scalebar_image
     response = HttpResponse(content_type="image/png")
     image.save(response, 'PNG')
 
