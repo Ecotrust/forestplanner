@@ -1024,10 +1024,12 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=dpi, transparent=transparent)
     buf.seek(0)
+    rgba_image = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
     pil_image = Image.open(buf)
+    rgba_image.paste(pil_image)
     plt.close()
 
-    return pil_image
+    return rgba_image
 
 
 ################################

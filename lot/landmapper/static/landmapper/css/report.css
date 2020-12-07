@@ -41,7 +41,8 @@
 }
 
 .section-report:not(#section-property) .map-image-wrap {
-  padding: 3vh;
+  margin: 3vh;
+  position: relative;
 }
 
 .section-report:not(#section-property) h1 {
@@ -88,12 +89,11 @@
 
 .scalebar {
   background-color: rgba(255,255,255,0.6);
-  top: 4vh;
+  top: 0;
   max-height: none;
   min-height: auto;
   height: auto;
-  left: 4vh;
-  outline: 1px solid #fff;
+  left: 0;
   position: absolute;
   width: auto;
   max-width: none;

@@ -109,7 +109,8 @@ MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2
 ###########################################
 SCALEBAR_DEFAULT_WIDTH = 1.5
 SCALEBAR_DEFAULT_HEIGHT = 0.2
-
+SCALEBAR_BG_W = 508
+SCALEBAR_BG_H = 70
 
 ###########################################
 ##      Properties                      ###
