@@ -2,7 +2,7 @@ from django.conf import settings
 from landmapper import views as lm_views
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
-import io, pyproj, shapely
+import io, pyproj, shapely, json
 import numpy as np
 from PIL import Image, ImageDraw
 from math import pi, log, tan, exp, atan, log2, log10, floor
@@ -505,6 +505,97 @@ def get_stream_image_layer(property_specs, bbox=False):
         'attribution': attribution
     }
 
+def get_contour_image_layer(property_specs, bbox=False,
+                            index_contour_style=None,
+                            zoom=True,
+                            intermediate_contour_style=None,
+                            contour_label_style=None):
+    # """
+    # PURPOSE:
+    # -   given a bbox and optionally pixel width, height, and an indication of
+    # -       whether or not to zoom the cartography in, return a PIL Image
+    # -       instance of the topological contours overlay
+    # IN:
+    # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+    # -   bbox: (string, optional) "W,S,E,N" in EPSG:3857
+    # -   index_contour_style : (dict, optional):
+    # -         dict with key, value pairs indicating elements of the line style to
+    # -         update for the 100-foot contour lines
+    # -   intermediate_contour_style : (dict, optional)
+    # -         dict with key, value pairs indicating elements of the line style to
+    # -   update for intermediate (50-foot) contour lines
+    # -         contour_label_style : dict, option
+    # -         dict with key, value pairs indicating elements of label style to update
+    # -         for the 100-foot contour labels
+    # OUT:
+    # -   image_info: (dict) {
+    # -       image: image as raw data (bytes)
+    # -       attribution: attribution text for proper use of imagery
+    # -   }
+    # """
+
+    if not bbox:
+        bbox = property_specs['bbox']
+    bboxSR = 3857
+    if zoom:
+        width = 2*property_specs['width']
+        height = 2*property_specs['height']
+
+    contour_dict = settings.CONTOUR_URLS[settings.CONTOUR_SOURCE].copy()
+
+    if index_contour_style is not None:
+        contour_dict['INDEX_CONTOUR_SYMBOL'].update(index_contour_style)
+
+    if intermediate_contour_style is not None:
+        contour_dict['INTERMEDIATE_CONTOUR_SYMBOL'].update(intermediate_contour_style)
+
+    if contour_label_style is not None:
+        for key in contour_label_style:
+            if isinstance(contour_label_style[key], dict):
+                contour_dict['LABEL_SYMBOL'][key].update(contour_label_style[key])
+            else:
+                contour_dict['LABEL_SYMBOL'].update(((key, contour_label_style[key]),))
+
+    # Get URL for request
+    params = dict(
+        bbox=bbox,
+        bboxSR=contour_dict['SRID'],
+        layers='show:%s' % contour_dict['LAYERS'],
+        layerDefs=None,
+        size=f'{width},{height}',
+        imageSR=contour_dict['SRID'],
+        historicMoment=None,
+        format='png',
+        transparent=True,
+        dpi=None,
+        time=None,
+        layerTimeOptions=None,
+        dynamicLayers=json.dumps(contour_dict['STYLES']),
+        gdbVersion=None,
+        mapScale=None,
+        rotation=None,
+        datumTransformations=None,
+        layerParameterValues=None,
+        mapRangeValues=None,
+        layerRangeValues=None,
+        f='image',
+    )
+
+    # set Attribution
+    attribution = contour_dict['ATTRIBUTION']
+
+    # Request URL
+    image_data = lm_views.unstable_request_wrapper(contour_dict['URL'], params=params )
+    base_image = image_result_to_PIL(image_data)
+
+    if zoom:
+        base_image = base_image.resize((property_specs['width'], property_specs['height']), Image.ANTIALIAS)
+
+    return {
+        'image': base_image,
+        'attribution': attribution
+    }
+
 ################################
 # Map Image Builder Functions ##
 ################################
@@ -612,7 +703,7 @@ def get_street_map(property_specs, base_layer, property_layer):
 
     return merge_layers(layer_stack)
 
-def get_terrain_map(property_specs, base_layer, property_layer):
+def get_terrain_map(property_specs, base_layer, property_layer, contour_layer=False):
     # """
     # PURPOSE:
     # -   given property specs, images and attributions for a base layer and
@@ -631,18 +722,31 @@ def get_terrain_map(property_specs, base_layer, property_layer):
     height = property_specs['height']
 
     base_image = base_layer['image']
+
+    if contour_layer:
+        contour_image = contour_layer['image']
+
     # add property
     property_image = property_layer['image']
 
     # generate attribution image
     attributions = [
         base_layer['attribution'],
-        property_layer['attribution'],
     ]
+
+    if contour_layer:
+        attributions.append(contour_layer['attribution'])
+
+    attributions.append(property_layer['attribution'])
 
     attribution_image = get_attribution_image(attributions, width, height)
 
-    layer_stack = [base_image, property_image, attribution_image]
+    layer_stack = [base_image,]
+    if contour_layer:
+        layer_stack.append(contour_image)
+
+    layer_stack.append(property_image)
+    layer_stack.append(attribution_image)
 
     return merge_layers(layer_stack)
 
