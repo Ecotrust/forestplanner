@@ -35,7 +35,7 @@ def get_property_report(property, taxlots):
     property.street_map_image = map_views.get_street_map(
         property_specs,
         base_layer=street_layer,
-        lots_layer=taxlot_layer,
+        # lots_layer=taxlot_layer,
         property_layer=property_layer)
     property.terrain_map_image = map_views.get_terrain_map(
         property_specs, base_layer=topo_layer, property_layer=property_layer)
