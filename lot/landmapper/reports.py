@@ -35,7 +35,7 @@ def get_property_report(property, taxlots):
     property.street_map_image = map_views.get_street_map(
         property_specs,
         base_layer=street_layer,
-        lots_layer=taxlot_layer,
+        # lots_layer=taxlot_layer,
         property_layer=property_layer)
     property.terrain_map_image = map_views.get_terrain_map(
         property_specs, base_layer=topo_layer, property_layer=property_layer)
@@ -467,19 +467,25 @@ def create_property_pdf(property, property_id):
     # Use the soil_count var to match each soil type to an input in pdf
     soil_count = 1
     for soil in soil_list:
-        print(soil)
         sc_name = 'soil' + str(soil_count)
         template_input_dict[str(sc_name) + 'musym'] = soil['musym']
         template_input_dict[str(sc_name) + 'Name'] = soil['muname']
-        template_input_dict[str(sc_name) + 'acres'] = soil['acres']
+        f_acres = '{:.2f}'.format(float(soil['acres']))
+        template_input_dict[str(sc_name) + 'acres'] = str(f_acres)
         template_input_dict[str(sc_name) + 'drainage'] = soil['drclssd']
         template_input_dict[str(sc_name) + 'si'] = str(soil['avgsi']) + ' ' + soil['site_index_unit']
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
-        template_input_dict[str(sc_name) + 'depth'] = str(soil['avg_rs_l']) + ' - ' + str(soil['avg_rs_h'])  + ' ' + str(soil['depth_unit'])
+        if soil['avg_rs_l']:
+            f_avg_rs_l = '{:.2f}'.format(float(soil['avg_rs_l']))
+        else:
+            f_avg_rs_l = 'No Data'
+        if soil['avg_rs_h']:
+            f_avg_rs_h = '{:.2f}'.format(float(soil['avg_rs_h']))
+        else:
+            f_avg_rs_h = 'No Data'
+        template_input_dict[str(sc_name) + 'depth'] = str(f_avg_rs_l) + ' - ' + str(f_avg_rs_h)  + ' ' + str(soil['depth_unit'])
 
         soil_count += 1
-        import ipdb; ipdb.set_trace()
-
 
     rendered_pdf = template_pdf(template_input_dict)
 
