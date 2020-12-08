@@ -4,7 +4,7 @@ from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
 import io, pyproj, shapely
 import numpy as np
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from math import pi, log, tan, exp, atan, log2, log10, floor
 from matplotlib import pyplot as plt
 from matplotlib import patches
@@ -999,7 +999,9 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     adjust = img_scale_bot / bottom_units_per_pixel
     fig.set_size_inches(*(fig.get_size_inches() * adjust))
     img = plt_to_pil_image(fig, dpi=DPI)
-    return img
+    transparent_background = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
+    transparent_background.paste(img)
+    return transparent_background
 
 
 def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
@@ -1024,12 +1026,10 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     buf = io.BytesIO()
     plt.savefig(buf, format='png', dpi=dpi, transparent=transparent)
     buf.seek(0)
-    rgba_image = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
     pil_image = Image.open(buf)
-    rgba_image.paste(pil_image)
     plt.close()
 
-    return rgba_image
+    return pil_image
 
 
 ################################
@@ -1245,7 +1245,6 @@ def get_attribution_image(attribution_list, width, height):
     # OUT:
     # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
     # """
-    from PIL import ImageDraw, ImageFont
     TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
     LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
     box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
