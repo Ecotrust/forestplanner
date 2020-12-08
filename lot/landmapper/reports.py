@@ -597,7 +597,8 @@ def create_property_pdf(property, property_id):
     terrain_image.close()
     stream_image.close()
     property_scalebar_image.close()
-    #TODO: context/medium scalebar_image
+    property_context_scalebar_image.close()
+    property_medium_scalebar_image.close()
 
     if os.path.exists(output_pdf):
         buffer = io.BytesIO()
