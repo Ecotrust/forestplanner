@@ -13,8 +13,9 @@ from landmapper import properties, reports
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
+import requests
 
-def unstable_request_wrapper(url, retries=0):
+def unstable_request_wrapper(url, params=False, retries=0):
     # """
     # unstable_request_wrapper
     # PURPOSE: As mentioned above, the USDA wfs service is weak. We wrote this wrapper
@@ -27,11 +28,23 @@ def unstable_request_wrapper(url, retries=0):
     # """
 
     try:
-        contents = urllib.request.urlopen(url)
+        if params:
+            contents = requests.get(url, params)
+            # contents = contents.raw
+            # RDH 2020-12-07: SUPER HACKY way to turning params dict into urlencoded string.
+            #       WHY?:
+            #           When converting the 'requests' contents into 'raw' the
+            #               image was blank
+            #       TODO: Find a better way that either:
+            #           - Doesn't require making the request twice
+            #           - ideally pulls the correct data from the requests syntax
+            contents = urllib.request.urlopen(contents.url)
+        else:
+            contents = urllib.request.urlopen(url)
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
-            contents = unstable_request_wrapper(url, retries + 1)
+            contents = unstable_request_wrapper(url, params, retries + 1)
         else:
             print("ERROR: Unable to connect to %s" % url)
             contents = None

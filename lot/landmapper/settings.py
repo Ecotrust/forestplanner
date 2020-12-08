@@ -19,6 +19,7 @@ MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
 PROPERTY_OVERVIEW_SCALE = 'fit'
 STREET_SCALE = 'context'
 TOPO_SCALE = 'medium'
+CONTOUR_SCALE = TOPO_SCALE
 AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
 TAXLOTS_SCALE = AERIAL_SCALE
 SOIL_SCALE = AERIAL_SCALE
@@ -554,6 +555,104 @@ TAXLOTS_URLS = {
 TAXLOTS_SOURCE = 'MAPBOX_TILE'
 TAXLOT_ZOOM_OVERLAY_2X = False
 TAXLOTS_ATTRIBUTION = TAXLOTS_URLS[TAXLOTS_SOURCE]['ATTRIBUTION']
+
+
+###########################################
+##      Topo Conours                    ###
+###########################################
+
+CONTOUR_URLS = {
+    'TNM_TOPO': {
+        'URL': 'https://carto.nationalmap.gov/arcgis/rest/services/contours/MapServer/export',
+        'LAYERS': '21,25,26',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'SRID': 3857,
+        'ATTRIBUTION': 'USGS The National Map: 3D Elevation Program. Data Refreshed October, 2020.',
+        'INDEX_CONTOUR_SYMBOL': {
+            "type": "esriSLS",
+            "style": "esriSLSSolid",
+            "color": [32,96,0,255],
+            "width": 1.5
+        },
+        'INTERMEDIATE_CONTOUR_SYMBOL': {
+            "type": "esriSLS",
+            "style": "esriSLSSolid",
+            "color": [32,96,0,255],
+            "width": 0.5
+        },
+        'LABEL_SYMBOL': {
+            "type":"esriTS",
+            "color":[15,39,3,255],
+            "backgroundColor":None,
+            "outlineColor":None,
+            "verticalAlignment":"baseline",
+            "horizontalAlignment":"left",
+            "rightToLeft":False,
+            "angle":0,
+            "xoffset":0,
+            "yoffset":0,
+            "kerning":True,
+            "haloSize":2,
+            "haloColor":[255,255,255,255],
+            "font":{
+                "family":"Arial",
+                "size":12,
+                "style":"italic",
+                "weight":"normal",
+                "decoration":"none"
+            }
+        },
+        'STYLES': []
+    }
+}
+
+# CONTOUR_SOURCE = 'TNM_TOPO'
+CONTOUR_SOURCE = False
+
+if CONTOUR_SOURCE:
+    CONTOUR_URLS[CONTOUR_SOURCE]['STYLES'] = [
+        {
+            "id":25,
+            "source":{"type":"mapLayer", "mapLayerId":25},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"simple",
+                    "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['INDEX_CONTOUR_SYMBOL'],
+                },
+            },
+        },
+        {
+            "id":26,
+            "source":{"type":"mapLayer", "mapLayerId":26},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"simple",
+                    "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['INTERMEDIATE_CONTOUR_SYMBOL'],
+                },
+            },
+        },
+        {
+            "id":21,
+            "source":{"type":"mapLayer", "mapLayerId":21},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"uniqueValue",
+                    "field1":"FCODE",
+                    "fieldDelimiter":",",
+                },
+                "labelingInfo":[
+                    {
+                        "labelPlacement":"esriServerLinePlacementCenterAlong",
+                        "labelExpression":"[CONTOURELEVATION]",
+                        "useCodedValues":True,
+                        "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['LABEL_SYMBOL'],
+                        "minScale":0,
+                        "maxScale":0
+                    }
+                ]
+            }
+        }
+    ]
 
 ###########################################
 ##      Map Info                        ###
