@@ -9,36 +9,91 @@ from pdfjinja import PdfJinja
 import PyPDF2 as pypdf
 from tempfile import NamedTemporaryFile
 
+def refit_bbox(property_specs, scale='fit'):
+    # bbox: string of EPSG:3857 coords formatted as "W,S,E,N"
+    bbox = property_specs['bbox']
+    pixel_width = property_specs['width']
+    pixel_height = property_specs['height']
+
+    min_resolution = False
+    if scale == 'medium':
+        min_resolution = settings.MAX_WEB_MERCATOR_RESOLUTION_MEDIUM
+    if scale == 'context':
+        min_resolution = settings.MAX_WEB_MERCATOR_RESOLUTION_CONTEXT
+
+    if min_resolution:
+        # Get bbox width in Web Mercator Degrees (EPSG:3857)
+        [west, south, east, north] = bbox.split(',')
+        mercator_width = abs(float(east)-float(west)) # this should always be pos, but abs for good measure
+        mercator_height = abs(float(north)-float(south)) # this should always be pos, but abs for good measure
+        # divide bbox (m) by width (px)
+        fit_resolution = mercator_width/pixel_width
+        # compare to 'min_resolution'
+        if fit_resolution < min_resolution:
+            # decrease res to meet settings
+            min_web_mercator_width = min_resolution*pixel_width
+            # is w:h ratio maintained in web mercator? Tested in QGIS: yes.
+            min_web_mercator_height = min_resolution*pixel_height
+            width_buffer = (min_web_mercator_width-mercator_width)/2
+            height_buffer = (min_web_mercator_height-mercator_height)/2
+            # Recalculate bbox in original projection/ratio
+            new_N = float(north) + height_buffer
+            new_S = float(south) - height_buffer
+            new_W = float(west) - width_buffer
+            new_E = float(east) + width_buffer
+            bbox = "%f,%f,%f,%f" % (new_W, new_S, new_E, new_N)
+
+    return bbox
+
 def get_property_report(property, taxlots):
     # TODO: call this in "property" after creating the object instance
 
     # calculate orientation, w x h, bounding box, centroid, and zoom level
     property_specs = get_property_specs(property)
-    property_layer = map_views.get_property_image_layer(
-        property, property_specs)
-    # TODO (Sara is creating the layer now)
-    taxlot_layer = map_views.get_taxlot_image_layer(property_specs)
 
-    aerial_layer = map_views.get_aerial_image_layer(property_specs)
-    street_layer = map_views.get_street_image_layer(property_specs)
-    topo_layer = map_views.get_topo_image_layer(property_specs)
-    soil_layer = map_views.get_soil_image_layer(property_specs)
-    stream_layer = map_views.get_stream_image_layer(property_specs)
+    property_bboxes = {
+        'fit': property_specs['bbox'],
+        'medium': refit_bbox(property_specs, scale='medium'),
+        'context': refit_bbox(property_specs, scale='context')
+    }
+    property_layers = {
+        'fit': map_views.get_property_image_layer(property, property_specs),
+        'medium': map_views.get_property_image_layer(
+            property, property_specs, property_bboxes['medium']
+        ),
+        'context': map_views.get_property_image_layer(
+            property, property_specs, property_bboxes['context']
+        )
+    }
+
+    taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
+    aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
+    street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
+    topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+    soil_layer = map_views.get_soil_image_layer(property_specs, property_bboxes[settings.SOIL_SCALE])
+    stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
     property.property_map_image = map_views.get_property_map(
-        property_specs, base_layer=aerial_layer, property_layer=property_layer)
+        property_specs,
+        base_layer=aerial_layer,
+        property_layer=property_layers[settings.PROPERTY_OVERVIEW_SCALE]
+    )
     property.aerial_map_image = map_views.get_aerial_map(
         property_specs,
         base_layer=aerial_layer,
         lots_layer=taxlot_layer,
-        property_layer=property_layer)
+        property_layer=property_layers[settings.AERIAL_SCALE]
+    )
     property.street_map_image = map_views.get_street_map(
         property_specs,
         base_layer=street_layer,
-        lots_layer=taxlot_layer,
-        property_layer=property_layer)
+        property_layer=property_layers[settings.STREET_SCALE]
+    )
     property.terrain_map_image = map_views.get_terrain_map(
-        property_specs, base_layer=topo_layer, property_layer=property_layer)
+        property_specs,
+        base_layer=topo_layer,
+        property_layer=property_layers[settings.TOPO_SCALE]
+    )
     if settings.STREAMS_BASE_LAYER == 'aerial':
         stream_base_layer = aerial_layer
     else:
@@ -47,15 +102,24 @@ def get_property_report(property, taxlots):
         property_specs,
         base_layer=stream_base_layer,
         stream_layer=stream_layer,
-        property_layer=property_layer)
+        property_layer=property_layers[settings.STREAM_SCALE])
     property.soil_map_image = map_views.get_soil_map(
         property_specs,
         base_layer=aerial_layer,
         lots_layer=taxlot_layer,
         soil_layer=soil_layer,
-        property_layer=property_layer)
+        property_layer=property_layers[settings.SOIL_SCALE])
     property.scalebar_image = map_views.get_scalebar_image(property_specs,
-                                                           span_ratio=0.75)
+                                                           span_ratio=0.75
+    )
+    property.context_scalebar_image = map_views.get_scalebar_image(
+        {'width': property_specs['width'], 'bbox': property_bboxes['context']},
+        span_ratio=0.75
+    )
+    property.medium_scalebar_image = map_views.get_scalebar_image(
+        {'width': property_specs['width'], 'bbox': property_bboxes['medium']},
+        span_ratio=0.75
+    )
 
     property.report_data = get_property_report_data(property, property_specs,
                                                     taxlots)
@@ -346,6 +410,8 @@ def create_property_pdf(property, property_id):
     stream_image = requests.get(stream_url, stream=True)
     soil_image = requests.get(soil_types_url, stream=True)
     property_scalebar_image = requests.get(scalebar_url, stream=True)
+    property_context_scalebar_image = requests.get(scalebar_url+'/context', stream=True)
+    property_medium_scalebar_image = requests.get(scalebar_url+'/medium', stream=True)
 
     tmp_property = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
@@ -401,12 +467,32 @@ def create_property_pdf(property, property_id):
             if chunk:
                 f.write(chunk)
 
+
     tmp_scalebar = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
                                       delete=True)
     tmp_scalebar_name = tmp_scalebar.name
     with open(tmp_scalebar_name, 'wb') as f:
         for chunk in property_scalebar_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+    # tmp_context_scalebar_name
+    tmp_context_scalebar = NamedTemporaryFile(suffix='.png',
+                                      dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                      delete=True)
+    tmp_context_scalebar_name = tmp_context_scalebar.name
+    with open(tmp_context_scalebar_name, 'wb') as f:
+        for chunk in property_context_scalebar_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+    # tmp_medium_scalebar_name
+    tmp_medium_scalebar = NamedTemporaryFile(suffix='.png',
+                                      dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                      delete=True)
+    tmp_medium_scalebar_name = tmp_medium_scalebar.name
+    with open(tmp_medium_scalebar_name, 'wb') as f:
+        for chunk in property_medium_scalebar_image.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
@@ -430,6 +516,12 @@ def create_property_pdf(property, property_id):
         property.report_data['property']['data']
     )
 
+    scalebar_names = {
+        'fit': tmp_scalebar_name,
+        'medium': tmp_medium_scalebar_name,
+        'context': tmp_context_scalebar_name
+    }
+
     template_input_dict = {
         'date': str(current_datetime),
         'propName': property.name,
@@ -444,13 +536,13 @@ def create_property_pdf(property, property_id):
         'introAerialImagery': tmp_property_name,
         'propName2': property.name,
         'aerial': tmp_aerial_name,
-        'scale': tmp_scalebar_name,
-        'scale_aerial': tmp_scalebar_name,
-        'scale_topo': tmp_scalebar_name,
-        'scale_hydro': tmp_scalebar_name,
-        'scale_soil': tmp_scalebar_name,
+        'scale': scalebar_names[settings.PROPERTY_OVERVIEW_SCALE],
+        'scale_aerial': scalebar_names[settings.AERIAL_SCALE],
+        'scale_topo': scalebar_names[settings.TOPO_SCALE],
+        'scale_hydro': scalebar_names[settings.STREAM_SCALE],
+        'scale_soil': scalebar_names[settings.SOIL_SCALE],
         'directions': tmp_street_name,
-        'scale_directions': tmp_scalebar_name,
+        'scale_directions': scalebar_names[settings.STREET_SCALE],
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
@@ -505,6 +597,7 @@ def create_property_pdf(property, property_id):
     terrain_image.close()
     stream_image.close()
     property_scalebar_image.close()
+    #TODO: context/medium scalebar_image
 
     if os.path.exists(output_pdf):
         buffer = io.BytesIO()
