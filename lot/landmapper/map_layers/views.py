@@ -999,9 +999,8 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
     adjust = img_scale_bot / bottom_units_per_pixel
     fig.set_size_inches(*(fig.get_size_inches() * adjust))
     img = plt_to_pil_image(fig, dpi=DPI)
-    transparent_background = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
-    transparent_background.paste(img)
-    return transparent_background
+
+    return img
 
 
 def plt_to_pil_image(plt_figure, dpi=200, transparent=False):

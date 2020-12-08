@@ -12,6 +12,7 @@ from landmapper.models import *
 from landmapper import properties, reports
 from urllib.parse import quote
 import urllib.request
+from PIL import Image
 
 def unstable_request_wrapper(url, retries=0):
     # """
@@ -289,6 +290,23 @@ def get_scalebar_as_image(request, property_id, scale="fit"):
         image = property.scalebar_image
     response = HttpResponse(content_type="image/png")
     image.save(response, 'PNG')
+
+    return response
+
+def get_scalebar_as_image_for_pdf(request, property_id, scale="fit"):
+    property = properties.get_property_by_id(property_id)
+    if scale == 'context':
+        image = property.context_scalebar_image
+    elif scale == 'medium':
+        image = property.medium_scalebar_image
+    else:
+        image = property.scalebar_image
+
+    transparent_background = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
+    transparent_background.paste(image)
+
+    response = HttpResponse(content_type="image/png")
+    transparent_background.save(response, 'PNG')
 
     return response
 

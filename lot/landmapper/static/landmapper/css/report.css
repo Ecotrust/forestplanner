@@ -89,11 +89,12 @@
 
 .scalebar {
   background-color: rgba(255,255,255,0.6);
-  top: 0;
+  top: 4vh;
   max-height: none;
   min-height: auto;
   height: auto;
-  left: 0;
+  left: 4vh;
+  outline: 1px solid #fff;
   position: absolute;
   width: auto;
   max-width: none;
