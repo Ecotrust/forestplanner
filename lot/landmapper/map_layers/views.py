@@ -67,10 +67,11 @@ def render_vectors(geoms,
             patch = patches.Polygon(np.array(shape.exterior.xy).T)
             polys.append(patch)
         elif type(geom) == MultiPolygon:
-            for poly_coords in geom.coords[0]:
-                poly = shapely.geometry.Polygon(poly_coords)
-                patch = patches.Polygon(np.array(poly.exterior.xy).T)
-                polys.append(patch)
+            for coord_set in geom.coords:
+                for poly_coords in coord_set:
+                    poly = shapely.geometry.Polygon(poly_coords)
+                    patch = patches.Polygon(np.array(poly.exterior.xy).T)
+                    polys.append(patch)
     ax.add_collection(PatchCollection(polys, **patch_kwargs))
 
     if labels is not None:
