@@ -104,6 +104,18 @@
 
       {% block footer_scripts %}{% endblock footer_scripts %}
     {% endblock body %}
+
+    {% block ga %}
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0BPDMQ3SBM"></script>
+      <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-0BPDMQ3SBM');
+      </script>
+    {% endblock ga %}
   </body>
 
 </html>
