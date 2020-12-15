@@ -155,7 +155,7 @@ landmapper.loadTaxLots = function(mapEvent) {
       // Select feature is bool if true add taxlot
       if (selectFeature) {
         if (wkt == []) {
-          window.alert('Taxlot info unavailable at this location - please draw instead.');
+          window.alert('Taxlot info unavailable at this location. This be due to an application error, please retry. If you recieve this message again, it may be because this data has not been made available by the county.');
         } else {
           var feature = format.readFeature(wkt);
         }
@@ -180,7 +180,7 @@ landmapper.loadTaxLots = function(mapEvent) {
 
     },
     error: function(error) {
-        window.alert('Error retrieving taxlot - please draw instead.');
+        window.alert('Error retrieving taxlot');
         console.log('error in map.js: Click Control trigger');
     }
   }).done(function() {
