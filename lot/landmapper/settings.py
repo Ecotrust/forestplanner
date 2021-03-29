@@ -24,6 +24,18 @@ AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
 TAXLOTS_SCALE = AERIAL_SCALE
 SOIL_SCALE = AERIAL_SCALE
 STREAM_SCALE = AERIAL_SCALE
+STUDY_REGION = {
+    'north': 46.292035,
+    'south': 41.991794,
+    'east': -116.463504,
+    'west': -124.566244,
+    'context': [
+        ', OR',
+        ', Oregon USA',
+        # ', WA',
+    ]
+}
+
 
 ###########################################
 ##      Basemaps                        ###
