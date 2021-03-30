@@ -54,7 +54,7 @@ def unstable_request_wrapper(url, params=False, retries=0):
         contents = False
     return contents
 
-def geocode(search_string, srs=4326, service='arcgis'):
+def geocode(search_string, srs=4326, service='arcgis', with_context=False):
     # """
     # geocode
     # PURPOSE: Convert a provided place name into geographic coordinates
@@ -72,47 +72,73 @@ def geocode(search_string, srs=4326, service='arcgis'):
     # -   identify
     # """
 
-    g = False
+    hits = []
+    g_hits = []
+    hit_names = []
+
     # Query desired service
-    if service.lower() == 'arcgis':
-        g = geocoder.arcgis(search_string)
-    elif service.lower() == 'google':
-        if hasattr(settings, 'GOOGLE_API_KEY'):
-            g = geocoder.google(search_string, key=settings.GOOGLE_API_KEY)
-        else:
-            print(
-                'To use Google geocoder, please configure "GOOGLE_API_KEY" in your project settings. '
-            )
-    if not g or not g.ok:
-        print(
-            'Selected geocoder not available or failed. Defaulting to ArcGIS')
-        g = geocoder.arcgis(search_string)
+    # TODO: support more than just ArcGIS supplied geocodes
+    #       Use other services if no matches are found.
+    # if service.lower() == 'arcgis':
+    g_matches = geocoder.arcgis(search_string, maxRows=100)
+    for match in g_matches:
+        if (match.latlng[0] <= settings.STUDY_REGION['north'] and
+                match.latlng[0] >= settings.STUDY_REGION['south'] and
+                match.latlng[1] <= settings.STUDY_REGION['east'] and
+                match.latlng[1] >= settings.STUDY_REGION['west']):
+            if not match.raw['name'] in hit_names:
+                g_hits.append(match)
+                hit_names.append(match.raw['name'])
+    for hit in g_hits:
+        hits.append({
+            'name': hit.raw['name'],
+            'coords': hit.latlng,
+            'confidence': hit.confidence
+        })
 
-    coords = g.latlng
+    if not with_context:
 
-    # Transform coordinates if necessary
-    if not srs == 4326:
+        if len(hits) == 0:
+            for context in settings.STUDY_REGION['context']:
+                new_hits = geocode("%s%s" % (search_string, context), srs=srs, service=service, with_context=True)
+                for hit in new_hits:
+                    if not hit['name'] in hit_names:
+                        hits.append(hit)
+                        hit_names.append(hit['name'])
+                        # TODO: If new hits match but have better confidence, replace
 
-        if ':' in srs:
+        # Transform coordinates if necessary
+        if not srs == 4326:
+
+            if ':' in srs:
+                try:
+                    srs = srs.split(':')[1]
+                except Exception as e:
+                    pass
             try:
-                srs = srs.split(':')[1]
-            except Exception as e:
-                pass
-        try:
-            int(srs)
-        except ValueError as e:
-            print(
-                'ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326'
-            )
-            return coords
+                int(srs)
+            except ValueError as e:
+                print(
+                    'ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326'
+                )
+                return coords
 
-        point = GEOSGeometry('SRID=4326;POINT (%s %s)' %
-                             (coords[1], coords[0]),
-                             srid=4326)
-        point.transform(srs)
-        coords = [point.coords[1], point.coords[0]]
+            hits_transform = []
+            for hit in hits:
+                coords = hit.latlng
+                point = GEOSGeometry('SRID=4326;POINT (%s %s)' %
+                                     (coords[1], coords[0]),
+                                     srid=4326)
+                point.transform(srs)
+                coords = [point.coords[1], point.coords[0]]
+                hits_transform.append(coords)
+            hits = hits_transfrom
 
-    return coords
+    hits = sorted(hits, key = lambda i: i['confidence'], reverse=True)
+    if len(hits) > 5:
+        hits = hits[:5]
+
+    return hits
 
 @xframe_options_sameorigin
 def get_taxlot_json(request):
@@ -186,13 +212,24 @@ def identify(request):
         if request.POST.get('q-address'):
             q_address = request.POST.get('q-address')
             q_address_value = request.POST.get('q-address')
-            coords = geocode(q_address)
+            geocode_hits = geocode(q_address)
         else:
             q_address = 'Enter your property address here'
 
-        if coords:
+        if geocode_hits:
+            if len(geocode_hits) > 0:
+                coords = geocode_hits[0]['coords']
+                geocode_error = False
+            else:
+                coords = [
+                    (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
+                    (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
+                ]
+                geocode_error = True
             context = {
                 'coords': coords,
+                'geocode_hits': geocode_hits,
+                'geocode_error': geocode_error,
                 'q_address': q_address,
                 'q_address_value': q_address_value,
                 'aside_content': aside_content,
