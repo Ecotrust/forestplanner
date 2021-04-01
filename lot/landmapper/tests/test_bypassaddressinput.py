@@ -37,4 +37,5 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
         property_search_form = self.selenium.find_element_by_id("property-search-form")
         search_visibility = property_search_form.get_attribute('style')
 
-        self.assertNotContains('hidden', search_visibility)
+        # Address search should be hidden now
+        self.assertTrue('hidden' in search_visibility)
