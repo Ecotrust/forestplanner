@@ -39,3 +39,5 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
 
         # Address search should be hidden now
         self.assertTrue('hidden' in search_visibility)
+
+        # Hide bypass button
