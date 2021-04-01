@@ -205,11 +205,22 @@ def identify(request):
                 'btn_next_disabled': 'disabled',
                 'menu_items': MenuPage.objects.all().order_by('order'),
             }
-            return render(request, 'landmapper/landing.html', context)
     else:
-        print('requested identify page with method other than POST')
+        # User wants to bypass address search
+        context = {
+            'aside_content': aside_content,
+            'show_panel_buttons': True,
+            'search_performed': True,
+            # """Says where buttons go when you're using the UI mapping tool."""
+            'btn_back_href': '/landmapper/',
+            'btn_next_href': 'property_name',
+            'btn_create_maps_href': '/landmapper/report/',
+            'btn_next_disabled': 'disabled',
+            'menu_items': MenuPage.objects.all().order_by('order'),
+        }
 
-    return home(request)
+    return render(request, 'landmapper/landing.html', context)
+
 
 def create_property_id(request):
     '''
