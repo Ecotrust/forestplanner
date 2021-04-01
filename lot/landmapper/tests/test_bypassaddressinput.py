@@ -34,5 +34,7 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
         self.selenium.get("http://localhost:8000/landmapper")
         self.selenium.find_element_by_id("bypass-address-input").click()
 
-        overlay = self.selenium.find_element_by_id("property-search-form")
-        self.assertFalse(self.selenium.find_element_by_xpath('//style="visibility: hidden"'))
+        property_search_form = self.selenium.find_element_by_id("property-search-form")
+        search_visibility = property_search_form.get_attribute('style')
+
+        self.assertNotContains('hidden', search_visibility)
