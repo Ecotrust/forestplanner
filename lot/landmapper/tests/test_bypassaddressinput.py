@@ -10,7 +10,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
-class BypassAddressInputTest(StaticLiveServerTestCase):
+class BypassAddressInputTests(StaticLiveServerTestCase):
     """
         Load site landing page
         Add a button to select tax lot by interacting with map
@@ -19,13 +19,13 @@ class BypassAddressInputTest(StaticLiveServerTestCase):
     """
 
     @classmethod
-    def setUp(self):
+    def setUpClass(self):
         super().setUpClass()
         self.selenium = webdriver.firefox.webdriver.WebDriver()
         self.selenium.implicitly_wait(10)
 
     @classmethod
-    def tearDown(self):
+    def tearDownClass(self):
         self.selenium.quit()
         super().tearDownClass()
 
