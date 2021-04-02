@@ -7,37 +7,45 @@
     {% block content-panel %}
       <aside class="col-5" id="content-panel">
 
-        {% if not geocode_error and geocode_hits|length %}
+        {% if not geocode_error and geocode_hits|length > 0  %}
           <div id="pushPin" title="Push Pin"></div>
-          <div id="geocode-results-options">
-            <div id="geocode-results-container">
-              {% for hit in geocode_hits %}
-                <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
-                  <h2>{{ hit.name}}</h2>
-                  <p class="coordinates-value">{{ hit.coords }}</p>
-                  <p class="confidence-value">{{ hit.confidence }}</p>
+          {% if geocode_hits|length > 1  %}
+            <div id="geocode-results-options">
+              <div id="geocode-results-container">
+                {% for hit in geocode_hits %}
+                  <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
+                    <h2>{{ hit.name}}</h2>
+                    <p class="coordinates-value">{{ hit.coords }}</p>
+                    <p class="confidence-value">{{ hit.confidence }}</p>
+                  </button>
+                {% endfor %}
+                <button class="close-geocode-results" onclick="enablePropertySelection()">
+                  Select Property >
                 </button>
-              {% endfor %}
+              </div>
             </div>
-          </div>
+          {% endif %}
         {% endif %}
 
-        {% flatblock aside_content evaluated=True %}
 
-        {% block show_panel_buttons %}
-          <a href="{{ btn_back_href }}" class="btn btn-light {% if not show_panel_buttons %}d-none{% endif  %}" id="btn-content-panel-back">Back</a>
-          <a href="#" class="btn btn-light {{ btn_next_disabled }} {% if not show_panel_buttons %}d-none{% endif %}" id="btn-content-panel-next">Next</a>
-        {% endblock show_panel_buttons %}
+        <div id='content-panel-content'>
+          {% flatblock aside_content evaluated=True %}
 
-        <form id="form-property-name" class="d-none" action="{{ btn_create_maps_href }}" method="post">
-          {% csrf_token %}
-          <div class="form-group">
-            <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
-          </div>
-          <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
-          <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
-          <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
-        </form>
+          {% block show_panel_buttons %}
+            <a href="{{ btn_back_href }}" class="btn btn-light {% if not show_panel_buttons %}d-none{% endif  %}" id="btn-content-panel-back">Back</a>
+            <a href="#" class="btn btn-light {{ btn_next_disabled }} {% if not show_panel_buttons %}d-none{% endif %}" id="btn-content-panel-next">Next</a>
+          {% endblock show_panel_buttons %}
+
+          <form id="form-property-name" class="d-none" action="{{ btn_create_maps_href }}" method="post">
+            {% csrf_token %}
+            <div class="form-group">
+              <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
+            </div>
+            <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
+            <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
+            <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
+          </form>
+        </div>
       </aside>
     {% endblock content-panel %}
 
@@ -68,13 +76,13 @@
       var propertyCoords = {{ coords }};
       if (propertyCoords.length > 1) {
         // Flip coords around for OL
-        reprojectCoords = ol.proj.fromLonLat([propertyCoords[1],propertyCoords[0]])
+        reprojectCoords = ol.proj.fromLonLat([propertyCoords[1],propertyCoords[0]]);
         mapView.setCenter(reprojectCoords);
         mapView.setZoom(14);
       }
     </script>
   {% endif %}
-  {% if not geocode_error %}
+  {% if not geocode_error and geocode_hits|length > 0 %}
     <style>
       #pushPin {
         width: 20px;
@@ -87,6 +95,13 @@
     </style>
     <script>
       map.addOverlay(landmapper.pushPinOverlay);
+      reprojectCoords = ol.proj.fromLonLat([propertyCoords[1],propertyCoords[0]]);
+      setPinCoords(reprojectCoords);
+      {% if geocode_hits|length > 1 %}
+        $("#content-panel-content").hide();
+      {% else %}
+        enablePropertySelection();
+      {% endif %}
     </script>
   {% endif %}
 {% endblock footer_scripts %}

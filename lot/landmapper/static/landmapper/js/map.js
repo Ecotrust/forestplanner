@@ -49,6 +49,14 @@ var mapView = new ol.View({
   rotation: landmapper.rotation
 });
 
+landmapper.taxlotLayer = new ol.layer.Tile({
+  visible: true,
+  title: 'Taxlots',
+  source: new ol.source.XYZ({
+    url: 'https://api.mapbox.com/styles/v1/forestplanner/ckdgho51i084u1inx1a70iwim/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZm9yZXN0cGxhbm5lciIsImEiOiJja2J2MDg4MW8wMWNhMnRvYXkzc3I4czRxIn0.1TONAGYOeYpgrZZKivD-2g',
+    attributions: "TBD"
+  })
+});
 
 /**
  * [selectedFeatureSource description]
@@ -94,16 +102,7 @@ var map = new ol.Map({
         imagerySet: 'AerialWithLabels',
         key: 'Ave7UcBYYPahWffLRpKbOAIo22WuwCpLuvUauhw_h6U4FOFMXZNCDnl3O3OTgxdF'
       })
-    }),
-    new ol.layer.Tile({
-      visible: true,
-      title: 'Taxlots',
-      source: new ol.source.XYZ({
-        url: 'https://api.mapbox.com/styles/v1/forestplanner/ckdgho51i084u1inx1a70iwim/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZm9yZXN0cGxhbm5lciIsImEiOiJja2J2MDg4MW8wMWNhMnRvYXkzc3I4czRxIn0.1TONAGYOeYpgrZZKivD-2g',
-        attributions: "TBD"
-      })
-    }),
-    landmapper.selectedFeatureLayer
+    })
   ],
   view: mapView
 });
@@ -232,19 +231,6 @@ var updatePermalink = function() {
   window.history.pushState(landmapper.state, 'map', landmapper.hash);
 };
 
-
-/**
- * Map events
- * @method
- * @param  {[type]} e [description]
- * @return {[type]}   [description]
- */
-map.on('singleclick', function(e) {
-  landmapper.showNextBtn(true);
-  landmapper.loadTaxLots(e);
-});
-
-
 /**
  * Update permalink
  * @type {[type]}
@@ -279,4 +265,21 @@ var setWGS84Center = function(coords) {
 
 var setPinCoords = function(coords) {
   landmapper.pushPinOverlay.setPosition(coords);
+}
+
+var enablePropertySelection = function() {
+  $("#geocode-results-options").hide();
+  $("#content-panel-content").show();
+  map.addLayer(landmapper.taxlotLayer);
+  map.addLayer(landmapper.selectedFeatureLayer);
+  /**
+   * Map events
+   * @method
+   * @param  {[type]} e [description]
+   * @return {[type]}   [description]
+   */
+  map.on('singleclick', function(e) {
+    landmapper.showNextBtn(true);
+    landmapper.loadTaxLots(e);
+  });
 }
