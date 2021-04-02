@@ -89,5 +89,9 @@
     <script>
       enableGeocodeResultSelection([propertyCoords[1],propertyCoords[0]], {{geocode_hits|length }});
     </script>
+  {% else %}
+    <script>
+      enablePropertySelection();
+    </script>
   {% endif %}
 {% endblock footer_scripts %}
