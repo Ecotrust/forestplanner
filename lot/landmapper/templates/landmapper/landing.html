@@ -11,6 +11,7 @@
           <div id="pushPin" title="Push Pin"></div>
           {% if geocode_hits|length > 1  %}
             <div id="geocode-results-options">
+              <h1>Your search for <b><u>{{ q_address_value }}</u></b> returned the following possible results:</h1>
               <div id="geocode-results-container">
                 {% for hit in geocode_hits %}
                   <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
@@ -20,7 +21,7 @@
                   </button>
                 {% endfor %}
                 <button class="close-geocode-results" onclick="enablePropertySelection()">
-                  Select Property >
+                  Next >
                 </button>
               </div>
             </div>

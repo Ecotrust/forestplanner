@@ -193,6 +193,53 @@ form:invalid {
 }
 
 /**
+ * Search Results
+ *
+ */
+#geocode-results-options {
+
+}
+
+#geocode-results-container {
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+button.geocode-search-result {
+  border: 1px solid #888;
+  border-radius: 0.5rem;
+  margin: .5rem auto;
+  padding: 0.5rem;
+  width: 60%;
+}
+
+button.geocode-search-result:hover {
+  color: black;
+  border-color: black;
+  background-color: #DDD;
+}
+
+.coordinates-value, .confidence-value {
+  display: none;
+}
+
+button.close-geocode-results {
+  display: block;
+  right: 2rem;
+  position: absolute;
+  border: 1px solid #444;
+  border-radius: 0.5rem;
+  text-align: center;
+  margin: 1rem;
+  padding: 0.5rem;
+}
+
+button.close-geocode-results:hover {
+  background-color: #DDD;
+}
+
+/**
  * Buttons
  *
  */
