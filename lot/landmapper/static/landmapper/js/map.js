@@ -84,7 +84,8 @@ landmapper.pushPinOverlay = new ol.Overlay({
   position: ol.proj.fromLonLat([0,0]),
   // positioning: 'bottom-center',
   element: document.getElementById('pushPin'),
-  stopEvent: false
+  stopEvent: false,
+  offset: [-30, -50]
 });
 
 /**

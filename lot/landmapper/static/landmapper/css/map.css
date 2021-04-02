@@ -38,10 +38,9 @@
 
 #pushPin {
   display: none;
-  width: 20px;
-  height: 20px;
-  border: 1px solid #088;
-  border-radius: 10px;
-  background-color: #0FF;
-  opacity: 0.5;
+  width: 66px;
+  height: 66px;
+  background-image: url(../img/pin_solid.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
 }
