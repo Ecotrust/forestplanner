@@ -6,6 +6,22 @@
 
     {% block content-panel %}
       <aside class="col-5" id="content-panel">
+
+        {% if not geocode_error and geocode_hits|length %}
+          <div id="pushPin" title="Push Pin"></div>
+          <div id="geocode-results-options">
+            <div id="geocode-results-container">
+              {% for hit in geocode_hits %}
+                <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
+                  <h2>{{ hit.name}}</h2>
+                  <p class="coordinates-value">{{ hit.coords }}</p>
+                  <p class="confidence-value">{{ hit.confidence }}</p>
+                </button>
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+
         {% flatblock aside_content evaluated=True %}
 
         {% block show_panel_buttons %}
@@ -47,8 +63,8 @@
 {% block footer_scripts %}
   {{ block.super }}
   <script type="text/javascript" src="{% static 'landmapper/js/create_report.js' %}"></script>
-  <script>
-    {% if coords %}
+  {% if coords %}
+    <script>
       var propertyCoords = {{ coords }};
       if (propertyCoords.length > 1) {
         // Flip coords around for OL
@@ -56,6 +72,21 @@
         mapView.setCenter(reprojectCoords);
         mapView.setZoom(14);
       }
-    {% endif %}
-  </script>
+    </script>
+  {% endif %}
+  {% if not geocode_error %}
+    <style>
+      #pushPin {
+        width: 20px;
+        height: 20px;
+        border: 1px solid #088;
+        border-radius: 10px;
+        background-color: #0FF;
+        opacity: 0.5;
+      }
+    </style>
+    <script>
+      map.addOverlay(landmapper.pushPinOverlay);
+    </script>
+  {% endif %}
 {% endblock footer_scripts %}

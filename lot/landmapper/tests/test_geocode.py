@@ -74,7 +74,7 @@ class GeocodeTest(TestCase):
         pin_coords =  self.browser.execute_script('''
             layers = map.getLayers().array_;
             for (var i=0; i < layers.length; i++) {
-                if (layers[i].values_['title'] == 'pin') {
+                if (layers[i].values_['title'] == 'Push Pin') {
                     return layers[i].getSource().getFeatures()[0].getGeometry().getCoordinates()[0];
                 }
             }

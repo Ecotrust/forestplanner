@@ -67,8 +67,16 @@ landmapper.selectedFeatureStyles = new ol.style.Style({
 });
 
 landmapper.selectedFeatureLayer = new ol.layer.Vector({
+  title: 'Selected Taxlots',
   source: landmapper.selectedFeatureSource,
   style: landmapper.selectedFeatureStyles,
+});
+
+landmapper.pushPinOverlay = new ol.Overlay({
+  position: ol.proj.fromLonLat([0,0]),
+  // positioning: 'bottom-center',
+  element: document.getElementById('pushPin'),
+  stopEvent: false
 });
 
 /**
@@ -256,3 +264,19 @@ window.addEventListener('popstate', function(event) {
   // TODO: style the taxlots
   shouldUpdate = false;
 });
+
+map.selectNewGeocode = function(coords) {
+  reprojectCoords = ol.proj.fromLonLat([coords[1],coords[0]])
+  setWGS84Center(reprojectCoords);
+  setPinCoords(reprojectCoords);
+
+}
+
+// set map location
+var setWGS84Center = function(coords) {
+  mapView.setCenter(reprojectCoords);
+}
+
+var setPinCoords = function(coords) {
+  landmapper.pushPinOverlay.setPosition(coords);
+}
