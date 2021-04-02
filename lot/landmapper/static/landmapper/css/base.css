@@ -143,6 +143,30 @@ form:invalid {
  /* border: 1px solid red; */
 }
 
+#bypass-address-input {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%,25vh);
+  z-index: 2;
+}
+
+#bypass-address-input:before {
+  content: 'OR';
+  left: 50%;
+  position: absolute;
+  transform: translate(-50%,-4vh);
+}
+
+#bypass-address-input:after {
+  bottom: -65vh;
+  content: '';
+  left: -23vw;
+  position: absolute;
+  right: -23vw;
+  top: -25vh;
+  z-index: -1;
+}
+
 #property-search-form {
   left: 50%;
   position: absolute;
@@ -154,7 +178,7 @@ form:invalid {
     both map and search position absoulte.
     z-index 2 for search form. z-index 1 for map */
   width: 60%;
-  z-index: 2;
+  z-index: 3;
 }
 
 /* overlays the content panel to give appearance of next step */

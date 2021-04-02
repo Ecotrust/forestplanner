@@ -2,71 +2,73 @@
 {% load static flatblocks %}
 
 {% block content %}
-  <div class="row align-items-stretch flex-grow-1 no-gutters">
+<div class="row align-items-stretch flex-grow-1 no-gutters">
 
     {% block content-panel %}
       <aside class="col-5" id="content-panel">
-
-        {% if not geocode_error and geocode_hits|length > 0  %}
-          <div id="pushPin"></div>
-          {% if geocode_hits|length > 1  %}
-            <div id="geocode-results-options">
-              <h1>Your search for <b><u>{{ q_address_value }}</u></b> returned the following possible results:</h1>
-              <div id="geocode-results-container">
-                {% for hit in geocode_hits %}
-                  <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
-                    <h2>{{ hit.name}}</h2>
-                    <p class="coordinates-value">{{ hit.coords }}</p>
-                    <p class="confidence-value">{{ hit.confidence }}</p>
+          {% if not geocode_error and geocode_hits|length > 0  %}
+            <div id="pushPin"></div>
+            {% if geocode_hits|length > 1  %}
+              <div id="geocode-results-options">
+                <h1>Your search for <b><u>{{ q_address_value }}</u></b> returned the following possible results:</h1>
+                <div id="geocode-results-container">
+                  {% for hit in geocode_hits %}
+                    <button class="btn geocode-search-result" onclick="map.selectNewGeocode({{ hit.coords }})">
+                      <h2>{{ hit.name}}</h2>
+                      <p class="coordinates-value">{{ hit.coords }}</p>
+                      <p class="confidence-value">{{ hit.confidence }}</p>
+                    </button>
+                  {% endfor %}
+                  <button id="geocode-results-close" onclick="enablePropertySelection()">
+                    Next >
                   </button>
-                {% endfor %}
-                <button id="geocode-results-close" onclick="enablePropertySelection()">
-                  Next >
-                </button>
+                </div>
               </div>
-            </div>
+            {% endif %}
           {% endif %}
-        {% endif %}
 
+          <div id='content-panel-content'>
+            {% flatblock aside_content evaluated=True %}
 
-        <div id='content-panel-content'>
-          {% flatblock aside_content evaluated=True %}
+            {% block show_panel_buttons %}
+              <a href="{{ btn_back_href }}" class="btn btn-light {% if not show_panel_buttons %}d-none{% endif  %}" id="btn-content-panel-back">Back</a>
+              <a href="#" class="btn btn-light {{ btn_next_disabled }} {% if not show_panel_buttons %}d-none{% endif %}" id="btn-content-panel-next">Next</a>
+            {% endblock show_panel_buttons %}
 
-          {% block show_panel_buttons %}
-            <a href="{{ btn_back_href }}" class="btn btn-light {% if not show_panel_buttons %}d-none{% endif  %}" id="btn-content-panel-back">Back</a>
-            <a href="#" class="btn btn-light {{ btn_next_disabled }} {% if not show_panel_buttons %}d-none{% endif %}" id="btn-content-panel-next">Next</a>
-          {% endblock show_panel_buttons %}
-
-          <form id="form-property-name" class="d-none" action="{{ btn_create_maps_href }}" method="post">
-            {% csrf_token %}
-            <div class="form-group">
-              <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
-            </div>
-            <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
-            <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
-            <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
-          </form>
-        </div>
+            <form id="form-property-name" class="d-none" action="{{ btn_create_maps_href }}" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
+                </div>
+                <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
+                <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
+                <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
+            </form>
+          </div>
       </aside>
     {% endblock content-panel %}
 
     {% block map-wrap %}
-      <section class="col" id="map-wrap">
+    <section class="col" id="map-wrap">
         {% block property-search %}
-          <form role="search" id="property-search-form" action="/landmapper/identify/" method="post" {% if search_performed %} style="visibility: hidden;" {% endif %}>
+        <form role="search" id="property-search-form" action="/landmapper/identify/" method="post" {% if search_performed %} style="visibility: hidden;" {% endif %}>
             {% csrf_token %}
             <div class="input-group input-group-lg">
-              <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" value="{{ q_address_value }}" aria-describedby="property-search-btn" required />
-              <div class="input-group-append">
-                <button form="property-search-form" class="btn" id="property-search-btn">Go</button>
-              </div>
+                <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" value="{{ q_address_value }}" aria-describedby="property-search-btn" required />
+                <div class="input-group-append">
+                    <button form="property-search-form" class="btn" id="property-search-btn">Go</button>
+                </div>
             </div>
-          </form>
+        </form>
+        {% if not search_performed %}
+        <a href="/landmapper/identify/" class="btn btn-primary" id="bypass-address-input">Select Property On Map</a>
+        {% endif %}
+
         {% endblock property-search %}
         <div id="map" {% if not search_performed %} class="overlay" {% endif %}></div>
-      </section>
+    </section>
     {% endblock map-wrap %}
-  </div>
+</div>
 {% endblock content %}
 
 {% block footer_scripts %}
