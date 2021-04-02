@@ -267,6 +267,18 @@ var setPinCoords = function(coords) {
   landmapper.pushPinOverlay.setPosition(coords);
 }
 
+var enableGeocodeResultSelection = function(coords, geocode_count) {
+  map.addOverlay(landmapper.pushPinOverlay);
+  reprojectCoords = ol.proj.fromLonLat(coords);
+  setPinCoords(reprojectCoords);
+  if (geocode_count > 1) {
+    $("#content-panel-content").hide();
+  } else{
+    enablePropertySelection();
+  }
+  $('#pushPin').show();
+}
+
 var enablePropertySelection = function() {
   $("#geocode-results-options").hide();
   $("#content-panel-content").show();
