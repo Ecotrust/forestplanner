@@ -61,72 +61,76 @@ class GeocodeTest(TestCase):
         self.assertTrue(self.browser.find_element_by_id("geocode-results-options").is_displayed())
         self.assertTrue(len(self.browser.find_elements_by_class_name("geocode-search-result")) > 0)
 
+        options_coordinates = self.browser.execute_script('''
+            var option_elements = $("#geocode-results-container").children('button.geocode-search-result');
+            var option_coordinates = [];
+            option_elements.each(function(){
+                child_coords_4326 = eval($(this).find('p.coordinates-value').html());
+                option_coordinates.push(ol.proj.fromLonLat([child_coords_4326[1], child_coords_4326[0]], 'EPSG:3857'));
+            });
+            return option_coordinates;
+        ''');
+
         # map is zoomed to correct zoom (???)
         zoom = self.browser.execute_script("return map.getView().getZoom()")
         self.assertEqual(zoom, 14)
 
         # map is centered on correct coords (first geocode hit)
         map_center = self.browser.execute_script("return map.getView().getCenter()")
-        primary_center = [-13515301.594169756, 5190930.121231511]   #TODO: Get this live
-        self.assertEqual(map_center, primary_center)
+        primary_center = options_coordinates[0];
+        self.assertEqual(int(map_center[0]), int(primary_center[0]))
+        self.assertEqual(int(map_center[1]), int(primary_center[1]))
 
         # pin is placed at the selected coordinates
         pin_coords =  self.browser.execute_script('''
-            layers = map.getLayers().array_;
-            for (var i=0; i < layers.length; i++) {
-                if (layers[i].values_['title'] == 'Push Pin') {
-                    return layers[i].getSource().getFeatures()[0].getGeometry().getCoordinates()[0];
-                }
-            }
-            return false;
+            var overlay = map.overlays_.array_[0];
+            var coords = overlay.getPosition();
+            return coords;
         ''')
-        self.assertEqual(pin_coords, primary_center)
+        self.assertEqual(int(pin_coords[0]), int(primary_center[0]))
+        self.assertEqual(int(pin_coords[1]), int(primary_center[1]))
 
         # user selects the 2nd location option
         self.browser.find_elements_by_class_name("geocode-search-result")[1].click()
 
         # map is cetered on correct coords (2nd geocode hit)
         map_center = self.browser.execute_script("return map.getView().getCenter()")
-        secondary_center = [-13515301.594169756, 5190930.121231511]   #TODO: Get this live
-        self.assertEqual(map_center, secondary_center)
+        secondary_center = options_coordinates[1];
+        self.assertEqual(int(map_center[0]), int(secondary_center[0]))
+        self.assertEqual(int(map_center[1]), int(secondary_center[1]))
 
         # pin is placed at the selected coordinates
         pin_coords =  self.browser.execute_script('''
-            layers = map.getLayers().array_;
-            for (var i=0; i < layers.length; i++) {
-                if (layers[i].values_['title'] == 'pin') {
-                    return layers[i].getSource().getFeatures()[0].getGeometry().getCoordinates()[0];
-                }
-            }
-            return false;
+            var overlay = map.overlays_.array_[0];
+            var coords = overlay.getPosition();
+            return coords;
         ''')
-        self.assertEqual(pin_coords, secondary_center)
+        self.assertEqual(int(pin_coords[0]), int(secondary_center[0]))
+        self.assertEqual(int(pin_coords[1]), int(secondary_center[1]))
 
         # user selects last location option
         self.browser.find_elements_by_class_name("geocode-search-result")[-1].click()
 
         # map is centered on correct coords (final geocode hit)
         map_center = self.browser.execute_script("return map.getView().getCenter()")
-        ultimate_center = [-13515301.594169756, 5190930.121231511]   #TODO: Get this live
-        self.assertEqual(map_center, ultimate_center)
+        ultimate_center = options_coordinates[-1];
+        self.assertEqual(int(map_center[0]), int(ultimate_center[0]))
+        self.assertEqual(int(map_center[1]), int(ultimate_center[1]))
 
         # user approves the location selection
         self.browser.find_element_by_id("geocode-results-close").click()
 
         # Modal is gone.
-        self.assertEqual(len(self.browser.find_elements_by_class_name("geocode-search-result")), 0)
+        self.assertTrue(EC.invisibility_of_element_located((By.CLASS_NAME, "geocode-search-result")))
 
         # pin is still placed at the selected coordinates
         map_center = self.browser.execute_script("return map.getView().getCenter()")
         pin_coords =  self.browser.execute_script('''
-            layers = map.getLayers().array_;
-            for (var i=0; i < layers.length; i++) {
-                if (layers[i].values_['title'] == 'pin') {
-                    return layers[i].getSource().getFeatures()[0].getGeometry().getCoordinates()[0];
-                }
-            }
-            return false;
+            var overlay = map.overlays_.array_[0];
+            var coords = overlay.getPosition();
+            return coords;
         ''')
-        self.assertEqual(pin_coords, map_center)
+        self.assertEqual(int(pin_coords[0]), int(map_center[0]))
+        self.assertEqual(int(pin_coords[1]), int(map_center[1]))
 
         # TODO: Test user rejects all and browses map for themselves

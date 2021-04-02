@@ -224,7 +224,7 @@ button.geocode-search-result:hover {
   display: none;
 }
 
-button.close-geocode-results {
+button#geocode-results-close {
   display: block;
   right: 2rem;
   position: absolute;
@@ -235,7 +235,7 @@ button.close-geocode-results {
   padding: 0.5rem;
 }
 
-button.close-geocode-results:hover {
+button#geocode-results-close:hover {
   background-color: #DDD;
 }
 

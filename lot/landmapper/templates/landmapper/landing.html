@@ -8,7 +8,7 @@
       <aside class="col-5" id="content-panel">
 
         {% if not geocode_error and geocode_hits|length > 0  %}
-          <div id="pushPin" title="Push Pin"></div>
+          <div id="pushPin"></div>
           {% if geocode_hits|length > 1  %}
             <div id="geocode-results-options">
               <h1>Your search for <b><u>{{ q_address_value }}</u></b> returned the following possible results:</h1>
@@ -20,7 +20,7 @@
                     <p class="confidence-value">{{ hit.confidence }}</p>
                   </button>
                 {% endfor %}
-                <button class="close-geocode-results" onclick="enablePropertySelection()">
+                <button id="geocode-results-close" onclick="enablePropertySelection()">
                   Next >
                 </button>
               </div>
