@@ -14,14 +14,7 @@ from matplotlib.collections import PatchCollection
 # Map Layer Getter Functions ###
 ################################
 
-def render_vectors(geoms,
-                   bbox,
-                   pixel_height,
-                   pixel_width,
-                   dpi=300,
-                   patch_kwargs={},
-                   labels=None,
-                   label_kwargs={}):
+def render_vectors(geoms, bbox, pixel_height, pixel_width, dpi=300, patch_kwargs={}, labels=None, label_kwargs={}):
     """
     Renders the geometries of a vector layer as an image with a transparent
     background.
@@ -506,11 +499,7 @@ def get_stream_image_layer(property_specs, bbox=False):
         'attribution': attribution
     }
 
-def get_contour_image_layer(property_specs, bbox=False,
-                            index_contour_style=None,
-                            zoom=True,
-                            intermediate_contour_style=None,
-                            contour_label_style=None):
+def get_contour_image_layer(property_specs, bbox=False, index_contour_style=None, zoom=True, intermediate_contour_style=None, contour_label_style=None):
     # """
     # PURPOSE:
     # -   given a bbox and optionally pixel width, height, and an indication of
@@ -913,11 +902,7 @@ def reduce_step_size(step_tick, sig_dig):
 
     return step_tick * resize_factor
 
-def generate_scalebar_for_image(
-        img_width_in_meters,
-        img_width_in_pixels=509,
-        scale_width_ratio=1,
-        min_step_width=100, dpi=300):
+def generate_scalebar_for_image( img_width_in_meters, img_width_in_pixels=509, scale_width_ratio=1, min_step_width=100, dpi=300):
     bottom_units_per_pixel = img_width_in_meters/img_width_in_pixels
     if img_width_in_pixels > 500:
         units_bottom = 'meters'
@@ -1107,7 +1092,6 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
 
     return img
 
-
 def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     """
     Converts a matplotlib figure to a PIL Image (in memory).
@@ -1134,7 +1118,6 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     plt.close()
 
     return pil_image
-
 
 ################################
 # Helper Functions           ###
