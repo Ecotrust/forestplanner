@@ -2,11 +2,17 @@ import os, io, datetime, requests, json, decimal
 from datetime import date
 from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
+import geopandas as gpd
 from landmapper.models import SoilType
 from landmapper.fetch import soils_from_nrcs
 from landmapper.map_layers import views as map_views
+from matplotlib import pyplot as plt
+import numpy as np
 from pdfjinja import PdfJinja
+from PIL import Image
 import PyPDF2 as pypdf
+from rasterio import transform
+from rasterio.plot import show, reshape_as_raster
 from tempfile import NamedTemporaryFile
 
 def refit_bbox(property_specs, scale='fit'):
@@ -56,6 +62,7 @@ def get_property_report(property, taxlots):
         'medium': refit_bbox(property_specs, scale='medium'),
         'context': refit_bbox(property_specs, scale='context')
     }
+    # TODO: Replace with getting a property geodataframe
     property_layers = {
         'fit': map_views.get_property_image_layer(property, property_specs),
         'medium': map_views.get_property_image_layer(
@@ -66,6 +73,7 @@ def get_property_report(property, taxlots):
         )
     }
 
+    # TODO: Replace this with taxlot dataframe
     taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
     aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
     street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
@@ -74,25 +82,31 @@ def get_property_report(property, taxlots):
         contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])
     else:
         contour_layer = False
+    # TODO: Replace this with soil dataframe
     soil_layer = map_views.get_soil_image_layer(property_specs, property_bboxes[settings.SOIL_SCALE])
+    # TODO: Replace this with stream dataframe (?)
     stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.property_map_image = map_views.get_property_map(
         property_specs,
         base_layer=aerial_layer,
         property_layer=property_layers[settings.PROPERTY_OVERVIEW_SCALE]
     )
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.aerial_map_image = map_views.get_aerial_map(
         property_specs,
         base_layer=aerial_layer,
         lots_layer=taxlot_layer,
         property_layer=property_layers[settings.AERIAL_SCALE]
     )
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.street_map_image = map_views.get_street_map(
         property_specs,
         base_layer=street_layer,
         property_layer=property_layers[settings.STREET_SCALE]
     )
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.terrain_map_image = map_views.get_terrain_map(
         property_specs,
         base_layer=topo_layer,
@@ -103,17 +117,20 @@ def get_property_report(property, taxlots):
         stream_base_layer = aerial_layer
     else:
         stream_base_layer = topo_layer
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.stream_map_image = map_views.get_stream_map(
         property_specs,
         base_layer=stream_base_layer,
         stream_layer=stream_layer,
         property_layer=property_layers[settings.STREAM_SCALE])
+    # TODO: Rewrite to use MatPlotLib,dataframes, and Images
     property.soil_map_image = map_views.get_soil_map(
         property_specs,
         base_layer=aerial_layer,
         lots_layer=taxlot_layer,
         soil_layer=soil_layer,
         property_layer=property_layers[settings.SOIL_SCALE])
+
     property.scalebar_image = map_views.get_scalebar_image(property_specs,
                                                            span_ratio=0.75
     )
@@ -337,8 +354,7 @@ def get_property_specs(property):
         'width': None,  # Pixels
         'height': None,  # Pixels
         'bbox': None,  # "W,S,E,N" (EPSG:3857, Web Mercator)
-        'zoom':
-        None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
+        'zoom': None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
     (bbox, orientation) = map_views.get_bbox_from_property(property)
 
@@ -670,3 +686,79 @@ def get_soils_data(property_geom):
         soil_data.append(soil_area_values[musym])
 
     return soil_data
+
+def get_collection_from_object(source_object, geom_field, bbox):
+    xmin, ymin, xmax, ymax = bbox.split(',')
+    # would this be easier to read the wkt into a gpd.GeoSeries?
+    feature_obj = {
+        "type": "Feature",
+        "properties": {},
+        "geometry": json.loads(getattr(source_object, geom_field).json),
+        "bbox": (xmin, ymin, xmax, ymax)
+    }
+
+    feature_collection = {
+        "type": "FeatureCollection",
+        "features": [feature_obj,],
+        "bbox": (xmin, ymin, xmax, ymax)
+    }
+    return feature_collection
+
+def get_gdf_from_features(collection):
+    return gpd.GeoDataFrame.from_features(collection, crs="EPSG:%s" % settings.GEOMETRY_CLIENT_SRID)
+
+def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, img_width=settings.REPORT_MAP_WIDTH, dpi=settings.DPI):
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    bbox_array = [xmin, ymin, xmax, ymax]
+    fig, ax = plt.subplots(figsize=(img_width/float(dpi),img_height/float(dpi)), dpi=dpi)
+    for layer in layers:
+        if layer['type'] == 'img':
+            trf = transform.from_bounds(*bbox_array, width=img_width, height=img_height)
+            work = show(reshape_as_raster(layer['layer']), ax=ax, transform=trf)
+        else:   # 'gdf' only for now
+            work = layer['layer'].plot(
+                ax=ax,
+                lw=layer['style']['lw'],
+                ec=layer['style']['ec'],
+                fc=layer['style']['fc']
+            )
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    return fig2img(fig)
+
+
+# Updated from https://web-backend.icare.univ-lille.fr/tutorials/convert_a_matplotlib_figure
+def fig2data ( fig ):
+    """
+    @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
+    @param fig a matplotlib figure
+    @return a numpy 3D array of RGBA values
+    """
+    # draw the renderer
+    fig.canvas.draw ( )
+
+    # Get the RGBA buffer from the figure
+    w,h = fig.canvas.get_width_height()
+    buf = np.frombuffer ( fig.canvas.tostring_argb(), dtype=np.uint8 )
+    buf.shape = ( w, h,4 )
+
+    # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
+    buf = np.roll ( buf, 3, axis = 2 )
+    return buf
+
+def fig2img ( fig ):
+    """
+    @brief Convert a Matplotlib figure to a PIL Image in RGBA format and return it
+    @param fig a matplotlib figure
+    @return a Python Imaging Library ( PIL ) image
+    """
+    # RDH: Trim off axes borders:
+    fig.subplots_adjust(bottom = 0)
+    fig.subplots_adjust(top = 1)
+    fig.subplots_adjust(right = 1)
+    fig.subplots_adjust(left = 0)
+
+    # put the figure pixmap into a numpy array
+    buf = fig2data ( fig )
+    w, h, d = buf.shape
+    return Image.frombytes( "RGBA", ( w ,h ), buf.tostring( ) )

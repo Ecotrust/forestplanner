@@ -117,6 +117,10 @@ REPORT_MAP_MIN_BUFFER = 0.1
 MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
 MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
 
+# Report Image Dots Per Inch
+DPI = 300
+PROPERTY_STYLE = {'lw':1, 'ec': '#FF00FF', 'fc': 'none'}
+
 ###########################################
 ##      REPORTS                         ###
 ###########################################
