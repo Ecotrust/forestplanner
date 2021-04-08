@@ -1,6 +1,6 @@
 from django.conf import settings
 from landmapper import views as lm_views
-from landmapper.models import Taxlot
+from landmapper.models import Taxlot, SoilType
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
 import geopandas as gpd
@@ -58,15 +58,11 @@ def get_taxlot_image_layer(property_specs, bbox=False):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    import urllib.request
-
-    request_dict = settings.TAXLOTS_URLS[settings.TAXLOTS_SOURCE]
-    zoom_argument = settings.TAXLOT_ZOOM_OVERLAY_2X
 
     if not bbox:
         bbox = property_specs['bbox']
 
-    bbox_poly = get_bbox_as_polygon(property_specs['bbox'])
+    bbox_poly = get_bbox_as_polygon(bbox)
     taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
     taxlot_collection = get_collection_from_objects(taxlots, 'geometry', bbox)
     taxlots_gdf = get_gdf_from_features(taxlot_collection)
@@ -234,50 +230,19 @@ def get_soil_image_layer(property_specs, bbox=False):
         # -   }
         # """
 
-        SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
-
         if not bbox:
             bbox = property_specs['bbox']
 
-        if settings.SOIL_SOURCE == "USDA_WMS":
-            srs = 'EPSG:3857'
-            width = property_specs['width']
-            height = property_specs['height']
-            zoom_argument = SOIL_SETTINGS['ZOOM_OVERLAY_2X']
-
-            soil_wms_endpoint = SOIL_SETTINGS['URL']
-
-            if zoom_argument:
-                width = int(width/2)
-                height = int(height/2)
-
-            request_url = ''.join([
-                soil_wms_endpoint,
-                '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
-                '&version=', SOIL_SETTINGS['WMS_VERSION'],
-                '&layers=', SOIL_SETTINGS['TILE_LAYER'],
-                '&width=', str(width),
-                '&height=', str(height),
-                '&srs=', srs,
-                '&bbox=', bbox,
-            ])
-            data = lm_views.unstable_request_wrapper(request_url)
-            image = image_result_to_PIL(data)
-        elif settings.SOIL_SOURCE == "MAPBOX":
-            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs, bbox)
-            zoom_argument = False
-
-        if zoom_argument:
-            width = width*2
-            height = height*2
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        attribution = settings.ATTRIBUTION_KEYS['soil']
+        bbox_poly = get_bbox_as_polygon(bbox)
+        soils = SoilType.objects.filter(geometry__intersects=bbox_poly)
+        soils_collection = get_collection_from_objects(soils, 'geometry', bbox, attrs=['musym'])
+        soils_gdf = get_gdf_from_features(soils_collection)
 
         return {
-            'type': 'image',
-            'data': image,
-            'attribution': attribution
+            'type': 'dataframe',
+            'data': soils_gdf,
+            'style': settings.SOIL_STYLE,
+            'attribution': settings.ATTRIBUTION_KEYS['soil']
         }
 
 def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
@@ -1183,7 +1148,7 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
 
     return img_data
 
-def get_collection_from_objects(source_objects, geom_field, bbox):
+def get_collection_from_objects(source_objects, geom_field, bbox, attrs=[]):
     xmin, ymin, xmax, ymax = bbox.split(',')
     # would this be easier to read the wkt into a gpd.GeoSeries?
     features = []
@@ -1193,6 +1158,8 @@ def get_collection_from_objects(source_objects, geom_field, bbox):
             "properties": {},
             "geometry": json.loads(getattr(source_object, geom_field).json)
         }
+        for attr in attrs:
+            feature_obj['properties'][attr] = getattr(source_object, attr)
         features.append(feature_obj)
 
     feature_collection = {
@@ -1214,6 +1181,26 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
             trf = transform.from_bounds(*bbox_array, width=img_width, height=img_height)
             work = show(reshape_as_raster(layer['data']), ax=ax, transform=trf)
         else:   # 'gdf' only for now
+            if 'label' in layer['style'].keys():
+                # adding labels according to Ianery and Martien Lubberink at https://stackoverflow.com/a/38902492/706797
+                layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
+                layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
+                # import ipdb; ipdb.set_trace()
+                label_key = False
+                for idx, row in layer['data'].iterrows():
+                    if idx ==0:
+                        for key in row.keys():
+                            if key not in ['geometry', 'coords']:
+                                label_key = key
+                                continue
+                    if label_key:
+                        ax.text(
+                            row.coords[0],
+                            row.coords[1],
+                            s=row[label_key],
+                            horizontalalignment='center',
+                            bbox=layer['style']['label']
+                        )
             work = layer['data'].plot(
                 ax=ax,
                 lw=layer['style']['lw'],

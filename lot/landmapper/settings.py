@@ -121,6 +121,17 @@ MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2
 DPI = 300
 PROPERTY_STYLE = {'lw':1, 'ec': '#FF00FF', 'fc': 'none'}
 TAXLOT_STYLE = {'lw':0.2, 'ec': '#CCCCCC', 'fc': 'none'}
+SOIL_STYLE = {
+    'lw':0.8,
+    'ec': '#EBAE33',
+    'fc': 'none',
+    'label': {
+       'facecolor': 'white',
+       'alpha':0.8,
+       'pad': 2,
+       'edgecolor':'none'
+    }
+}
 
 ###########################################
 ##      REPORTS                         ###
