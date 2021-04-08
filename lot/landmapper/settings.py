@@ -120,6 +120,7 @@ MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2
 # Report Image Dots Per Inch
 DPI = 300
 PROPERTY_STYLE = {'lw':1, 'ec': '#FF00FF', 'fc': 'none'}
+TAXLOT_STYLE = {'lw':0.2, 'ec': '#CCCCCC', 'fc': 'none'}
 
 ###########################################
 ##      REPORTS                         ###

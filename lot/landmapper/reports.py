@@ -687,19 +687,21 @@ def get_soils_data(property_geom):
 
     return soil_data
 
-def get_collection_from_object(source_object, geom_field, bbox):
+def get_collection_from_objects(source_objects, geom_field, bbox):
     xmin, ymin, xmax, ymax = bbox.split(',')
     # would this be easier to read the wkt into a gpd.GeoSeries?
-    feature_obj = {
-        "type": "Feature",
-        "properties": {},
-        "geometry": json.loads(getattr(source_object, geom_field).json),
-        "bbox": (xmin, ymin, xmax, ymax)
-    }
+    features = []
+    for source_object in source_objects:
+        feature_obj = {
+            "type": "Feature",
+            "properties": {},
+            "geometry": json.loads(getattr(source_object, geom_field).json)
+        }
+        features.append(feature_obj)
 
     feature_collection = {
         "type": "FeatureCollection",
-        "features": [feature_obj,],
+        "features": features,
         "bbox": (xmin, ymin, xmax, ymax)
     }
     return feature_collection
