@@ -200,17 +200,82 @@ class RenderTest(TestCase):
 
         #   -- Get count of purple (boundary) pixels!
         aerial_purps = 0
-        for pixel in overview_image.getdata():
+        for pixel in aerial_image.getdata():
             if pixel == (255, 0, 255, 255):
                 aerial_purps += 1
         self.assertTrue(aerial_purps > 1000) # likely ~5330 pixels
         self.assertEqual(aerial_purps, fit_purps)
 
+        # Get Street image at 'context' scope
+        outfile = os.path.join(out_dir, 'streets.png')
+        street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
+        street_layer['image'].save(outfile, "PNG")
+        self.assertEqual(street_layer['image'].width, img_width)
+        self.assertEqual(street_layer['image'].height, img_height)
+
+        # Get Street report image's attributions image:
+        street_attributions = [
+            street_layer['attribution'],
+        ]
+        street_attribution_image = map_views.get_attribution_image(street_attributions, width, height)
+        self.assertEqual(street_attribution_image.width, img_width)
+        self.assertEqual(street_attribution_image.height, img_height)
+
         # render property atop streets
-        #   -- Compare purple pixel count
+        street_layers = [
+            {"type": 'img', "layer":street_layer['image']},
+            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
+            {"type": 'img', "layer":street_attribution_image},
+        ]
+
+        street_report_image = merge_rasters_to_img(street_layers, bbox=property_bboxes[settings.STREET_SCALE], img_height=img_height, img_width=img_width)
+
+        outfile = os.path.join(out_dir, 'street_report.png')
+        street_report_image.save(outfile, "PNG")
+
+        #   -- Get count of purple (boundary) pixels!
+        street_purps = 0
+        for pixel in street_report_image.getdata():
+            if pixel == (255, 0, 255, 255):
+                street_purps += 1
+        self.assertTrue(street_purps > 50) # likely ~5330 pixels
+        self.assertTrue(street_purps < fit_purps)
+
+        # Get Terrain image at 'medium' scope
+        outfile = os.path.join(out_dir, 'topo.png')
+        topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+        topo_layer['image'].save(outfile, "PNG")
+        self.assertEqual(topo_layer['image'].width, img_width)
+        self.assertEqual(topo_layer['image'].height, img_height)
+
+        # Get Street report image's attributions image:
+        topo_attributions = [
+            topo_layer['attribution'],
+        ]
+        topo_attribution_image = map_views.get_attribution_image(topo_attributions, width, height)
+        self.assertEqual(topo_attribution_image.width, img_width)
+        self.assertEqual(topo_attribution_image.height, img_height)
 
         # render property atop terrain
-        #   -- Compare purple pixel count
+        topo_layers = [
+            {"type": 'img', "layer":topo_layer['image']},
+            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
+            {"type": 'img', "layer":topo_attribution_image},
+        ]
+
+        topo_report_image = merge_rasters_to_img(topo_layers, bbox=property_bboxes[settings.TOPO_SCALE], img_height=img_height, img_width=img_width)
+
+        outfile = os.path.join(out_dir, 'topo_report.png')
+        topo_report_image.save(outfile, "PNG")
+
+        #   -- Get count of purple (boundary) pixels!
+        topo_purps = 0
+        for pixel in topo_report_image.getdata():
+            if pixel == (255, 0, 255, 255):
+                topo_purps += 1
+        self.assertTrue(topo_purps > 100)
+        self.assertTrue(topo_purps < fit_purps)
+        self.assertTrue(topo_purps > street_purps)
 
         # render property atop streams atop aerial
 
