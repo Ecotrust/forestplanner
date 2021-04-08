@@ -13,11 +13,11 @@
 
 {% block content %}
     <section id="section-property" class="section-report map-wrap row no-gutters">
-        <div class="d-flex no-gutters align-items-start justify-content-center section-flex-wrap">
+        <div class="d-flex no-gutters align-items-center justify-content-center section-flex-wrap">
           <div class="map-image-wrap">
               <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
               <div class="scalebar-wrap">
-                  <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                  <img src="/landmapper/report/{{ property_id }}/scalebar/{{ overview_scale }}" class="scalebar"/>
               </div>
           </div>
           <div class="content-panel">
@@ -50,7 +50,7 @@
                 <div class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/aerial/map" class="property-map-image">
                     <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ aerial_scale }}" class="scalebar"/>
                     </div>
                 </div>
             </div>
@@ -63,7 +63,7 @@
                 </div>
 
                 <div class="button-wrap d-print-none">
-                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    {% comment %} <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a> {% endcomment %}
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </div>
@@ -76,7 +76,7 @@
                 <div class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/street/map" class="property-map-image" />
                     <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ street_scale }}" class="scalebar"/>
                     </div>
                 </div>
             </div>
@@ -89,7 +89,7 @@
                 </div>
 
                 <div class="button-wrap d-print-none">
-                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    {% comment %} <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a> {% endcomment %}
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </div>
@@ -102,7 +102,7 @@
                 <div class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/terrain/map" class="property-map-image">
                     <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ topo_scale }}" class="scalebar"/>
                     </div>
                 </div>
             </div>
@@ -115,7 +115,7 @@
                 </div>
 
                 <div class="button-wrap d-print-none">
-                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    {% comment %} <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a> {% endcomment %}
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </div>
@@ -128,7 +128,7 @@
                 <div class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/stream/map" class="property-map-image">
                     <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ stream_scale }}" class="scalebar"/>
                     </div>
                 </div>
             </div>
@@ -141,7 +141,7 @@
                 </div>
 
                 <div class="button-wrap d-print-none">
-                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    {% comment %} <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a> {% endcomment %}
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </div>
@@ -154,7 +154,7 @@
                 <div class="map-image-wrap">
                     <img src="/landmapper/report/{{ property_id }}/soil_types/map" class="property-map-image">
                     <div class="scalebar-wrap">
-                        <img src="/landmapper/report/{{ property_id }}/scalebar" class="scalebar"/>
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ soil_scale }}" class="scalebar"/>
                     </div>
                 </div>
             </div>
@@ -168,7 +168,7 @@
                 </div>
 
                 <div class="button-wrap d-print-none">
-                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a>
+                    {% comment %} <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary" target="_blank">Download</a> {% endcomment %}
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
                 </div>
             </div>

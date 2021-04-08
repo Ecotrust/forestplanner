@@ -49,6 +49,14 @@ var mapView = new ol.View({
   rotation: landmapper.rotation
 });
 
+landmapper.taxlotLayer = new ol.layer.Tile({
+  visible: true,
+  title: 'Taxlots',
+  source: new ol.source.XYZ({
+    url: 'https://api.mapbox.com/styles/v1/forestplanner/ckdgho51i084u1inx1a70iwim/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZm9yZXN0cGxhbm5lciIsImEiOiJja2J2MDg4MW8wMWNhMnRvYXkzc3I4czRxIn0.1TONAGYOeYpgrZZKivD-2g',
+    attributions: "TBD"
+  })
+});
 
 /**
  * [selectedFeatureSource description]
@@ -67,8 +75,17 @@ landmapper.selectedFeatureStyles = new ol.style.Style({
 });
 
 landmapper.selectedFeatureLayer = new ol.layer.Vector({
+  title: 'Selected Taxlots',
   source: landmapper.selectedFeatureSource,
   style: landmapper.selectedFeatureStyles,
+});
+
+landmapper.pushPinOverlay = new ol.Overlay({
+  position: ol.proj.fromLonLat([0,0]),
+  // positioning: 'bottom-center',
+  element: document.getElementById('pushPin'),
+  stopEvent: false,
+  offset: [-30, -50]
 });
 
 /**
@@ -86,16 +103,7 @@ var map = new ol.Map({
         imagerySet: 'AerialWithLabels',
         key: 'Ave7UcBYYPahWffLRpKbOAIo22WuwCpLuvUauhw_h6U4FOFMXZNCDnl3O3OTgxdF'
       })
-    }),
-    new ol.layer.Tile({
-      visible: true,
-      title: 'Taxlots',
-      source: new ol.source.XYZ({
-        url: 'https://api.mapbox.com/styles/v1/forestplanner/ckdgho51i084u1inx1a70iwim/tiles/256/{z}/{x}/{y}@2x?access_token=pk.eyJ1IjoiZm9yZXN0cGxhbm5lciIsImEiOiJja2J2MDg4MW8wMWNhMnRvYXkzc3I4czRxIn0.1TONAGYOeYpgrZZKivD-2g',
-        attributions: "TBD"
-      })
-    }),
-    landmapper.selectedFeatureLayer
+    })
   ],
   view: mapView
 });
@@ -155,7 +163,7 @@ landmapper.loadTaxLots = function(mapEvent) {
       // Select feature is bool if true add taxlot
       if (selectFeature) {
         if (wkt == []) {
-          window.alert('Taxlot info unavailable at this location - please draw instead.');
+          window.alert('Taxlot info unavailable at this location. This be due to an application error, please retry. If you recieve this message again, it may be because this data has not been made available by the county.');
         } else {
           var feature = format.readFeature(wkt);
         }
@@ -180,7 +188,7 @@ landmapper.loadTaxLots = function(mapEvent) {
 
     },
     error: function(error) {
-        window.alert('Error retrieving taxlot - please draw instead.');
+        window.alert('Error retrieving taxlot');
         console.log('error in map.js: Click Control trigger');
     }
   }).done(function() {
@@ -224,19 +232,6 @@ var updatePermalink = function() {
   window.history.pushState(landmapper.state, 'map', landmapper.hash);
 };
 
-
-/**
- * Map events
- * @method
- * @param  {[type]} e [description]
- * @return {[type]}   [description]
- */
-map.on('singleclick', function(e) {
-  landmapper.showNextBtn(true);
-  landmapper.loadTaxLots(e);
-});
-
-
 /**
  * Update permalink
  * @type {[type]}
@@ -256,3 +251,48 @@ window.addEventListener('popstate', function(event) {
   // TODO: style the taxlots
   shouldUpdate = false;
 });
+
+map.selectNewGeocode = function(coords) {
+  reprojectCoords = ol.proj.fromLonLat([coords[1],coords[0]])
+  setWGS84Center(reprojectCoords);
+  setPinCoords(reprojectCoords);
+
+}
+
+// set map location
+var setWGS84Center = function(coords) {
+  mapView.setCenter(reprojectCoords);
+}
+
+var setPinCoords = function(coords) {
+  landmapper.pushPinOverlay.setPosition(coords);
+}
+
+var enableGeocodeResultSelection = function(coords, geocode_count) {
+  map.addOverlay(landmapper.pushPinOverlay);
+  reprojectCoords = ol.proj.fromLonLat(coords);
+  setPinCoords(reprojectCoords);
+  if (geocode_count > 1) {
+    $("#content-panel-content").hide();
+  } else{
+    enablePropertySelection();
+  }
+  $('#pushPin').show();
+}
+
+var enablePropertySelection = function() {
+  $("#geocode-results-options").hide();
+  $("#content-panel-content").show();
+  map.addLayer(landmapper.taxlotLayer);
+  map.addLayer(landmapper.selectedFeatureLayer);
+  /**
+   * Map events
+   * @method
+   * @param  {[type]} e [description]
+   * @return {[type]}   [description]
+   */
+  map.on('singleclick', function(e) {
+    landmapper.showNextBtn(true);
+    landmapper.loadTaxLots(e);
+  });
+}

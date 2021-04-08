@@ -14,5 +14,7 @@ urlpatterns = [
     path('report/<str:property_id>/<str:map_type>/map', get_property_map_image, name='get_property_map_image'),
     path('report/<str:property_id>/pdf', get_property_pdf, name='get_property_pdf'),
     path('report/<str:property_id>/scalebar', get_scalebar_as_image, name='get_scalebar_as_image'),
+    path('report/<str:property_id>/scalebar/<str:scale>', get_scalebar_as_image, name='get_scalebar_as_image'),
+    path('report/<str:property_id>/scalebar/pdf/<str:scale>', get_scalebar_as_image_for_pdf, name='get_scalebar_as_pdf_image'),
     path('get_taxlot_json/', get_taxlot_json, name='get taxlot json'),
 ]

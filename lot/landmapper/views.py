@@ -12,8 +12,10 @@ from landmapper.models import *
 from landmapper import properties, reports
 from urllib.parse import quote
 import urllib.request
+from PIL import Image
+import requests
 
-def unstable_request_wrapper(url, retries=0):
+def unstable_request_wrapper(url, params=False, retries=0):
     # """
     # unstable_request_wrapper
     # PURPOSE: As mentioned above, the USDA wfs service is weak. We wrote this wrapper
@@ -26,11 +28,23 @@ def unstable_request_wrapper(url, retries=0):
     # """
 
     try:
-        contents = urllib.request.urlopen(url)
+        if params:
+            contents = requests.get(url, params)
+            # contents = contents.raw
+            # RDH 2020-12-07: SUPER HACKY way to turning params dict into urlencoded string.
+            #       WHY?:
+            #           When converting the 'requests' contents into 'raw' the
+            #               image was blank
+            #       TODO: Find a better way that either:
+            #           - Doesn't require making the request twice
+            #           - ideally pulls the correct data from the requests syntax
+            contents = urllib.request.urlopen(contents.url)
+        else:
+            contents = urllib.request.urlopen(url)
     except ConnectionError as e:
         if retries < 10:
             print('failed [%d time(s)] to connect to %s' % (retries, url))
-            contents = unstable_request_wrapper(url, retries + 1)
+            contents = unstable_request_wrapper(url, params, retries + 1)
         else:
             print("ERROR: Unable to connect to %s" % url)
             contents = None
@@ -40,7 +54,7 @@ def unstable_request_wrapper(url, retries=0):
         contents = False
     return contents
 
-def geocode(search_string, srs=4326, service='arcgis'):
+def geocode(search_string, srs=4326, service='arcgis', with_context=False):
     # """
     # geocode
     # PURPOSE: Convert a provided place name into geographic coordinates
@@ -58,47 +72,73 @@ def geocode(search_string, srs=4326, service='arcgis'):
     # -   identify
     # """
 
-    g = False
+    hits = []
+    g_hits = []
+    hit_names = []
+
     # Query desired service
-    if service.lower() == 'arcgis':
-        g = geocoder.arcgis(search_string)
-    elif service.lower() == 'google':
-        if hasattr(settings, 'GOOGLE_API_KEY'):
-            g = geocoder.google(search_string, key=settings.GOOGLE_API_KEY)
-        else:
-            print(
-                'To use Google geocoder, please configure "GOOGLE_API_KEY" in your project settings. '
-            )
-    if not g or not g.ok:
-        print(
-            'Selected geocoder not available or failed. Defaulting to ArcGIS')
-        g = geocoder.arcgis(search_string)
+    # TODO: support more than just ArcGIS supplied geocodes
+    #       Use other services if no matches are found.
+    # if service.lower() == 'arcgis':
+    g_matches = geocoder.arcgis(search_string, maxRows=100)
+    for match in g_matches:
+        if (match.latlng[0] <= settings.STUDY_REGION['north'] and
+                match.latlng[0] >= settings.STUDY_REGION['south'] and
+                match.latlng[1] <= settings.STUDY_REGION['east'] and
+                match.latlng[1] >= settings.STUDY_REGION['west']):
+            if not match.raw['name'] in hit_names:
+                g_hits.append(match)
+                hit_names.append(match.raw['name'])
+    for hit in g_hits:
+        hits.append({
+            'name': hit.raw['name'],
+            'coords': hit.latlng,
+            'confidence': hit.confidence
+        })
 
-    coords = g.latlng
+    if not with_context:
 
-    # Transform coordinates if necessary
-    if not srs == 4326:
+        if len(hits) == 0:
+            for context in settings.STUDY_REGION['context']:
+                new_hits = geocode("%s%s" % (search_string, context), srs=srs, service=service, with_context=True)
+                for hit in new_hits:
+                    if not hit['name'] in hit_names:
+                        hits.append(hit)
+                        hit_names.append(hit['name'])
+                        # TODO: If new hits match but have better confidence, replace
 
-        if ':' in srs:
+        # Transform coordinates if necessary
+        if not srs == 4326:
+
+            if ':' in srs:
+                try:
+                    srs = srs.split(':')[1]
+                except Exception as e:
+                    pass
             try:
-                srs = srs.split(':')[1]
-            except Exception as e:
-                pass
-        try:
-            int(srs)
-        except ValueError as e:
-            print(
-                'ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326'
-            )
-            return coords
+                int(srs)
+            except ValueError as e:
+                print(
+                    'ERROR: Unable to interpret provided srs. Please provide a valid EPSG integer ID. Providing coords in EPSG:4326'
+                )
+                return coords
 
-        point = GEOSGeometry('SRID=4326;POINT (%s %s)' %
-                             (coords[1], coords[0]),
-                             srid=4326)
-        point.transform(srs)
-        coords = [point.coords[1], point.coords[0]]
+            hits_transform = []
+            for hit in hits:
+                coords = hit.latlng
+                point = GEOSGeometry('SRID=4326;POINT (%s %s)' %
+                                     (coords[1], coords[0]),
+                                     srid=4326)
+                point.transform(srs)
+                coords = [point.coords[1], point.coords[0]]
+                hits_transform.append(coords)
+            hits = hits_transfrom
 
-    return coords
+    hits = sorted(hits, key = lambda i: i['confidence'], reverse=True)
+    if len(hits) > 5:
+        hits = hits[:5]
+
+    return hits
 
 @xframe_options_sameorigin
 def get_taxlot_json(request):
@@ -138,6 +178,7 @@ def home(request):
         'aside_content': aside_content,
         'show_panel_buttons': False,
         'q_address': 'Enter your property address here',
+        'overlay': 'overlay',
     }
     context['menu_items'] = MenuPage.objects.all().order_by('order')
 
@@ -171,13 +212,24 @@ def identify(request):
         if request.POST.get('q-address'):
             q_address = request.POST.get('q-address')
             q_address_value = request.POST.get('q-address')
-            coords = geocode(q_address)
+            geocode_hits = geocode(q_address)
         else:
             q_address = 'Enter your property address here'
 
-        if coords:
+        if geocode_hits:
+            if len(geocode_hits) > 0:
+                coords = geocode_hits[0]['coords']
+                geocode_error = False
+            else:
+                coords = [
+                    (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
+                    (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
+                ]
+                geocode_error = True
             context = {
                 'coords': coords,
+                'geocode_hits': geocode_hits,
+                'geocode_error': geocode_error,
                 'q_address': q_address,
                 'q_address_value': q_address_value,
                 'aside_content': aside_content,
@@ -190,11 +242,22 @@ def identify(request):
                 'btn_next_disabled': 'disabled',
                 'menu_items': MenuPage.objects.all().order_by('order'),
             }
-            return render(request, 'landmapper/landing.html', context)
     else:
-        print('requested identify page with method other than POST')
+        # User wants to bypass address search
+        context = {
+            'aside_content': aside_content,
+            'show_panel_buttons': True,
+            'search_performed': True,
+            # """Says where buttons go when you're using the UI mapping tool."""
+            'btn_back_href': '/landmapper/',
+            'btn_next_href': 'property_name',
+            'btn_create_maps_href': '/landmapper/report/',
+            'btn_next_disabled': 'disabled',
+            'menu_items': MenuPage.objects.all().order_by('order'),
+        }
 
-    return home(request)
+    return render(request, 'landmapper/landing.html', context)
+
 
 def create_property_id(request):
     '''
@@ -243,6 +306,12 @@ def report(request, property_id):
         'property_name': property.name,
         'property': property,
         'property_report': property.report_data,
+        'overview_scale': settings.PROPERTY_OVERVIEW_SCALE,
+        'aerial_scale': settings.AERIAL_SCALE,
+        'street_scale': settings.STREET_SCALE,
+        'topo_scale': settings.TOPO_SCALE,
+        'stream_scale': settings.STREAM_SCALE,
+        'soil_scale': settings.SOIL_SCALE
     }
 
     context['menu_items'] = MenuPage.objects.all().order_by('order')
@@ -271,12 +340,34 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
-def get_scalebar_as_image(request, property_id):
+def get_scalebar_as_image(request, property_id, scale="fit"):
 
     property = properties.get_property_by_id(property_id)
-    image = property.scalebar_image
+    if scale == 'context':
+        image = property.context_scalebar_image
+    elif scale == 'medium':
+        image = property.medium_scalebar_image
+    else:
+        image = property.scalebar_image
     response = HttpResponse(content_type="image/png")
     image.save(response, 'PNG')
+
+    return response
+
+def get_scalebar_as_image_for_pdf(request, property_id, scale="fit"):
+    property = properties.get_property_by_id(property_id)
+    if scale == 'context':
+        image = property.context_scalebar_image
+    elif scale == 'medium':
+        image = property.medium_scalebar_image
+    else:
+        image = property.scalebar_image
+
+    transparent_background = Image.new("RGBA", (settings.SCALEBAR_BG_W, settings.SCALEBAR_BG_H), (255,255,255,0))
+    transparent_background.paste(image)
+
+    response = HttpResponse(content_type="image/png")
+    transparent_background.save(response, 'PNG')
 
     return response
 

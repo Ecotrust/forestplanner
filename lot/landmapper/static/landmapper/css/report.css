@@ -11,12 +11,13 @@
 }
 
 #section-property .content-panel {
-  padding: 2vh 0;
-  margin-left: 10vw;
+  padding: 2vh 3vw;
+  margin-left: 1vw;
 }
 
 #section-property .section-flex-wrap {
   display: block !important;
+  margin: 0 auto;
   position: relative;
 }
 
@@ -30,10 +31,7 @@
   width: auto;
 }
 
-#section-property .scalebar-wrap .scalebar {
-  top: 1vh;
-  left: 1vh;
-}
+#section-property .scalebar-wrap .scalebar {}
 
 .section-report {
   border-bottom: 1px solid var(--black);
@@ -43,7 +41,8 @@
 }
 
 .section-report:not(#section-property) .map-image-wrap {
-  padding: 3vh;
+  margin: 3vh;
+  position: relative;
 }
 
 .section-report:not(#section-property) h1 {
@@ -156,6 +155,7 @@
 
   #section-property .section-flex-wrap {
     display: flex !important;
+    margin: 0 auto;
   }
 
   #section-property .content-panel {

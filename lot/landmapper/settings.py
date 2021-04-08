@@ -11,6 +11,33 @@ LANDMAPPER_DIR = os.path.dirname(os.path.abspath(__file__))
 MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
 
 ###########################################
+##      Map Scales                      ###
+###########################################
+# Closest: 'fit' -- fits the property as close as possible
+# Moderate: 'medium' -- approximately zoom level 12 unless the property is too big
+# Regional Context: 'context' -- appx zoom 14 unless the property is larger
+PROPERTY_OVERVIEW_SCALE = 'fit'
+STREET_SCALE = 'context'
+TOPO_SCALE = 'medium'
+CONTOUR_SCALE = TOPO_SCALE
+AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
+TAXLOTS_SCALE = AERIAL_SCALE
+SOIL_SCALE = AERIAL_SCALE
+STREAM_SCALE = AERIAL_SCALE
+STUDY_REGION = {
+    'north': 46.292035,
+    'south': 41.991794,
+    'east': -116.463504,
+    'west': -124.566244,
+    'context': [
+        ', OR',
+        ', Oregon USA',
+        # ', WA',
+    ]
+}
+
+
+###########################################
 ##      Basemaps                        ###
 ###########################################
 BASEMAPS = {
@@ -61,6 +88,7 @@ BASEMAPS = {
         'ZOOM_2X': False
     }
 }
+
 AERIAL_DEFAULT = 'ESRI_Satellite'
 TOPO_DEFAULT = 'Custom_Topo'
 # TOPO_DEFAULT = 'ESRI_Topo'
@@ -80,6 +108,27 @@ REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 REPORT_SUPPORT_ORIENTATION = False
 
 REPORT_MAP_MIN_BUFFER = 0.1
+
+# These values approximate zoom 12 & 14 at the Oregon/California border.
+# MAX_METER_RESOLUTION_CONTEXT = 30.0  # ~15,000m/509px (current pixel width)
+# MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
+
+# MAX width resolution in 3857 degrees:
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+
+# Report Image Dots Per Inch
+DPI = 300
+PROPERTY_STYLE = {'lw':1, 'ec': '#FF00FF', 'fc': 'none'}
+TAXLOT_STYLE = {'lw':0.2, 'ec': '#CCCCCC', 'fc': 'none'}
+
+###########################################
+##      REPORTS                         ###
+###########################################
+SCALEBAR_DEFAULT_WIDTH = 1.5
+SCALEBAR_DEFAULT_HEIGHT = 0.2
+SCALEBAR_BG_W = 508
+SCALEBAR_BG_H = 70
 
 ###########################################
 ##      Properties                      ###
@@ -524,6 +573,103 @@ TAXLOTS_SOURCE = 'MAPBOX_TILE'
 TAXLOT_ZOOM_OVERLAY_2X = False
 TAXLOTS_ATTRIBUTION = TAXLOTS_URLS[TAXLOTS_SOURCE]['ATTRIBUTION']
 
+
+###########################################
+##      Topo Conours                    ###
+###########################################
+
+CONTOUR_URLS = {
+    'TNM_TOPO': {
+        'URL': 'https://carto.nationalmap.gov/arcgis/rest/services/contours/MapServer/export',
+        'LAYERS': '21,25,26',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'SRID': 3857,
+        'ATTRIBUTION': 'USGS The National Map: 3D Elevation Program. Data Refreshed October, 2020.',
+        'INDEX_CONTOUR_SYMBOL': {
+            "type": "esriSLS",
+            "style": "esriSLSSolid",
+            "color": [32,96,0,255],
+            "width": 1.5
+        },
+        'INTERMEDIATE_CONTOUR_SYMBOL': {
+            "type": "esriSLS",
+            "style": "esriSLSSolid",
+            "color": [32,96,0,255],
+            "width": 0.5
+        },
+        'LABEL_SYMBOL': {
+            "type":"esriTS",
+            "color":[15,39,3,255],
+            "backgroundColor":None,
+            "outlineColor":None,
+            "verticalAlignment":"baseline",
+            "horizontalAlignment":"left",
+            "rightToLeft":False,
+            "angle":0,
+            "xoffset":0,
+            "yoffset":0,
+            "kerning":True,
+            "haloSize":2,
+            "haloColor":[255,255,255,255],
+            "font":{
+                "family":"Arial",
+                "size":12,
+                "style":"italic",
+                "weight":"normal",
+                "decoration":"none"
+            }
+        },
+        'STYLES': []
+    }
+}
+
+# CONTOUR_SOURCE = 'TNM_TOPO'
+CONTOUR_SOURCE = False
+
+if CONTOUR_SOURCE:
+    CONTOUR_URLS[CONTOUR_SOURCE]['STYLES'] = [
+        {
+            "id":25,
+            "source":{"type":"mapLayer", "mapLayerId":25},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"simple",
+                    "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['INDEX_CONTOUR_SYMBOL'],
+                },
+            },
+        },
+        {
+            "id":26,
+            "source":{"type":"mapLayer", "mapLayerId":26},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"simple",
+                    "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['INTERMEDIATE_CONTOUR_SYMBOL'],
+                },
+            },
+        },
+        {
+            "id":21,
+            "source":{"type":"mapLayer", "mapLayerId":21},
+            "drawingInfo":{
+                "renderer":{
+                    "type":"uniqueValue",
+                    "field1":"FCODE",
+                    "fieldDelimiter":",",
+                },
+                "labelingInfo":[
+                    {
+                        "labelPlacement":"esriServerLinePlacementCenterAlong",
+                        "labelExpression":"[CONTOURELEVATION]",
+                        "useCodedValues":True,
+                        "symbol":CONTOUR_URLS[CONTOUR_SOURCE]['LABEL_SYMBOL'],
+                        "minScale":0,
+                        "maxScale":0
+                    }
+                ]
+            }
+        }
+    ]
 
 ###########################################
 ##      Map Info                        ###
