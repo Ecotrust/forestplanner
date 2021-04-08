@@ -16,13 +16,6 @@ from landmapper.map_layers import views as map_views
 
 class RenderTest(TestCase):
     def setUp(self):
-        # Getting Taxlot JSON for this bbox:
-        #   wkt = 'POLYGON ((-13707298.16955501 5346494.208463032, -13707298.16955501 5346812.963912016, -13707073.45137837 5346812.963912016, -13707073.45137837 5346494.208463032, -13707298.16955501 5346494.208463032))'
-        #   json = '{ "type": "Polygon", "coordinates": [ [ [ -13707298.169555012136698, 5346494.208463031798601 ], [ -13707298.169555012136698, 5346812.963912015780807 ], [ -13707073.451378373429179, 5346812.963912015780807 ], [ -13707073.451378373429179, 5346494.208463031798601 ], [ -13707298.169555012136698, 5346494.208463031798601 ] ] ] }'
-        #   bbox_poly = GEOSGeometry(json)
-        #   bbox_poly.srid = 3857
-        #   taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
-
         taxlot_wkts = [
             #1
             'MULTIPOLYGON (((-13707042.08718308 5346773.172439548, -13707153.93566622 5346773.18085405, -13707286.93364618 5346773.196871299, -13707598.6358992 5346773.227611715, -13708253.17090057 5346773.291596596, -13708799.64681824 5346773.34876746, -13708806.62294519 5347332.557984611, -13708809.11061914 5347531.850355087, -13708794.2611217 5347529.345353535, -13708761.50412753 5347522.411250328, -13708743.68023021 5347522.395948009, -13708719.2535336 5347524.659844508, -13708703.86653592 5347524.7307425, -13708701.71413629 5347524.331042279, -13708696.60203733 5347522.203541939, -13708692.34893843 5347518.649141915, -13708688.25643988 5347512.227242349, -13708680.67734236 5347501.745942933, -13708671.81364491 5347492.334343195, -13708670.81034528 5347490.66464331, -13708661.54454843 5347477.060044155, -13708650.94965165 5347464.470344655, -13708647.46155253 5347461.698544624, -13708630.62755662 5347449.621844246, -13708612.87716067 5347438.946543551, -13708604.96156217 5347436.592542874, -13708574.12736785 5347428.523840083, -13708564.68327019 5347421.401839925, -13708556.43007251 5347413.079040094, -13708554.13667309 5347411.176640085, -13708548.80117426 5347408.360639816, -13708542.90187531 5347407.114139238, -13708536.88767616 5347407.532638396, -13708511.66078012 5347406.344635298, -13708506.70908135 5347402.577835219, -13708499.73578284 5347399.152834831, -13708492.19498422 5347397.299434128, -13708484.43348541 5347397.103433152, -13708456.70419021 5347392.223930284, -13708454.68259051 5347392.31993001, -13708443.13469205 5347393.852428279, -13708431.92339333 5347397.025326349, -13708421.27909432 5347401.773124256, -13708418.91629451 5347403.081223751, -13708407.93479554 5347407.989521599, -13708396.38159684 5347411.324519597, -13708394.36199715 5347411.318119338, -13708381.63939894 5347412.246617552, -13708369.14630049 5347414.834115541, -13708363.01530113 5347417.03671442, -13708353.96570227 5347418.776212983, -13708344.75200365 5347418.849611777, -13708314.67680825 5347418.33020795, -13708311.65010864 5347418.888407477, -13708301.13710983 5347421.916805657, -13708291.20571073 5347426.514903678, -13708282.08671132 5347432.57530159, -13708279.81101136 5347434.928800942, -13708275.29111169 5347437.681299945, -13708270.14371231 5347438.891399092, -13708264.87591316 5347438.43919848, -13708252.34551531 5347436.415697152, -13708248.60601581 5347436.981196593, -13708242.56761642 5347439.228295464, -13708237.30461674 5347442.953094232, -13708235.86111634 5347447.775093318, -13708232.57261606 5347453.739591999, -13708227.93721612 5347458.723090649, -13708211.71131545 5347482.876684926, -13708204.55841389 5347503.316580941, -13708198.64731198 5347525.1545769, -13708193.34091137 5347536.112874565, -13708184.56211077 5347550.973271204, -13708174.39001051 5347564.910567796, -13708169.31951051 5347570.837666251, -13708140.94821071 5347602.477957831, -13708137.94121078 5347605.48495699, -13708124.50331126 5347617.460953456, -13708110.01581207 5347628.13364997, -13708107.58661216 5347630.218049345, -13708094.06111288 5347640.514746044, -13708079.59351391 5347649.427742837, -13708076.45341416 5347651.206642161, -13708067.62121468 5347657.491440076, -13708059.85541487 5347665.063837937, -13708051.43831469 5347676.321635159, -13708043.05401472 5347685.919932632, -13708033.49081507 5347694.333530129, -13708021.85631583 5347702.12612745, -13708011.44281663 5347708.011025221, -13708000.31341775 5347712.382223121, -13707988.68571915 5347715.155421198, -13707972.13202132 5347717.637918674, -13707955.07942335 5347721.848215839, -13707948.5613242 5347722.881714838, -13707937.37722582 5347723.309113314, -13707926.25442766 5347722.063612066, -13707913.81092995 5347718.831210932, -13707904.21643179 5347715.825010136, -13707895.24973373 5347711.26710966, -13707887.15743571 5347705.284309502, -13707880.1626377 5347698.040709677, -13707874.45793963 5347689.735810189, -13707872.81114005 5347688.470010161, -13707867.66034114 5347685.936009874, -13707862.00214212 5347684.990409282, -13707856.31144288 5347685.713308432, -13707851.00354338 5347688.070407394, -13707844.72614402 5347690.434306223, -13707837.39604499 5347691.495405112, -13707830.01494618 5347690.885804248, -13707819.69644821 5347687.222103461, -13707792.60905319 5347680.230000992, -13707777.33405619 5347674.732699837, -13707762.70215931 5347667.688298993, -13707759.69645968 5347668.305298507, -13707751.46166086 5347668.826997366, -13707743.28976224 5347667.677496471, -13707735.51516377 5347664.903295879, -13707725.43386606 5347658.862895481, -13707720.13416706 5347657.346995017, -13707714.62536787 5347657.485094287, -13707709.40796843 5347659.264993344, -13707698.42877005 5347659.506491881, -13707680.00387294 5347658.575889626, -13707670.24277456 5347657.477288526, -13707659.95857647 5347654.704487611, -13707651.03757834 5347650.584087073, -13707622.04428428 5347638.403685138, -13707613.64478645 5347631.346485095, -13707604.2747886 5347625.651484744, -13707594.15189067 5347621.450684056, -13707588.80979167 5347619.925083591, -13707578.9061945 5347609.555683858, -13707570.27329727 5347598.099784453, -13707562.84399986 5347586.708785194, -13707557.86420198 5347576.01558615, -13707554.44240396 5347564.722487397, -13707553.93850434 5347562.346387695, -13707551.03670595 5347553.206588684, -13707546.60220771 5347544.722689381, -13707542.23390873 5347541.943889229, -13707537.21380965 5347540.697488764, -13707532.05841037 5347541.111288032, -13707527.29901082 5347543.142387114, -13707525.21971094 5347544.71028661, -13707520.09941146 5347546.615685659, -13707514.64491225 5347546.887984912, -13707509.84531312 5347545.703684469, -13707501.08421484 5347542.621283793, -13707493.01411666 5347538.01628344, -13707485.8952185 5347532.036483411, -13707480.58872003 5347526.336983572, -13707477.22602132 5347520.267884042, -13707475.78792213 5347515.648684551, -13707474.53162296 5347510.708085127, -13707471.75572392 5347506.436885408, -13707467.75642493 5347503.29158536, -13707466.60972518 5347502.722185296, -13707460.72552636 5347500.409184883, -13707455.64692761 5347496.635284783, -13707454.25212801 5347495.160184829, -13707450.42193003 5347483.984486007, -13707448.20473186 5347472.378187452, -13707447.92653225 5347469.652187828, -13707445.88203372 5347460.596588921, -13707445.49063498 5347451.319290256, -13707446.6118359 5347442.803191681, -13707448.22613695 5347432.832093381, -13707448.17753826 5347422.731094894, -13707446.4671398 5347412.776596156, -13707445.81374019 5347410.439896422, -13707443.47334204 5347398.836497857, -13707441.13564283 5347395.451198067, -13707425.95054773 5347375.16779913, -13707423.81684835 5347372.797499212, -13707415.30325065 5347364.930299287, -13707405.75125293 5347358.373899028, -13707401.00505421 5347354.069099062, -13707393.21205605 5347348.895798822, -13707384.62685782 5347345.194198269, -13707375.52275946 5347343.083897402, -13707366.96596105 5347340.736896636, -13707358.99776275 5347336.82499619, -13707353.64516406 5347332.999896074, -13707346.34356595 5347326.834996052, -13707341.62556736 5347321.416896253, -13707338.14696861 5347315.736996649, -13707336.18476973 5347309.36779735, -13707334.72717182 5347294.860399336, -13707332.02037355 5347284.548300532, -13707331.132474 5347282.145700777, -13707327.07867535 5347276.406301109, -13707321.79037674 5347271.788601115, -13707315.56607809 5347268.552900793, -13707312.9335786 5347267.700800579, -13707306.3259798 5347266.125999954, -13707300.29878111 5347262.986199639, -13707295.21378246 5347258.46889966, -13707283.8927862 5347242.635300565, -13707277.13738881 5347230.283001544, -13707267.78349295 5347209.096903503, -13707259.14949631 5347193.06310478, -13707254.04939786 5347187.020105029, -13707247.79889943 5347182.186904943, -13707239.62130137 5347176.672204702, -13707232.94800322 5347170.13260482, -13707227.54080501 5347162.505505261, -13707223.5736067 5347154.033706018, -13707221.98490761 5347148.841606592, -13707220.71290815 5347146.155106824, -13707216.30441032 5347134.429708012, -13707213.49301232 5347122.218809478, -13707212.07791439 5347107.769111454, -13707209.91111587 5347098.789012526, -13707206.16651753 5347090.349313299, -13707200.96591929 5347082.725613768, -13707194.48052111 5347076.168113913, -13707190.98362216 5347072.112514067, -13707187.4651235 5347065.816014552, -13707185.48352469 5347058.876915332, -13707185.02502587 5347050.328016559, -13707183.2492273 5347041.210117694, -13707179.87292893 5347032.560118553, -13707175.00463068 5347024.65761911, -13707168.8029325 5347017.760219336, -13707166.26583374 5347011.082720004, -13707160.07923632 5346998.330521111, -13707152.437139 5346986.400321907, -13707143.44654176 5346975.457222377, -13707138.02614399 5346964.510423319, -13707134.14744607 5346952.923224551, -13707133.21804672 5346948.991525021, -13707130.18134993 5346927.584627839, -13707126.37595278 5346909.895529988, -13707126.02805337 5346905.718230571, -13707125.76325395 5346901.534631162, -13707125.58215452 5346897.346531767, -13707125.48445507 5346893.155532381, -13707125.47045561 5346888.96353301, -13707125.53975614 5346884.772233645, -13707125.69245665 5346880.583034297, -13707125.92915716 5346876.397834959, -13707126.24875765 5346872.217835623, -13707126.31665773 5346871.513035734, -13707123.92405827 5346870.127135634, -13707109.04216143 5346863.010934774, -13707098.53526384 5346856.612434361, -13707098.34106388 5346856.494234358, -13707101.59146408 5346851.11843559, -13707106.20156397 5346846.570636859, -13707100.19806621 5346836.245437631, -13707086.70386989 5346823.412237805, -13707061.53867536 5346810.426936489, -13707039.59747938 5346804.889234468, -13707035.5371801 5346804.008834079, -13707035.60518016 5346803.528134162, -13707035.67428021 5346803.047734236, -13707035.74428026 5346802.567334319, -13707035.81548031 5346802.087134402, -13707035.88768036 5346801.60713448, -13707035.96088041 5346801.127234567, -13707036.03508046 5346800.64763464, -13707036.11038051 5346800.168034728, -13707036.18658056 5346799.688634805, -13707036.26398061 5346799.209434894, -13707036.34228066 5346798.730334969, -13707036.42168071 5346798.251435057, -13707036.50208076 5346797.772635131, -13707036.58338081 5346797.294135223, -13707036.66588086 5346796.815935298, -13707036.74938091 5346796.337635386, -13707036.83398096 5346795.85963547, -13707036.91938101 5346795.381835547, -13707037.00598105 5346794.904235628, -13707037.0935811 5346794.426835718, -13707037.18218115 5346793.949535793, -13707037.2717812 5346793.472435878, -13707037.36238124 5346792.995535967, -13707037.45408129 5346792.518936048, -13707037.54668134 5346792.042536131, -13707037.64048139 5346791.566236211, -13707037.73518143 5346791.090136298, -13707037.83098148 5346790.614336382, -13707037.92778153 5346790.138636465, -13707038.02558158 5346789.663236548, -13707038.12438162 5346789.18803664, -13707038.22418167 5346788.712936717, -13707038.32498171 5346788.238136803, -13707038.42688176 5346787.763636888, -13707038.52978181 5346787.289236971, -13707038.63368185 5346786.815137056, -13707038.73868189 5346786.341237145, -13707038.84448194 5346785.867537226, -13707038.95148198 5346785.394137307, -13707039.05948202 5346784.920937388, -13707039.16838207 5346784.447937481, -13707039.27848212 5346783.975137561, -13707039.38948216 5346783.502637644, -13707039.5014822 5346783.030437739, -13707039.61448224 5346782.558337823, -13707039.72858229 5346782.086537902, -13707039.84358234 5346781.615037984, -13707039.95968238 5346781.143838077, -13707040.07678242 5346780.672838159, -13707040.19498247 5346780.202038252, -13707040.31398251 5346779.731538341, -13707040.43408255 5346779.26123842, -13707040.55518259 5346778.791138506, -13707040.67738263 5346778.321538595, -13707040.80048267 5346777.852038677, -13707040.92468272 5346777.382738765, -13707041.04978276 5346776.913838855, -13707041.1759828 5346776.445238936, -13707041.30308284 5346775.976839023, -13707041.43128288 5346775.508739109, -13707041.56038292 5346775.040939202, -13707041.69058296 5346774.573339283, -13707041.821783 5346774.106139379, -13707041.95388304 5346773.639139458, -13707042.08718308 5346773.172439548)))',
@@ -63,7 +56,9 @@ class RenderTest(TestCase):
 
     def test_render_basemap(self):
         import geopandas as gpd
-        from landmapper.reports import get_property_specs, refit_bbox, get_collection_from_objects, get_gdf_from_features, merge_rasters_to_img
+        from landmapper.reports import get_property_specs, refit_bbox, get_property_report
+
+        # we don't need to store either the fake user or property in the DB
         user = User()
         property_multipolygon = GEOSGeometry('''
             {
@@ -76,11 +71,9 @@ class RenderTest(TestCase):
                             geometry_orig=property_multipolygon,
                             name='Buckhorn')
         # given a property, get the coordinates
-        coords = property.geometry_orig.coords
-        self.assertTrue(len(coords) > 0)
+        self.assertTrue(len(property.geometry_orig.coords) > 0)
 
-        # convert those coordinates into a buffered bounding box
-        # (bbox, orientation) = map_views.get_bbox_from_property(property)
+        # get a buffered bounding box for the property
         property_specs = get_property_specs(property)
         self.assertTrue(len(property_specs['bbox']) > 0)
 
@@ -112,44 +105,36 @@ class RenderTest(TestCase):
         self.assertTrue(top_n > def_n)
         self.assertTrue(top_n < st_n)
 
-
         # get property as a geodataframe
-        property_collection = get_collection_from_objects([property], 'geometry_orig', property_bboxes['fit'])
-        property_gdf = get_gdf_from_features(property_collection)
-        self.assertEqual(type(property_gdf), gpd.geodataframe.GeoDataFrame)
-        self.assertEqual(property_gdf.area.values[0], 28940.37884117589)
+        property_layer = map_views.get_property_image_layer(property, property_specs, property_bboxes['fit'])
+        self.assertEqual(type(property_layer['data']), gpd.geodataframe.GeoDataFrame)
+        self.assertEqual(property_layer['data'].area.values[0], 28940.37884117589)
 
         # get aerial image
         img_height = settings.REPORT_MAP_HEIGHT
         img_width = settings.REPORT_MAP_WIDTH
 
+        aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
+
         out_dir = os.path.join(settings.LANDMAPPER_DIR, 'tests', 'output')
         outfile = os.path.join(out_dir, 'aerial.png')
-        aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
-        aerial_layer['image'].save(outfile, "PNG")
-        self.assertEqual(aerial_layer['image'].width, img_width)
-        self.assertEqual(aerial_layer['image'].height, img_height)
+        aerial_layer['data'].save(outfile, "PNG")
+
+        self.assertEqual(aerial_layer['data'].width, img_width)
+        self.assertEqual(aerial_layer['data'].height, img_height)
 
         # get attribution image
-        attributions = [
-            aerial_layer['attribution'],
-        ]
-        width = property_specs['width']
-        height = property_specs['height']
-        attribution_image = map_views.get_attribution_image(attributions, width, height)
+        attributions = [ x['attribution'] for x in [aerial_layer, property_layer] ]
+        attribution_image = map_views.get_attribution_image(attributions, img_width, img_height)
         self.assertEqual(attribution_image.width, img_width)
         self.assertEqual(attribution_image.height, img_height)
 
         # render the aerial imagery, property, and attrs to a properly-sized .png (Overview)
-
         # layers as a reverse stack (pulled into new stack from top to bottom, so layers[0] -> bottom and layers[-1] -> top)
-        layers = [
-            {"type": 'img', "layer":aerial_layer['image']},
-            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
-            {"type": 'img', "layer":attribution_image},
-        ]
-
-        overview_image = merge_rasters_to_img(layers, bbox=property_specs['bbox'], img_height=img_height, img_width=img_width)
+        overview_image = map_views.get_static_map(
+            property_specs,
+            [ aerial_layer, property_layer]
+        )
 
         outfile = os.path.join(out_dir, 'overview.png')
         overview_image.save(outfile, "PNG")
@@ -161,39 +146,23 @@ class RenderTest(TestCase):
                 fit_purps += 1
         self.assertTrue(fit_purps > 1000) # likely ~5330 pixels
 
-        # property.property_map_image = map_views.get_property_map(
-        #     property_specs,
-        #     base_layer=aerial_layer,
-        #     property_layer=property_layers[settings.PROPERTY_OVERVIEW_SCALE]
-        # )
-
         # get taxlots as a geodataframe
-        def_bbox_poly = GEOSGeometry('POLYGON (({0} {1}, {0} {3}, {2} {3}, {2} {1}, {0} {1}))'.format(def_w, def_s, def_e, def_n), srid=3857)
-        taxlots = Taxlot.objects.filter(geometry__intersects=def_bbox_poly)
-        taxlot_collection = get_collection_from_objects(taxlots, 'geometry', property_bboxes['fit'])
-        taxlots_gdf = get_gdf_from_features(taxlot_collection)
-        self.assertEqual(type(taxlots_gdf), gpd.geodataframe.GeoDataFrame)
-        self.assertEqual(len(taxlots_gdf.area.values), 11)
-        self.assertEqual(taxlots_gdf.area.values[0], 1207037.3117170043)
+        taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
+        self.assertEqual(type(taxlot_layer['data']), gpd.geodataframe.GeoDataFrame)
+        self.assertEqual(len(taxlot_layer['data'].area.values), 11)
+        self.assertEqual(taxlot_layer['data'].area.values[0], 1207037.3117170043)
 
         # get updated attribution image
-        taxlot_attributions = [
-            aerial_layer['attribution'],
-            settings.ATTRIBUTION_KEYS['taxlot']
-        ]
-        taxlot_attribution_image = map_views.get_attribution_image(taxlot_attributions, width, height)
+        taxlot_attributions = [ x['attribution'] for x in [aerial_layer, taxlot_layer, property_layer] ]
+        taxlot_attribution_image = map_views.get_attribution_image(taxlot_attributions, img_width, img_height)
         self.assertEqual(taxlot_attribution_image.width, img_width)
         self.assertEqual(taxlot_attribution_image.height, img_height)
 
         # render attrs atop property atop taxlots atop aerial (Aerial)
-        aerial_layers = [
-            {"type": 'img', "layer":aerial_layer['image']},
-            {"type": 'gdf', "layer":taxlots_gdf, "style": settings.TAXLOT_STYLE},
-            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
-            {"type": 'img', "layer":taxlot_attribution_image},
-        ]
-
-        aerial_image = merge_rasters_to_img(aerial_layers, bbox=property_specs['bbox'], img_height=img_height, img_width=img_width)
+        aerial_image = map_views.get_static_map(
+            property_specs,
+            [ aerial_layer, taxlot_layer, property_layer]
+        )
 
         outfile = os.path.join(out_dir, 'aerial_report.png')
         aerial_image.save(outfile, "PNG")
@@ -209,26 +178,16 @@ class RenderTest(TestCase):
         # Get Street image at 'context' scope
         outfile = os.path.join(out_dir, 'streets.png')
         street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
-        street_layer['image'].save(outfile, "PNG")
-        self.assertEqual(street_layer['image'].width, img_width)
-        self.assertEqual(street_layer['image'].height, img_height)
-
-        # Get Street report image's attributions image:
-        street_attributions = [
-            street_layer['attribution'],
-        ]
-        street_attribution_image = map_views.get_attribution_image(street_attributions, width, height)
-        self.assertEqual(street_attribution_image.width, img_width)
-        self.assertEqual(street_attribution_image.height, img_height)
+        street_layer['data'].save(outfile, "PNG")
+        self.assertEqual(street_layer['data'].width, img_width)
+        self.assertEqual(street_layer['data'].height, img_height)
 
         # render property atop streets
-        street_layers = [
-            {"type": 'img', "layer":street_layer['image']},
-            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
-            {"type": 'img', "layer":street_attribution_image},
-        ]
-
-        street_report_image = merge_rasters_to_img(street_layers, bbox=property_bboxes[settings.STREET_SCALE], img_height=img_height, img_width=img_width)
+        street_report_image = map_views.get_static_map(
+            property_specs,
+            [ street_layer, property_layer],
+            bbox=property_bboxes[settings.STREET_SCALE]
+        )
 
         outfile = os.path.join(out_dir, 'street_report.png')
         street_report_image.save(outfile, "PNG")
@@ -241,36 +200,25 @@ class RenderTest(TestCase):
         self.assertTrue(street_purps > 50) # likely ~5330 pixels
         self.assertTrue(street_purps < fit_purps)
 
+        # Test that property image maps are created by the report from here:
+        bbox_poly = map_views.get_bbox_as_polygon(property_specs['bbox'])
+        taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
+        get_property_report(property, taxlots)
+
+
         # Get Terrain image at 'medium' scope
         outfile = os.path.join(out_dir, 'topo.png')
         topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
-        topo_layer['image'].save(outfile, "PNG")
-        self.assertEqual(topo_layer['image'].width, img_width)
-        self.assertEqual(topo_layer['image'].height, img_height)
-
-        # Get Street report image's attributions image:
-        topo_attributions = [
-            topo_layer['attribution'],
-        ]
-        topo_attribution_image = map_views.get_attribution_image(topo_attributions, width, height)
-        self.assertEqual(topo_attribution_image.width, img_width)
-        self.assertEqual(topo_attribution_image.height, img_height)
-
-        # render property atop terrain
-        topo_layers = [
-            {"type": 'img', "layer":topo_layer['image']},
-            {"type": 'gdf', "layer":property_gdf, "style": settings.PROPERTY_STYLE},
-            {"type": 'img', "layer":topo_attribution_image},
-        ]
-
-        topo_report_image = merge_rasters_to_img(topo_layers, bbox=property_bboxes[settings.TOPO_SCALE], img_height=img_height, img_width=img_width)
+        topo_layer['data'].save(outfile, "PNG")
+        self.assertEqual(topo_layer['data'].width, img_width)
+        self.assertEqual(topo_layer['data'].height, img_height)
 
         outfile = os.path.join(out_dir, 'topo_report.png')
-        topo_report_image.save(outfile, "PNG")
+        property.terrain_map_image.save(outfile, "PNG")
 
         #   -- Get count of purple (boundary) pixels!
         topo_purps = 0
-        for pixel in topo_report_image.getdata():
+        for pixel in property.terrain_map_image.getdata():
             if pixel == (255, 0, 255, 255):
                 topo_purps += 1
         self.assertTrue(topo_purps > 100)
@@ -278,7 +226,25 @@ class RenderTest(TestCase):
         self.assertTrue(topo_purps > street_purps)
 
         # render property atop streams atop aerial
+        outfile = os.path.join(out_dir, 'stream_report.png')
+        property.stream_map_image.save(outfile, "PNG")
+
+        stream_purps = 0
+        for pixel in property.stream_map_image.getdata():
+            if pixel == (255, 0, 255, 255):
+                stream_purps += 1
+        self.assertTrue(stream_purps > 1000)
+        self.assertEqual(stream_purps, fit_purps)
 
         # render property atop soils atop aerial
+        outfile = os.path.join(out_dir, 'soil_report.png')
+        property.soil_map_image.save(outfile, "PNG")
+
+        soil_purps = 0
+        for pixel in property.soil_map_image.getdata():
+            if pixel == (255, 0, 255, 255):
+                soil_purps += 1
+        self.assertTrue(soil_purps > 1000)
+        self.assertEqual(soil_purps, soil_purps)
 
         # render property atop forest types atop ???
