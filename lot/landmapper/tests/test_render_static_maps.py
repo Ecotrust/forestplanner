@@ -30,7 +30,7 @@ class RenderTest(TestCase):
         pass
 
     def test_render_basemap(self):
-
+        import geopandas as gpd
         from landmapper.reports import get_property_specs, refit_bbox, get_collection_from_object, get_gdf_from_features, merge_rasters_to_img
         user = User()
         taxlot_multipolygon = GEOSGeometry('''
@@ -84,14 +84,19 @@ class RenderTest(TestCase):
         # get property as a geodataframe
         property_collection = get_collection_from_object(property, 'geometry_orig', property_bboxes['fit'])
         property_gdf = get_gdf_from_features(property_collection)
-        #TODO: Test this
+        self.assertEqual(type(property_gdf), gpd.geodataframe.GeoDataFrame)
+        self.assertEqual(property_gdf.area.values[0], 28940.37884117589)
 
         # get aerial image
+        img_height = settings.REPORT_MAP_HEIGHT
+        img_width = settings.REPORT_MAP_WIDTH
+
         out_dir = os.path.join(settings.LANDMAPPER_DIR, 'tests', 'output')
         outfile = os.path.join(out_dir, 'aerial.png')
         aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
         aerial_layer['image'].save(outfile, "PNG")
-
+        self.assertEqual(aerial_layer['image'].width, img_width)
+        self.assertEqual(aerial_layer['image'].height, img_height)
 
         # get attribution image
         attributions = [
@@ -101,12 +106,11 @@ class RenderTest(TestCase):
         width = property_specs['width']
         height = property_specs['height']
         attribution_image = map_views.get_attribution_image(attributions, width, height)
+        self.assertEqual(attribution_image.width, img_width)
+        self.assertEqual(attribution_image.height, img_height)
 
         # render the aerial imagery, property, and attrs to a properly-sized .png (Overview)
-        #   -- Get count of purple (boundary) pixels!
 
-        img_height = settings.REPORT_MAP_HEIGHT
-        img_width = settings.REPORT_MAP_WIDTH
         # layers as a reverse stack (pulled into new stack from top to bottom, so layers[0] -> bottom and layers[-1] -> top)
         layers = [
             {"type": 'img', "layer":aerial_layer['image']},
@@ -118,6 +122,13 @@ class RenderTest(TestCase):
 
         outfile = os.path.join(out_dir, 'overview.png')
         overview_image.save(outfile, "PNG")
+
+        #   -- Get count of purple (boundary) pixels!
+        fit_purps = 0
+        for pixel in overview_image.getdata():
+            if pixel == (255, 0, 255, 255):
+                fit_purps += 1
+        self.assertTrue(fit_purps > 1000) # likely ~5330 pixels
 
         # property.property_map_image = map_views.get_property_map(
         #     property_specs,
