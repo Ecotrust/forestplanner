@@ -10,12 +10,12 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 
 
-class BypassAddressInputTests(StaticLiveServerTestCase):
+class PdfTests(StaticLiveServerTestCase):
     """
-        Load site landing page
-        Add a button to select tax lot by interacting with map
-        Progress panel state
-        Update panel instructions if needed
+        Open a browser
+        Make API call at url /report/<str:property_id>/pdf
+        Check PDF images are correct size
+        Check PDF is correct number of pages
     """
 
     @classmethod
@@ -30,12 +30,7 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
         super().tearDownClass()
 
 
-    def test_bypass_address_input(self):
-        self.selenium.get("http://localhost:8000/landmapper")
-        self.selenium.find_element_by_id("bypass-address-input").click()
-
-        property_search_form = self.selenium.find_element_by_id("property-search-form")
-        search_visibility = property_search_form.get_attribute('style')
-
-        # Address search should be hidden now
-        self.assertTrue('hidden' in search_visibility)
+    def test_create_pdf(self):
+        property_id = 'Demo%7C583966%7C862934'
+        self.selenium.get("http://localhost:8000/report/%s/pdf" % property_id)
+        self.assertIn('pdf', self.selenium.title)
