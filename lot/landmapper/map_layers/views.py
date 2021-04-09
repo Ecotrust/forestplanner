@@ -1183,9 +1183,15 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
         else:   # 'gdf' only for now
             if 'label' in layer['style'].keys():
                 # adding labels according to Ianery and Martien Lubberink at https://stackoverflow.com/a/38902492/706797
+                # Clip the soil polygons to the view extent:
+                bbox_poly = shapely.geometry.Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)])
+                bbox_gdf = gpd.GeoDataFrame([1], geometry=[bbox_poly])
+                bbox_gdf.set_crs(epsg=3857)
+                layer['data'] = gpd.clip(layer['data'], bbox_gdf)
+                #Create a new point layer for the label data and locations
                 layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
                 layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
-                # import ipdb; ipdb.set_trace()
+
                 label_key = False
                 for idx, row in layer['data'].iterrows():
                     if idx ==0:
