@@ -65,6 +65,17 @@ BASEMAPS = {
         'TECHNOLOGY': 'arcgis_mapserver',
         'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
     },
+    'TNM_Aerial': {
+        'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPPlus/MapServer/export',
+        'LAYERS': '8',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'USGS The National Map: Orthoimagery'
+    },
+    'TNM_NAIP': {
+        'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer/exportImage',
+        'TECHNOLOGY': 'arcgis_imageserver',
+        'ATTRIBUTION': 'USGS The National Map: Imagery'
+    },
     'Custom_Topo': {
         'URL': 'https://api.mapbox.com/styles/v1/{userid}/cke0j10sj1gta19o9agb1w8pq/tiles/256/{zoom}/{lon}/{lat}@2x?',
         'TECHNOLOGY': 'XYZ',
@@ -90,7 +101,6 @@ BASEMAPS = {
 }
 
 AERIAL_DEFAULT = 'ESRI_Satellite'
-# TOPO_DEFAULT = 'Custom_Topo'
 TOPO_DEFAULT = 'ESRI_Topo'
 STREET_DEFAULT = 'ESRI_Street'
 

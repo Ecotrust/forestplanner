@@ -107,6 +107,27 @@ def get_aerial_image_layer(property_specs, bbox=False):
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
+    elif aerial_dict['TECHNOLOGY'] == 'arcgis_imageserver':
+
+        aerial_qs = '&'.join([
+            f'bbox={bbox}',
+            f'bboxSR={settings.GEOMETRY_CLIENT_SRID}',
+            f'size={width},{height}',
+            f'imageSR={settings.GEOMETRY_CLIENT_SRID}',
+            'format=tiff',
+            'pixelType=U8',
+            'noDataInterpretation=esriNoDataMatchAny',
+            'interpolation=+RSP_BilinearInterpolation',
+            'time=None',
+            'noData=None',
+            'compression=None',
+            'compressionQuality=None',
+            'bandIds=None',
+            'mosaicRule=None',
+            'renderingRule=None',
+            'f=image',
+        ])
+        aerial_url = '?'.join([aerial_dict['URL'],aerial_qs])
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting aerial layers at the moment')
         aerial_url = None
