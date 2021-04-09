@@ -99,10 +99,13 @@ STREET_DEFAULT = 'ESRI_Street'
 ###########################################
 # Based on map size on slide 4 in the XD Specs
 # This assumes the 'landscape' report layout (image will feel like 'portrait')
-REPORT_MAP_WIDTH = 509
-REPORT_MAP_HEIGHT = 722
+# REPORT_MAP_WIDTH = 509
+REPORT_MAP_WIDTH = 768
+# REPORT_MAP_HEIGHT = 722
+REPORT_MAP_HEIGHT = 816
 
-REPORT_CONTENT_WIDTH = 508
+# REPORT_CONTENT_WIDTH = 508
+REPORT_CONTENT_WIDTH = 767
 REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 
 REPORT_SUPPORT_ORIENTATION = False
@@ -114,7 +117,8 @@ REPORT_MAP_MIN_BUFFER = 0.1
 # MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
 
 # MAX width resolution in 3857 degrees:
-MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+# MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768 (current pixel width)
 MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
 
 ###########################################
@@ -122,8 +126,10 @@ MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2
 ###########################################
 SCALEBAR_DEFAULT_WIDTH = 1.5
 SCALEBAR_DEFAULT_HEIGHT = 0.2
-SCALEBAR_BG_W = 508
-SCALEBAR_BG_H = 70
+# SCALEBAR_BG_W = 508
+SCALEBAR_BG_W = 616
+# SCALEBAR_BG_H = 70
+SCALEBAR_BG_H = 58
 
 ###########################################
 ##      Properties                      ###
