@@ -110,7 +110,8 @@ REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 
 REPORT_SUPPORT_ORIENTATION = False
 
-REPORT_MAP_MIN_BUFFER = 0.1
+# REPORT_MAP_MIN_BUFFER = 0.1
+REPORT_MAP_MIN_BUFFER = 0
 
 # These values approximate zoom 12 & 14 at the Oregon/California border.
 # MAX_METER_RESOLUTION_CONTEXT = 30.0  # ~15,000m/509px (current pixel width)
