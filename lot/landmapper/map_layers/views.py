@@ -5,6 +5,7 @@ from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
 import geopandas as gpd
 import io, pyproj, shapely, json
+from imageio import imread
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from math import pi, log, tan, exp, atan, log2, log10, floor
@@ -13,6 +14,7 @@ from matplotlib import patches
 from matplotlib.collections import PatchCollection
 from rasterio import transform
 from rasterio.plot import show, reshape_as_raster
+import requests
 
 ################################
 # Map Layer Getter Functions ###
@@ -138,8 +140,11 @@ def get_topo_image_layer(property_specs, bbox=False):
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
+    bbox_list = [float(x) for x in bbox.split(',')]
 
     topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
+
+    contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)
     # Get URL for request
     if topo_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         topo_url = ''.join([
@@ -161,12 +166,23 @@ def get_topo_image_layer(property_specs, bbox=False):
         image_data = None
         base_image = None
 
+    layers = [
+        {'type': 'image', 'data': base_image },
+        {'type': 'image', 'data': contours_img },
+    ]
+
+    topo_img = get_static_map(
+        property_specs,
+        layers,
+        bbox = bbox
+    )
+
     # set Attribution
     attribution = topo_dict['ATTRIBUTION']
 
     return {
         'type': 'image',
-        'data': base_image,
+        'data': topo_img,
         'attribution': attribution
     }
 
@@ -491,6 +507,124 @@ def get_static_map(property_specs, layers, bbox=None):
         img_height=height,
         img_width=width
     )
+
+# modified from fetch.py
+def contours_from_tnm_dem(bbox, width, height, dpi=settings.DPI, inSR=3857):
+    """Fetches a DEM from The National Map and returns a PIL image with
+    labeled contours
+
+    Parameters
+    ----------
+    bbox : list-like
+      bounding box with coordinats as (xmin, ymin, xmax, ymax)
+    width : int
+      width of image to return
+    height : int
+      height of image to return
+    dpi : int
+      dots per inch to be used in plotting
+    inSR : int
+      code for coordinate reference system
+
+    Returns
+    -------
+    img : PIL Image
+      rendered image with contours styled and labeled
+    """
+    from matplotlib import ticker
+    from matplotlib import patheffects as pe
+
+    # get the DEM data as a TIFF image, multiply value to convert meters to feet
+    dem = dem_from_tnm(bbox=bbox, width=width, height=height, inSR=inSR) * 3.28084
+    # Flip the image, to match plotting indices
+    dem = np.flip(dem, axis=0)
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(width/dpi, height/dpi)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    ax.set_aspect('equal')
+    fig.add_axes(ax)
+
+    fine_step = settings.CONTOUR_STYLE['fine_step']
+    bold_step = settings.CONTOUR_STYLE['bold_step']
+
+    min_fine, max_fine = (np.floor(dem.min()/fine_step)*fine_step,
+                        np.ceil(dem.max()/fine_step)*fine_step+fine_step)
+    min_bold, max_bold = (np.floor(dem.min()/bold_step)*bold_step,
+                        np.ceil(dem.max()/bold_step)*bold_step+bold_step)
+
+    # smaller, 40ft interval contour lines
+    cont_fine = ax.contour(dem, levels=np.arange(min_fine, max_fine, fine_step),
+                         colors=[settings.CONTOUR_STYLE['fine_color']],
+                         linewidths=[settings.CONTOUR_STYLE['fine_width']])
+
+    # bolder, 200ft interval contour lines
+    cont_bold = ax.contour(dem, levels=np.arange(min_bold, max_bold, bold_step),
+                          colors=[settings.CONTOUR_STYLE['bold_color']],
+                          linewidths=[settings.CONTOUR_STYLE['bold_width']])
+
+    # labels for the 200ft/bold contour lines
+    fmt = ticker.StrMethodFormatter("{x:,.0f} ft")
+    labels = ax.clabel(cont_bold, fontsize=settings.CONTOUR_STYLE['font_size'],
+                       colors=[settings.CONTOUR_STYLE['bold_color']], fmt=fmt,
+                       inline_spacing=0)
+    for label in labels:
+        # add halo effect to labels
+        label.set_path_effects([pe.withStroke(linewidth=1, foreground='w')])
+
+    img = plt_to_pil_image(fig, dpi=dpi)
+    return img
+
+# modified from fetch.py
+def dem_from_tnm(bbox, width, height, inSR=3857, **kwargs):
+    """
+    Retrieves a Digital Elevation Model (DEM) image from The National Map (TNM)
+    web service.
+
+    Parameters
+    ----------
+    bbox : list-like
+      list of bounding box coordinates (minx, miny, maxx, maxy)
+    width : int
+      pixel width of desired image
+    height: int
+      pixel height of desired image
+    inSR : int
+      spatial reference for bounding box, such as an EPSG code (e.g., 4326)
+
+    Returns
+    -------
+    dem : numpy array
+      DEM image as array
+    """
+    BASE_URL = ''.join([
+        'https://elevation.nationalmap.gov/arcgis/rest/',
+        'services/3DEPElevation/ImageServer/exportImage?'
+    ])
+
+    params = dict(bbox=','.join([str(x) for x in bbox]),
+                  bboxSR=inSR,
+                  size=f'{width},{height}',
+                  imageSR=inSR,
+                  time=None,
+                  format='tiff',
+                  pixelType='F32',
+                  noData=None,
+                  noDataInterpretation='esriNoDataMatchAny',
+                  interpolation='+RSP_BilinearInterpolation',
+                  compression=None,
+                  compressionQuality=None,
+                  bandIds=None,
+                  mosaicRule=None,
+                  renderingRule=None,
+                  f='image')
+    for key, value in kwargs.items():
+        params.update({key: value})
+
+    result = requests.get(BASE_URL, params=params)
+    dem = imread(io.BytesIO(result.content))
+
+    return dem
 
 ################################
 # Scalebar Functions          ###

@@ -90,8 +90,8 @@ BASEMAPS = {
 }
 
 AERIAL_DEFAULT = 'ESRI_Satellite'
-TOPO_DEFAULT = 'Custom_Topo'
-# TOPO_DEFAULT = 'ESRI_Topo'
+# TOPO_DEFAULT = 'Custom_Topo'
+TOPO_DEFAULT = 'ESRI_Topo'
 STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################
@@ -131,6 +131,15 @@ SOIL_STYLE = {
        'pad': 0.2,
        'edgecolor':'none'
     }
+}
+CONTOUR_STYLE = {
+    'fine_color': (32/255., 96/255., 0., 255/255.),
+    'fine_step': 40,
+    'fine_width': 0.05,
+    'bold_color': (32/255., 96/255., 0., 255/255.),
+    'bold_step': 200,
+    'bold_width': 0.25,
+    'font_size': 3
 }
 
 ###########################################
