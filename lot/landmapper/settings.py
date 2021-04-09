@@ -126,9 +126,9 @@ SOIL_STYLE = {
     'ec': '#EBAE33',
     'fc': 'none',
     'label': {
-       'facecolor': 'white',
-       'alpha':0.8,
-       'pad': 2,
+       'facecolor': '#000000',
+       'alpha':0.4,
+       'pad': 0.2,
        'edgecolor':'none'
     }
 }

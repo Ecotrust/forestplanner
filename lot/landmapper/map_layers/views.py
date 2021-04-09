@@ -480,10 +480,10 @@ def get_static_map(property_specs, layers, bbox=None):
     if not bbox:
         bbox = property_specs['bbox']
 
-    attributions = [x['attribution'] for x in layers]
-    attribution_image = get_attribution_image(attributions, width, height)
-
-    layers.append({'type': 'image', 'data':attribution_image})
+    # attributions = [x['attribution'] for x in layers]
+    # attribution_image = get_attribution_image(attributions, width, height)
+    #
+    # layers.append({'type': 'image', 'data':attribution_image})
 
     return merge_rasters_to_img(
         layers,
@@ -992,161 +992,75 @@ def get_bbox_as_polygon(bbox, srid=3857):
     bbox_geom = Polygon(polygon_input, srid=srid)
     return bbox_geom
 
-def get_attribution_image(attribution_list, width, height):
-    # """
-    # PURPOSE:
-    # -   given a stringified list of attributions, return an image overlay.
-    # IN:
-    # -   attribution: a string of attributions for included layers
-    # -   width: (int) number of pixels wide the image is.
-    # -   height: (int) number of pixels tall the image is.
-    # OUT:
-    # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
-    # """
-    TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
-    LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
-    box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
-    text_color = settings.ATTRIBUTION_TEXT_COLOR
-    text_font = ImageFont.truetype(settings.ATTRIBUTION_TEXT_FONT, settings.ATTRIBUTION_TEXT_FONT_SIZE)
-
-    # Create overlay image
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
-
-    if type(attribution_list) == list:
-        # clean list
-        attribution_list = [x for x in attribution_list if x]
-
-        attribution_list = ', '.join(attribution_list)
-    # calculate text size
-    (text_width, text_height) = text_font.getsize(attribution_list)
-
-    # Create a list of rows of attribution text
-    attribution_rows = []
-    attribution_word_list = attribution_list.split(' ')
-    while len(attribution_word_list) > 0:
-        new_row = [attribution_word_list.pop(0)]
-        while len(attribution_word_list) > 0 and text_font.getsize(' '.join(new_row + [attribution_word_list[0]]))[0] < (width-2*TEXT_BUFFER):
-            new_row.append(attribution_word_list.pop(0))
-        attribution_rows.append(' '.join(new_row))
-
-    # determine text_block size
-    text_block_height = 2*TEXT_BUFFER + (text_height + LINE_SPACING) * len(attribution_rows) - LINE_SPACING
-    if len(attribution_rows) > 1:
-        text_block_width = width
-    else:
-        text_block_width = text_width + 2*TEXT_BUFFER
-
-    # draw box
-    left_px = width - text_block_width
-    top_px = height - text_block_height
-    right_px = width
-    bottom_px = height
-    box_shape = [(left_px, top_px), (right_px, bottom_px)]
-    text_box = ImageDraw.Draw(base_img)
-    text_box.rectangle(box_shape, fill=settings.ATTRIBUTION_BOX_FILL_COLOR, outline=settings.ATTRIBUTION_BOX_OUTLINE)
-
-    # TODO: create box and text separately with full opacity, apply to base using:
-    #       out = Image.alpha_composite(base, txt)
-    # or something similar to remove 'checkered pattern' on attribute box.
-
-    # draw text
-    # https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html?highlight=RGBA#example-draw-partial-opacity-text
-    text_top = top_px + TEXT_BUFFER
-    text_left = left_px + TEXT_BUFFER
-    for (idx, text_row) in enumerate(attribution_rows):
-        if idx != 0:
-            text_top += LINE_SPACING
-        txt = ImageDraw.Draw(base_img)
-        txt.text((text_left, text_top), text_row, font=text_font, fill=text_color)
-        text_top += text_height
-
-    return base_img
-
-def merge_layers(layer_list):
-
-    merged = False
-    for layer in layer_list:
-        if layer:
-            if not merged:
-                merged = layer.copy()
-            else:
-                merged = merge_images(merged, layer)
-
-    return merged
-
-def merge_images(background, foreground, x=0, y=0):
-    # """
-    # merge_images
-    # PURPOSE:
-    # -   Given two PIL RGBA Images, overlay one on top of the other and return the
-    # -       resulting PIL RGBA Image object
-    # IN:
-    # -   background: (PIL RGBA Image) The base image to have an overlay placed upon
-    # -   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
-    # -       background
-    # OUT:
-    # -   merged_image: (PIL RGBA Image) the resulting merged image
-    # """
-    merged = background.copy()
-    merged.paste(foreground, (x, y), foreground)
-    return merged
-
-def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
-    # """
-    # PURPOSE:
-    # -   Crop given map image tiles to bbox, then resize image to appropriate width/height
-    # IN:
-    # -   tiles_dict_array: (list) a 2D array of image tiles, where LL index = (0,0)
-    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
-    # -   width: (int) width of the desired image in pixels
-    # -       default: settings.REPORT_MAP_WIDTH
-    # -   height: (int) height of the desired image in pixels
-    # -       default: settings.REPORT_MAP_HEIGHT
-    # OUT:
-    # -   img_data:
-    # """
-
-    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
-
-    num_cols = len(tiles_dict_array)
-    num_rows = len(tiles_dict_array[0])
-
-    base_width = num_cols * request_dict['TILE_IMAGE_WIDTH']
-    base_height = num_rows * request_dict['TILE_IMAGE_HEIGHT']
-
-    # Create overlay image
-    base_image = Image.new("RGBA", (base_width, base_height), (255,255,255,0))
-
-    # Merge tiles onto base image
-    for (x, column) in enumerate(tiles_dict_array):
-        for (y, cell) in enumerate(column):
-            stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
-            base_image = merge_images(base_image, stream_image, x*request_dict['TILE_IMAGE_WIDTH'], y*request_dict['TILE_IMAGE_HEIGHT'])
-
-    # Get base image bbox
-    base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
-    base_north = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[3])
-    base_east = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[2])
-    base_south = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[1])
-
-    base_width_in_meters = base_east - base_west
-    base_height_in_meters = base_north - base_south
-
-    base_meters_per_pixel = base_height_in_meters/base_height
-
-    # crop image to target bbox
-    (bbox_west, bbox_south, bbox_east, bbox_north) = (float(x) for x in bbox.split(','))
-    crop_west = (bbox_west - base_west) / base_meters_per_pixel
-    crop_south = abs((bbox_south - base_north) / base_meters_per_pixel)
-    crop_east = (bbox_east - base_west) / base_meters_per_pixel
-    crop_north = abs((bbox_north - base_north) / base_meters_per_pixel)
-
-    base_image = base_image.crop(box=(crop_west,crop_north,crop_east,crop_south))
-
-    # resize image to desired pixel count
-    img_data = base_image.resize((width, height), Image.ANTIALIAS)
-
-    return img_data
+# def get_attribution_image(attribution_list, width, height):
+#     # """
+#     # PURPOSE:
+#     # -   given a stringified list of attributions, return an image overlay.
+#     # IN:
+#     # -   attribution: a string of attributions for included layers
+#     # -   width: (int) number of pixels wide the image is.
+#     # -   height: (int) number of pixels tall the image is.
+#     # OUT:
+#     # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
+#     # """
+#     TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
+#     LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
+#     box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
+#     text_color = settings.ATTRIBUTION_TEXT_COLOR
+#     text_font = ImageFont.truetype(settings.ATTRIBUTION_TEXT_FONT, settings.ATTRIBUTION_TEXT_FONT_SIZE)
+#
+#     # Create overlay image
+#     base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+#
+#     if type(attribution_list) == list:
+#         # clean list
+#         attribution_list = [x for x in attribution_list if x]
+#
+#         attribution_list = ', '.join(attribution_list)
+#     # calculate text size
+#     (text_width, text_height) = text_font.getsize(attribution_list)
+#
+#     # Create a list of rows of attribution text
+#     attribution_rows = []
+#     attribution_word_list = attribution_list.split(' ')
+#     while len(attribution_word_list) > 0:
+#         new_row = [attribution_word_list.pop(0)]
+#         while len(attribution_word_list) > 0 and text_font.getsize(' '.join(new_row + [attribution_word_list[0]]))[0] < (width-2*TEXT_BUFFER):
+#             new_row.append(attribution_word_list.pop(0))
+#         attribution_rows.append(' '.join(new_row))
+#
+#     # determine text_block size
+#     text_block_height = 2*TEXT_BUFFER + (text_height + LINE_SPACING) * len(attribution_rows) - LINE_SPACING
+#     if len(attribution_rows) > 1:
+#         text_block_width = width
+#     else:
+#         text_block_width = text_width + 2*TEXT_BUFFER
+#
+#     # draw box
+#     left_px = width - text_block_width
+#     top_px = height - text_block_height
+#     right_px = width
+#     bottom_px = height
+#     box_shape = [(left_px, top_px), (right_px, bottom_px)]
+#     text_box = ImageDraw.Draw(base_img)
+#     text_box.rectangle(box_shape, fill=settings.ATTRIBUTION_BOX_FILL_COLOR, outline=settings.ATTRIBUTION_BOX_OUTLINE)
+#
+#     # TODO: create box and text separately with full opacity, apply to base using:
+#     #       out = Image.alpha_composite(base, txt)
+#     # or something similar to remove 'checkered pattern' on attribute box.
+#
+#     # draw text
+#     # https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html?highlight=RGBA#example-draw-partial-opacity-text
+#     text_top = top_px + TEXT_BUFFER
+#     text_left = left_px + TEXT_BUFFER
+#     for (idx, text_row) in enumerate(attribution_rows):
+#         if idx != 0:
+#             text_top += LINE_SPACING
+#         txt = ImageDraw.Draw(base_img)
+#         txt.text((text_left, text_top), text_row, font=text_font, fill=text_color)
+#         text_top += text_height
+#
+#     return base_img
 
 def get_collection_from_objects(source_objects, geom_field, bbox, attrs=[]):
     xmin, ymin, xmax, ymax = bbox.split(',')
@@ -1204,8 +1118,13 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
                             row.coords[0],
                             row.coords[1],
                             s=row[label_key],
+                            color="#FFFFFF",
+                            size=3,
+                            fontweight='bold',
                             horizontalalignment='center',
+                            verticalalignment='center',
                             bbox=layer['style']['label']
+
                         )
             work = layer['data'].plot(
                 ax=ax,
@@ -1213,6 +1132,7 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
                 ec=layer['style']['ec'],
                 fc=layer['style']['fc']
             )
+
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
     return fig2img(fig)
@@ -1482,3 +1402,77 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
         'lon': lon,
         'zoom': zoom
     }
+
+def merge_images(background, foreground, x=0, y=0):
+    # """
+    # merge_images
+    # PURPOSE:
+    # -   Given two PIL RGBA Images, overlay one on top of the other and return the
+    # -       resulting PIL RGBA Image object
+    # IN:
+    # -   background: (PIL RGBA Image) The base image to have an overlay placed upon
+    # -   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
+    # -       background
+    # OUT:
+    # -   merged_image: (PIL RGBA Image) the resulting merged image
+    # """
+    merged = background.copy()
+    merged.paste(foreground, (x, y), foreground)
+    return merged
+
+def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
+    # PURPOSE:
+    # -   Crop given map image tiles to bbox, then resize image to appropriate width/height
+    # IN:
+    # -   tiles_dict_array: (list) a 2D array of image tiles, where LL index = (0,0)
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # OUT:
+    # -   img_data:
+    # """
+
+    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
+
+    num_cols = len(tiles_dict_array)
+    num_rows = len(tiles_dict_array[0])
+
+    base_width = num_cols * request_dict['TILE_IMAGE_WIDTH']
+    base_height = num_rows * request_dict['TILE_IMAGE_HEIGHT']
+
+    # Create overlay image
+    base_image = Image.new("RGBA", (base_width, base_height), (255,255,255,0))
+
+    # Merge tiles onto base image
+    for (x, column) in enumerate(tiles_dict_array):
+        for (y, cell) in enumerate(column):
+            stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
+            base_image = merge_images(base_image, stream_image, x*request_dict['TILE_IMAGE_WIDTH'], y*request_dict['TILE_IMAGE_HEIGHT'])
+
+    # Get base image bbox
+    base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
+    base_north = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[3])
+    base_east = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[2])
+    base_south = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[1])
+
+    base_width_in_meters = base_east - base_west
+    base_height_in_meters = base_north - base_south
+
+    base_meters_per_pixel = base_height_in_meters/base_height
+
+    # crop image to target bbox
+    (bbox_west, bbox_south, bbox_east, bbox_north) = (float(x) for x in bbox.split(','))
+    crop_west = (bbox_west - base_west) / base_meters_per_pixel
+    crop_south = abs((bbox_south - base_north) / base_meters_per_pixel)
+    crop_east = (bbox_east - base_west) / base_meters_per_pixel
+    crop_north = abs((bbox_north - base_north) / base_meters_per_pixel)
+
+    base_image = base_image.crop(box=(crop_west,crop_north,crop_east,crop_south))
+
+    # resize image to desired pixel count
+    img_data = base_image.resize((width, height), Image.ANTIALIAS)
+
+    return img_data
