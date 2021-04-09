@@ -119,13 +119,16 @@ REPORT_MAP_MIN_BUFFER = 0.1
 # MAX width resolution in 3857 degrees:
 # MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
 MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768 (current pixel width)
-MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+# MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 6.5   # 26/4 (or more illustratively: 26/2/2)
 
 ###########################################
 ##      REPORTS                         ###
 ###########################################
-SCALEBAR_DEFAULT_WIDTH = 1.5
-SCALEBAR_DEFAULT_HEIGHT = 0.2
+# SCALEBAR_DEFAULT_WIDTH = 1.5
+SCALEBAR_DEFAULT_WIDTH = 6.4141
+# SCALEBAR_DEFAULT_HEIGHT = 0.2
+SCALEBAR_DEFAULT_HEIGHT = 0.5995
 # SCALEBAR_BG_W = 508
 SCALEBAR_BG_W = 616
 # SCALEBAR_BG_H = 70
