@@ -553,6 +553,8 @@ def create_property_pdf(property, property_id):
         'soils': tmp_soils_name,
     }
 
+    import ipdb; ipdb.set_trace()
+
     # Create var for all soils
     soil_list = property.report_data['soils']['data']
     # Given more than 12 soil types sort them by percent area
