@@ -118,10 +118,10 @@ REPORT_MAP_MIN_BUFFER = 0.1
 # MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
 
 # MAX width resolution in 3857 degrees:
-MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
-# MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768 (current pixel width)
-MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
-# MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 6.5   # 26/4 (or more illustratively: 26/2/2)
+# MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768px (current pixel width)
+# MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 6.5   # 26/4 (or more illustratively: 26/2/2)
 
 ###########################################
 ##      REPORTS                         ###
@@ -710,7 +710,7 @@ FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
 PRODUCTION_URL = 'http://landmapper.ecotrust.org/landmapper'
 DEV_URL = 'http://localhost:8000/landmapper'
 
-LIVE_SITE = True
+LIVE_SITE = False
 
 if LIVE_SITE:
     APP_URL = PRODUCTION_URL
