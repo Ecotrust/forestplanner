@@ -98,12 +98,37 @@ BASEMAPS = {
         'TILE_IMAGE_HEIGHT': 512,
         'TILE_IMAGE_WIDTH': 512,
         'ZOOM_2X': False
+    },
+    'OSM': {
+        # 'URL': 'https://tile.openstreetmap.org/{zoom}/{lon}/{lat}.png',
+        'URL': 'https://maps.geoapify.com/v1/staticmap',
+        'TECHNOLOGY': 'static',
+        # 'ATTRIBUTION': 'Sources: MapBox',
+        'ATTRIBUTION': 'Powered by <a href="https://www.geoapify.com/">Geoapify</a>; © OpenStreetMap contributors',
+        'PARAMS': {},
+        'QS': [
+            # 'style=osm-bright-smooth',
+            'style=osm-carto',
+            'width={width}',
+            'height={height}',
+            'center=lonlat%3A{lon}%2C{lat}',
+            'zoom={zoom}', # float
+            'apiKey={apiKey}',
+            ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': False
     }
 }
 
 AERIAL_DEFAULT = 'ESRI_Satellite'
 AERIAL_UPDATED = 'TNM_Aerial'
 TOPO_DEFAULT = 'ESRI_Topo'
+# STREET_DEFAULT = 'OSM'
 STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################

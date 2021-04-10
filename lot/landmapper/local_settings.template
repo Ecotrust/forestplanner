@@ -2,3 +2,7 @@
 # Without that, requests will be denied.
 GOOGLE_API_KEY = 'a_google_api_key'
 MAPBOX_TOKEN = 'set_in_landmapper_local_settings'
+GEOAPIFY_API_KEY = 'set_in_landmapper_local_settings'
+KEYS = {
+    'OSM': GEOAPIFY_API_KEY,
+}

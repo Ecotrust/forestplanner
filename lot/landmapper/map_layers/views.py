@@ -16,6 +16,9 @@ from matplotlib.collections import PatchCollection
 from rasterio import transform
 from rasterio.plot import show, reshape_as_raster
 import requests
+from shapely.geometry import Point as shp_Point
+from shapely.ops import transform as shp_transform
+import urllib.request
 
 ################################
 # Map Layer Getter Functions ###
@@ -236,17 +239,31 @@ def get_street_image_layer(property_specs, bbox=False):
             '&layers=', street_dict['LAYERS'],
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
-        ])
+        ]),
+        # Request URL
+        image_data = lm_views.unstable_request_wrapper(street_url)
+        base_image = image_result_to_PIL(image_data)
+    elif street_dict['TECHNOLOGY'] == 'XYZ':
+        base_image = get_XYZ_image_data(street_dict, property_specs, bbox, zoom_2x=street_dict['ZOOM_2X'])
+    elif street_dict['TECHNOLOGY'] == 'static':
+        #TODO: get zoom
+        zoom = get_zoom_from_bbox(bbox, tile_height=settings.REPORT_MAP_HEIGHT, tile_width=settings.REPORT_MAP_WIDTH)
+        #TODO: get center lon and lat in 4326
+        [lon, lat] = get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=4326)
+        if settings.STREET_DEFAULT in settings.KEYS.keys():
+            apiKey = settings.KEYS[settings.STREET_DEFAULT]
+        else:
+            apiKey = ''
+        street_qs = '&'.join([x.format(width=width, height=height, lon=lon, lat=lat, zoom=zoom, apiKey=apiKey) for x in street_dict['QS']])
+        street_url = '?'.join([street_dict['URL'], street_qs])
+        result = requests.get(street_url)
+        base_image = imread(io.BytesIO(result.content))
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting street layers at the moment')
-        street_url = None
+        base_image = None
 
     # set Attribution
     attribution = street_dict['ATTRIBUTION']
-
-    # Request URL
-    image_data = lm_views.unstable_request_wrapper(street_url)
-    base_image = image_result_to_PIL(image_data)
 
     return {
         'type': 'image',
@@ -284,7 +301,113 @@ def get_soil_image_layer(property_specs, bbox=False):
             'attribution': settings.ATTRIBUTION_KEYS['soil']
         }
 
-def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
+def get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=3857):
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    xmean = (xmin + xmax)/2
+    ymean = (ymin + ymax)/2
+    mean_point = shp_Point(xmean, ymean)
+
+    inCRS = pyproj.CRS(f'EPSG:{inSRID}')
+    outCRS = pyproj.CRS(f'EPSG:{outSRID}')
+    reprojection = pyproj.Transformer.from_crs(inCRS, outCRS, always_xy=True).transform
+    outPoint = shp_transform(reprojection, mean_point)
+    [outLon, outLat] = [x[0] for x in outPoint.coords.xy]
+    return (outLon, outLat)
+
+def get_zoom_from_bbox(bbox, tile_height, tile_width, img_height=settings.REPORT_MAP_HEIGHT, img_width=settings.REPORT_MAP_WIDTH):
+    # Get zoom value based on Meters/Pixel (get 1st zoom layer with less m/p)
+    # Values from https://wiki.openstreetmap.org/wiki/Zoom_levels
+    #       Note: these values are for 256x256 px tiles, do we need to adjust?
+    #       See "Mapbox GL" comment - can just remove 1 from the level
+
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    # mp_ratio = (east-west)/width
+    mp_ratio = (ymax-ymin)/img_height     #In theory, this should be less distorted... right? No?
+
+    ZOOM_LEVELS_MP_RATIOS = [
+        156412,     # 0
+        78206,      # 1
+        39103,      # 2
+        19551,      # 3
+        9776,       # 4
+        4888,       # 5
+        2444,       # 6
+        1222,       # 7
+        610.984,    # 8
+        305.492,    # 9
+        152.746,    # 10
+        76.373,     # 11
+        38.187,     # 12
+        19.093,     # 13
+        9.547,      # 14
+        4.773,      # 15
+        2.387,      # 16
+        1.193,      # 17
+        0.596,      # 18
+        0.298,      # 19
+        0.149,      # 20
+    ]
+
+    pixel_axis = 256
+    for axis in [tile_height, tile_width]:
+        if axis > pixel_axis:
+            pixel_axis = axis
+
+    for (z_lvl, mp) in enumerate(ZOOM_LEVELS_MP_RATIOS):
+        zoom = z_lvl
+        # map_mp = mp
+        if mp_ratio > (mp*(256/pixel_axis)):
+            break
+
+    return zoom
+
+
+def get_XYZ_image_data(request_dict, property_specs, bbox, zoom_2x=False):
+    # """
+    # PURPOSE:
+    # -   Retrieve mapbox tile images http response for a given bbox at a given size
+    # IN:
+    # -   layer_url: (string) pre-computed URL string with {z}, {x}, and {y} for the tile template
+    # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+    # OUT:
+    # -   img_data: image as raw data (bytes)
+    # """
+    if not bbox:
+        bbox = property_specs['bbox']
+    srs = 'EPSG:3857'
+    width = property_specs['width']
+    height = property_specs['height']
+    if zoom_2x:
+        width = int(width/2)
+        height = int(height/2)
+
+    request_params = request_dict['PARAMS'].copy()
+
+    # Get descriptions of required tiles as a 2D array
+    tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
+
+    request_qs = [x for x in request_dict['QS']]
+    # Zoom should remain constant throughout all cells
+    request_params['zoom'] = tiles_dict_array[0][0]['zoom']
+
+    # Rows are stacked from South to North:
+    #       https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
+    for row in tiles_dict_array:
+        # Cells are ordered from West to East
+        for cell in row:
+            request_params['lon'] = cell['lon_index']
+            request_params['lat'] = cell['lat_index']
+            request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+            cell['image'] = requests.get(request_url)
+
+    img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
+
+    if zoom_2x:
+        img_data = img_data.resize((property_specs['width'], property_specs['height']), Image.ANTIALIAS)
+
+    return img_data
+
+def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False, append_token=True):
     # """
     # PURPOSE:
     # -   Retrieve mapbox tile images http response for a given bbox at a given size
@@ -309,7 +432,8 @@ def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
     tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
 
     request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
-    request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+    if append_token:
+        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
     # Zoom should remain constant throughout all cells
     request_params['zoom'] = tiles_dict_array[0][0]['zoom']
 
@@ -321,7 +445,7 @@ def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
             request_params['lon'] = cell['lon_index']
             request_params['lat'] = cell['lat_index']
             request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-            print("Getting layer from MapBox: %s" % request_url)
+            # print("Getting layer from MapBox: %s" % request_url)
             cell['image'] = lm_views.unstable_request_wrapper(request_url)
 
     img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
@@ -968,10 +1092,15 @@ def image_result_to_PIL(image_data):
         data_content = image_data.read()
     except AttributeError as e:
         data_content = image_data
+    pil_image = False
     if data_content:
-        fp.write(data_content)
+        try:
+            fp.write(data_content)
+        except TypeError as e:
+            pil_image = Image.open(io.BytesIO(data_content.content))
     try:
-        pil_image = Image.open(fp.name)
+        if not pil_image:
+            pil_image = Image.open(fp.name)
 
         rgba_image = pil_image.convert("RGBA")
         fp.close()
@@ -1408,47 +1537,8 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # To do this right, check out this:
     #   https://wiki.openstreetmap.org/wiki/Zoom_levels#Distance_per_pixel_math
     [west, south, east, north] = [float(x) for x in bbox.split(',')]
-    # mp_ratio = (east-west)/width
-    mp_ratio = (north-south)/height     #In theory, this should be less distorted... right? No?
 
-    # Get zoom value based on Meters/Pixel (get 1st zoom layer with less m/p)
-    # Values from https://wiki.openstreetmap.org/wiki/Zoom_levels
-    #       Note: these values are for 256x256 px tiles, do we need to adjust?
-    #       See "Mapbox GL" comment - can just remove 1 from the level
-    ZOOM_LEVELS_MP_RATIOS = [
-        156412,     # 0
-        78206,      # 1
-        39103,      # 2
-        19551,      # 3
-        9776,       # 4
-        4888,       # 5
-        2444,       # 6
-        1222,       # 7
-        610.984,    # 8
-        305.492,    # 9
-        152.746,    # 10
-        76.373,     # 11
-        38.187,     # 12
-        19.093,     # 13
-        9.547,      # 14
-        4.773,      # 15
-        2.387,      # 16
-        1.193,      # 17
-        0.596,      # 18
-        0.298,      # 19
-        0.149,      # 20
-    ]
-
-    pixel_axis = 256
-    for axis in [request_dict['TILE_HEIGHT'], request_dict['TILE_WIDTH']]:
-        if axis > pixel_axis:
-            pixel_axis = axis
-
-    for (z_lvl, mp) in enumerate(ZOOM_LEVELS_MP_RATIOS):
-        zoom = z_lvl
-        map_mp = mp
-        if mp_ratio > (mp*(256/pixel_axis)):
-            break
+    zoom = get_zoom_from_bbox(bbox, tile_height=request_dict['TILE_HEIGHT'], tile_width=request_dict['TILE_WIDTH'], img_height=height, img_width=width)
 
     # Calculate layer'ls lat/lon index for LL & TR corners of bbox
     #   Reference: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers
@@ -1612,7 +1702,8 @@ def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MA
     for (x, column) in enumerate(tiles_dict_array):
         for (y, cell) in enumerate(column):
             stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
-            base_image = merge_images(base_image, stream_image, x*request_dict['TILE_IMAGE_WIDTH'], y*request_dict['TILE_IMAGE_HEIGHT'])
+            # stream_image = stream_image.resize((request_dict['TILE_IMAGE_WIDTH']*2,request_dict['TILE_IMAGE_HEIGHT']*2), Image.ANTIALIAS)
+            base_image = merge_images(base_image, stream_image, int(x*request_dict['TILE_IMAGE_WIDTH']), int(y*request_dict['TILE_IMAGE_HEIGHT']))
 
     # Get base image bbox
     base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
