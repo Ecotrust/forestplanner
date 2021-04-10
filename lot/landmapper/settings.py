@@ -45,7 +45,8 @@ BASEMAPS = {
         'URL': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
-        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed October, 2020.'
+        # Can get updated attribution at https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer?f=pjson ['copyrightText']
     },
     'ESRI_Satellite': {
         'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
@@ -101,6 +102,7 @@ BASEMAPS = {
 }
 
 AERIAL_DEFAULT = 'ESRI_Satellite'
+AERIAL_UPDATED = 'TNM_Aerial'
 TOPO_DEFAULT = 'ESRI_Topo'
 STREET_DEFAULT = 'ESRI_Street'
 
