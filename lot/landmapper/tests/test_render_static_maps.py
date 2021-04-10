@@ -13,7 +13,6 @@ from django.contrib.gis.geos import GEOSGeometry
 from landmapper.models import Property, Taxlot, SoilType
 from landmapper.map_layers import views as map_views
 
-
 class RenderTest(TestCase):
     def setUp(self):
         from decimal import Decimal

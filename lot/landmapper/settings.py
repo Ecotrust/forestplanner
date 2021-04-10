@@ -138,10 +138,18 @@ SOIL_STYLE = {
     'ec': '#EBAE33',
     'fc': 'none',
     'label': {
-       'facecolor': '#000000',
-       'alpha':0.4,
-       'pad': 0.2,
-       'edgecolor':'none'
+        'fontsize': 3,
+        'halo': {
+            'size': 1,
+            'color': 'black'
+        },
+        'bbox': None,
+        # 'bbox': {
+        #     'facecolor': '#000000',
+        #     'alpha':0.4,
+        #     'pad': 0.2,
+        #     'edgecolor':'none'
+        # }
     }
 }
 CONTOUR_STYLE = {

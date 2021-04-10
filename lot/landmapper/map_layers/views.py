@@ -9,8 +9,9 @@ from imageio import imread
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from math import pi, log, tan, exp, atan, log2, log10, floor
+from matplotlib import patches, ticker
 from matplotlib import pyplot as plt
-from matplotlib import patches
+from matplotlib import patheffects as pe
 from matplotlib.collections import PatchCollection
 from rasterio import transform
 from rasterio.plot import show, reshape_as_raster
@@ -165,6 +166,7 @@ def get_topo_image_layer(property_specs, bbox=False):
 
     topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
 
+    # TODO: Rewrite so this just provides the hillshade baselayer, and contours_img comes from get_contour_image_layer, even if it's just this one next line.
     contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)
     # Get URL for request
     if topo_dict['TECHNOLOGY'] == 'arcgis_mapserver':
@@ -552,8 +554,6 @@ def contours_from_tnm_dem(bbox, width, height, dpi=settings.DPI, inSR=3857):
     img : PIL Image
       rendered image with contours styled and labeled
     """
-    from matplotlib import ticker
-    from matplotlib import patheffects as pe
 
     # get the DEM data as a TIFF image, multiply value to convert meters to feet
     dem = dem_from_tnm(bbox=bbox, width=width, height=height, inSR=inSR) * 3.28084
@@ -1261,6 +1261,7 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
                 layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
                 layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
 
+                # If a GDF has a key added that isn't 'geometry' or 'coords', it becomes a label.
                 label_key = False
                 for idx, row in layer['data'].iterrows():
                     if idx ==0:
@@ -1269,17 +1270,23 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
                                 label_key = key
                                 continue
                     if label_key:
-                        ax.text(
+                        text = ax.text(
                             row.coords[0],
                             row.coords[1],
                             s=row[label_key],
                             color="#FFFFFF",
-                            size=3,
+                            size=layer['style']['label']['fontsize'],
                             fontweight='bold',
                             horizontalalignment='center',
                             verticalalignment='center',
-                            bbox=layer['style']['label']
-
+                            bbox=layer['style']['label']['bbox']
+                        )
+                        text.set_path_effects([
+                            pe.Stroke(
+                                linewidth=layer['style']['label']['halo']['size'],
+                                foreground=layer['style']['label']['halo']['color']
+                            ),
+                            pe.Normal()]
                         )
             work = layer['data'].plot(
                 ax=ax,
