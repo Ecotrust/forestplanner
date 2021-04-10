@@ -239,7 +239,7 @@ def get_street_image_layer(property_specs, bbox=False):
             '&layers=', street_dict['LAYERS'],
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
-        ]),
+        ])
         # Request URL
         image_data = lm_views.unstable_request_wrapper(street_url)
         base_image = image_result_to_PIL(image_data)
