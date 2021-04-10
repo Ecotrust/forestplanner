@@ -21,7 +21,7 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(self):
         super().setUpClass()
-        self.selenium = webdriver.firefox.webdriver.WebDriver()
+        self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(10)
 
     @classmethod
