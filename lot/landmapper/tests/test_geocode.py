@@ -38,6 +38,7 @@ class GeocodeTest(TestCase):
     def test_geocode_options_gui(self):
         # user arrives on landing page
         self.browser.get("http://localhost:8000")
+        # self.browser.get("https://landmapper.ecotrust.org/")
         try:
             element = WebDriverWait(self.browser, 5).until(
                 EC.presence_of_element_located((By.ID, "property-search"))
