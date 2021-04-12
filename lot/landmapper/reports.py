@@ -5,7 +5,10 @@ from django.contrib.humanize.templatetags import humanize
 from landmapper.models import SoilType
 from landmapper.fetch import soils_from_nrcs
 from landmapper.map_layers import views as map_views
+from matplotlib import pyplot as plt
+import numpy as np
 from pdfjinja import PdfJinja
+from PIL import Image
 import PyPDF2 as pypdf
 from tempfile import NamedTemporaryFile
 
@@ -51,69 +54,78 @@ def get_property_report(property, taxlots):
     # calculate orientation, w x h, bounding box, centroid, and zoom level
     property_specs = get_property_specs(property)
 
+    img_width = property_specs['width']
+    img_height = property_specs['height']
+
     property_bboxes = {
         'fit': property_specs['bbox'],
         'medium': refit_bbox(property_specs, scale='medium'),
         'context': refit_bbox(property_specs, scale='context')
     }
-    property_layers = {
-        'fit': map_views.get_property_image_layer(property, property_specs),
-        'medium': map_views.get_property_image_layer(
-            property, property_specs, property_bboxes['medium']
-        ),
-        'context': map_views.get_property_image_layer(
-            property, property_specs, property_bboxes['context']
-        )
-    }
+    
+    property_layer = map_views.get_property_image_layer(property, property_specs)
 
+    # Get Basemap Images
     taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
+
     aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
     street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
     topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+
     if settings.CONTOUR_SOURCE:
         contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])
     else:
         contour_layer = False
+    # TODO: Replace this with soil dataframe
     soil_layer = map_views.get_soil_image_layer(property_specs, property_bboxes[settings.SOIL_SCALE])
+    # TODO: Replace this with stream dataframe (?)
     stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
-    property.property_map_image = map_views.get_property_map(
+    # Create Overview Image
+    property.property_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=aerial_layer,
-        property_layer=property_layers[settings.PROPERTY_OVERVIEW_SCALE]
+        [ aerial_layer, property_layer]
     )
-    property.aerial_map_image = map_views.get_aerial_map(
+
+    # Create Aerial Image
+    property.aerial_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=aerial_layer,
-        lots_layer=taxlot_layer,
-        property_layer=property_layers[settings.AERIAL_SCALE]
+        [aerial_layer, taxlot_layer, property_layer]
     )
-    property.street_map_image = map_views.get_street_map(
+
+    # Create Street report Image
+    property.street_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=street_layer,
-        property_layer=property_layers[settings.STREET_SCALE]
+        [street_layer, property_layer],
+        bbox = property_bboxes[settings.STREET_SCALE]
     )
-    property.terrain_map_image = map_views.get_terrain_map(
+
+    # Create Terrain report Image
+    property.terrain_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=topo_layer,
-        property_layer=property_layers[settings.TOPO_SCALE],
-        contour_layer=contour_layer
+        [topo_layer, property_layer],
+        bbox = property_bboxes[settings.TOPO_SCALE]
     )
+
+    # Create Streams report Image
     if settings.STREAMS_BASE_LAYER == 'aerial':
         stream_base_layer = aerial_layer
     else:
         stream_base_layer = topo_layer
-    property.stream_map_image = map_views.get_stream_map(
+
+    property.stream_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=stream_base_layer,
-        stream_layer=stream_layer,
-        property_layer=property_layers[settings.STREAM_SCALE])
-    property.soil_map_image = map_views.get_soil_map(
+        [stream_base_layer, stream_layer, property_layer],
+        bbox = property_bboxes[settings.STREAM_SCALE]
+    )
+
+    # Create Soils report Image
+    property.soil_map_image = map_views.get_static_map(
         property_specs,
-        base_layer=aerial_layer,
-        lots_layer=taxlot_layer,
-        soil_layer=soil_layer,
-        property_layer=property_layers[settings.SOIL_SCALE])
+        [aerial_layer, soil_layer, taxlot_layer, property_layer],
+        bbox = property_bboxes[settings.SOIL_SCALE]
+    )
+
     property.scalebar_image = map_views.get_scalebar_image(property_specs,
                                                            span_ratio=0.75
     )
@@ -337,8 +349,7 @@ def get_property_specs(property):
         'width': None,  # Pixels
         'height': None,  # Pixels
         'bbox': None,  # "W,S,E,N" (EPSG:3857, Web Mercator)
-        'zoom':
-        None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
+        'zoom': None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
     (bbox, orientation) = map_views.get_bbox_from_property(property)
 

@@ -45,7 +45,8 @@ BASEMAPS = {
         'URL': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
-        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed April, 2019.'
+        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed October, 2020.'
+        # Can get updated attribution at https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer?f=pjson ['copyrightText']
     },
     'ESRI_Satellite': {
         'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
@@ -64,6 +65,17 @@ BASEMAPS = {
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
         'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
+    },
+    'TNM_Aerial': {
+        'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPPlus/MapServer/export',
+        'LAYERS': '8',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'USGS The National Map: Orthoimagery'
+    },
+    'TNM_NAIP': {
+        'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer/exportImage',
+        'TECHNOLOGY': 'arcgis_imageserver',
+        'ATTRIBUTION': 'USGS The National Map: Imagery'
     },
     'Custom_Topo': {
         'URL': 'https://api.mapbox.com/styles/v1/{userid}/cke0j10sj1gta19o9agb1w8pq/tiles/256/{zoom}/{lon}/{lat}@2x?',
@@ -86,12 +98,37 @@ BASEMAPS = {
         'TILE_IMAGE_HEIGHT': 512,
         'TILE_IMAGE_WIDTH': 512,
         'ZOOM_2X': False
+    },
+    'OSM': {
+        # 'URL': 'https://tile.openstreetmap.org/{zoom}/{lon}/{lat}.png',
+        'URL': 'https://maps.geoapify.com/v1/staticmap',
+        'TECHNOLOGY': 'static',
+        # 'ATTRIBUTION': 'Sources: MapBox',
+        'ATTRIBUTION': 'Powered by <a href="https://www.geoapify.com/">Geoapify</a>; © OpenStreetMap contributors',
+        'PARAMS': {},
+        'QS': [
+            # 'style=osm-bright-smooth',
+            'style=osm-carto',
+            'width={width}',
+            'height={height}',
+            'center=lonlat%3A{lon}%2C{lat}',
+            'zoom={zoom}', # float
+            'apiKey={apiKey}',
+            ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': False
     }
 }
 
 AERIAL_DEFAULT = 'ESRI_Satellite'
-TOPO_DEFAULT = 'Custom_Topo'
-# TOPO_DEFAULT = 'ESRI_Topo'
+AERIAL_UPDATED = 'TNM_Aerial'
+TOPO_DEFAULT = 'ESRI_Topo'
+# STREET_DEFAULT = 'OSM'
 STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################
@@ -125,6 +162,39 @@ REPORT_MAP_MIN_BUFFER = 0.1
 MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768px (current pixel width)
 # MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
 MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 6.5   # 26/4 (or more illustratively: 26/2/2)
+
+# Report Image Dots Per Inch
+DPI = 300
+PROPERTY_STYLE = {'lw':1, 'ec': '#FF00FF', 'fc': 'none'}
+TAXLOT_STYLE = {'lw':0.2, 'ec': '#CCCCCC', 'fc': 'none'}
+SOIL_STYLE = {
+    'lw':0.8,
+    'ec': '#EBAE33',
+    'fc': 'none',
+    'label': {
+        'fontsize': 3,
+        'halo': {
+            'size': 1,
+            'color': 'black'
+        },
+        'bbox': None,
+        # 'bbox': {
+        #     'facecolor': '#000000',
+        #     'alpha':0.4,
+        #     'pad': 0.2,
+        #     'edgecolor':'none'
+        # }
+    }
+}
+CONTOUR_STYLE = {
+    'fine_color': (32/255., 96/255., 0., 255/255.),
+    'fine_step': 40,
+    'fine_width': 0.05,
+    'bold_color': (32/255., 96/255., 0., 255/255.),
+    'bold_step': 200,
+    'bold_width': 0.25,
+    'font_size': 3
+}
 
 ###########################################
 ##      REPORTS                         ###

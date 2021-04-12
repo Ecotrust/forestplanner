@@ -1330,3 +1330,55 @@ def nlcd_from_mrlc(bbox, res, layer, inSR=4326, nlcd=True, **kwargs):
         img = mapping_ar[img]
 
     return img
+
+def contours_from_tnm_dem(bbox, width, height, inSR=4326):
+    """Fetches a DEM from The National Map and returns a PIL image with
+    labeled contours
+
+    Parameters
+    ----------
+    bbox : list-like
+      bounding box with coordinats as (xmin, ymin, xmax, ymax)
+    width : int
+      width of image to return
+    height : int
+      height of image to return
+    inSR : int
+      code for coordinate reference system
+
+    Returns
+    -------
+    img : PIL Image
+      rendered image with contours styled and labeled
+    """
+    from matplotlib import ticker
+    from matplotlib import patheffects as pe
+
+    dem = dem_from_tnm(bbox, width, height, inSR=inSR) * 3.28084
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(1.697, 2.407)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    ax.set_aspect('equal')
+    fig.add_axes(ax)
+    COLOR = (32/255., 96/255., 0., 255/255.)
+
+    min_40, max_40 = np.floor(dem.min()/40)*40, np.ceil(dem.max()/40)*40+40
+    min_200, max_200 = (np.floor(dem.min()/200)*200,
+                        np.ceil(dem.max()/200)*200+200)
+
+    cont_40 = ax.contour(dem, levels=np.arange(min_40, max_40, 40),
+                         colors=[COLOR],
+                         linewidths=[0.15])
+    cont_200 = ax.contour(dem, levels=np.arange(min_200, max_200, 200),
+                          colors=[COLOR],
+                          linewidths=[0.5])
+    fmt = ticker.StrMethodFormatter("{x:,.0f} ft")
+    labels = ax.clabel(cont_200, fontsize=3,
+                       colors=[COLOR], fmt=fmt,
+                       inline_spacing=0)
+    for label in labels:
+        label.set_path_effects([pe.withStroke(linewidth=1, foreground='w')])
+
+    img = plt_to_pil_image(fig, dpi=300)
+    return img

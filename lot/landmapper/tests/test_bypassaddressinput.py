@@ -21,7 +21,7 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(self):
         super().setUpClass()
-        self.selenium = webdriver.firefox.webdriver.WebDriver()
+        self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(10)
 
     @classmethod
@@ -32,6 +32,7 @@ class BypassAddressInputTests(StaticLiveServerTestCase):
 
     def test_bypass_address_input(self):
         self.selenium.get("http://localhost:8000/landmapper")
+        # self.selenium.get("https://landmapper.ecotrust.org/landmapper")
         self.selenium.find_element_by_id("bypass-address-input").click()
 
         property_search_form = self.selenium.find_element_by_id("property-search-form")

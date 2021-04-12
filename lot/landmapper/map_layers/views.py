@@ -1,89 +1,28 @@
 from django.conf import settings
 from landmapper import views as lm_views
+from landmapper.models import Taxlot, SoilType
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
+import geopandas as gpd
 import io, pyproj, shapely, json
+from imageio import imread
 import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from math import pi, log, tan, exp, atan, log2, log10, floor
+from matplotlib import patches, ticker
 from matplotlib import pyplot as plt
-from matplotlib import patches
+from matplotlib import patheffects as pe
 from matplotlib.collections import PatchCollection
+from rasterio import transform
+from rasterio.plot import show, reshape_as_raster
+import requests
+from shapely.geometry import Point as shp_Point
+from shapely.ops import transform as shp_transform
+import urllib.request
 
 ################################
 # Map Layer Getter Functions ###
 ################################
-
-def render_vectors(geoms,
-                   bbox,
-                   pixel_height,
-                   pixel_width,
-                   dpi=300,
-                   patch_kwargs={},
-                   labels=None,
-                   label_kwargs={}):
-    """
-    Renders the geometries of a vector layer as an image with a transparent
-    background.
-
-    Parameters
-    ----------
-    geoms : list-like of Polygon or MultiPolygon objects
-      the geometries that will be plotted
-    bbox : String of web-mercator values formatted as "west,south,east,north"
-      the xmin, ymin, xmax, and ymax coordinates describing the bounding box
-      for the image
-    pixel_height : int
-      the desired height of the image, in pixels
-    pixel_width : int
-      the desired width of the image, in pixels
-    dpi : int, optional
-      dots per inch for the rendered image, default is 350
-    patch_kwargs : dict, optional
-      keyword arguments to pass to matplotlib.PatchCollection
-    labels : list-like of strings, optional
-      labels used to annotate polygons
-    label_kwargs : dict, optional
-      keyword arguments to pass to ax.annotate
-
-    Returns
-    -------
-    img : PIL image
-      the vector rendered as an image
-    """
-    img_width, img_height = pixel_width / float(dpi), pixel_height / float(dpi)
-    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
-
-    fig = plt.figure(figsize=(img_width, img_height), dpi=dpi)
-    ax = fig.add_axes([0.0,0.0,1.0,1.0])
-    ax.set(xlim=(xmin, xmax), ylim=(ymin, ymax))
-    ax.axis('off')
-
-    polys = []
-
-    for geom in geoms:
-        if type(geom) == Polygon:
-            shape = shapely.geometry.Polygon(geom.coords)
-            patch = patches.Polygon(np.array(shape.exterior.xy).T)
-            polys.append(patch)
-        elif type(geom) == MultiPolygon:
-            for coord_set in geom.coords:
-                for poly_coords in coord_set:
-                    poly = shapely.geometry.Polygon(poly_coords)
-                    patch = patches.Polygon(np.array(poly.exterior.xy).T)
-                    polys.append(patch)
-    ax.add_collection(PatchCollection(polys, **patch_kwargs))
-
-    if labels is not None:
-        for i, label in enumerate(labels):
-            ax.annotate(text=label,
-                        xy=geoms[i].centroid.coords[0],
-                        **label_kwargs)
-
-    img = plt_to_pil_image(fig, dpi=dpi, transparent=True)
-
-    return img
-
 
 def get_property_image_layer(property, property_specs, bbox=False):
     """
@@ -103,22 +42,16 @@ def get_property_image_layer(property, property_specs, bbox=False):
     """
     if not bbox:
         bbox = property_specs['bbox']
-    pixel_width = property_specs['width']
-    pixel_height = property_specs['height']
-    edgecolor = settings.PROPERTY_OUTLINE_COLOR
-    linewidth = settings.PROPERTY_OUTLINE_WIDTH
-    patch_kwargs = dict(fc='none', ec=edgecolor, lw=linewidth)
 
-    img = render_vectors(geoms=[property.geometry_orig],    # geoms (positional)
-                         bbox=bbox,                         # bbox  (positional)
-                         pixel_height=pixel_height,         # pixel_height (positional)
-                         pixel_width=pixel_width,           # pixel_width (positional)
-                         patch_kwargs=patch_kwargs
-                         )
-    taxlot_img = {'image': img, 'attribution': None}
+    property_collection = get_collection_from_objects([property], 'geometry_orig', bbox)
+    property_gdf = get_gdf_from_features(property_collection)
 
-    return taxlot_img
-
+    return {
+        'type': 'dataframe',
+        'data': property_gdf,
+        'style': settings.PROPERTY_STYLE,
+        'attribution': None
+    }
 
 def get_taxlot_image_layer(property_specs, bbox=False):
     # """
@@ -131,62 +64,21 @@ def get_taxlot_image_layer(property_specs, bbox=False):
     # -       attribution: attribution text for proper use of imagery
     # -   }
     # """
-    import urllib.request
-
-    request_dict = settings.TAXLOTS_URLS[settings.TAXLOTS_SOURCE]
-    zoom_argument = settings.TAXLOT_ZOOM_OVERLAY_2X
 
     if not bbox:
         bbox = property_specs['bbox']
 
-    if settings.TAXLOTS_SOURCE == 'MAPBOX_TAXLOTS':
-        srs = 'EPSG:3857'
-        width = property_specs['width']
-        height = property_specs['height']
-
-        if zoom_argument:
-            width = int(width/2)
-            height = int(height/2)
-
-        request_params = request_dict['PARAMS'].copy()
-
-        web_mercator_dict = get_web_map_zoom(bbox, width, height, srs)
-        if zoom_argument:
-            request_params['retina'] = "@2x"
-
-        request_params['lon'] = web_mercator_dict['lon']
-        request_params['lat'] = web_mercator_dict['lat']
-        request_params['zoom'] = web_mercator_dict['zoom']
-        request_params['width'] = width
-        request_params['height'] = height
-
-        request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
-        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
-        request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-
-        img_data = lm_views.unstable_request_wrapper(request_url)
-        img_data = image_result_to_PIL(img_data)
-
-        if type(img_data) == Image.Image:
-            image = img_data
-        else:
-            image = image_result_to_PIL(img_data)
-        if zoom_argument:
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-    elif '_TILE' in settings.TAXLOTS_SOURCE:
-        image = get_mapbox_image_data(request_dict, property_specs, bbox)
-
-
-    else:
-        print('settings.TAXLOTS_SOURCE value "%s" is not currently supported.' % settings.TAXLOTS_SOURCE)
-        image = None
-
+    bbox_poly = get_bbox_as_polygon(bbox)
+    taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
+    taxlot_collection = get_collection_from_objects(taxlots, 'geometry', bbox)
+    taxlots_gdf = get_gdf_from_features(taxlot_collection)
 
     attribution = settings.ATTRIBUTION_KEYS['taxlot']
 
     return {
-        'image': image,
+        'type': 'dataframe',
+        'data': taxlots_gdf,
+        'style': settings.TAXLOT_STYLE,
         'attribution': attribution
     }
 
@@ -219,6 +111,27 @@ def get_aerial_image_layer(property_specs, bbox=False):
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
+    elif aerial_dict['TECHNOLOGY'] == 'arcgis_imageserver':
+
+        aerial_qs = '&'.join([
+            f'bbox={bbox}',
+            f'bboxSR={settings.GEOMETRY_CLIENT_SRID}',
+            f'size={width},{height}',
+            f'imageSR={settings.GEOMETRY_CLIENT_SRID}',
+            'format=tiff',
+            'pixelType=U8',
+            'noDataInterpretation=esriNoDataMatchAny',
+            'interpolation=+RSP_BilinearInterpolation',
+            'time=None',
+            'noData=None',
+            'compression=None',
+            'compressionQuality=None',
+            'bandIds=None',
+            'mosaicRule=None',
+            'renderingRule=None',
+            'f=image',
+        ])
+        aerial_url = '?'.join([aerial_dict['URL'],aerial_qs])
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting aerial layers at the moment')
         aerial_url = None
@@ -231,7 +144,8 @@ def get_aerial_image_layer(property_specs, bbox=False):
     base_image = image_result_to_PIL(image_data)
 
     return {
-        'image': base_image,
+        'type':'image',
+        'data': base_image,
         'attribution': attribution
     }
 
@@ -251,8 +165,12 @@ def get_topo_image_layer(property_specs, bbox=False):
     bboxSR = 3857
     width = property_specs['width']
     height = property_specs['height']
+    bbox_list = [float(x) for x in bbox.split(',')]
 
     topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
+
+    # TODO: Rewrite so this just provides the hillshade baselayer, and contours_img comes from get_contour_image_layer, even if it's just this one next line.
+    contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)
     # Get URL for request
     if topo_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         topo_url = ''.join([
@@ -274,12 +192,23 @@ def get_topo_image_layer(property_specs, bbox=False):
         image_data = None
         base_image = None
 
+    layers = [
+        {'type': 'image', 'data': base_image },
+        {'type': 'image', 'data': contours_img },
+    ]
+
+    topo_img = get_static_map(
+        property_specs,
+        layers,
+        bbox = bbox
+    )
+
     # set Attribution
     attribution = topo_dict['ATTRIBUTION']
 
-
     return {
-        'image': base_image,
+        'type': 'image',
+        'data': topo_img,
         'attribution': attribution
     }
 
@@ -311,19 +240,34 @@ def get_street_image_layer(property_specs, bbox=False):
             '&size=', str(width), ',', str(height),
             '&imageSR=3857&format=png&f=image',
         ])
+        # Request URL
+        image_data = lm_views.unstable_request_wrapper(street_url)
+        base_image = image_result_to_PIL(image_data)
+    elif street_dict['TECHNOLOGY'] == 'XYZ':
+        base_image = get_XYZ_image_data(street_dict, property_specs, bbox, zoom_2x=street_dict['ZOOM_2X'])
+    elif street_dict['TECHNOLOGY'] == 'static':
+        #TODO: get zoom
+        zoom = get_zoom_from_bbox(bbox, tile_height=settings.REPORT_MAP_HEIGHT, tile_width=settings.REPORT_MAP_WIDTH)
+        #TODO: get center lon and lat in 4326
+        [lon, lat] = get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=4326)
+        if settings.STREET_DEFAULT in settings.KEYS.keys():
+            apiKey = settings.KEYS[settings.STREET_DEFAULT]
+        else:
+            apiKey = ''
+        street_qs = '&'.join([x.format(width=width, height=height, lon=lon, lat=lat, zoom=zoom, apiKey=apiKey) for x in street_dict['QS']])
+        street_url = '?'.join([street_dict['URL'], street_qs])
+        result = requests.get(street_url)
+        base_image = imread(io.BytesIO(result.content))
     else:
         print('ERROR: No technologies other than ESRI\'s MapServer is supported for getting street layers at the moment')
-        street_url = None
+        base_image = None
 
     # set Attribution
     attribution = street_dict['ATTRIBUTION']
 
-    # Request URL
-    image_data = lm_views.unstable_request_wrapper(street_url)
-    base_image = image_result_to_PIL(image_data)
-
     return {
-        'image': base_image,
+        'type': 'image',
+        'data': base_image,
         'attribution': attribution
     }
 
@@ -342,52 +286,128 @@ def get_soil_image_layer(property_specs, bbox=False):
         # -   }
         # """
 
-        SOIL_SETTINGS = settings.SOILS_URLS[settings.SOIL_SOURCE]
-
         if not bbox:
             bbox = property_specs['bbox']
 
-        if settings.SOIL_SOURCE == "USDA_WMS":
-            srs = 'EPSG:3857'
-            width = property_specs['width']
-            height = property_specs['height']
-            zoom_argument = SOIL_SETTINGS['ZOOM_OVERLAY_2X']
-
-            soil_wms_endpoint = SOIL_SETTINGS['URL']
-
-            if zoom_argument:
-                width = int(width/2)
-                height = int(height/2)
-
-            request_url = ''.join([
-                soil_wms_endpoint,
-                '?service=WMS&request=GetMap&format=image%2Fpng&TRANSPARENT=true',
-                '&version=', SOIL_SETTINGS['WMS_VERSION'],
-                '&layers=', SOIL_SETTINGS['TILE_LAYER'],
-                '&width=', str(width),
-                '&height=', str(height),
-                '&srs=', srs,
-                '&bbox=', bbox,
-            ])
-            data = lm_views.unstable_request_wrapper(request_url)
-            image = image_result_to_PIL(data)
-        elif settings.SOIL_SOURCE == "MAPBOX":
-            image = get_mapbox_image_data(SOIL_SETTINGS, property_specs, bbox)
-            zoom_argument = False
-
-        if zoom_argument:
-            width = width*2
-            height = height*2
-            image = image.resize((width, height), Image.ANTIALIAS)
-
-        attribution = settings.ATTRIBUTION_KEYS['soil']
+        bbox_poly = get_bbox_as_polygon(bbox)
+        soils = SoilType.objects.filter(geometry__intersects=bbox_poly)
+        soils_collection = get_collection_from_objects(soils, 'geometry', bbox, attrs=['musym'])
+        soils_gdf = get_gdf_from_features(soils_collection)
 
         return {
-            'image': image,
-            'attribution': attribution
+            'type': 'dataframe',
+            'data': soils_gdf,
+            'style': settings.SOIL_STYLE,
+            'attribution': settings.ATTRIBUTION_KEYS['soil']
         }
 
-def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
+def get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=3857):
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    xmean = (xmin + xmax)/2
+    ymean = (ymin + ymax)/2
+    mean_point = shp_Point(xmean, ymean)
+
+    inCRS = pyproj.CRS(f'EPSG:{inSRID}')
+    outCRS = pyproj.CRS(f'EPSG:{outSRID}')
+    reprojection = pyproj.Transformer.from_crs(inCRS, outCRS, always_xy=True).transform
+    outPoint = shp_transform(reprojection, mean_point)
+    [outLon, outLat] = [x[0] for x in outPoint.coords.xy]
+    return (outLon, outLat)
+
+def get_zoom_from_bbox(bbox, tile_height, tile_width, img_height=settings.REPORT_MAP_HEIGHT, img_width=settings.REPORT_MAP_WIDTH):
+    # Get zoom value based on Meters/Pixel (get 1st zoom layer with less m/p)
+    # Values from https://wiki.openstreetmap.org/wiki/Zoom_levels
+    #       Note: these values are for 256x256 px tiles, do we need to adjust?
+    #       See "Mapbox GL" comment - can just remove 1 from the level
+
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    # mp_ratio = (east-west)/width
+    mp_ratio = (ymax-ymin)/img_height     #In theory, this should be less distorted... right? No?
+
+    ZOOM_LEVELS_MP_RATIOS = [
+        156412,     # 0
+        78206,      # 1
+        39103,      # 2
+        19551,      # 3
+        9776,       # 4
+        4888,       # 5
+        2444,       # 6
+        1222,       # 7
+        610.984,    # 8
+        305.492,    # 9
+        152.746,    # 10
+        76.373,     # 11
+        38.187,     # 12
+        19.093,     # 13
+        9.547,      # 14
+        4.773,      # 15
+        2.387,      # 16
+        1.193,      # 17
+        0.596,      # 18
+        0.298,      # 19
+        0.149,      # 20
+    ]
+
+    pixel_axis = 256
+    for axis in [tile_height, tile_width]:
+        if axis > pixel_axis:
+            pixel_axis = axis
+
+    for (z_lvl, mp) in enumerate(ZOOM_LEVELS_MP_RATIOS):
+        zoom = z_lvl
+        # map_mp = mp
+        if mp_ratio > (mp*(256/pixel_axis)):
+            break
+
+    return zoom
+
+
+def get_XYZ_image_data(request_dict, property_specs, bbox, zoom_2x=False):
+    # """
+    # PURPOSE:
+    # -   Retrieve mapbox tile images http response for a given bbox at a given size
+    # IN:
+    # -   layer_url: (string) pre-computed URL string with {z}, {x}, and {y} for the tile template
+    # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+    # OUT:
+    # -   img_data: image as raw data (bytes)
+    # """
+    if not bbox:
+        bbox = property_specs['bbox']
+    srs = 'EPSG:3857'
+    width = property_specs['width']
+    height = property_specs['height']
+    if zoom_2x:
+        width = int(width/2)
+        height = int(height/2)
+
+    request_params = request_dict['PARAMS'].copy()
+
+    # Get descriptions of required tiles as a 2D array
+    tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
+
+    request_qs = [x for x in request_dict['QS']]
+    # Zoom should remain constant throughout all cells
+    request_params['zoom'] = tiles_dict_array[0][0]['zoom']
+
+    # Rows are stacked from South to North:
+    #       https://www.maptiler.com/google-maps-coordinates-tile-bounds-projection/
+    for row in tiles_dict_array:
+        # Cells are ordered from West to East
+        for cell in row:
+            request_params['lon'] = cell['lon_index']
+            request_params['lat'] = cell['lat_index']
+            request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
+            cell['image'] = requests.get(request_url)
+
+    img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
+
+    if zoom_2x:
+        img_data = img_data.resize((property_specs['width'], property_specs['height']), Image.ANTIALIAS)
+
+    return img_data
+
+def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False, append_token=True):
     # """
     # PURPOSE:
     # -   Retrieve mapbox tile images http response for a given bbox at a given size
@@ -412,7 +432,8 @@ def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
     tiles_dict_array = get_tiles_definition_array(bbox, request_dict, srs, width, height)
 
     request_qs = [x for x in request_dict['QS'] if 'access_token' not in x]
-    request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
+    if append_token:
+        request_qs.append('access_token=%s' % settings.MAPBOX_TOKEN)
     # Zoom should remain constant throughout all cells
     request_params['zoom'] = tiles_dict_array[0][0]['zoom']
 
@@ -424,7 +445,7 @@ def get_mapbox_image_data(request_dict, property_specs, bbox, zoom_2x=False):
             request_params['lon'] = cell['lon_index']
             request_params['lat'] = cell['lat_index']
             request_url = "%s%s" % (request_dict['URL'].format(**request_params), '&'.join(request_qs))
-            print("Getting layer from MapBox: %s" % request_url)
+            # print("Getting layer from MapBox: %s" % request_url)
             cell['image'] = lm_views.unstable_request_wrapper(request_url)
 
     img_data = crop_tiles(tiles_dict_array, bbox, srs, width, height)
@@ -502,15 +523,12 @@ def get_stream_image_layer(property_specs, bbox=False):
     attribution = settings.ATTRIBUTION_KEYS['streams']
 
     return {
-        'image': image,
+        'type': 'image',
+        'data': image,
         'attribution': attribution
     }
 
-def get_contour_image_layer(property_specs, bbox=False,
-                            index_contour_style=None,
-                            zoom=True,
-                            intermediate_contour_style=None,
-                            contour_label_style=None):
+def get_contour_image_layer(property_specs, bbox=False, index_contour_style=None, zoom=True, intermediate_contour_style=None, contour_label_style=None):
     # """
     # PURPOSE:
     # -   given a bbox and optionally pixel width, height, and an indication of
@@ -593,7 +611,8 @@ def get_contour_image_layer(property_specs, bbox=False,
         base_image = base_image.resize((property_specs['width'], property_specs['height']), Image.ANTIALIAS)
 
     return {
-        'image': base_image,
+        'type': 'image',
+        'data': base_image,
         'attribution': attribution
     }
 
@@ -601,236 +620,156 @@ def get_contour_image_layer(property_specs, bbox=False,
 # Map Image Builder Functions ##
 ################################
 
-def get_property_map(property_specs, base_layer, property_layer):
+def get_static_map(property_specs, layers, bbox=None):
     # """
     # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
+    # -   given property specs and a list of layer objects, return a .png
+    # -   map image of the data
     # IN:
     # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   property_layer; (dict) PIL img and attribution for property outline
+    # -   layers; (list of layer dicts) layer dicts contain 'type' ('image' or
+    # -      'dataframe'), 'data', 'style' (if 'dataframe') and 'attribution'.
+    # -      Layers will be added to themap from bottom to top (layers[0]
+    # -      should be your basemap)
+    # -   bbox; (string) 'w,s,e,n'. If not provided, will come from
+    # -      property_specs['bbox']
     # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
+    # -   report_image: (PIL Image) the report map image
     # """
 
     width = property_specs['width']
     height = property_specs['height']
 
-    base_image = base_layer['image']
-    # add property
-    property_image = property_layer['image']
+    if not bbox:
+        bbox = property_specs['bbox']
 
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-        property_layer['attribution']
-    ]
+    # attributions = [x['attribution'] for x in layers]
+    # attribution_image = get_attribution_image(attributions, width, height)
+    #
+    # layers.append({'type': 'image', 'data':attribution_image})
 
-    attribution_image = get_attribution_image(attributions, width, height)
+    return merge_rasters_to_img(
+        layers,
+        bbox=bbox,
+        img_height=height,
+        img_width=width
+    )
 
-    layer_stack = [base_image, property_image, attribution_image]
+# modified from fetch.py
+def contours_from_tnm_dem(bbox, width, height, dpi=settings.DPI, inSR=3857):
+    """Fetches a DEM from The National Map and returns a PIL image with
+    labeled contours
 
-    return merge_layers(layer_stack)
+    Parameters
+    ----------
+    bbox : list-like
+      bounding box with coordinats as (xmin, ymin, xmax, ymax)
+    width : int
+      width of image to return
+    height : int
+      height of image to return
+    dpi : int
+      dots per inch to be used in plotting
+    inSR : int
+      code for coordinate reference system
 
-def get_aerial_map(property_specs, base_layer, lots_layer, property_layer):
-    # """
-    # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
-    # IN:
-    # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   lots_layer; (dict) PIL img and attribution for tax lots
-    # -   property_layer; (dict) PIL img and attribution for property outline
-    # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
-    # """
+    Returns
+    -------
+    img : PIL Image
+      rendered image with contours styled and labeled
+    """
 
-    width = property_specs['width']
-    height = property_specs['height']
+    # get the DEM data as a TIFF image, multiply value to convert meters to feet
+    dem = dem_from_tnm(bbox=bbox, width=width, height=height, inSR=inSR) * 3.28084
+    # Flip the image, to match plotting indices
+    dem = np.flip(dem, axis=0)
+    fig = plt.figure(frameon=False)
+    fig.set_size_inches(width/dpi, height/dpi)
+    ax = plt.Axes(fig, [0., 0., 1., 1.])
+    ax.set_axis_off()
+    ax.set_aspect('equal')
+    fig.add_axes(ax)
 
-    base_image = base_layer['image']
-    # add tax lot layer
-    lots_image = lots_layer['image']
-    # add property
-    property_image = property_layer['image']
+    fine_step = settings.CONTOUR_STYLE['fine_step']
+    bold_step = settings.CONTOUR_STYLE['bold_step']
 
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-        lots_layer['attribution'],
-        property_layer['attribution'],
-    ]
+    min_fine, max_fine = (np.floor(dem.min()/fine_step)*fine_step,
+                        np.ceil(dem.max()/fine_step)*fine_step+fine_step)
+    min_bold, max_bold = (np.floor(dem.min()/bold_step)*bold_step,
+                        np.ceil(dem.max()/bold_step)*bold_step+bold_step)
 
-    attribution_image = get_attribution_image(attributions, width, height)
+    # smaller, 40ft interval contour lines
+    cont_fine = ax.contour(dem, levels=np.arange(min_fine, max_fine, fine_step),
+                         colors=[settings.CONTOUR_STYLE['fine_color']],
+                         linewidths=[settings.CONTOUR_STYLE['fine_width']])
 
-    layer_stack = [base_image, lots_image, property_image, attribution_image]
+    # bolder, 200ft interval contour lines
+    cont_bold = ax.contour(dem, levels=np.arange(min_bold, max_bold, bold_step),
+                          colors=[settings.CONTOUR_STYLE['bold_color']],
+                          linewidths=[settings.CONTOUR_STYLE['bold_width']])
 
-    return merge_layers(layer_stack)
+    # labels for the 200ft/bold contour lines
+    fmt = ticker.StrMethodFormatter("{x:,.0f} ft")
+    labels = ax.clabel(cont_bold, fontsize=settings.CONTOUR_STYLE['font_size'],
+                       colors=[settings.CONTOUR_STYLE['bold_color']], fmt=fmt,
+                       inline_spacing=0)
+    for label in labels:
+        # add halo effect to labels
+        label.set_path_effects([pe.withStroke(linewidth=1, foreground='w')])
 
-def get_street_map(property_specs, base_layer, property_layer):
-    # """
-    # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
-    # IN:
-    # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   property_layer; (dict) PIL img and attribution for property outline
-    # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
-    # """
+    img = plt_to_pil_image(fig, dpi=dpi)
+    return img
 
-    width = property_specs['width']
-    height = property_specs['height']
+# modified from fetch.py
+def dem_from_tnm(bbox, width, height, inSR=3857, **kwargs):
+    """
+    Retrieves a Digital Elevation Model (DEM) image from The National Map (TNM)
+    web service.
 
-    base_image = base_layer['image']
-    # add property
-    property_image = property_layer['image']
+    Parameters
+    ----------
+    bbox : list-like
+      list of bounding box coordinates (minx, miny, maxx, maxy)
+    width : int
+      pixel width of desired image
+    height: int
+      pixel height of desired image
+    inSR : int
+      spatial reference for bounding box, such as an EPSG code (e.g., 4326)
 
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-        property_layer['attribution'],
-    ]
+    Returns
+    -------
+    dem : numpy array
+      DEM image as array
+    """
+    BASE_URL = ''.join([
+        'https://elevation.nationalmap.gov/arcgis/rest/',
+        'services/3DEPElevation/ImageServer/exportImage?'
+    ])
 
-    attribution_image = get_attribution_image(attributions, width, height)
+    params = dict(bbox=','.join([str(x) for x in bbox]),
+                  bboxSR=inSR,
+                  size=f'{width},{height}',
+                  imageSR=inSR,
+                  time=None,
+                  format='tiff',
+                  pixelType='F32',
+                  noData=None,
+                  noDataInterpretation='esriNoDataMatchAny',
+                  interpolation='+RSP_BilinearInterpolation',
+                  compression=None,
+                  compressionQuality=None,
+                  bandIds=None,
+                  mosaicRule=None,
+                  renderingRule=None,
+                  f='image')
+    for key, value in kwargs.items():
+        params.update({key: value})
 
-    layer_stack = [base_image, property_image, attribution_image]
+    result = requests.get(BASE_URL, params=params)
+    dem = imread(io.BytesIO(result.content))
 
-    return merge_layers(layer_stack)
-
-def get_terrain_map(property_specs, base_layer, property_layer, contour_layer=False):
-    # """
-    # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
-    # IN:
-    # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   lots_layer; (dict) PIL img and attribution for tax lots
-    # -   property_layer; (dict) PIL img and attribution for property outline
-    # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
-    # """
-
-    width = property_specs['width']
-    height = property_specs['height']
-
-    base_image = base_layer['image']
-
-    if contour_layer:
-        contour_image = contour_layer['image']
-
-    # add property
-    property_image = property_layer['image']
-
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-    ]
-
-    if contour_layer:
-        attributions.append(contour_layer['attribution'])
-
-    attributions.append(property_layer['attribution'])
-
-    attribution_image = get_attribution_image(attributions, width, height)
-
-    layer_stack = [base_image,]
-    if contour_layer:
-        layer_stack.append(contour_image)
-
-    layer_stack.append(property_image)
-    layer_stack.append(attribution_image)
-
-    return merge_layers(layer_stack)
-
-def get_stream_map(property_specs, base_layer, stream_layer, property_layer):
-    # """
-    # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
-    # IN:
-    # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   stream_layer; (dict) PIL img and attribution for streams layer
-    # -   property_layer; (dict) PIL img and attribution for property outline
-    # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
-    # """
-
-    width = property_specs['width']
-    height = property_specs['height']
-
-    base_image = base_layer['image']
-    # add tax lot layer
-    stream_image = stream_layer['image']
-    # add property
-    property_image = property_layer['image']
-
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-        stream_layer['attribution'],
-        property_layer['attribution'],
-    ]
-
-    if settings.STREAMS_SOURCE == 'MAPBOX_STATIC':
-        attributions.append('MapBox')
-
-    attribution_image = get_attribution_image(attributions, width, height)
-
-    layer_stack = [base_image, stream_image, property_image, attribution_image]
-
-    return merge_layers(layer_stack)
-
-def get_soil_map(property_specs, base_layer, lots_layer, soil_layer, property_layer):
-    # """
-    # PURPOSE:
-    # -   given property specs, images and attributions for a base layer and
-    # -       a property outline layer, return an image formatted for the
-    # -       property report.
-    # IN:
-    # -   property_specs; (dict) width, height and other property metadata
-    # -   base_layer; (dict) PIL img and attribution for basemap layer
-    # -   lots_layer; (dict) PIL img and attribution for tax lots
-    # -   soil_layer; (dict) PIL img and attribution for soils layer
-    # -   property_layer; (dict) PIL img and attribution for property outline
-    # OUT:
-    # -   property_report_image: (PIL Image) the property report map image
-    # """
-
-    width = property_specs['width']
-    height = property_specs['height']
-
-    base_image = base_layer['image']
-    # add tax lot layer
-    lots_image = lots_layer['image']
-    # add soils layer
-    soil_image = soil_layer['image']
-    # add property
-    property_image = property_layer['image']
-
-    # generate attribution image
-    attributions = [
-        base_layer['attribution'],
-        lots_layer['attribution'],
-        soil_layer['attribution'],
-        property_layer['attribution'],
-    ]
-
-    attribution_image = get_attribution_image(attributions, width, height)
-
-    layer_stack = [base_image, lots_image, soil_image, property_image, attribution_image]
-
-    return merge_layers(layer_stack)
+    return dem
 
 ################################
 # Scalebar Functions          ###
@@ -913,11 +852,7 @@ def reduce_step_size(step_tick, sig_dig):
 
     return step_tick * resize_factor
 
-def generate_scalebar_for_image(
-        img_width_in_meters,
-        img_width_in_pixels=509,
-        scale_width_ratio=1,
-        min_step_width=100, dpi=300):
+def generate_scalebar_for_image( img_width_in_meters, img_width_in_pixels=509, scale_width_ratio=1, min_step_width=100, dpi=300):
     bottom_units_per_pixel = img_width_in_meters/img_width_in_pixels
     if img_width_in_pixels > 500:
         units_bottom = 'meters'
@@ -1107,7 +1042,6 @@ def make_scalebar( num_ticks_top, step_ticks_top, num_ticks_bottom, step_ticks_b
 
     return img
 
-
 def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
     """
     Converts a matplotlib figure to a PIL Image (in memory).
@@ -1135,7 +1069,6 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
 
     return pil_image
 
-
 ################################
 # Helper Functions           ###
 ################################
@@ -1159,10 +1092,15 @@ def image_result_to_PIL(image_data):
         data_content = image_data.read()
     except AttributeError as e:
         data_content = image_data
+    pil_image = False
     if data_content:
-        fp.write(data_content)
+        try:
+            fp.write(data_content)
+        except TypeError as e:
+            pil_image = Image.open(io.BytesIO(data_content.content))
     try:
-        pil_image = Image.open(fp.name)
+        if not pil_image:
+            pil_image = Image.open(fp.name)
 
         rgba_image = pil_image.convert("RGBA")
         fp.close()
@@ -1338,161 +1276,193 @@ def get_bbox_as_polygon(bbox, srid=3857):
     bbox_geom = Polygon(polygon_input, srid=srid)
     return bbox_geom
 
-def get_attribution_image(attribution_list, width, height):
-    # """
-    # PURPOSE:
-    # -   given a stringified list of attributions, return an image overlay.
-    # IN:
-    # -   attribution: a string of attributions for included layers
-    # -   width: (int) number of pixels wide the image is.
-    # -   height: (int) number of pixels tall the image is.
-    # OUT:
-    # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
-    # """
-    TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
-    LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
-    box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
-    text_color = settings.ATTRIBUTION_TEXT_COLOR
-    text_font = ImageFont.truetype(settings.ATTRIBUTION_TEXT_FONT, settings.ATTRIBUTION_TEXT_FONT_SIZE)
+# def get_attribution_image(attribution_list, width, height):
+#     # """
+#     # PURPOSE:
+#     # -   given a stringified list of attributions, return an image overlay.
+#     # IN:
+#     # -   attribution: a string of attributions for included layers
+#     # -   width: (int) number of pixels wide the image is.
+#     # -   height: (int) number of pixels tall the image is.
+#     # OUT:
+#     # -   attribution_image: (PIL Image) the the attribution image to be imposed atop report images
+#     # """
+#     TEXT_BUFFER = settings.ATTRIBUTION_TEXT_BUFFER
+#     LINE_SPACING = settings.ATTRIBUTION_TEXT_LINE_SPACING
+#     box_fill = settings.ATTRIBUTION_BOX_FILL_COLOR
+#     text_color = settings.ATTRIBUTION_TEXT_COLOR
+#     text_font = ImageFont.truetype(settings.ATTRIBUTION_TEXT_FONT, settings.ATTRIBUTION_TEXT_FONT_SIZE)
+#
+#     # Create overlay image
+#     base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+#
+#     if type(attribution_list) == list:
+#         # clean list
+#         attribution_list = [x for x in attribution_list if x]
+#
+#         attribution_list = ', '.join(attribution_list)
+#     # calculate text size
+#     (text_width, text_height) = text_font.getsize(attribution_list)
+#
+#     # Create a list of rows of attribution text
+#     attribution_rows = []
+#     attribution_word_list = attribution_list.split(' ')
+#     while len(attribution_word_list) > 0:
+#         new_row = [attribution_word_list.pop(0)]
+#         while len(attribution_word_list) > 0 and text_font.getsize(' '.join(new_row + [attribution_word_list[0]]))[0] < (width-2*TEXT_BUFFER):
+#             new_row.append(attribution_word_list.pop(0))
+#         attribution_rows.append(' '.join(new_row))
+#
+#     # determine text_block size
+#     text_block_height = 2*TEXT_BUFFER + (text_height + LINE_SPACING) * len(attribution_rows) - LINE_SPACING
+#     if len(attribution_rows) > 1:
+#         text_block_width = width
+#     else:
+#         text_block_width = text_width + 2*TEXT_BUFFER
+#
+#     # draw box
+#     left_px = width - text_block_width
+#     top_px = height - text_block_height
+#     right_px = width
+#     bottom_px = height
+#     box_shape = [(left_px, top_px), (right_px, bottom_px)]
+#     text_box = ImageDraw.Draw(base_img)
+#     text_box.rectangle(box_shape, fill=settings.ATTRIBUTION_BOX_FILL_COLOR, outline=settings.ATTRIBUTION_BOX_OUTLINE)
+#
+#     # TODO: create box and text separately with full opacity, apply to base using:
+#     #       out = Image.alpha_composite(base, txt)
+#     # or something similar to remove 'checkered pattern' on attribute box.
+#
+#     # draw text
+#     # https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html?highlight=RGBA#example-draw-partial-opacity-text
+#     text_top = top_px + TEXT_BUFFER
+#     text_left = left_px + TEXT_BUFFER
+#     for (idx, text_row) in enumerate(attribution_rows):
+#         if idx != 0:
+#             text_top += LINE_SPACING
+#         txt = ImageDraw.Draw(base_img)
+#         txt.text((text_left, text_top), text_row, font=text_font, fill=text_color)
+#         text_top += text_height
+#
+#     return base_img
 
-    # Create overlay image
-    base_img = Image.new("RGBA", (width, height), (255,255,255,0))
+def get_collection_from_objects(source_objects, geom_field, bbox, attrs=[]):
+    xmin, ymin, xmax, ymax = bbox.split(',')
+    # would this be easier to read the wkt into a gpd.GeoSeries?
+    features = []
+    for source_object in source_objects:
+        feature_obj = {
+            "type": "Feature",
+            "properties": {},
+            "geometry": json.loads(getattr(source_object, geom_field).json)
+        }
+        for attr in attrs:
+            feature_obj['properties'][attr] = getattr(source_object, attr)
+        features.append(feature_obj)
 
-    if type(attribution_list) == list:
-        # clean list
-        attribution_list = [x for x in attribution_list if x]
+    feature_collection = {
+        "type": "FeatureCollection",
+        "features": features,
+        "bbox": (xmin, ymin, xmax, ymax)
+    }
+    return feature_collection
 
-        attribution_list = ', '.join(attribution_list)
-    # calculate text size
-    (text_width, text_height) = text_font.getsize(attribution_list)
+def get_gdf_from_features(collection):
+    return gpd.GeoDataFrame.from_features(collection, crs="EPSG:%s" % settings.GEOMETRY_CLIENT_SRID)
 
-    # Create a list of rows of attribution text
-    attribution_rows = []
-    attribution_word_list = attribution_list.split(' ')
-    while len(attribution_word_list) > 0:
-        new_row = [attribution_word_list.pop(0)]
-        while len(attribution_word_list) > 0 and text_font.getsize(' '.join(new_row + [attribution_word_list[0]]))[0] < (width-2*TEXT_BUFFER):
-            new_row.append(attribution_word_list.pop(0))
-        attribution_rows.append(' '.join(new_row))
+def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, img_width=settings.REPORT_MAP_WIDTH, dpi=settings.DPI):
+    [xmin, ymin, xmax, ymax] = [float(x) for x in bbox.split(',')]
+    bbox_array = [xmin, ymin, xmax, ymax]
+    fig, ax = plt.subplots(figsize=(img_width/float(dpi),img_height/float(dpi)), dpi=dpi)
+    for layer in layers:
+        if layer['type'] == 'image':
+            trf = transform.from_bounds(*bbox_array, width=img_width, height=img_height)
+            work = show(reshape_as_raster(layer['data']), ax=ax, transform=trf)
+        else:   # 'gdf' only for now
+            if 'label' in layer['style'].keys():
+                # adding labels according to Ianery and Martien Lubberink at https://stackoverflow.com/a/38902492/706797
+                # Clip the soil polygons to the view extent:
+                bbox_poly = shapely.geometry.Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)])
+                bbox_gdf = gpd.GeoDataFrame([1], geometry=[bbox_poly])
+                bbox_gdf.set_crs(epsg=3857)
+                layer['data'] = gpd.clip(layer['data'], bbox_gdf)
+                #Create a new point layer for the label data and locations
+                layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
+                layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
 
-    # determine text_block size
-    text_block_height = 2*TEXT_BUFFER + (text_height + LINE_SPACING) * len(attribution_rows) - LINE_SPACING
-    if len(attribution_rows) > 1:
-        text_block_width = width
-    else:
-        text_block_width = text_width + 2*TEXT_BUFFER
+                # If a GDF has a key added that isn't 'geometry' or 'coords', it becomes a label.
+                label_key = False
+                for idx, row in layer['data'].iterrows():
+                    if idx ==0:
+                        for key in row.keys():
+                            if key not in ['geometry', 'coords']:
+                                label_key = key
+                                continue
+                    if label_key:
+                        text = ax.text(
+                            row.coords[0],
+                            row.coords[1],
+                            s=row[label_key],
+                            color="#FFFFFF",
+                            size=layer['style']['label']['fontsize'],
+                            fontweight='bold',
+                            horizontalalignment='center',
+                            verticalalignment='center',
+                            bbox=layer['style']['label']['bbox']
+                        )
+                        text.set_path_effects([
+                            pe.Stroke(
+                                linewidth=layer['style']['label']['halo']['size'],
+                                foreground=layer['style']['label']['halo']['color']
+                            ),
+                            pe.Normal()]
+                        )
+            work = layer['data'].plot(
+                ax=ax,
+                lw=layer['style']['lw'],
+                ec=layer['style']['ec'],
+                fc=layer['style']['fc']
+            )
 
-    # draw box
-    left_px = width - text_block_width
-    top_px = height - text_block_height
-    right_px = width
-    bottom_px = height
-    box_shape = [(left_px, top_px), (right_px, bottom_px)]
-    text_box = ImageDraw.Draw(base_img)
-    text_box.rectangle(box_shape, fill=settings.ATTRIBUTION_BOX_FILL_COLOR, outline=settings.ATTRIBUTION_BOX_OUTLINE)
+    ax.set_xlim(xmin, xmax)
+    ax.set_ylim(ymin, ymax)
+    return fig2img(fig)
 
-    # TODO: create box and text separately with full opacity, apply to base using:
-    #       out = Image.alpha_composite(base, txt)
-    # or something similar to remove 'checkered pattern' on attribute box.
+# Updated from https://web-backend.icare.univ-lille.fr/tutorials/convert_a_matplotlib_figure
+def fig2data ( fig ):
+    """
+    @brief Convert a Matplotlib figure to a 4D numpy array with RGBA channels and return it
+    @param fig a matplotlib figure
+    @return a numpy 3D array of RGBA values
+    """
+    # draw the renderer
+    fig.canvas.draw ( )
 
-    # draw text
-    # https://pillow.readthedocs.io/en/stable/reference/ImageDraw.html?highlight=RGBA#example-draw-partial-opacity-text
-    text_top = top_px + TEXT_BUFFER
-    text_left = left_px + TEXT_BUFFER
-    for (idx, text_row) in enumerate(attribution_rows):
-        if idx != 0:
-            text_top += LINE_SPACING
-        txt = ImageDraw.Draw(base_img)
-        txt.text((text_left, text_top), text_row, font=text_font, fill=text_color)
-        text_top += text_height
+    # Get the RGBA buffer from the figure
+    w,h = fig.canvas.get_width_height()
+    buf = np.frombuffer ( fig.canvas.tostring_argb(), dtype=np.uint8 )
+    buf.shape = ( w, h,4 )
 
-    return base_img
+    # canvas.tostring_argb give pixmap in ARGB mode. Roll the ALPHA channel to have it in RGBA mode
+    buf = np.roll ( buf, 3, axis = 2 )
+    return buf
 
-def merge_layers(layer_list):
+def fig2img ( fig ):
+    """
+    @brief Convert a Matplotlib figure to a PIL Image in RGBA format and return it
+    @param fig a matplotlib figure
+    @return a Python Imaging Library ( PIL ) image
+    """
+    # RDH: Trim off axes borders:
+    fig.subplots_adjust(bottom = 0)
+    fig.subplots_adjust(top = 1)
+    fig.subplots_adjust(right = 1)
+    fig.subplots_adjust(left = 0)
 
-    merged = False
-    for layer in layer_list:
-        if layer:
-            if not merged:
-                merged = layer.copy()
-            else:
-                merged = merge_images(merged, layer)
-
-    return merged
-
-def merge_images(background, foreground, x=0, y=0):
-    # """
-    # merge_images
-    # PURPOSE:
-    # -   Given two PIL RGBA Images, overlay one on top of the other and return the
-    # -       resulting PIL RGBA Image object
-    # IN:
-    # -   background: (PIL RGBA Image) The base image to have an overlay placed upon
-    # -   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
-    # -       background
-    # OUT:
-    # -   merged_image: (PIL RGBA Image) the resulting merged image
-    # """
-    merged = background.copy()
-    merged.paste(foreground, (x, y), foreground)
-    return merged
-
-def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
-    # """
-    # PURPOSE:
-    # -   Crop given map image tiles to bbox, then resize image to appropriate width/height
-    # IN:
-    # -   tiles_dict_array: (list) a 2D array of image tiles, where LL index = (0,0)
-    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
-    # -   width: (int) width of the desired image in pixels
-    # -       default: settings.REPORT_MAP_WIDTH
-    # -   height: (int) height of the desired image in pixels
-    # -       default: settings.REPORT_MAP_HEIGHT
-    # OUT:
-    # -   img_data:
-    # """
-
-    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
-
-    num_cols = len(tiles_dict_array)
-    num_rows = len(tiles_dict_array[0])
-
-    base_width = num_cols * request_dict['TILE_IMAGE_WIDTH']
-    base_height = num_rows * request_dict['TILE_IMAGE_HEIGHT']
-
-    # Create overlay image
-    base_image = Image.new("RGBA", (base_width, base_height), (255,255,255,0))
-
-    # Merge tiles onto base image
-    for (x, column) in enumerate(tiles_dict_array):
-        for (y, cell) in enumerate(column):
-            stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
-            base_image = merge_images(base_image, stream_image, x*request_dict['TILE_IMAGE_WIDTH'], y*request_dict['TILE_IMAGE_HEIGHT'])
-
-    # Get base image bbox
-    base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
-    base_north = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[3])
-    base_east = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[2])
-    base_south = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[1])
-
-    base_width_in_meters = base_east - base_west
-    base_height_in_meters = base_north - base_south
-
-    base_meters_per_pixel = base_height_in_meters/base_height
-
-    # crop image to target bbox
-    (bbox_west, bbox_south, bbox_east, bbox_north) = (float(x) for x in bbox.split(','))
-    crop_west = (bbox_west - base_west) / base_meters_per_pixel
-    crop_south = abs((bbox_south - base_north) / base_meters_per_pixel)
-    crop_east = (bbox_east - base_west) / base_meters_per_pixel
-    crop_north = abs((bbox_north - base_north) / base_meters_per_pixel)
-
-    base_image = base_image.crop(box=(crop_west,crop_north,crop_east,crop_south))
-
-    # resize image to desired pixel count
-    img_data = base_image.resize((width, height), Image.ANTIALIAS)
-
-    return img_data
+    # put the figure pixmap into a numpy array
+    buf = fig2data ( fig )
+    w, h, d = buf.shape
+    return Image.frombytes( "RGBA", ( w ,h ), buf.tostring( ) )
 
 ################################
 # MapBox Munging             ###
@@ -1567,47 +1537,8 @@ def get_tiles_definition_array(bbox, request_dict, srs='EPSG:3857', width=settin
     # To do this right, check out this:
     #   https://wiki.openstreetmap.org/wiki/Zoom_levels#Distance_per_pixel_math
     [west, south, east, north] = [float(x) for x in bbox.split(',')]
-    # mp_ratio = (east-west)/width
-    mp_ratio = (north-south)/height     #In theory, this should be less distorted... right? No?
 
-    # Get zoom value based on Meters/Pixel (get 1st zoom layer with less m/p)
-    # Values from https://wiki.openstreetmap.org/wiki/Zoom_levels
-    #       Note: these values are for 256x256 px tiles, do we need to adjust?
-    #       See "Mapbox GL" comment - can just remove 1 from the level
-    ZOOM_LEVELS_MP_RATIOS = [
-        156412,     # 0
-        78206,      # 1
-        39103,      # 2
-        19551,      # 3
-        9776,       # 4
-        4888,       # 5
-        2444,       # 6
-        1222,       # 7
-        610.984,    # 8
-        305.492,    # 9
-        152.746,    # 10
-        76.373,     # 11
-        38.187,     # 12
-        19.093,     # 13
-        9.547,      # 14
-        4.773,      # 15
-        2.387,      # 16
-        1.193,      # 17
-        0.596,      # 18
-        0.298,      # 19
-        0.149,      # 20
-    ]
-
-    pixel_axis = 256
-    for axis in [request_dict['TILE_HEIGHT'], request_dict['TILE_WIDTH']]:
-        if axis > pixel_axis:
-            pixel_axis = axis
-
-    for (z_lvl, mp) in enumerate(ZOOM_LEVELS_MP_RATIOS):
-        zoom = z_lvl
-        map_mp = mp
-        if mp_ratio > (mp*(256/pixel_axis)):
-            break
+    zoom = get_zoom_from_bbox(bbox, tile_height=request_dict['TILE_HEIGHT'], tile_width=request_dict['TILE_WIDTH'], img_height=height, img_width=width)
 
     # Calculate layer'ls lat/lon index for LL & TR corners of bbox
     #   Reference: https://wiki.openstreetmap.org/wiki/Slippy_map_tilenames#Lon..2Flat._to_tile_numbers
@@ -1723,3 +1654,78 @@ def get_web_map_zoom(bbox, width=settings.REPORT_MAP_WIDTH, height=settings.REPO
         'lon': lon,
         'zoom': zoom
     }
+
+def merge_images(background, foreground, x=0, y=0):
+    # """
+    # merge_images
+    # PURPOSE:
+    # -   Given two PIL RGBA Images, overlay one on top of the other and return the
+    # -       resulting PIL RGBA Image object
+    # IN:
+    # -   background: (PIL RGBA Image) The base image to have an overlay placed upon
+    # -   foreground: (PIL RGBA Image) The overlay image to be displayed atop the
+    # -       background
+    # OUT:
+    # -   merged_image: (PIL RGBA Image) the resulting merged image
+    # """
+    merged = background.copy()
+    merged.paste(foreground, (x, y), foreground)
+    return merged
+
+def crop_tiles(tiles_dict_array, bbox, srs='EPSG:3857', width=settings.REPORT_MAP_WIDTH, height=settings.REPORT_MAP_HEIGHT):
+    # """
+    # PURPOSE:
+    # -   Crop given map image tiles to bbox, then resize image to appropriate width/height
+    # IN:
+    # -   tiles_dict_array: (list) a 2D array of image tiles, where LL index = (0,0)
+    # -   bbox: (string) 4 comma-separated coordinate vals: 'W,S,E,N'
+    # -   width: (int) width of the desired image in pixels
+    # -       default: settings.REPORT_MAP_WIDTH
+    # -   height: (int) height of the desired image in pixels
+    # -       default: settings.REPORT_MAP_HEIGHT
+    # OUT:
+    # -   img_data:
+    # """
+
+    request_dict = settings.STREAMS_URLS[settings.STREAMS_SOURCE]
+
+    num_cols = len(tiles_dict_array)
+    num_rows = len(tiles_dict_array[0])
+
+    base_width = num_cols * request_dict['TILE_IMAGE_WIDTH']
+    base_height = num_rows * request_dict['TILE_IMAGE_HEIGHT']
+
+    # Create overlay image
+    base_image = Image.new("RGBA", (base_width, base_height), (255,255,255,0))
+
+    # Merge tiles onto base image
+    for (x, column) in enumerate(tiles_dict_array):
+        for (y, cell) in enumerate(column):
+            stream_image = image_result_to_PIL(tiles_dict_array[x][y]['image'])
+            # stream_image = stream_image.resize((request_dict['TILE_IMAGE_WIDTH']*2,request_dict['TILE_IMAGE_HEIGHT']*2), Image.ANTIALIAS)
+            base_image = merge_images(base_image, stream_image, int(x*request_dict['TILE_IMAGE_WIDTH']), int(y*request_dict['TILE_IMAGE_HEIGHT']))
+
+    # Get base image bbox
+    base_west = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[0])
+    base_north = float(tiles_dict_array[0][0]['tile_bbox'].split(',')[3])
+    base_east = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[2])
+    base_south = float(tiles_dict_array[-1][-1]['tile_bbox'].split(',')[1])
+
+    base_width_in_meters = base_east - base_west
+    base_height_in_meters = base_north - base_south
+
+    base_meters_per_pixel = base_height_in_meters/base_height
+
+    # crop image to target bbox
+    (bbox_west, bbox_south, bbox_east, bbox_north) = (float(x) for x in bbox.split(','))
+    crop_west = (bbox_west - base_west) / base_meters_per_pixel
+    crop_south = abs((bbox_south - base_north) / base_meters_per_pixel)
+    crop_east = (bbox_east - base_west) / base_meters_per_pixel
+    crop_north = abs((bbox_north - base_north) / base_meters_per_pixel)
+
+    base_image = base_image.crop(box=(crop_west,crop_north,crop_east,crop_south))
+
+    # resize image to desired pixel count
+    img_data = base_image.resize((width, height), Image.ANTIALIAS)
+
+    return img_data

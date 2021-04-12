@@ -49,8 +49,8 @@ def unstable_request_wrapper(url, params=False, retries=0):
             print("ERROR: Unable to connect to %s" % url)
             contents = None
     except Exception as e:
-        print(e)
-        print(url)
+        # print(e)
+        # print(url)
         contents = False
     return contents
 
