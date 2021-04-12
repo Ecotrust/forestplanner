@@ -340,6 +340,28 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
+def get_property_map_image_509x722(request, property_id, map_type):
+    property = properties.get_property_by_id(property_id)
+    # if map_type == 'stream':
+        # image = property.stream_map_image
+    # elif map_type == 'street':
+        # image = property.street_map_image
+    # elif map_type == 'aerial':
+        # image = property.aerial_map_image
+    # elif map_type == 'soil_types':
+        # image = property.soil_map_image
+    if map_type == 'property':
+        image = property.property_map_image_509x722
+    # elif map_type == 'terrain':
+        # image = property.terrain_map_image
+    else:
+        image = None
+
+    response = HttpResponse(content_type="image/png")
+    image.save(response, 'PNG')
+
+    return response
+
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
     property = properties.get_property_by_id(property_id)
