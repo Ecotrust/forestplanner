@@ -32,7 +32,7 @@ class PdfTests(StaticLiveServerTestCase):
     def test_cover_map_img(self):
         property_id = 'Demo%7C583966%7C862934'
         # New URL
-        self.selenium.get("http://localhost:8000/report/%s/%s/map_509x722" % (property_id, 'property'))
+        self.selenium.get("http://localhost:8000/report/%s/%s/map_alt" % (property_id, 'property'))
         # return img
         # check dimensions
 
