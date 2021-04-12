@@ -12,7 +12,7 @@ urlpatterns = [
     path('report/<str:property_id>', report, name='report'),
     # map_type expects one of the following: aerial, street, terrain, stream, soil_types, forest_types
     path('report/<str:property_id>/<str:map_type>/map', get_property_map_image, name='get_property_map_image'),
-    path('report/<str:property_id>/<str:map_type>/map_509x722', get_property_map_image_509x722, name='get_property_map_image_509x722'),
+    path('report/<str:property_id>/<str:map_type>/map_alt', get_property_map_image_alt, name='get_property_map_image_alt'),
     path('report/<str:property_id>/pdf', get_property_pdf, name='get_property_pdf'),
     path('report/<str:property_id>/scalebar', get_scalebar_as_image, name='get_scalebar_as_image'),
     path('report/<str:property_id>/scalebar/<str:scale>', get_scalebar_as_image, name='get_scalebar_as_image'),

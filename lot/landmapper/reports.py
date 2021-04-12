@@ -57,12 +57,15 @@ def get_property_report(property, taxlots):
     img_width = property_specs['width']
     img_height = property_specs['height']
 
+    img_width_alt = property_specs['width_alt']
+    img_height_alt = property_specs['height_alt']
+
     property_bboxes = {
         'fit': property_specs['bbox'],
         'medium': refit_bbox(property_specs, scale='medium'),
         'context': refit_bbox(property_specs, scale='context')
     }
-    
+
     property_layer = map_views.get_property_image_layer(property, property_specs)
 
     # Get Basemap Images
@@ -71,6 +74,9 @@ def get_property_report(property, taxlots):
     aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
     street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
     topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+
+    # Alt map size
+    aerial_layer_alt = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE], alt_size=True)
 
     if settings.CONTOUR_SOURCE:
         contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])
@@ -124,6 +130,12 @@ def get_property_report(property, taxlots):
         property_specs,
         [aerial_layer, soil_layer, taxlot_layer, property_layer],
         bbox = property_bboxes[settings.SOIL_SCALE]
+    )
+
+    # Create Property image for alt
+    property.property_map_image_alt = map_views.get_static_map(
+        property_specs,
+        [ aerial_layer, property_layer]
     )
 
     property.scalebar_image = map_views.get_scalebar_image(property_specs,
@@ -348,6 +360,8 @@ def get_property_specs(property):
         'orientation': None,  # 'portrait' or 'landscape'
         'width': None,  # Pixels
         'height': None,  # Pixels
+        'width_alt': None,
+        'height_alt': None,
         'bbox': None,  # "W,S,E,N" (EPSG:3857, Web Mercator)
         'zoom': None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
@@ -359,6 +373,9 @@ def get_property_specs(property):
     width = settings.REPORT_MAP_WIDTH
     height = settings.REPORT_MAP_HEIGHT
 
+    width_alt = settings.REPORT_MAP_ALT_WIDTH
+    height_alt = settings.REPORT_MAP_ALT_HEIGHT
+
     if orientation.lower() == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
         temp_width = width
         width = height
@@ -366,6 +383,9 @@ def get_property_specs(property):
 
     property_specs['width'] = width
     property_specs['height'] = height
+
+    property_specs['width_alt'] = width_alt
+    property_specs['height_alt'] = height_alt
 
     property_specs['zoom'] = map_views.get_web_map_zoom(bbox,
                                                         width=width,

@@ -82,7 +82,7 @@ def get_taxlot_image_layer(property_specs, bbox=False):
         'attribution': attribution
     }
 
-def get_aerial_image_layer(property_specs, bbox=False):
+def get_aerial_image_layer(property_specs, bbox=False, alt_size=False):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
@@ -97,8 +97,13 @@ def get_aerial_image_layer(property_specs, bbox=False):
     if not bbox:
         bbox = property_specs['bbox']
     bboxSR = 3857
-    width = property_specs['width']
-    height = property_specs['height']
+
+    if alt_size:
+        width = property_specs['width_alt']
+        height = property_specs['height_alt']
+    else:
+        width = property_specs['width']
+        height = property_specs['height']
 
     aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
     # Get URL for request

@@ -340,7 +340,7 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
-def get_property_map_image_509x722(request, property_id, map_type):
+def get_property_map_image_alt(request, property_id, map_type):
     property = properties.get_property_by_id(property_id)
     # if map_type == 'stream':
         # image = property.stream_map_image
@@ -351,7 +351,7 @@ def get_property_map_image_509x722(request, property_id, map_type):
     # elif map_type == 'soil_types':
         # image = property.soil_map_image
     if map_type == 'property':
-        image = property.property_map_image_509x722
+        image = property.property_map_image_alt
     # elif map_type == 'terrain':
         # image = property.terrain_map_image
     else:
