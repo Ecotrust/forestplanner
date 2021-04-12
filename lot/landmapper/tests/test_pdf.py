@@ -14,8 +14,8 @@ class PdfTests(StaticLiveServerTestCase):
     """
         Open a browser
         Make API call at url /report/<str:property_id>/pdf
+        Check PDF in page title
         Check PDF images are correct size
-        Check PDF is correct number of pages
     """
 
     @classmethod
@@ -29,6 +29,14 @@ class PdfTests(StaticLiveServerTestCase):
         self.selenium.quit()
         super().tearDownClass()
 
+    def test_cover_map_img(self):
+        property_id = 'Demo%7C583966%7C862934'
+        # New URL
+        self.selenium.get("http://localhost:8000/report/%s/pdf" % property_id)
+        # return img
+        # check dimensions
+
+        # self.assert()
 
     def test_create_pdf(self):
         property_id = 'Demo%7C583966%7C862934'
