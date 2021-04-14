@@ -40,10 +40,14 @@ class PdfTests(StaticLiveServerTestCase):
         print('Getting alt property image')
         self.selenium.get("http://localhost:8000/landmapper/report/%s/%s/map" % (property_id, 'property_alt'))
         # check dimensions
-        import ipdb; ipdb.set_trace()
-        # self.assert()
+        self.assertIn('509', self.selenium.title)
+        self.assertIn('722', self.selenium.title)
 
     def test_create_pdf(self):
-        property_id = 'Demo%7C583966%7C862934'
+        test_property_version = 'v2'
+        property_id = test_property_version + 'test_property%7C583966%7C862934'
+        # Create report
+        self.selenium.get("http://localhost:8000/landmapper/report/%s" % property_id)
+        # Get pdf report
         self.selenium.get("http://localhost:8000/landmapper/report/%s/pdf" % property_id)
         self.assertIn('pdf', self.selenium.title)
