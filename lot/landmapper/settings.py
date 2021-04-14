@@ -66,6 +66,12 @@ BASEMAPS = {
         'TECHNOLOGY': 'arcgis_mapserver',
         'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, USGS, Intermap, INCREMENT P, NRCan, Esri Japan, METI, Esri China (Hong Kong), Esri Korea, Esri (Thailand), NGCC, (c) OpenStreetMap contributors, and the GIS User Community'
     },
+    'ESRI_NatGeo': {
+        'URL': 'https://server.arcgisonline.com/arcgis/rest/services/NatGeo_World_Map/MapServer/export',
+        'LAYERS': '0',
+        'TECHNOLOGY': 'arcgis_mapserver',
+        'ATTRIBUTION': 'Tiles &copy; Esri &mdash; National Geographic, Esri, DeLorme, NAVTEQ, UNEP-WCMC, USGS, NASA, ESA, METI, NRCAN, GEBCO, NOAA, iPC'
+    },
     'TNM_Aerial': {
         'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPPlus/MapServer/export',
         'LAYERS': '8',
@@ -79,7 +85,7 @@ BASEMAPS = {
     },
     'Custom_Topo': {
         'URL': 'https://api.mapbox.com/styles/v1/{userid}/cke0j10sj1gta19o9agb1w8pq/tiles/256/{zoom}/{lon}/{lat}@2x?',
-        'TECHNOLOGY': 'XYZ',
+        'TECHNOLOGY': 'mapbox',
         'ATTRIBUTION': 'Sources: MapBox',
         'PARAMS': {
             'userid':'forestplanner',
@@ -122,14 +128,111 @@ BASEMAPS = {
         'TILE_IMAGE_HEIGHT': 256,
         'TILE_IMAGE_WIDTH': 256,
         'ZOOM_2X': False
-    }
+    },
+    'OSM_Mapnik': {
+        'URL': 'https://a.tile.openstreetmap.org/{zoom}/{lon}/{lat}.png',
+        'TECHNOLOGY': 'XYZ',
+        'ATTRIBUTION': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        'PARAMS': {
+        },
+        'QS': [
+            # 'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': True
+    },
+    # https://tiles.wmflabs.org/hikebike/{z}/{x}/{y}.png
+    'Hike_Bike': {
+        'URL': 'https://tiles.wmflabs.org/hikebike/{zoom}/{lon}/{lat}.png',
+        'TECHNOLOGY': 'XYZ',
+        'ATTRIBUTION': '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        'PARAMS': {
+        },
+        'QS': [
+            # 'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': False
+    },
+    'USGS_TopoImage': {
+        'URL': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryTopo/MapServer/tile/{zoom}/{lat}/{lon}',
+        'TECHNOLOGY': 'XYZ',
+        'ATTRIBUTION': 'Tiles courtesy of the <a href="https://usgs.gov/">U.S. Geological Survey</a>',
+        'PARAMS': {
+        },
+        'QS': [
+            # 'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': False
+    },
+    'MAPBOX_Outdoor': {
+        'URL': 'https://api.mapbox.com/styles/v1/mapbox/outdoors-v11/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'TECHNOLOGY': 'mapbox',
+        'ATTRIBUTION': 'Sources: MapBox',
+        'PARAMS': {
+            # 'userid':'',
+            # 'layerid': '',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512,
+        'ZOOM_2X': False
+    },
+    'MAPBOX_Streets': {
+        'URL': 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{zoom}/{lon}/{lat}@2x?',
+        'TECHNOLOGY': 'mapbox',
+        'ATTRIBUTION': 'Sources: MapBox',
+        'PARAMS': {
+            # 'userid':'',
+            # 'layerid': '',
+            'lon': '',
+            'lat': '',
+            'zoom': '',
+        },
+        'QS': [
+            'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512,
+        'ZOOM_2X': False
+    },
+
 }
 
-AERIAL_DEFAULT = 'ESRI_Satellite'
+AERIAL_DEFAULT = 'TNM_Aerial'
 AERIAL_UPDATED = 'TNM_Aerial'
 TOPO_DEFAULT = 'ESRI_Topo'
-# STREET_DEFAULT = 'OSM'
-STREET_DEFAULT = 'ESRI_Street'
+STREET_DEFAULT = 'MAPBOX_Streets'
+# STREET_DEFAULT = 'ESRI_Street'
 
 ###########################################
 ##      REPORTS                         ###
@@ -193,7 +296,9 @@ CONTOUR_STYLE = {
     'bold_color': (32/255., 96/255., 0., 255/255.),
     'bold_step': 200,
     'bold_width': 0.25,
-    'font_size': 3
+    'font_size': 2.5,
+    'inline_spacing': -2,
+    'format_string': "{x:.0f}"
 }
 
 ###########################################

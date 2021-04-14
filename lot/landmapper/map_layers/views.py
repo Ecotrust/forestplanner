@@ -249,6 +249,8 @@ def get_street_image_layer(property_specs, bbox=False):
         base_image = image_result_to_PIL(image_data)
     elif street_dict['TECHNOLOGY'] == 'XYZ':
         base_image = get_XYZ_image_data(street_dict, property_specs, bbox, zoom_2x=street_dict['ZOOM_2X'])
+    elif street_dict['TECHNOLOGY'] == 'mapbox':
+        base_image = get_mapbox_image_data(street_dict, property_specs, bbox, zoom_2x=street_dict['ZOOM_2X'])
     elif street_dict['TECHNOLOGY'] == 'static':
         #TODO: get zoom
         zoom = get_zoom_from_bbox(bbox, tile_height=settings.REPORT_MAP_HEIGHT, tile_width=settings.REPORT_MAP_WIDTH)
@@ -713,10 +715,10 @@ def contours_from_tnm_dem(bbox, width, height, dpi=settings.DPI, inSR=3857):
                           linewidths=[settings.CONTOUR_STYLE['bold_width']])
 
     # labels for the 200ft/bold contour lines
-    fmt = ticker.StrMethodFormatter("{x:,.0f} ft")
+    fmt = ticker.StrMethodFormatter(settings.CONTOUR_STYLE['format_string'])
     labels = ax.clabel(cont_bold, fontsize=settings.CONTOUR_STYLE['font_size'],
                        colors=[settings.CONTOUR_STYLE['bold_color']], fmt=fmt,
-                       inline_spacing=0)
+                       inline_spacing=settings.CONTOUR_STYLE['inline_spacing'])
     for label in labels:
         # add halo effect to labels
         label.set_path_effects([pe.withStroke(linewidth=1, foreground='w')])
