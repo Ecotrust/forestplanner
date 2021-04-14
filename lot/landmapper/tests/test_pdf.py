@@ -21,7 +21,7 @@ class PdfTests(StaticLiveServerTestCase):
     @classmethod
     def setUpClass(self):
         super().setUpClass()
-        self.selenium = webdriver.firefox.webdriver.WebDriver()
+        self.selenium = webdriver.Firefox()
         self.selenium.implicitly_wait(10)
 
     @classmethod
@@ -30,16 +30,20 @@ class PdfTests(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_cover_map_img(self):
-        property_id = 'Demo%7C583966%7C862934'
-        # New URL
-        self.selenium.get("http://localhost:8000/report/%s/%s/map" % (property_id, 'property_alt'))
-        import ipdb; ipdb.set_trace()
-        # return img
+        test_property_version = 'v2'
+        property_id = test_property_version + 'test_property%7C583966%7C862934'
+        # Create new property
+        print('Creating property...')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s" % property_id)
+        print('Property created')
+        # Get new alt image
+        print('Getting alt property image')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/%s/map" % (property_id, 'property_alt'))
         # check dimensions
-
+        import ipdb; ipdb.set_trace()
         # self.assert()
 
     def test_create_pdf(self):
         property_id = 'Demo%7C583966%7C862934'
-        self.selenium.get("http://localhost:8000/report/%s/pdf" % property_id)
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/pdf" % property_id)
         self.assertIn('pdf', self.selenium.title)
