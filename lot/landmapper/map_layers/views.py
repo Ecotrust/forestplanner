@@ -1171,62 +1171,46 @@ def get_bbox_from_property(property, alt_size=False):       # TODO: This should 
     property_ratio = property_width / property_height
 
     if abs(property_ratio) > 1.0 and settings.REPORT_SUPPORT_ORIENTATION:  # wider than tall and portrait reports allowed
-        target_width = settings.REPORT_MAP_HEIGHT
-        target_height = settings.REPORT_MAP_WIDTH
-        alt_target_width = settings.REPORT_MAP_ALT_WIDTH
-        alt_target_height = settings.REPORT_MAP_ALT_HEIGHT
-        orientation = 'portrait'
+        if alt_size:
+            target_width = float(settings.REPORT_MAP_ALT_WIDTH)
+            target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
+            orientation = 'portrait'
+        else:
+            target_width = settings.REPORT_MAP_HEIGHT
+            target_height = settings.REPORT_MAP_WIDTH
+            orientation = 'portrait'
 
     else:
-        target_width = float(settings.REPORT_MAP_WIDTH)
-        target_height = float(settings.REPORT_MAP_HEIGHT)
-        alt_target_width = float(settings.REPORT_MAP_ALT_WIDTH)
-        alt_target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
-        orientation = 'landscape'
+        if alt_size:
+            target_width = float(settings.REPORT_MAP_ALT_WIDTH)
+            target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
+            orientation = 'landscape'
+        else:
+            target_width = float(settings.REPORT_MAP_WIDTH)
+            target_height = float(settings.REPORT_MAP_HEIGHT)
+            orientation = 'landscape'
 
     target_ratio = target_width / target_height
     pixel_width = target_width * (1 - settings.REPORT_MAP_MIN_BUFFER)
     pixel_height = target_height * (1 - settings.REPORT_MAP_MIN_BUFFER)
 
-    alt_target_ratio = alt_target_width / alt_target_height
-    alt_pixel_width = alt_target_width * (1 - settings.REPORT_MAP_MIN_BUFFER)
-    alt_pixel_height = alt_target_height * (1 - settings.REPORT_MAP_MIN_BUFFER)
-
     # compare envelope ratio to target image ratio to make sure we constrain the correct axis first
     if property_ratio >= target_ratio: # limit by width
-        if not alt_size:
-            coord_per_pixel = property_width / pixel_width
-            buffer_width_pixel = target_width * settings.REPORT_MAP_MIN_BUFFER / 2
-            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
-            property_pixel_height = property_height / coord_per_pixel
-            height_diff = target_height - property_pixel_height
-            buffer_height_pixel = height_diff / 2
-            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
-        else:
-            coord_per_pixel = property_width / alt_pixel_width
-            buffer_width_pixel = alt_target_width * settings.REPORT_MAP_MIN_BUFFER / 2
-            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
-            property_pixel_height = property_height / coord_per_pixel
-            height_diff = alt_target_height - property_pixel_height
-            buffer_height_pixel = height_diff / 2
-            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+        coord_per_pixel = property_width / pixel_width
+        buffer_width_pixel = target_width * settings.REPORT_MAP_MIN_BUFFER / 2
+        buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+        property_pixel_height = property_height / coord_per_pixel
+        height_diff = target_height - property_pixel_height
+        buffer_height_pixel = height_diff / 2
+        buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
     else:   # limit by height
-        if not alt_size:
-            coord_per_pixel = property_height / pixel_height
-            buffer_height_pixel = target_height * settings.REPORT_MAP_MIN_BUFFER / 2
-            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
-            property_pixel_width = property_width / coord_per_pixel
-            width_diff = target_width - property_pixel_width
-            buffer_width_pixel = width_diff / 2
-            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
-        else:
-            coord_per_pixel = property_height / alt_pixel_height
-            buffer_height_pixel = alt_target_height * settings.REPORT_MAP_MIN_BUFFER / 2
-            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
-            property_pixel_width = property_width / coord_per_pixel
-            width_diff = alt_target_width - property_pixel_width
-            buffer_width_pixel = width_diff / 2
-            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+        coord_per_pixel = property_height / pixel_height
+        buffer_height_pixel = target_height * settings.REPORT_MAP_MIN_BUFFER / 2
+        buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+        property_pixel_width = property_width / coord_per_pixel
+        width_diff = target_width - property_pixel_width
+        buffer_width_pixel = width_diff / 2
+        buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
 
     box_west = west - buffer_width_coord
     box_east = east + buffer_width_coord

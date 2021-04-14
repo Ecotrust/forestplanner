@@ -463,6 +463,7 @@ def create_property_pdf(property, property_id):
             if chunk:
                 f.write(chunk)
 
+    # Smaller size property image
     tmp_property_alt = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
                                       delete=True)
