@@ -98,12 +98,8 @@ def get_aerial_image_layer(property_specs, bbox=False, alt_size=False):
         bbox = property_specs['bbox']
     bboxSR = 3857
 
-    if alt_size:
-        width = property_specs['width_alt']
-        height = property_specs['height_alt']
-    else:
-        width = property_specs['width']
-        height = property_specs['height']
+    width = property_specs['width']
+    height = property_specs['height']
 
     aerial_dict = settings.BASEMAPS[settings.AERIAL_DEFAULT]
     # Get URL for request
@@ -146,7 +142,10 @@ def get_aerial_image_layer(property_specs, bbox=False, alt_size=False):
 
     # Request URL
     image_data = lm_views.unstable_request_wrapper(aerial_url)
-    base_image = image_result_to_PIL(image_data)
+    if alt_size:
+        base_image = image_result_to_PIL(image_data, alt_size=alt_size)
+    else:
+        base_image = image_result_to_PIL(image_data)
 
     return {
         'type':'image',
@@ -625,7 +624,7 @@ def get_contour_image_layer(property_specs, bbox=False, index_contour_style=None
 # Map Image Builder Functions ##
 ################################
 
-def get_static_map(property_specs, layers, bbox=None, alt_size=False):
+def get_static_map(property_specs, layers, bbox=None):
     # """
     # PURPOSE:
     # -   given property specs and a list of layer objects, return a .png
@@ -642,12 +641,8 @@ def get_static_map(property_specs, layers, bbox=None, alt_size=False):
     # -   report_image: (PIL Image) the report map image
     # """
 
-    if alt_size:
-        width = property_specs['width_alt']
-        height = property_specs['height_alt']
-    else:
-        width = property_specs['width']
-        height = property_specs['height']
+    width = property_specs['width']
+    height = property_specs['height']
 
     if not bbox:
         bbox = property_specs['bbox']
@@ -1082,7 +1077,7 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
 # Helper Functions           ###
 ################################
 
-def image_result_to_PIL(image_data):
+def image_result_to_PIL(image_data, alt_size=False):
     # """
     # image_result_to_PIL
     # PURPOSE:
@@ -1131,7 +1126,10 @@ def image_result_to_PIL(image_data):
             rgba_image = pil_image.convert("RGBA")
             os.remove(outfilename)
         else:
-            rgba_image = Image.new("RGBA", (settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT), (255,255,255,0))
+            if alt_size:
+                rgba_image = Image.new("RGBA", (settings.REPORT_MAP_ALT_WIDTH, settings.REPORT_MAP_ALT_HEIGHT), (255,255,255,0))
+            else:
+                rgba_image = Image.new("RGBA", (settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT), (255,255,255,0))
 
     return rgba_image
 
@@ -1172,8 +1170,8 @@ def get_bbox_from_property(property, alt_size=False):       # TODO: This should 
 
     if abs(property_ratio) > 1.0 and settings.REPORT_SUPPORT_ORIENTATION:  # wider than tall and portrait reports allowed
         if alt_size:
-            target_width = float(settings.REPORT_MAP_ALT_WIDTH)
-            target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
+            target_width = settings.REPORT_MAP_ALT_WIDTH
+            target_height = settings.REPORT_MAP_ALT_HEIGHT
             orientation = 'portrait'
         else:
             target_width = settings.REPORT_MAP_HEIGHT
