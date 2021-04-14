@@ -10,6 +10,7 @@ mediaroot/*
 wsgi.py
 data/*
 env/*
+env.bak/*
 *_import/*.mdb
 *_import/*.tsv
 lot/fixtures/downloads/*

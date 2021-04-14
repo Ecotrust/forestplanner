@@ -332,28 +332,8 @@ def get_property_map_image(request, property_id, map_type):
         image = property.property_map_image
     elif map_type == 'terrain':
         image = property.terrain_map_image
-    else:
-        image = None
-
-    response = HttpResponse(content_type="image/png")
-    image.save(response, 'PNG')
-
-    return response
-
-def get_property_map_image_alt(request, property_id, map_type):
-    property = properties.get_property_by_id(property_id)
-    # if map_type == 'stream':
-        # image = property.stream_map_image
-    # elif map_type == 'street':
-        # image = property.street_map_image
-    # elif map_type == 'aerial':
-        # image = property.aerial_map_image
-    # elif map_type == 'soil_types':
-        # image = property.soil_map_image
-    if map_type == 'property':
+    elif map_type == 'property_alt':
         image = property.property_map_image_alt
-    # elif map_type == 'terrain':
-        # image = property.terrain_map_image
     else:
         image = None
 
@@ -361,6 +341,7 @@ def get_property_map_image_alt(request, property_id, map_type):
     image.save(response, 'PNG')
 
     return response
+
 
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
