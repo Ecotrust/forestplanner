@@ -63,6 +63,11 @@ def get_property_report(property, taxlots):
         'medium': refit_bbox(property_specs, scale='medium'),
         'context': refit_bbox(property_specs, scale='context')
     }
+    property_bboxes_alt = {
+        'fit': property_specs_alt['bbox'],
+        'medium': refit_bbox(property_specs_alt, scale='medium'),
+        'context': refit_bbox(property_specs_alt, scale='context')
+    }
 
     property_layer = map_views.get_property_image_layer(property, property_specs)
     property_layer_alt = map_views.get_property_image_layer(property, property_specs_alt)
@@ -75,7 +80,7 @@ def get_property_report(property, taxlots):
     topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
 
     # Alt map size
-    aerial_layer_alt = map_views.get_aerial_image_layer(property_specs_alt, property_bboxes[settings.AERIAL_SCALE], alt_size=True)
+    aerial_layer_alt = map_views.get_aerial_image_layer(property_specs_alt, property_bboxes_alt[settings.AERIAL_SCALE], alt_size=True)
 
     if settings.CONTOUR_SOURCE:
         contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])

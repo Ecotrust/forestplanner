@@ -204,7 +204,7 @@ SCALEBAR_DEFAULT_HEIGHT = 0.2
 # SCALEBAR_BG_W = 508
 SCALEBAR_BG_W = 616
 # SCALEBAR_BG_H = 70
-SCALEBAR_BG_H = 58
+SCALEBAR_BG_H = 77
 
 ###########################################
 ##      Properties                      ###
