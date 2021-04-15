@@ -463,6 +463,8 @@ def get_property_map_pdf(request, property_id, map_type):
         property_pdf = reports.create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
+    else:
+        property = properties.get_property_by_id(property_id)
     property_map_pdf = reports.create_property_map_pdf(property, property_id, map_type)
     response.write(property_map_pdf)
 

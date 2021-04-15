@@ -675,12 +675,24 @@ def create_property_map_pdf(property, property_id, map_type=''):
         print('Directory does not exit')
         output_pdf = ''
 
+    page_number = 0
+    import ipdb; ipdb.set_trace()
+    for map in settings.PDF_PAGE_LOOKUP:
+        if map == map_type:
+            page_number = settings.PDF_PAGE_LOOKUP[map]
+
+
     if os.path.exists(output_pdf):
         buffer = io.BytesIO()
         new_output = pypdf.PdfFileWriter()
         new_pdf = pypdf.PdfFileReader(output_pdf)
-        import ipdb; ipdb.set_trace()
-        new_output.addPage(new_pdf.getPage())
+        if map_type == 'soil_types':
+            for num in page_number:
+                new_output.addPage(new_pdf.getPage(num))
+        else:
+            new_output.addPage(new_pdf.getPage(page_number))
+        new_output.write(buffer)
+        return buffer.getvalue()
     else:
         raise FileNotFoundError('Failed to produce output file.')
 

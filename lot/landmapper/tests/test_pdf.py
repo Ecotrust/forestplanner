@@ -30,11 +30,27 @@ class PdfTests(StaticLiveServerTestCase):
         super().tearDownClass()
 
     def test_single_download(self):
-        print('Open single pdf')
         # New URL for single page
         # New View for single page
         # Call create_property_pdf give page as arg
         # return only page requested page
+        test_property_version = 'v2'
+        property_id = test_property_version + 'test_property%7C583966%7C862934'
+        print('Creating property...')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s" % property_id)
+        print('Property created')
+        print('Open single steam pdf')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/stream/pdf" % property_id)
+        self.assertIn('pdf', self.selenium.title)
+        print('Open single street pdf')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/street/pdf" % property_id)
+        self.assertIn('pdf', self.selenium.title)
+        print('Open single aerial pdf')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/aerial/pdf" % property_id)
+        self.assertIn('pdf', self.selenium.title)
+        print('Open single soil types pdf')
+        self.selenium.get("http://localhost:8000/landmapper/report/%s/soil_types/pdf" % property_id)
+        self.assertIn('pdf', self.selenium.title)
 
     def test_cover_map_img(self):
         test_property_version = 'v2'

@@ -921,6 +921,15 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v2.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
+PDF_PAGE_LOOKUP = {
+    'property_alt': 0,
+    'property': 1,
+    'aerial': 1,
+    'street': 2,
+    'terrain': 3,
+    'stream': 4,
+    'soil_types': [5,6,7,8],
+}
 
 try:
     from .local_settings import *
