@@ -29,6 +29,13 @@ class PdfTests(StaticLiveServerTestCase):
         self.selenium.quit()
         super().tearDownClass()
 
+    def test_single_download(self):
+        print('Open single pdf')
+        # New URL for single page
+        # New View for single page
+        # Call create_property_pdf give page as arg
+        # return only page requested page
+
     def test_cover_map_img(self):
         test_property_version = 'v2'
         property_id = test_property_version + 'test_property%7C583966%7C862934'

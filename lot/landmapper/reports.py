@@ -633,6 +633,8 @@ def create_property_pdf(property, property_id):
 
     rendered_pdf = template_pdf(template_input_dict)
 
+    import ipdb; ipdb.set_trace()
+
     rendered_pdf_name = property.name + '.pdf'
 
     if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
@@ -665,6 +667,7 @@ def create_property_pdf(property, property_id):
     else:
         raise FileNotFoundError('Failed to produce output file.')
 
+            
 def get_soils_data(property_geom):
     soil_area_values = {}
     equal_area_projection_id = 5070
