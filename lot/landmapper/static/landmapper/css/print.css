@@ -16,13 +16,13 @@
   #main-content {
     display: block;
     margin: 0 auto;
-    width: 8.5in;
+    /* width: 8.5in; */
   }
 
   .section-report {
     display: block;
     border-bottom: none;
-    padding: .25in;
+    padding: 0 .25in;
     page-break-after: always;
     overflow: hidden;
   }
@@ -39,7 +39,7 @@
 
   #section-property .content-panel {
     margin-left: 0;
-    padding: 3vh;
+    padding: 0 3vh;
   }
 
   /* .property-map-image {

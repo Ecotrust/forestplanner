@@ -14,36 +14,40 @@
 {% block content %}
     <section id="section-property" class="section-report map-wrap row no-gutters">
         <div class="row d-flex no-gutters align-items-center justify-content-center section-flex-wrap">
-          <div class="map-image-wrap">
-              <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
-              <div class="scalebar-wrap">
-                  <img src="/landmapper/report/{{ property_id }}/scalebar/{{ overview_scale }}" class="scalebar"/>
-              </div>
-              <div class="compass-wrap">
-                  <img src="{% static 'landmapper/img/icon/icon-north.svg' %}" class="icon-north" />
-              </div>
-          </div>
-          <div class="content-panel">
-              <h2>Your property</h2>
-              <h1>{{ property_name }}</h1>
-              <p>Report generated on: {{property_report.date}}</p>
+            <div class="col-auto map-contianer">
+                <div class="map-image-wrap">
+                    <img src="/landmapper/report/{{ property_id }}/property/map" class="property-map-image">
+                    <div class="scalebar-wrap">
+                        <img src="/landmapper/report/{{ property_id }}/scalebar/{{ overview_scale }}" class="scalebar"/>
+                    </div>
+                    <div class="compass-wrap">
+                        <img src="{% static 'landmapper/img/icon/icon-north.svg' %}" class="icon-north" />
+                    </div>
+                </div>
+            </div>
+            <div class="col-auto">
+                <div class="content-panel">
+                    <h2>Your property</h2>
+                    <h1>{{ property_name }}</h1>
+                    <p>Report generated on: {{property_report.date}}</p>
 
-              <div class="property-report-data">
-                  {% for datum in property_report.property.data %}
-                      <p><strong>{{ datum.0 }}</strong>: {{ datum.1 }}</p>
-                  {% endfor %}
-              </div>
+                    <div class="property-report-data">
+                        {% for datum in property_report.property.data %}
+                            <p><strong>{{ datum.0 }}</strong>: {{ datum.1 }}</p>
+                        {% endfor %}
+                    </div>
 
-              <hr class="d-print-none" />
+                    <hr class="d-print-none" />
 
-              <h2 class="d-print-none">All maps of your property</h2>
-              <div class="anchor-links align-items-end d-print-none">
-                  <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a><br /><a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
-              </div>
+                    <h2 class="d-print-none">All maps of your property</h2>
+                    <div class="anchor-links align-items-end d-print-none">
+                        <a href="#section-aerial">Aerial</a> | <a href="#section-street">Street</a> | <a href="#section-terrain">Terrain</a> | <a href="#section-streams">Streams</a><br /><a href="#">Forest Types</a> | <a href="#section-soil-types">Soil Types</a>
+                    </div>
 
-              <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary d-print-none" target="_blank">Download all maps</a>
-              <button type="button" class="btn btn-primary copy-link d-print-none" title="Copied to clipboard">Share maps</button>
-          </div>
+                    <a href="/landmapper/report/{{ property_id }}/pdf" class="btn btn-primary d-print-none" target="_blank">Download all maps</a>
+                    <button type="button" class="btn btn-primary copy-link d-print-none" title="Copied to clipboard">Share maps</button>
+                </div>
+            </div>
         </div>
     </section>
 

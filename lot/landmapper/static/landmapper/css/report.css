@@ -40,7 +40,7 @@
   width: 100%;
 }
 
-.section-report:not(#section-property) .map-image-wrap {
+ .map-image-wrap {
   margin: 3vh;
   position: relative;
 }
