@@ -1,6 +1,6 @@
 @media print {
   @page {
-    size: landscape;
+    size: portrait;
   }
 
   .wrap-print {
@@ -16,7 +16,7 @@
   #main-content {
     display: block;
     margin: 0 auto;
-    width: 11in;
+    width: 8.5in;
   }
 
   .section-report {

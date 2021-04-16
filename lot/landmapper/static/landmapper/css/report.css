@@ -45,6 +45,8 @@
   position: relative;
 }
 
+.map-contianer {}
+
 .section-report:not(#section-property) h1 {
   font-size: 28px;
   letter-spacing: 1.4px;
@@ -60,8 +62,8 @@
 }
 
 .section-report .content-panel {
-  padding-left: 3vh;
-  min-width: 350px;
+  /* padding-left: 3vh; */
+  /* min-width: 350px; */
 }
 
 .anchor-links {
@@ -80,27 +82,36 @@
 
 .legend-wrap {
   margin-top: 3vh;
-  margin-left: -1.5vh;
+  /* margin-left: -1.5vh; */
 }
 
 .legend-wrap img {
-  width: 320px;
+  width: 300px;
 }
 
 .scalebar {
   background-color: rgba(255,255,255,0.6);
-  top: 4vh;
+  top: 2px;
   max-height: none;
   min-height: auto;
   height: auto;
-  left: 4vh;
-  outline: 1px solid #fff;
+  left: 2px;
+  outline: 1px solid rgba(255,255,255,0.2);
   position: absolute;
   width: auto;
   max-width: none;
   min-width: auto;
   z-index: 1;
 }
+
+.icon-north {
+  opacity: 0.6;
+  position: absolute;
+  top: 1vh;
+  right: 1vh;
+  max-width: 32px;
+}
+
 
 .button-wrap {
   position: absolute;
