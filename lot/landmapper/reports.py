@@ -676,7 +676,7 @@ def create_property_map_pdf(property, property_id, map_type=''):
         output_pdf = ''
 
     page_number = 0
-    import ipdb; ipdb.set_trace()
+
     for map in settings.PDF_PAGE_LOOKUP:
         if map == map_type:
             page_number = settings.PDF_PAGE_LOOKUP[map]
