@@ -12,7 +12,7 @@
 
 #section-property .content-panel {
   padding: 2vh 3vw;
-  margin-left: 1vw;
+  margin-left: 0;
 }
 
 #section-property .section-flex-wrap {
@@ -40,8 +40,8 @@
   width: 100%;
 }
 
- .map-image-wrap {
-  margin: 3vh;
+.map-image-wrap {
+  margin: 3vh 3vh 3vh 0;
   position: relative;
 }
 
