@@ -28,8 +28,9 @@
   }
 
   .scalebar {
-    left: 2cm;
-    top: 2cm;
+    /* left: 0; */
+    /* top: 0; */
+    opacity: 0.6;
   }
 
   #section-property .section-flex-wrap {
@@ -40,6 +41,15 @@
   #section-property .content-panel {
     margin-left: 0;
     padding: 0 3vh;
+  }
+
+  .legend-wrap {
+    margin-top: 1vh;
+  }
+
+  .attribution {
+    margin-top: 2vh;
+    padding: 0;
   }
 
   /* .property-map-image {

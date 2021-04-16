@@ -72,6 +72,12 @@
                     <img src="{{ property_report.aerial.legend }}" />
                 </div>
 
+                <div class="attribution">
+                    <p><strong>Data Sources</strong></p>
+                    <p>Taxlots: ORMAP</p>
+                    <p>Aerial: NAIP</p>
+                </div>
+
                 <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/aerial/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
@@ -99,6 +105,12 @@
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.street.legend }}" />
+                </div>
+
+                <div class="attribution">
+                    <p><strong>Data Sources</strong></p>
+                    <p>Taxlots: ORMAP</p>
+                    <p>Basemap: OpenStreetMap</p>
                 </div>
 
                 <div class="button-wrap d-print-none">
@@ -130,6 +142,13 @@
                     <img src="{{ property_report.terrain.legend }}" />
                 </div>
 
+                <div class="attribution">
+                    <p><strong>Data Sources</strong></p>
+                    <p>Contour Lines: USGS</p>
+                    <p>Taxlots: ORMAP</p>
+                    <p>Basemap: Mapbox</p>
+                </div>
+
                 <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/terrain/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
@@ -157,6 +176,13 @@
 
                 <div class="legend-wrap">
                     <img src="{{ property_report.streams.legend }}" />
+                </div>
+
+                <div class="attribution">
+                    <p><strong>Data Sources</strong></p>
+                    <p>Streams: ODF</p>
+                    <p>Taxlots: ORMAP</p>
+                    <p>Basemap: Mapbox</p>
                 </div>
 
                 <div class="button-wrap d-print-none">
@@ -189,6 +215,13 @@
                     <img src="{{ property_report.soils.legend }}" />
                 </div>
 
+                <div class="attribution">
+                    <p><strong>Data Sources</strong></p>
+                    <p>Soils: NRCS</p>
+                    <p>Taxlots: ORMAP</p>
+                    <p>Basemap: NAIP</p>
+                </div>
+
                 <div class="button-wrap d-print-none">
                     <a href="/landmapper/report/{{ property_id }}/soil_types/pdf" class="btn btn-primary" target="_blank">Download</a>
                     <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
@@ -199,19 +232,19 @@
 
     <section id="section-soil-tables" class="section-report map-wrap row no-gutters pb-5">
         <div class="row col-12 d-flex no-gutters justify-content-start">
-            <div class="col-1"></div>
-            <div class="col-10 content-panel">
+            <div class="col-2"></div>
+            <div class="col-8 content-panel">
                 <h1>Soil Type Table</h1>
                 <h3>{{ property_name }}</h3>
                 <h2>Page 2 of 2</h2>
             </div>
-            <div class="col-1"></div>
+            <div class="col-2"></div>
         </div>
-        <div class="row col-12 no-gutters">
+        <div class="row col-8 no-gutters m-auto">
             <div class="soil-type property-report-data row no-gutters">
                 {% for soil_type in property_report.soils.data %}
-                    <div class="col-1"></div>
-                    <div class="{% cycle 'col-4' 'col-4' %}">
+                    <div class="col-auto"></div>
+                    <div class="{% cycle 'col-6' 'col-6' %}">
                         <div class="list-group-title"><div class="list-group-symbol">{{ soil_type.musym }}</div> {{ soil_type.muname }}</div>
                         <ul class="soil-type-list list-group list-group-flush">
                             <li class="list-group-item"><strong>Area:</strong> {{ soil_type.acres|floatformat:1|intcomma }} acres ({{ soil_type.percent_area|floatformat:1}}%)</li>
@@ -254,7 +287,7 @@
                             </li>
                         </ul>
                     </div>
-                    <div class="col-1"></div>
+                    <div class="col-auto"></div>
                 {% endfor %}
             </div>
         </div>

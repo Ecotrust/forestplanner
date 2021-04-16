@@ -4,7 +4,7 @@
   background: var(--white);
 }
 
-#main-content p {
+p {
   font-size: 18px;
   line-height: 1.75;
   margin-bottom: 0;
@@ -112,6 +112,17 @@
   max-width: 32px;
 }
 
+.attribution {
+  background: rgba(120,120,120,0.1);
+  display: inline-block;
+  padding: 20px;
+  margin-top: 5vh;
+}
+
+.attribution p {
+  font-size: 14px;
+  line-height: 1.375;
+}
 
 .button-wrap {
   position: absolute;
