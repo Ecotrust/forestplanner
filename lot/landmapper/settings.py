@@ -239,10 +239,17 @@ STREET_DEFAULT = 'MAPBOX_Streets'
 ###########################################
 # Based on map size on slide 4 in the XD Specs
 # This assumes the 'landscape' report layout (image will feel like 'portrait')
-REPORT_MAP_WIDTH = 509
-REPORT_MAP_HEIGHT = 722
+# REPORT_MAP_WIDTH = 509
+REPORT_MAP_WIDTH = 768
+# REPORT_MAP_HEIGHT = 722
+REPORT_MAP_HEIGHT = 816
 
+REPORT_MAP_ALT_WIDTH = 509
+REPORT_MAP_ALT_HEIGHT = 722
+
+# What is this used for?
 REPORT_CONTENT_WIDTH = 508
+# REPORT_CONTENT_WIDTH = 616
 REPORT_CONTENT_HEIGHT = REPORT_MAP_HEIGHT
 
 REPORT_SUPPORT_ORIENTATION = False
@@ -254,8 +261,10 @@ REPORT_MAP_MIN_BUFFER = 0.1
 # MAX_METER_RESOLUTION_MEDIUM = 7.5   # 30/4 (or more illustratively: 30/2/2)
 
 # MAX width resolution in 3857 degrees:
-MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
-MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+# MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 40  # ~20,000 degrees/509px (current pixel width)
+MAX_WEB_MERCATOR_RESOLUTION_CONTEXT = 26  # ~20,000 degrees/768px (current pixel width)
+# MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 10   # 40/4 (or more illustratively: 40/2/2)
+MAX_WEB_MERCATOR_RESOLUTION_MEDIUM = 6.5   # 26/4 (or more illustratively: 26/2/2)
 
 # Report Image Dots Per Inch
 DPI = 300
@@ -297,8 +306,10 @@ CONTOUR_STYLE = {
 ###########################################
 SCALEBAR_DEFAULT_WIDTH = 1.5
 SCALEBAR_DEFAULT_HEIGHT = 0.2
-SCALEBAR_BG_W = 508
-SCALEBAR_BG_H = 70
+# SCALEBAR_BG_W = 508
+SCALEBAR_BG_W = 616
+# SCALEBAR_BG_H = 70
+SCALEBAR_BG_H = 77
 
 ###########################################
 ##      Properties                      ###
@@ -877,7 +888,7 @@ FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
 PRODUCTION_URL = 'http://landmapper.ecotrust.org/landmapper'
 DEV_URL = 'http://localhost:8000/landmapper'
 
-LIVE_SITE = True
+LIVE_SITE = False
 
 if LIVE_SITE:
     APP_URL = PRODUCTION_URL
@@ -908,8 +919,17 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v2.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
+PDF_PAGE_LOOKUP = {
+    'property_alt': 0,
+    'property': 1,
+    'aerial': 1,
+    'street': 2,
+    'terrain': 3,
+    'stream': 4,
+    'soil_types': [5,6,7,8],
+}
 
 try:
     from .local_settings import *

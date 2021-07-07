@@ -82,7 +82,7 @@ def get_taxlot_image_layer(property_specs, bbox=False):
         'attribution': attribution
     }
 
-def get_aerial_image_layer(property_specs, bbox=False):
+def get_aerial_image_layer(property_specs, bbox=False, alt_size=False):
     # """
     # PURPOSE: Return USGS Aerial image at the selected location of the selected size
     # IN:
@@ -97,6 +97,7 @@ def get_aerial_image_layer(property_specs, bbox=False):
     if not bbox:
         bbox = property_specs['bbox']
     bboxSR = 3857
+
     width = property_specs['width']
     height = property_specs['height']
 
@@ -141,7 +142,10 @@ def get_aerial_image_layer(property_specs, bbox=False):
 
     # Request URL
     image_data = lm_views.unstable_request_wrapper(aerial_url)
-    base_image = image_result_to_PIL(image_data)
+    if alt_size:
+        base_image = image_result_to_PIL(image_data, alt_size=alt_size)
+    else:
+        base_image = image_result_to_PIL(image_data)
 
     return {
         'type':'image',
@@ -1075,7 +1079,7 @@ def plt_to_pil_image(plt_figure, dpi=200, transparent=False):
 # Helper Functions           ###
 ################################
 
-def image_result_to_PIL(image_data):
+def image_result_to_PIL(image_data, alt_size=False):
     # """
     # image_result_to_PIL
     # PURPOSE:
@@ -1124,11 +1128,14 @@ def image_result_to_PIL(image_data):
             rgba_image = pil_image.convert("RGBA")
             os.remove(outfilename)
         else:
-            rgba_image = Image.new("RGBA", (settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT), (255,255,255,0))
+            if alt_size:
+                rgba_image = Image.new("RGBA", (settings.REPORT_MAP_ALT_WIDTH, settings.REPORT_MAP_ALT_HEIGHT), (255,255,255,0))
+            else:
+                rgba_image = Image.new("RGBA", (settings.REPORT_MAP_WIDTH, settings.REPORT_MAP_HEIGHT), (255,255,255,0))
 
     return rgba_image
 
-def get_bbox_from_property(property):       # TODO: This should be a method on property instances called 'bbox'
+def get_bbox_from_property(property, alt_size=False):       # TODO: This should be a method on property instances called 'bbox'
     # """
     # PURPOSE:
     # -   Given a Property instance, return the bounding box and preferred report orientation
@@ -1164,14 +1171,24 @@ def get_bbox_from_property(property):       # TODO: This should be a method on p
     property_ratio = property_width / property_height
 
     if abs(property_ratio) > 1.0 and settings.REPORT_SUPPORT_ORIENTATION:  # wider than tall and portrait reports allowed
-        target_width = settings.REPORT_MAP_HEIGHT
-        target_height = settings.REPORT_MAP_WIDTH
-        orientation = 'portrait'
+        if alt_size:
+            target_width = settings.REPORT_MAP_ALT_WIDTH
+            target_height = settings.REPORT_MAP_ALT_HEIGHT
+            orientation = 'portrait'
+        else:
+            target_width = settings.REPORT_MAP_HEIGHT
+            target_height = settings.REPORT_MAP_WIDTH
+            orientation = 'portrait'
 
     else:
-        target_width = float(settings.REPORT_MAP_WIDTH)
-        target_height = float(settings.REPORT_MAP_HEIGHT)
-        orientation = 'landscape'
+        if alt_size:
+            target_width = float(settings.REPORT_MAP_ALT_WIDTH)
+            target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
+            orientation = 'landscape'
+        else:
+            target_width = float(settings.REPORT_MAP_WIDTH)
+            target_height = float(settings.REPORT_MAP_HEIGHT)
+            orientation = 'landscape'
 
     target_ratio = target_width / target_height
     pixel_width = target_width * (1 - settings.REPORT_MAP_MIN_BUFFER)

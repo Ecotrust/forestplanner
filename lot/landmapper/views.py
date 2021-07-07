@@ -332,6 +332,8 @@ def get_property_map_image(request, property_id, map_type):
         image = property.property_map_image
     elif map_type == 'terrain':
         image = property.terrain_map_image
+    elif map_type == 'property_alt':
+        image = property.property_map_image_alt
     else:
         image = None
 
@@ -339,6 +341,7 @@ def get_property_map_image(request, property_id, map_type):
     image.save(response, 'PNG')
 
     return response
+
 
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
@@ -449,6 +452,24 @@ def get_property_pdf(request, property_id):
     response.write(property_pdf)
 
     return response
+
+def get_property_map_pdf(request, property_id, map_type):
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'inline; filename="property.pdf"'
+    property_pdf_cache_key = property_id + '_pdf'
+    property_pdf = cache.get('%s' % property_pdf_cache_key)
+    if not property_pdf:
+        property = properties.get_property_by_id(property_id)
+        property_pdf = reports.create_property_pdf(property, property_id)
+        if property_pdf:
+            cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
+    else:
+        property = properties.get_property_by_id(property_id)
+    property_map_pdf = reports.create_property_map_pdf(property, property_id, map_type)
+    response.write(property_map_pdf)
+
+    return response
+
 
 ## BELONGS IN VIEWS.py
 def export_layer(request):

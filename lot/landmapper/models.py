@@ -182,6 +182,9 @@ class Property(MultiPolygonFeature):
     context_scalebar_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
     medium_scalebar_image = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
 
+    # alt image field
+    property_map_image_alt = models.ImageField(upload_to=None, height_field=None, width_field=None, max_length=100, null=True)
+
     report_data = JSONField('report_data', default=report_default)
 
     @property

@@ -1,6 +1,6 @@
 @media print {
   @page {
-    size: landscape;
+    size: portrait;
   }
 
   .wrap-print {
@@ -16,20 +16,21 @@
   #main-content {
     display: block;
     margin: 0 auto;
-    width: 11in;
+    /* width: 8.5in; */
   }
 
   .section-report {
     display: block;
     border-bottom: none;
-    padding: .25in;
+    padding: 0 .25in;
     page-break-after: always;
     overflow: hidden;
   }
 
   .scalebar {
-    left: 2cm;
-    top: 2cm;
+    /* left: 0; */
+    /* top: 0; */
+    opacity: 0.6;
   }
 
   #section-property .section-flex-wrap {
@@ -39,13 +40,22 @@
 
   #section-property .content-panel {
     margin-left: 0;
-    padding: 3vh;
+    padding: 0 3vh;
   }
 
-  .property-map-image {
+  .legend-wrap {
+    margin-top: 1vh;
+  }
+
+  .attribution {
+    margin-top: 2vh;
+    padding: 0;
+  }
+
+  /* .property-map-image {
     height: 722px;
     width: 509px;
-  }
+  } */
 
   .section-report .content-panel {
     min-width: 0;

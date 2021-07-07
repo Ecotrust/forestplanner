@@ -53,6 +53,7 @@ def get_property_report(property, taxlots):
 
     # calculate orientation, w x h, bounding box, centroid, and zoom level
     property_specs = get_property_specs(property)
+    property_specs_alt = get_property_specs(property, alt_size=True)
 
     img_width = property_specs['width']
     img_height = property_specs['height']
@@ -63,7 +64,14 @@ def get_property_report(property, taxlots):
         'context': refit_bbox(property_specs, scale='context')
     }
 
+    property_bboxes_alt = {
+        'fit': property_specs_alt['bbox'],
+        'medium': refit_bbox(property_specs_alt, scale='medium'),
+        'context': refit_bbox(property_specs_alt, scale='context')
+    }
+
     property_layer = map_views.get_property_image_layer(property, property_specs)
+    property_layer_alt = map_views.get_property_image_layer(property, property_specs_alt)
 
     # Get Basemap Images
     taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
@@ -71,6 +79,9 @@ def get_property_report(property, taxlots):
     aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
     street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
     topo_layer = map_views.get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+
+    # Alt map size
+    aerial_layer_alt = map_views.get_aerial_image_layer(property_specs_alt, property_bboxes_alt[settings.AERIAL_SCALE], alt_size=True)
 
     if settings.CONTOUR_SOURCE:
         contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])
@@ -124,6 +135,12 @@ def get_property_report(property, taxlots):
         property_specs,
         [aerial_layer, soil_layer, taxlot_layer, property_layer],
         bbox = property_bboxes[settings.SOIL_SCALE]
+    )
+
+    # Create Property image for alt
+    property.property_map_image_alt = map_views.get_static_map(
+        property_specs_alt,
+        [ aerial_layer_alt, property_layer_alt],
     )
 
     property.scalebar_image = map_views.get_scalebar_image(property_specs,
@@ -346,7 +363,7 @@ def pretty_print_float(value):
     else:
         return value # None
 
-def get_property_specs(property):
+def get_property_specs(property, alt_size=False):
     property_specs = {
         'orientation': None,  # 'portrait' or 'landscape'
         'width': None,  # Pixels
@@ -354,13 +371,20 @@ def get_property_specs(property):
         'bbox': None,  # "W,S,E,N" (EPSG:3857, Web Mercator)
         'zoom': None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
-    (bbox, orientation) = map_views.get_bbox_from_property(property)
+    if alt_size:
+        (bbox, orientation) = map_views.get_bbox_from_property(property, alt_size=True)
+    else:
+        (bbox, orientation) = map_views.get_bbox_from_property(property)
 
     property_specs['orientation'] = orientation
     property_specs['bbox'] = bbox
 
-    width = settings.REPORT_MAP_WIDTH
-    height = settings.REPORT_MAP_HEIGHT
+    if alt_size:
+        width = settings.REPORT_MAP_ALT_WIDTH
+        height = settings.REPORT_MAP_ALT_HEIGHT
+    else:
+        width = settings.REPORT_MAP_WIDTH
+        height = settings.REPORT_MAP_HEIGHT
 
     if orientation.lower() == 'portrait' and settings.REPORT_SUPPORT_ORIENTATION:
         temp_width = width
@@ -415,6 +439,7 @@ def create_property_pdf(property, property_id):
         path to the PDF output file that will be generated
     '''
     property_url = settings.APP_URL + '/report/' + property_id + '/property/map'
+    property_url_alt = settings.APP_URL + '/report/' + property_id + '/property_alt/map'
     aerial_url = settings.APP_URL + '/report/' + property_id + '/aerial/map'
     street_url = settings.APP_URL + '/report/' + property_id + '/street/map'
     terrain_url = settings.APP_URL + '/report/' + property_id + '/terrain/map'
@@ -423,6 +448,7 @@ def create_property_pdf(property, property_id):
     scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar/pdf'
 
     property_image = requests.get(property_url, stream=True)
+    property_image_alt = requests.get(property_url_alt, stream=True)
     aerial_image = requests.get(aerial_url, stream=True)
     street_image = requests.get(street_url, stream=True)
     terrain_image = requests.get(terrain_url, stream=True)
@@ -438,6 +464,16 @@ def create_property_pdf(property, property_id):
     tmp_property_name = tmp_property.name
     with open(tmp_property_name, 'wb') as f:
         for chunk in property_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
+    # Smaller size property image
+    tmp_property_alt = NamedTemporaryFile(suffix='.png',
+                                      dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                      delete=True)
+    tmp_property_alt_name = tmp_property_alt.name
+    with open(tmp_property_alt_name, 'wb') as f:
+        for chunk in property_image_alt.iter_content(chunk_size=1024):
             if chunk:
                 f.write(chunk)
 
@@ -553,6 +589,7 @@ def create_property_pdf(property, property_id):
         'watershedNum': report_data_dict['watershedNum'],
         'zone': report_data_dict['zone'],
         'introAerialImagery': tmp_property_name,
+        'propertyImageAlt': tmp_property_alt_name,
         'propName2': property.name,
         'aerial': tmp_aerial_name,
         'scale': scalebar_names[settings.PROPERTY_OVERVIEW_SCALE],
@@ -610,6 +647,7 @@ def create_property_pdf(property, property_id):
         print('Directory does not exit')
 
     property_image.close()
+    property_image_alt.close()
     aerial_image.close()
     soil_image.close()
     street_image.close()
@@ -630,6 +668,38 @@ def create_property_pdf(property, property_id):
         return buffer.getvalue()
     else:
         raise FileNotFoundError('Failed to produce output file.')
+
+
+def create_property_map_pdf(property, property_id, map_type=''):
+    rendered_pdf_name = property.name + '.pdf'
+
+    if os.path.exists(settings.PROPERTY_REPORT_PDF_DIR):
+        output_pdf = os.path.join(settings.PROPERTY_REPORT_PDF_DIR, rendered_pdf_name)
+    else:
+        print('Directory does not exit')
+        output_pdf = ''
+
+    page_number = 0
+
+    for map in settings.PDF_PAGE_LOOKUP:
+        if map == map_type:
+            page_number = settings.PDF_PAGE_LOOKUP[map]
+
+
+    if os.path.exists(output_pdf):
+        buffer = io.BytesIO()
+        new_output = pypdf.PdfFileWriter()
+        new_pdf = pypdf.PdfFileReader(output_pdf)
+        if map_type == 'soil_types':
+            for num in page_number:
+                new_output.addPage(new_pdf.getPage(num))
+        else:
+            new_output.addPage(new_pdf.getPage(page_number))
+        new_output.write(buffer)
+        return buffer.getvalue()
+    else:
+        raise FileNotFoundError('Failed to produce output file.')
+
 
 def get_soils_data(property_geom):
     soil_area_values = {}
