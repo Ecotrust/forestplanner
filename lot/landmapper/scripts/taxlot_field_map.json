@@ -1,16 +1,15 @@
 {
   "ODF_FPD": "odf_fpd",
-  "Agency": "agency",
+  "struct_fir": "agency",
   "orZDesc": "orzdesc",
   "HUC12": "huc12",
   "Name": "name",
-  "TWNSHPNO": "twnshpno",
-  "RANGENO": "rangeno",
-  "FRSTDIVNO": "frstdivno",
-  "TWNSHPLAB": "twnshplab",
-  "LegalLabel": "legal_label",
+  "LegalDesc": "legal_label",
   "MIN": "min_elevation",
   "MAX": "max_elevation",
-  "MEAN": "mean_elevation",
-  "UID": "id"
+  "UID": "id",
+  "SOURCE": "source",
+  "MAPTAXLOT": "map_taxlot",
+  "MAPNUMBER": "map_id",
+  "COUNTY_NAM": "county"
 }

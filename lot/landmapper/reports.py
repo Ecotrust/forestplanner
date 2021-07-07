@@ -62,7 +62,7 @@ def get_property_report(property, taxlots):
         'medium': refit_bbox(property_specs, scale='medium'),
         'context': refit_bbox(property_specs, scale='context')
     }
-    
+
     property_layer = map_views.get_property_image_layer(property, property_specs)
 
     # Get Basemap Images
@@ -221,9 +221,10 @@ def get_aggregate_property_data(property, taxlots):
     orzdesc = []
     huc12 = []
     name = []
-    twnshpno = []
-    rangeno = []
-    frstdivno = []
+    county = []
+    # twnshpno = []
+    # rangeno = []
+    # frstdivno = []
     # mean_elevation = []
 
     for taxlot in taxlots:
@@ -237,6 +238,7 @@ def get_aggregate_property_data(property, taxlots):
         name.append(taxlot.name)
         huc12.append(taxlot.huc12)
         orzdesc.append(taxlot.orzdesc)
+        county.append(taxlot.county)
 
     min_elevation = pretty_print_float(m_to_ft(aggregate_min(min_elevation)))
     max_elevation = pretty_print_float(m_to_ft(aggregate_max(max_elevation)))
@@ -259,7 +261,8 @@ def get_aggregate_property_data(property, taxlots):
          aggregate_strings(odf_fpd)], ['Watershed',
                                        aggregate_strings(name)],
         ['Watershed (HUC)', aggregate_strings(huc12)],
-        ['Zoning', aggregate_strings(orzdesc)]
+        ['Zoning', aggregate_strings(orzdesc)],
+        ['Counties', aggregate_strings(county)]
         # ['twnshpno', aggregate_strings(twnshpno)],
         # ['rangeno', aggregate_strings(rangeno)],
         # ['frstdivno', aggregate_strings(frstdivno)],

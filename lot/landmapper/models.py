@@ -73,21 +73,29 @@ class Taxlot(models.Model):
     # Name
     name = models.CharField(max_length=120, null=True, blank=True, default=None)
     # TWNSHPNO
-    twnshpno = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # twnshpno = models.CharField(max_length=3, null=True, blank=True, default=None)
     # RANGENO
-    rangeno = models.CharField(max_length=3, null=True, blank=True, default=None)
+    # rangeno = models.CharField(max_length=3, null=True, blank=True, default=None)
     # FRSTDIVNO
-    frstdivno = models.CharField(max_length=10, null=True, blank=True, default=None)
+    # frstdivno = models.CharField(max_length=10, null=True, blank=True, default=None)
     # TWNSHPLAB
-    twnshplab = models.CharField(max_length=20, null=True, blank=True, default=None)
+    # twnshplab = models.CharField(max_length=20, null=True, blank=True, default=None)
     # MEAN, formerly ele_mean
-    mean_elevation = models.FloatField(null=True, blank=True, default=None)
+    # mean_elevation = models.FloatField(null=True, blank=True, default=None)
     # MIN, formerly ele_min
     min_elevation = models.FloatField(null=True, blank=True, default=None)
     # MAX, formerly ele_max
     max_elevation = models.FloatField(null=True, blank=True, default=None)
     # legal_label Fully formatted legal description
     legal_label = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # county -- The county name that the taxlot belongs to.
+    county = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # source -- The source for the taxlot data
+    source = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # map_id -- the identifier of the map used by the source provider
+    map_id = models.CharField(max_length=255, null=True, blank=True, default=None)
+    # map_taxlot -- the identifier of the taxlot used by the source map
+    map_taxlot = models.CharField(max_length=255, null=True, blank=True, default=None)
 
     geometry = MultiPolygonField(
         srid=3857,
