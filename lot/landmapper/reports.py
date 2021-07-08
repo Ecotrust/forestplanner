@@ -239,6 +239,7 @@ def get_aggregate_property_data(property, taxlots):
     huc12 = []
     name = []
     county = []
+    centroid = get_centroid_coords(property.geometry_orig)
     # twnshpno = []
     # rangeno = []
     # frstdivno = []
@@ -279,11 +280,21 @@ def get_aggregate_property_data(property, taxlots):
                                        aggregate_strings(name)],
         ['Watershed (HUC)', aggregate_strings(huc12)],
         ['Zoning', aggregate_strings(orzdesc)],
-        ['Counties', aggregate_strings(county)]
+        ['Counties', aggregate_strings(county)],
         # ['twnshpno', aggregate_strings(twnshpno)],
         # ['rangeno', aggregate_strings(rangeno)],
         # ['frstdivno', aggregate_strings(frstdivno)],
+        ['Central Coordinates', centroid]
     ]
+
+def get_centroid_coords(geom):
+    property_srid = int(str(geom.srid))
+    print_srid = 4326
+    geom.transform(print_srid)
+    lon, lat = geom.centroid.coords
+    print_coords = "{}°, {}°".format(round(lon, 4), round(lat, 4))
+    geom.transform(property_srid)
+    return print_coords
 
 def aggregate_strings(agg_list):
     agg_list = [x for x in agg_list if not x == None]
