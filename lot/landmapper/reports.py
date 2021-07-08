@@ -357,7 +357,7 @@ def pretty_print_float(value):
         elif abs(value) >= 1:
             return format(value, '.3g')
         else:
-            return format(value, '.3g')
+            return format(float(value), '.3g')
     elif value:
         return str(value)
     else:
