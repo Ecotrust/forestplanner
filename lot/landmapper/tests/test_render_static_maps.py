@@ -50,7 +50,7 @@ class RenderTest(TestCase):
                 'musym': '188D',
                 'shp_lng': Decimal('941.418293384999970'),
                 'shap_ar': Decimal('20606.339999899999384'),
-                'avgsi': None,
+                'si_label': None,
                 'muname': 'Pengra silt loam, 2 to 20 percent slopes',
                 'drclssd': 'Somewhat poorly drained',
                 'frphrtd': 'Severe',

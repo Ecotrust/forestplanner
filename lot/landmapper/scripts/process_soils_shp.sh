@@ -6,9 +6,9 @@
 thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
-WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/Soils"
-SHP="$WORKING_DIR/oregon_soil.shp"
-FINAL="$WORKING_DIR/OR_SOIL_2020.sql"
+WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/soils_2021"
+SHP="$WORKING_DIR/oregon_soils.shp"
+FINAL="$WORKING_DIR/OR_SOIL_2021.sql"
 
 SRID=3857
 table_name='landmapper_soiltype'

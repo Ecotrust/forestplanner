@@ -256,8 +256,8 @@
                               {% endif %}
                             </li>
                             <li class="list-group-item"><strong>Site Index:</strong>
-                              {% if soil_type.avgsi or soil_type.avgsi == 0 %}
-                                {{ soil_type.avgsi|intcomma }} {{ soil_type.site_index_unit }}
+                              {% if soil_type.si_label %}
+                                {{ soil_type.si_label }}
                               {% else %}
                                 No Data Available
                               {% endif %}

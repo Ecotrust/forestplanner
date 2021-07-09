@@ -632,7 +632,7 @@ def create_property_pdf(property, property_id):
         f_acres = '{:.2f}'.format(float(soil['acres']))
         template_input_dict[str(sc_name) + 'acres'] = str(f_acres)
         template_input_dict[str(sc_name) + 'drainage'] = soil['drclssd']
-        template_input_dict[str(sc_name) + 'si'] = str(soil['avgsi']) + ' ' + soil['site_index_unit']
+        template_input_dict[str(sc_name) + 'si'] = str(soil['si_label'])
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
         if soil['avg_rs_l']:
             f_avg_rs_l = '{:.2f}'.format(float(soil['avg_rs_l']))
@@ -737,8 +737,7 @@ def get_soils_data(property_geom):
                 'areasym': soil_patch.areasym,
                 'shp_lng': soil_patch.shp_lng,
                 'shap_ar': soil_patch.shap_ar,
-                'avgsi': soil_patch.avgsi,
-                'site_index_unit': 'feet',
+                'si_label': soil_patch.si_label,
                 'drclssd': soil_patch.drclssd,
                 'frphrtd': soil_patch.frphrtd,
                 'avg_rs_l': cm_to_inches(soil_patch.avg_rs_l),
@@ -746,9 +745,7 @@ def get_soils_data(property_geom):
                 'depth_unit': 'inches',
                 'percent_area': 0.0
             }
-            # can't cast None to int
-            if soil_patch.avgsi:
-                soil_area_values[soil_patch.musym]['avgsi'] = int(soil_patch.avgsi)
+
         # aggregate area value
         intersection_patch = property_geom.intersection(soil_patch.geometry)
         intersection_patch.transform(equal_area_projection_id)

@@ -148,7 +148,7 @@ class SoilType(models.Model):
     musym = models.CharField(max_length=100, null=True, blank=True, default=None)
     shp_lng = models.FloatField(null=True, blank=True, default=None)
     shap_ar = models.FloatField(null=True, blank=True, default=None)
-    avgsi = models.FloatField(null=True, blank=True, default=None)
+    si_label = models.CharField(max_length=255, null=True, blank=True, default=None)
     muname = models.CharField(max_length=255, null=True, blank=True, default=None)
     drclssd = models.CharField(max_length=100, null=True, blank=True, default=None)
     frphrtd = models.CharField(max_length=100, null=True, blank=True, default=None)

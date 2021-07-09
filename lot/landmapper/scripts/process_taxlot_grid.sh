@@ -12,6 +12,8 @@ FINAL="$WORKING_DIR/OR_TAXLOTS_2021.sql"
 
 SRID=3857
 table_name='landmapper_taxlot'
+database_name='disco'
+db_user='postgres'
 
 ################################################################################
 # Probably no need to touch anything below here
@@ -57,5 +59,5 @@ EOT
 
 echo "------"
 echo "SUCCESS. sql file created; load into database on VM/Prod server with"
-echo "psql -U postgres -d marineplanner -f $FINAL"
+echo "psql -U $db_user -d $database_name -f $FINAL"
 echo "------"

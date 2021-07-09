@@ -1,14 +1,14 @@
 {
   "MUKEY": "mukey",
-  "AREASYM": "areasym",
-  "SPATIAL": "spatial",
+  "AREASYMBOL": "areasym",
+  "SPATIALVER": "spatial",
   "MUSYM": "musym",
-  "Shp_Lng": "shp_lng",
-  "Shap_Ar": "shap_ar",
-  "avgSI": "avgsi",
+  "Shape_Leng": "shp_lng",
+  "Shape_Area": "shap_ar",
   "muname": "muname",
-  "drclssd": "drclssd",
-  "frphrtd": "frphrtd",
-  "avg_rs_l": "avg_rs_l",
-  "avg_rs_h": "avg_rs_h"
+  "drclassdcd": "drclssd",
+  "forpehrtdc": "frphrtd",
+  "resdept_l_": "avg_rs_l",
+  "resdept_h_": "avg_rs_h",
+  "SI_label": "si_label"
 }
