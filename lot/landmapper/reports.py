@@ -740,9 +740,12 @@ def get_soils_data(property_geom):
                 'si_label': soil_patch.si_label,
                 'drclssd': soil_patch.drclssd,
                 'frphrtd': soil_patch.frphrtd,
-                'avg_rs_l': cm_to_inches(soil_patch.avg_rs_l),
-                'avg_rs_h': cm_to_inches(soil_patch.avg_rs_h),
-                'depth_unit': 'inches',
+                # 'avg_rs_l': cm_to_inches(soil_patch.avg_rs_l),
+                'avg_rs_l': soil_patch.avg_rs_l,
+                # 'avg_rs_h': cm_to_inches(soil_patch.avg_rs_h),
+                'avg_rs_h': soil_patch.avg_rs_h,
+                # 'depth_unit': 'inches',
+                'depth_unit': 'cm',
                 'percent_area': 0.0
             }
 
