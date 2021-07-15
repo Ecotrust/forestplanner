@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="242" height="37" viewBox="0 0 242 37">
+<svg xmlns="http://www.w3.org/2000/svg" width="300" height="37" viewBox="0 0 300 37">
   <defs>
     <style>
       .cls-1 {
         font-size: 30px;
-        font-family: Helvetica;
+        font-family: "Helvetica Neue", "HelveticaNeue", Helvetica, Arial, sans-serif;
         letter-spacing: 0.05em;
       }
 
