@@ -1398,50 +1398,54 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
             trf = transform.from_bounds(*bbox_array, width=img_width, height=img_height)
             work = show(reshape_as_raster(layer['data']), ax=ax, transform=trf)
         else:   # 'gdf' only for now
-            if 'label' in layer['style'].keys():
-                # adding labels according to Ianery and Martien Lubberink at https://stackoverflow.com/a/38902492/706797
-                # Clip the soil polygons to the view extent:
-                bbox_poly = shapely.geometry.Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)])
-                bbox_gdf = gpd.GeoDataFrame([1], geometry=[bbox_poly])
-                bbox_gdf.set_crs(epsg=3857)
-                layer['data'] = gpd.clip(layer['data'], bbox_gdf)
-                #Create a new point layer for the label data and locations
-                layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
-                layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
+            try:
+                # If no data, cannot set CRS: leads to bad GeoPandas logic, but all is unneccesary
+                if 'label' in layer['style'].keys() and not layer['data'].is_empty.empty:
+                    # adding labels according to Ianery and Martien Lubberink at https://stackoverflow.com/a/38902492/706797
+                    # Clip the soil polygons to the view extent:
+                    bbox_poly = shapely.geometry.Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)])
+                    bbox_gdf = gpd.GeoDataFrame([1], geometry=[bbox_poly])
+                    bbox_gdf.set_crs(epsg=3857)
+                    layer['data'] = gpd.clip(layer['data'], bbox_gdf)
+                    #Create a new point layer for the label data and locations
+                    layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
+                    layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
 
-                # If a GDF has a key added that isn't 'geometry' or 'coords', it becomes a label.
-                label_key = False
-                for idx, row in layer['data'].iterrows():
-                    if idx ==0:
-                        for key in row.keys():
-                            if key not in ['geometry', 'coords']:
-                                label_key = key
-                                continue
-                    if label_key:
-                        text = ax.text(
-                            row.coords[0],
-                            row.coords[1],
-                            s=row[label_key],
-                            color="#FFFFFF",
-                            size=layer['style']['label']['fontsize'],
-                            fontweight='bold',
-                            horizontalalignment='center',
-                            verticalalignment='center',
-                            bbox=layer['style']['label']['bbox']
-                        )
-                        text.set_path_effects([
-                            pe.Stroke(
-                                linewidth=layer['style']['label']['halo']['size'],
-                                foreground=layer['style']['label']['halo']['color']
-                            ),
-                            pe.Normal()]
-                        )
-            work = layer['data'].plot(
-                ax=ax,
-                lw=layer['style']['lw'],
-                ec=layer['style']['ec'],
-                fc=layer['style']['fc']
-            )
+                    # If a GDF has a key added that isn't 'geometry' or 'coords', it becomes a label.
+                    label_key = False
+                    for idx, row in layer['data'].iterrows():
+                        if idx ==0:
+                            for key in row.keys():
+                                if key not in ['geometry', 'coords']:
+                                    label_key = key
+                                    continue
+                        if label_key:
+                            text = ax.text(
+                                row.coords[0],
+                                row.coords[1],
+                                s=row[label_key],
+                                color="#FFFFFF",
+                                size=layer['style']['label']['fontsize'],
+                                fontweight='bold',
+                                horizontalalignment='center',
+                                verticalalignment='center',
+                                bbox=layer['style']['label']['bbox']
+                            )
+                            text.set_path_effects([
+                                pe.Stroke(
+                                    linewidth=layer['style']['label']['halo']['size'],
+                                    foreground=layer['style']['label']['halo']['color']
+                                ),
+                                pe.Normal()]
+                            )
+                work = layer['data'].plot(
+                    ax=ax,
+                    lw=layer['style']['lw'],
+                    ec=layer['style']['ec'],
+                    fc=layer['style']['fc']
+                )
+            except AttributeError as e:
+                pass
 
     ax.set_xlim(xmin, xmax)
     ax.set_ylim(ymin, ymax)
