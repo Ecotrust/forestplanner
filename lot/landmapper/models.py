@@ -1,6 +1,6 @@
 from django.db import models
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
-from django.contrib.gis.db.models import MultiPolygonField
+from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db.models import Manager as GeoManager
 from madrona.features import register, alternate, edit, get_feature_by_uid
 from django.contrib.postgres.fields import JSONField
@@ -212,6 +212,26 @@ class Property(MultiPolygonFeature):
 
     class Meta:
         abstract = False
+
+class PopulationPoint(models.Model):
+    classification = models.CharField(max_length=100, default='city')
+    state = models.CharField(max_length=30, default='OR')
+    population = models.IntegerField()
+    place_fips = models.IntegerField()
+    density_sqmi = models.FloatField(null=True, blank=True, default=None)
+    area_sqmi = models.FloatField(null=True, blank=True, default=None)
+    population_class = models.SmallIntegerField(null=True, blank=True, default=None)
+
+    geometry = PointField(
+        srid=3857,
+        null=True, blank=True,
+        verbose_name="Population Center Geometry"
+    )
+
+    class Options:
+        verbose_name = 'Population Center'
+
+
 
 class ForestType(models.Model):
     name = models.CharField(max_length=255)

@@ -2,7 +2,8 @@ import os, io, datetime, requests, json, decimal
 from datetime import date
 from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
-from landmapper.models import SoilType
+from django.contrib.gis.geos import Polygon
+from landmapper.models import SoilType, PopulationPoint
 from landmapper.fetch import soils_from_nrcs
 from landmapper.map_layers import views as map_views
 from matplotlib import pyplot as plt
@@ -44,9 +45,29 @@ def refit_bbox(property_specs, scale='fit'):
             new_S = float(south) - height_buffer
             new_W = float(west) - width_buffer
             new_E = float(east) + width_buffer
+            if scale == 'context':
+                [new_W, new_S, new_E, new_N] = get_context_bbox(new_W, new_S, new_E, new_N)
             bbox = "%f,%f,%f,%f" % (new_W, new_S, new_E, new_N)
 
     return bbox
+
+def get_context_bbox(west, south, east, north):
+    # turn bbox into a polygon
+    bbox_poly = Polygon( ((west,south), (west, north), (east, north), (east, south), (west, south)) )
+    bbox_poly.srid = 3857
+
+    # query PopulationPoint by polygon
+    hits = PopulationPoint.objects.filter(geometry__intersects=bbox_poly).count()
+
+    # if no hits:
+    if hits == 0:
+        #   increase bbox size by 5% in all directions
+        width_buffer = (east-west)*0.05
+        height_buffer = (north-south)*0.05
+        #   call recursively
+        [west, south, east, north] = get_context_bbox(west-width_buffer, south-height_buffer, east+width_buffer, north+height_buffer)
+
+    return [west, south, east, north]
 
 def get_property_report(property, taxlots):
     # TODO: call this in "property" after creating the object instance
