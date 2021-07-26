@@ -328,6 +328,8 @@ def get_property_map_image(request, property_id, map_type):
         image = property.aerial_map_image
     elif map_type == 'soil_types':
         image = property.soil_map_image
+    elif map_type == 'forest_types':
+        image = property.forest_type_map_image
     elif map_type == 'property':
         image = property.property_map_image
     elif map_type == 'terrain':

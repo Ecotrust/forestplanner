@@ -231,7 +231,26 @@ class PopulationPoint(models.Model):
     class Options:
         verbose_name = 'Population Center'
 
-
-
 class ForestType(models.Model):
-    name = models.CharField(max_length=255)
+    comp_over = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Overall Composition")
+    comp_ab = models.TextField(null=True, blank=True, default=None, verbose_name="Abundant Species")
+    comp_min = models.TextField(null=True, blank=True, default=None, verbose_name="Minor Species")
+    can_class = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Cover Class")
+    can_cr_min = models.FloatField(null=True, blank=True, default=None, verbose_name="Canopy Cover Min Range")
+    can_cr_max = models.FloatField(null=True, blank=True, default=None, verbose_name="Canopy Cover Max Range")
+    can_h_min = models.FloatField(null=True, blank=True, default=None, verbose_name="Canopy Height Min")
+    can_h_max = models.FloatField(null=True, blank=True, default=None, verbose_name="Canopy Height Max")
+    diameter = models.CharField(max_length=255, null=True, blank=True, default=None, verbose_name="Tree Size Class")
+    tree_r_min = models.FloatField(null=True, blank=True, default=None, verbose_name="Tree Size Est. Range Min")
+    tree_r_max = models.FloatField(null=True, blank=True, default=None, verbose_name="Tree Size Est. Range Max")
+    symbol = models.CharField(max_length=10, default=None)
+
+    geometry = MultiPolygonField(
+        srid=3857,
+        null=True, blank=True,
+        verbose_name="Grid Cell Geometry"
+    )
+    objects = GeoManager()
+
+    class Options:
+        verbose_name = 'Forest Type'

@@ -23,6 +23,7 @@ CONTOUR_SCALE = TOPO_SCALE
 AERIAL_SCALE = PROPERTY_OVERVIEW_SCALE
 TAXLOTS_SCALE = AERIAL_SCALE
 SOIL_SCALE = AERIAL_SCALE
+FOREST_TYPES_SCALE = AERIAL_SCALE
 STREAM_SCALE = AERIAL_SCALE
 STUDY_REGION = {
     'north': 46.292035,
@@ -273,6 +274,28 @@ TAXLOT_STYLE = {'lw':0.2, 'ec': '#CCCCCC', 'fc': 'none'}
 SOIL_STYLE = {
     'lw':0.8,
     'ec': '#EBAE33',
+    'fc': 'none',
+    'label': {
+        'fontsize': 3,
+        'halo': {
+            'size': 1,
+            'color': 'black'
+        },
+        'bbox': None,
+        # 'bbox': {
+        #     'facecolor': '#000000',
+        #     'alpha':0.4,
+        #     'pad': 0.2,
+        #     'edgecolor':'none'
+        # }
+    }
+}
+FOREST_TYPES_STYLE = {
+    'lw':0.8,
+    # 'ec': '#00FF44', # GREEN
+    # 'ec': '#E11845', # Strawberry
+    'ec': '#F2CA19', # Mustard
+    # 'ec': '#0057E9', # Blue
     'fc': 'none',
     'label': {
         'fontsize': 3,
@@ -853,6 +876,28 @@ if CONTOUR_SOURCE:
     ]
 
 ###########################################
+##      Forest Types                    ###
+###########################################
+FOREST_TYPES_URLS = {
+    'LOCAL': {
+        'URL': None,
+        'PARAMS': {},
+        'QS': [],
+        'ATTRIBUTION': 'Ecotrust 2021',
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 512,
+        'TILE_IMAGE_WIDTH': 512
+    }
+}
+
+FOREST_TYPES_SOURCE = 'LOCAL'
+
+FOREST_TYPES_ATTRIBUTION = FOREST_TYPES_URLS[FOREST_TYPES_SOURCE]['ATTRIBUTION']
+
+###########################################
 ##      Map Info                        ###
 ###########################################
 ATTRIBUTION_KEYS = {
@@ -861,7 +906,8 @@ ATTRIBUTION_KEYS = {
     'streets': 'Set street attr in settings',
     'streams': STREAMS_ATTRIBUTION,
     'taxlot': TAXLOTS_ATTRIBUTION,
-    'soil': SOIL_ATTRIBUTION
+    'soil': SOIL_ATTRIBUTION,
+    'forest-types': FOREST_TYPES_ATTRIBUTION
 }
 
 ATTRIBUTION_BOX_FILL_COLOR = (255, 255, 255, 190)

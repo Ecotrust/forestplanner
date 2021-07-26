@@ -113,6 +113,8 @@ def get_property_report(property, taxlots):
     # TODO: Replace this with stream dataframe (?)
     stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
+    forest_types_layer = map_views.get_forest_types_image_layer(property_specs, property_bboxes[settings.FOREST_TYPES_SCALE])
+
     # Create Overview Image
     property.property_map_image = map_views.get_static_map(
         property_specs,
@@ -156,6 +158,12 @@ def get_property_report(property, taxlots):
         property_specs,
         [aerial_layer, soil_layer, taxlot_layer, property_layer],
         bbox = property_bboxes[settings.SOIL_SCALE]
+    )
+
+    property.forest_type_map_image = map_views.get_static_map(
+        property_specs,
+        [aerial_layer, forest_types_layer, taxlot_layer, property_layer],
+        bbox = property_bboxes[settings.FOREST_TYPES_SCALE]
     )
 
     # Create Property image for alt
@@ -701,7 +709,6 @@ def create_property_pdf(property, property_id):
     else:
         raise FileNotFoundError('Failed to produce output file.')
 
-
 def create_property_map_pdf(property, property_id, map_type=''):
     rendered_pdf_name = property.name + '.pdf'
 
@@ -731,7 +738,6 @@ def create_property_map_pdf(property, property_id, map_type=''):
         return buffer.getvalue()
     else:
         raise FileNotFoundError('Failed to produce output file.')
-
 
 def get_soils_data(property_geom):
     soil_area_values = {}
