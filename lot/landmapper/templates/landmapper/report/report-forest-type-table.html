@@ -1,0 +1,72 @@
+{% load static %}
+{% load humanize %}
+
+<section id="section-forest-type-tables" class="section-report map-wrap row no-gutters pb-5">
+    <div class="row col-12 d-flex no-gutters justify-content-start">
+        <div class="col-2"></div>
+        <div class="col-8 content-panel">
+            <h1>Forest Type Table</h1>
+            <h3>{{ property_name }}</h3>
+            <h2>Page 2 of 2</h2>
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <div class="row col-8 no-gutters m-auto">
+        <div class="forest-type property-report-data row no-gutters">
+            {% for forest_type in property_report.forest_types.data %}
+                <div class="col-auto"></div>
+                <div class="{% cycle 'col-6' 'col-6' %}">
+                    <div class="list-group-title"><div class="list-group-symbol">{ forest_type.symbol }</div> { forest_type.name }</div>
+                    <ul class="forest-type-list list-group list-group-flush">
+                        <li class="list-group-item"><strong>Area:</strong> { forest_type.acres|floatformat:1|intcomma } acres ({ forest_type.percent_area|floatformat:1}%)</li>
+                        <li class="list-group-item"><strong>Attr 2:</strong>
+                          {% comment %}
+                          {% if forest_type.attr_2 %}
+                          {% endcomment %}
+                            { forest_type.attr_2 }
+                          {% comment %}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                          {% endcomment %}
+                        </li>
+                        <li class="list-group-item"><strong>Attr 3:</strong>
+                          {% comment %}
+                          {% if forest_type.attr_3 %}
+                          {% endcomment %}
+                            { forest_type.attr_3 }
+                          {% comment %}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                          {% endcomment %}
+                        </li>
+                        <li class="list-group-item"><strong>Attr 4:</strong>
+                          {% comment %}
+                          {% if forest_type.attr_4 %}
+                          {% endcomment %}
+                            { forest_type.attr_4 }
+                          {% comment %}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                          {% endcomment %}
+                        </li>
+                        <li class="list-group-item"><strong>Attr 5:</strong>
+                          {% comment %}
+                          {% if forest_type.attr_5 %}
+                          {% endcomment %}
+                            { forest_type.attr_5 }
+                          {% comment %}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                          {% endcomment %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-auto"></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
