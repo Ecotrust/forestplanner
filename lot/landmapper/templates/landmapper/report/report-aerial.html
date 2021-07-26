@@ -1,36 +1,34 @@
 {% load static %}
 
-<section id="section-soil-types" class="section-report map-wrap row no-gutters">
+<section id="section-aerial" class="section-report map-wrap row no-gutters">
     <div class="row col-12 d-flex no-gutters justify-content-center">
-        <div class="col-auto map-contianer">
+        <div class="col-auto">
             <div class="map-image-wrap">
-                <img src="/landmapper/report/{{ property_id }}/soil_types/map" class="property-map-image">
+                <img src="/landmapper/report/{{ property_id }}/aerial/map" class="property-map-image">
                 <div class="scalebar-wrap">
-                    <img src="/landmapper/report/{{ property_id }}/scalebar/{{ soil_scale }}" class="scalebar"/>
+                    <img src="/landmapper/report/{{ property_id }}/scalebar/{{ aerial_scale }}" class="scalebar"/>
                 </div>
                 <div class="compass-wrap">
                     <img src="{% static 'landmapper/img/icon/icon-north.svg' %}" class="icon-north" />
                 </div>
             </div>
         </div>
-
         <div class="col-auto content-panel">
-            <h1>Soil Types Map</h1>
+            <h1>Aerial Photo</h1>
             <h3>{{ property_name }}</h3>
 
             <div class="legend-wrap">
-                <img src="{{ property_report.soils.legend }}" />
+                <img src="{{ property_report.aerial.legend }}" />
             </div>
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p>Soils: NRCS</p>
                 <p>Taxlots: ORMAP</p>
-                <p>Basemap: NAIP</p>
+                <p>Aerial: NAIP</p>
             </div>
 
             <div class="button-wrap d-print-none">
-                <a href="/landmapper/report/{{ property_id }}/soil_types/pdf" class="btn btn-primary" target="_blank">Download</a>
+                <a href="/landmapper/report/{{ property_id }}/aerial/pdf" class="btn btn-primary" target="_blank">Download</a>
                 <button type="button" class="btn btn-primary copy-link" title="Copied to clipboard">Share</button>
             </div>
         </div>
