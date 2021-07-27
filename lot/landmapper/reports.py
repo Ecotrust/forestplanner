@@ -453,6 +453,10 @@ def get_report_data_dict(data):
             data_dict['watershedNum'] = value
         elif property == 'Zoning':
             data_dict['zone'] = value
+        elif property == 'Counties':
+            data_dict['counties'] = value
+        elif property == 'Central Coordinates':
+            data_dict['centralcoords'] = value
         else:
             data_dict[property.lower()] = value
 
