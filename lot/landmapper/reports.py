@@ -443,7 +443,7 @@ def get_report_data_dict(data):
             data_dict['elevation'] = value
         elif property == 'Legal Description':
             data_dict['legalDesc'] = value
-        elif property == 'Structural Fire Disctrict':
+        elif property == 'Structural Fire District':
             data_dict['structFire'] = value
         elif property == 'Forest Fire District':
             data_dict['fire'] = value
@@ -651,11 +651,11 @@ def create_property_pdf(property, property_id):
         template_input_dict[str(sc_name) + 'musym'] = soil['musym']
         template_input_dict[str(sc_name) + 'Name'] = soil['muname']
         if soil['acres']:
-            pp_acres = pretty_print_float(soil['acres'])
+            pp_acres = '{:.1f}'.format(float(soil['acres']))
         else:
             pp_acres = 'No Data Available'
         if soil['percent_area']:
-            pp_percent_area = pretty_print_float(soil['percent_area'])
+            pp_percent_area = '{:.1f}'.format(float(soil['percent_area']))
         else:
             pp_percent_area = 'No Data Available'
         if soil['acres'] or soil['percent_area']:
@@ -666,11 +666,11 @@ def create_property_pdf(property, property_id):
         template_input_dict[str(sc_name) + 'si'] = str(soil['si_label'])
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
         if soil['avg_rs_l']:
-            f_avg_rs_l = '{:.2f}'.format(float(soil['avg_rs_l']))
+            f_avg_rs_l = '{:.1f}'.format(float(soil['avg_rs_l']))
         else:
             f_avg_rs_l = 'No Data Available'
         if soil['avg_rs_h']:
-            f_avg_rs_h = '{:.2f}'.format(float(soil['avg_rs_h']))
+            f_avg_rs_h = '{:.1f}'.format(float(soil['avg_rs_h']))
         else:
             f_avg_rs_h = 'No Data Available'
         if soil['avg_rs_l'] or soil['avg_rs_h']:
