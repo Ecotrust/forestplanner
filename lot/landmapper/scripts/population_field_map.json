@@ -1,0 +1,10 @@
+{
+  "ORIG_FID": "id",
+  "CLASS": "classification",
+  "ST": "state",
+  "POPULATION": "population",
+  "POP_SQMI": "density_sqmi",
+  "SQMI": "area_sqmi",
+  "POP_CLASS": "population_class",
+  "PLACEFIPS": "place_fips"
+}
