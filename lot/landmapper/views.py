@@ -311,7 +311,8 @@ def report(request, property_id):
         'street_scale': settings.STREET_SCALE,
         'topo_scale': settings.TOPO_SCALE,
         'stream_scale': settings.STREAM_SCALE,
-        'soil_scale': settings.SOIL_SCALE
+        'soil_scale': settings.SOIL_SCALE,
+        'forest_type_scale': settings.FOREST_TYPES_SCALE
     }
 
     context['menu_items'] = MenuPage.objects.all().order_by('order')

@@ -926,7 +926,7 @@ STREET_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/directions_aerial.
 TERRAIN_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/topo.png'
 STREAM_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/hydrology.png'
 SOIL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/soils.png'
-FOREST_TYPE_MAP_LEGEND_URL = '/set/FOREST_TYPE_MAP_LEGEND_URL/in/settings.py'
+FOREST_TYPE_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/forest_types.png'
 
 ###########################################
 ##      Site URLs                       ###
