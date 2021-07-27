@@ -294,7 +294,7 @@ def get_aggregate_property_data(property, taxlots):
          pretty_print_float(aggregate_sum(acres))],
         [elevation_label, elevation_value],
         ['Legal Description', aggregate_strings(legal)],
-        ['Structural Fire Disctrict',
+        ['Structural Fire District',
          aggregate_strings(agency)],
         ['Forest Fire District',
          aggregate_strings(odf_fpd)], ['Watershed',
@@ -650,17 +650,29 @@ def create_property_pdf(property, property_id):
         sc_name = 'soil' + str(soil_count)
         template_input_dict[str(sc_name) + 'musym'] = soil['musym']
         template_input_dict[str(sc_name) + 'Name'] = soil['muname']
-        # pp_acres = '{:.2f}'.format(float(soil['acres']))
-        pp_acres = pretty_print_float(soil['acres'])
-        pp_percent_area = pretty_print_float(soil['percent_area'])
-        template_input_dict[str(sc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
+        if soil['acres']:
+            pp_acres = pretty_print_float(soil['acres'])
+        else:
+            pp_acres = 'No Data Available'
+        if soil['percent_area']:
+            pp_percent_area = pretty_print_float(soil['percent_area'])
+        else:
+            pp_percent_area = 'No Data Available'
+        if soil['acres'] or soil['percent_area']:
+            template_input_dict[str(sc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
+        else:
+            template_input_dict[str(sc_name) + 'acres'] = 'No Data Available'
         template_input_dict[str(sc_name) + 'drainage'] = soil['drclssd']
         template_input_dict[str(sc_name) + 'si'] = str(soil['si_label'])
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
         if soil['avg_rs_l']:
             f_avg_rs_l = '{:.2f}'.format(float(soil['avg_rs_l']))
+        else:
+            f_avg_rs_l = 'No Data Available'
         if soil['avg_rs_h']:
             f_avg_rs_h = '{:.2f}'.format(float(soil['avg_rs_h']))
+        else:
+            f_avg_rs_h = 'No Data Available'
         if soil['avg_rs_l'] or soil['avg_rs_h']:
             template_input_dict[str(sc_name) + 'depth'] = str(f_avg_rs_l) + ' - ' + str(f_avg_rs_h)  + ' ' + str(soil['depth_unit'])
         else:
