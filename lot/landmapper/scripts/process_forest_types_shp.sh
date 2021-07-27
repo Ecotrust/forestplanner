@@ -7,7 +7,7 @@ thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
 WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/forest_types_2021"
-SHP="$WORKING_DIR/forest_types.shp"
+SHP="$WORKING_DIR/forestClass_dumm.shp"
 FINAL="$WORKING_DIR/FOREST_TYPES_2021.sql"
 
 SRID=3857
