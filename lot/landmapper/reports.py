@@ -659,13 +659,12 @@ def create_property_pdf(property, property_id):
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
         if soil['avg_rs_l']:
             f_avg_rs_l = '{:.2f}'.format(float(soil['avg_rs_l']))
-        else:
-            f_avg_rs_l = 'No Data'
         if soil['avg_rs_h']:
             f_avg_rs_h = '{:.2f}'.format(float(soil['avg_rs_h']))
+        if soil['avg_rs_l'] or soil['avg_rs_h']:
+            template_input_dict[str(sc_name) + 'depth'] = str(f_avg_rs_l) + ' - ' + str(f_avg_rs_h)  + ' ' + str(soil['depth_unit'])
         else:
-            f_avg_rs_h = 'No Data'
-        template_input_dict[str(sc_name) + 'depth'] = str(f_avg_rs_l) + ' - ' + str(f_avg_rs_h)  + ' ' + str(soil['depth_unit'])
+            template_input_dict[str(sc_name) + 'depth'] = 'No Data Available'
 
         soil_count += 1
 
