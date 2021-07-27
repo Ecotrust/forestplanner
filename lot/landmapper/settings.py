@@ -238,6 +238,13 @@ STREET_DEFAULT = 'MAPBOX_Streets'
 ###########################################
 ##      REPORTS                         ###
 ###########################################
+SHOW_AERIAL_REPORT = True
+SHOW_STREET_REPORT = True
+SHOW_TERRAIN_REPORT = True
+SHOW_STREAMS_REPORT = True
+SHOW_SOILS_REPORT = True
+SHOW_FOREST_TYPES_REPORT = False
+
 # Based on map size on slide 4 in the XD Specs
 # This assumes the 'landscape' report layout (image will feel like 'portrait')
 # REPORT_MAP_WIDTH = 509

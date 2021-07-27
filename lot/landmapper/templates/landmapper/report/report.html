@@ -15,21 +15,28 @@
 
     {% include "landmapper/report/report-overview.html" %}
 
-    {% include "landmapper/report/report-aerial.html" %}
+    {% if SHOW_AERIAL_REPORT %}
+      {% include "landmapper/report/report-aerial.html" %}
+    {% endif %}
+    {% if SHOW_STREET_REPORT %}
+      {% include "landmapper/report/report-street.html" %}
+    {% endif %}
+    {% if SHOW_TERRAIN_REPORT %}
+      {% include "landmapper/report/report-terrain.html" %}
+    {% endif %}
+    {% if SHOW_STREAMS_REPORT %}
+      {% include "landmapper/report/report-streams.html" %}
+    {% endif %}
+    {% if SHOW_SOILS_REPORT %}
+      {% include "landmapper/report/report-soil.html" %}
 
-    {% include "landmapper/report/report-street.html" %}
+      {% include "landmapper/report/report-soil-table.html" %}
+    {% endif %}
+    {% if SHOW_FOREST_TYPES_REPORT %}
+      {% include "landmapper/report/report-forest-type.html" %}
 
-    {% include "landmapper/report/report-terrain.html" %}
-
-    {% include "landmapper/report/report-streams.html" %}
-
-    {% include "landmapper/report/report-soil.html" %}
-
-    {% include "landmapper/report/report-soil-table.html" %}
-
-    {% include "landmapper/report/report-forest-type.html" %}
-
-    {% include "landmapper/report/report-forest-type-table.html" %}
+      {% include "landmapper/report/report-forest-type-table.html" %}
+    {% endif %}
 
 {% endblock content %}
 

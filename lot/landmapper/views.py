@@ -316,6 +316,12 @@ def report(request, property_id):
     }
 
     context['menu_items'] = MenuPage.objects.all().order_by('order')
+    context['SHOW_AERIAL_REPORT'] = settings.SHOW_AERIAL_REPORT
+    context['SHOW_STREET_REPORT'] = settings.SHOW_STREET_REPORT
+    context['SHOW_TERRAIN_REPORT'] = settings.SHOW_TERRAIN_REPORT
+    context['SHOW_STREAMS_REPORT'] = settings.SHOW_STREAMS_REPORT
+    context['SHOW_SOILS_REPORT'] = settings.SHOW_SOILS_REPORT
+    context['SHOW_FOREST_TYPES_REPORT'] = settings.SHOW_FOREST_TYPES_REPORT
 
     return render(request, 'landmapper/report/report.html', context)
 
