@@ -650,8 +650,8 @@ def create_property_pdf(property, property_id):
         sc_name = 'soil' + str(soil_count)
         template_input_dict[str(sc_name) + 'musym'] = soil['musym']
         template_input_dict[str(sc_name) + 'Name'] = soil['muname']
-        f_acres = '{:.2f}'.format(float(soil['acres']))
-        template_input_dict[str(sc_name) + 'acres'] = str(f_acres)
+        f_acres = '{:.2f}'.format(pretty_print_float(soil['acres']))
+        template_input_dict[str(sc_name) + 'acres'] = str(f_acres) + ' acres ' + '(' + soil['percent_area'] + ')'
         template_input_dict[str(sc_name) + 'drainage'] = soil['drclssd']
         template_input_dict[str(sc_name) + 'si'] = str(soil['si_label'])
         template_input_dict[str(sc_name) + 'erosion'] = soil['frphrtd']
