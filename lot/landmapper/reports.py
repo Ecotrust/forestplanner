@@ -624,6 +624,8 @@ def create_property_pdf(property, property_id):
         'watershed': report_data_dict['watershed'],
         'watershedNum': report_data_dict['watershedNum'],
         'zone': report_data_dict['zone'],
+        'counties': report_data_dict['counties'],
+        'centralcoords': report_data_dict['centralcoords'],
         'introAerialImagery': tmp_property_name,
         'propertyImageAlt': tmp_property_alt_name,
         'propName2': property.name,
