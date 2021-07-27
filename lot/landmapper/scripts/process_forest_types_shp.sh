@@ -1,17 +1,17 @@
 #!/bin/bash
-# process_drawing_grid.sh
-# Input: shapefile (epsg 3857) with planning grids
+# process_forest_types_shp.sh
+# Input: shapefile (epsg 3857) with Forest Types
 # Output: postgres sql file
 
 thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
-WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/taxlots_2021"
-SHP="$WORKING_DIR/taxlot.shp"
-FINAL="$WORKING_DIR/OR_TAXLOTS_2021.sql"
+WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/forest_types_2021"
+SHP="$WORKING_DIR/forest_types.shp"
+FINAL="$WORKING_DIR/FOREST_TYPES_2021.sql"
 
 SRID=3857
-table_name='landmapper_taxlot'
+table_name='landmapper_foresttype'
 database_name='disco'
 db_user='postgres'
 
@@ -20,10 +20,10 @@ db_user='postgres'
 ################################################################################
 
 # Path will not change by json file may need to be updated
-FIELDMAP="$thisdir/taxlot_field_map.json"
+FIELDMAP="$thisdir/forest_type_field_map.json"
 
 # Probably won't need to touch these if running from root project dir
-TMP="$WORKING_DIR/taxlot_planning_grid.sql"
+TMP="$WORKING_DIR/forest_type_planning_grid.sql"
 TRANSLATE="python $thisdir/translate.py"
 VALIDATE="python $thisdir/validate_fields.py"
 

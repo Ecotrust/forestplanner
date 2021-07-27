@@ -57,6 +57,8 @@ CREATE INDEX ON "public"."$table_name" USING GIST ("centroid");
 COMMIT;
 EOT
 
+rm $TMP
+
 echo "------"
 echo "SUCCESS. sql file created; load into database on VM/Prod server with"
 echo "psql -U $db_user -d $database_name -f $FINAL"
