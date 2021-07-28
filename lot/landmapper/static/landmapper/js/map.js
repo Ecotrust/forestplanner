@@ -64,6 +64,16 @@ landmapper.taxlotLayer = new ol.layer.Tile({
  */
 landmapper.selectedFeatureSource = new ol.source.Vector();
 
+landmapper.selectedFeatureSource.on("addfeature", function(e){
+  landmapper.showNextBtn(true);
+});
+
+landmapper.selectedFeatureSource.on("removefeature", function(e){
+  if (landmapper.selectedFeatureSource.getFeatures().length < 1) {
+    landmapper.showNextBtn(false);
+  }
+});
+
 landmapper.selectedFeatureStyles = new ol.style.Style({
   fill: new ol.style.Fill({
     color: 'rgba(255, 231, 49, 0.25)',
@@ -292,7 +302,6 @@ var enablePropertySelection = function() {
    * @return {[type]}   [description]
    */
   map.on('singleclick', function(e) {
-    landmapper.showNextBtn(true);
     landmapper.loadTaxLots(e);
   });
 }
