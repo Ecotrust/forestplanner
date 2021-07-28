@@ -1,0 +1,77 @@
+{% load static %}
+{% load humanize %}
+
+<section id="section-forest-type-tables" class="section-report map-wrap row no-gutters pb-5">
+    <div class="row col-12 d-flex no-gutters justify-content-start">
+        <div class="col-2"></div>
+        <div class="col-8 content-panel">
+            <h1>Forest Type Table</h1>
+            <h3>{{ property_name }}</h3>
+            <h2>Page 2 of 2</h2>
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <div class="row col-8 no-gutters m-auto">
+        <div class="forest-type property-report-data row no-gutters">
+            {% for forest_type in property_report.forest_types.data %}
+                <div class="col-auto"></div>
+                <div class="{% cycle 'col-6' 'col-6' %}">
+                    <div class="list-group-title"><div class="list-group-symbol">{{ forest_type.symbol }}</div> {{ forest_type.comp_over }}</div>
+                    <ul class="forest-type-list list-group list-group-flush">
+                        <li class="list-group-item"><strong>Area:</strong> {{ forest_type.acres|floatformat:1|intcomma }} acres ({{ forest_type.percent_area|floatformat:1}}%)</li>
+                        <li class="list-group-item"><strong>Abundant Species:</strong>
+                          {% if forest_type.comp_ab %}
+                            {{ forest_type.comp_ab }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Minor Species:</strong>
+                          {% if forest_type.comp_min %}
+                            {{ forest_type.comp_min }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Canopy Cover Class:</strong>
+                          {% if forest_type.can_class %}
+                            {{ forest_type.can_class }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Canopy Estimated Range:</strong>
+                          {% if forest_type.can_cr_min and forest_type.can_cr_max  %}
+                            {{ forest_type.can_cr_min }}% - {{ forest_type.can_cr_max }}%
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Canopy Height:</strong>
+                          {% if forest_type.can_h_min and forest_type.can_h_max  %}
+                            {{ forest_type.can_h_min }}ft - {{ forest_type.can_h_max }}ft
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Tree Diameter Class:</strong>
+                          {% if forest_type.diameter %}
+                            {{ forest_type.diameter }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>QMD Est. Range:</strong>
+                          {% if forest_type.tree_r_min and forest_type.tree_r_max  %}
+                            {{ forest_type.tree_r_min }}in - {{ forest_type.tree_r_max }}in
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-auto"></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>

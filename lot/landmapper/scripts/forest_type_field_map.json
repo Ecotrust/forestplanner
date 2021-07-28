@@ -1,0 +1,14 @@
+{
+  "symbol": "symbol",
+  "comp_over": "comp_over",
+  "comp_ab": "comp_ab",
+  "comp_min": "comp_min",
+  "canClass": "can_class",
+  "can_cr_min": "can_cr_min",
+  "can_cr_max": "can_cr_max",
+  "can_h_min": "can_h_min",
+  "can_h_max": "can_h_max",
+  "diameter": "diameter",
+  "tree_r_min": "tree_r_min",
+  "tree_r_max": "tree_r_max"
+}

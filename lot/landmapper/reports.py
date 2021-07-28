@@ -3,7 +3,7 @@ from datetime import date
 from django.conf import settings
 from django.contrib.humanize.templatetags import humanize
 from django.contrib.gis.geos import Polygon
-from landmapper.models import SoilType, PopulationPoint
+from landmapper.models import SoilType, PopulationPoint, ForestType
 from landmapper.fetch import soils_from_nrcs
 from landmapper.map_layers import views as map_views
 from matplotlib import pyplot as plt
@@ -113,6 +113,8 @@ def get_property_report(property, taxlots):
     # TODO: Replace this with stream dataframe (?)
     stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
+    forest_types_layer = map_views.get_forest_types_image_layer(property_specs, property_bboxes[settings.FOREST_TYPES_SCALE])
+
     # Create Overview Image
     property.property_map_image = map_views.get_static_map(
         property_specs,
@@ -156,6 +158,12 @@ def get_property_report(property, taxlots):
         property_specs,
         [aerial_layer, soil_layer, taxlot_layer, property_layer],
         bbox = property_bboxes[settings.SOIL_SCALE]
+    )
+
+    property.forest_type_map_image = map_views.get_static_map(
+        property_specs,
+        [aerial_layer, forest_types_layer, taxlot_layer, property_layer],
+        bbox = property_bboxes[settings.FOREST_TYPES_SCALE]
     )
 
     # Create Property image for alt
@@ -238,9 +246,9 @@ def get_property_report_data(property, property_specs, taxlots):
     }
 
     #forest_type
-    forest_type_data = None
+    forest_type_data = get_forest_types_data(property.geometry_orig)
 
-    report_data['forest_type'] = {
+    report_data['forest_types'] = {
         'data': forest_type_data,
         'legend': settings.FOREST_TYPE_MAP_LEGEND_URL
     }
@@ -720,7 +728,6 @@ def create_property_pdf(property, property_id):
     else:
         raise FileNotFoundError('Failed to produce output file.')
 
-
 def create_property_map_pdf(property, property_id, map_type=''):
     rendered_pdf_name = property.name + '.pdf'
 
@@ -750,7 +757,6 @@ def create_property_map_pdf(property, property_id, map_type=''):
         return buffer.getvalue()
     else:
         raise FileNotFoundError('Failed to produce output file.')
-
 
 def get_soils_data(property_geom):
     soil_area_values = {}
@@ -805,3 +811,53 @@ def get_soils_data(property_geom):
         soil_data.append(soil_area_values[musym])
 
     return soil_data
+
+def get_forest_types_data(property_geom):
+    forest_type_area_values = {}
+    equal_area_projection_id = 5070
+    forest_types_data = []
+    # get soil patches that intersect the property
+    forest_types = ForestType.objects.filter(geometry__intersects=property_geom)
+    # get the true area of the property in Acres
+    property_srid = int(str(property_geom.srid))
+    property_geom.transform(equal_area_projection_id)
+    property_acres = sq_m_to_acres(property_geom.area)
+    property_geom.transform(property_srid)
+
+    # build dictionary of soil values for each soil type
+    for forest_patch in forest_types:
+        if not forest_patch.symbol in forest_type_area_values.keys():
+            forest_type_area_values[forest_patch.symbol] = {
+                # All ForestType fields + 2 property-specific calculated fields
+                'symbol': forest_patch.symbol,
+                'comp_over': forest_patch.comp_over,
+                'comp_ab': forest_patch.comp_ab,
+                'comp_min': forest_patch.comp_min,
+                'can_class': forest_patch.can_class,
+                'can_cr_min': forest_patch.can_cr_min,
+                'can_cr_max': forest_patch.can_cr_max,
+                'can_h_min': forest_patch.can_h_min,
+                'can_h_max': forest_patch.can_h_max,
+                'diameter': forest_patch.diameter,
+                'tree_r_min': forest_patch.tree_r_min,
+                'tree_r_max': forest_patch.tree_r_max,
+                'acres': 0,
+                'percent_area': 0.0
+            }
+
+        # aggregate area value
+        intersection_patch = property_geom.intersection(forest_patch.geometry)
+        intersection_patch.transform(equal_area_projection_id)
+        forest_type_area_values[forest_patch.symbol]['acres'] = forest_type_area_values[forest_patch.symbol]['acres'] + sq_m_to_acres(intersection_patch.area)
+        # Update the 'percent area' value
+        forest_type_area_values[forest_patch.symbol]['percent_area'] = float(forest_type_area_values[forest_patch.symbol]['acres'])/float(property_acres)*100
+
+    # present soil symbol values in alphanumeric order
+    ordered_symbols = list(set(forest_type_area_values.keys()))
+    ordered_symbols.sort()
+
+    # add each soil entry in order to the output list so that order is maintained
+    for symbol in ordered_symbols:
+        forest_types_data.append(forest_type_area_values[symbol])
+
+    return forest_types_data

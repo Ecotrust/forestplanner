@@ -311,10 +311,17 @@ def report(request, property_id):
         'street_scale': settings.STREET_SCALE,
         'topo_scale': settings.TOPO_SCALE,
         'stream_scale': settings.STREAM_SCALE,
-        'soil_scale': settings.SOIL_SCALE
+        'soil_scale': settings.SOIL_SCALE,
+        'forest_type_scale': settings.FOREST_TYPES_SCALE
     }
 
     context['menu_items'] = MenuPage.objects.all().order_by('order')
+    context['SHOW_AERIAL_REPORT'] = settings.SHOW_AERIAL_REPORT
+    context['SHOW_STREET_REPORT'] = settings.SHOW_STREET_REPORT
+    context['SHOW_TERRAIN_REPORT'] = settings.SHOW_TERRAIN_REPORT
+    context['SHOW_STREAMS_REPORT'] = settings.SHOW_STREAMS_REPORT
+    context['SHOW_SOILS_REPORT'] = settings.SHOW_SOILS_REPORT
+    context['SHOW_FOREST_TYPES_REPORT'] = settings.SHOW_FOREST_TYPES_REPORT
 
     return render(request, 'landmapper/report/report.html', context)
 
@@ -328,6 +335,8 @@ def get_property_map_image(request, property_id, map_type):
         image = property.aerial_map_image
     elif map_type == 'soil_types':
         image = property.soil_map_image
+    elif map_type == 'forest_types':
+        image = property.forest_type_map_image
     elif map_type == 'property':
         image = property.property_map_image
     elif map_type == 'terrain':
@@ -373,71 +382,6 @@ def get_scalebar_as_image_for_pdf(request, property_id, scale="fit"):
     transparent_background.save(response, 'PNG')
 
     return response
-
-## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
-def create_street_report(request):
-    '''
-    (slide 7b)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-        BuildLegend
-    '''
-    return render(request, 'landmapper/base.html', {})
-
-## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
-def create_terrain_report(request):
-    '''
-    (slide 7b)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-        BuildLegend
-    '''
-    return render(request, 'landmapper/base.html', {})
-
-## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
-def create_streams_report(request):
-    '''
-    (slide 7b)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-        BuildLegend
-    '''
-    return render(request, 'landmapper/base.html', {})
-
-## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
-def create_forest_type_report(request):
-    '''
-    (Slide 7c)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-        BuildLegend
-    '''
-    return render(request, 'landmapper/base.html', {})
-
-## BELONGS IN VIEWS.py -- > these will be for rendering individual map pages
-def create_soil_report(request):
-    '''
-    (Slides 7d-f)
-    IN:
-        Property
-    OUT:
-        Context for appropriately rendered report template
-    USES:
-        BuildLegend, BuildTable, GetSoilsData, (API Wrapper?)
-    '''
-    return render(request, 'landmapper/base.html', {})
 
 def get_property_pdf(request, property_id):
     response = HttpResponse(content_type='application/pdf')

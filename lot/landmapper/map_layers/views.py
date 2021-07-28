@@ -1,6 +1,6 @@
 from django.conf import settings
 from landmapper import views as lm_views
-from landmapper.models import Taxlot, SoilType
+from landmapper.models import Taxlot, SoilType, ForestType
 from django.contrib.gis.geos import Point, Polygon, MultiPolygon
 
 import geopandas as gpd
@@ -305,6 +305,36 @@ def get_soil_image_layer(property_specs, bbox=False):
             'data': soils_gdf,
             'style': settings.SOIL_STYLE,
             'attribution': settings.ATTRIBUTION_KEYS['soil']
+        }
+
+def get_forest_types_image_layer(property_specs, bbox=False):
+        # """
+        # PURPOSE:
+        # -   given a bbox and optionally pixel width, height, and an indication of
+        # -       whether or not to zoom the cartography in, return a PIL Image
+        # -       instance of the Forest Types overlay
+        # IN:
+        # -   property_specs: (dict) pre-computed aspects of the property, including: bbox, width, and height.
+        # OUT:
+        # -   image_info: (dict) {
+        # -       image: image as raw data (bytes)
+        # -       attribution: attribution text for proper use of imagery
+        # -   }
+        # """
+
+        if not bbox:
+            bbox = property_specs['bbox']
+
+        bbox_poly = get_bbox_as_polygon(bbox)
+        forest_types = ForestType.objects.filter(geometry__intersects=bbox_poly)
+        forest_types_collection = get_collection_from_objects(forest_types, 'geometry', bbox, attrs=['symbol'])
+        forest_types_gdf = get_gdf_from_features(forest_types_collection)
+
+        return {
+            'type': 'dataframe',
+            'data': forest_types_gdf,
+            'style': settings.FOREST_TYPES_STYLE,
+            'attribution': settings.ATTRIBUTION_KEYS['forest-types']
         }
 
 def get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=3857):

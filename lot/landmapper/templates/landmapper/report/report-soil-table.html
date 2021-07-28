@@ -1,1 +1,65 @@
-{% extends 'landmapper/report/report-soil.html' %}
+{% load static %}
+{% load humanize %}
+
+<section id="section-soil-tables" class="section-report map-wrap row no-gutters pb-5">
+    <div class="row col-12 d-flex no-gutters justify-content-start">
+        <div class="col-2"></div>
+        <div class="col-8 content-panel">
+            <h1>Soil Type Table</h1>
+            <h3>{{ property_name }}</h3>
+            <h2>Page 2 of 2</h2>
+        </div>
+        <div class="col-2"></div>
+    </div>
+    <div class="row col-8 no-gutters m-auto">
+        <div class="soil-type property-report-data row no-gutters">
+            {% for soil_type in property_report.soils.data %}
+                <div class="col-auto"></div>
+                <div class="{% cycle 'col-6' 'col-6' %}">
+                    <div class="list-group-title"><div class="list-group-symbol">{{ soil_type.musym }}</div> {{ soil_type.muname }}</div>
+                    <ul class="soil-type-list list-group list-group-flush">
+                        <li class="list-group-item"><strong>Area:</strong> {{ soil_type.acres|floatformat:1|intcomma }} acres ({{ soil_type.percent_area|floatformat:1}}%)</li>
+                        <li class="list-group-item"><strong>Drainage:</strong>
+                          {% if soil_type.drclssd %}
+                            {{ soil_type.drclssd }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Site Index:</strong>
+                          {% if soil_type.si_label %}
+                            {{ soil_type.si_label }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Erosion Hazard:</strong>
+                          {% if soil_type.frphrtd %}
+                            {{ soil_type.frphrtd }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Restrictive Layer Depth:</strong>
+                          {% if soil_type.avg_rs_l or soil_type.avg_rs_h %}
+                            {% if soil_type.avg_rs_l %}
+                              {{ soil_type.avg_rs_l|floatformat:1 }}
+                              {% if soil_type.avg_rs_h %}
+                                -
+                              {% endif %}
+                            {% endif %}
+                            {% if soil_type.avg_rs_h %}
+                              {{ soil_type.avg_rs_h|floatformat:1 }}
+                            {% endif %}
+                            {{ soil_type.depth_unit }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                    </ul>
+                </div>
+                <div class="col-auto"></div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
