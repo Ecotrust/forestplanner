@@ -196,7 +196,6 @@ def get_topo_image_layer(property_specs, bbox=False, contour=True):
 
     layers = [
         {'type': 'image', 'data': base_image },
-        # {'type': 'image', 'data': contours_img },
     ]
     if contour:
         contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)

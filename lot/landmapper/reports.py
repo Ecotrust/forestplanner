@@ -99,8 +99,8 @@ def get_property_report(property, taxlots):
 
     aerial_layer = map_views.get_aerial_image_layer(property_specs, property_bboxes[settings.AERIAL_SCALE])
     street_layer = map_views.get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
-    topo_layer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.TOPO_SCALE], contour=False)
     contour_baselayer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.TOPO_SCALE], contour=True)
+    stream_topo_layer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.STREAM_SCALE], contour=False)
 
     # Alt map size
     aerial_layer_alt = map_views.get_aerial_image_layer(property_specs_alt, property_bboxes_alt[settings.AERIAL_SCALE], alt_size=True)
@@ -146,7 +146,7 @@ def get_property_report(property, taxlots):
     if settings.STREAMS_BASE_LAYER == 'aerial':
         stream_base_layer = aerial_layer
     else:
-        stream_base_layer = topo_layer
+        stream_base_layer = stream_topo_layer
 
     property.stream_map_image = map_views.get_static_map(
         property_specs,
