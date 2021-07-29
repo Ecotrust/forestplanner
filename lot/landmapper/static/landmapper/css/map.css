@@ -3,6 +3,10 @@
  *** parent div
  *** element
  */
+body {
+  overflow: hidden;
+}
+
 #map-wrap {
   /* Height 730px based on Sarah Cline's (SC) designs.
     should be height of most common paper printing size.

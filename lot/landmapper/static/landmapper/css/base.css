@@ -71,6 +71,7 @@ body {
   line-height: var(--body-line-height);
   letter-spacing: var(--body-letter-spacing);
   min-height: 100vh;
+  overflow-x: hidden;
 }
 
 /**
