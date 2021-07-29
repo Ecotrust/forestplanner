@@ -322,7 +322,9 @@ def get_centroid_coords(geom):
     print_srid = 4326
     geom.transform(print_srid)
     lon, lat = geom.centroid.coords
-    print_coords = "{}°, {}°".format(round(lon, 4), round(lat, 4))
+    lat_direction = 'N 'if lat >= 0 else 'S'
+    lon_direction = 'E 'if lon >= 0 else 'W'
+    print_coords = "{}° {}, {}° {}".format(round(lon, 4), lon_direction, round(lat, 4), lat_direction)
     geom.transform(property_srid)
     return print_coords
 
