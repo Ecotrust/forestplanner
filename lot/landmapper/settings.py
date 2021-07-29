@@ -687,8 +687,9 @@ SOIL_FIELDS = {
 ###########################################
 ##      Streams                         ###
 ###########################################
-# STREAMS_BASE_LAYER = 'topo'
-STREAMS_BASE_LAYER = 'aerial'
+STREAMS_BASE_LAYER = 'topo'
+# STREAMS_BASE_LAYER = 'aerial'
+# STREAMS_BASE_LAYER = 'ESRI_Topo'
 STREAMS_URLS = {
     'AGOL': {
         'URL': [
@@ -972,7 +973,7 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v3.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_Form_v3.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
 PDF_PAGE_LOOKUP = {
     'property_alt': 0,

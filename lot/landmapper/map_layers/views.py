@@ -153,7 +153,7 @@ def get_aerial_image_layer(property_specs, bbox=False, alt_size=False):
         'attribution': attribution
     }
 
-def get_topo_image_layer(property_specs, bbox=False):
+def get_topo_image_layer(property_specs, bbox=False, contour=True):
     # """
     # PURPOSE: Return ESRI(?) Topo image at the selected location of the selected size
     # IN:
@@ -173,8 +173,6 @@ def get_topo_image_layer(property_specs, bbox=False):
 
     topo_dict = settings.BASEMAPS[settings.TOPO_DEFAULT]
 
-    # TODO: Rewrite so this just provides the hillshade baselayer, and contours_img comes from get_contour_image_layer, even if it's just this one next line.
-    contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)
     # Get URL for request
     if topo_dict['TECHNOLOGY'] == 'arcgis_mapserver':
         topo_url = ''.join([
@@ -198,8 +196,11 @@ def get_topo_image_layer(property_specs, bbox=False):
 
     layers = [
         {'type': 'image', 'data': base_image },
-        {'type': 'image', 'data': contours_img },
+        # {'type': 'image', 'data': contours_img },
     ]
+    if contour:
+        contours_img = contours_from_tnm_dem(bbox=bbox_list, width=width, height=height, dpi=settings.DPI, inSR=bboxSR)
+        layers.append({'type': 'image', 'data': contours_img })
 
     topo_img = get_static_map(
         property_specs,
