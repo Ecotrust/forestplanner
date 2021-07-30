@@ -489,6 +489,7 @@ def create_property_pdf(property, property_id):
     terrain_url = settings.APP_URL + '/report/' + property_id + '/terrain/map'
     stream_url = settings.APP_URL + '/report/' + property_id + '/stream/map'
     soil_types_url = settings.APP_URL + '/report/' + property_id + '/soil_types/map'
+    forest_types_url = settings.APP_URL + '/report/' + property_id + '/forests_types/map'
     scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar/pdf'
 
     property_image = requests.get(property_url, stream=True)
@@ -498,10 +499,15 @@ def create_property_pdf(property, property_id):
     terrain_image = requests.get(terrain_url, stream=True)
     stream_image = requests.get(stream_url, stream=True)
     soil_image = requests.get(soil_types_url, stream=True)
+    forests_image = requests.get(forest_types_url, stream=True
     property_scalebar_image = requests.get(scalebar_url+'/fit', stream=True)
     property_context_scalebar_image = requests.get(scalebar_url+'/context', stream=True)
     property_medium_scalebar_image = requests.get(scalebar_url+'/medium', stream=True)
 
+    # /**
+    # * TODO: Refactor below code for variables named tmp_* 
+    # */
+    
     tmp_property = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
                                       delete=True)
@@ -566,6 +572,15 @@ def create_property_pdf(property, property_id):
             if chunk:
                 f.write(chunk)
 
+    tmp_forests = NamedTemporaryFile(suffix='.png',
+                                     dir=settings.PROPERTY_REPORT_PDF_DIR,
+                                     delete=True)
+    tmp_forests_name = tmp_forests.name
+    with open(tmp_forests_name, 'wb') as f:
+        for chunk in forests_image.iter_content(chunk_size=1024):
+            if chunk:
+                f.write(chunk)
+
 
     tmp_scalebar = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
@@ -605,7 +620,11 @@ def create_property_pdf(property, property_id):
     # 5. delete image files
     # 6. return pdf variable
 
-    template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
+    if (settings.SHOW_FOREST_TYPES_REPORT):
+        template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE
+    else:
+        template_pdf_file = settings.PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES
+
     template_pdf = PdfJinja(template_pdf_file)
 
     current_datetime = datetime.datetime.now()
@@ -643,11 +662,13 @@ def create_property_pdf(property, property_id):
         'scale_topo': scalebar_names[settings.TOPO_SCALE],
         'scale_hydro': scalebar_names[settings.STREAM_SCALE],
         'scale_soil': scalebar_names[settings.SOIL_SCALE],
+        'scale_forest': scalebar_names[settings.FOREST_TYPES_SCALE],
         'directions': tmp_street_name,
         'scale_directions': scalebar_names[settings.STREET_SCALE],
         'topo': tmp_topo_name,
         'hydro': tmp_stream_name,
         'soils': tmp_soils_name,
+        'forests': tmp_forests_name,
     }
 
     # Create var for all soils
@@ -693,6 +714,91 @@ def create_property_pdf(property, property_id):
             template_input_dict[str(sc_name) + 'depth'] = 'No Data Available'
 
         soil_count += 1
+
+
+                'comp_ab': forest_patch.comp_ab,
+                'comp_min': forest_patch.comp_min,
+                'can_class': forest_patch.can_class,
+                'can_cr_min': forest_patch.can_cr_min,
+                'can_cr_max': forest_patch.can_cr_max,
+                'can_h_min': forest_patch.can_h_min,
+                'can_h_max': forest_patch.can_h_max,
+                'diameter': forest_patch.diameter,
+                'tree_r_min': forest_patch.tree_r_min,
+                'tree_r_max': forest_patch.tree_r_max,
+                'acres': 0,
+                'percent_area': 0.0
+    # /**
+    # * Create layers for Forest types
+    # */    
+    forest_types_list = property.report_data['forest_types']
+    if len(forest_types_list) > 12:
+        forest_types_list = sorted(forest_types_list, key=lambda x:x['percent_area'], reverse=True)
+
+    forest_type_count = 1
+    for forest_type in forest_types_list:
+        fc_name = 'forest_type' + str(forest_type_count)
+        template_input_dict[str(fc_name) + 'symbol'] = forest_type['symbol']
+        template_input_dict[str(fc_name) + 'comp_over'] = forest_type['comp_over']
+        if forest_type['acres']:
+            pp_acres = '{:.1f}'.format(float(forest_type['acres']))
+        else:
+            pp_acres = 'No Data Available'
+        if forest_type['percent_area']:
+            pp_percent_area = '{:.1f}'.format(float(forest_type['percent_area']))
+        else:
+            pp_percent_area = 'No Data Available'
+        if forest_type['acres'] or forest_type['percent_area']:
+            template_input_dict[str(fc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
+        else:
+            template_input_dict[str(fc_name) + 'acres'] = 'No Data Available'
+        template_input_dict[str(fc_name) + 'comp_ab'] = forest_type['comp_ab']
+        template_input_dict[str(fc_name) + 'comp_min'] = forest_type['comp_min']
+        template_input_dict[str(fc_name) + 'can_class'] = forest_type['can_class']
+        
+        if forest_type['can_cr_min']:
+            can_cr_min = '{:.1f}'.format(float(forest_type['can_cr_min']))
+        else:
+            can_cr_min = 'No Data Available'
+        if forest_type['can_cr_max']:
+            can_cr_max = '{:.1f}'.format(float(forest_type['can_cr_max']))
+        else:
+            can_cr_max = 'No Data Available'
+        if forest_type['can_cr_min'] or forest_type['can_cr_max']:
+            template_input_dict[str(fc_name) + 'can_range'] = str(can_cr_min) + '% - ' + str(can_cr_max)  + '%'
+        else:
+            template_input_dict[str(fc_name) + 'can_range'] = 'No Data Available'
+
+        if forest_type['can_h_min']:
+            can_h_min = '{:.1f}'.format(float(forest_type['can_h_min']))
+        else:
+            can_h_min = 'No Data Available'
+        if forest_type['can_h_max']:
+            can_h_max = '{:.1f}'.format(float(forest_type['can_h_max']))
+        else:
+            can_h_max = 'No Data Available'
+        if forest_type['can_h_min'] or forest_type['can_h_max']:
+            template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + 'ft - ' + str(can_h_max)  + 'ft'
+        else:
+            template_input_dict[str(fc_name) + 'can_height'] = 'No Data Available'
+
+        template_input_dict[str(fc_name) + 'diameter'] = forest_type['diameter']
+        
+        if forest_type['tree_r_min']:
+            tree_r_min = '{:.1f}'.format(float(forest_type['tree_r_min']))
+        else:
+            tree_r_min = 'No Data Available'
+        if forest_type['tree_r_max']:
+            tree_r_max = '{:.1f}'.format(float(forest_type['tree_r_max']))
+        else:
+            tree_r_max = 'No Data Available'
+        if forest_type['tree_r_min'] or forest_type['tree_r_max']:
+            template_input_dict[str(fc_name) + 'qmd_range'] = str(tree_r_min) + 'in - ' + str(tree_r_max)  + 'in'
+        else:
+            template_input_dict[str(fc_name) + 'qmd_range'] = 'No Data Available'        
+
+        forest_type_count += 1
+
 
     rendered_pdf = template_pdf(template_input_dict)
 
@@ -748,7 +854,7 @@ def create_property_map_pdf(property, property_id, map_type=''):
         buffer = io.BytesIO()
         new_output = pypdf.PdfFileWriter()
         new_pdf = pypdf.PdfFileReader(output_pdf)
-        if map_type == 'soil_types':
+        if map_type == 'soil_types' or map_type == 'forest_types:
             for num in page_number:
                 new_output.addPage(new_pdf.getPage(num))
         else:
