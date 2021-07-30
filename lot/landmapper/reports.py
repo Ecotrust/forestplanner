@@ -715,19 +715,6 @@ def create_property_pdf(property, property_id):
 
         soil_count += 1
 
-
-                'comp_ab': forest_patch.comp_ab,
-                'comp_min': forest_patch.comp_min,
-                'can_class': forest_patch.can_class,
-                'can_cr_min': forest_patch.can_cr_min,
-                'can_cr_max': forest_patch.can_cr_max,
-                'can_h_min': forest_patch.can_h_min,
-                'can_h_max': forest_patch.can_h_max,
-                'diameter': forest_patch.diameter,
-                'tree_r_min': forest_patch.tree_r_min,
-                'tree_r_max': forest_patch.tree_r_max,
-                'acres': 0,
-                'percent_area': 0.0
     # /**
     # * Create layers for Forest types
     # */    
