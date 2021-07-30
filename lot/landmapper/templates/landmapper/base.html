@@ -60,6 +60,18 @@
       <script type="text/javascript" src="{% static 'landmapper/js/bootstrap-4.5.0/bootstrap.min.js' %}"></script>
     {% endblock head_scripts %}
 
+    {% block ga %}
+      <!-- Global site tag (gtag.js) - Google Analytics -->
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0BPDMQ3SBM"></script>
+      <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-0BPDMQ3SBM');
+      </script>
+    {% endblock ga %}
+
     {% block extra_head_scripts %}{% endblock extra_head_scripts %}
 
     <!-- Not using jquery until needed.
@@ -105,17 +117,6 @@
       {% block footer_scripts %}{% endblock footer_scripts %}
     {% endblock body %}
 
-    {% block ga %}
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0BPDMQ3SBM"></script>
-      <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'G-0BPDMQ3SBM');
-      </script>
-    {% endblock ga %}
   </body>
 
 </html>
