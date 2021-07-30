@@ -331,15 +331,14 @@ CONTOUR_STYLE = {
     'format_string': "{x:.0f}"
 }
 
-###########################################
-##      REPORTS                         ###
-###########################################
 SCALEBAR_DEFAULT_WIDTH = 1.5
 SCALEBAR_DEFAULT_HEIGHT = 0.2
 # SCALEBAR_BG_W = 508
 SCALEBAR_BG_W = 616
 # SCALEBAR_BG_H = 70
 SCALEBAR_BG_H = 77
+
+MAXIMUM_BBOX_WIDTH = 10000
 
 ###########################################
 ##      Properties                      ###
