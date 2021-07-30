@@ -331,15 +331,15 @@ CONTOUR_STYLE = {
     'format_string': "{x:.0f}"
 }
 
-###########################################
-##      REPORTS                         ###
-###########################################
 SCALEBAR_DEFAULT_WIDTH = 1.5
 SCALEBAR_DEFAULT_HEIGHT = 0.2
 # SCALEBAR_BG_W = 508
 SCALEBAR_BG_W = 616
 # SCALEBAR_BG_H = 70
 SCALEBAR_BG_H = 77
+
+MAXIMUM_BBOX_WIDTH = 10000
+NO_RENDER_MESSAGE = "Unable to render some details. Please create smaller properties."
 
 ###########################################
 ##      Properties                      ###
@@ -687,8 +687,9 @@ SOIL_FIELDS = {
 ###########################################
 ##      Streams                         ###
 ###########################################
-# STREAMS_BASE_LAYER = 'topo'
-STREAMS_BASE_LAYER = 'aerial'
+STREAMS_BASE_LAYER = 'topo'
+# STREAMS_BASE_LAYER = 'aerial'
+# STREAMS_BASE_LAYER = 'ESRI_Topo'
 STREAMS_URLS = {
     'AGOL': {
         'URL': [
@@ -929,7 +930,7 @@ ATTRIBUTION_TEXT_BUFFER = 3
 ATTRIBUTION_TEXT_LINE_SPACING = 1
 
 AERIAL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/directions_aerial.png'
-STREET_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/directions_aerial.png'
+STREET_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/street_map_legend.png'
 TERRAIN_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/topo.png'
 STREAM_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/hydrology.png'
 SOIL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/soils.png'
@@ -972,8 +973,8 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v4.pdf'
-PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES = LANDMAPPER_DIR + '/LM_form_v3.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_Form_v4.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES = LANDMAPPER_DIR + '/LM_Form_v3.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
 PDF_PAGE_LOOKUP = {
     'property_alt': 0,

@@ -21,6 +21,13 @@
                 <img src="{{ property_report.terrain.legend }}" />
             </div>
 
+            {% if not RENDER_DETAILS %}
+              <div class="warning-wrap">
+                <p class="warning-message">{{ NO_RENDER_MESSAGE }}</p>
+              </div>
+            {% endif %}
+
+
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
                 <p>Contour Lines: USGS</p>

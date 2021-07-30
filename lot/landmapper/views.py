@@ -10,6 +10,7 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from flatblocks.models import FlatBlock
 from landmapper.models import *
 from landmapper import properties, reports
+from landmapper.map_layers.views import get_bbox_from_property
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
@@ -299,7 +300,12 @@ def report(request, property_id):
         Rendered Template
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
+
     property = properties.get_property_by_id(property_id)
+    (bbox, orientation) = get_bbox_from_property(property)
+    property_fit_coords = [float(x) for x in bbox.split(',')]
+    property_width = property_fit_coords[2]-property_fit_coords[0]
+    render_detailed_maps = True if property_width < settings.MAXIMUM_BBOX_WIDTH else False
 
     context = {
         'property_id': property_id,
@@ -312,16 +318,17 @@ def report(request, property_id):
         'topo_scale': settings.TOPO_SCALE,
         'stream_scale': settings.STREAM_SCALE,
         'soil_scale': settings.SOIL_SCALE,
-        'forest_type_scale': settings.FOREST_TYPES_SCALE
+        'forest_type_scale': settings.FOREST_TYPES_SCALE,
+        'menu_items': MenuPage.objects.all().order_by('order'),
+        'SHOW_AERIAL_REPORT': settings.SHOW_AERIAL_REPORT,
+        'SHOW_STREET_REPORT': settings.SHOW_STREET_REPORT,
+        'SHOW_TERRAIN_REPORT': settings.SHOW_TERRAIN_REPORT,
+        'SHOW_STREAMS_REPORT': settings.SHOW_STREAMS_REPORT,
+        'SHOW_SOILS_REPORT': settings.SHOW_SOILS_REPORT,
+        'SHOW_FOREST_TYPES_REPORT': settings.SHOW_FOREST_TYPES_REPORT,
+        'RENDER_DETAILS': render_detailed_maps,
+        'NO_RENDER_MESSAGE': settings.NO_RENDER_MESSAGE
     }
-
-    context['menu_items'] = MenuPage.objects.all().order_by('order')
-    context['SHOW_AERIAL_REPORT'] = settings.SHOW_AERIAL_REPORT
-    context['SHOW_STREET_REPORT'] = settings.SHOW_STREET_REPORT
-    context['SHOW_TERRAIN_REPORT'] = settings.SHOW_TERRAIN_REPORT
-    context['SHOW_STREAMS_REPORT'] = settings.SHOW_STREAMS_REPORT
-    context['SHOW_SOILS_REPORT'] = settings.SHOW_SOILS_REPORT
-    context['SHOW_FOREST_TYPES_REPORT'] = settings.SHOW_FOREST_TYPES_REPORT
 
     return render(request, 'landmapper/report/report.html', context)
 
