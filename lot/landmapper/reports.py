@@ -739,6 +739,7 @@ def create_property_pdf(property, property_id):
     forest_type_count = 1
     for forest_type in forest_types_list['data']:
         fc_name = 'forest_type' + str(forest_type_count)
+        import ipdb; ipdb.set_trace()
         template_input_dict[str(fc_name) + 'symbol'] = forest_type['symbol']
         template_input_dict[str(fc_name) + 'comp_over'] = forest_type['comp_over']
         if forest_type['acres']:
@@ -774,10 +775,12 @@ def create_property_pdf(property, property_id):
             can_h_min = '{:.1f}'.format(float(forest_type['can_h_min']))
         else:
             can_h_min = 'No Data Available'
+
         if forest_type['can_h_max']:
             can_h_max = '{:.1f}'.format(float(forest_type['can_h_max']))
         else:
             can_h_max = 'No Data Available'
+        
         if forest_type['can_h_min'] and forest_type['can_h_max']:
             template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + ' ' + str(can_h_max) 
         else:
