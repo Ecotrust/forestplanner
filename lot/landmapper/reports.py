@@ -499,7 +499,7 @@ def create_property_pdf(property, property_id):
     terrain_image = requests.get(terrain_url, stream=True)
     stream_image = requests.get(stream_url, stream=True)
     soil_image = requests.get(soil_types_url, stream=True)
-    forests_image = requests.get(forest_types_url, stream=True
+    forests_image = requests.get(forest_types_url, stream=True)
     property_scalebar_image = requests.get(scalebar_url+'/fit', stream=True)
     property_context_scalebar_image = requests.get(scalebar_url+'/context', stream=True)
     property_medium_scalebar_image = requests.get(scalebar_url+'/medium', stream=True)
