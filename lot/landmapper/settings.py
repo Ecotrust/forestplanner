@@ -930,7 +930,7 @@ ATTRIBUTION_TEXT_BUFFER = 3
 ATTRIBUTION_TEXT_LINE_SPACING = 1
 
 AERIAL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/directions_aerial.png'
-STREET_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/directions_aerial.png'
+STREET_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/street_map_legend.png'
 TERRAIN_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/topo.png'
 STREAM_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/hydrology.png'
 SOIL_MAP_LEGEND_URL = '/static/landmapper/img/legend_images/soils.png'
