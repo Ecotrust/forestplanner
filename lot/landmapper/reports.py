@@ -203,7 +203,7 @@ def get_property_report_data(property, property_specs, taxlots):
     }
     report_pages = [
         'property', 'aerial', 'street', 'terrain', 'streams', 'soils',
-        'forest_type'
+        'forest_types'
     ]
 
     report_data['date'] = date.today().strftime("%B %d, %Y")

@@ -4,7 +4,7 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/bionic64"
-  config.disksize.size = '20GB'
+  config.disksize.size = '25GB'
   config.vm.box_check_update = true
 
   config.vm.network "forwarded_port", guest: 8000, host: 8000
@@ -16,7 +16,7 @@ Vagrant.configure("2") do |config|
   config.vm.synced_folder "./", "/usr/local/apps/forestplanner"
 
   config.vm.provider "virtualbox" do |vb|
-    vb.memory = "2048"
+    vb.memory = "3560"
   end
 
   # Enable provisioning with a shell script. Additional provisioners such as
