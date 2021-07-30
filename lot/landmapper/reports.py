@@ -723,7 +723,7 @@ def create_property_pdf(property, property_id):
         forest_types_list = sorted(forest_types_list, key=lambda x:x['percent_area'], reverse=True)
 
     forest_type_count = 1
-    for forest_type in forest_types_list:
+    for forest_type in forest_types_list['data']:
         fc_name = 'forest_type' + str(forest_type_count)
         template_input_dict[str(fc_name) + 'symbol'] = forest_type['symbol']
         template_input_dict[str(fc_name) + 'comp_over'] = forest_type['comp_over']

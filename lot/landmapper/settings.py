@@ -243,7 +243,7 @@ SHOW_STREET_REPORT = True
 SHOW_TERRAIN_REPORT = True
 SHOW_STREAMS_REPORT = True
 SHOW_SOILS_REPORT = True
-SHOW_FOREST_TYPES_REPORT = False
+SHOW_FOREST_TYPES_REPORT = True
 
 # Based on map size on slide 4 in the XD Specs
 # This assumes the 'landscape' report layout (image will feel like 'portrait')
@@ -972,7 +972,8 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v3.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_form_v4.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES = LANDMAPPER_DIR + '/LM_form_v3.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
 PDF_PAGE_LOOKUP = {
     'property_alt': 0,
