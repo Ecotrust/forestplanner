@@ -984,6 +984,7 @@ PDF_PAGE_LOOKUP = {
     'terrain': 3,
     'stream': 4,
     'soil_types': [5,6,7,8],
+    'forest_types': [9,10,11,12],
 }
 
 try:

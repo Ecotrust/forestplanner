@@ -503,7 +503,7 @@ def create_property_pdf(property, property_id):
     terrain_url = settings.APP_URL + '/report/' + property_id + '/terrain/map'
     stream_url = settings.APP_URL + '/report/' + property_id + '/stream/map'
     soil_types_url = settings.APP_URL + '/report/' + property_id + '/soil_types/map'
-    forest_types_url = settings.APP_URL + '/report/' + property_id + '/forests_type/map'
+    forest_types_url = settings.APP_URL + '/report/' + property_id + '/forest_types/map'
     scalebar_url = settings.APP_URL + '/report/' + property_id + '/scalebar/pdf'
 
     property_image = requests.get(property_url, stream=True)
@@ -707,7 +707,7 @@ def create_property_pdf(property, property_id):
             pp_percent_area = '{:.1f}'.format(float(soil['percent_area']))
         else:
             pp_percent_area = 'No Data Available'
-        if soil['acres'] or soil['percent_area']:
+        if soil['acres'] and soil['percent_area']:
             template_input_dict[str(sc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
         else:
             template_input_dict[str(sc_name) + 'acres'] = 'No Data Available'
@@ -722,7 +722,7 @@ def create_property_pdf(property, property_id):
             f_avg_rs_h = '{:.1f}'.format(float(soil['avg_rs_h']))
         else:
             f_avg_rs_h = 'No Data Available'
-        if soil['avg_rs_l'] or soil['avg_rs_h']:
+        if soil['avg_rs_l'] and soil['avg_rs_h']:
             template_input_dict[str(sc_name) + 'depth'] = str(f_avg_rs_l) + ' - ' + str(f_avg_rs_h)  + ' ' + str(soil['depth_unit'])
         else:
             template_input_dict[str(sc_name) + 'depth'] = 'No Data Available'
@@ -749,7 +749,7 @@ def create_property_pdf(property, property_id):
             pp_percent_area = '{:.1f}'.format(float(forest_type['percent_area']))
         else:
             pp_percent_area = 'No Data Available'
-        if forest_type['acres'] or forest_type['percent_area']:
+        if forest_type['acres'] and forest_type['percent_area']:
             template_input_dict[str(fc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
         else:
             template_input_dict[str(fc_name) + 'acres'] = 'No Data Available'
@@ -765,7 +765,7 @@ def create_property_pdf(property, property_id):
             can_cr_max = '{:.1f}'.format(float(forest_type['can_cr_max']))
         else:
             can_cr_max = 'No Data Available'
-        if forest_type['can_cr_min'] or forest_type['can_cr_max']:
+        if forest_type['can_cr_min'] and forest_type['can_cr_max']:
             template_input_dict[str(fc_name) + 'can_range'] = str(can_cr_min) + '% - ' + str(can_cr_max)  + '%'
         else:
             template_input_dict[str(fc_name) + 'can_range'] = 'No Data Available'
@@ -778,8 +778,8 @@ def create_property_pdf(property, property_id):
             can_h_max = '{:.1f}'.format(float(forest_type['can_h_max']))
         else:
             can_h_max = 'No Data Available'
-        if forest_type['can_h_min'] or forest_type['can_h_max']:
-            template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + 'ft - ' + str(can_h_max)  + 'ft'
+        if forest_type['can_h_min'] and forest_type['can_h_max']:
+            template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + ' ' + str(can_h_max) 
         else:
             template_input_dict[str(fc_name) + 'can_height'] = 'No Data Available'
 
@@ -793,8 +793,8 @@ def create_property_pdf(property, property_id):
             tree_r_max = '{:.1f}'.format(float(forest_type['tree_r_max']))
         else:
             tree_r_max = 'No Data Available'
-        if forest_type['tree_r_min'] or forest_type['tree_r_max']:
-            template_input_dict[str(fc_name) + 'qmd_range'] = str(tree_r_min) + 'in - ' + str(tree_r_max)  + 'in'
+        if forest_type['tree_r_min'] and forest_type['tree_r_max']:
+            template_input_dict[str(fc_name) + 'qmd_range'] = str(tree_r_min) + ' ' + str(tree_r_max)
         else:
             template_input_dict[str(fc_name) + 'qmd_range'] = 'No Data Available'        
 
