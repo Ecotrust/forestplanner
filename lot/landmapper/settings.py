@@ -339,6 +339,7 @@ SCALEBAR_BG_W = 616
 SCALEBAR_BG_H = 77
 
 MAXIMUM_BBOX_WIDTH = 10000
+NO_RENDER_MESSAGE = "Unable to render some details. Please create smaller properties."
 
 ###########################################
 ##      Properties                      ###

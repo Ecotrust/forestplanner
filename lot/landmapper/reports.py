@@ -104,16 +104,13 @@ def get_property_report(property, taxlots):
     stream_topo_layer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.STREAM_SCALE], contour=False)
     # Alt map size
     aerial_layer_alt = map_views.get_aerial_image_layer(property_specs_alt, property_bboxes_alt[settings.AERIAL_SCALE], alt_size=True)
-
+    stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
 
     # Get Detail Images
     if render_detailed_maps:
         taxlot_layer = map_views.get_taxlot_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
         contour_baselayer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.TOPO_SCALE], contour=True)
-        # TODO: Replace this with soil dataframe
         soil_layer = map_views.get_soil_image_layer(property_specs, property_bboxes[settings.SOIL_SCALE])
-        # TODO: Replace this with stream dataframe (?)
-        stream_layer = map_views.get_stream_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
         forest_types_layer = map_views.get_forest_types_image_layer(property_specs, property_bboxes[settings.FOREST_TYPES_SCALE])
         if settings.CONTOUR_SOURCE:
             contour_layer = map_views.get_contour_image_layer(property_specs, property_bboxes[settings.CONTOUR_SCALE])
@@ -122,13 +119,9 @@ def get_property_report(property, taxlots):
     else:
         taxlot_layer = map_views.return_empty_image_layer(property_specs, property_bboxes[settings.TAXLOTS_SCALE])
         contour_baselayer = map_views.get_topo_image_layer(property_specs=property_specs, bbox=property_bboxes[settings.TOPO_SCALE], contour=False)
-        # TODO: Replace this with soil dataframe
         soil_layer = map_views.return_empty_image_layer(property_specs, property_bboxes[settings.SOIL_SCALE])
-        # TODO: Replace this with stream dataframe (?)
-        stream_layer = map_views.return_empty_image_layer(property_specs, property_bboxes[settings.STREAM_SCALE])
         forest_types_layer = map_views.return_empty_image_layer(property_specs, property_bboxes[settings.FOREST_TYPES_SCALE])
         contour_layer = False
-
 
     # Create Overview Image
     property.property_map_image = map_views.get_static_map(
