@@ -15,7 +15,7 @@
         <div class="forest-type property-report-data row no-gutters">
             {% for forest_type in property_report.forest_types.data %}
                 <div class="col-auto"></div>
-                <div class="{% cycle 'col-6' 'col-6' %}">
+                <div class="{% cycle 'col-6' 'col-6' %} my-4">
                     <div class="list-group-title"><div class="list-group-symbol">{{ forest_type.symbol }}</div> {{ forest_type.comp_over }}</div>
                     <ul class="forest-type-list list-group list-group-flush">
                         <li class="list-group-item"><strong>Area:</strong> {{ forest_type.acres|floatformat:1|intcomma }} acres ({{ forest_type.percent_area|floatformat:1}}%)</li>

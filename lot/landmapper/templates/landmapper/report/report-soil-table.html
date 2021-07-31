@@ -15,7 +15,7 @@
         <div class="soil-type property-report-data row no-gutters">
             {% for soil_type in property_report.soils.data %}
                 <div class="col-auto"></div>
-                <div class="{% cycle 'col-6' 'col-6' %}">
+                <div class="{% cycle 'col-6' 'col-6' %} my-4">
                     <div class="list-group-title"><div class="list-group-symbol">{{ soil_type.musym }}</div> {{ soil_type.muname }}</div>
                     <ul class="soil-type-list list-group list-group-flush">
                         <li class="list-group-item"><strong>Area:</strong> {{ soil_type.acres|floatformat:1|intcomma }} acres ({{ soil_type.percent_area|floatformat:1}}%)</li>

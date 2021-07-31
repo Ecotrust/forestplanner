@@ -156,11 +156,12 @@ p {
 }
 
 .list-group-symbol {
-  background-color: #A0EACB;
-  border-radius: 50%;
-  display: inline-block;
+  border: 3px solid #F2CA19;
+  float: left;
   font-weight: bold;
-  padding: 10px;
+  line-height: 1;
+  padding: 15px 20px 13px;
+  margin:  0 10px 10px 0;
 }
 
 .list-group-title {
