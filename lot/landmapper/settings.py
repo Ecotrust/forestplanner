@@ -243,7 +243,7 @@ SHOW_STREET_REPORT = True
 SHOW_TERRAIN_REPORT = True
 SHOW_STREAMS_REPORT = True
 SHOW_SOILS_REPORT = True
-SHOW_FOREST_TYPES_REPORT = False
+SHOW_FOREST_TYPES_REPORT = True
 
 # Based on map size on slide 4 in the XD Specs
 # This assumes the 'landscape' report layout (image will feel like 'portrait')
@@ -338,7 +338,7 @@ SCALEBAR_BG_W = 616
 # SCALEBAR_BG_H = 70
 SCALEBAR_BG_H = 77
 
-MAXIMUM_BBOX_WIDTH = 10000
+MAXIMUM_BBOX_WIDTH = 30000
 NO_RENDER_MESSAGE = "Unable to render some details. Please create smaller properties."
 
 ###########################################
