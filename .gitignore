@@ -44,3 +44,4 @@ lot/landmapper/local_settings.py
 lot/landmapper/testing_files/image_test/*
 lot/landmapper/static/landmapper/report_pdf/*
 static/*
+Vagrantfile
