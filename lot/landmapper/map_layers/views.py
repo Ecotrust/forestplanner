@@ -334,7 +334,7 @@ def get_forest_types_image_layer(property_specs, bbox=False):
             'type': 'dataframe',
             'data': forest_types_gdf,
             'style': settings.FOREST_TYPES_STYLE,
-            'attribution': settings.ATTRIBUTION_KEYS['forest-types']
+            'attribution': settings.ATTRIBUTION_KEYS['foresttypes']
         }
 
 def get_center_lon_lat_from_bbox(bbox, inSRID=3857, outSRID=3857):

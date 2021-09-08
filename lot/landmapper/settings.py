@@ -46,20 +46,20 @@ BASEMAPS = {
         'URL': 'https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer/export',
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
-        'ATTRIBUTION': 'USGS The National Map: Orthoimagery. Data refreshed October, 2020.'
+        'ATTRIBUTION': {'source': 'USGS', 'attribution': 'USGS The National Map: Orthoimagery. Data refreshed October, 2020.'}
         # Can get updated attribution at https://basemap.nationalmap.gov/arcgis/rest/services/USGSImageryOnly/MapServer?f=pjson ['copyrightText']
     },
     'ESRI_Satellite': {
         'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/export',
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
-        'ATTRIBUTION': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'
+        'ATTRIBUTION': {'source': 'ESRI', 'attribution': 'Source: Esri, DigitalGlobe, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community'}
     },
     'ESRI_Topo': {
         'URL': 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/export',
         'LAYERS': '0',
         'TECHNOLOGY': 'arcgis_mapserver',
-        'ATTRIBUTION': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'
+        'ATTRIBUTION': {'source': 'ESRI', 'attribution': 'Sources: Esri, HERE, Garmin, Intermap, increment P Corp., GEBCO, USGS, FAO, NPS, NRCAN, GeoBase, IGN, Kadaster NL, Ordnance Survey, Esri Japan, METI, Esri China (Hong Kong), (c) OpenStreetMap contributors, and the GIS User Community'}
     },
     'ESRI_Street': {
         'URL': 'https://server.arcgisonline.com/arcgis/rest/services/World_Street_Map/MapServer/export',
@@ -82,7 +82,7 @@ BASEMAPS = {
     'TNM_NAIP': {
         'URL': 'https://services.nationalmap.gov/arcgis/rest/services/USGSNAIPImagery/ImageServer/exportImage',
         'TECHNOLOGY': 'arcgis_imageserver',
-        'ATTRIBUTION': 'USGS The National Map: Imagery'
+        'ATTRIBUTION': {'source': 'USGS', 'attribution': 'USGS The National Map: Imagery'}
     },
     'Custom_Topo': {
         'URL': 'https://api.mapbox.com/styles/v1/{userid}/cke0j10sj1gta19o9agb1w8pq/tiles/256/{zoom}/{lon}/{lat}@2x?',
@@ -207,7 +207,7 @@ BASEMAPS = {
     'MAPBOX_Streets': {
         'URL': 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{zoom}/{lon}/{lat}@2x?',
         'TECHNOLOGY': 'mapbox',
-        'ATTRIBUTION': 'MapBox',
+        'ATTRIBUTION': {'source': 'MapBox', 'attribution': None},
         'PARAMS': {
             # 'userid':'',
             # 'layerid': '',
@@ -415,7 +415,8 @@ SOILS_URLS = {
         'QS': [
             'access_token=%s' % MAPBOX_TOKEN,
         ],
-        'ATTRIBUTION': 'Soil Survey Staff. The Gridded Soil Survey Geographic (gSSURGO) Database for Oregon. United States Department of Agriculture, Natural Resources Conservation Service. Available online at https://gdg.sc.egov.usda.gov/. October 12, 2020 (202007 official release).',
+        # 'ATTRIBUTION': 'Soil Survey Staff. The Gridded Soil Survey Geographic (gSSURGO) Database for Oregon. United States Department of Agriculture, Natural Resources Conservation Service. Available online at https://gdg.sc.egov.usda.gov/. October 12, 2020 (202007 official release).',
+        'ATTRIBUTION': {'source': 'NRCS', 'attribution': 'Soil Survey Staff. The Gridded Soil Survey Geographic (gSSURGO) Database for Oregon. United States Department of Agriculture, Natural Resources Conservation Service. Available online at https://gdg.sc.egov.usda.gov/. October 12, 2020 (202007 official release).'},
         # calculate tile assuming 256 px
         'TILE_HEIGHT': 256,
         'TILE_WIDTH': 256,
@@ -760,7 +761,7 @@ STREAMS_URLS = {
         'QS': [
             'access_token=%s' % MAPBOX_TOKEN,
         ],
-        'ATTRIBUTION': 'Oregon Department of Forestry',
+        'ATTRIBUTION': {'source': 'ODF', 'attribution':'Oregon Department of Forestry'},
         # calculate tile assuming 256 px
         'TILE_HEIGHT': 256,
         'TILE_WIDTH': 256,
@@ -789,7 +790,7 @@ TAXLOTS_URLS = {
         'QS': [
             'access_token=%s' % MAPBOX_TOKEN,
         ],
-        'ATTRIBUTION': 'ORMAP',
+        'ATTRIBUTION': {'source': 'ORMAP', 'attribution': None},
         # calculate tile assuming 256 px
         'TILE_HEIGHT': 256,
         'TILE_WIDTH': 256,
@@ -901,7 +902,7 @@ if CONTOUR_SOURCE:
         }
     ]
 else:
-    CONTOUR_ATTRIBUTION = CONTOUR_URLS['TNM_TOPO']['ATTRIBUTION']
+    CONTOUR_ATTRIBUTION = {'source': 'USGS', 'attribution': CONTOUR_URLS['TNM_TOPO']['ATTRIBUTION']}
 
 ###########################################
 ##      Forest Types                    ###
@@ -911,7 +912,7 @@ FOREST_TYPES_URLS = {
         'URL': None,
         'PARAMS': {},
         'QS': [],
-        'ATTRIBUTION': 'Ecotrust 2021',
+        'ATTRIBUTION': {'source': 'Ecotrust', 'attribution': 'Ecotrust 2021'},
         # calculate tile assuming 256 px
         'TILE_HEIGHT': 256,
         'TILE_WIDTH': 256,
@@ -935,7 +936,7 @@ ATTRIBUTION_KEYS = {
     'streams': STREAMS_ATTRIBUTION,
     'taxlot': TAXLOTS_ATTRIBUTION,
     'soil': SOIL_ATTRIBUTION,
-    'forest-types': FOREST_TYPES_ATTRIBUTION,
+    'foresttypes': FOREST_TYPES_ATTRIBUTION,
     'contours': CONTOUR_ATTRIBUTION
 }
 

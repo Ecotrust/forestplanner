@@ -30,9 +30,42 @@
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p><u>Soils:</u> {{ ATTRIBUTION_KEYS.soil }}</p>
-                <p><u>Taxlots:</u> {{ ATTRIBUTION_KEYS.taxlot }}</p>
-                <p><u>Basemap:</u> {{ ATTRIBUTION_KEYS.aerial }}</p>
+                <p>Soils:
+                  {% if ATTRIBUTION_KEYS.soil.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.soil.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.soil.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.soil.source }}
+                  {% endif %}
+                </p>
+                <p>Taxlots:
+                  {% if ATTRIBUTION_KEYS.taxlot.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.taxlot.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.taxlot.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.taxlot.source }}
+                  {% endif %}
+                </p>
+                <p>Basemap:
+                  {% if ATTRIBUTION_KEYS.aerial.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.aerial.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.aerial.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.aerial.source }}
+                  {% endif %}
+                </p>
             </div>
 
             <div class="button-wrap d-print-none">

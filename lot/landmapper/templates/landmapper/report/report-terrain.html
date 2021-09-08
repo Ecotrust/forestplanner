@@ -30,9 +30,30 @@
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p><u>Contour Lines (ft):</u> {{ ATTRIBUTION_KEYS.contours }}</p>
-                <p><u>Taxlots:</u> {{ ATTRIBUTION_KEYS.taxlot }}</p>
-                <p><u>Basemap:</u> {{ ATTRIBUTION_KEYS.topo }}</p>
+                <p>Contour Lines (ft):
+                  {% if ATTRIBUTION_KEYS.contours.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.contours.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.contours.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.contours.source }}
+                  {% endif %}
+                </p>
+                <p>Basemap:
+                  {% if ATTRIBUTION_KEYS.topo.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.topo.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.topo.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.topo.source }}
+                  {% endif %}
+                </p>
             </div>
 
             <div class="button-wrap d-print-none">

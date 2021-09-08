@@ -23,9 +23,30 @@
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p><u>Streams:</u> {{ ATTRIBUTION_KEYS.streams }}</p>
-                <p><u>Taxlots:</u> {{ ATTRIBUTION_KEYS.taxlot }}</p>
-                <p><u>Basemap:</u> {{ ATTRIBUTION_KEYS.topo }}</p>
+                <p>Streams:
+                  {% if ATTRIBUTION_KEYS.streams.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.streams.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.streams.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.streams.source }}
+                  {% endif %}
+                </p>
+                <p>Basemap:
+                  {% if ATTRIBUTION_KEYS.topo.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.topo.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.topo.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.topo.source }}
+                  {% endif %}
+                </p>
             </div>
 
             <div class="button-wrap d-print-none">

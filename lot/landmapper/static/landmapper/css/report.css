@@ -125,6 +125,30 @@ p {
   line-height: 1.375;
 }
 
+.attribution-tooltip {
+  position: relative;
+  display: inline-block;
+  border-bottom: 1px dotted black;
+}
+
+.attribution-tooltip-text {
+  visibility: hidden;
+  width: 120px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+
+  /* Position the tooltip */
+  position: absolute;
+  z-index: 1;
+}
+
+.attribution-tooltip:hover .attribution-tooltip-text {
+  visibility: visible;
+}
+
 .button-wrap {
   position: absolute;
   bottom: 3vh;

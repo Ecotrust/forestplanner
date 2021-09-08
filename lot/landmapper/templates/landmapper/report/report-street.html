@@ -23,8 +23,18 @@
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p><u>Taxlots:</u> {{ ATTRIBUTION_KEYS.taxlot }}</p>
-                <p><u>Basemap:</u> {{ ATTRIBUTION_KEYS.streets }}</p>
+                <p>Basemap:
+                  {% if ATTRIBUTION_KEYS.streets.attribution %}
+                  <span class="attribution-tooltip">
+                    {{ ATTRIBUTION_KEYS.streets.source }}
+                    <span class='attribution-tooltip-text'>
+                      {{ ATTRIBUTION_KEYS.streets.attribution }}
+                    </span>
+                  </span>
+                  {% else %}
+                    {{ ATTRIBUTION_KEYS.streets.source }}
+                  {% endif %}
+                </p>
             </div>
 
             <div class="button-wrap d-print-none">
