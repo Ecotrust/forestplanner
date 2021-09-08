@@ -64,6 +64,7 @@ p {
 .section-report .content-panel {
   /* padding-left: 3vh; */
   /* min-width: 350px; */
+  max-width: 500px;
 }
 
 .anchor-links {

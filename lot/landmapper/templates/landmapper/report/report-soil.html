@@ -21,7 +21,7 @@
             <div class="legend-wrap">
                 <img src="{{ property_report.soils.legend }}" />
             </div>
-            
+
             {% if not RENDER_DETAILS %}
               <div class="warning-wrap">
                 <p class="warning-message">{{ NO_RENDER_MESSAGE }}</p>
@@ -30,9 +30,9 @@
 
             <div class="attribution">
                 <p><strong>Data Sources</strong></p>
-                <p>Soils: NRCS</p>
-                <p>Taxlots: ORMAP</p>
-                <p>Basemap: NAIP</p>
+                <p><u>Soils:</u> {{ ATTRIBUTION_KEYS.soil }}</p>
+                <p><u>Taxlots:</u> {{ ATTRIBUTION_KEYS.taxlot }}</p>
+                <p><u>Basemap:</u> {{ ATTRIBUTION_KEYS.aerial }}</p>
             </div>
 
             <div class="button-wrap d-print-none">

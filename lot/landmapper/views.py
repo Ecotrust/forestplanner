@@ -327,7 +327,8 @@ def report(request, property_id):
         'SHOW_SOILS_REPORT': settings.SHOW_SOILS_REPORT,
         'SHOW_FOREST_TYPES_REPORT': settings.SHOW_FOREST_TYPES_REPORT,
         'RENDER_DETAILS': render_detailed_maps,
-        'NO_RENDER_MESSAGE': settings.NO_RENDER_MESSAGE
+        'NO_RENDER_MESSAGE': settings.NO_RENDER_MESSAGE,
+        'ATTRIBUTION_KEYS': settings.ATTRIBUTION_KEYS
     }
 
     return render(request, 'landmapper/report/report.html', context)

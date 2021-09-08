@@ -207,7 +207,7 @@ BASEMAPS = {
     'MAPBOX_Streets': {
         'URL': 'https://api.mapbox.com/styles/v1/mapbox/streets-v11/tiles/256/{zoom}/{lon}/{lat}@2x?',
         'TECHNOLOGY': 'mapbox',
-        'ATTRIBUTION': 'Sources: MapBox',
+        'ATTRIBUTION': 'MapBox',
         'PARAMS': {
             # 'userid':'',
             # 'layerid': '',
@@ -226,11 +226,28 @@ BASEMAPS = {
         'TILE_IMAGE_WIDTH': 512,
         'ZOOM_2X': False
     },
+    'ESRI_NAIP': {
+        'URL': 'https://naip.maptiles.arcgis.com/arcgis/rest/services/NAIP/MapServer/tile/{zoom}/{lat}/{lon}',
+        'TECHNOLOGY': 'XYZ',
+        'ATTRIBUTION': 'Tiles courtesy of ESRI>',
+        'PARAMS': {
+        },
+        'QS': [
+            # 'access_token=%s' % MAPBOX_TOKEN,
+        ],
+        # calculate tile assuming 256 px
+        'TILE_HEIGHT': 256,
+        'TILE_WIDTH': 256,
+        # retrieve image at 2x resolution
+        'TILE_IMAGE_HEIGHT': 256,
+        'TILE_IMAGE_WIDTH': 256,
+        'ZOOM_2X': False
+    },
 
 }
 
-AERIAL_DEFAULT = 'TNM_Aerial'
-AERIAL_UPDATED = 'TNM_Aerial'
+AERIAL_DEFAULT = 'ESRI_Satellite'
+AERIAL_UPDATED = 'ESRI_Satellite'
 TOPO_DEFAULT = 'ESRI_Topo'
 STREET_DEFAULT = 'MAPBOX_Streets'
 # STREET_DEFAULT = 'ESRI_Street'
@@ -772,7 +789,7 @@ TAXLOTS_URLS = {
         'QS': [
             'access_token=%s' % MAPBOX_TOKEN,
         ],
-        'ATTRIBUTION': 'Taxlots: TBD',
+        'ATTRIBUTION': 'ORMAP',
         # calculate tile assuming 256 px
         'TILE_HEIGHT': 256,
         'TILE_WIDTH': 256,
@@ -839,6 +856,7 @@ CONTOUR_URLS = {
 CONTOUR_SOURCE = False
 
 if CONTOUR_SOURCE:
+    CONTOUR_ATTRIBUTION = CONTOUR_URLS[CONTOUR_SOURCE]['ATTRIBUTION']
     CONTOUR_URLS[CONTOUR_SOURCE]['STYLES'] = [
         {
             "id":25,
@@ -882,6 +900,8 @@ if CONTOUR_SOURCE:
             }
         }
     ]
+else:
+    CONTOUR_ATTRIBUTION = CONTOUR_URLS['TNM_TOPO']['ATTRIBUTION']
 
 ###########################################
 ##      Forest Types                    ###
@@ -910,12 +930,13 @@ FOREST_TYPES_ATTRIBUTION = FOREST_TYPES_URLS[FOREST_TYPES_SOURCE]['ATTRIBUTION']
 ###########################################
 ATTRIBUTION_KEYS = {
     'aerial': BASEMAPS[AERIAL_DEFAULT]['ATTRIBUTION'],
-    'topo': 'Set topo attr in settings',
-    'streets': 'Set street attr in settings',
+    'topo': BASEMAPS[TOPO_DEFAULT]['ATTRIBUTION'],
+    'streets': BASEMAPS[STREET_DEFAULT]['ATTRIBUTION'],
     'streams': STREAMS_ATTRIBUTION,
     'taxlot': TAXLOTS_ATTRIBUTION,
     'soil': SOIL_ATTRIBUTION,
-    'forest-types': FOREST_TYPES_ATTRIBUTION
+    'forest-types': FOREST_TYPES_ATTRIBUTION,
+    'contours': CONTOUR_ATTRIBUTION
 }
 
 ATTRIBUTION_BOX_FILL_COLOR = (255, 255, 255, 190)
