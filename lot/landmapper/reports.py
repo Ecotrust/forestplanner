@@ -685,6 +685,17 @@ def create_property_pdf(property, property_id):
         'forests': tmp_forests_name,
     }
 
+    # Get all attributions  
+    #   then loop through them
+    attribution_keys = settings.ATTRIBUTION_KEYS
+
+    for attribution_key in attribution_keys:
+        pdf_field_name = 'attribution_' + attribution_key
+        if attribution_keys[attribution_key]['source']:
+            template_input_dict[str(pdf_field_name)] = str(attribution_keys[attribution_key]['source'])
+        else:
+            template_input_dict[str(pdf_field_name)] = str(attribution_keys[attribution_key])
+
     # Create var for all soils
     soil_list = property.report_data['soils']['data']
     # Given more than 12 soil types sort them by percent area

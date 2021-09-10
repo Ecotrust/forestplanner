@@ -181,12 +181,20 @@ p {
 }
 
 .list-group-symbol {
-  border: 3px solid #F2CA19;
+  border: 3px solid transparent;
   float: left;
   font-weight: bold;
   line-height: 1;
   padding: 15px 20px 13px;
   margin:  0 10px 10px 0;
+}
+
+.soil-type .list-group-symbol {
+  border-color:  #EBAE33;
+}
+
+.forest-type .list-group-symbol {
+  border-color:  #F2CA19;
 }
 
 .list-group-title {
