@@ -995,8 +995,8 @@ IMAGE_TEST_DIR = os.path.join(TESTING_DIR, 'image_test')
 ###########################################
 ##      PDF Files                       ###
 ###########################################
-PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/LM_Form_v5.pdf'
-PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES = LANDMAPPER_DIR + '/LM_Form_v3.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE = LANDMAPPER_DIR + '/pdf_templates/LM_Form.pdf'
+PROPERTY_REPORT_PDF_TEMPLATE_SANS_FOREST_TYPES = LANDMAPPER_DIR + '/pdf_templates/LM_Form_sans_forests.pdf'
 PROPERTY_REPORT_PDF_DIR = LANDMAPPER_DIR + '/static/landmapper/report_pdf/'
 PDF_PAGE_LOOKUP = {
     'property_alt': 0,
