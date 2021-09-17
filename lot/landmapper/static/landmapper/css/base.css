@@ -277,10 +277,10 @@ button#geocode-results-close:hover {
 .btn-primary {
   background: #0093D7;
   line-height: 2;
-  letter-spacing: 0.075em;
+  letter-spacing: 0.05em;
   font-family: var(--primary-font-heavy);
   font-weight: 900;
-  padding: 5px 20px;
+  padding: 2px 15px;
 }
 
 /**
