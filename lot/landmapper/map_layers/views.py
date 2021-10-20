@@ -1375,7 +1375,11 @@ def merge_rasters_to_img(layers, bbox, img_height=settings.REPORT_MAP_HEIGHT, im
                     bbox_poly = shapely.geometry.Polygon([(xmin, ymin), (xmin, ymax), (xmax, ymax), (xmax, ymin), (xmin, ymin)])
                     bbox_gdf = gpd.GeoDataFrame([1], geometry=[bbox_poly])
                     bbox_gdf.set_crs(epsg=3857)
-                    layer['data'] = gpd.clip(layer['data'], bbox_gdf)
+                    try:
+                        layer['data'] = gpd.clip(layer['data'], bbox_gdf)
+                    except Exception as e:
+                        # Most likely a self intersection error in the soils data
+                        layer['data']['geometry'] = layer['data'].geometry.buffer(0)
                     #Create a new point layer for the label data and locations
                     layer['data']['coords'] = layer['data']['geometry'].apply(lambda x: x.representative_point().coords[:])
                     layer['data']['coords'] = [coords[0] for coords in layer['data']['coords']]
