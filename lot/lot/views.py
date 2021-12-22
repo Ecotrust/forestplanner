@@ -21,3 +21,13 @@ def lot_landing_page(request):
             return redirect('/map')
 
     return render(request, 'lot/common/lot_selection.html', {})
+
+# account login page
+def login(request):
+    # TODO: write to handle wrong email address or password on login
+    # if request.method == 'POST':
+        # return django.contrib.auth.views.login()
+    # else:
+    context = {}
+    # return render(request, 'discovery/account/login.html', context)
+    return render(request, 'lot/account/login.html', context)

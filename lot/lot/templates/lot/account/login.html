@@ -10,7 +10,7 @@
 {% block content %}
     <h2>{% trans "Log In" %}</h2>
 
-    {% if socialaccount.providers  %}
+    <!-- { if socialaccount.providers  %} -->
     <div class="well">
         <p>
             <h4>Option 1 <span class="text-info">(<em>recommended</em>)</span></h4> Sign in with one of your existing third party accounts.
@@ -21,7 +21,7 @@
             </ul>
         </div>
     </div>
-    {% endif %}
+    <!-- { endif %} -->
 
     <div class="well clearfix">
         <h4>Option 2</h4>
@@ -75,7 +75,7 @@
             <br><hr>
             <h4>Forest Planner Terms of Service</h4>
 
-            {% include "tos.html" %}
+            {% include "lot/tos.html" %}
 
 
           </div>
@@ -91,6 +91,11 @@
 <script>
 	/* homepage */
 		$(document).ready(function(){
+
+      $("div.socialaccount_ballot").on('click', function(e) {
+        e.preventDefault();
+        window.alert('3rd party authentication is not available at this time. If you have an existing account, please email to forestplanner@ecotrust.org for information on how to access your account via username and password.');
+      });
 
       $('#tos').hide();
 

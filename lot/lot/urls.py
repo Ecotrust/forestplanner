@@ -6,7 +6,7 @@ from django.conf import settings
 from madrona.features.views import workspace
 from django.views.static import serve
 from trees.views import map
-from lot.views import lot_landing_page
+from lot.views import lot_landing_page, login as lot_login
 from django.conf.urls.static import static
 # admin.autodiscover()
 
@@ -22,6 +22,7 @@ urlpatterns = [
 
     re_path(r'^map/?$', map, name='map'),
 
+    path('auth/login/', lot_login, name='login'),
     re_path(r'^auth/', include('allauth.urls')),
     re_path(
         r'^auth/profile/',
