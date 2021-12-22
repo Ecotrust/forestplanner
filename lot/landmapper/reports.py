@@ -519,9 +519,9 @@ def create_property_pdf(property, property_id):
     property_medium_scalebar_image = requests.get(scalebar_url+'/medium', stream=True)
 
     # /**
-    # * TODO: Refactor below code for variables named tmp_* 
+    # * TODO: Refactor below code for variables named tmp_*
     # */
-    
+
     tmp_property = NamedTemporaryFile(suffix='.png',
                                       dir=settings.PROPERTY_REPORT_PDF_DIR,
                                       delete=True)
@@ -685,7 +685,7 @@ def create_property_pdf(property, property_id):
         'forests': tmp_forests_name,
     }
 
-    # Get all attributions  
+    # Get all attributions
     #   then loop through them
     attribution_keys = settings.ATTRIBUTION_KEYS
 
@@ -742,7 +742,7 @@ def create_property_pdf(property, property_id):
 
     # /**
     # * Create layers for Forest types
-    # */    
+    # */
     forest_types_list = property.report_data['forest_types']
     if len(forest_types_list) > 12:
         forest_types_list = sorted(forest_types_list, key=lambda x:x['percent_area'], reverse=True)
@@ -750,8 +750,9 @@ def create_property_pdf(property, property_id):
     forest_type_count = 1
     for forest_type in forest_types_list['data']:
         fc_name = 'forest_type' + str(forest_type_count)
+        template_input_dict[str(fc_name) + 'fortype'] = forest_type['fortype']
         template_input_dict[str(fc_name) + 'symbol'] = forest_type['symbol']
-        template_input_dict[str(fc_name) + 'comp_over'] = forest_type['comp_over']
+        # template_input_dict[str(fc_name) + 'comp_over'] = forest_type['comp_over']
         if forest_type['acres']:
             pp_acres = '{:.1f}'.format(float(forest_type['acres']))
         else:
@@ -764,52 +765,52 @@ def create_property_pdf(property, property_id):
             template_input_dict[str(fc_name) + 'acres'] = pp_acres + ' acres ' + '(' + pp_percent_area + '%)'
         else:
             template_input_dict[str(fc_name) + 'acres'] = 'No Data Available'
-        template_input_dict[str(fc_name) + 'comp_ab'] = forest_type['comp_ab']
-        template_input_dict[str(fc_name) + 'comp_min'] = forest_type['comp_min']
+        # template_input_dict[str(fc_name) + 'comp_ab'] = forest_type['comp_ab']
+        # template_input_dict[str(fc_name) + 'comp_min'] = forest_type['comp_min']
         template_input_dict[str(fc_name) + 'can_class'] = forest_type['can_class']
-        
-        if forest_type['can_cr_min']:
-            can_cr_min = '{:.1f}'.format(float(forest_type['can_cr_min']))
-        else:
-            can_cr_min = 'No Data Available'
-        if forest_type['can_cr_max']:
-            can_cr_max = '{:.1f}'.format(float(forest_type['can_cr_max']))
-        else:
-            can_cr_max = 'No Data Available'
-        if forest_type['can_cr_min'] and forest_type['can_cr_max']:
-            template_input_dict[str(fc_name) + 'can_range'] = str(can_cr_min) + '% - ' + str(can_cr_max)  + '%'
-        else:
-            template_input_dict[str(fc_name) + 'can_range'] = 'No Data Available'
 
-        if forest_type['can_h_min']:
-            can_h_min = '{:.1f}'.format(float(forest_type['can_h_min']))
-        else:
-            can_h_min = 'No Data Available'
-
-        if forest_type['can_h_max']:
-            can_h_max = '{:.1f}'.format(float(forest_type['can_h_max']))
-        else:
-            can_h_max = 'No Data Available'
-        
-        if forest_type['can_h_min'] and forest_type['can_h_max']:
-            template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + ' ' + str(can_h_max) 
-        else:
-            template_input_dict[str(fc_name) + 'can_height'] = 'No Data Available'
+        # if forest_type['can_cr_min']:
+        #     can_cr_min = '{:.1f}'.format(float(forest_type['can_cr_min']))
+        # else:
+        #     can_cr_min = 'No Data Available'
+        # if forest_type['can_cr_max']:
+        #     can_cr_max = '{:.1f}'.format(float(forest_type['can_cr_max']))
+        # else:
+        #     can_cr_max = 'No Data Available'
+        # if forest_type['can_cr_min'] and forest_type['can_cr_max']:
+        #     template_input_dict[str(fc_name) + 'can_range'] = str(can_cr_min) + '% - ' + str(can_cr_max)  + '%'
+        # else:
+        #     template_input_dict[str(fc_name) + 'can_range'] = 'No Data Available'
+        #
+        # if forest_type['can_h_min']:
+        #     can_h_min = '{:.1f}'.format(float(forest_type['can_h_min']))
+        # else:
+        #     can_h_min = 'No Data Available'
+        #
+        # if forest_type['can_h_max']:
+        #     can_h_max = '{:.1f}'.format(float(forest_type['can_h_max']))
+        # else:
+        #     can_h_max = 'No Data Available'
+        #
+        # if forest_type['can_h_min'] and forest_type['can_h_max']:
+        #     template_input_dict[str(fc_name) + 'can_height'] = str(can_h_min) + ' ' + str(can_h_max)
+        # else:
+        #     template_input_dict[str(fc_name) + 'can_height'] = 'No Data Available'
 
         template_input_dict[str(fc_name) + 'diameter'] = forest_type['diameter']
-        
-        if forest_type['tree_r_min']:
-            tree_r_min = '{:.1f}'.format(float(forest_type['tree_r_min']))
-        else:
-            tree_r_min = 'No Data Available'
-        if forest_type['tree_r_max']:
-            tree_r_max = '{:.1f}'.format(float(forest_type['tree_r_max']))
-        else:
-            tree_r_max = 'No Data Available'
-        if forest_type['tree_r_min'] and forest_type['tree_r_max']:
-            template_input_dict[str(fc_name) + 'qmd_range'] = str(tree_r_min) + ' ' + str(tree_r_max)
-        else:
-            template_input_dict[str(fc_name) + 'qmd_range'] = 'No Data Available'        
+
+        # if forest_type['tree_r_min']:
+        #     tree_r_min = '{:.1f}'.format(float(forest_type['tree_r_min']))
+        # else:
+        #     tree_r_min = 'No Data Available'
+        # if forest_type['tree_r_max']:
+        #     tree_r_max = '{:.1f}'.format(float(forest_type['tree_r_max']))
+        # else:
+        #     tree_r_max = 'No Data Available'
+        # if forest_type['tree_r_min'] and forest_type['tree_r_max']:
+        #     template_input_dict[str(fc_name) + 'qmd_range'] = str(tree_r_min) + ' ' + str(tree_r_max)
+        # else:
+        #     template_input_dict[str(fc_name) + 'qmd_range'] = 'No Data Available'
 
         forest_type_count += 1
 
@@ -951,17 +952,18 @@ def get_forest_types_data(property_geom):
             forest_type_area_values[forest_patch.symbol] = {
                 # All ForestType fields + 2 property-specific calculated fields
                 'symbol': forest_patch.symbol,
-                'comp_over': forest_patch.comp_over,
-                'comp_ab': forest_patch.comp_ab,
-                'comp_min': forest_patch.comp_min,
+                'fortype': forest_patch.fortype,
+                # 'comp_over': forest_patch.comp_over,
+                # 'comp_ab': forest_patch.comp_ab,
+                # 'comp_min': forest_patch.comp_min,
                 'can_class': forest_patch.can_class,
-                'can_cr_min': forest_patch.can_cr_min,
-                'can_cr_max': forest_patch.can_cr_max,
-                'can_h_min': forest_patch.can_h_min,
-                'can_h_max': forest_patch.can_h_max,
+                # 'can_cr_min': forest_patch.can_cr_min,
+                # 'can_cr_max': forest_patch.can_cr_max,
+                # 'can_h_min': forest_patch.can_h_min,
+                # 'can_h_max': forest_patch.can_h_max,
                 'diameter': forest_patch.diameter,
-                'tree_r_min': forest_patch.tree_r_min,
-                'tree_r_max': forest_patch.tree_r_max,
+                # 'tree_r_min': forest_patch.tree_r_min,
+                # 'tree_r_max': forest_patch.tree_r_max,
                 'acres': 0,
                 'percent_area': 0.0
             }

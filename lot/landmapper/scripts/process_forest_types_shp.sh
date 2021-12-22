@@ -6,8 +6,8 @@
 thisdir=`dirname $BASH_SOURCE`
 
 # Variables that change frequently/on every import
-WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/forest_types_2021"
-SHP="$WORKING_DIR/forestClass_dumm.shp"
+WORKING_DIR="/usr/local/apps/forestplanner/lot/landmapper/data/forest_types_2021/20211222"
+SHP="$WORKING_DIR/oregon_stands_20211222_3857.shp"
 FINAL="$WORKING_DIR/FOREST_TYPES_2021.sql"
 
 SRID=3857
@@ -41,8 +41,17 @@ shp2pgsql -k -d -D -s $SRID -i -I -W LATIN1 \
     -g geometry $SHP public.$table_name > $TMP
 
 # Replace gid with id
-sed -i 's/gid serial/id serial/' $TMP
+# sed -i 's/gid serial/id serial/' $TMP
+sed -i 's/gid serial,//' $TMP
+# sed -i '/CREATE TABLE "public"."landmapper_foresttype" ( id serial,/ s//CREATE TABLE "public"."landmapper_foresttype" (/' $TMP
 sed -E -i 's/PRIMARY KEY \(gid\)/PRIMARY KEY \(id\)/' $TMP
+sed -i '/?/ s//-/g' $TMP
+# sed -i '/Mixed Hardwood ? Conifer/ s//Mixed Hardwood - Conifer/g' $TMP
+# sed -i '/Douglas?fir ? Western Hemlock Forest/ s//Douglas-fir - Western Hemlock Forest/g' $TMP
+# sed -i '/Spruce ? Subalpine Fir/ s//Spruce - Subalpine Fir/g' $TMP
+# sed -i '/Silver Fir ? Mountain Hemlock/ s//Silver Fir - Mountain Hemlock/g' $TMP
+# sed -i '/Mixed Oak ? Conifer/ s//Mixed Oak - Conifer/g' $TMP
+# sed -i '/ Early Shrub?Tree/ s// Early Shrub-Tree/g' $TMP
 
 # Change field names to match django model
 $TRANSLATE $TMP $FIELDMAP > $FINAL

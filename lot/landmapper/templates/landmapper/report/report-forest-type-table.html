@@ -18,7 +18,29 @@
                 <div class="{% cycle 'col-6' 'col-6' %} my-4">
                     <div class="list-group-title"><div class="list-group-symbol">{{ forest_type.symbol }}</div> {{ forest_type.comp_over }}</div>
                     <ul class="forest-type-list list-group list-group-flush">
+                        <li class="list-group-item"><strong>Forest Type:</strong>
+                          {% if forest_type.fortype %}
+                          {{ forest_type.fortype }}
+                          {% else %}
+                          No Data Available
+                          {% endif %}
+                        </li>
                         <li class="list-group-item"><strong>Area:</strong> {{ forest_type.acres|floatformat:1|intcomma }} acres ({{ forest_type.percent_area|floatformat:1}}%)</li>
+                        <li class="list-group-item"><strong>Canopy Cover Class:</strong>
+                          {% if forest_type.can_class %}
+                          {{ forest_type.can_class }}
+                          {% else %}
+                          No Data Available
+                          {% endif %}
+                        </li>
+                        <li class="list-group-item"><strong>Tree Diameter Class:</strong>
+                          {% if forest_type.diameter %}
+                            {{ forest_type.diameter }}
+                          {% else %}
+                            No Data Available
+                          {% endif %}
+                        </li>
+                        <!--
                         <li class="list-group-item"><strong>Abundant Species:</strong>
                           {% if forest_type.comp_ab %}
                             {{ forest_type.comp_ab }}
@@ -29,13 +51,6 @@
                         <li class="list-group-item"><strong>Minor Species:</strong>
                           {% if forest_type.comp_min %}
                             {{ forest_type.comp_min }}
-                          {% else %}
-                            No Data Available
-                          {% endif %}
-                        </li>
-                        <li class="list-group-item"><strong>Canopy Cover Class:</strong>
-                          {% if forest_type.can_class %}
-                            {{ forest_type.can_class }}
                           {% else %}
                             No Data Available
                           {% endif %}
@@ -54,20 +69,15 @@
                             No Data Available
                           {% endif %}
                         </li>
-                        <li class="list-group-item"><strong>Tree Diameter Class:</strong>
-                          {% if forest_type.diameter %}
-                            {{ forest_type.diameter }}
-                          {% else %}
-                            No Data Available
-                          {% endif %}
-                        </li>
                         <li class="list-group-item"><strong>QMD Est. Range:</strong>
                           {% if forest_type.tree_r_min and forest_type.tree_r_max  %}
-                            {{ forest_type.tree_r_min }}in - {{ forest_type.tree_r_max }}in
+                          {{ forest_type.tree_r_min }}in - {{ forest_type.tree_r_max }}in
                           {% else %}
-                            No Data Available
+                          No Data Available
                           {% endif %}
                         </li>
+                        -->
+
                     </ul>
                 </div>
                 <div class="col-auto"></div>

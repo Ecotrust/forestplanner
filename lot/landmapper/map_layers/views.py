@@ -812,7 +812,11 @@ def dem_from_tnm(bbox, width, height, inSR=3857, **kwargs):
         params.update({key: value})
 
     result = requests.get(BASE_URL, params=params)
-    dem = imread(io.BytesIO(result.content))
+    try:
+        dem = imread(io.BytesIO(result.content))
+    except Exception as e:
+        print(e)
+        pass
 
     return dem
 
