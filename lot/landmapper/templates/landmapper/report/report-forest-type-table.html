@@ -16,15 +16,8 @@
             {% for forest_type in property_report.forest_types.data %}
                 <div class="col-auto"></div>
                 <div class="{% cycle 'col-6' 'col-6' %} my-4">
-                    <div class="list-group-title"><div class="list-group-symbol">{{ forest_type.symbol }}</div> {{ forest_type.comp_over }}</div>
+                    <div class="list-group-title"><div class="list-group-symbol">{{ forest_type.symbol }}</div> {{ forest_type.fortype }}</div>
                     <ul class="forest-type-list list-group list-group-flush">
-                        <li class="list-group-item"><strong>Forest Type:</strong>
-                          {% if forest_type.fortype %}
-                          {{ forest_type.fortype }}
-                          {% else %}
-                          No Data Available
-                          {% endif %}
-                        </li>
                         <li class="list-group-item"><strong>Area:</strong> {{ forest_type.acres|floatformat:1|intcomma }} acres ({{ forest_type.percent_area|floatformat:1}}%)</li>
                         <li class="list-group-item"><strong>Canopy Cover Class:</strong>
                           {% if forest_type.can_class %}
