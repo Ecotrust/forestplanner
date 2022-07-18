@@ -132,7 +132,7 @@ class ExampleStand(PolygonFeature):
         manipulators = []
 
 class StandListEntry(models.Model):
-    stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
+    stand = models.ForeignKey(ExampleStand, on_delete=models.CASCADE)
     species = models.CharField(max_length=255)
     size_class = models.CharField(max_length=255)
     tpa = models.SmallIntegerField()
@@ -443,9 +443,9 @@ class DiscoveryScenario(models.Model):
 
 class DiscoveryRx(models.Model):
     from trees.models import FVSVariant, Rx
-    discovery_scenario = models.ForeignKey(DiscoveryScenario, on_delete="CASCADE")
-    variant = models.ForeignKey(FVSVariant, on_delete="CASCADE")
-    rx = models.ForeignKey(Rx, on_delete="CASCADE")
+    discovery_scenario = models.ForeignKey(DiscoveryScenario, on_delete=models.CASCADE)
+    variant = models.ForeignKey(FVSVariant, on_delete=models.CASCADE)
+    rx = models.ForeignKey(Rx, on_delete=models.CASCADE)
 
     def __str__(self):
         return str('%s - %s - %s' % (str(self.discovery_scenario), str(self.variant), str(self.rx)))

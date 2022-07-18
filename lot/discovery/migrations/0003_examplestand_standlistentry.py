@@ -45,8 +45,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('size_class', models.SmallIntegerField(choices=[(0, '0" to 2"'), (2, '2" to 6"'), (6, '6" to 12"'), (12, '12" to 24"'), (24, '24" to 36"'), (36, '36" to 48"'), (48, '48" to 70"'), (70, 'Greater than 70"')])),
                 ('tpa', models.SmallIntegerField()),
-                ('species', models.ForeignKey(on_delete='CASCADE', to='trees.FVSSpecies')),
-                ('stand', models.ForeignKey(on_delete='CASCADE', to='discovery.ExampleStand')),
+                ('species', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='trees.FVSSpecies')),
+                ('stand', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='discovery.ExampleStand')),
             ],
         ),
     ]
