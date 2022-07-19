@@ -437,3 +437,35 @@ def export_layer(request):
         pgsql2shp (OGR/PostGIS built-in)
     '''
     return render(request, 'landmapper/base.html', {})
+
+
+
+### REGISTRATION/ACCOUNT MANAGEMENT ###
+# account login page
+def login(request):
+    # TODO: write to handle wrong email address or password on login
+    # if request.method == 'POST':
+        # return django.contrib.auth.views.login()
+    # else:
+    context = {}
+    return render(request, 'landmapper/account/login.html', context)
+
+# account register / signup page
+def signup(request):
+    context = {
+        'title': 'LandMapper',
+    }
+    return render(request, 'landmapper/account/signup.html', context)
+
+# account password reset and username recovery page
+def password_reset(request):
+    context = {}
+    return render(request, 'landmapper/account/password_reset.html', context)
+
+# account profile page
+def user_profile(request):
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % ('/landmapper/auth/login/', request.path))
+    else:
+        context = {}
+        return render(request, 'landmapper/account/profile.html', context)

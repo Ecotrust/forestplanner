@@ -18,4 +18,8 @@ urlpatterns = [
     path('report/<str:property_id>/scalebar/<str:scale>', get_scalebar_as_image, name='get_scalebar_as_image'),
     path('report/<str:property_id>/scalebar/pdf/<str:scale>', get_scalebar_as_image_for_pdf, name='get_scalebar_as_pdf_image'),
     path('get_taxlot_json/', get_taxlot_json, name='get taxlot json'),
+    path('auth/login/', login, name='login'),
+    path('auth/signup/', signup, name='signup'),
+    path('auth/profile/', user_profile, name='user_profile'),
+    path('auth/password/change/', password_reset, name='password_reset'),
 ]

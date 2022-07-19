@@ -1,0 +1,32 @@
+{% extends 'landmapper/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <h1>Reset Your Password Or Recover Your Username</h1>
+    </div>
+    <div class="row">
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" placeholder="Enter email">
+          </div>
+          <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+    <div class="row mt-4">
+        <div class="text-muted">
+            <p>Check inbox for an email containing next steps. If you do not recieve an email in your inbox, then try checking your spam folder. Still nothing? Try <a href="/discovery/account/signup/">creating an account</a>.</p>
+        </div>
+    </div>
+    <div class="row mt-4">
+        <div class="col">
+            <a href="/discovery/account/signup/">Create an account</a>
+        </div>
+        <div class="col">
+            <a href="/discovery/account/login/">Log in to existing account</a>
+        </div>
+    </div>
+</div>
+{% endblock content %}
