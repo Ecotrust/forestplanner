@@ -13,7 +13,7 @@
           </li>
           {% for item in menu_items %}
             {% if item.staff_only %}
-              {% if user.is_authenticated %}
+              {% if user.is_authenticated %} {% comment %} check if user is staff as well {% endcomment %}
                 <li class="nav-item">
                   <a class="nav-link" data-toggle="modal" href="#{{item.name}}-modal">{{item.name}} <span class="sr-only">(modal)</span></a>
                 </li>
@@ -24,6 +24,25 @@
               </li>
             {% endif %} <!-- staff only -->
           {% endfor %} <!-- menu_items -->
+          
+          {% if user.is_authenticated %} 
+            <li class="nav-item">
+              <a class="nav-link" href="/landmapper/auth/profile">Profile</a>
+            </li>
+            {% if user.is_staff %}
+              <li class="nav-item">
+                <a class="nav-link" href="/admin">Admin</a>
+              </li>
+            {% endif %}
+            <li class="nav-item">
+              <a class="nav-link" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link" href="/landmapper/auth/login">Login</a>
+            </li>
+          {% endif %} <!-- end auth and login menu -->
+          
         </ul>
       </div>
     </div>

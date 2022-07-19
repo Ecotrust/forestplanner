@@ -1,11 +1,12 @@
 # https://geocoder.readthedocs.io/
 import decimal, json, geocoder
 from django.conf import settings
+from django.contrib.auth import authenticate,login as django_login
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.cache import cache
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from flatblocks.models import FlatBlock
 from landmapper.models import *
@@ -444,9 +445,15 @@ def export_layer(request):
 # account login page
 def login(request):
     # TODO: write to handle wrong email address or password on login
-    # if request.method == 'POST':
-        # return django.contrib.auth.views.login()
-    # else:
+    if request.method == 'POST':
+        username = request.POST['login']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        # import ipdb; ipdb.set_trace()
+        if user is not None:
+            django_login(request, user)
+            return redirect('/landmapper')
+        # else:
     context = {}
     return render(request, 'landmapper/account/login.html', context)
 
