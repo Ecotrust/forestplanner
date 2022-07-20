@@ -188,7 +188,7 @@ class ViewTests(TestCase):
         print('geocoder')
 
     def test_bbox_to_string(self):
-        from landmapper.views import get_bbox_as_string
+        from landmapper.map_layers.utilities import get_bbox_as_string
         from landmapper.models import Taxlot
         from django.contrib.gis.geos import MultiPolygon, Polygon
 

@@ -174,7 +174,10 @@ class DiscoveryStand(Feature):
         return self.name
 
     def get_stand(self):
-        property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
+        if self.lot_property:
+            property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
+        else:
+            property_stands = 0
         if len(property_stands) == 0:
             return None
         if len(property_stands) >= 1:
@@ -195,10 +198,16 @@ class DiscoveryStand(Feature):
             out_dict['splash_image'] = self.splash_image.url
         else:
             out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
+        if self.lot_property:
+            location_value = "%s County, %s" % self.lot_property.location
+            area_value = int(round(self.lot_property.acres))
+        else:
+            location_value = 'unknown'
+            area_value = 'N/A'
         out_dict['labels'] = [
             {'label': 'title', 'value': self.name},
-            {'label': 'Location', 'value': "%s County, %s" % self.lot_property.location},
-            {'label': 'Area', 'value': int(round(self.lot_property.acres)), 'posttext': 'acres'},
+            {'label': 'Location', 'value': location_value},
+            {'label': 'Area', 'value': area_value, 'posttext': 'acres'},
             {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
         ]
 

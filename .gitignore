@@ -45,3 +45,14 @@ lot/landmapper/testing_files/image_test/*
 lot/landmapper/static/landmapper/report_pdf/*
 static/*
 Vagrantfile
+
+lot/landmapper/testing_files/*
+lot/landmapper/tests/output/*
+lot/landmapper/data/forest_types_2021/*
+lot/landmapper/data/landmapper_data_2021*
+lot/landmapper/data/population_2021/*
+lot/landmapper/data/soils_2021/*
+lot/landmapper/data/streams_class.*
+lot/landmapper/data/street_map_options/*
+lot/landmapper/data/taxlots_2021/*
+lot/landmapper/debug/*

@@ -11,7 +11,6 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from flatblocks.models import FlatBlock
 from landmapper.models import *
 from landmapper import properties, reports
-from landmapper.map_layers.views import get_bbox_from_property
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
@@ -303,7 +302,7 @@ def report(request, property_id):
     '''
 
     property = properties.get_property_by_id(property_id)
-    (bbox, orientation) = get_bbox_from_property(property)
+    (bbox, orientation) = property.bbox()
     property_fit_coords = [float(x) for x in bbox.split(',')]
     property_width = property_fit_coords[2]-property_fit_coords[0]
     render_detailed_maps = True if property_width < settings.MAXIMUM_BBOX_WIDTH else False
