@@ -24,24 +24,27 @@
               </li>
             {% endif %} <!-- staff only -->
           {% endfor %} <!-- menu_items -->
-          
-            {% if user.is_authenticated %} 
-              <li class="nav-item">
-                <a class="nav-link" href="/landmapper/auth/profile">Profile</a>
-              </li>
-              {% if user.is_staff %}
-                <li class="nav-item">
-                  <a class="nav-link" href="/admin">Admin</a>
+            
+          {% if user.is_authenticated %} 
+            <li>
+              <ul class="nav profile-nav">
+                <li class="nav-item dropdown">
+                  <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}</a>
+                  <div class="dropdown-menu">
+                    <a class="dropdown-item" href="/landmapper/auth/profile/">My Profile</a>
+                    {% if user.is_staff %}
+                      <a class="dropdown-item" href="/admin">Admin</a>
+                    {% endif %}
+                    <a class="dropdown-item" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
+                  </div>
                 </li>
-              {% endif %}
-              <li class="nav-item">
-                <a class="nav-link" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
-              </li>
-            {% else %}
-              <li class="nav-item">
-                <a class="nav-link" href="/landmapper/auth/login">Login</a>
-              </li>
-            {% endif %} <!-- end auth and login menu -->          
+              </ul>
+            </li>
+          {% else %}
+          <li class="nav-item">
+              <a class="nav-link" href="/landmapper/auth/login">Login</a>
+            </li>
+          {% endif %} <!-- end auth and login menu -->          
         </ul>
       </div>
     </div>
