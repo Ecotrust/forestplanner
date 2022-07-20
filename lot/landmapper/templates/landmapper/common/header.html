@@ -6,7 +6,7 @@
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse">
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
             <a class="nav-link" href="/landmapper/">Home <span class="sr-only">(current)</span></a>
@@ -25,24 +25,23 @@
             {% endif %} <!-- staff only -->
           {% endfor %} <!-- menu_items -->
           
-          {% if user.is_authenticated %} 
-            <li class="nav-item">
-              <a class="nav-link" href="/landmapper/auth/profile">Profile</a>
-            </li>
-            {% if user.is_staff %}
+            {% if user.is_authenticated %} 
               <li class="nav-item">
-                <a class="nav-link" href="/admin">Admin</a>
+                <a class="nav-link" href="/landmapper/auth/profile">Profile</a>
               </li>
-            {% endif %}
-            <li class="nav-item">
-              <a class="nav-link" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
-            </li>
-          {% else %}
-            <li class="nav-item">
-              <a class="nav-link" href="/landmapper/auth/login">Login</a>
-            </li>
-          {% endif %} <!-- end auth and login menu -->
-          
+              {% if user.is_staff %}
+                <li class="nav-item">
+                  <a class="nav-link" href="/admin">Admin</a>
+                </li>
+              {% endif %}
+              <li class="nav-item">
+                <a class="nav-link" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
+              </li>
+            {% else %}
+              <li class="nav-item">
+                <a class="nav-link" href="/landmapper/auth/login">Login</a>
+              </li>
+            {% endif %} <!-- end auth and login menu -->          
         </ul>
       </div>
     </div>
