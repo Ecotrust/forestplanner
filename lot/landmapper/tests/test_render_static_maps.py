@@ -191,75 +191,75 @@ class RenderTest(TestCase):
         self.assertEqual(aerial_purps, fit_purps)
 
         # Get Street image at 'context' scope
-        outfile = os.path.join(out_dir, 'streets.png')
-        street_layer = get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
-        street_layer['data'].save(outfile, "PNG")
-        self.assertEqual(street_layer['data'].width, img_width)
-        self.assertEqual(street_layer['data'].height, img_height)
+        # outfile = os.path.join(out_dir, 'streets.png')
+        # street_layer = get_street_image_layer(property_specs, property_bboxes[settings.STREET_SCALE])
+        # street_layer['data'].save(outfile, "PNG")
+        # self.assertEqual(street_layer['data'].width, img_width)
+        # self.assertEqual(street_layer['data'].height, img_height)
 
-        # render property atop streets
-        street_report_image = get_static_map(
-            property_specs,
-            [ street_layer, property_layer],
-            bbox=property_bboxes[settings.STREET_SCALE]
-        )
+        # # render property atop streets
+        # street_report_image = get_static_map(
+        #     property_specs,
+        #     [ street_layer, property_layer],
+        #     bbox=property_bboxes[settings.STREET_SCALE]
+        # )
 
-        outfile = os.path.join(out_dir, 'street_report.png')
-        street_report_image.save(outfile, "PNG")
+        # outfile = os.path.join(out_dir, 'street_report.png')
+        # street_report_image.save(outfile, "PNG")
 
-        #   -- Get count of purple (boundary) pixels!
-        street_purps = 0
-        for pixel in street_report_image.getdata():
-            if pixel == (255, 0, 255, 255):
-                street_purps += 1
-        self.assertTrue(street_purps > 50) # likely ~5330 pixels
-        self.assertTrue(street_purps < fit_purps)
+        # #   -- Get count of purple (boundary) pixels!
+        # street_purps = 0
+        # for pixel in street_report_image.getdata():
+        #     if pixel == (255, 0, 255, 255):
+        #         street_purps += 1
+        # self.assertTrue(street_purps > 50) # likely ~5330 pixels
+        # self.assertTrue(street_purps < fit_purps)
 
         # Test that property image maps are created by the report from here:
-        bbox_poly = get_bbox_as_polygon(property_specs['bbox'])
-        taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
-        get_property_report(property, taxlots)
+        # bbox_poly = get_bbox_as_polygon(property_specs['bbox'])
+        # taxlots = Taxlot.objects.filter(geometry__intersects=bbox_poly)
+        # get_property_report(property, taxlots)
 
 
-        # Get Terrain image at 'medium' scope
-        outfile = os.path.join(out_dir, 'topo.png')
-        topo_layer = get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
-        topo_layer['data'].save(outfile, "PNG")
-        self.assertEqual(topo_layer['data'].width, img_width)
-        self.assertEqual(topo_layer['data'].height, img_height)
+        # # Get Terrain image at 'medium' scope
+        # outfile = os.path.join(out_dir, 'topo.png')
+        # topo_layer = get_topo_image_layer(property_specs, property_bboxes[settings.TOPO_SCALE])
+        # topo_layer['data'].save(outfile, "PNG")
+        # self.assertEqual(topo_layer['data'].width, img_width)
+        # self.assertEqual(topo_layer['data'].height, img_height)
 
-        outfile = os.path.join(out_dir, 'topo_report.png')
-        property.terrain_map_image.save(outfile, "PNG")
+        # outfile = os.path.join(out_dir, 'topo_report.png')
+        # property.terrain_map_image.save(outfile, "PNG")
 
-        #   -- Get count of purple (boundary) pixels!
-        topo_purps = 0
-        for pixel in property.terrain_map_image.getdata():
-            if pixel == (255, 0, 255, 255):
-                topo_purps += 1
-        self.assertTrue(topo_purps > 100)
-        self.assertTrue(topo_purps < fit_purps)
-        self.assertTrue(topo_purps > street_purps)
+        # #   -- Get count of purple (boundary) pixels!
+        # topo_purps = 0
+        # for pixel in property.terrain_map_image.getdata():
+        #     if pixel == (255, 0, 255, 255):
+        #         topo_purps += 1
+        # self.assertTrue(topo_purps > 100)
+        # self.assertTrue(topo_purps < fit_purps)
+        # self.assertTrue(topo_purps > street_purps)
 
-        # render property atop streams atop aerial
-        outfile = os.path.join(out_dir, 'stream_report.png')
-        property.stream_map_image.save(outfile, "PNG")
+        # # render property atop streams atop aerial
+        # outfile = os.path.join(out_dir, 'stream_report.png')
+        # property.stream_map_image.save(outfile, "PNG")
 
-        stream_purps = 0
-        for pixel in property.stream_map_image.getdata():
-            if pixel == (255, 0, 255, 255):
-                stream_purps += 1
-        self.assertTrue(stream_purps > 1000)
-        self.assertEqual(stream_purps, fit_purps)
+        # stream_purps = 0
+        # for pixel in property.stream_map_image.getdata():
+        #     if pixel == (255, 0, 255, 255):
+        #         stream_purps += 1
+        # self.assertTrue(stream_purps > 1000)
+        # self.assertEqual(stream_purps, fit_purps)
 
-        # render property atop soils atop aerial
-        outfile = os.path.join(out_dir, 'soil_report.png')
-        property.soil_map_image.save(outfile, "PNG")
+        # # render property atop soils atop aerial
+        # outfile = os.path.join(out_dir, 'soil_report.png')
+        # property.soil_map_image.save(outfile, "PNG")
 
-        soil_purps = 0
-        for pixel in property.soil_map_image.getdata():
-            if pixel == (255, 0, 255, 255):
-                soil_purps += 1
-        self.assertTrue(soil_purps > 1000)
-        self.assertEqual(soil_purps, soil_purps)
+        # soil_purps = 0
+        # for pixel in property.soil_map_image.getdata():
+        #     if pixel == (255, 0, 255, 255):
+        #         soil_purps += 1
+        # self.assertTrue(soil_purps > 1000)
+        # self.assertEqual(soil_purps, soil_purps)
 
         # render property atop forest types atop ???
