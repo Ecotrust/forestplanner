@@ -296,12 +296,19 @@ def create_property_id_from_request(request):
             user_id = request.user.pk
 
         property_id =  create_property_id(property_name, user_id, taxlot_ids)
-        
+
         return HttpResponse(json.dumps({'property_id': property_id}), status=200)
         
     else:
         return HttpResponse('Improper request method', status=405)
     return HttpResponse('Create property failed', status=402)
+
+def record_report(request, property_record_id):
+    try:
+        property_record = PropertyRecord.objects.get(pk=property_record_id)
+        return report(request, property_record.property_id)
+    except Exception as e:
+        return render(request, '404.html')
 
 def report(request, property_id):
     '''
