@@ -9,6 +9,7 @@ urlpatterns = [
     path('', home, name="home"),
     path('identify/', identify, name="identify"),
     path('create_property_id/', create_property_id_from_request, name='create_property_id'),
+    path('record/delete/<str:property_record_id>', delete_record, name='delete_record'),
     path('record/<str:property_record_id>', record_report, name='record_report'),
     path('report/<str:property_id>', report, name='report'),
     # map_type expects one of the following: aerial, street, terrain, stream, soil_types, forest_types

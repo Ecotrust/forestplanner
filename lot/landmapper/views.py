@@ -5,7 +5,7 @@ from django.contrib.auth import authenticate,login as django_login
 from django.contrib.auth.models import User
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.cache import cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 from flatblocks.models import FlatBlock
@@ -310,6 +310,34 @@ def record_report(request, property_record_id):
     except Exception as e:
         return render(request, '404.html')
 
+def delete_record(request, property_record_id):
+    response_status = 'error'
+    response_message = 'Unknown error occurred'
+    if not request.user.is_authenticated:
+        response_message = 'User not authenticated. Please log in.'
+    else:
+        record_matches = PropertyRecord.objects.filter(pk=int(property_record_id))
+        if record_matches.count() < 1:
+            response_message = 'No records found matching given ID'
+        elif record_matches.count() > 1:
+            response_message = 'Multiple records match given ID. Please contact the site maintainer.'
+        elif not request.user == record_matches[0].user:
+            response_message = 'You do not own this property.'
+        else:
+            try:
+                record_matches[0].delete()
+                response_status = 'success'
+                response_message = 'success'
+            except Exception as e:
+                response_status = 'error'
+                response_message = f"Unable to delete your property. Unknown error: \"{e}\""
+    return JsonResponse({
+        'status': response_status,
+        'message': response_message
+    })
+    
+
+
 def report(request, property_id):
     '''
     Land Mapper: Report Pages
@@ -494,4 +522,11 @@ def user_profile(request):
         return redirect('%s?next=%s' % ('/landmapper/auth/login/', request.path))
     else:
         context = {}
+        user_properties = PropertyRecord.objects.filter(user=request.user)
+        if user_properties.count() > 0:
+            show_properties = True
+        else:
+            show_properties = False
+        context['properties'] = user_properties
+        context['show_properties'] = show_properties
         return render(request, 'landmapper/account/profile.html', context)

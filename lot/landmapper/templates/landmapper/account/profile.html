@@ -43,6 +43,7 @@
           </td>
         </tr>
       </table>
+      
       <br>
       <div>
       {% for account in user.socialaccount_set.all %}
@@ -70,7 +71,93 @@
       {% endfor %}
       </div>
     </div>
+    {% if show_properties %}
+      <div class="row pb-5">
+        <h3>Your Properties:</h3>
+        <table class="table">
+          <tr>
+            <td>Name</td>
+            <td>Report</td>
+            <td>Public</td>
+            <td>Date Created</td>
+            <td></td>
+          </tr>
+          {% for property in properties %}
+            <tr>
+              <td>{{ property.name }}</td>
+              <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
+              <td><a href="/landmapper/report/{{ property.property_id }}">Shareable Link</a></td>
+              <td>{{ property.date_created }}</td>
+              <td>
+                <a class="btn" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
+                  Delete
+                </a>
+              </td>
+            </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="modal fade" id="confirm-property-delete" tabindex="-1" role="dialog" aria-labelledby="RUS_delete" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  Are you sure you wish to delete this property?
+              </div>
+              <div class="modal-body">
+                  <div id="rus-property-delete-body"></div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                  <a class="btn btn-danger btn-ok">Delete</a>
+              </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="property-delete-error" tabindex="-1" role="dialog" aria-labelledby="delete_error" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+              <div class="modal-header">
+                  Error
+              </div>
+              <div class="modal-body">
+                  <div id="property-delete-error-body"></div>
+              </div>
+              <div class="modal-footer">
+                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+              </div>
+          </div>
+        </div>
+      </div>
+
+    {% endif %} <!-- Show properties -->
   </div>
 {% endif %}
+
+<script>
+  $('#confirm-property-delete').on('show.bs.modal', function(e) {
+    var html = "<p>Are you sure you wish to delete property '<b>" + $(e.relatedTarget).data('name') + "</b>'?</p>";
+    $('#rus-property-delete-body').html(html);
+    // $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    $(this).find('.btn-ok').unbind('click');
+    $(this).find('.btn-ok').click(function() {
+      var property_id = $(e.relatedTarget).data('property_id');
+      var url = $(e.relatedTarget).data('href');
+      $.ajax({
+        url: url,
+        dataType: 'json'
+      }).done(function(data){
+        if (data.status == 'success') {
+          window.location.reload();
+        } else {
+          $('#property-delete-error-body').html('<b>ERROR:</b><p>' + data.message + '</p>')
+          $('#property-delete-error').modal().show();
+        }
+      });
+      return false;
+    }); 
+  });
+</script>
 
 {% endblock content %}
