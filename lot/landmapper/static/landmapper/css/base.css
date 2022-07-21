@@ -121,6 +121,26 @@ strong {
   font-weight: 900;
 }
 
+.alert p:last-child {
+  margin-bottom: 0;
+}
+
+/**
+ * Main
+ *
+ */
+
+main a {
+  border-bottom: 1px solid var(--black);
+}
+main a:hover {
+  border-bottom: 1px solid var(--black);
+  color: var(--black);
+  opacity: 0.6;
+  text-decoration: none;
+}
+
+
 /**
  * Aside
  *
@@ -136,11 +156,11 @@ strong {
  * Forms
  *
  */
-form:valid {
+form input:valid {
  border: 1px solid green;
 }
 
-form:invalid {
+form input:invalid {
  /* border: 1px solid red; */
 }
 
@@ -317,3 +337,4 @@ button#geocode-results-close:hover {
   width: fit-content;
   max-width: 80vw;
 }
+

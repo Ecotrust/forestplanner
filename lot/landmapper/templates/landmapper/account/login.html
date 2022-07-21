@@ -6,7 +6,7 @@
 
 {% block content %}
 <div class="container">
-  <div class="row">
+  <div class="row py-5">
     <h1>Welcome back</h1>
   </div>
   {% if socialaccount.providers  %}
@@ -23,8 +23,9 @@
   </div>
   {% endif %}
   <div class="row">
-    <form class="login" method="POST" action="/landmapper/auth/login/?next=/landmapper/">
+    <form class="login p-5 bg-white" method="POST" action="/landmapper/auth/login/?next=/landmapper/">
       {% csrf_token %}
+      <h3 class="pb-4">Login</h3>
       <div class="form-group">
         <label for="username">Username</label>
         <input type="text" name="login" id="id_login" class="form-control" placeholder="Enter username" autocomplete="username" required>
@@ -40,12 +41,12 @@
       <button type="submit" id="sign-in-submit" class="btn btn-primary">Log in</button>
     </form>
   </div>
-  <div class="row mt-4">
+  <div class="row mt-4 pt-5">
     <div class="col">
-      <a href="/discovery/auth/signup/">Create an account</a>
+      <a href="/landmapper/auth/signup/">Create an account</a>
     </div>
     <div class="col">
-      <a href="/auth/password/reset/">Forgot username or password</a>
+      <a href="/landmapper{% url 'account_change_password' %}">Forgot username or password</a>
     </div>
     <div class="col">
       <!-- TODO: add link to TOS -->

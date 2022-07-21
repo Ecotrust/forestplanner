@@ -462,7 +462,6 @@ def login(request):
         username = request.POST['login']
         password = request.POST['password']
         user = authenticate(request, username=username, password=password)
-        # import ipdb; ipdb.set_trace()
         if user is not None:
             django_login(request, user)
             return redirect('/landmapper')
