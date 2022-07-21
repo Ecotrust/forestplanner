@@ -314,6 +314,16 @@ class PropertyRecord(MultiPolygonFeature):
     record_taxlots = JSONField('record_taxlots', default=taxlots_default)
     user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related", on_delete=models.CASCADE, null=True, blank=True, default=None)
 
+    @property
+    def property_id(self):
+        from .views import create_property_id
+        if not self.user or self.user.is_anonymous:
+            user_id = 'anon'
+        else:
+            user_id = str(self.user.pk)
+        taxlot_ids = self.record_taxlots['taxlots']
+        return create_property_id(self.name, user_id, taxlot_ids)
+
     class Options:
         form = 'features.forms.SpatialFeatureForm'
         manipulators = []

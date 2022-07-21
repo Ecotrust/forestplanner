@@ -13,7 +13,7 @@ class MenuPageAdmin(admin.ModelAdmin):
         fields = '__all__'
 
 class PropertyRecordAdmin(admin.ModelAdmin):
-    list_display = ('name', 'user', 'date_created')
+    list_display = ('name', 'user', 'date_created', 'property_id')
     fieldsets = (
         ('Property Record', {
             'fields': (

@@ -260,7 +260,18 @@ def identify(request):
     return render(request, 'landmapper/landing.html', context)
 
 
-def create_property_id(request):
+def create_property_id(property_name, user_id, taxlot_ids):
+
+    sorted_taxlots = sorted(taxlot_ids)
+
+    id_elements = [str(x) for x in [
+            property_name, user_id
+        ] + sorted_taxlots]
+    property_id = '|'.join(id_elements)
+
+    return property_id
+
+def create_property_id_from_request(request):
     '''
     Land Mapper: Create Property Cache ID
     IN
@@ -278,13 +289,16 @@ def create_property_id(request):
             user = request.user
 
         property_name = quote(property_name, safe='')
-        sorted_taxlots = sorted(taxlot_ids)
-        id_elements = [str(x) for x in [
-            property_name,
-        ] + sorted_taxlots]
-        property_id = '|'.join(id_elements)
-        return HttpResponse(json.dumps({'property_id': property_id}),
-                            status=200)
+        
+        if request.user.is_anonymous:
+            user_id = 'anon'
+        else:
+            user_id = request.user.pk
+
+        property_id =  create_property_id(property_name, user_id, taxlot_ids)
+        
+        return HttpResponse(json.dumps({'property_id': property_id}), status=200)
+        
     else:
         return HttpResponse('Improper request method', status=405)
     return HttpResponse('Create property failed', status=402)
@@ -334,7 +348,7 @@ def report(request, property_id):
     return render(request, 'landmapper/report/report.html', context)
 
 def get_property_map_image(request, property_id, map_type):
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if map_type == 'stream':
         image = property.stream_map_image
     elif map_type == 'street':
@@ -362,7 +376,7 @@ def get_property_map_image(request, property_id, map_type):
 
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if scale == 'context':
         image = property.context_scalebar_image
     elif scale == 'medium':
@@ -375,7 +389,7 @@ def get_scalebar_as_image(request, property_id, scale="fit"):
     return response
 
 def get_scalebar_as_image_for_pdf(request, property_id, scale="fit"):
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if scale == 'context':
         image = property.context_scalebar_image
     elif scale == 'medium':
@@ -397,7 +411,7 @@ def get_property_pdf(request, property_id):
     property_pdf_cache_key = property_id + '_pdf'
     property_pdf = cache.get('%s' % property_pdf_cache_key)
     if not property_pdf:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
         property_pdf = reports.create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
@@ -411,12 +425,12 @@ def get_property_map_pdf(request, property_id, map_type):
     property_pdf_cache_key = property_id + '_pdf'
     property_pdf = cache.get('%s' % property_pdf_cache_key)
     if not property_pdf:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
         property_pdf = reports.create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
     else:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
     property_map_pdf = reports.create_property_map_pdf(property, property_id, map_type)
     response.write(property_map_pdf)
 

@@ -8,7 +8,7 @@ urlpatterns = [
         # home, name='landmapper-home'),
     path('', home, name="home"),
     path('identify/', identify, name="identify"),
-    path('create_property_id/', create_property_id, name='create_property_id'),
+    path('create_property_id/', create_property_id_from_request, name='create_property_id'),
     path('report/<str:property_id>', report, name='report'),
     # map_type expects one of the following: aerial, street, terrain, stream, soil_types, forest_types
     path('report/<str:property_id>/<str:map_type>/map', get_property_map_image, name='get_property_map_image'),

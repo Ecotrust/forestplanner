@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.core.cache import cache
 from landmapper.models import Taxlot, Property, PropertyRecord
@@ -57,7 +57,7 @@ def create_property(taxlot_ids, property_name, user=None):
                         geometry_orig=taxlot_multipolygon,
                         name=property_name)
 
-    property_record.taxlots_json = {'taxlots': taxlot_ids}
+    property_record.record_taxlots = {'taxlots': taxlot_ids}
     property_record.save()
 
     property = Property(
@@ -74,9 +74,23 @@ def get_property_by_id(property_id, user=None):
     property = cache.get('%s' % property_id)
 
     if not property:
+        # property_id = {NAME}|{USER_ID}|{TAXLOT_ID_1}|{TAXLOT_ID_2}|....
         id_elements = property_id.split('|')
+        property_name = unquote(id_elements[0])
+        user_id = unquote(id_elements[1])
+        taxlot_ids = id_elements[2:]
+        if user_id == 'anon':
+            user = AnonymousUser()
+        else:
+            try:
+                user = User.objects.get(pk=int(user_id))
+            except Exception:
+                # User may have old link prior to user_id being in the URL, so assume 'anonymous' and 1st val is taxlot
+                user = AnonymousUser()
+                taxlot_ids = id_elements[1:]
+
         # Url Decode property's name
-        property = create_property(id_elements[1:], unquote(id_elements[0]), user)
+        property = create_property(taxlot_ids, property_name, user)
         # Cache for 1 week
         cache.set('%s' % property_id, property, 60 * 60 * 24 * 7)
 
