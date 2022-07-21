@@ -301,7 +301,7 @@ def report(request, property_id):
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
 
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     (bbox, orientation) = property.bbox()
     property_fit_coords = [float(x) for x in bbox.split(',')]
     property_width = property_fit_coords[2]-property_fit_coords[0]

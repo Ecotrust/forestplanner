@@ -1,5 +1,7 @@
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
+from madrona.features import register
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
 from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db.models import Manager as GeoManager
@@ -303,6 +305,22 @@ class Property(MultiPolygonFeature):
 
     class Meta:
         abstract = False
+
+@register
+class PropertyRecord(MultiPolygonFeature):
+    def taxlots_default():
+        return {'taxlots': []}
+
+    record_taxlots = JSONField('record_taxlots', default=taxlots_default)
+    user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related", on_delete=models.CASCADE, null=True, blank=True, default=None)
+
+    class Options:
+        form = 'features.forms.SpatialFeatureForm'
+        manipulators = []
+
+    class Meta:
+        abstract = False
+
 
 class PopulationPoint(models.Model):
     classification = models.CharField(max_length=100, default='city')
