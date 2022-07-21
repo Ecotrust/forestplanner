@@ -1,4 +1,7 @@
+from django.conf import settings
+from django.contrib.auth.models import User
 from django.db import models
+from madrona.features import register
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
 from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db.models import Manager as GeoManager
@@ -7,6 +10,7 @@ from django.contrib.postgres.fields import JSONField
 # from madrona.features.forms import SpatialFeatureForm
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from landmapper.map_layers.utilities import get_bbox_as_string, get_bbox_as_polygon
 
 def sq_meters_to_sq_miles(area_m2):
     return area_m2/2589988.11
@@ -206,12 +210,117 @@ class Property(MultiPolygonFeature):
     def area_in_acres(self):
         return sq_meters_to_acres(self.geometry_orig.area)
 
+    # @property
+    def bbox(self, alt_size=False):       # TODO: This should be a method on property instances called 'bbox'
+        # """
+        # PURPOSE:
+        # -   Given a Property instance, return the bounding box and preferred report orientation
+        # IN:
+        # -   property: An instance of landmapper's Property model
+        # OUT:
+        # -   (bbox[str], orientation[str]): A tuple of two strings, the first is the
+        # -       string representation of the bounding box (EPSG:3857), the second is
+        # -       the type of orientation the resulting report should use to print
+        # -       itself
+        # """
+
+        # from landmapper.map_layers.views import get_bbox_as_string
+
+        if hasattr(self, 'geometry_final') and self.geometry_final:
+            geometry = self.geometry_final
+        elif hasattr(self, 'geometry_orig') and self.geometry_orig:
+            geometry = self.geometry_orig
+        elif hasattr(self, 'envelope'):
+            geometry = self
+        else:
+            print("ERROR: property type unrecognized")
+            return ("ERROR", "ERROR")
+        if not geometry.srid == 3857:
+            geometry.transform(3857)
+        envelope = geometry.envelope.coords
+        # assumption: GEOSGeom.evnelope().coords returns (((W,S),(E,S),(E,N),(W,N),(W,S),),)
+        west = envelope[0][0][0]
+        south = envelope[0][0][1]
+        east = envelope[0][2][0]
+        north = envelope[0][2][1]
+
+        property_width = abs(float(east - west))
+        property_height = abs(float(north - south))
+
+        property_ratio = property_width / property_height
+
+        if abs(property_ratio) > 1.0 and settings.REPORT_SUPPORT_ORIENTATION:  # wider than tall and portrait reports allowed
+            if alt_size:
+                target_width = settings.REPORT_MAP_ALT_WIDTH
+                target_height = settings.REPORT_MAP_ALT_HEIGHT
+                orientation = 'portrait'
+            else:
+                target_width = settings.REPORT_MAP_HEIGHT
+                target_height = settings.REPORT_MAP_WIDTH
+                orientation = 'portrait'
+
+        else:
+            if alt_size:
+                target_width = float(settings.REPORT_MAP_ALT_WIDTH)
+                target_height = float(settings.REPORT_MAP_ALT_HEIGHT)
+                orientation = 'landscape'
+            else:
+                target_width = float(settings.REPORT_MAP_WIDTH)
+                target_height = float(settings.REPORT_MAP_HEIGHT)
+                orientation = 'landscape'
+
+        target_ratio = target_width / target_height
+        pixel_width = target_width * (1 - settings.REPORT_MAP_MIN_BUFFER)
+        pixel_height = target_height * (1 - settings.REPORT_MAP_MIN_BUFFER)
+
+        # compare envelope ratio to target image ratio to make sure we constrain the correct axis first
+        if property_ratio >= target_ratio: # limit by width
+            coord_per_pixel = property_width / pixel_width
+            buffer_width_pixel = target_width * settings.REPORT_MAP_MIN_BUFFER / 2
+            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+            property_pixel_height = property_height / coord_per_pixel
+            height_diff = target_height - property_pixel_height
+            buffer_height_pixel = height_diff / 2
+            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+        else:   # limit by height
+            coord_per_pixel = property_height / pixel_height
+            buffer_height_pixel = target_height * settings.REPORT_MAP_MIN_BUFFER / 2
+            buffer_height_coord = abs(buffer_height_pixel * coord_per_pixel)
+            property_pixel_width = property_width / coord_per_pixel
+            width_diff = target_width - property_pixel_width
+            buffer_width_pixel = width_diff / 2
+            buffer_width_coord = abs(buffer_width_pixel * coord_per_pixel)
+
+        box_west = west - buffer_width_coord
+        box_east = east + buffer_width_coord
+        box_north = north + buffer_height_coord
+        box_south = south - buffer_height_coord
+
+
+        return (get_bbox_as_string([box_west,box_south,box_east,box_north]), orientation)
+
     class Options:
         form = 'features.forms.SpatialFeatureForm'
         manipulators = []
 
     class Meta:
         abstract = False
+
+@register
+class PropertyRecord(MultiPolygonFeature):
+    def taxlots_default():
+        return {'taxlots': []}
+
+    record_taxlots = JSONField('record_taxlots', default=taxlots_default)
+    user = models.ForeignKey(User, related_name="%(app_label)s_%(class)s_related", on_delete=models.CASCADE, null=True, blank=True, default=None)
+
+    class Options:
+        form = 'features.forms.SpatialFeatureForm'
+        manipulators = []
+
+    class Meta:
+        abstract = False
+
 
 class PopulationPoint(models.Model):
     classification = models.CharField(max_length=100, default='city')
