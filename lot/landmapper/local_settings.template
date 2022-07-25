@@ -7,6 +7,17 @@ if LIVE_SITE:
 else:
     APP_URL = DEV_URL
 
+DOMAIN_ROUTING = {
+    'lot.ecotrust.org': None,
+    'landownertools.ecotrust.org': None,
+    'forestplanner.ecotrust.org': 'forestplanner',
+    'discovery.ecotrust.org': 'discovery',
+    'forestdiscovery.ecotrust.org': 'discovery',
+    'dev.landmapper.ecotrust.org': 'landmapper',
+    'landmapper.ecotrust.org': 'landmapper',
+    'localhost': 'landmapper',
+}
+
 # Land Owner Tools has a Google Project created, but billing was never activated because we didn't need the API key
 # Without that, requests will be denied.
 GOOGLE_API_KEY = 'a_google_api_key'
