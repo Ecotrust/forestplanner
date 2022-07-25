@@ -1,0 +1,158 @@
+[
+{
+  "model": "flatblocks.flatblock",
+  "pk": 1,
+  "fields": {
+    "slug": "landing-one",
+    "header": "Landing One",
+    "content": "Forest Planner is a lorem ipsum dolor sit amet, consectetur adipiscing elit lorem ipsum dolor sit amet, consectetur adipiscing elit."
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 2,
+  "fields": {
+    "slug": "landing-two",
+    "header": "Landing Two",
+    "content": "<p>See how Forest Discovery works</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 3,
+  "fields": {
+    "slug": "landing-three",
+    "header": "Landing Three",
+    "content": "<p>Getting started</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 4,
+  "fields": {
+    "slug": "landing-four",
+    "header": "Landing Four",
+    "content": "See our FAQs, student and teacher help pages, video tutorials & more."
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 5,
+  "fields": {
+    "slug": "find-your-forest",
+    "header": "Find Your Forest",
+    "content": "<p>What forest would you like to explore? Select &ldquo;Map your own forest&rdquo; to find and draw an area you&rsquo;d like to work on. Use &quot;Choose an&nbsp;existing forest&quot; to use a sample property we have mapped and gathered forest inventory data from.&nbsp;</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 6,
+  "fields": {
+    "slug": "map-your-property",
+    "header": "Map Your Property",
+    "content": "<p><strong>Single click anywhere on the map to start defining your forest property boundary.&nbsp;</strong></p>\r\n\r\n<p><strong>Find the next point in the boundary and click again. Continue clicking to complete the shape of your property.&nbsp;</strong></p>\r\n\r\n<p><strong>Click and drag to pan the map. Use the +/- in the top left to zoom as needed.</strong></p>\r\n\r\n<p><strong>When you&#39;re satisfied with your forest property outline, double-click to end drawing.</strong></p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 7,
+  "fields": {
+    "slug": "collect-data",
+    "header": "Collect Data",
+    "content": "<p>It&#39;s time to go into the field and perform an inventory of the trees in your forest! Measuring tree&nbsp;diameters at breast height (&quot;DBH&quot;), tree heights, and species on different plots around your property means you can utilize equations to aggregate the data across the property and estimate how much standing volume is on your property.</p>\r\n\r\n<p>Download the tree list spreadsheet to learn how to identify the types of trees that are on your property.&nbsp;</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 8,
+  "fields": {
+    "slug": "enter-data",
+    "header": "Enter Data",
+    "content": "<p><strong>Enter your stand data (including species, diameters, and trees per acre) to generate an overview of your property. </strong></p>\r\n\r\n<p>&nbsp;</p>\r\n\r\n<p><strong>Download the tree list spreadsheet to learn how to identify trees and perform the inventory collection. </strong></p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 9,
+  "fields": {
+    "slug": "enter-stand-table",
+    "header": "Enter Stand Table",
+    "content": "<p><strong>Enter your stand data (including species, diameters, and trees per acre) to generate an overview of your property. </strong></p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 10,
+  "fields": {
+    "slug": "collect-data-2",
+    "header": "collect-data-2",
+    "content": "<p>Download this stand data template to fill in the measurements you collected. You will be asked to enter this information into the inventory list on the next page. In addition to the quantitative measurements outlined on this sheet, think about the qualitative information you could be collecting. What sounds do you hear?&nbsp;Do you see any snags or wildlife trees? Is there any sign of the season?&nbsp;</p>\r\n\r\n<p>Best of luck in the field!&nbsp;</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 11,
+  "fields": {
+    "slug": "forest-profile",
+    "header": "forest-profile",
+    "content": "<p>The data collected can tell you so many interesting things about your forest! The&nbsp;<strong>Forest Type</strong>&nbsp;is defined by the dominant species on your property. Forest types are influenced by climate, soil, temperature, past management activities, aspect, resource availability (such as water or nutrients), and slope. <strong>Class size</strong> helps illustrate the growing conditions and age of the trees, and the size class groupings differentiate the diameters at breast height of all the trees measured.&nbsp;The&nbsp;<strong>quadratic mean diameter (QMD)</strong>, essentially the standard deviation from the mean, is the basal area-weighted average diameter of the trees in the stand.&nbsp;<strong>Stocking&nbsp;</strong>describes how dense the trees are growing together and is calculated by basal area per acre or trees per acre.&nbsp;<strong>Basal area (BA)</strong>&nbsp;is the cross-sectional area of a tree in square feet, at 4.5 feet above ground level (also known as Breast Height). To understand the stand&#39;s density, sum all the basal areas of the trees in a stand together (square feet per acre).&nbsp;<strong>Trees per acre (TPA)&nbsp;</strong>calculates the number of trees per acre, which tells the forester how many trees in an area but it does not inform the forester how big those trees are. That&#39;s why it&#39;s important to know both TPA and BA.&nbsp;<strong>Forest structure</strong>&nbsp;describes the vertical and horizontal distribution of layers in the forest. One important indicator is&nbsp;<strong>Canopy Cover</strong>, which can be defined as sparse (0-10%), open (10-40%), moderate (40-70%), or closed (70-100%).&nbsp;</p>\r\n\r\n<p>[FUN FACT! QMD = square root ((basal area / tree per acre) / 0.005454)). 0.005454 is also known as the Forester&#39;s Constant, which is the conversion of DBH from inches to feet divided by 2 (to convert from a diameter to a&nbsp;radius) * pi.]&nbsp;</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 12,
+  "fields": {
+    "slug": "aside-map-pin",
+    "header": "Map Pin",
+    "content": "<h5><strong>Click on the map to select the tax lot(s) you want to be included in your maps.&nbsp; Click again to unselect. At least one tax lot must be selected. Click Next (below) when you are done.</strong></h5>\r\n\r\n<p>If you don&#39;t see your property here, try entering another place name or address in the search bar or use your mouse to drag the map and move around if your property is nearby.&nbsp;</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 13,
+  "fields": {
+    "slug": "aside-home",
+    "header": "Home",
+    "content": "<h5><strong>Welcome to Landmapper, a simple online tool to create maps of your property you can quickly save, download, or print.&nbsp;</strong></h5>\r\n\r\n<p>Landmapper is designed to help make conservation and management planning easier for forest owners.</p>\r\n\r\n<p>We currently offer maps across Oregon including aerial photos, street maps, topography, streams, and soil types.</p>\r\n\r\n<p>Get started by locating your property.</p>"
+  }
+},
+{
+  "model": "flatblocks.flatblock",
+  "pk": 14,
+  "fields": {
+    "slug": "aside-name",
+    "header": "Aside Name",
+    "content": "<h1>Set this content in the Admin console: Home &gt; Flatblocks &gt; Flat blocks &gt; Add Flat Block -- &quot;aside-name&quot;</h1>"
+  }
+},
+{
+  "model": "flatpages.flatpage",
+  "pk": 1,
+  "fields": {
+    "url": "/tos/",
+    "title": "Terms of Service",
+    "content": "<h1>Terms of Service</h1>\r\n\r\n<p>ForestPlanner and Forest Discovery have&nbsp;been developed by Ecotrust to provide information regarding predicted outcomes from a variety for different forest management practices. The Forest Planner incorporates data provided by the user along with data, models, and processes from a variety of private, local, state, and federal agencies and non-governmental organizations.</p>\r\n\r\n<ul>\r\n\t<li>Ecotrust makes no warranty, nor assumes any legal liability for the accuracy, completeness or usefulness of the information contained in the Forest Planner.</li>\r\n\t<li>Ecotrust does not assume responsibility or liability for any direct, indirect or consequential damages from the use of the Forest Planner.</li>\r\n\t<li>The user of this application assumes all responsibility and risk for the use of the information for any decision made as a result of this information, available from this server and the Internet in general.</li>\r\n\t<li>The user alone is responsible for the application and interpretation of this information and is responsible for use consistent with an appropriate level of caution.</li>\r\n</ul>\r\n\r\n<p>The Forest Planner is not a substitute for consultation with a qualified forester. Users are strongly encouraged to develop a written management plan including consultation with a qualified forester before implementing any forest management activities in the field.</p>",
+    "enable_comments": false,
+    "template_name": "",
+    "registration_required": false,
+    "sites": [
+      1
+    ]
+  }
+},
+{
+  "model": "flatpages.flatpage",
+  "pk": 2,
+  "fields": {
+    "url": "/about/",
+    "title": "About",
+    "content": "<h1><strong>Forest Discovery is a forestry visualization web application built for Pacific Northwest natural resource teachers and students. It has been designed to complement experiential learning opportunities where students are introduced to forest science, management, and/or conservation topics in the field and is built from lesson plans designed to meet the Next Generation Science Standards.</strong></h1>",
+    "enable_comments": false,
+    "template_name": "",
+    "registration_required": false,
+    "sites": [
+      1
+    ]
+  }
+}
+]
