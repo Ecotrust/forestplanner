@@ -154,5 +154,27 @@
       1
     ]
   }
+},
+{
+  "model": "landmapper.menupage",
+  "pk": 1,
+  "fields": {
+    "name": "About",
+    "order": 10,
+    "staff_only": false,
+    "header": "About",
+    "content": "<h3><strong>About Landmapper</strong></h3>\r\n\r\n<p>&nbsp;</p>\r\n\r\n<p>We believe the path to sustainable forestry begins by assessing a property&#39;s current condition. Landowners often spend days or weeks navigating a dozen or more websites, learning new software, or visiting local offices to gather maps and tables describing their property.</p>\r\n\r\n<p>Our focus with this tool is to provide a free and open-source web app that enables users across Oregon to click on tax lots and have relevant maps and tables for stewardship planning auto-generate and be immediately available for print or download.&nbsp;&nbsp;</p>\r\n\r\n<p><strong>Questions? Email us at:&nbsp;LMinfo@ecotrust.org</strong></p>"
+  }
+},
+{
+  "model": "landmapper.menupage",
+  "pk": 2,
+  "fields": {
+    "name": "Help",
+    "order": 100,
+    "staff_only": false,
+    "header": "Help",
+    "content": "<p><strong>Having trouble mapping your property?</strong></p>\r\n\r\n<p>Check out our instructional video below for a&nbsp;step-by-step overview of the process.&nbsp;&nbsp;</p>\r\n\r\n<p><iframe allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" allowfullscreen=\"\" frameborder=\"0\" height=\"360\" src=\"https://www.youtube.com/embed/IjBt-DNvf6k\" width=\"640\"></iframe></p>\r\n\r\n<div><strong>If you still have questions, feel free to contact us:&nbsp;<a href=\"mailto:LMhelp@ecotrust.org\">&nbsp;</a></strong><a href=\"mailto:LMhelp@ecotrust.org\">LMinfo@ecotrust.org</a></div>"
+  }
 }
 ]
