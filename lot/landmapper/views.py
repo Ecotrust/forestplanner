@@ -515,6 +515,8 @@ def signup(request):
 # account password reset and username recovery page
 def password_reset(request):
     context = {}
+    # TODO set up email to send password reset
+    # TODO if POST then add message that email has been sent or error message that email does not exist
     return render(request, 'landmapper/account/password_reset.html', context)
 
 # account profile page
