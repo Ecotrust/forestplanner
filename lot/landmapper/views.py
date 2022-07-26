@@ -492,7 +492,7 @@ def export_layer(request):
 ### REGISTRATION/ACCOUNT MANAGEMENT ###
 # account login page
 def login(request):
-    # TODO: write to handle wrong email address or password on login
+    context = {}
     if request.method == 'POST':
         username = request.POST['login']
         password = request.POST['password']
@@ -500,8 +500,9 @@ def login(request):
         if user is not None:
             django_login(request, user)
             return redirect('/landmapper')
-        # else:
-    context = {}
+        else:
+            context['error'] = True
+            context['error_message'] = "Wrong username or password"
     return render(request, 'landmapper/account/login.html', context)
 
 # account register / signup page
