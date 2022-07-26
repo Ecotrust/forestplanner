@@ -89,7 +89,7 @@
               <tr class="border-bottom">
                 <td>{{ property.name }}</td>
                 <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
-                <td><a href="/landmapper/report/{{ property.property_id }}">Shareable Link</a></td>
+                <td><a href="/landmapper/report/{{ property.property_id }}" class="copy-link">Shareable Link</a></td>
                 <td>{{ property.date_created }}</td>
                 <td>
                   <a class="" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
@@ -107,7 +107,7 @@
           <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    Are you sure you wish to delete this property?
+                    Delete Property
                 </div>
                 <div class="modal-body">
                     <div id="rus-property-delete-body"></div>
@@ -162,6 +162,23 @@
       return false;
     }); 
   });
+</script>
+
+<script>
+  var shareLinks = document.querySelectorAll('.copy-link');
+  for (var i = 0; i < shareLinks.length; i++) {
+    shareLinks[i].addEventListener('click', function(e) {
+      e.preventDefault();
+      var url = this.href
+      const el = document.createElement('textarea');
+      el.value = url;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      window.alert('URL has been copied to your clipboard')
+    })
+  }
 </script>
 
 {% endblock content %}
