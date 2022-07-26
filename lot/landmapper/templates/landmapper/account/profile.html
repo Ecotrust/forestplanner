@@ -89,7 +89,7 @@
               <tr class="border-bottom">
                 <td>{{ property.name }}</td>
                 <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
-                <td><a href="/landmapper/report/{{ property.property_id }}" class="copy-link">Shareable Link</a></td>
+                <td><a href="/landmapper/report/{{ property.property_id }}" class="copy-link" data-bs-original-title="Copy to clipboard">Shareable Link</a></td>
                 <td>{{ property.date_created }}</td>
                 <td>
                   <a class="" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
@@ -169,15 +169,21 @@
   for (var i = 0; i < shareLinks.length; i++) {
     shareLinks[i].addEventListener('click', function(e) {
       e.preventDefault();
-      var url = this.href
+      var url = e.target.href;
       const el = document.createElement('textarea');
       el.value = url;
       document.body.appendChild(el);
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      window.alert('URL has been copied to your clipboard')
-    })
+      var popover = new bootstrap.Popover(e.target, {
+        content: 'URL has been copied to your clipboard'
+      });
+      popover.show();
+      window.setTimeout(function() {
+        popover.hide();
+      }, 3000);
+    });
   }
 </script>
 
