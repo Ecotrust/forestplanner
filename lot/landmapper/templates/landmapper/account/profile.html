@@ -5,12 +5,13 @@
 
 {% if user %}
   <div class="container">
-    <div class="row py-5">
+    <div class="row pt-5">
       <h1>{{user.username}}</h1>
     </div>
-    <div class="row pb-5">
-      <table class="table">
-        <tr>
+    <div class="row p-5 bg-white">
+      <h3 class="pb-4">Your Profile</h3>
+      <table class="table table-borderless">
+        <tr class="border-bottom">
           <th>
             Username
           </th>
@@ -43,13 +44,12 @@
           </td>
         </tr>
       </table>
-      
-      <br>
-      <div>
+    </div>
+    <div class="row p-5">
       {% for account in user.socialaccount_set.all %}
           <hr>
           <p class="pull-right"><img width="50" height="50" src="{{ account.get_avatar_url }}" /></p>
-          <h3>Linked {{ account.provider }} account data</h3>
+          <h3 class="pb-4">Linked {{ account.provider }} account data</h3>
           <dl class="dl-horizontal">
             <dt>
               UID
@@ -69,71 +69,75 @@
             {% endfor %}
           </dl>
       {% endfor %}
-      </div>
     </div>
+
     {% if show_properties %}
-      <div class="row pb-5">
-        <h3>Your Properties:</h3>
-        <table class="table">
-          <tr>
-            <td>Name</td>
-            <td>Report</td>
-            <td>Public</td>
-            <td>Date Created</td>
-            <td></td>
-          </tr>
-          {% for property in properties %}
-            <tr>
-              <td>{{ property.name }}</td>
-              <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
-              <td><a href="/landmapper/report/{{ property.property_id }}">Shareable Link</a></td>
-              <td>{{ property.date_created }}</td>
-              <td>
-                <a class="btn" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
-                  Delete
-                </a>
-              </td>
+      <div class="row p-5 bg-white">
+        <h3 class="pb-4">Your Properties:</h3>
+        <table class="table table-borderless table-hover align-middle">
+          <thead>
+            <tr class="border-bottom bg-light">
+              <th>Name</th>
+              <th>Report</th>
+              <th>Public</th>
+              <th>Date Created</th>
+              <th></th>
             </tr>
-          {% endfor %}
+          </thead>
+          <tbody>
+            {% for property in properties %}
+              <tr class="border-bottom">
+                <td>{{ property.name }}</td>
+                <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
+                <td><a href="/landmapper/report/{{ property.property_id }}">Shareable Link</a></td>
+                <td>{{ property.date_created }}</td>
+                <td>
+                  <a class="" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
+                    Delete
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
         </table>
       </div>
 
-      <div class="modal fade" id="confirm-property-delete" tabindex="-1" role="dialog" aria-labelledby="RUS_delete" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  Are you sure you wish to delete this property?
-              </div>
-              <div class="modal-body">
-                  <div id="rus-property-delete-body"></div>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                  <a class="btn btn-danger btn-ok">Delete</a>
-              </div>
+      <div class="row">
+        <div class="modal fade" id="confirm-property-delete" tabindex="-1" role="dialog" aria-labelledby="RUS_delete" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Are you sure you wish to delete this property?
+                </div>
+                <div class="modal-body">
+                    <div id="rus-property-delete-body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger btn-ok">Delete</a>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="property-delete-error" tabindex="-1" role="dialog" aria-labelledby="delete_error" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Error
+                </div>
+                <div class="modal-body">
+                    <div id="property-delete-error-body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="modal fade" id="property-delete-error" tabindex="-1" role="dialog" aria-labelledby="delete_error" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-              <div class="modal-header">
-                  Error
-              </div>
-              <div class="modal-body">
-                  <div id="property-delete-error-body"></div>
-              </div>
-              <div class="modal-footer">
-                  <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              </div>
-          </div>
-        </div>
-      </div>
-
     {% endif %} <!-- Show properties -->
-  </div>
-{% endif %}
+  {% endif %}
 
 <script>
   $('#confirm-property-delete').on('show.bs.modal', function(e) {
