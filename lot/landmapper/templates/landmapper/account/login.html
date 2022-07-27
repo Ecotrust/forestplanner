@@ -41,13 +41,13 @@
 
       <!-- Wrong username or password error message -->
       {% if error %}
-        <div class="alert-warning p-2 mb-3">{{ error_message }} <br /><a href="/landmapper{% url 'account_change_password' %}">Reset using my email address</a></div>
+        <div class="alert-warning p-2 mb-3">{{ error_message }} <br /><a href="/landmapper{% url 'account_reset_password' %}">Reset using my email address</a></div>
       {% endif %}
 
       <button type="submit" id="sign-in-submit" class="btn btn-primary">Log in</button>
 
       <div class="mt-4 pl-2">
-        <a href="/landmapper{% url 'account_change_password' %}" class="small">Forgot username or password</a>
+        <a href="/landmapper{% url 'account_reset_password' %}" class="small">Forgot username or password</a>
       </div>
 
     </form>

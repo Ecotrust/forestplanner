@@ -23,5 +23,5 @@ urlpatterns = [
     path('auth/login/', login, name='login'),
     path('auth/signup/', signup, name='signup'),
     path('auth/profile/', user_profile, name='user_profile'),
-    path('auth/password/change/', password_reset, name='password_reset'),
+    path('auth/password/reset/', PasswordResetView.as_view(), name='password_reset'),
 ]

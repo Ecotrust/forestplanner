@@ -2,12 +2,22 @@
 import decimal, json, geocoder
 from django.conf import settings
 from django.contrib.auth import authenticate,login as django_login
+from django.contrib.auth.forms import (
+    AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm,
+)
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordContextMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.cache import cache
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.decorators.csrf import csrf_protect
+from django.views.generic.edit import FormView
 from flatblocks.models import FlatBlock
 from landmapper.models import *
 from landmapper import properties, reports
@@ -513,11 +523,36 @@ def signup(request):
     return render(request, 'landmapper/account/signup.html', context)
 
 # account password reset and username recovery page
-def password_reset(request):
-    context = {}
-    # TODO set up email to send password reset
-    # TODO if POST then add message that email has been sent or error message that email does not exist
-    return render(request, 'landmapper/account/password_reset.html', context)
+class PasswordResetView(PasswordContextMixin, FormView):
+    email_template_name = 'registration/password_reset_email.html'
+    extra_email_context = None
+    form_class = PasswordResetForm
+    from_email = None
+    html_email_template_name = None
+    subject_template_name = 'registration/password_reset_subject.txt'
+    # success_url = reverse_lazy('password_reset_done')
+    success_url = 'auth/password/reset/done/'
+    template_name = 'landmapper/account/password_reset_form.html'
+    title = _('Password reset')
+    token_generator = default_token_generator
+
+    @method_decorator(csrf_protect)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        opts = {
+            'use_https': self.request.is_secure(),
+            'token_generator': self.token_generator,
+            'from_email': self.from_email,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': self.extra_email_context,
+        }
+        form.save(**opts)
+        return super().form_valid(form)
 
 # account profile page
 def user_profile(request):
