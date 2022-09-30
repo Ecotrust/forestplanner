@@ -1,0 +1,16 @@
+main {
+    padding: 2rem;
+}
+
+h3 {
+    padding-bottom: 1rem;
+    font-size: 3rem;
+}
+
+input {
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+}
+input[type="submit"] {
+    padding: 0.7rem;
+}
