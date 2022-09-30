@@ -1,6 +1,11 @@
 {% extends 'landmapper/base.html' %}
 {% load static %}
 
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/css/auth.css' %}">
+{% endblock styles %}
+
 {% block content %}
 
 {% if user %}
@@ -8,7 +13,7 @@
     <div class="row pt-5">
       <h1>{{user.username}}</h1>
     </div>
-    <div class="row p-5 bg-white">
+    <div class="row p-3 bg-white">
       <h3 class="pb-4">Your Profile</h3>
       <table class="table table-borderless">
         <tr class="border-bottom">
@@ -45,7 +50,7 @@
         </tr>
       </table>
     </div>
-    <div class="row p-5">
+    <div class="row p-3">
       {% for account in user.socialaccount_set.all %}
           <hr>
           <p class="pull-right"><img width="50" height="50" src="{{ account.get_avatar_url }}" /></p>
@@ -72,7 +77,7 @@
     </div>
 
     {% if show_properties %}
-      <div class="row p-5 bg-white">
+      <div class="row p-3 bg-white properties-table">
         <h3 class="pb-4">Your Properties:</h3>
         <table class="table table-borderless table-hover align-middle">
           <thead>
