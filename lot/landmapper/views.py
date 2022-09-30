@@ -191,7 +191,6 @@ def home(request):
         'q_address': 'Enter your property address here',
         'overlay': 'overlay',
     }
-    context['menu_items'] = MenuPage.objects.all().order_by('order')
 
     return render(request, 'landmapper/landing.html', context)
 
@@ -251,7 +250,6 @@ def identify(request):
                 'btn_next_href': 'property_name',
                 'btn_create_maps_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled',
-                'menu_items': MenuPage.objects.all().order_by('order'),
             }
     else:
         # User wants to bypass address search
@@ -264,7 +262,6 @@ def identify(request):
             'btn_next_href': 'property_name',
             'btn_create_maps_href': '/landmapper/report/',
             'btn_next_disabled': 'disabled',
-            'menu_items': MenuPage.objects.all().order_by('order'),
         }
 
     return render(request, 'landmapper/landing.html', context)
@@ -378,7 +375,6 @@ def report(request, property_id):
         'stream_scale': settings.STREAM_SCALE,
         'soil_scale': settings.SOIL_SCALE,
         'forest_type_scale': settings.FOREST_TYPES_SCALE,
-        'menu_items': MenuPage.objects.all().order_by('order'),
         'SHOW_AERIAL_REPORT': settings.SHOW_AERIAL_REPORT,
         'SHOW_STREET_REPORT': settings.SHOW_STREET_REPORT,
         'SHOW_TERRAIN_REPORT': settings.SHOW_TERRAIN_REPORT,
