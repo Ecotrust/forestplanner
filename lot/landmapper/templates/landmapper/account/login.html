@@ -1,12 +1,17 @@
 {% extends 'landmapper/base.html' %}
 {% load static %}
-
 {% load i18n %}
 {% load account %}
 
+
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/css/auth.css' %}">
+{% endblock styles %}
+
 {% block content %}
 <div class="container">
-  <div class="row py-5">
+  <div class="row py-1">
     <h1>Welcome back</h1>
   </div>
   {% if socialaccount.providers  %}
@@ -23,7 +28,7 @@
   </div>
   {% endif %}
   <div class="row">
-    <form class="login p-5 bg-white" method="POST" action="/landmapper/auth/login/?next=/landmapper/">
+    <form class="login py-3 px-5 bg-white" method="POST" action="/landmapper/auth/login/?next=/landmapper/">
       {% csrf_token %}
       <h3 class="pb-4">Login</h3>
       <div class="form-group">
@@ -46,7 +51,7 @@
 
       <button type="submit" id="sign-in-submit" class="btn btn-primary">Log in</button>
 
-      <div class="mt-4 pl-2">
+      <div class="mt-4 pl-2 forgot-link">
         <a href="/landmapper{% url 'account_reset_password' %}" class="small">Forgot username or password</a>
       </div>
 

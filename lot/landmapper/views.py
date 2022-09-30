@@ -564,3 +564,8 @@ def user_profile(request):
         context['properties'] = user_properties
         context['show_properties'] = show_properties
         return render(request, 'landmapper/account/profile.html', context)
+
+# account password reset and username recovery page
+def change_password(request):
+    context = {}
+    return render(request, 'landmapper/account/password_reset.html', context)

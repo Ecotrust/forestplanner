@@ -3,13 +3,18 @@
 {% load i18n %}
 {% load account %}
 
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/css/auth.css' %}">
+{% endblock styles %}
+
 {% block content %}
 <div class="container">
-    <div class="row py-5">
+    <div class="row py-1">
         <h1>Welcome to {{ title }}</h1>
     </div>
     <div class="row">
-        <form class="signup p-5 bg-white" id="signup_form" method="post" action="/auth/signup/?next=/landmapper">
+        <form class="signup py-3 px-5 bg-white" id="signup_form" method="post" action="/auth/signup/?next=/landmapper">
             {% csrf_token %}
             <h3 class="pb-4">Create an Account</h3>
             {% if redirect_field_value %}
