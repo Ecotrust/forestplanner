@@ -166,16 +166,18 @@ form input:invalid {
 
 #bypass-address-input {
   position: absolute;
-  left: 50%;
-  transform: translate(-50%,25vh);
+  top: 250px;
+  left: 42%;
+  /* transform: translate(-50%,25vh); */
   z-index: 2;
 }
 
 #bypass-address-input:before {
   content: 'OR';
-  left: 50%;
+  left: 45%;
   position: absolute;
-  transform: translate(-50%,-4vh);
+  top: -60px;
+  /* transform: translate(-50%,-4vh); */
 }
 
 #bypass-address-input:after {
@@ -189,12 +191,13 @@ form input:invalid {
 }
 
 #property-search-form {
-  left: 50%;
+  left: 25%;
   position: absolute;
+  top: 100px;
   /* Center search box by:
     left 50% - based on the parent div (50% of map-wrap)
     transform translate -50% - based on input field (half of search input) */
-  transform: translate(-50%,15vh);
+  /* transform: translate(-50%,15vh); */
   /* Keep search over map.
     both map and search position absoulte.
     z-index 2 for search form. z-index 1 for map */
