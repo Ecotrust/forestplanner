@@ -1,4 +1,4 @@
-{% extends 'landmapper/base.html' %}
+{% extends 'landmapper/account/account_base.html' %}
 {% load static %}
 {% load i18n %}
 {% load account %}
@@ -12,7 +12,7 @@
 {% block content %}
 <div class="container">
   <div class="row py-1">
-    <h1>Welcome back</h1>
+    <h1>Welcome</h1>
   </div>
   {% if socialaccount.providers  %}
   <div class="row">
@@ -56,17 +56,7 @@
 
     </form>
   </div>
-  <div class="row mt-4 pt-5">
-    <div class="col">
-      <a class="btn btn-success" href="/landmapper/auth/signup/">Create an account</a>
-    </div>
-    <div class="col">
-    </div>
-    <div class="col">
-      <!-- TODO: add link to TOS -->
-      <a href="" id="tos-link">Terms of Service</a>
-    </div>
-  </div>
+  
 </div>
 {% endblock content %}
 

@@ -6,6 +6,10 @@ a {
     color: var(--primary);
 }
 
+footer a {
+    color: unset;
+}
+
 b {
     font-weight: bold;
 }

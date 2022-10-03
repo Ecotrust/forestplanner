@@ -1,0 +1,17 @@
+{% extends 'landmapper/base.html' %}
+
+{% block footer %}
+    <footer class="row pb-3 account-footer">
+        {% if not user.is_authenticated %}
+            <div>
+                <a class="btn btn-success" href="/landmapper/auth/signup/">Create an account</a>
+            </div>
+        {% endif %}
+        <div>
+            <a href="/landmapper/tou/" id="tos-link">Terms of Use</a>
+        </div>
+        <div>
+            <a href="/landmapper/privacy/" id="privacy-link">Privacy Policy</a>
+        </div>
+    </footer>
+{% endblock footer %}

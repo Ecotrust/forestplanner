@@ -1,4 +1,4 @@
-{% extends 'landmapper/base.html' %}
+{% extends 'landmapper/account/account_base.html' %}
 {% load static %}
 {% load i18n %}
 {% load account %}
@@ -38,7 +38,7 @@
               </div>
               <button type="submit" class="btn btn-primary">Get Started</button>
               <!-- TODO: Add link to terms of service -->
-              <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="#tos">Terms of Service</a>.</small>
+              <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="/landmapper/tou/" target="_blank">Terms of Use</a>.</small>
         </form>
     </div>
     <div class="row mt-4 mb-4">

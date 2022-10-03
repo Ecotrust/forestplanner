@@ -39,3 +39,8 @@ div.mt-4.forgot-link {
 div.properties-table {
     margin-bottom: 2rem;
 }
+
+footer.account-footer {
+    display: flex;
+    justify-content: space-evenly;
+}
