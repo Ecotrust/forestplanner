@@ -1,0 +1,19 @@
+div.legal-container {
+    padding: 3rem 5rem;
+}
+
+a {
+    color: var(--primary);
+}
+
+b {
+    font-weight: bold;
+}
+
+p.address {
+    margin-left: 4rem;
+}
+
+div.legal-container ul {
+    padding-left: 4rem;
+}

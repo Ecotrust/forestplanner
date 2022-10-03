@@ -1,0 +1,145 @@
+{% extends 'landmapper/base.html' %}
+{% load static %}
+{% load i18n %}
+{% load account %}
+
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/css/legal.css' %}">
+{% endblock styles %}
+
+{% block main %}
+<div id="tou" class="legal-container">
+
+    <h3>Last Updated: 07/27/2022</h3>
+    
+    <h1>Terms of Use</h1>
+    
+    <p>
+        PLEASE READ THESE TERMS OF USE CAREFULLY. BY ACCESSING OR USING THIS WEBSITE YOU AGREE TO BE BOUND BY THE TERMS AND CONDITIONS DESCRIBED HEREIN AND TO ALL TERMS INCORPORATED BY REFERENCE. IF YOU DO NOT AGREE TO ALL OF THESE TERMS, DO NOT USE OUR WEBSITE.
+    </p>
+    <p>
+        These Terms of Use ("Terms") apply to your access to, and use of, this website and other services and applications (collectively, the "Services") of Ecotrust ("Ecotrust" or "we"). These Terms do not alter in any way the terms or conditions of any other agreement you may have with Ecotrust for products, services or otherwise. If you are using the Services on behalf of an entity, you represent and warrant that you are authorized to accept these Terms on such entity's behalf and that such entity agrees to be responsible to us if you violate these Terms.
+    </p>
+    <p>
+        Ecotrust reserves the right to modify or amend these Terms at any time and in our sole discretion. If Ecotrust makes changes to these Terms, we will provide notice of such changes, such as by sending an email, by providing notice through the Services or by updating the "Last Updated" date at the top of these Terms. Your continued use of the Services will confirm your acceptance of the revised Terms. We encourage you to frequently review the Terms to ensure that you understand the terms and conditions that apply to your use of the Services. If you do not agree to any amended Terms, you must stop using the Services.
+    </p>
+    <p>
+        Questions or comments regarding the Services or these Terms should be directed by electronic mail to
+        <a href= "mailto:landmapper@ecotrust.org">landmapper@ecotrust.org</a>.
+    </p>
+    <p>
+        1. Privacy Policy
+    </p>
+    <p>
+        Please refer to our Privacy Policy for information about how Ecotrust collects, uses, and discloses information from our users.
+    </p>
+    <p>
+        2. Eligibility, Registration and Account
+    </p>
+    <p>
+        The Services are not targeted towards, nor intended for use by, anyone under the age of 13. If you are between the ages of 13 and 18, or the age of legal majority under applicable law, you may only use the Services under the supervision of a parent or legal guardian who agrees to be bound by these Terms. By using the Services, you represent and warrant that you (a) have not been previously suspended or removed from the Services; and (b) have full power and authority to enter into this agreement and that, in doing so, you will not violate any other agreement to which you are a party.
+    </p>
+    <p>
+        In order to access and use certain features or areas of the Services, you may need to register for or create an account or provide a name or email address. When registering for or creating an account or providing a name or email address, you cannot create an account name or use a name or email address that incorporates a trademark without authorization from the trademark owner. We reserve the right to reclaim account names on behalf of any business or individual that holds legal claim, including trademark rights, in those names.
+    </p>
+    <p>
+        In consideration of your use of the Services, you agree to (w) provide accurate, current and complete account information; (x) maintain and promptly update your account information; (y) maintain the security of your password and accept all risks of unauthorized access to your account and the information you provide to Ecotrust; and (z) promptly notify Ecotrust if you discover or otherwise suspect any security breaches related to the Services.
+    </p>
+    <p>
+        3. Intellectual Property and Limited License
+    </p>
+    <p>
+        Unless otherwise indicated on the Services, the Services and all content and other materials therein, including without limitation the Ecotrust logo and designs, text, graphics, pictures, information, data, software, sound files, other files and the selection and arrangement thereof (collectively, "Content") are the proprietary property of Ecotrust or our licensors or users and are protected by U.S. and international copyright and intellectual property laws.
+    </p>
+    <p>
+        You are granted a limited, nonexclusive, non-sublicensable license to access and use the Services and Content; however, such license is subject to these Terms and does not include any right to (a) resale or commercial use of the Services or the Content therein;  (b) the distribution, public performance, or public display of any Content; (c) modifying or otherwise making any derivative uses of the Services or the Content, or any portion thereof; (d) use of any data mining, robots or similar data gathering or extraction methods; (e) downloading (other than the page caching) of any portion of the Services, the Content or any information contained therein, except as expressly permitted on the Services; and (f) any use of the Services or Content other than for their intended purposes. Any use of the Services or Content other than as specifically authorized herein, without the prior written permission of Ecotrust, is strictly prohibited and will terminate the license granted herein. Such unauthorized use may also violate applicable laws, including without limitation copyright and trademark laws and applicable communications regulations and statutes. Unless explicitly stated herein, nothing in these Terms shall be construed as conferring any license to intellectual property rights, whether by estoppel, implication, or otherwise. This license is revocable at any time.
+    </p>
+    <p>
+        4. Trademarks
+    </p>
+    <p>
+        "Ecotrust" and the Ecotrust logo and any other Ecotrust product or service names, logos, or slogans that may appear on the Services are trademarks of Ecotrust, and may not be copied, imitated, or used, in whole or in part, without the prior written permission of Ecotrust or the applicable trademark holder. You may not use any metatags or other "hidden text" utilizing "Ecotrust" or any other name, trademark, or product or service name of Ecotrust without our prior written permission. In addition, the look and feel of the Services, including all page headers, custom graphics, button icons, and scripts, is the service mark, trademark and/or trade dress of Ecotrust and may not be copied, imitated, or used, in whole or in part, without our prior written permission. All other trademarks, registered trademarks, product names, and company names or logos mentioned in the Services are the property of their respective owners. Reference to any products, services, processes, or other information, by name, trademark, manufacturer, supplier, or otherwise does not constitute or imply endorsement, sponsorship, or recommendation by Ecotrust.
+    </p>
+    <p>
+        5. Hyperlinks
+    </p>
+    <p>
+        You are granted a limited, nonexclusive right to create a text hyperlink to the Services for noncommercial purposes, provided that such link does not portray Ecotrust or any of its products or services in a false, misleading, derogatory or otherwise defamatory manner and provided further that the linking site does not contain any adult or illegal material or any material that is offensive, harassing or otherwise objectionable. This limited right may be revoked at any time. You may not use an Ecotrust logo or other proprietary graphic of Ecotrust to link to the Services without the express written permission of Ecotrust. Further, you may not use, frame, or utilize framing techniques to enclose any Ecotrust trademark, logo or other proprietary information, including the images found on the Services, the content of any text or the layout/design of any page or form contained on a page on the Services without Ecotrust's express written consent. Except as noted above, you are not conveyed any right or license by implication, estoppel or otherwise in or under any patent, trademark, copyright or proprietary right of Ecotrust or any third party.
+    </p>
+    <p>
+        Ecotrust makes no claim or representation regarding, and accepts no responsibility for, the quality, content, nature or reliability of third-party websites accessible by hyperlink from the Services or websites linking to the Services. Such sites are not under the control of Ecotrust, and Ecotrust is not responsible for the contents of any linked site or any link contained in a linked site, or any review, changes, or updates to such sites. Ecotrust provides these links to you only as a convenience, and the inclusion of any link does not imply affiliation, endorsement or adoption by Ecotrust of any site or any information contained therein. When you leave the Services, you should be aware that our terms and policies no longer govern. You should review the applicable terms and policies, including privacy and data gathering practices, of any site to which you navigate from the Services.
+    </p>
+    <p>
+        6. Third-Party Content
+    </p>
+    <p>
+        Ecotrust may provide third-party content on the Services and may provide links to web pages and content of third parties (collectively, "Third-Party Content") as a service to those interested in this information. Ecotrust does not control, endorse, or adopt any Third-Party Content and makes no representation or warranties of any kind regarding the Third-Party Content, including without limitation regarding its accuracy or completeness. You acknowledge and agree that Ecotrust is not responsible or liable in any manner for any Third-Party Content and undertakes no responsibility to update or review any Third-Party Content. Users use such Third-Party Content contained therein at their own risk.
+    </p>
+    <p>
+        7. Advertisements and Promotions; Third-Party Products, Services and Promotions
+    </p>
+    <p>
+        Ecotrust may run advertisements and promotions from third parties on the Services or may otherwise provide information about or links to third-party products or services on the Services. Your business dealings or correspondence with, or participation in promotions of, such third parties, and any terms, conditions, warranties, or representations associated with such dealings or promotions, are solely between you and such third party. Ecotrust is not responsible or liable for any loss or damage of any sort incurred as the result of any such dealings or promotions or as the result of the presence of such non-Ecotrust advertisers or third-party information on the Services.
+    </p>
+    <p>
+        8. User Content and Submissions
+    </p>
+    <p>
+        Ecotrust may allow you or other users of the Services to make their content available on the website in connection with the Services (“User Content”). By submitting any User Content, you grant to Ecotrust an irrevocable and perpetual non-exclusive, transferable, royalty free, sublicenseable, worldwide license to use, copy, distribute, display, and otherwise use such content in any way. Separate and apart from User Content, you can submit questions, comments, suggestions, ideas, plans, notes, drawings, original, or creative materials, or other information or materials about the Services or our other products and services (collectively, "Submissions"). Submissions, whether submitted through the Services or otherwise, are non-confidential and shall become the sole property of Ecotrust. Ecotrust shall own exclusive rights, including all intellectual property rights, in and to such Submissions and shall be entitled to the unrestricted use and dissemination of these Submissions for any purpose, commercial or otherwise, without acknowledgment, access, or compensation to you.
+    </p>
+    <p>
+        9. Indemnification
+    </p>
+    <p>
+        You agree to defend, indemnify, and hold harmless Ecotrust and our officers, agents, partners, affiliates, employees, independent contractors, service providers, and consultants, and their respective directors, employees, and agents (collectively, "Ecotrust Parties"), from and against any and all claims, damages, obligations, losses, liabilities, costs or debt, and expenses (including, but not limited to, attorneys' fees) arising from or related to: (a) your use of the Services; (b) any User Content you post, upload, use, distribute, store, or otherwise transmit on or through the Services; (c) any Submissions you provide; (d) your violation of these Terms; or (e) your violation of the rights of another.
+    </p>
+    <p>
+        10. Disclaimer
+    </p>
+    <p>
+        <b>
+            EXCEPT AS EXPRESSLY PROVIDED TO THE CONTRARY IN A WRITING BY ECOTRUST, THE SERVICES AND CONTENT CONTAINED THEREIN ARE PROVIDED ON AN "AS IS" BASIS WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. ECOTRUST DISCLAIMS ALL OTHER WARRANTIES, EXPRESS OR IMPLIED, INCLUDING WITHOUT LIMITATION IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NON-INFRINGEMENT AS TO THE SERVICES AND CONTENT CONTAINED THEREIN. ECOTRUST DOES NOT REPRESENT OR WARRANT THAT CONTENT ON THE SERVICES IS ACCURATE, COMPLETE, RELIABLE, CURRENT, OR ERROR-FREE.
+        </b>
+    </p>
+    <p>
+        ECOTRUST IS NOT RESPONSIBLE FOR TYPOGRAPHICAL ERRORS OR OMISSIONS RELATING TO TEXT OR PHOTOGRAPHY. WHILE ECOTRUST ATTEMPTS TO MAKE YOUR ACCESS TO AND USE OF THE SERVICES SAFE, ECOTRUST CANNOT AND DOES NOT REPRESENT OR WARRANT THAT THE SITES OR ITS SERVER(S) ARE FREE OF VIRUSES OR OTHER HARMFUL COMPONENTS; THEREFORE, YOU SHOULD USE INDUSTRY-RECOGNIZED SOFTWARE TO DETECT AND DISINFECT VIRUSES FROM ANY DOWNLOAD.
+    </p>
+    <p>
+        Ecotrust reserves the right to change any and all content contained in the Services and to modify, suspend, or discontinue the Services or any features or functionality of the Services at any time without notice and without obligation or liability to you. Reference to any products, services, processes, or other information, by trade name, trademark, manufacturer, supplier, or otherwise does not constitute or imply endorsement, sponsorship, or recommendation thereof, or any affiliation therewith, by Ecotrust. Some jurisdictions do not allow the disclaimer of implied terms in contracts with consumer, so some or all of the disclaimers in this section may not apply to you.
+    </p>
+    <p>
+        11. Limitation of Liability
+    </p>
+    <p>
+        IN NO EVENT SHALL ANY ECOTRUST PARTIES BE LIABLE FOR ANY DIRECT, SPECIAL, INDIRECT, OR CONSEQUENTIAL DAMAGES, OR ANY OTHER DAMAGES OF ANY KIND, INCLUDING BUT NOT LIMITED TO LOSS OF USE, LOSS OF PROFITS, OR LOSS OF DATA, WHETHER IN AN ACTION IN CONTRACT, TORT (INCLUDING BUT NOT LIMITED TO NEGLIGENCE), OR OTHERWISE, ARISING OUT OF OR IN ANY WAY CONNECTED WITH THE USE OF OR INABILITY TO USE THE SERVICES OR THE CONTENT CONTAINED IN OR ACCESSED THROUGH THE SERVICES, INCLUDING WITHOUT LIMITATION ANY DAMAGES CAUSED BY OR RESULTING FROM RELIANCE BY ANY USER ON ANY INFORMATION OBTAINED FROM ECOTRUST, OR THAT RESULT FROM MISTAKES, OMISSIONS, INTERRUPTIONS, DELETION OF FILES OR EMAIL, ERRORS, DEFECTS, VIRUSES, DELAYS IN OPERATION OR TRANSMISSION, OR ANY FAILURE OF PERFORMANCE, WHETHER OR NOT RESULTING FROM ACTS OF GOD, COMMUNICATIONS FAILURE, THEFT, DESTRUCTION OR UNAUTHORIZED ACCESS TO ECOTRUST'S RECORDS, PROGRAMS, OR SERVICES. IN NO EVENT SHALL THE AGGREGATE LIABILITY OF ECOTRUST, WHETHER IN CONTRACT, WARRANTY, TORT (INCLUDING NEGLIGENCE, WHETHER ACTIVE, PASSIVE, OR IMPUTED), PRODUCT LIABILITY, STRICT LIABILITY, OR OTHER THEORY, ARISING OUT OF OR RELATING TO THE USE OF OR INABILITY TO USE THE SERVICES OR TO THESE TERMS EXCEED ANY COMPENSATION YOU PAY, IF ANY, TO ECOTRUST FOR ACCESS TO OR USE OF THE SERVICES.
+    </p>
+    <p>
+        12. Modifications to the Services
+    </p>
+    <p>
+        Ecotrust reserves the right to modify or discontinue, temporarily or permanently, the Services or any features or portions thereof without prior notice. You agree that Ecotrust will not be liable for any modification, suspension, or discontinuance of the Services, or any part thereof.
+    </p>
+    <p>
+        13. Applicable Law; Arbitration
+    </p>
+    <p>
+        PLEASE READ THE FOLLOWING PARAGRAPH CAREFULLY BECAUSE IT REQUIRES YOU TO ARBITRATE DISPUTES WITH ECOTRUST AND LIMITS THE MANNER IN WHICH YOU CAN SEEK RELIEF FROM ECOTRUST.
+    </p>
+    <p>
+        You and Ecotrust agree to arbitrate any dispute arising from these Terms or your use of the Services, except that you and Ecotrust are not required to arbitrate any dispute in which either party seeks equitable and other relief for the alleged unlawful use of copyrights, trademarks, trade names, logos, trade secrets, or patents. ARBITRATION PREVENTS YOU FROM SUING IN COURT OR FROM HAVING A JURY TRIAL. You and Ecotrust agree that you will notify each other in writing of any dispute within thirty (30) days of when it arises. Notice to Ecotrust shall be sent to Ecotrust, 1140 SE 7th Avenue, Suite 150, Portland, Oregon 97214. You and Ecotrust further agree: to attempt informal resolution prior to any demand for arbitration; that any arbitration will occur in Multnomah County, Oregon; that arbitration will be conducted confidentially by a single arbitrator in accordance with the Rules of the American Arbitration Association; and that the state or federal courts in Multnomah County, Oregon have exclusive jurisdiction over any appeals of an arbitration award and over any suit between the parties not subject to arbitration. Other than class procedures and remedies discussed below, the arbitrator has the authority to grant any remedy that would otherwise be available in court. Any dispute between the parties will be governed by these Terms, this agreement, and the laws of the State of Oregon and applicable United States law, without giving effect to any conflict of laws principles that may provide for the application of the law of another jurisdiction. Whether the dispute is heard in arbitration or in court, you and Ecotrust will not commence against the other a class action, class arbitration or other representative action or proceeding.
+    </p>
+    <p>
+        14. Termination
+    </p>
+    <p>
+        Notwithstanding any of these Terms, Ecotrust reserves the right, without notice and in our sole discretion, to terminate your right to use the Services, or any portion of thereof, and to block or prevent your future access to and use of the Services or any portion thereof.
+    </p>
+    <p>
+        15. Severability; No Waiver
+    </p>
+    <p>
+        If any provision of these Terms shall be deemed unlawful, void or for any reason unenforceable, then that provision shall be deemed severable from these Terms and shall not affect the validity and enforceability of any remaining provisions. A delay in our enforcement of these Terms shall not constitute a modification of these Terms or the waiver of any enforcement or other rights hereunder.
+    </p>
+</div>
+{% endblock main %}

@@ -569,3 +569,11 @@ def user_profile(request):
 def change_password(request):
     context = {}
     return render(request, 'landmapper/account/password_reset.html', context)
+
+def terms_of_use(request):
+    context = {}
+    return render(request, 'landmapper/tou.html', context)
+
+def privacy_policy(request):
+    context = {}
+    return render(request, 'landmapper/privacy.html', context)
