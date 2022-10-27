@@ -14,30 +14,16 @@
         <h1>Welcome to {{ title }}</h1>
     </div>
     <div class="row">
-        <form class="signup py-3 px-5 bg-white" id="signup_form" method="post" action="/auth/signup/?next=/landmapper">
+
+        <form class="signup py-3 px-5 bg-white" id="signup_form" method="post" action="/landmapper/auth/signup/?next=/landmapper">
             {% csrf_token %}
             <h3 class="pb-4">Create an Account</h3>
             {% if redirect_field_value %}
                 <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}" />
             {% endif %}
-              <div class="form-group">
-                <label for="id_email">Email address</label>
-                <input type="email" class="form-control" id="id_email" name="email" placeholder="Enter email" required>
-              </div>
-              <div class="form-group">
-                <label for="id_username">Username</label>
-                <input type="text" class="form-control" id="id_username" name="username" placeholder="Choose a username" required>
-              </div>
-              <div class="form-group">
-                <label for="id_password1">Password</label>
-                <input type="password" class="form-control" id="id_password1" name="password1" placeholder="Choose a password" required>
-              </div>
-              <div class="form-group">
-                <label for="id_password2">Password</label>
-                <input type="password" class="form-control" id="id_password2" name="password2" placeholder="Repeat password" required>
-              </div>
+            {{ form.as_p }}
+            
               <button type="submit" class="btn btn-primary">Get Started</button>
-              <!-- TODO: Add link to terms of service -->
               <small id="submitHelp" class="form-text text-muted">By clicking this button, you agree to our <a href="/landmapper/tou/" target="_blank">Terms of Use</a>.</small>
         </form>
     </div>

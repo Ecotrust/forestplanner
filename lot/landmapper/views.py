@@ -26,6 +26,9 @@ import urllib.request
 from PIL import Image
 import requests
 
+from allauth.account.views import SignupView
+from allauth.account import app_settings
+
 def unstable_request_wrapper(url, params=False, retries=0):
     # """
     # unstable_request_wrapper
@@ -512,11 +515,17 @@ def login(request):
     return render(request, 'landmapper/account/login.html', context)
 
 # account register / signup page
-def signup(request):
-    context = {
-        'title': 'LandMapper',
-    }
-    return render(request, 'landmapper/account/signup.html', context)
+class LandmapperSignupView(SignupView):
+    template_name = "landmapper/account/signup." + app_settings.TEMPLATE_EXTENSION
+
+    def get_context_data(self, **kwargs):
+        ret = super().get_context_data(**kwargs)
+        ret.update({
+            'title': 'LandMapper',
+        })
+        return ret
+
+signup = LandmapperSignupView.as_view()
 
 # account password reset and username recovery page
 class PasswordResetView(PasswordContextMixin, FormView):

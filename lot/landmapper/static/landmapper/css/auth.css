@@ -20,8 +20,9 @@ input[type="submit"] {
     padding: 0.7rem;
 }
 
-input#id_email {
+input {
     border: 1px solid var(--dark-gray);
+    width: 100%;
 }
 
 form#signup_form,
@@ -43,4 +44,8 @@ div.properties-table {
 footer.account-footer {
     display: flex;
     justify-content: space-evenly;
+}
+
+.errorlist {
+    color: red;
 }
