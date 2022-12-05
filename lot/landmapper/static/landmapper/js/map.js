@@ -198,7 +198,7 @@ landmapper.loadTaxLots = function(mapEvent) {
 
     },
     error: function(error) {
-        window.alert('Error retrieving taxlot');
+        window.alert('Error: No taxlot data found');
         console.log('error in map.js: Click Control trigger');
     }
   }).done(function() {

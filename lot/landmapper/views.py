@@ -156,6 +156,9 @@ def geocode(search_string, srs=4326, service='arcgis', with_context=False):
 
 @xframe_options_sameorigin
 def get_taxlot_json(request):
+    status = 500
+    lot_id = None
+    lot_json= []
     coords = request.GET.getlist('coords[]')  # must be [lon, lat]
     intersect_pt = GEOSGeometry('POINT(%s %s)' % (coords[0], coords[1]))
     try:
@@ -168,14 +171,11 @@ def get_taxlot_json(request):
             lot = lots[0]
             lot_json = lot.geometry.json
             lot_id = lot.id
-        else:
-            lot_json = []
-            lot_id = lot.id
     return HttpResponse(json.dumps({
                             "id": lot_id,
                             "geometry": lot_json
                         }),
-                        status=200)
+                        status=status)
 # TODO: Consolidate home, index, and Identify
 # TODO: Re-write logic to avoid page reload on Identify
 def home(request):
