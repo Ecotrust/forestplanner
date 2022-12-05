@@ -156,7 +156,7 @@ def geocode(search_string, srs=4326, service='arcgis', with_context=False):
 
 @xframe_options_sameorigin
 def get_taxlot_json(request):
-    status = 500
+    status = 400
     lot_id = None
     lot_json= []
     coords = request.GET.getlist('coords[]')  # must be [lon, lat]
