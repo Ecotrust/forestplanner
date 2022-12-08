@@ -165,12 +165,14 @@ def get_taxlot_json(request):
         lot = Taxlot.objects.get(geometry__intersects=intersect_pt)
         lot_json = lot.geometry.wkt
         lot_id = lot.id
+        status = 200
     except:
         lots = Taxlot.objects.filter(geometry__intersects=intersect_pt)
         if len(lots) > 0:
             lot = lots[0]
             lot_json = lot.geometry.json
             lot_id = lot.id
+            status = 200
     return HttpResponse(json.dumps({
                             "id": lot_id,
                             "geometry": lot_json
