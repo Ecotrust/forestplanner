@@ -1,12 +1,12 @@
 from django.conf import settings
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, AnonymousUser
 from django.contrib.gis.geos import MultiPolygon, Polygon
 from django.core.cache import cache
-from landmapper.models import Taxlot, Property
+from landmapper.models import Taxlot, Property, PropertyRecord
 from landmapper import reports
 from urllib.parse import unquote
 
-def create_property(taxlot_ids, property_name, user_id=False):
+def create_property(taxlot_ids, property_name, user=None):
     # '''
     # Land Mapper: Create Property
     #
@@ -33,16 +33,10 @@ def create_property(taxlot_ids, property_name, user_id=False):
     NOTES:
         CACHE THESE!!!!
     '''
-    # modifies request for anonymous user
-    if settings.ALLOW_ANONYMOUS_DRAW:
-        if settings.ANONYMOUS_USER_PK:
-            user = User.objects.get(pk=settings.ANONYMOUS_USER_PK)
-        else:
-            user = User.objects.all()[0]
-    elif user_id:
-        user = User.objects.get(pk=user_id)
 
-    # taxlot_geometry = {}
+    if user.is_anonymous:
+        user = None
+
     taxlot_multipolygon = False
 
     taxlots = Taxlot.objects.filter(pk__in=taxlot_ids)
@@ -51,7 +45,6 @@ def create_property(taxlot_ids, property_name, user_id=False):
         # lot = Taxlot.objects.get(pk=lot_id)
         if not taxlot_multipolygon:
             taxlot_multipolygon = lot.geometry
-            # taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
         else:
             taxlot_multipolygon = taxlot_multipolygon.union(lot.geometry)
 
@@ -60,7 +53,16 @@ def create_property(taxlot_ids, property_name, user_id=False):
     if type(taxlot_multipolygon) == Polygon:
         taxlot_multipolygon = MultiPolygon(taxlot_multipolygon)
 
-    property = Property(user=user,
+    property_record, created = PropertyRecord.objects.get_or_create(user=user,
+                        geometry_orig=taxlot_multipolygon,
+                        name=property_name)
+
+    property_record.record_taxlots = {'taxlots': taxlot_ids}
+    property_record.save()
+
+    property = Property(
+                        pk=property_record.pk,
+                        user=user,
                         geometry_orig=taxlot_multipolygon,
                         name=property_name)
 
@@ -68,13 +70,27 @@ def create_property(taxlot_ids, property_name, user_id=False):
 
     return property
 
-def get_property_by_id(property_id):
+def get_property_by_id(property_id, user=None):
     property = cache.get('%s' % property_id)
 
     if not property:
+        # property_id = {NAME}|{USER_ID}|{TAXLOT_ID_1}|{TAXLOT_ID_2}|....
         id_elements = property_id.split('|')
+        property_name = unquote(id_elements[0])
+        user_id = unquote(id_elements[1])
+        taxlot_ids = id_elements[2:]
+        if user_id == 'anon':
+            user = AnonymousUser()
+        else:
+            try:
+                user = User.objects.get(pk=int(user_id))
+            except Exception:
+                # User may have old link prior to user_id being in the URL, so assume 'anonymous' and 1st val is taxlot
+                user = AnonymousUser()
+                taxlot_ids = id_elements[1:]
+
         # Url Decode property's name
-        property = create_property(id_elements[1:], unquote(id_elements[0]))
+        property = create_property(taxlot_ids, property_name, user)
         # Cache for 1 week
         cache.set('%s' % property_id, property, 60 * 60 * 24 * 7)
 

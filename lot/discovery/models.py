@@ -132,7 +132,7 @@ class ExampleStand(PolygonFeature):
         manipulators = []
 
 class StandListEntry(models.Model):
-    stand = models.ForeignKey(ExampleStand, on_delete="CASCADE")
+    stand = models.ForeignKey(ExampleStand, on_delete=models.CASCADE)
     species = models.CharField(max_length=255)
     size_class = models.CharField(max_length=255)
     tpa = models.SmallIntegerField()
@@ -174,7 +174,10 @@ class DiscoveryStand(Feature):
         return self.name
 
     def get_stand(self):
-        property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
+        if self.lot_property:
+            property_stands = self.lot_property.feature_set(feature_classes=[Stand,])
+        else:
+            property_stands = 0
         if len(property_stands) == 0:
             return None
         if len(property_stands) >= 1:
@@ -195,10 +198,16 @@ class DiscoveryStand(Feature):
             out_dict['splash_image'] = self.splash_image.url
         else:
             out_dict['splash_image'] = settings.DEFAULT_STAND_SPLASH
+        if self.lot_property:
+            location_value = "%s County, %s" % self.lot_property.location
+            area_value = int(round(self.lot_property.acres))
+        else:
+            location_value = 'unknown'
+            area_value = 'N/A'
         out_dict['labels'] = [
             {'label': 'title', 'value': self.name},
-            {'label': 'Location', 'value': "%s County, %s" % self.lot_property.location},
-            {'label': 'Area', 'value': int(round(self.lot_property.acres)), 'posttext': 'acres'},
+            {'label': 'Location', 'value': location_value},
+            {'label': 'Area', 'value': area_value, 'posttext': 'acres'},
             {'label': 'Modified', 'value': self.date_modified.strftime("%-I:%M %p, %-m/%-d/%Y")},
         ]
 
@@ -443,9 +452,9 @@ class DiscoveryScenario(models.Model):
 
 class DiscoveryRx(models.Model):
     from trees.models import FVSVariant, Rx
-    discovery_scenario = models.ForeignKey(DiscoveryScenario, on_delete="CASCADE")
-    variant = models.ForeignKey(FVSVariant, on_delete="CASCADE")
-    rx = models.ForeignKey(Rx, on_delete="CASCADE")
+    discovery_scenario = models.ForeignKey(DiscoveryScenario, on_delete=models.CASCADE)
+    variant = models.ForeignKey(FVSVariant, on_delete=models.CASCADE)
+    rx = models.ForeignKey(Rx, on_delete=models.CASCADE)
 
     def __str__(self):
         return str('%s - %s - %s' % (str(self.discovery_scenario), str(self.variant), str(self.rx)))

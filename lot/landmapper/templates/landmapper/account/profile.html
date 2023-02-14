@@ -1,0 +1,195 @@
+{% extends 'landmapper/account/account_base.html' %}
+{% load static %}
+
+{% block styles %}
+  {{ block.super }}
+  <link rel="stylesheet" href="{% static 'landmapper/css/auth.css' %}">
+{% endblock styles %}
+
+{% block content %}
+
+{% if user %}
+  <div class="container">
+    <div class="row pt-5">
+      <h1>{{user.username}}</h1>
+    </div>
+    <div class="row p-3 bg-white">
+      <h3 class="pb-4">Your Profile</h3>
+      <table class="table table-borderless">
+        <tr class="border-bottom">
+          <th>
+            Username
+          </th>
+          <td>
+            {{user.username}}
+          </td>
+        </tr>
+        {% comment %} <tr>
+          <th>
+            First name
+          </th>
+          <td>
+            {{user.first_name}}
+          </td>
+        </tr>
+        <tr>
+          <th>
+            Last name
+          </th>
+          <td>
+            {{user.last_name}}
+          </td>
+        </tr> {% endcomment %}
+        <tr>
+          <th>
+            Email
+          </th>
+          <td>
+            {{user.email}}
+          </td>
+        </tr>
+      </table>
+    </div>
+    <div class="row p-3">
+      {% for account in user.socialaccount_set.all %}
+          <hr>
+          <p class="pull-right"><img width="50" height="50" src="{{ account.get_avatar_url }}" /></p>
+          <h3 class="pb-4">Linked {{ account.provider }} account data</h3>
+          <dl class="dl-horizontal">
+            <dt>
+              UID
+            </dt>
+            <dd>
+              <a href="{{account.extra_data.link }}">{{ account.uid }}</a>
+            </dd>
+            <dt>
+              Profile Link
+            </dt>
+            <dd>
+              <a href="{{ account.extra_data.link }}">{{ account.extra_data.link }}</a>
+            </dd>
+            {% for k, v in account.extra_data.items %}
+            <dt> {{k}} </dt>
+            <dd> {{v}} </dd>
+            {% endfor %}
+          </dl>
+      {% endfor %}
+    </div>
+
+    {% if show_properties %}
+      <div class="row p-3 bg-white properties-table">
+        <h3 class="pb-4">Your Properties:</h3>
+        <table class="table table-borderless table-hover align-middle">
+          <thead>
+            <tr class="border-bottom bg-light">
+              <th>Name</th>
+              <th>Report</th>
+              <th>Public</th>
+              <th>Date Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for property in properties %}
+              <tr class="border-bottom">
+                <td>{{ property.name }}</td>
+                <td><a href="/landmapper/record/{{ property.pk }}">Report</a></td>
+                <td><a href="/landmapper/report/{{ property.property_id }}" class="copy-link" data-bs-original-title="Copy to clipboard">Shareable Link</a></td>
+                <td>{{ property.date_created }}</td>
+                <td>
+                  <a class="" href="#" data-href="/landmapper/record/delete/{{property.pk}}" data-property_id="{{property.pk}}" data-name="{{property.name}}" data-toggle="modal" data-target="#confirm-property-delete">
+                    Delete
+                  </a>
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="row">
+        <div class="modal fade" id="confirm-property-delete" tabindex="-1" role="dialog" aria-labelledby="RUS_delete" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Delete Property
+                </div>
+                <div class="modal-body">
+                    <div id="rus-property-delete-body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                    <a class="btn btn-danger btn-ok">Delete</a>
+                </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal fade" id="property-delete-error" tabindex="-1" role="dialog" aria-labelledby="delete_error" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    Error
+                </div>
+                <div class="modal-body">
+                    <div id="property-delete-error-body"></div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% endif %} <!-- Show properties -->
+  {% endif %}
+
+<script>
+  $('#confirm-property-delete').on('show.bs.modal', function(e) {
+    var html = "<p>Are you sure you wish to delete property '<b>" + $(e.relatedTarget).data('name') + "</b>'?</p>";
+    $('#rus-property-delete-body').html(html);
+    // $(this).find('.btn-ok').attr('href', $(e.relatedTarget).data('href'));
+    $(this).find('.btn-ok').unbind('click');
+    $(this).find('.btn-ok').click(function() {
+      var property_id = $(e.relatedTarget).data('property_id');
+      var url = $(e.relatedTarget).data('href');
+      $.ajax({
+        url: url,
+        dataType: 'json'
+      }).done(function(data){
+        if (data.status == 'success') {
+          window.location.reload();
+        } else {
+          $('#property-delete-error-body').html('<b>ERROR:</b><p>' + data.message + '</p>')
+          $('#property-delete-error').modal().show();
+        }
+      });
+      return false;
+    }); 
+  });
+</script>
+
+<script>
+  var shareLinks = document.querySelectorAll('.copy-link');
+  for (var i = 0; i < shareLinks.length; i++) {
+    shareLinks[i].addEventListener('click', function(e) {
+      e.preventDefault();
+      var url = e.target.href;
+      const el = document.createElement('textarea');
+      el.value = url;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      var popover = new bootstrap.Popover(e.target, {
+        content: 'URL has been copied to your clipboard'
+      });
+      popover.show();
+      window.setTimeout(function() {
+        popover.hide();
+      }, 3000);
+    });
+  }
+</script>
+
+{% endblock content %}

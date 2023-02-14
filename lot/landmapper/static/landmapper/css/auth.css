@@ -1,0 +1,51 @@
+main {
+    padding: 2rem;
+}
+
+h3 {
+    padding-bottom: 1rem;
+    font-size: 3rem;
+}
+
+h3.pb-4 {
+    font-size: 1.75rem;
+}
+
+input {
+    border-radius: 0.5rem;
+    padding: 0.2rem;
+}
+
+input[type="submit"] {
+    padding: 0.7rem;
+}
+
+input {
+    border: 1px solid var(--dark-gray);
+    width: 100%;
+}
+
+form#signup_form,
+form.password_reset, 
+form.login {
+    width: 100%;
+}
+
+div.forgot-link,
+div.mt-4.forgot-link {
+    float: right;
+    margin-top: 0.5rem !important; /* need to override _spacing.scss*/
+}
+
+div.properties-table {
+    margin-bottom: 2rem;
+}
+
+footer.account-footer {
+    display: flex;
+    justify-content: space-evenly;
+}
+
+.errorlist {
+    color: red;
+}

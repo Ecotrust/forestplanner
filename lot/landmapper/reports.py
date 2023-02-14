@@ -51,7 +51,7 @@ def refit_bbox(property_specs, scale='fit'):
 
     return bbox
 
-def get_context_bbox(west, south, east, north):
+def get_context_bbox(west, south, east, north, repeats=0):
     # turn bbox into a polygon
     bbox_poly = Polygon( ((west,south), (west, north), (east, north), (east, south), (west, south)) )
     bbox_poly.srid = 3857
@@ -65,7 +65,8 @@ def get_context_bbox(west, south, east, north):
         width_buffer = (east-west)*0.05
         height_buffer = (north-south)*0.05
         #   call recursively
-        [west, south, east, north] = get_context_bbox(west-width_buffer, south-height_buffer, east+width_buffer, north+height_buffer)
+        if repeats < 100:
+            [west, south, east, north] = get_context_bbox(west-width_buffer, south-height_buffer, east+width_buffer, north+height_buffer, repeats+1)
 
     return [west, south, east, north]
 
@@ -426,9 +427,9 @@ def get_property_specs(property, alt_size=False):
         'zoom': None  # {'lat': (EPSG:4326 float), 'lon': (EPSG:4326 float), 'zoom': float}
     }
     if alt_size:
-        (bbox, orientation) = map_views.get_bbox_from_property(property, alt_size=True)
+        (bbox, orientation) = property.bbox(alt_size=True)
     else:
-        (bbox, orientation) = map_views.get_bbox_from_property(property)
+        (bbox, orientation) = property.bbox()
 
     property_specs['orientation'] = orientation
     property_specs['bbox'] = bbox

@@ -1,20 +1,33 @@
 # https://geocoder.readthedocs.io/
 import decimal, json, geocoder
 from django.conf import settings
+from django.contrib.auth import authenticate,login as django_login
+from django.contrib.auth.forms import (
+    AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm,
+)
 from django.contrib.auth.models import User
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth.views import PasswordContextMixin
 from django.contrib.gis.geos import GEOSGeometry
 from django.core.cache import cache
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.utils.translation import gettext_lazy as _
 from django.views.decorators.clickjacking import xframe_options_sameorigin
+from django.views.decorators.csrf import csrf_protect
+from django.views.generic.edit import FormView
 from flatblocks.models import FlatBlock
 from landmapper.models import *
 from landmapper import properties, reports
-from landmapper.map_layers.views import get_bbox_from_property
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
 import requests
+
+from allauth.account.views import SignupView
+from allauth.account import app_settings
 
 def unstable_request_wrapper(url, params=False, retries=0):
     # """
@@ -143,26 +156,28 @@ def geocode(search_string, srs=4326, service='arcgis', with_context=False):
 
 @xframe_options_sameorigin
 def get_taxlot_json(request):
+    status = 400
+    lot_id = None
+    lot_json= []
     coords = request.GET.getlist('coords[]')  # must be [lon, lat]
     intersect_pt = GEOSGeometry('POINT(%s %s)' % (coords[0], coords[1]))
     try:
         lot = Taxlot.objects.get(geometry__intersects=intersect_pt)
         lot_json = lot.geometry.wkt
         lot_id = lot.id
+        status = 200
     except:
         lots = Taxlot.objects.filter(geometry__intersects=intersect_pt)
         if len(lots) > 0:
             lot = lots[0]
             lot_json = lot.geometry.json
             lot_id = lot.id
-        else:
-            lot_json = []
-            lot_id = lot.id
+            status = 200
     return HttpResponse(json.dumps({
                             "id": lot_id,
                             "geometry": lot_json
                         }),
-                        status=200)
+                        status=status)
 # TODO: Consolidate home, index, and Identify
 # TODO: Re-write logic to avoid page reload on Identify
 def home(request):
@@ -181,7 +196,6 @@ def home(request):
         'q_address': 'Enter your property address here',
         'overlay': 'overlay',
     }
-    context['menu_items'] = MenuPage.objects.all().order_by('order')
 
     return render(request, 'landmapper/landing.html', context)
 
@@ -241,7 +255,6 @@ def identify(request):
                 'btn_next_href': 'property_name',
                 'btn_create_maps_href': '/landmapper/report/',
                 'btn_next_disabled': 'disabled',
-                'menu_items': MenuPage.objects.all().order_by('order'),
             }
     else:
         # User wants to bypass address search
@@ -254,13 +267,23 @@ def identify(request):
             'btn_next_href': 'property_name',
             'btn_create_maps_href': '/landmapper/report/',
             'btn_next_disabled': 'disabled',
-            'menu_items': MenuPage.objects.all().order_by('order'),
         }
 
     return render(request, 'landmapper/landing.html', context)
 
 
-def create_property_id(request):
+def create_property_id(property_name, user_id, taxlot_ids):
+
+    sorted_taxlots = sorted(taxlot_ids)
+
+    id_elements = [str(x) for x in [
+            property_name, user_id
+        ] + sorted_taxlots]
+    property_id = '|'.join(id_elements)
+
+    return property_id
+
+def create_property_id_from_request(request):
     '''
     Land Mapper: Create Property Cache ID
     IN
@@ -278,16 +301,54 @@ def create_property_id(request):
             user = request.user
 
         property_name = quote(property_name, safe='')
-        sorted_taxlots = sorted(taxlot_ids)
-        id_elements = [str(x) for x in [
-            property_name,
-        ] + sorted_taxlots]
-        property_id = '|'.join(id_elements)
-        return HttpResponse(json.dumps({'property_id': property_id}),
-                            status=200)
+        
+        if request.user.is_anonymous:
+            user_id = 'anon'
+        else:
+            user_id = request.user.pk
+
+        property_id =  create_property_id(property_name, user_id, taxlot_ids)
+
+        return HttpResponse(json.dumps({'property_id': property_id}), status=200)
+        
     else:
         return HttpResponse('Improper request method', status=405)
     return HttpResponse('Create property failed', status=402)
+
+def record_report(request, property_record_id):
+    try:
+        property_record = PropertyRecord.objects.get(pk=property_record_id)
+        return report(request, property_record.property_id)
+    except Exception as e:
+        return render(request, '404.html')
+
+def delete_record(request, property_record_id):
+    response_status = 'error'
+    response_message = 'Unknown error occurred'
+    if not request.user.is_authenticated:
+        response_message = 'User not authenticated. Please log in.'
+    else:
+        record_matches = PropertyRecord.objects.filter(pk=int(property_record_id))
+        if record_matches.count() < 1:
+            response_message = 'No records found matching given ID'
+        elif record_matches.count() > 1:
+            response_message = 'Multiple records match given ID. Please contact the site maintainer.'
+        elif not request.user == record_matches[0].user:
+            response_message = 'You do not own this property.'
+        else:
+            try:
+                record_matches[0].delete()
+                response_status = 'success'
+                response_message = 'success'
+            except Exception as e:
+                response_status = 'error'
+                response_message = f"Unable to delete your property. Unknown error: \"{e}\""
+    return JsonResponse({
+        'status': response_status,
+        'message': response_message
+    })
+    
+
 
 def report(request, property_id):
     '''
@@ -301,8 +362,8 @@ def report(request, property_id):
         Uses: CreateProperty, CreatePDF, ExportLayer, BuildLegend, BuildTables
     '''
 
-    property = properties.get_property_by_id(property_id)
-    (bbox, orientation) = get_bbox_from_property(property)
+    property = properties.get_property_by_id(property_id, request.user)
+    (bbox, orientation) = property.bbox()
     property_fit_coords = [float(x) for x in bbox.split(',')]
     property_width = property_fit_coords[2]-property_fit_coords[0]
     render_detailed_maps = True if property_width < settings.MAXIMUM_BBOX_WIDTH else False
@@ -319,7 +380,6 @@ def report(request, property_id):
         'stream_scale': settings.STREAM_SCALE,
         'soil_scale': settings.SOIL_SCALE,
         'forest_type_scale': settings.FOREST_TYPES_SCALE,
-        'menu_items': MenuPage.objects.all().order_by('order'),
         'SHOW_AERIAL_REPORT': settings.SHOW_AERIAL_REPORT,
         'SHOW_STREET_REPORT': settings.SHOW_STREET_REPORT,
         'SHOW_TERRAIN_REPORT': settings.SHOW_TERRAIN_REPORT,
@@ -334,7 +394,7 @@ def report(request, property_id):
     return render(request, 'landmapper/report/report.html', context)
 
 def get_property_map_image(request, property_id, map_type):
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if map_type == 'stream':
         image = property.stream_map_image
     elif map_type == 'street':
@@ -362,7 +422,7 @@ def get_property_map_image(request, property_id, map_type):
 
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if scale == 'context':
         image = property.context_scalebar_image
     elif scale == 'medium':
@@ -375,7 +435,7 @@ def get_scalebar_as_image(request, property_id, scale="fit"):
     return response
 
 def get_scalebar_as_image_for_pdf(request, property_id, scale="fit"):
-    property = properties.get_property_by_id(property_id)
+    property = properties.get_property_by_id(property_id, request.user)
     if scale == 'context':
         image = property.context_scalebar_image
     elif scale == 'medium':
@@ -397,7 +457,7 @@ def get_property_pdf(request, property_id):
     property_pdf_cache_key = property_id + '_pdf'
     property_pdf = cache.get('%s' % property_pdf_cache_key)
     if not property_pdf:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
         property_pdf = reports.create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
@@ -411,12 +471,12 @@ def get_property_map_pdf(request, property_id, map_type):
     property_pdf_cache_key = property_id + '_pdf'
     property_pdf = cache.get('%s' % property_pdf_cache_key)
     if not property_pdf:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
         property_pdf = reports.create_property_pdf(property, property_id)
         if property_pdf:
             cache.set('%s' % property_pdf_cache_key, property_pdf, 60 * 60 * 24 * 7)
     else:
-        property = properties.get_property_by_id(property_id)
+        property = properties.get_property_by_id(property_id, request.user)
     property_map_pdf = reports.create_property_map_pdf(property, property_id, map_type)
     response.write(property_map_pdf)
 
@@ -437,3 +497,94 @@ def export_layer(request):
         pgsql2shp (OGR/PostGIS built-in)
     '''
     return render(request, 'landmapper/base.html', {})
+
+
+
+### REGISTRATION/ACCOUNT MANAGEMENT ###
+# account login page
+def login(request):
+    context = {}
+    if request.method == 'POST':
+        username = request.POST['login']
+        password = request.POST['password']
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            django_login(request, user)
+            return redirect('/landmapper')
+        else:
+            context['error'] = True
+            context['error_message'] = "Wrong username or password"
+    return render(request, 'landmapper/account/login.html', context)
+
+# account register / signup page
+class LandmapperSignupView(SignupView):
+    template_name = "landmapper/account/signup." + app_settings.TEMPLATE_EXTENSION
+
+    def get_context_data(self, **kwargs):
+        ret = super().get_context_data(**kwargs)
+        ret.update({
+            'title': 'LandMapper',
+        })
+        return ret
+
+signup = LandmapperSignupView.as_view()
+
+# account password reset and username recovery page
+class PasswordResetView(PasswordContextMixin, FormView):
+    email_template_name = 'registration/password_reset_email.html'
+    extra_email_context = None
+    form_class = PasswordResetForm
+    from_email = None
+    html_email_template_name = None
+    subject_template_name = 'registration/password_reset_subject.txt'
+    # success_url = reverse_lazy('password_reset_done')
+    success_url = 'auth/password/reset/done/'
+    template_name = 'landmapper/account/password_reset_form.html'
+    title = _('Password reset')
+    token_generator = default_token_generator
+
+    @method_decorator(csrf_protect)
+    def dispatch(self, *args, **kwargs):
+        return super().dispatch(*args, **kwargs)
+
+    def form_valid(self, form):
+        opts = {
+            'use_https': self.request.is_secure(),
+            'token_generator': self.token_generator,
+            'from_email': self.from_email,
+            'email_template_name': self.email_template_name,
+            'subject_template_name': self.subject_template_name,
+            'request': self.request,
+            'html_email_template_name': self.html_email_template_name,
+            'extra_email_context': self.extra_email_context,
+        }
+        form.save(**opts)
+        return super().form_valid(form)
+
+# account profile page
+def user_profile(request):
+    if not request.user.is_authenticated:
+        return redirect('%s?next=%s' % ('/landmapper/auth/login/', request.path))
+    else:
+        context = {}
+        user_properties = PropertyRecord.objects.filter(user=request.user)
+        if user_properties.count() > 0:
+            show_properties = True
+        else:
+            show_properties = False
+        context['properties'] = user_properties
+        context['show_properties'] = show_properties
+        return render(request, 'landmapper/account/profile.html', context)
+
+# account password reset and username recovery page
+def change_password(request):
+    context = {}
+    return render(request, 'landmapper/account/password_reset.html', context)
+
+def terms_of_use(request):
+    context = {}
+    return render(request, 'landmapper/tou.html', context)
+
+def privacy_policy(request):
+    context = {}
+    return render(request, 'landmapper/privacy.html', context)

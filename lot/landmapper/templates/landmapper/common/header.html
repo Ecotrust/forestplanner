@@ -1,19 +1,19 @@
 {% load static %}
 <header>
-  <nav class="navbar navbar-light navbar-expand-md">
+  <nav class="navbar navbar-light navbar-expand-xl">
     <div class="container-fluid wrap-print px-0">
       <a class="navbar-brand" href="/landmapper/"><img id="navbar-brand-img" src="{% static 'landmapper/img/logo-landmapper.svg' %}" /></a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-      <div class="collapse navbar-collapse">
-        <ul class="navbar-nav ml-auto">
+      <div class="collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+        <ul class="navbar-nav">
           <li class="nav-item">
             <a class="nav-link" href="/landmapper/">Home <span class="sr-only">(current)</span></a>
           </li>
           {% for item in menu_items %}
             {% if item.staff_only %}
-              {% if user.is_authenticated %}
+              {% if user.is_authenticated %} {% comment %} check if user is staff as well {% endcomment %}
                 <li class="nav-item">
                   <a class="nav-link" data-toggle="modal" href="#{{item.name}}-modal">{{item.name}} <span class="sr-only">(modal)</span></a>
                 </li>
@@ -24,6 +24,25 @@
               </li>
             {% endif %} <!-- staff only -->
           {% endfor %} <!-- menu_items -->
+            
+          {% if user.is_authenticated %} 
+            <li class="nav-item dropdown">
+              <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{ user.username }}</a>
+              <div class="dropdown-menu">
+                <a class="dropdown-item" href="/landmapper/auth/profile/">My Profile</a>
+                <a class="dropdown-item" href="/landmapper{% url 'account_change_password' %}">Manage Password</a>
+                {% if user.is_staff %}
+                  <a class="dropdown-item" href="/admin">Admin</a>
+                {% endif %}
+                <a class="dropdown-item" href="/accounts/signout/?next=/landmapper/">Sign Out</a>
+              </div>
+            </li>
+          {% else %}
+
+          <li class="nav-item">
+            <a class="nav-link" href="/landmapper/auth/login">Login</a>
+          </li>
+          {% endif %} <!-- end auth and login menu -->          
         </ul>
       </div>
     </div>

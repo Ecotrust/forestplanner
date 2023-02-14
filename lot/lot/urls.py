@@ -8,7 +8,8 @@ from django.views.static import serve
 from trees.views import map
 from lot.views import lot_landing_page
 from django.conf.urls.static import static
-# admin.autodiscover()
+admin.autodiscover()
+admin.site.enable_nav_sidebar = False
 
 urlpatterns = [
     # '',

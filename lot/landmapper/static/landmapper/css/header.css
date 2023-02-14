@@ -12,9 +12,16 @@ header .navbar {
   padding-right: 2.25rem;
 }
 
+@media screen and (min-width: 1190px) {
+  header .navbar {
+    padding-left: 10%;
+    padding-right: 10%;
+  }
+}
+
 .nav-item {
   color: var(--black);
-  font-size: 16px;
+  font-size: .9375rem;
   letter-spacing: 1px;
   margin: 0 25px;
   padding: 5px;
