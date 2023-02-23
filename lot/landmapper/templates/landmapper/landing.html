@@ -53,15 +53,14 @@
         {% block property-search %}
         <form role="search" id="property-search-form" action="/landmapper/identify/" method="post" {% if search_performed %} style="visibility: hidden;" {% endif %}>
             {% csrf_token %}
-            <div class="input-group input-group-lg">
+            <div class="input-group">
+                <label for="property-search" class="form-label">What is the address of the property you want to map?</label>
                 <input type="search" name="q-address" class="form-control" id="property-search" placeholder="{{ q_address }}" aria-label="{{ q_address }}" value="{{ q_address_value }}" aria-describedby="property-search-btn" required />
-                <div class="input-group-append">
-                    <button form="property-search-form" class="btn" id="property-search-btn">Go</button>
-                </div>
             </div>
+            <button form="property-search-form" class="btn btn-primary" id="property-search-btn">Search Address</button>
         </form>
         {% if not search_performed %}
-        <a href="/landmapper/identify/" class="btn btn-primary" id="bypass-address-input">Select Property On Map</a>
+        <a href="/landmapper/identify/" class="btn btn-link" id="bypass-address-input">Select Property On Map</a>
         {% endif %}
 
         {% endblock property-search %}
