@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -12,12 +13,49 @@ from madrona.features.models import PolygonFeature, FeatureCollection, Feature, 
 from madrona.features import register, alternate, edit, get_feature_by_uid
 # from madrona.features.forms import SpatialFeatureForm
 from landmapper.map_layers.utilities import get_bbox_as_string, get_bbox_as_polygon
+# from landmapper.views import getProfileSurvey #, getTwoWeekSurvey
 
 def sq_meters_to_sq_miles(area_m2):
     return area_m2/2589988.11
 
 def sq_meters_to_acres(area_m2):
     return area_m2/4046.86
+
+class Person(User):
+    class Meta:
+        proxy = True
+
+    def show_survey(self):
+        # Test for initial profile form
+        if not self.profile.profile_questions_status == 'done':
+            return True
+
+        profile_age = datetime.now() - self.date_joined
+        # Test for 2-week follow-up survey
+        two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+        if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+            return True
+
+        return False
+
+    def get_survey(self, request):
+        if not self.profile.profile_questions_status == 'done':
+            if self.profile.profile_questions_status == None:
+                self.profile.profile_questions_status = 'seen'
+                self.profile.save()
+            print('TODO: return getProgileSurvey')
+            # return getProfileSurvey
+        else:
+            profile_age = datetime.now() - self.date_joined
+            # Test for 2-week follow-up survey
+            two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+            if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+                print('TODO: return profile survey view')
+            else:
+                print('TODO: how did get_survey get called if we shouldn\'t show a survey?')
+
+        
+        
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
