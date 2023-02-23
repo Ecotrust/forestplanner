@@ -21,6 +21,8 @@ def sq_meters_to_acres(area_m2):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
+    date_created = models.DateField(auto_now_add=True)
+    date_modified = models.DateField(auto_now=True)
 
     FORM_STATUS_CHOICES = (
         (None, 'User has not seen questions'),
@@ -29,39 +31,48 @@ class Profile(models.Model):
     )
 
     profile_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
-    followup_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
+    # followup_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
 
     #Q1
     USER_TYPE_CHOICES = (
-        (None, 'Prefer Not to Answer'),
-        ('0', 'Private forest owner'),
-        ('1', 'Professional service provider (e.g., forester, conservationist)'),
-        ('2', 'Student or educator'),
-        ('3', 'Just curious'),
-        ('4', 'Other [please specify]')
+        (None, '----------------'),
+        ('1', 'Private forest owner'),
+        ('2', 'Professional service provider (e.g., forester, conservationist)'),
+        ('3', 'Student or educator'),
+        ('4', 'Just curious'),
+        ('5', 'Other [please specify]')
     )
     # strict set of selection, or text (to support 'other' feedback in same field)?
     type_selection = models.CharField(max_length=2, choices=USER_TYPE_CHOICES, blank=True, null=True, default=None, verbose_name="Which of the following roles best captures your primary use of this website?")
-    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other use")
+    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use")
 
     #Q2
-    # Is management plan handled different than stewardship? Do we want to know if they have any plan, or do we care which/both?
-    has_plan = models.BooleanField(default=False)
-    # How specific of a date should we ask for? Day, Month, Year, or age (in years)?
-    plan_date = models.DateField(blank=True, null=True, default=None)
-    # has_management_plan = models.BooleanField(default=False)
-    # management_plan_date = models.DateField(blank=True, null=True, default=None)
-    # has_stewardship_plan = models.BooleanField(default=False)
-    # stewardship_plan_date = models.DateField(blank=True, null=True, default=None)
+    Y_N_CHOICES = (
+        (None, '----------------'),
+        (False, 'No'),
+        (True, 'Yes'),
+    )
+    has_plan = models.BooleanField(blank=True, null=True, default=None, choices=Y_N_CHOICES, verbose_name="Do you have a written Forest Management Plan or Stewardship Plan for your property?")
+
+    PLAN_AGE_CHOICES = (
+        (None, '----------------'),
+        ('1', 'I Have No Plan'),
+        ('2', 'Less than 1 year ago'),
+        ('3', '1 to 5 years ago'),
+        ('4', '5 to 10 years ago'),
+        ('5', 'Over 10 years ago'),
+        ('6', 'I am not sure'),
+    )
+    plan_date = models.CharField(max_length=2, blank=True, null=True, choices=PLAN_AGE_CHOICES, default=None, verbose_name="If so, when was your most recent Plan prepared?")
 
     #Q3
     PRIORITY_CHOICES = (
-        (None, 'Prefer Not to Answer'),
-        ('0', 'Not a Priority'),
-        ('1', 'Low Priority'),
-        ('2', 'Medium Priority'),
-        ('3', 'High Priority'),
-        ('4', 'Essential'),
+        (None, '----------------'),
+        ('1', 'Not a Priority'),
+        ('2', 'Low Priority'),
+        ('3', 'Medium Priority'),
+        ('4', 'High Priority'),
+        ('5', 'Essential'),
     )
     q3_1_health = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining long-term forest health and productivity")
     q3_2_habitat = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Protecting or improving wildlife habitat")
@@ -75,14 +86,21 @@ class Profile(models.Model):
     q3_10_profit = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Earning a profit from the land")
     q3_11_cultural_uses = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining personal or cultural uses of the land (hunting, gathering, hiking, camping, fishing, etc.)")
 
+class TwoWeekFollowUpSurvey(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_created = models.DateField(auto_now_add=True)
+    date_modified = models.DateField(auto_now=True)
+    email_sent = models.BooleanField(default=False)
+    survey_complete = models.BooleanField(default=False)
+
     # Q4
     AGREEMENT_CHOICES = (
-        (None, 'Prefer Not to Answer'),
-        ('0', 'Strongly Disagree'),
-        ('1', 'Disagree'),
-        ('2', 'Neither Agree Nor Disagree'),
-        ('3', 'Agree'),
-        ('4', 'Strongly Agree'),
+        (None, '----------------'),
+        ('1', 'Strongly Disagree'),
+        ('2', 'Disagree'),
+        ('3', 'Neither Agree Nor Disagree'),
+        ('4', 'Agree'),
+        ('5', 'Strongly Agree'),
     )
     q4a_1_land_management = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about land I own or manage")
     q4a_2_issue = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about an issue")
