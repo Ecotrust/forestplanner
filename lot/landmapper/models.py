@@ -1,15 +1,16 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from madrona.features import register
-from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
-from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.db.models import Manager as GeoManager
-from madrona.features import register, alternate, edit, get_feature_by_uid
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.contrib.gis.db.models import MultiPolygonField, PointField
 from django.contrib.postgres.fields import JSONField
-# from madrona.features.forms import SpatialFeatureForm
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
+from madrona.features import register, alternate, edit, get_feature_by_uid
+# from madrona.features.forms import SpatialFeatureForm
 from landmapper.map_layers.utilities import get_bbox_as_string, get_bbox_as_polygon
 
 def sq_meters_to_sq_miles(area_m2):
@@ -17,6 +18,90 @@ def sq_meters_to_sq_miles(area_m2):
 
 def sq_meters_to_acres(area_m2):
     return area_m2/4046.86
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    FORM_STATUS_CHOICES = (
+        (None, 'User has not seen questions'),
+        ('seen', 'User has seen the form'),
+        ('done', 'User has filled out the questions.')
+    )
+
+    profile_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
+    followup_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
+
+    #Q1
+    USER_TYPE_CHOICES = (
+        (None, 'Prefer Not to Answer'),
+        ('0', 'Private forest owner'),
+        ('1', 'Professional service provider (e.g., forester, conservationist)'),
+        ('2', 'Student or educator'),
+        ('3', 'Just curious'),
+        ('4', 'Other [please specify]')
+    )
+    # strict set of selection, or text (to support 'other' feedback in same field)?
+    type_selection = models.CharField(max_length=2, choices=USER_TYPE_CHOICES, blank=True, null=True, default=None, verbose_name="Which of the following roles best captures your primary use of this website?")
+    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other use")
+
+    #Q2
+    # Is management plan handled different than stewardship? Do we want to know if they have any plan, or do we care which/both?
+    has_plan = models.BooleanField(default=False)
+    # How specific of a date should we ask for? Day, Month, Year, or age (in years)?
+    plan_date = models.DateField(blank=True, null=True, default=None)
+    # has_management_plan = models.BooleanField(default=False)
+    # management_plan_date = models.DateField(blank=True, null=True, default=None)
+    # has_stewardship_plan = models.BooleanField(default=False)
+    # stewardship_plan_date = models.DateField(blank=True, null=True, default=None)
+
+    #Q3
+    PRIORITY_CHOICES = (
+        (None, 'Prefer Not to Answer'),
+        ('0', 'Not a Priority'),
+        ('1', 'Low Priority'),
+        ('2', 'Medium Priority'),
+        ('3', 'High Priority'),
+        ('4', 'Essential'),
+    )
+    q3_1_health = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining long-term forest health and productivity")
+    q3_2_habitat = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Protecting or improving wildlife habitat")
+    q3_3_beauty = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining natural beauty and aesthetics")
+    q3_4_next_gen = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Preserving the land for the next generation")
+    q3_5_risks = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Reducing fire or pest risks")
+    q3_6_climate_change = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Adapting the land for climate change")
+    q3_7_carbon = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Sequestering carbon")
+    q3_8_invasive_species = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Addressing invasive species")
+    q3_9_timber = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Harvesting and selling timber")
+    q3_10_profit = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Earning a profit from the land")
+    q3_11_cultural_uses = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining personal or cultural uses of the land (hunting, gathering, hiking, camping, fishing, etc.)")
+
+    # Q4
+    AGREEMENT_CHOICES = (
+        (None, 'Prefer Not to Answer'),
+        ('0', 'Strongly Disagree'),
+        ('1', 'Disagree'),
+        ('2', 'Neither Agree Nor Disagree'),
+        ('3', 'Agree'),
+        ('4', 'Strongly Agree'),
+    )
+    q4a_1_land_management = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about land I own or manage")
+    q4a_2_issue = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about an issue")
+    q4a_3_coordinate = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me coordinate with others")
+    q4a_4_decision = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me make a decision")
+    q4a_5_activity = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me implement or maintain a specific activity")
+    q4a_6_information = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app influenced me to pursue additional information or services")
+    q4a_7_plan = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me complete a written Stewardship Plan or Forest Management Plan")
+
+    feedback = models.TextField(blank=True, null=True, default=None, verbose_name="Is there anything else you’d like us to know about your experience using the app?")
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if Profile.objects.filter(user=instance).count() <= 0:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 """
     From MVC/MTV Components Doc
