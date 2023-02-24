@@ -1,0 +1,35 @@
+div.form-container {
+    margin-top: 2rem;
+}
+
+div.form-container form {
+    border: 1px solid gray;
+    margin: 2rem 0 2rem 0;
+    padding: 1rem 1rem 5rem 1rem;
+    border-radius: 0.5rem;
+    background-color: rgba(120, 178, 47, 0.8);
+}
+
+input,
+select {
+    padding: 0.4rem;
+    border-radius: 0.2rem;
+    background-color: white;
+    border: 1px solid green;
+}
+
+select {
+    cursor: pointer;
+}
+
+input[type="submit"] {
+    float: right;
+    background-color: rgb(18, 194, 150);
+    /* color: white; */
+    padding: 1rem 4rem;
+}
+
+input[type="submit"]:hover {
+    border: 2px solid black;
+    background-color: white;
+}

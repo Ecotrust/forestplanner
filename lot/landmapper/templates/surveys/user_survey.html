@@ -1,4 +1,14 @@
 {% extends 'landmapper/base.html' %}
+{% load static %}
+
+{% block extra_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static '/landmapper/css/forms.css' %}">
+{% endblock %}
+
+{% block extra_head_scripts %}
+    {{ block.super }}
+{% endblock extra_head_scripts %}
 
 {% block content %}
     <div class="container form-container">
