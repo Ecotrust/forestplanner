@@ -1,4 +1,5 @@
-from .models import Profile, TwoWeekFollowUpSurvey
+from django import forms
+from landmapper.models import Profile, TwoWeekFollowUpSurvey
 
 class ProfileForm(forms.ModelForm):
     class Meta:
@@ -21,10 +22,11 @@ class ProfileForm(forms.ModelForm):
             'q3_11_cultural_uses'
         )
 
-class FeedbackForm(forms.ModelForm):
+class FollowupForm(forms.ModelForm):
     class Meta:
         model = TwoWeekFollowUpSurvey
         fields = (
+            'user',
             'q4a_1_land_management',
             'q4a_2_issue',
             'q4a_3_coordinate',
