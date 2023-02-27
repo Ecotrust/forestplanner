@@ -259,7 +259,7 @@ def userProfileFollowup(request):
         else:
             form = FollowupForm(initial={"user": request.user})
     context['form'] = form
-    return render(request, 'surveys/user_survey.html', context)
+    return render(request, 'surveys/2w_followup_survey.html', context)
 
 def index(request):
     '''  ## LANDING PAGE

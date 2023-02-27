@@ -41,6 +41,11 @@ select:hover {
     background-color: var(--button-hover-bg);
 }
 
+textarea {
+    width: 90%;
+    border: 1px solid var(--input-border);
+}
+
 .finalQuestion {
     margin-bottom: 1.5rem;
 }

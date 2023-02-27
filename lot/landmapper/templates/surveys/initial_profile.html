@@ -22,7 +22,6 @@
         {{ form.plan_date.label_tag }} <br/> {{ form.plan_date }}
     </div>
 
-
     <div class="ownerQuestion finalQuestion" style="display: none;">
         <p>How important are the following management goals or objectives are to you?</p>
         <table class="form-group-table">
@@ -37,67 +36,7 @@
                     </tr>
                 {% endif %}
             {% endfor %}
-    
         </table>
-
     </div>
 
-    {% comment %}
-    <div class="fieldWrapper">
-        {{ form.q3_1_health.errors }}
-        {{ form.q3_1_health.label_tag }} <br/> {{ form.q3_1_health }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_2_habitat.errors }}
-        {{ form.q3_2_habitat.label_tag }} <br/> {{ form.q3_2_habitat }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_3_beauty.errors }}
-        {{ form.q3_3_beauty.label_tag }} <br/> {{ form.q3_3_beauty }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_4_next_gen.errors }}
-        {{ form.q3_4_next_gen.label_tag }} <br/> {{ form.q3_4_next_gen }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_5_risks.errors }}
-        {{ form.q3_5_risks.label_tag }} <br/> {{ form.q3_5_risks }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_6_climate_change.errors }}
-        {{ form.q3_6_climate_change.label_tag }} <br/> {{ form.q3_6_climate_change }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_7_carbon.errors }}
-        {{ form.q3_7_carbon.label_tag }} <br/> {{ form.q3_7_carbon }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_8_invasive_species.errors }}
-        {{ form.q3_8_invasive_species.label_tag }} <br/> {{ form.q3_8_invasive_species }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_9_timber.errors }}
-        {{ form.q3_9_timber.label_tag }} <br/> {{ form.q3_9_timber }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_10_profit.errors }}
-        {{ form.q3_10_profit.label_tag }} <br/> {{ form.q3_10_profit }}
-    </div>
-
-    <div class="fieldWrapper">
-        {{ form.q3_11_cultural_uses.errors }}
-        {{ form.q3_11_cultural_uses.label_tag }} <br/> {{ form.q3_11_cultural_uses }}
-    </div>
-    {% endcomment %}
-
-    
 {% endblock %}
