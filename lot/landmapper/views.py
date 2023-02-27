@@ -212,6 +212,7 @@ def userProfileSurvey(request):
         'title': 'User Profile Form',
         'description': 'Welcome to LandMapper. Please tell us more about yourself:',
         'action': '/landmapper/user_profile/',
+        'scripts': ['/landmapper/js/profile_survey.js',],
     }
     if request.method == 'POST':
         form = ProfileForm(request.POST, instance=profile)
@@ -224,7 +225,7 @@ def userProfileSurvey(request):
     else:
         form = ProfileForm(instance=profile)
         context['form'] = form
-    return render(request, 'surveys/user_survey.html', context)
+    return render(request, 'surveys/initial_profile.html', context)
 
 def userProfileFollowup(request):
     instances = TwoWeekFollowUpSurvey.objects.filter(user=request.user, survey_complete=False).order_by('date_created')
@@ -236,6 +237,7 @@ def userProfileFollowup(request):
         'title': 'User Follow-Up Form',
         'description': 'Thank you for your continued use of LandMapper. You\'ve had an account for a couple of weeks now, and we\'re curious to know more about your experience so far.',
         'action': '/landmapper/user_followup/',
+        'scripts': [],
     }
     if request.method == 'POST':
         # Ensure front-end didn't hack their user value:

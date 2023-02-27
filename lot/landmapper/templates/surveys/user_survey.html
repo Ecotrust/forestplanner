@@ -8,6 +8,11 @@
 
 {% block extra_head_scripts %}
     {{ block.super }}
+    {% if scripts %}
+        {% for script in scripts %}
+            <script src="{% static script %}"></script>
+        {% endfor %}
+    {% endif %}
 {% endblock extra_head_scripts %}
 
 {% block content %}
@@ -18,10 +23,14 @@
         {% if description %} 
             <p>{{ description }}</p>
         {% endif %}
-        <form action="{{ action }}" method="post">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <input type="submit" value="Submit">
-        </form>
+        {% block form %}
+            <form action="{{ action }}" method="post">
+                {% csrf_token %}
+                {% block fields %}
+                    {{ form.as_p }}
+                {% endblock %}
+                <input type="submit" value="Submit">
+            </form>
+        {% endblock %}
     </div>
 {% endblock %}

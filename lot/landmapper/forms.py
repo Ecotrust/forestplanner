@@ -2,6 +2,10 @@ from django import forms
 from landmapper.models import Profile, TwoWeekFollowUpSurvey
 
 class ProfileForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault('label_suffix', '')
+        super(ProfileForm, self).__init__(*args, **kwargs)
+
     class Meta:
         model = Profile
         fields = (

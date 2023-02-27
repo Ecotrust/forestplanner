@@ -80,7 +80,7 @@ class Profile(models.Model):
     )
     # strict set of selection, or text (to support 'other' feedback in same field)?
     type_selection = models.CharField(max_length=2, choices=USER_TYPE_CHOICES, blank=True, null=True, default=None, verbose_name="Which of the following roles best captures your primary use of this website?")
-    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use")
+    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use:")
 
     #Q2
     Y_N_CHOICES = (
