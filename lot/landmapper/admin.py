@@ -22,9 +22,15 @@ class PropertyRecordAdmin(admin.ModelAdmin):
         }),
     )
 
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'profile_questions_status', 'date_created')
+
+class TwoWeekFollowUpSurveyAdmin(admin.ModelAdmin):
+    list_display = ('user', 'email_sent', 'survey_complete')
+
 # admin.site.unregister(FlatBlock)
-admin.site.register(Profile)
-admin.site.register(TwoWeekFollowUpSurvey)
+admin.site.register(Profile, ProfileAdmin)
+admin.site.register(TwoWeekFollowUpSurvey, TwoWeekFollowUpSurveyAdmin)
 admin.site.register(Taxlot)
 admin.site.register(MenuPage, MenuPageAdmin)
 admin.site.register(ForestType)

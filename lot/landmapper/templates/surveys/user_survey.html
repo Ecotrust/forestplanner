@@ -1,0 +1,36 @@
+{% extends 'landmapper/base.html' %}
+{% load static %}
+
+{% block extra_styles %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static '/landmapper/css/forms.css' %}">
+{% endblock %}
+
+{% block extra_head_scripts %}
+    {{ block.super }}
+    {% if scripts %}
+        {% for script in scripts %}
+            <script src="{% static script %}"></script>
+        {% endfor %}
+    {% endif %}
+{% endblock extra_head_scripts %}
+
+{% block content %}
+    <div class="container form-container">
+        {% if title %}
+            <h1>{{title}}</h1>
+        {% endif %} 
+        {% if description %} 
+            <p>{{ description }}</p>
+        {% endif %}
+        {% block form %}
+            <form action="{{ action }}" method="post">
+                {% csrf_token %}
+                {% block fields %}
+                    {{ form.as_p }}
+                {% endblock %}
+                <input type="submit" value="Submit">
+            </form>
+        {% endblock %}
+    </div>
+{% endblock %}

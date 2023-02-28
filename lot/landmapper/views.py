@@ -19,8 +19,9 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic.edit import FormView
 from flatblocks.models import FlatBlock
-from landmapper.models import *
 from landmapper import properties, reports
+from landmapper.models import *
+from landmapper.forms import ProfileForm, FollowupForm
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
@@ -184,6 +185,12 @@ def home(request):
     '''
     Land Mapper: Home Page
     '''
+
+    if request.user and request.user.is_authenticated:
+        person = Person.objects.get(pk=request.user.pk)
+        if person.show_survey():
+            return person.get_survey(request)
+
     # Get aside content Flatblock using name of Flatblock
     aside_content = 'aside-home'
     if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
@@ -198,6 +205,61 @@ def home(request):
     }
 
     return render(request, 'landmapper/landing.html', context)
+
+def userProfileSurvey(request):
+    profile = Profile.objects.get(user=request.user)
+    context = {
+        'title': 'User Profile Form',
+        'description': 'Welcome to LandMapper. Please tell us more about yourself:',
+        'action': '/landmapper/user_profile/',
+        'scripts': ['/landmapper/js/profile_survey.js',],
+    }
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save()
+            profile.profile_questions_status = 'done'
+            profile.save()
+            return redirect('/')
+        context['form'] = form
+    else:
+        form = ProfileForm(instance=profile)
+        context['form'] = form
+    return render(request, 'surveys/initial_profile.html', context)
+
+def userProfileFollowup(request):
+    instances = TwoWeekFollowUpSurvey.objects.filter(user=request.user, survey_complete=False).order_by('date_created')
+    if instances.count() > 0:
+        instance = instances[0]
+    else:
+        instance = False
+    context = {
+        'title': 'User Follow-Up Form',
+        'description': 'Thank you for your continued use of LandMapper. You\'ve had an account for a couple of weeks now, and we\'re curious to know more about your experience so far.',
+        'action': '/landmapper/user_followup/',
+        'scripts': [],
+    }
+    if request.method == 'POST':
+        # Ensure front-end didn't hack their user value:
+        post = request.POST.copy()
+        post.update({'user': request.user})
+        request.POST = post
+        if instance:
+            form = FollowupForm(request.POST, instance=instance)
+        else:
+            form=FollowupForm(request.POST)
+        if form.is_valid():
+            followup = form.save()
+            followup.survey_complete = True
+            followup.save()
+            return redirect('/')
+    else:
+        if instance:
+            form = FollowupForm(instance=instance)
+        else:
+            form = FollowupForm(initial={"user": request.user})
+    context['form'] = form
+    return render(request, 'surveys/2w_followup_survey.html', context)
 
 def index(request):
     '''  ## LANDING PAGE

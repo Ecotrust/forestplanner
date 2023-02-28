@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
@@ -17,6 +18,41 @@ def sq_meters_to_sq_miles(area_m2):
 
 def sq_meters_to_acres(area_m2):
     return area_m2/4046.86
+
+class Person(User):
+    class Meta:
+        proxy = True
+
+    def show_survey(self):
+        # Test for initial profile form
+        if not self.profile.profile_questions_status == 'done':
+            return True
+
+        profile_age = datetime.now() - self.date_joined
+        # Test for 2-week follow-up survey
+        two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+        if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+            return True
+
+        return False
+
+    def get_survey(self, request):
+        from .views import userProfileSurvey, userProfileFollowup
+        if not self.profile.profile_questions_status == 'done':
+            if self.profile.profile_questions_status == None:
+                self.profile.profile_questions_status = 'seen'
+                self.profile.save()
+            return userProfileSurvey(request)
+        else:
+            profile_age = datetime.now() - self.date_joined
+            # Test for 2-week follow-up survey
+            two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+            if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+                return userProfileFollowup(request)
+            else:
+                print('TODO: how did get_survey get called if we shouldn\'t show a survey?')
+                return userProfileFollowup(request)
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -43,7 +79,7 @@ class Profile(models.Model):
     )
     # strict set of selection, or text (to support 'other' feedback in same field)?
     type_selection = models.CharField(max_length=2, choices=USER_TYPE_CHOICES, blank=True, null=True, default=None, verbose_name="Which of the following roles best captures your primary use of this website?")
-    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use")
+    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use:")
 
     #Q2
     Y_N_CHOICES = (

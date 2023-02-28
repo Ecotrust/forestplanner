@@ -1,0 +1,42 @@
+{% extends 'surveys/user_survey.html' %}
+{% load static %}
+
+{% block fields %}
+    <div class="fieldWrapper">
+        {{ form.type_selection.errors }}
+        {{ form.type_selection.label_tag }} <br/> {{ form.type_selection }}
+    </div>
+
+    <div class="fieldWrapper dependent" style="display: none;">
+        {{ form.type_other.errors }}
+        {{ form.type_other.label_tag }} <br/> {{ form.type_other }}
+    </div>
+
+    <div class="fieldWrapper ownerQuestion" style="display: none;">
+        {{ form.has_plan.errors }}
+        {{ form.has_plan.label_tag }} <br/> {{ form.has_plan }}
+    </div>
+
+    <div class="fieldWrapper ownerQuestion dependent" style="display: none;">
+        {{ form.plan_date.errors }}
+        {{ form.plan_date.label_tag }} <br/> {{ form.plan_date }}
+    </div>
+
+    <div class="ownerQuestion finalQuestion" style="display: none;">
+        <p>How important are the following management goals or objectives are to you?</p>
+        <table class="form-group-table">
+            {% for field in form %}
+                {% if forloop.counter0 >= 4 %}
+                    <tr>
+                        <td>{{ field }}</td>
+                        <td>{{ field.label_tag }}</td>
+                        {% if field.errors %}
+                            <td>{{ field.errors }}</td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+        </table>
+    </div>
+
+{% endblock %}

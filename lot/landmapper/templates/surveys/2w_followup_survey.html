@@ -1,0 +1,35 @@
+{% extends 'surveys/user_survey.html' %}
+{% load static %}
+
+{% block fields %}
+    <div class="fieldWrapper" style="display: none;">
+        {{ form.user.errors }}
+        {{ form.user.label_tag }} <br/> {{ form.user }}
+    </div>
+
+    <div>
+        <p>How much you agree or disagree with the the following statements about your experience with the web application?</p>
+        <table class="form-group-table">
+            {% for field in form %}
+                {% if forloop.counter0 >= 1 and forloop.counter0 <= 7 %}
+                    <tr>
+                        <td>{{ field }}</td>
+                        <td>{{ field.label_tag }}</td>
+                        {% if field.errors %}
+                            <td>{{ field.errors }}</td>
+                        {% endif %}
+                    </tr>
+                {% endif %}
+            {% endfor %}
+
+        </table>
+    </div>
+
+    <br />
+
+    <div class="fieldWrapper finalQuestion">
+        {{ form.feedback.errors }}
+        {{ form.feedback.label_tag }} <br/> {{ form.feedback }}
+    </div>
+    
+{% endblock %}

@@ -1,0 +1,83 @@
+:root {
+    --input-border: #ced4da;
+    --input-radius: 0.3rem;
+    --button-bg: #f8f9fa;
+    --button-hover-bg: #e2e6ea;
+    --button-hover-border: #dae0e5;
+    --font-color: #212529;
+
+}
+
+
+div.form-container {
+    margin-top: 2rem;
+}
+
+div.form-container form {
+    border: 1px solid gray;
+    margin: 2rem 0 2rem 0;
+    padding: 1rem 1rem 5rem 1rem;
+    border-radius: 0.5rem;
+}
+
+input,
+select {
+    padding: 0.4rem;
+    border-radius: var(--input-radius);
+    background-color: white;
+    border: 1px solid var(--input-border);
+    margin-bottom: 1rem;
+}
+
+select {
+    cursor: pointer;
+}
+
+/*
+    If you don't want highlighting of fields when users hover over labels, maybe this info from @BoldClock will help you sort that out:
+        https://stackoverflow.com/a/9101344/706797
+*/
+select:hover {
+    background-color: var(--button-hover-bg);
+}
+
+textarea {
+    width: 90%;
+    border: 1px solid var(--input-border);
+}
+
+.finalQuestion {
+    margin-bottom: 1.5rem;
+}
+
+form input:valid[type="submit"] {
+    float: right;
+    background-color: var(--button-bg);
+    padding: 0.5rem 3rem;
+    border: 2px solid var(--input-border);
+}
+
+form input:valid[type="submit"]:hover {
+    border: 2px solid var(--button-hover-border);
+    background-color: var(--button-hover-bg);
+    font-weight: bold;
+}
+
+.dependent {
+    margin-left: 5rem;
+}
+
+/* 
+    If you want rounded borders, check out @theazureshardow and @Christian_Ciupitu's post here:
+    https://stackoverflow.com/a/4094151/706797
+*/
+
+table.form-group-table {
+    margin-top: 1rem;
+    border: 1px solid green;
+}
+
+table.form-group-table td{
+    padding: 0.5rem;
+    max-width: 475px;
+}
