@@ -186,7 +186,7 @@ def home(request):
     Land Mapper: Home Page
     '''
 
-    if request.user:
+    if request.user and request.user.is_authenticated:
         person = Person.objects.get(pk=request.user.pk)
         if person.show_survey():
             return person.get_survey(request)
