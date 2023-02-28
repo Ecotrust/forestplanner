@@ -193,7 +193,7 @@ def home(request):
     context = {
         'aside_content': aside_content,
         'show_panel_buttons': False,
-        'q_address': 'Reedsport Or 12513 Loon Lake Rd, Reedsport, OR 97467',
+        'q_address': 'Reedsport Or 12345 Loon Lake Ln Reedsport, OR 97467',
         'overlay': 'overlay',
     }
 
@@ -229,7 +229,7 @@ def identify(request):
             q_address_value = request.POST.get('q-address')
             geocode_hits = geocode(q_address)
         else:
-            q_address = '12513 Loon Lake Rd, Reedsport, OR 97467'
+            q_address = '12345 Loon Lake Rd'
             
 
         if geocode_hits:
