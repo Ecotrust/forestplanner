@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.db import models
-from .models import MenuPage, Taxlot, ForestType, PropertyRecord
+from .models import MenuPage, Taxlot, ForestType, PropertyRecord, Profile, TwoWeekFollowUpSurvey
 from ckeditor.widgets import CKEditorWidget
 from discovery.widgets import DiscoOpenLayersWidget
 
@@ -23,6 +23,8 @@ class PropertyRecordAdmin(admin.ModelAdmin):
     )
 
 # admin.site.unregister(FlatBlock)
+admin.site.register(Profile)
+admin.site.register(TwoWeekFollowUpSurvey)
 admin.site.register(Taxlot)
 admin.site.register(MenuPage, MenuPageAdmin)
 admin.site.register(ForestType)
