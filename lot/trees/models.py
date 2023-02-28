@@ -11,12 +11,11 @@ import operator
 import numpy as np
 import pandas as pd
 from django.contrib.gis.db import models
-from django.db.models import Manager as GeoManager
+from django.db.models import Manager as GeoManager, JSONField
 from django.contrib.auth.models import User
 from django.contrib.gis.utils import LayerMapping
 from django.core.exceptions import ValidationError
 from django.contrib.contenttypes.models import ContentType
-from django.contrib.postgres.fields import JSONField
 from json import dumps, loads
 from json.decoder import JSONDecodeError
 from django.core.serializers.json import DjangoJSONEncoder
