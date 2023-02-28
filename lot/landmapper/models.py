@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from django.db.models import Manager as GeoManager
+from django.db.models import JSONField, Manager as GeoManager
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.gis.db.models import MultiPolygonField, PointField
-from django.contrib.postgres.fields import JSONField
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
 from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
