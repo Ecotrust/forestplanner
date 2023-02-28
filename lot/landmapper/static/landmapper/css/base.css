@@ -165,7 +165,8 @@ form input:invalid {
 }
 
 #bypass-address-input {
-  background: #dfca68;
+  /* background: #dfca68; */
+  background: var(--light-grey);
   color: var(--black);
   font-family: var(--primary-font-heavy);
   font-size: .875rem;
@@ -179,9 +180,14 @@ form input:invalid {
   z-index: 2;
 }
 
+#bypass-address-input:hover {
+  background: var(--white);
+  opacity: 1;
+}
+
 #property-search-form {
   color: #fff;
-  left: 25%;
+  left: 20%;
   position: absolute;
   top: 15vh;
   /* Center search box by:
@@ -191,7 +197,7 @@ form input:invalid {
   /* Keep search over map.
     both map and search position absoulte.
     z-index 2 for search form. z-index 1 for map */
-  width: 50%;
+  width: 60%;
   z-index: 3;
 }
 
@@ -220,13 +226,23 @@ form input:invalid {
 
 #property-search {
   background: var(--light-grey);
-  border: 2px solid #78d22F;
+  border: 3px solid transparent;
   border-radius: 0;
   display: block;
   line-height: 1.5;
   padding: 1.5rem 1rem; 
+  transition: all 0.2s ease-in-out;
   width: 100%;
 }
+
+  #property-search:focus {
+    background: var(--white);
+    border-bottom: 3px solid #78d22F;
+  }
+
+  #property-search:focus ~ button {
+    border: 2px solid #78d22F;
+  }
 
 /**
  * Search Results
@@ -279,7 +295,7 @@ button#geocode-results-close:hover {
 #property-search-btn {
   background: #78d22F;
   border: 1px solid var(--primary-color);
-  border-radius: 0;
+  /* border-radius: 0; */
   color: var(--black);
   display: block;
   font-family: var(--primary-font-heavy);
