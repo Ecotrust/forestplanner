@@ -157,7 +157,7 @@ main a:hover {
  *
  */
 form input:valid {
- border: 1px solid green;
+ /* border: 1px solid green; */
 }
 
 form input:invalid {
@@ -165,35 +165,31 @@ form input:invalid {
 }
 
 #bypass-address-input {
+  /* background: #dfca68; */
+  background: var(--light-grey);
+  color: var(--black);
+  font-family: var(--primary-font-heavy);
+  font-size: .875rem;
   position: absolute;
-  top: 250px;
-  left: 42%;
-  /* transform: translate(-50%,25vh); */
+  top: 60vh;
+  left: 50%;
+  letter-spacing: 0.15em;
+  padding: .75em 1em .675em;
+  transform: translate(-50%,0);
+  text-transform: uppercase;
   z-index: 2;
 }
 
-#bypass-address-input:before {
-  content: 'OR';
-  left: 45%;
-  position: absolute;
-  top: -60px;
-  /* transform: translate(-50%,-4vh); */
-}
-
-#bypass-address-input:after {
-  bottom: -65vh;
-  content: '';
-  left: -23vw;
-  position: absolute;
-  right: -23vw;
-  top: -25vh;
-  z-index: -1;
+#bypass-address-input:hover {
+  background: var(--white);
+  opacity: 1;
 }
 
 #property-search-form {
-  left: 25%;
+  color: #fff;
+  left: 20%;
   position: absolute;
-  top: 100px;
+  top: 15vh;
   /* Center search box by:
     left 50% - based on the parent div (50% of map-wrap)
     transform translate -50% - based on input field (half of search input) */
@@ -203,6 +199,12 @@ form input:invalid {
     z-index 2 for search form. z-index 1 for map */
   width: 60%;
   z-index: 3;
+}
+
+#property-search-form label {
+  display: block;
+  text-align: center;
+  width: 100%;
 }
 
 /* overlays the content panel to give appearance of next step */
@@ -221,32 +223,31 @@ form input:invalid {
  * Inputs Fields
  *
  */
-#property-search-form .input-group {
- border: 1px solid var(--black);
- border-radius: 0;
-}
-
-#property-search-form input {
-  border-radius: 0;
-  border: none;
-}
-
-#property-search-form .input-group .input-group-append {
-  margin: 0 1px 0 0;
-}
 
 #property-search {
-  height: auto;
-  padding: 1rem 1.5rem .875rem;
+  background: var(--light-grey);
+  border: 3px solid transparent;
+  border-radius: 0;
+  display: block;
+  line-height: 1.5;
+  padding: 1.5rem 1rem; 
+  transition: all 0.2s ease-in-out;
+  width: 100%;
 }
+
+  #property-search:focus {
+    background: var(--white);
+    border-bottom: 3px solid #78d22F;
+  }
+
+  #property-search:focus ~ button {
+    border: 2px solid #78d22F;
+  }
 
 /**
  * Search Results
  *
  */
-#geocode-results-options {
-
-}
 
 #geocode-results-container {
   border: 1px solid #444;
@@ -292,9 +293,20 @@ button#geocode-results-close:hover {
  *
  */
 #property-search-btn {
-  background: var(--white);
-  border-left: 1px solid var(--black);
+  background: #78d22F;
+  border: 1px solid var(--primary-color);
+  /* border-radius: 0; */
+  color: var(--black);
+  display: block;
   font-family: var(--primary-font-heavy);
+  font-size: .875rem;
+  letter-spacing: 0.15em;
+  margin: 1rem auto;
+  padding: .5rem 1.5rem;
+  text-transform: uppercase;
+}
+#property-search-btn:hover {
+  background: var(--primary-color);
 }
 
 .btn-primary {
