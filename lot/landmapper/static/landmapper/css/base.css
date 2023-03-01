@@ -235,14 +235,14 @@ form input:invalid {
   width: 100%;
 }
 
-  #property-search:focus {
-    background: var(--white);
-    border-bottom: 3px solid #78d22F;
-  }
+#property-search:focus {
+  background: var(--white);
+  border-bottom: 3px solid #78d22F;
+}
 
-  #property-search:focus ~ button {
-    border: 2px solid #78d22F;
-  }
+#property-search:focus ~ button {
+  border: 2px solid #78d22F;
+}
 
 /**
  * Search Results
@@ -353,3 +353,70 @@ button#geocode-results-close:hover {
   max-width: 80vw;
 }
 
+
+/**
+ * Feedback button (sticky footer)
+ */
+.transparent-sticky-footer {
+  position: fixed;
+  bottom: 0;
+  min-width: 100vw;
+  z-index: 3;
+  pointer-events: none;
+  text-align: center;
+}
+
+body div.transparent-sticky-footer button.feedback-button {
+  border-width: 4px;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  margin: 0 auto 0 auto;
+  border-bottom: 0;
+
+  background-color: #da9b17;
+  color: white;
+  border-color: rgb(255, 193, 7); /* from bootstrap 'btn-warning' class */
+  font-weight: bold;
+
+  pointer-events: auto;
+}
+
+body div.transparent-sticky-footer button.feedback-button:hover {
+  background-color: rgb(180,120,0);
+  border-color: rgb(210,95,0);
+  cursor: pointer;
+}
+
+/**
+ * Feedback Modal
+ */
+.modal.show .modal-dialog {
+  width: 80vw;
+  min-width: 80vw;
+  height: calc(-56px + 100vh);
+}
+
+.modal.show .modal-dialog .modal-content {
+  max-height: calc(-56px + 100vh);
+  padding: 0;
+  overflow: auto;
+}
+
+.modal-header {
+  display: unset;
+}
+
+.modal-header .close {
+  float: right;
+  font-size: 30;
+  font-weight: bold;
+}
+
+.modal.show .modal-dialog .modal-content .modal-body {
+  padding: 0;
+}
+
+#feedback-modal .modal-content .modal-body .wrap iframe, #feedback-modal iframe {
+  height: calc(-200px + 100vh);
+  width: 100%;
+}

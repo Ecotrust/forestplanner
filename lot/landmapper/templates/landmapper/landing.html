@@ -67,7 +67,43 @@
         <div id="map" {% if not search_performed %} class="overlay" {% endif %}></div>
     </section>
     {% endblock map-wrap %}
+
+    <div class="container transparent-sticky-footer">
+        
+        <!-- Button trigger modal -->
+      <button type="button" class="btn btn-primary btn feedback-button btn-warning" data-toggle="modal" data-target="#feedback-modal">
+        Provide feedback
+      </button>
+    </div>
+
+    <div class="modal fade" id="feedback-modal" data-src="//www.surveymonkey.com/r/LX7DDPT" tabindex="-1" role="dialog" aria-labelledby="Feedback" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+              <h4 class="modal-title">Feedback Form</h4>
+          </div>
+          <div class="modal-body">
+            <div class="wrap">
+              <iframe src="" frameborder="0">
+                <p>Your browser does not support iframes.</p>
+              </iframe>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      $('#feedback-modal').on('show.bs.modal', function() {
+        var src = $(this).attr('data-src');
+        $(this).find('iframe').attr('src', src);
+      });
+    </script>
 </div>
+
+
+
 {% endblock content %}
 
 {% block footer_scripts %}
