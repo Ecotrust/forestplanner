@@ -27,9 +27,12 @@
     display: block;
     border-bottom: none;
     padding: 0 .25in;
+    overflow: hidden;
+  }
+  
+  main#main-content section.section-report:not(:last-child) {
     page-break-after: always;
     break-after: always;
-    overflow: hidden;
   }
 
   .scalebar {
