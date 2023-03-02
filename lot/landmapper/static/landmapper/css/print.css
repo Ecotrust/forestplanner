@@ -64,4 +64,8 @@
   .section-report:not(#section-property) .map-image-wrap {
     padding: 0;
   }
+
+  .transparent-sticky-footer {
+    display: none;
+  }
 }
