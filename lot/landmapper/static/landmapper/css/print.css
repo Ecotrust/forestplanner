@@ -3,6 +3,10 @@
     size: portrait;
   }
 
+  body.d-flex {
+    display:block !important;
+  }
+
   .wrap-print {
     /* display: block; */
     /* margin: 0 auto; */
@@ -24,6 +28,7 @@
     border-bottom: none;
     padding: 0 .25in;
     page-break-after: always;
+    break-after: always;
     overflow: hidden;
   }
 
@@ -68,4 +73,6 @@
   .transparent-sticky-footer {
     display: none;
   }
+
+
 }
