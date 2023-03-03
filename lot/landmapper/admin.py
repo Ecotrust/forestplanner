@@ -14,10 +14,12 @@ class MenuPageAdmin(admin.ModelAdmin):
 
 class PropertyRecordAdmin(admin.ModelAdmin):
     list_display = ('name', 'user', 'date_created', 'property_id')
+    readonly_fields = ('date_created', 'date_modified')
     fieldsets = (
         ('Property Record', {
             'fields': (
-                'user', 'name', 'geometry_orig', 'geometry_final', 'record_taxlots'
+                'user', 'name', 'geometry_orig', 'geometry_final', 'record_taxlots',
+                ('date_created', 'date_modified'),
             )
         }),
     )
