@@ -305,3 +305,15 @@ var enablePropertySelection = function() {
     landmapper.loadTaxLots(e);
   });
 }
+
+var geocodeResultIssue = function(coords, geocode_count) {
+  let error_message = "Unknown error occurred. Please double-check your input and if you continue to get an error, feel free to reach out to landmapper@ecotrust.org for assistance.";
+  if (geocode_count == 0) {
+    error_message = "No properties matching your search were found. Please note that this tool is designed only for properties in the state of Oregon. If your proerty is in Oregon, please try another search term or use the map to find it.";
+  }
+
+  mapView.setZoom(landmapper.zoom);
+
+  $("#error-modal div#error-modal-content").html(error_message);
+  $("#error-modal").modal('show');
+}

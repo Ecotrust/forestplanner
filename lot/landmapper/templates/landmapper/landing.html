@@ -88,13 +88,14 @@
       }
     </script>
   {% endif %}
-  {% if not geocode_error and geocode_hits|length > 0 %}
-    <script>
+  <script>
+    {% if not geocode_error and geocode_hits|length > 0 %}
       enableGeocodeResultSelection([propertyCoords[1],propertyCoords[0]], {{geocode_hits|length }});
-    </script>
-  {% else %}
-    <script>
+      {% else %}
+        {% if geocode_error %}
+          geocodeResultIssue([propertyCoords[1],propertyCoords[0]], {{geocode_hits|length }});
+        {% endif %}
       enablePropertySelection();
-    </script>
-  {% endif %}
+    {% endif %}
+  </script>
 {% endblock footer_scripts %}

@@ -420,3 +420,16 @@ body div.transparent-sticky-footer button.feedback-button:hover {
   height: calc(-200px + 100vh);
   width: 100%;
 }
+
+#error-modal div.modal-dialog {
+  max-width: 50vw;
+  min-width: 400px;
+}
+
+#error-modal div.modal-header {
+  display: flex;
+}
+
+#error-modal div.modal-body {
+  padding: 2rem;
+}
