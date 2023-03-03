@@ -294,31 +294,30 @@ def identify(request):
             q_address = '12345 Loon Lake Rd'
             
 
-        if geocode_hits:
-            if len(geocode_hits) > 0:
+        if geocode_hits and len(geocode_hits) > 0:
                 coords = geocode_hits[0]['coords']
                 geocode_error = False
-            else:
-                coords = [
-                    (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
-                    (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
-                ]
-                geocode_error = True
-            context = {
-                'coords': coords,
-                'geocode_hits': geocode_hits,
-                'geocode_error': geocode_error,
-                'q_address': q_address,
-                'q_address_value': q_address_value,
-                'aside_content': aside_content,
-                'show_panel_buttons': True,
-                'search_performed': True,
-                # """Says where buttons go when you're using the UI mapping tool."""
-                'btn_back_href': '/landmapper/',
-                'btn_next_href': 'property_name',
-                'btn_create_maps_href': '/landmapper/report/',
-                'btn_next_disabled': 'disabled',
-            }
+        else:
+            coords = [
+                (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
+                (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
+            ]
+            geocode_error = True
+        context = {
+            'coords': coords,
+            'geocode_hits': geocode_hits,
+            'geocode_error': geocode_error,
+            'q_address': q_address,
+            'q_address_value': q_address_value,
+            'aside_content': aside_content,
+            'show_panel_buttons': True,
+            'search_performed': True,
+            # """Says where buttons go when you're using the UI mapping tool."""
+            'btn_back_href': '/landmapper/',
+            'btn_next_href': 'property_name',
+            'btn_create_maps_href': '/landmapper/report/',
+            'btn_next_disabled': 'disabled',
+        }
     else:
         # User wants to bypass address search
         context = {
