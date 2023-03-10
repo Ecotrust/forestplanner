@@ -563,6 +563,10 @@ def export_layer(request):
 
 
 ### REGISTRATION/ACCOUNT MANAGEMENT ###
+def accountsRedirect(request):
+    response = redirect('/landmapper/auth/profile/')
+    return response
+
 # account login page
 def login(request):
     context = {}

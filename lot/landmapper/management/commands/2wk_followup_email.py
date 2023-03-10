@@ -17,7 +17,7 @@ class Command(BaseCommand):
         #   Has no TwoWeekFollowUpSurvey or no TwoWeekFollowUpSurvey with 'email-sent' and not 'survey-complete'
 
         ineligible_user_IDs = [x.user.pk for x in TwoWeekFollowUpSurvey.objects.exclude(email_sent=False, survey_complete=False)]
-        users_to_email = User.objects.filter(date_joined__lte=timezone.now()-timedelta(days=14)).exclude(pk__in=ineligible_user_IDs)
+        users_to_email = User.objects.filter(date_joined__lte=timezone.now()-timedelta(days=TWO_WEEKS)).exclude(pk__in=ineligible_user_IDs)
 
         # For each:
         #   * populate and send draft email

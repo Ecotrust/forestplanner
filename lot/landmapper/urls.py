@@ -29,4 +29,5 @@ urlpatterns = [
     path('privacy/', privacy_policy, name='privacy'),
     path('user_profile/', userProfileSurvey, name='user_profile_survey'),
     path('user_followup/', userProfileFollowup, name='user_profile_followup'),
+    path('register/', accountsRedirect, name='accounts_redirect'),
 ]
