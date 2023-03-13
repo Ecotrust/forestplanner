@@ -680,16 +680,15 @@ def exportPropertyRecords(request):
         subprocess.run(EXPORT_SHAPEFILE_COMMAND, shell=True)
 
         # Zip shapefile to bytestream
-        files = [os.path.join(shpdir, x) for x in os.listdir(shpdir)]
+        os.chdir(shpdir)
+        files = os.listdir(shpdir)
         zip = io.BytesIO()
-        # TODO: Write only the files to a zipfile, not the whole directory structure.
         with zipfile.ZipFile(zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
             for file in files:
                 zf.write(file, compress_type=zipfile.ZIP_DEFLATED)
         zip.seek(0)
 
         # Return zipped shapefile
-        #        See https://github.com/Ecotrust/madrona-scenarios/blob/main/scenarios/views.py#L295
         response = HttpResponse(content=zip.read(), content_type='application/zip')
         response['Content-Disposition'] = 'attachment; filename={today}_{filename}.zip'.format(today=today, filename=filename)
         return response
