@@ -1,0 +1,10 @@
+{% extends "admin/change_list.html" %}
+
+{% block object-tools-items %}
+  <li>
+    <a href="/landmapper/admin_export_property_records/">
+     Export As Shapefile
+    </a>
+  </li>
+  {{ block.super }}
+{% endblock %}
