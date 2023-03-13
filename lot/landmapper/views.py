@@ -1,6 +1,7 @@
 # https://geocoder.readthedocs.io/
 import decimal, json, geocoder
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate,login as django_login
 from django.contrib.auth.forms import (
     AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm,
@@ -333,7 +334,6 @@ def identify(request):
 
     return render(request, 'landmapper/landing.html', context)
 
-
 def create_property_id(property_name, user_id, taxlot_ids):
 
     sorted_taxlots = sorted(taxlot_ids)
@@ -410,8 +410,6 @@ def delete_record(request, property_record_id):
         'message': response_message
     })
     
-
-
 def report(request, property_id):
     '''
     Land Mapper: Report Pages
@@ -481,7 +479,6 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
-
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
     property = properties.get_property_by_id(property_id, request.user)
@@ -544,7 +541,6 @@ def get_property_map_pdf(request, property_id, map_type):
 
     return response
 
-
 ## BELONGS IN VIEWS.py
 def export_layer(request):
     '''
@@ -559,8 +555,6 @@ def export_layer(request):
         pgsql2shp (OGR/PostGIS built-in)
     '''
     return render(request, 'landmapper/base.html', {})
-
-
 
 ### REGISTRATION/ACCOUNT MANAGEMENT ###
 def accountsRedirect(request):
@@ -654,3 +648,48 @@ def terms_of_use(request):
 def privacy_policy(request):
     context = {}
     return render(request, 'landmapper/privacy.html', context)
+
+@staff_member_required
+def exportPropertyRecords(request):
+    import io
+    import os
+    import subprocess
+    from tempfile import TemporaryDirectory
+    import zipfile
+
+    sep = os.sep
+    today=datetime.now().strftime("%Y-%m-%d")
+    filename='landmapper_propertyrecords'
+    database_name=settings.DATABASES['default']['NAME']
+    db_user = settings.DATABASES['default']['USER']
+    db_password = settings.DATABASES['default']['PASSWORD']
+    db_pw_command = " -P {}".format(db_password) if db_password != '' else ''
+
+    # Create temporary dir
+    with TemporaryDirectory() as shpdir:
+        # Export shapefile to temporary named dir
+        EXPORT_SHAPEFILE_COMMAND = "pgsql2shp -u {db_user}{db_pw_command} -f {shpdir}{sep}{today}_{filename} {database_name} \"SELECT u.first_name, u.last_name, u.email, u.is_staff, u.is_active, u.last_login, u.date_joined, p.id, p.user_id, p.name, p.date_created, p.date_modified, p.record_taxlots, p.geometry_final FROM landmapper_propertyrecord as p left join auth_user as u on u.id = p.user_id;\"".format(
+            db_user=db_user,
+            db_pw_command=db_pw_command,
+            shpdir=shpdir,
+            sep=sep,
+            today=today,
+            filename=filename,
+            database_name=database_name
+        )
+        subprocess.run(EXPORT_SHAPEFILE_COMMAND, shell=True)
+
+        # Zip shapefile to bytestream
+        files = [os.path.join(shpdir, x) for x in os.listdir(shpdir)]
+        zip = io.BytesIO()
+        # TODO: Write only the files to a zipfile, not the whole directory structure.
+        with zipfile.ZipFile(zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for file in files:
+                zf.write(file, compress_type=zipfile.ZIP_DEFLATED)
+        zip.seek(0)
+
+        # Return zipped shapefile
+        #        See https://github.com/Ecotrust/madrona-scenarios/blob/main/scenarios/views.py#L295
+        response = HttpResponse(content=zip.read(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={today}_{filename}.zip'.format(today=today, filename=filename)
+        return response

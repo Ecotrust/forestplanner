@@ -30,4 +30,5 @@ urlpatterns = [
     path('user_profile/', userProfileSurvey, name='user_profile_survey'),
     path('user_followup/', userProfileFollowup, name='user_profile_followup'),
     path('register/', accountsRedirect, name='accounts_redirect'),
+    path('admin_export_property_records/', exportPropertyRecords, name='export_property_records')
 ]
