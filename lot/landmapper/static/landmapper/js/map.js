@@ -16,29 +16,6 @@ var landmapper = {
   }
 };
 
-
-/**
- * [Permalink checker]
- * @method if
- * @param  {[type]} window [description]
- * @return {[type]}        [description]
- * Check if permalink in URL
- */
-if (window.location.hash !== '') {
-  // try to restore center, zoom-level, rotation, and taxlots from the URL
-  var parts = landmapper.getLocationHashParts();
-  if (parts.length === 5) {
-    landmapper.zoom = parseInt(parts[0], 10);
-    landmapper.center = [
-      parseFloat(parts[1]),
-      parseFloat(parts[2])
-    ];
-    landmapper.rotation = parseFloat(parts[3]);
-    landmapper.taxlot_ids = parts[4]
-  }
-}
-
-
 /**
  * [mapView description]
  * @type {ol}
@@ -118,6 +95,24 @@ var map = new ol.Map({
   view: mapView
 });
 
+landmapper.bufferExtent = function(source_extent) {
+    [west, south, east, north] = source_extent;
+    width = east-west;
+    width_buffer = width/10;
+    height = north-south;
+    height_buffer = height/10;
+    buffered_extent = [west-width_buffer, south-height_buffer, east+width_buffer, north+height_buffer];
+    return buffered_extent;
+}
+
+landmapper.showPropertyNameForm = function(e) {
+    var formPropertyName = document.getElementById('form-property-name');
+    formPropertyName.classList.remove('d-none');
+    e.preventDefault();
+    extent = landmapper.bufferExtent(landmapper.selectedFeatureSource.getExtent());
+    mapView.fit(extent, {'duration': 1000});
+}
+
 /**
  * [description]
  * @method
@@ -129,10 +124,9 @@ landmapper.showNextBtn = function(show) {
   var formPropertyName = document.getElementById('form-property-name');
   if (show) {
     btnNext.classList.remove('disabled');
-    btnNext.addEventListener('click', function(e) {
-      formPropertyName.classList.remove('d-none');
-      e.preventDefault();
-    })
+    //prevent duplicate events
+    btnNext.removeEventListener('click', landmapper.showPropertyNameForm);
+    btnNext.addEventListener('click', landmapper.showPropertyNameForm);
   } else {
     btnNext.classList.add('disabled');
     formPropertyName.classList.add('d-none');
@@ -201,8 +195,6 @@ landmapper.loadTaxLots = function(mapEvent) {
         window.alert('Error: No taxlot data found');
         console.log('error in map.js: Click Control trigger');
     }
-  }).done(function() {
-    updatePermalink();
   });
 };
 
@@ -212,42 +204,6 @@ landmapper.loadTaxLots = function(mapEvent) {
  * @type {Boolean}
  */
 var shouldUpdate = true;
-
-
-/**
- * Update browser URL with Map state
- * @method
- * @return {[type]} [description]
- */
-var updatePermalink = function() {
-  if (!shouldUpdate) {
-    // do not update the URL when the view was changed in the 'popstate' handler
-    shouldUpdate = true;
-    return;
-  }
-
-  landmapper.center = mapView.getCenter();
-  landmapper.hash = '#map=' +
-      mapView.getZoom() + '/' +
-      landmapper.center[0] + '/' +
-      landmapper.center[1] + '/' +
-      mapView.getRotation() + '/' +
-      landmapper.taxlot_ids;
-  landmapper.state = {
-    zoom: mapView.getZoom(),
-    center: mapView.getCenter(),
-    rotation: mapView.getRotation(),
-    taxlot_ids: landmapper.taxlot_ids
-  };
-  window.history.pushState(landmapper.state, 'map', landmapper.hash);
-};
-
-/**
- * Update permalink
- * @type {[type]}
- */
-map.on('moveend', updatePermalink);
-
 
 // restore the view state when navigating through the history, see
 // https://developer.mozilla.org/en-US/docs/Web/API/WindowEventHandlers/onpopstate
