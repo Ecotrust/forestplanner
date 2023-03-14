@@ -4,13 +4,13 @@
 Vagrant.configure("2") do |config|
 
   config.vm.box = "ubuntu/bionic64"
-  config.disksize.size = '30GB'
+  config.disksize.size = '25GB'
   config.vm.box_check_update = true
-  config.vbguest.auto_update = false if Vagrant.has_plugin?('vagrant-vbguest')
+  # config.vbguest.auto_update = false if Vagrant.has_plugin?('vagrant-vbguest')
 
   config.vm.network "forwarded_port", guest: 8000, host: 8000
   config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 5432, host: 5434
+  config.vm.network "forwarded_port", guest: 5432, host: 5433
   # Celery Flower
   config.vm.network "forwarded_port", guest: 5555, host: 5555
 
@@ -18,8 +18,8 @@ Vagrant.configure("2") do |config|
 
   config.vm.provider "virtualbox" do |vb|
     #vb.memory = "8192" # 8GB
-    vb.memory = "4096" # 4GB
-    # vb.memory = "3072"
+    # vb.memory = "4096" # 4GB
+    vb.memory = "3072"
   end
 
   # Enable provisioning with a shell script. Additional provisioners such as
