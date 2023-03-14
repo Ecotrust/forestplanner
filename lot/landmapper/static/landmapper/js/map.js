@@ -113,6 +113,10 @@ landmapper.showPropertyNameForm = function(e) {
     mapView.fit(extent, {'duration': 1000});
 }
 
+landmapper.backToIdentify = function() {
+  $("#form-property-name").hide();
+}
+
 /**
  * [description]
  * @method
