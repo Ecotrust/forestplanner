@@ -114,7 +114,8 @@ landmapper.showPropertyNameForm = function(e) {
 }
 
 landmapper.backToIdentify = function() {
-  $("#form-property-name").hide();
+    var formPropertyName = document.getElementById('form-property-name');
+    formPropertyName.classList.add('d-none');
 }
 
 /**
