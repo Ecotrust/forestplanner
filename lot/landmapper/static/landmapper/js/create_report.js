@@ -2,9 +2,8 @@ window.addEventListener( 'load', function() {
 
   function generatePropertyReport(eFormSubmitted) {
     var propertyNameValue = document.getElementById('property-name').value;
-    var parts = landmapper.getLocationHashParts();
-    if (parts.length === 5) {
-      taxlots = parts[4].split('&');
+    var taxlots = landmapper.taxlot_ids.split("&");
+    if (taxlots.length >= 1) {
       landmapperReport.getReport(taxlots, propertyNameValue);
     }
   }

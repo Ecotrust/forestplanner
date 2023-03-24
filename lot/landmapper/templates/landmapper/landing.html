@@ -41,7 +41,7 @@
                     <input type="text" name="property-name" class="form-control form-control-lg" id="property-name" placeholder="Please name your property" aria-label="property-name" aria-describedby="btn-create-maps" required />
                 </div>
                 <p id='prop-name-error'><b>The following characters are not allowed: \ | / ? #</b></p>
-                <a href="#" class="btn btn-light" id="btn-content-panel-back">Back</a>
+                <a href="#" class="btn btn-light" id="btn-content-form-back" onclick="landmapper.backToIdentify()">Back</a>
                 <button form="form-property-name" class="btn btn-light" id="btn-create-maps">Create maps</button>
             </form>
           </div>
@@ -67,7 +67,11 @@
         <div id="map" {% if not search_performed %} class="overlay" {% endif %}></div>
     </section>
     {% endblock map-wrap %}
+
 </div>
+
+
+
 {% endblock content %}
 
 {% block footer_scripts %}
@@ -84,13 +88,14 @@
       }
     </script>
   {% endif %}
-  {% if not geocode_error and geocode_hits|length > 0 %}
-    <script>
+  <script>
+    {% if not geocode_error and geocode_hits|length > 0 %}
       enableGeocodeResultSelection([propertyCoords[1],propertyCoords[0]], {{geocode_hits|length }});
-    </script>
-  {% else %}
-    <script>
+      {% else %}
+        {% if geocode_error %}
+          geocodeResultIssue([propertyCoords[1],propertyCoords[0]], {{geocode_hits|length }});
+        {% endif %}
       enablePropertySelection();
-    </script>
-  {% endif %}
+    {% endif %}
+  </script>
 {% endblock footer_scripts %}

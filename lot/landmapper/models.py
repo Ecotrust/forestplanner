@@ -1,15 +1,16 @@
+from datetime import datetime
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.db import models
-from madrona.features import register
-from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
+from django.db.models import JSONField, Manager as GeoManager
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.contrib.gis.db.models import MultiPolygonField, PointField
-from django.db.models import Manager as GeoManager
-from madrona.features import register, alternate, edit, get_feature_by_uid
-from django.contrib.postgres.fields import JSONField
-# from madrona.features.forms import SpatialFeatureForm
 from ckeditor.fields import RichTextField
 from ckeditor_uploader.fields import RichTextUploadingField
+from madrona.features.models import PolygonFeature, FeatureCollection, Feature, MultiPolygonFeature
+from madrona.features import register, alternate, edit, get_feature_by_uid
+# from madrona.features.forms import SpatialFeatureForm
 from landmapper.map_layers.utilities import get_bbox_as_string, get_bbox_as_polygon
 
 def sq_meters_to_sq_miles(area_m2):
@@ -17,6 +18,143 @@ def sq_meters_to_sq_miles(area_m2):
 
 def sq_meters_to_acres(area_m2):
     return area_m2/4046.86
+
+class Person(User):
+    class Meta:
+        proxy = True
+
+    def show_survey(self):
+        # Test for initial profile form
+        if not self.profile.profile_questions_status == 'done':
+            return True
+
+        profile_age = datetime.now() - self.date_joined
+        # Test for 2-week follow-up survey
+        two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+        if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+            return True
+
+        return False
+
+    def get_survey(self, request):
+        from .views import userProfileSurvey, userProfileFollowup
+        if not self.profile.profile_questions_status == 'done':
+            if self.profile.profile_questions_status == None:
+                self.profile.profile_questions_status = 'seen'
+                self.profile.save()
+            return userProfileSurvey(request)
+        else:
+            profile_age = datetime.now() - self.date_joined
+            # Test for 2-week follow-up survey
+            two_week_surveys = TwoWeekFollowUpSurvey.objects.filter(user=self).order_by('date_created')
+            if profile_age.days >= 14 and two_week_surveys.filter(survey_complete=True).count() == 0:
+                return userProfileFollowup(request)
+            else:
+                print('TODO: how did get_survey get called if we shouldn\'t show a survey?')
+                return userProfileFollowup(request)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    date_created = models.DateField(auto_now_add=True)
+    date_modified = models.DateField(auto_now=True)
+
+    FORM_STATUS_CHOICES = (
+        (None, 'User has not seen questions'),
+        ('seen', 'User has seen the form'),
+        ('done', 'User has filled out the questions.')
+    )
+
+    profile_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
+    # followup_questions_status = models.CharField(max_length=5, null=True, blank=True, choices=FORM_STATUS_CHOICES, default=None)
+
+    #Q1
+    USER_TYPE_CHOICES = (
+        (None, '----------------'),
+        ('1', 'Private forest owner'),
+        ('2', 'Professional service provider (e.g., forester, conservationist)'),
+        ('3', 'Student or educator'),
+        ('4', 'Just curious'),
+        ('5', 'Other [please specify]')
+    )
+    # strict set of selection, or text (to support 'other' feedback in same field)?
+    type_selection = models.CharField(max_length=2, choices=USER_TYPE_CHOICES, blank=True, null=True, default=None, verbose_name="Which of the following roles best captures your primary use of this website?")
+    type_other = models.CharField(max_length=255, blank=True, null=True, default=None, verbose_name="Other primary use:")
+
+    #Q2
+    Y_N_CHOICES = (
+        (None, '----------------'),
+        (False, 'No'),
+        (True, 'Yes'),
+    )
+    has_plan = models.BooleanField(blank=True, null=True, default=None, choices=Y_N_CHOICES, verbose_name="Do you have a written Forest Management Plan or Stewardship Plan for your property?")
+
+    PLAN_AGE_CHOICES = (
+        (None, '----------------'),
+        ('1', 'I Have No Plan'),
+        ('2', 'Less than 1 year ago'),
+        ('3', '1 to 5 years ago'),
+        ('4', '5 to 10 years ago'),
+        ('5', 'Over 10 years ago'),
+        ('6', 'I am not sure'),
+    )
+    plan_date = models.CharField(max_length=2, blank=True, null=True, choices=PLAN_AGE_CHOICES, default=None, verbose_name="If so, when was your most recent Plan prepared?")
+
+    #Q3
+    PRIORITY_CHOICES = (
+        (None, '----------------'),
+        ('1', 'Not a Priority'),
+        ('2', 'Low Priority'),
+        ('3', 'Medium Priority'),
+        ('4', 'High Priority'),
+        ('5', 'Essential'),
+    )
+    q3_1_health = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining long-term forest health and productivity")
+    q3_2_habitat = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Protecting or improving wildlife habitat")
+    q3_3_beauty = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining natural beauty and aesthetics")
+    q3_4_next_gen = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Preserving the land for the next generation")
+    q3_5_risks = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Reducing fire or pest risks")
+    q3_6_climate_change = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Adapting the land for climate change")
+    q3_7_carbon = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Sequestering carbon")
+    q3_8_invasive_species = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Addressing invasive species")
+    q3_9_timber = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Harvesting and selling timber")
+    q3_10_profit = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Earning a profit from the land")
+    q3_11_cultural_uses = models.CharField(max_length=2, choices=PRIORITY_CHOICES, blank=True, null=True, default=None, verbose_name="Maintaining personal or cultural uses of the land (hunting, gathering, hiking, camping, fishing, etc.)")
+
+class TwoWeekFollowUpSurvey(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    date_created = models.DateField(auto_now_add=True)
+    date_modified = models.DateField(auto_now=True)
+    email_sent = models.BooleanField(default=False)
+    survey_complete = models.BooleanField(default=False)
+
+    # Q4
+    AGREEMENT_CHOICES = (
+        (None, '----------------'),
+        ('1', 'Strongly Disagree'),
+        ('2', 'Disagree'),
+        ('3', 'Neither Agree Nor Disagree'),
+        ('4', 'Agree'),
+        ('5', 'Strongly Agree'),
+    )
+    q4a_1_land_management = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about land I own or manage")
+    q4a_2_issue = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me learn more about an issue")
+    q4a_3_coordinate = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me coordinate with others")
+    q4a_4_decision = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me make a decision")
+    q4a_5_activity = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me implement or maintain a specific activity")
+    q4a_6_information = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app influenced me to pursue additional information or services")
+    q4a_7_plan = models.CharField(max_length=2, choices=AGREEMENT_CHOICES, blank=True, null=True, default=None, verbose_name="The app helped me complete a written Stewardship Plan or Forest Management Plan")
+
+    feedback = models.TextField(blank=True, null=True, default=None, verbose_name="Is there anything else you’d like us to know about your experience using the app?")
+
+@receiver(post_save, sender=User)
+def create_user_profile(sender, instance, created, **kwargs):
+    if Profile.objects.filter(user=instance).count() <= 0:
+        Profile.objects.create(user=instance)
+
+@receiver(post_save, sender=User)
+def save_user_profile(sender, instance, **kwargs):
+    instance.profile.save()
 
 """
     From MVC/MTV Components Doc

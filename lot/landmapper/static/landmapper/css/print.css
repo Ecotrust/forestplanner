@@ -3,6 +3,10 @@
     size: portrait;
   }
 
+  body.d-flex {
+    display:block !important;
+  }
+
   .wrap-print {
     /* display: block; */
     /* margin: 0 auto; */
@@ -23,8 +27,12 @@
     display: block;
     border-bottom: none;
     padding: 0 .25in;
-    page-break-after: always;
     overflow: hidden;
+  }
+  
+  main#main-content section.section-report:not(:last-child) {
+    page-break-after: always;
+    break-after: always;
   }
 
   .scalebar {
@@ -64,4 +72,10 @@
   .section-report:not(#section-property) .map-image-wrap {
     padding: 0;
   }
+
+  .transparent-sticky-footer {
+    display: none;
+  }
+
+
 }

@@ -27,4 +27,8 @@ urlpatterns = [
     path('auth/password/change/', change_password, name='password_reset'),
     path('tou/', terms_of_use, name='tou'),
     path('privacy/', privacy_policy, name='privacy'),
+    path('user_profile/', userProfileSurvey, name='user_profile_survey'),
+    path('user_followup/', userProfileFollowup, name='user_profile_followup'),
+    path('register/', accountsRedirect, name='accounts_redirect'),
+    path('admin_export_property_records/', exportPropertyRecords, name='export_property_records')
 ]

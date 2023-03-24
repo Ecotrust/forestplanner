@@ -1,0 +1,13 @@
+{% load i18n %}{% autoescape off %}
+{% blocktranslate %}Hi {{ username }},{% endblocktranslate %} 
+
+{% blocktranslate %}It has been a few weeks since you registered with {{ protocol }}://{{ domain }}. The next time you log in, you will be presented with a brief survey regarding your experience with the tool so far. We'd love it if you'd spare a few minutes to help us by filling it out.{% endblocktranslate %}
+
+{% blocktranslate %}All you need to do is log back in at {{ protocol }}://{{ domain }}/landmapper/auth/login/ with your username and password and you'll see the survey right away.{% endblocktranslate %}
+
+{% translate "Thank you for your time," %} 
+
+{% blocktranslate %}The {{ site_name }} team{% endblocktranslate %} 
+
+{% endautoescape %}
+

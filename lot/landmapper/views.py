@@ -1,6 +1,7 @@
 # https://geocoder.readthedocs.io/
 import decimal, json, geocoder
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth import authenticate,login as django_login
 from django.contrib.auth.forms import (
     AuthenticationForm, PasswordChangeForm, PasswordResetForm, SetPasswordForm,
@@ -19,8 +20,9 @@ from django.views.decorators.clickjacking import xframe_options_sameorigin
 from django.views.decorators.csrf import csrf_protect
 from django.views.generic.edit import FormView
 from flatblocks.models import FlatBlock
-from landmapper.models import *
 from landmapper import properties, reports
+from landmapper.models import *
+from landmapper.forms import ProfileForm, FollowupForm
 from urllib.parse import quote
 import urllib.request
 from PIL import Image
@@ -184,6 +186,12 @@ def home(request):
     '''
     Land Mapper: Home Page
     '''
+
+    if request.user and request.user.is_authenticated:
+        person = Person.objects.get(pk=request.user.pk)
+        if person.show_survey():
+            return person.get_survey(request)
+
     # Get aside content Flatblock using name of Flatblock
     aside_content = 'aside-home'
     if len(FlatBlock.objects.filter(slug=aside_content)) < 1:
@@ -198,6 +206,61 @@ def home(request):
     }
 
     return render(request, 'landmapper/landing.html', context)
+
+def userProfileSurvey(request):
+    profile = Profile.objects.get(user=request.user)
+    context = {
+        'title': 'User Profile Form',
+        'description': 'Welcome to LandMapper. Please tell us more about yourself:',
+        'action': '/landmapper/user_profile/',
+        'scripts': ['/landmapper/js/profile_survey.js',],
+    }
+    if request.method == 'POST':
+        form = ProfileForm(request.POST, instance=profile)
+        if form.is_valid():
+            profile = form.save()
+            profile.profile_questions_status = 'done'
+            profile.save()
+            return redirect('/')
+        context['form'] = form
+    else:
+        form = ProfileForm(instance=profile)
+        context['form'] = form
+    return render(request, 'surveys/initial_profile.html', context)
+
+def userProfileFollowup(request):
+    instances = TwoWeekFollowUpSurvey.objects.filter(user=request.user, survey_complete=False).order_by('date_created')
+    if instances.count() > 0:
+        instance = instances[0]
+    else:
+        instance = False
+    context = {
+        'title': 'User Follow-Up Form',
+        'description': 'Thank you for your continued use of LandMapper. You\'ve had an account for a couple of weeks now, and we\'re curious to know more about your experience so far.',
+        'action': '/landmapper/user_followup/',
+        'scripts': [],
+    }
+    if request.method == 'POST':
+        # Ensure front-end didn't hack their user value:
+        post = request.POST.copy()
+        post.update({'user': request.user})
+        request.POST = post
+        if instance:
+            form = FollowupForm(request.POST, instance=instance)
+        else:
+            form=FollowupForm(request.POST)
+        if form.is_valid():
+            followup = form.save()
+            followup.survey_complete = True
+            followup.save()
+            return redirect('/')
+    else:
+        if instance:
+            form = FollowupForm(instance=instance)
+        else:
+            form = FollowupForm(initial={"user": request.user})
+    context['form'] = form
+    return render(request, 'surveys/2w_followup_survey.html', context)
 
 def index(request):
     '''  ## LANDING PAGE
@@ -232,31 +295,30 @@ def identify(request):
             q_address = '12345 Loon Lake Rd'
             
 
-        if geocode_hits:
-            if len(geocode_hits) > 0:
+        if geocode_hits and len(geocode_hits) > 0:
                 coords = geocode_hits[0]['coords']
                 geocode_error = False
-            else:
-                coords = [
-                    (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
-                    (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
-                ]
-                geocode_error = True
-            context = {
-                'coords': coords,
-                'geocode_hits': geocode_hits,
-                'geocode_error': geocode_error,
-                'q_address': q_address,
-                'q_address_value': q_address_value,
-                'aside_content': aside_content,
-                'show_panel_buttons': True,
-                'search_performed': True,
-                # """Says where buttons go when you're using the UI mapping tool."""
-                'btn_back_href': '/landmapper/',
-                'btn_next_href': 'property_name',
-                'btn_create_maps_href': '/landmapper/report/',
-                'btn_next_disabled': 'disabled',
-            }
+        else:
+            coords = [
+                (settings.STUDY_REGION['south'] + settings.STUDY_REGION['north'])/2,
+                (settings.STUDY_REGION['east'] + settings.STUDY_REGION['west'])/2
+            ]
+            geocode_error = True
+        context = {
+            'coords': coords,
+            'geocode_hits': geocode_hits,
+            'geocode_error': geocode_error,
+            'q_address': q_address,
+            'q_address_value': q_address_value,
+            'aside_content': aside_content,
+            'show_panel_buttons': True,
+            'search_performed': True,
+            # """Says where buttons go when you're using the UI mapping tool."""
+            'btn_back_href': '/landmapper/',
+            'btn_next_href': 'property_name',
+            'btn_create_maps_href': '/landmapper/report/',
+            'btn_next_disabled': 'disabled',
+        }
     else:
         # User wants to bypass address search
         context = {
@@ -271,7 +333,6 @@ def identify(request):
         }
 
     return render(request, 'landmapper/landing.html', context)
-
 
 def create_property_id(property_name, user_id, taxlot_ids):
 
@@ -349,8 +410,6 @@ def delete_record(request, property_record_id):
         'message': response_message
     })
     
-
-
 def report(request, property_id):
     '''
     Land Mapper: Report Pages
@@ -420,7 +479,6 @@ def get_property_map_image(request, property_id, map_type):
 
     return response
 
-
 def get_scalebar_as_image(request, property_id, scale="fit"):
 
     property = properties.get_property_by_id(property_id, request.user)
@@ -483,7 +541,6 @@ def get_property_map_pdf(request, property_id, map_type):
 
     return response
 
-
 ## BELONGS IN VIEWS.py
 def export_layer(request):
     '''
@@ -499,9 +556,11 @@ def export_layer(request):
     '''
     return render(request, 'landmapper/base.html', {})
 
-
-
 ### REGISTRATION/ACCOUNT MANAGEMENT ###
+def accountsRedirect(request):
+    response = redirect('/landmapper/auth/profile/')
+    return response
+
 # account login page
 def login(request):
     context = {}
@@ -589,3 +648,47 @@ def terms_of_use(request):
 def privacy_policy(request):
     context = {}
     return render(request, 'landmapper/privacy.html', context)
+
+@staff_member_required
+def exportPropertyRecords(request):
+    import io
+    import os
+    import subprocess
+    from tempfile import TemporaryDirectory
+    import zipfile
+
+    sep = os.sep
+    today=datetime.now().strftime("%Y-%m-%d")
+    filename='landmapper_propertyrecords'
+    database_name=settings.DATABASES['default']['NAME']
+    db_user = settings.DATABASES['default']['USER']
+    db_password = settings.DATABASES['default']['PASSWORD']
+    db_pw_command = " -P {}".format(db_password) if db_password != '' else ''
+
+    # Create temporary dir
+    with TemporaryDirectory() as shpdir:
+        # Export shapefile to temporary named dir
+        EXPORT_SHAPEFILE_COMMAND = "pgsql2shp -u {db_user}{db_pw_command} -f {shpdir}{sep}{today}_{filename} {database_name} \"SELECT u.first_name, u.last_name, u.email, u.is_staff, u.is_active, u.last_login, u.date_joined, p.id, p.user_id, p.name, p.date_created, p.date_modified, p.record_taxlots, p.geometry_final FROM landmapper_propertyrecord as p left join auth_user as u on u.id = p.user_id;\"".format(
+            db_user=db_user,
+            db_pw_command=db_pw_command,
+            shpdir=shpdir,
+            sep=sep,
+            today=today,
+            filename=filename,
+            database_name=database_name
+        )
+        subprocess.run(EXPORT_SHAPEFILE_COMMAND, shell=True)
+
+        # Zip shapefile to bytestream
+        os.chdir(shpdir)
+        files = os.listdir(shpdir)
+        zip = io.BytesIO()
+        with zipfile.ZipFile(zip, mode="w", compression=zipfile.ZIP_DEFLATED) as zf:
+            for file in files:
+                zf.write(file, compress_type=zipfile.ZIP_DEFLATED)
+        zip.seek(0)
+
+        # Return zipped shapefile
+        response = HttpResponse(content=zip.read(), content_type='application/zip')
+        response['Content-Disposition'] = 'attachment; filename={today}_{filename}.zip'.format(today=today, filename=filename)
+        return response
